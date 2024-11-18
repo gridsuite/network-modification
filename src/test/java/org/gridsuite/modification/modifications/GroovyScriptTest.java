@@ -14,8 +14,8 @@ import org.gridsuite.modification.utils.NetworkCreation;
 import java.util.UUID;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.GROOVY_SCRIPT_EMPTY;
-import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>

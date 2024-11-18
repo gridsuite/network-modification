@@ -3,9 +3,10 @@ package org.gridsuite.modification.utils;
 import com.powsybl.commons.report.*;
 import com.powsybl.iidm.network.Identifiable;
 import org.gridsuite.modification.dto.FreePropertyInfos;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+
+import javax.annotation.Nullable;
 
 public final class PropertiesUtils {
     public static final String PROPERTIES = "Properties";

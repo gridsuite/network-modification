@@ -20,7 +20,6 @@ import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.BusbarSectionFinderTraverser;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
@@ -32,6 +31,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
 

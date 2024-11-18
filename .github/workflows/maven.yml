@@ -40,4 +40,4 @@ jobs:
         uses: gridsuite/broadcast-event@main
         with:
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
-          event-type: filter_updated
+          event-type: network-modification-updated
