@@ -1,0 +1,40 @@
+{
+  "applicationStatus": "ALL_OK",
+  "lastGroupApplicationStatus": "ALL_OK",
+  "networkImpacts": [
+    {
+      "type": "SIMPLE",
+      "elementType": "LINE",
+      "simpleImpactType": "CREATION",
+      "elementId": "lineId",
+      "substationIds": [
+        "s1",
+        "s2"
+      ]
+    },
+    {
+      "type": "SIMPLE",
+      "elementType": "LOAD",
+      "simpleImpactType": "MODIFICATION",
+      "elementId": "loadId",
+      "substationIds": [
+        "s3"
+      ]
+    },
+    {
+      "type": "SIMPLE",
+      "elementType": "GENERATOR",
+      "simpleImpactType": "DELETION",
+      "elementId": "generatorId",
+      "substationIds": [
+        "s4"
+      ]
+    }
+  ],
+  "impactedSubstationsIds": [
+    "s1",
+    "s2",
+    "s3",
+    "s4"
+  ]
+}
