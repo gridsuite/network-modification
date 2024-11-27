@@ -52,7 +52,9 @@ public enum ModificationType {
     TABULAR_CREATION(PreloadingStrategy.COLLECTION),
     BY_FORMULA_MODIFICATION(PreloadingStrategy.COLLECTION),
     MODIFICATION_BY_ASSIGNMENT(PreloadingStrategy.COLLECTION),
-    COMPOSITE_MODIFICATION(PreloadingStrategy.COLLECTION);
+    COMPOSITE_MODIFICATION(PreloadingStrategy.COLLECTION),
+    LCC_CONVERTER_STATION_CREATION(PreloadingStrategy.NONE),
+    LCC_CREATION(PreloadingStrategy.NONE);
 
     private final PreloadingStrategy strategy;
 
