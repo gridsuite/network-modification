@@ -8,6 +8,7 @@ package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
@@ -22,13 +23,12 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.VOLTAGE_LEVEL_NOT_FOUND;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
  */
-class LccCreationTest extends AbstractNetworkModificationTest {
+class LccCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
     private static final String PROPERTY_NAME = "property-name";
     private static final String PROPERTY_VALUE = "property-value";
 
@@ -48,34 +48,56 @@ class LccCreationTest extends AbstractNetworkModificationTest {
                 .maxP(56.)
                 .convertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
                 .activePowerSetpoint(5.)
-                .converterStation1(buildConverterStationWithMcsOnSide("lccStation1Id", "lccStation1Name"))
-                .converterStation2(buildConverterStationWithMcsOnSide("lccStation2Id", "lccStation2Name"))
+                .converterStation1(buildConverterStation1WithMcsOnSide())
+                .converterStation2(buildConverterStation2WithMcsOnSide())
                 .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
                 .build();
     }
 
     @Override
     protected void assertAfterNetworkModificationApplication() {
-
+        assertNotNull(getNetwork().getHvdcLine("lcc1"));
+        assertEquals(1, getNetwork().getVoltageLevel("v1").getLccConverterStationStream()
+                .filter(converterStation -> converterStation.getId().equals("lcc1Station1Id")).count());
+        assertEquals(1, getNetwork().getVoltageLevel("v2").getLccConverterStationStream()
+                .filter(converterStation -> converterStation.getId().equals("lcc2Station2Id")).count());
+        HvdcLine hvdcLine = getNetwork().getHvdcLine("lcc1");
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, hvdcLine.getConvertersMode());
+        assertEquals(39, hvdcLine.getNominalV(), 0);
+        assertEquals(4, hvdcLine.getR(), 0);
+        assertEquals(5, hvdcLine.getActivePowerSetpoint(), 0);
+        assertEquals(56, hvdcLine.getMaxP(), 0);
+        assertEquals(PROPERTY_VALUE, hvdcLine.getProperty(PROPERTY_NAME));
+        LccConverterStation lccConverterStation1 = (LccConverterStation) hvdcLine.getConverterStation1();
+        assertNotNull(lccConverterStation1);
+        assertEquals(40, lccConverterStation1.getLossFactor(), 0);
+        assertEquals(1, lccConverterStation1.getPowerFactor(), 0);
+        assertEquals("v1", lccConverterStation1.getTerminal().getVoltageLevel().getId());
+        LccConverterStation lccConverterStation2 = (LccConverterStation) hvdcLine.getConverterStation2();
+        assertNotNull(lccConverterStation2);
+        assertEquals(40, lccConverterStation2.getLossFactor(), 0);
+        assertEquals(1, lccConverterStation2.getPowerFactor(), 0);
+        assertEquals("v2", lccConverterStation2.getTerminal().getVoltageLevel().getId());
     }
 
-    private static LccConverterStationCreationInfos buildConverterStationWithMcsOnSide(String equipmentId, String equipmentName) {
+    private static LccConverterStationCreationInfos buildConverterStation1WithMcsOnSide() {
         var filter1 = LccConverterStationCreationInfos.ShuntCompensatorInfos.builder()
-                .shuntCompensatorId("Filter1")
-                .shuntCompensatorName("filter1")
+                .shuntCompensatorId("ShuntStation1Id1")
+                .shuntCompensatorName("ShuntStation1Name1")
                 .maxQAtNominalV(0.1)
                 .connectedToHvdc(true)
                 .build();
+
         var filter2 = LccConverterStationCreationInfos.ShuntCompensatorInfos.builder()
-                .shuntCompensatorId("Filter2")
-                .shuntCompensatorName("filter2")
+                .shuntCompensatorId("ShuntStation1Id2")
+                .shuntCompensatorName("ShuntStation1Name2")
                 .maxQAtNominalV(0.1)
-                .connectedToHvdc(true)
+                .connectedToHvdc(false)
                 .build();
 
         return LccConverterStationCreationInfos.builder()
-                .equipmentId(equipmentId)
-                .equipmentName(equipmentName)
+                .equipmentId("lcc1Station1Id")
+                .equipmentName("lcc1Station1Name")
                 .lossFactor(40F)
                 .powerFactor(1F)
                 .voltageLevelId("v1")
@@ -83,6 +105,20 @@ class LccCreationTest extends AbstractNetworkModificationTest {
                 .connectionName("top")
                 .connectionDirection(ConnectablePosition.Direction.TOP)
                 .mcsOnSide(List.of(filter1, filter2))
+                .build();
+    }
+
+    private static LccConverterStationCreationInfos buildConverterStation2WithMcsOnSide() {
+        return LccConverterStationCreationInfos.builder()
+                .equipmentId("lcc2Station2Id")
+                .equipmentName("lcc2Station2Name")
+                .lossFactor(40F)
+                .powerFactor(1F)
+                .voltageLevelId("v2")
+                .busOrBusbarSectionId("1.1")
+                .connectionName("top")
+                .connectionDirection(ConnectablePosition.Direction.TOP)
+                .mcsOnSide(List.of())
                 .build();
     }
 
@@ -98,7 +134,7 @@ class LccCreationTest extends AbstractNetworkModificationTest {
         LccCreationInfos lccCreationInfos = (LccCreationInfos) buildModification();
         // not found voltage level
         lccCreationInfos.setEquipmentId("lccId");
-        LccConverterStationCreationInfos converterStationCreationInfos = buildConverterStationWithMcsOnSide("lccStation1Id", "lccStation1Name");
+        LccConverterStationCreationInfos converterStationCreationInfos = buildConverterStation1WithMcsOnSide();
         converterStationCreationInfos.setVoltageLevelId("notFoundVoltageLevelId");
         lccCreationInfos.setConverterStation2(converterStationCreationInfos);
         LccCreation lccCreation = (LccCreation) lccCreationInfos.toModification();

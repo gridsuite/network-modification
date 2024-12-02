@@ -35,6 +35,8 @@ public class LccCreation extends AbstractModification {
 
     public static final String LCC_SETPOINTS = "LccSetPoints";
 
+    public static final String EQUIPMENT_CONNECTED_TO_HVDC = "equipmentConnectedToHvdc";
+
     private final LccCreationInfos modificationInfos;
 
     public LccCreation(LccCreationInfos modificationInfos) {
@@ -53,6 +55,9 @@ public class LccCreation extends AbstractModification {
     private void checkLccConverterStation(Network network, LccConverterStationCreationInfos converterStation) {
         if (converterStation == null) {
             throw new NetworkModificationException(CREATE_LCC_ERROR, modificationInfos.getEquipmentId() + "Missing required converter station");
+        }
+        if (converterStation.getPowerFactor() > 1) {
+            throw new NetworkModificationException(CREATE_LCC_ERROR, "Loss factor should be less or equal to 1");
         }
         // check connectivity
         ModificationUtils.getInstance().controlConnectivity(network,
@@ -122,21 +127,21 @@ public class LccCreation extends AbstractModification {
         VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, lccConverterStationCreationInfos.getVoltageLevelId());
         return voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER ?
                 createConverterStationInNodeBreaker(network, voltageLevel, lccConverterStationCreationInfos, converterStationReporter) :
-                createConverterStationInBusBreaker(voltageLevel, lccConverterStationCreationInfos, converterStationReporter);
+                createConverterStationInBusBreaker(network, voltageLevel, lccConverterStationCreationInfos, converterStationReporter);
     }
 
-    private static void createShuntCompensatorInNodeBreaker(VoltageLevel voltageLevel, LccConverterStationCreationInfos.ShuntCompensatorInfos shuntCompensatorInfos) {
-        ShuntCompensatorAdder shuntAdder = voltageLevel.newShuntCompensator()
+    private ShuntCompensatorAdder createShuntCompensatorInNodeBreaker(VoltageLevel voltageLevel, LccConverterStationCreationInfos.ShuntCompensatorInfos shuntCompensatorInfos) {
+        return voltageLevel.newShuntCompensator()
                 .setId(shuntCompensatorInfos.getShuntCompensatorId())
                 .setName(shuntCompensatorInfos.getShuntCompensatorName())
-                .setSectionCount(1);
-        shuntAdder.newLinearModel()
+                .setSectionCount(1)
+                .newLinearModel()
                 .setBPerSection((shuntCompensatorInfos.getMaxQAtNominalV()) / Math.pow(voltageLevel.getNominalV(), 2))
                 .setMaximumSectionCount(1)
                 .add();
     }
 
-    private static void createShuntCompensatorInBusBreaker(VoltageLevel voltageLevel, Bus bus, LccConverterStationCreationInfos.ShuntCompensatorInfos shuntCompensatorInfos) {
+    private void createShuntCompensatorInBusBreaker(VoltageLevel voltageLevel, Bus bus, LccConverterStationCreationInfos.ShuntCompensatorInfos shuntCompensatorInfos) {
         voltageLevel.newShuntCompensator()
                 .setId(shuntCompensatorInfos.getShuntCompensatorId())
                 .setName(shuntCompensatorInfos.getShuntCompensatorName())
@@ -148,6 +153,24 @@ public class LccCreation extends AbstractModification {
                 .setMaximumSectionCount(1)
                 .add()
                 .add();
+    }
+
+    public void shuntCompensatorConnectedToHvdc(Boolean connectedToHvdc, Injection<?> injection, ReportNode subReportNode) {
+        if (Boolean.TRUE.equals(connectedToHvdc)) {
+            injection.getTerminal().connect();
+            subReportNode.newReportNode()
+                    .withMessageTemplate(EQUIPMENT_CONNECTED_TO_HVDC, "Equipment with id=${id} is Connected")
+                    .withUntypedValue("id", modificationInfos.getEquipmentId())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
+        } else {
+            injection.getTerminal().disconnect();
+            subReportNode.newReportNode()
+                    .withMessageTemplate(EQUIPMENT_CONNECTED_TO_HVDC, "Equipment with id=${id} is disConnected")
+                    .withUntypedValue("id", modificationInfos.getEquipmentId())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
+        }
     }
 
     private LccConverterStation createConverterStationInNodeBreaker(Network network,
@@ -163,16 +186,19 @@ public class LccCreation extends AbstractModification {
         if (lccConverterStationCreationInfos.getPowerFactor() != null) {
             converterStationAdder.setPowerFactor(lccConverterStationCreationInfos.getPowerFactor());
         }
-        lccConverterStationCreationInfos.getMcsOnSide()
-                .forEach(mcsOnSide -> createShuntCompensatorInNodeBreaker(voltageLevel, mcsOnSide));
-
         createInjectionInNodeBreaker(voltageLevel, lccConverterStationCreationInfos, network, converterStationAdder, subReportNode);
+        lccConverterStationCreationInfos.getMcsOnSide()
+                .forEach(mcsOnSide -> {
+                    ShuntCompensatorAdder shuntCompensatorAdder = createShuntCompensatorInNodeBreaker(voltageLevel, mcsOnSide);
+                    createInjectionInNodeBreaker(voltageLevel, lccConverterStationCreationInfos, network, shuntCompensatorAdder, subReportNode);
+                    shuntCompensatorConnectedToHvdc(mcsOnSide.getConnectedToHvdc(), network.getShuntCompensator(mcsOnSide.getShuntCompensatorId()), subReportNode);
+                });
         addExtensionsAndReports(lccConverterStationCreationInfos, subReportNode);
         return ModificationUtils.getInstance().getLccConverterStation(network,
                 lccConverterStationCreationInfos.getEquipmentId());
     }
 
-    private LccConverterStation createConverterStationInBusBreaker(VoltageLevel voltageLevel,
+    private LccConverterStation createConverterStationInBusBreaker(Network network, VoltageLevel voltageLevel,
                                                                    LccConverterStationCreationInfos lccConverterStationCreationInfos,
                                                                    ReportNode subReportNode) {
         Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, lccConverterStationCreationInfos.getBusOrBusbarSectionId());
@@ -184,7 +210,10 @@ public class LccCreation extends AbstractModification {
                 .setPowerFactor(lccConverterStationCreationInfos.getPowerFactor())
                 .add();
         lccConverterStationCreationInfos.getMcsOnSide()
-                .forEach(mcsOnSide -> createShuntCompensatorInBusBreaker(voltageLevel, bus, mcsOnSide));
+                .forEach(mcsOnSide -> {
+                    createShuntCompensatorInBusBreaker(voltageLevel, bus, mcsOnSide);
+                    shuntCompensatorConnectedToHvdc(mcsOnSide.getConnectedToHvdc(), network.getShuntCompensator(mcsOnSide.getShuntCompensatorId()), subReportNode);
+                });
         addExtensionsAndReports(lccConverterStationCreationInfos, subReportNode);
 
         return lccConverterStation;
