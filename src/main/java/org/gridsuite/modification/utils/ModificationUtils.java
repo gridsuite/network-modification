@@ -1028,7 +1028,7 @@ public final class ModificationUtils {
     }
 
     public void modifyReactiveCapabilityCurvePoints(Collection<ReactiveCapabilityCurve.Point> points,
-                                                    List<ReactiveCapabilityCurveModificationInfos> modificationPoints,
+                                                    List<ReactiveCapabilityCurveCreationInfos> modificationPoints,
                                                     ReactiveCapabilityCurveAdder adder,
                                                     ReportNode subReportNode, ReportNode subReportNodeLimits) {
         List<ReportNode> reports = new ArrayList<>();
@@ -1037,7 +1037,7 @@ public final class ModificationUtils {
                 .forEach(i -> {
                     String fieldSuffix;
                     ReactiveCapabilityCurve.Point oldPoint = i < equipementIdPoints.size() - 1 ? equipementIdPoints.get(i) : null;
-                    ReactiveCapabilityCurveModificationInfos newPoint = modificationPoints.get(i);
+                    ReactiveCapabilityCurveCreationInfos newPoint = modificationPoints.get(i);
                     if (i == 0) {
                         fieldSuffix = "min";
                     } else if (i == (modificationPoints.size() - 1)) {
@@ -1065,7 +1065,7 @@ public final class ModificationUtils {
     }
 
     public void createReactiveCapabilityCurvePoint(ReactiveCapabilityCurveAdder adder,
-                                                    ReactiveCapabilityCurveModificationInfos newPoint,
+                                                    ReactiveCapabilityCurveCreationInfos newPoint,
                                                     ReactiveCapabilityCurve.Point oldPoint,
                                                     List<ReportNode> reports,
                                                     String fieldSuffix) {
@@ -1240,7 +1240,7 @@ public final class ModificationUtils {
     }
 
     public void checkMaxQGreaterThanMinQ(
-            List<ReactiveCapabilityCurveModificationInfos> modificationPoints,
+            List<ReactiveCapabilityCurveCreationInfos> modificationPoints,
             NetworkModificationException.Type exceptionType, String errorMessage
     ) {
         for (var point : modificationPoints) {
@@ -1249,14 +1249,10 @@ public final class ModificationUtils {
 
             if (point.getMaxQ() != null) {
                 maxQ = point.getMaxQ();
-            } else if (point.getOldMaxQ() != null) {
-                maxQ = point.getOldMaxQ();
             }
 
             if (point.getMinQ() != null) {
                 minQ = point.getMinQ();
-            } else if (point.getOldMinQ() != null) {
-                minQ = point.getOldMinQ();
             }
 
             if (maxQ < minQ) {
@@ -1279,7 +1275,7 @@ public final class ModificationUtils {
     }
 
     public void checkReactiveLimit(ReactiveLimitsHolder reactiveLimitsHolder, AttributeModification<Double> minimumReactivePower, AttributeModification<Double> maximumReactivePower,
-                                   List<ReactiveCapabilityCurveModificationInfos> modificationPoints, NetworkModificationException.Type exeptionType, String errorMessage) {
+                                   List<ReactiveCapabilityCurveCreationInfos> modificationPoints, NetworkModificationException.Type exeptionType, String errorMessage) {
         if (reactiveLimitsHolder.getReactiveLimits().getKind() == ReactiveLimitsKind.MIN_MAX
                 && (minimumReactivePower != null || maximumReactivePower != null)) {
             MinMaxReactiveLimits minMaxReactiveLimits = reactiveLimitsHolder.getReactiveLimits(MinMaxReactiveLimits.class);
