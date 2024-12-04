@@ -138,7 +138,8 @@ class LccCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         converterStationCreationInfos.setVoltageLevelId("notFoundVoltageLevelId");
         lccCreationInfos.setConverterStation2(converterStationCreationInfos);
         LccCreation lccCreation = (LccCreation) lccCreationInfos.toModification();
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lccCreation.check(getNetwork()));
+        Network network = getNetwork();
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lccCreation.check(network));
         assertEquals(new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, "notFoundVoltageLevelId").getMessage(), exception.getMessage());
     }
 
