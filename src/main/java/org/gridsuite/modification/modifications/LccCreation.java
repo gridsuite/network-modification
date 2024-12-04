@@ -132,8 +132,8 @@ public class LccCreation extends AbstractModification {
 
     private ShuntCompensatorAdder createShuntCompensatorInNodeBreaker(VoltageLevel voltageLevel, LccConverterStationCreationInfos.ShuntCompensatorInfos shuntCompensatorInfos) {
         return voltageLevel.newShuntCompensator()
-                .setId(shuntCompensatorInfos.getShuntCompensatorId())
-                .setName(shuntCompensatorInfos.getShuntCompensatorName())
+                .setId(shuntCompensatorInfos.getId())
+                .setName(shuntCompensatorInfos.getName())
                 .setSectionCount(1)
                 .newLinearModel()
                 .setBPerSection((shuntCompensatorInfos.getMaxQAtNominalV()) / Math.pow(voltageLevel.getNominalV(), 2))
@@ -143,8 +143,8 @@ public class LccCreation extends AbstractModification {
 
     private void createShuntCompensatorInBusBreaker(VoltageLevel voltageLevel, Bus bus, LccConverterStationCreationInfos.ShuntCompensatorInfos shuntCompensatorInfos) {
         voltageLevel.newShuntCompensator()
-                .setId(shuntCompensatorInfos.getShuntCompensatorId())
-                .setName(shuntCompensatorInfos.getShuntCompensatorName())
+                .setId(shuntCompensatorInfos.getId())
+                .setName(shuntCompensatorInfos.getName())
                 .setSectionCount(1)
                 .setBus(bus.getId())
                 .setConnectableBus(bus.getId())
@@ -187,11 +187,11 @@ public class LccCreation extends AbstractModification {
             converterStationAdder.setPowerFactor(lccConverterStationCreationInfos.getPowerFactor());
         }
         createInjectionInNodeBreaker(voltageLevel, lccConverterStationCreationInfos, network, converterStationAdder, subReportNode);
-        lccConverterStationCreationInfos.getMcsOnSide()
-                .forEach(mcsOnSide -> {
-                    ShuntCompensatorAdder shuntCompensatorAdder = createShuntCompensatorInNodeBreaker(voltageLevel, mcsOnSide);
+        lccConverterStationCreationInfos.getShuntCompensatorsOnSide()
+                .forEach(shuntCompensatorOnSide -> {
+                    ShuntCompensatorAdder shuntCompensatorAdder = createShuntCompensatorInNodeBreaker(voltageLevel, shuntCompensatorOnSide);
                     createInjectionInNodeBreaker(voltageLevel, lccConverterStationCreationInfos, network, shuntCompensatorAdder, subReportNode);
-                    shuntCompensatorConnectedToHvdc(mcsOnSide.getConnectedToHvdc(), network.getShuntCompensator(mcsOnSide.getShuntCompensatorId()), subReportNode);
+                    shuntCompensatorConnectedToHvdc(shuntCompensatorOnSide.getConnectedToHvdc(), network.getShuntCompensator(shuntCompensatorOnSide.getId()), subReportNode);
                 });
         addExtensionsAndReports(lccConverterStationCreationInfos, subReportNode);
         return ModificationUtils.getInstance().getLccConverterStation(network,
@@ -209,10 +209,10 @@ public class LccCreation extends AbstractModification {
                 .setLossFactor(lccConverterStationCreationInfos.getLossFactor())
                 .setPowerFactor(lccConverterStationCreationInfos.getPowerFactor())
                 .add();
-        lccConverterStationCreationInfos.getMcsOnSide()
-                .forEach(mcsOnSide -> {
-                    createShuntCompensatorInBusBreaker(voltageLevel, bus, mcsOnSide);
-                    shuntCompensatorConnectedToHvdc(mcsOnSide.getConnectedToHvdc(), network.getShuntCompensator(mcsOnSide.getShuntCompensatorId()), subReportNode);
+        lccConverterStationCreationInfos.getShuntCompensatorsOnSide()
+                .forEach(shuntCompensatorOnSide -> {
+                    createShuntCompensatorInBusBreaker(voltageLevel, bus, shuntCompensatorOnSide);
+                    shuntCompensatorConnectedToHvdc(shuntCompensatorOnSide.getConnectedToHvdc(), network.getShuntCompensator(shuntCompensatorOnSide.getId()), subReportNode);
                 });
         addExtensionsAndReports(lccConverterStationCreationInfos, subReportNode);
 
@@ -228,12 +228,12 @@ public class LccCreation extends AbstractModification {
                 "converterStationCharacteristics",
                 CHARACTERISTICS);
 
-        List<ReportNode> filters = lccConverterStationCreationInfos.getMcsOnSide().stream()
-                .flatMap(mcsOnSide -> Stream.of(
-                        ModificationUtils.getInstance().buildCreationReport(mcsOnSide.getShuntCompensatorId(), "Shunt Compensator ID"),
-                        ModificationUtils.getInstance().buildCreationReport(mcsOnSide.getShuntCompensatorName(), "Shunt Compensator Name"),
-                        ModificationUtils.getInstance().buildCreationReport(mcsOnSide.getMaxQAtNominalV(), "Q max at nominal voltage"),
-                        ModificationUtils.getInstance().buildCreationReport(mcsOnSide.getConnectedToHvdc(), "Connected To Hvdc")
+        List<ReportNode> filters = lccConverterStationCreationInfos.getShuntCompensatorsOnSide().stream()
+                .flatMap(shuntCompensatorOnSide -> Stream.of(
+                        ModificationUtils.getInstance().buildCreationReport(shuntCompensatorOnSide.getId(), "Shunt Compensator ID"),
+                        ModificationUtils.getInstance().buildCreationReport(shuntCompensatorOnSide.getName(), "Shunt Compensator Name"),
+                        ModificationUtils.getInstance().buildCreationReport(shuntCompensatorOnSide.getMaxQAtNominalV(), "Q max at nominal voltage"),
+                        ModificationUtils.getInstance().buildCreationReport(shuntCompensatorOnSide.getConnectedToHvdc(), "Connected To Hvdc")
                 ))
                 .toList();
         ModificationUtils.getInstance().reportModifications(subReporter, filters, "converterStationFilters", FILTERS);
