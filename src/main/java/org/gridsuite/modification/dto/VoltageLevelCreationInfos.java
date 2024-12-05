@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VoltageLevelCreation;
@@ -64,6 +63,9 @@ public class VoltageLevelCreationInfos extends EquipmentCreationInfos {
 
     @Schema(description = "coupling devices infos")
     private List<CouplingDeviceInfos> couplingDevices;
+
+    @Schema(description = "substation Creation infos")
+    private SubstationCreationInfos substationCreation;
 
     @Override
     public AbstractModification toModification() {
