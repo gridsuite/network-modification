@@ -189,7 +189,6 @@ public class LccCreation extends AbstractModification {
         }
         createInjectionInNodeBreaker(voltageLevel, lccConverterStationCreationInfos, network, converterStationAdder, subReportNode);
         Optional.ofNullable(lccConverterStationCreationInfos.getShuntCompensatorsOnSide())
-                .filter(shuntCompensators -> !shuntCompensators.isEmpty())
                 .ifPresent(shuntCompensators ->
                         shuntCompensators.forEach(shuntCompensatorOnSide -> {
                             ShuntCompensatorAdder shuntCompensatorAdder = createShuntCompensatorInNodeBreaker(voltageLevel, shuntCompensatorOnSide);
@@ -216,7 +215,6 @@ public class LccCreation extends AbstractModification {
                 .add();
 
         Optional.ofNullable(lccConverterStationCreationInfos.getShuntCompensatorsOnSide())
-                .filter(shuntCompensators -> !shuntCompensators.isEmpty())
                 .ifPresent(shuntCompensators -> shuntCompensators.forEach(shuntCompensatorOnSide -> {
                     createShuntCompensatorInBusBreaker(voltageLevel, bus, shuntCompensatorOnSide);
                     shuntCompensatorConnectedToHvdc(
