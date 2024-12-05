@@ -9,6 +9,8 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
+import com.powsybl.iidm.modification.topology.CreateFeederBay;
+import com.powsybl.iidm.modification.topology.CreateFeederBayBuilder;
 import com.powsybl.iidm.network.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LccConverterStationCreationInfos;
@@ -174,6 +176,25 @@ public class LccCreation extends AbstractModification {
         }
     }
 
+    private void createShuntCompensatorOnSideInNodeBreaker(VoltageLevel voltageLevel, Network network,
+                                                           LccConverterStationCreationInfos lccConverterStationCreationInfos,
+                                                           InjectionAdder<?, ?> injectionAdder,
+                                                           LccConverterStationCreationInfos.ShuntCompensatorInfos shuntCompensatorOnSide,
+                                                           ReportNode subReportNode) {
+        int position = ModificationUtils.getInstance().getPosition(lccConverterStationCreationInfos.getConnectionPosition(),
+                lccConverterStationCreationInfos.getBusOrBusbarSectionId(), network, voltageLevel);
+        CreateFeederBay algo = new CreateFeederBayBuilder()
+                .withBusOrBusbarSectionId(lccConverterStationCreationInfos.getBusOrBusbarSectionId())
+                .withInjectionDirection(lccConverterStationCreationInfos.getConnectionDirection())
+                .withInjectionFeederName(shuntCompensatorOnSide.getName() != null
+                        ? shuntCompensatorOnSide.getName()
+                        : shuntCompensatorOnSide.getId())
+                .withInjectionPositionOrder(position)
+                .withInjectionAdder(injectionAdder)
+                .build();
+        algo.apply(network, true, subReportNode);
+    }
+
     private LccConverterStation createConverterStationInNodeBreaker(Network network,
                                                                     VoltageLevel voltageLevel,
                                                                     LccConverterStationCreationInfos lccConverterStationCreationInfos,
@@ -192,8 +213,8 @@ public class LccCreation extends AbstractModification {
                 .ifPresent(shuntCompensators ->
                         shuntCompensators.forEach(shuntCompensatorOnSide -> {
                             ShuntCompensatorAdder shuntCompensatorAdder = createShuntCompensatorInNodeBreaker(voltageLevel, shuntCompensatorOnSide);
-                            createInjectionInNodeBreaker(voltageLevel, lccConverterStationCreationInfos,
-                                    network, shuntCompensatorAdder, subReportNode);
+                            createShuntCompensatorOnSideInNodeBreaker(voltageLevel, network, lccConverterStationCreationInfos,
+                                    shuntCompensatorAdder, shuntCompensatorOnSide, subReportNode);
                             shuntCompensatorConnectedToHvdc(shuntCompensatorOnSide.getConnectedToHvdc(),
                                     network.getShuntCompensator(shuntCompensatorOnSide.getId()), subReportNode);
                         }));
