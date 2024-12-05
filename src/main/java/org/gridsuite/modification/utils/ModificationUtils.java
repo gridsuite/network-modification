@@ -15,13 +15,13 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.network.store.iidm.impl.MinMaxReactiveLimitsImpl;
-
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.BusbarSectionFinderTraverser;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -31,8 +31,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
-import javax.annotation.Nullable;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
 
@@ -326,6 +324,31 @@ public final class ModificationUtils {
         return true;
     }
 
+    public void createSubstation(SubstationCreationInfos substationCreationInfos,
+                                   ReportNode subReportNode, Network network) {
+        network.newSubstation()
+                .setId(substationCreationInfos.getEquipmentId())
+                .setName(substationCreationInfos.getEquipmentName())
+                .setCountry(substationCreationInfos.getCountry())
+                .add();
+
+        subReportNode.newReportNode()
+                .withMessageTemplate("substationCreated", "New substation with id=${id} created")
+                .withUntypedValue("id", substationCreationInfos.getEquipmentId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+
+        // name and country
+        if (substationCreationInfos.getEquipmentName() != null) {
+            ModificationUtils.getInstance()
+                    .reportElementaryCreation(subReportNode, substationCreationInfos.getEquipmentName(), "Name");
+        }
+        if (substationCreationInfos.getCountry() != null) {
+            ModificationUtils.getInstance()
+                    .reportElementaryCreation(subReportNode, substationCreationInfos.getCountry(), "Country");
+        }
+    }
+
     public void createVoltageLevel(VoltageLevelCreationInfos voltageLevelCreationInfos,
                                    ReportNode subReportNode, Network network) {
         String substationId = voltageLevelCreationInfos.getSubstationId();
@@ -333,7 +356,12 @@ public final class ModificationUtils {
         if (substation == null) {
             throw new NetworkModificationException(SUBSTATION_NOT_FOUND, substationId);
         }
-
+        SubstationCreationInfos substationCreation = voltageLevelCreationInfos.getSubstationCreation();
+        if (substationCreation != null) {
+            createSubstation(substationCreation, subReportNode, network);
+            substationId = substationCreation.getEquipmentId();
+        }
+        substation = network.getSubstation(substationId);
         VoltageLevel voltageLevel = substation.newVoltageLevel()
             .setId(voltageLevelCreationInfos.getEquipmentId())
             .setName(voltageLevelCreationInfos.getEquipmentName())
