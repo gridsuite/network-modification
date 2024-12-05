@@ -39,6 +39,7 @@ public class LccCreation extends AbstractModification {
     public static final String LCC_SETPOINTS = "LccSetPoints";
 
     public static final String EQUIPMENT_CONNECTED_TO_HVDC = "equipmentConnectedToHvdc";
+    public static final String EQUIPMENT_NOT_CONNECTED_TO_HVDC = "equipmentNotConnectedToHvdc";
 
     private final LccCreationInfos modificationInfos;
 
@@ -71,10 +72,8 @@ public class LccCreation extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        LccConverterStation converterStation1 = createConverterStation(network, modificationInfos.getConverterStation1(),
-                subReportNode, "Lcc Converter station 1");
-        LccConverterStation converterStation2 = createConverterStation(network, modificationInfos.getConverterStation2(),
-                subReportNode, "Lcc Converter station 2");
+        LccConverterStation converterStation1 = createConverterStation(network, modificationInfos.getConverterStation1(), subReportNode);
+        LccConverterStation converterStation2 = createConverterStation(network, modificationInfos.getConverterStation2(), subReportNode);
 
         HvdcLine hvdcLine = network.newHvdcLine()
                 .setId(modificationInfos.getEquipmentId())
@@ -88,17 +87,14 @@ public class LccCreation extends AbstractModification {
                 .setConverterStationId2(converterStation2 != null ? converterStation2.getId() : null)
                 .add();
 
-        reportHvdcLineInfos(subReportNode);
         subReportNode.newReportNode()
                 .withMessageTemplate("lccCreated", "New lcc with id=${id} created")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
-        if (modificationInfos.getEquipmentName() != null) {
-            ModificationUtils.getInstance()
-                    .reportElementaryCreation(subReportNode, modificationInfos.getEquipmentName(), "Name");
-        }
-        PropertiesUtils.applyProperties(hvdcLine, subReportNode, modificationInfos.getProperties(), "LCC_Properties");
+        reportHvdcLineInfos(hvdcLine, subReportNode);
+        addReportConverterStationLcc(modificationInfos.getConverterStation1(), "Lcc Converter station 1", subReportNode);
+        addReportConverterStationLcc(modificationInfos.getConverterStation2(), "Lcc Converter station 2", subReportNode);
     }
 
     @Override
@@ -106,31 +102,13 @@ public class LccCreation extends AbstractModification {
         return "LCC_Creation";
     }
 
-    private void reportHvdcLineInfos(ReportNode subReportNode) {
-        List<ReportNode> characteristicsReport = new ArrayList<>();
-        characteristicsReport.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getNominalV(), "DC nominal voltage"));
-        characteristicsReport.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getR(), "DC resistance"));
-        characteristicsReport.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getMaxP(), "Pmax"));
-        ModificationUtils.getInstance().reportModifications(subReportNode, characteristicsReport, LCC_CHARACTERISTICS, CHARACTERISTICS);
-        List<ReportNode> setPointsReports = new ArrayList<>();
-        setPointsReports.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getConvertersMode(), "Converters mode"));
-        setPointsReports.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getActivePowerSetpoint(), "Active power"));
-        ModificationUtils.getInstance().reportModifications(subReportNode, setPointsReports, LCC_SETPOINTS, SETPOINTS);
-    }
-
     private LccConverterStation createConverterStation(Network network,
                                                        LccConverterStationCreationInfos lccConverterStationCreationInfos,
-                                                       ReportNode subReportNode,
-                                                       String logFieldName) {
-        ReportNode converterStationReporter = subReportNode.newReportNode()
-            .withMessageTemplate("converterStationCreated", "${fieldName} with id=${id} created")
-            .withUntypedValue("fieldName", logFieldName)
-            .withUntypedValue("id", lccConverterStationCreationInfos.getEquipmentId())
-            .add();
+                                                       ReportNode subReportNode) {
         VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, lccConverterStationCreationInfos.getVoltageLevelId());
         return voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER ?
-                createConverterStationInNodeBreaker(network, voltageLevel, lccConverterStationCreationInfos, converterStationReporter) :
-                createConverterStationInBusBreaker(network, voltageLevel, lccConverterStationCreationInfos, converterStationReporter);
+                createConverterStationInNodeBreaker(network, voltageLevel, lccConverterStationCreationInfos, subReportNode) :
+                createConverterStationInBusBreaker(network, voltageLevel, lccConverterStationCreationInfos, subReportNode);
     }
 
     private ShuntCompensatorAdder createShuntCompensatorInNodeBreaker(VoltageLevel voltageLevel, LccConverterStationCreationInfos.ShuntCompensatorInfos shuntCompensatorInfos) {
@@ -162,15 +140,15 @@ public class LccCreation extends AbstractModification {
         if (Boolean.TRUE.equals(connectedToHvdc)) {
             injection.getTerminal().connect();
             subReportNode.newReportNode()
-                    .withMessageTemplate(EQUIPMENT_CONNECTED_TO_HVDC, "Equipment with id=${id} is Connected")
-                    .withUntypedValue("id", modificationInfos.getEquipmentId())
+                    .withMessageTemplate(EQUIPMENT_CONNECTED_TO_HVDC, "Equipment with id=${id} is connected to Hvdc")
+                    .withUntypedValue("id", injection.getId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
         } else {
             injection.getTerminal().disconnect();
             subReportNode.newReportNode()
-                    .withMessageTemplate(EQUIPMENT_CONNECTED_TO_HVDC, "Equipment with id=${id} is disConnected")
-                    .withUntypedValue("id", modificationInfos.getEquipmentId())
+                    .withMessageTemplate(EQUIPMENT_NOT_CONNECTED_TO_HVDC, "Equipment with id=${id} is not connected to Hvdc")
+                    .withUntypedValue("id", injection.getId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
         }
@@ -218,7 +196,6 @@ public class LccCreation extends AbstractModification {
                             shuntCompensatorConnectedToHvdc(shuntCompensatorOnSide.getConnectedToHvdc(),
                                     network.getShuntCompensator(shuntCompensatorOnSide.getId()), subReportNode);
                         }));
-        addExtensionsAndReports(lccConverterStationCreationInfos, subReportNode);
         return ModificationUtils.getInstance().getLccConverterStation(network,
                 lccConverterStationCreationInfos.getEquipmentId());
     }
@@ -243,20 +220,35 @@ public class LccCreation extends AbstractModification {
                             network.getShuntCompensator(shuntCompensatorOnSide.getId()),
                             subReportNode);
                 }));
-        addExtensionsAndReports(lccConverterStationCreationInfos, subReportNode);
-
         return lccConverterStation;
     }
 
-    private void addExtensionsAndReports(LccConverterStationCreationInfos lccConverterStationCreationInfos,
-                                         ReportNode subReporter) {
-        reportInjectionCreationConnectivity(lccConverterStationCreationInfos, subReporter);
-        ModificationUtils.getInstance().reportModifications(subReporter,
-                List.of(ModificationUtils.getInstance().buildCreationReport(lccConverterStationCreationInfos.getLossFactor(), "Loss Factor"),
-                        ModificationUtils.getInstance().buildCreationReport(lccConverterStationCreationInfos.getPowerFactor(), "Power Factor")),
-                "converterStationCharacteristics",
-                CHARACTERISTICS);
+    private void reportHvdcLineInfos(HvdcLine hvdcLine, ReportNode subReportNode) {
+        if (modificationInfos.getEquipmentName() != null) {
+            ModificationUtils.getInstance()
+                    .reportElementaryCreation(subReportNode, modificationInfos.getEquipmentName(), "Name");
+        }
+        List<ReportNode> characteristicsReport = new ArrayList<>();
+        characteristicsReport.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getNominalV(), "DC nominal voltage"));
+        characteristicsReport.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getR(), "DC resistance"));
+        characteristicsReport.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getMaxP(), "Pmax"));
+        ModificationUtils.getInstance().reportModifications(subReportNode, characteristicsReport, LCC_CHARACTERISTICS, CHARACTERISTICS);
+        List<ReportNode> setPointsReports = new ArrayList<>();
+        setPointsReports.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getConvertersMode(), "Converters mode"));
+        setPointsReports.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getActivePowerSetpoint(), "Active power"));
+        ModificationUtils.getInstance().reportModifications(subReportNode, setPointsReports, LCC_SETPOINTS, SETPOINTS);
+        PropertiesUtils.applyProperties(hvdcLine, subReportNode, modificationInfos.getProperties(), "LCC_Properties");
+    }
 
+    private void addReportConverterStationLcc(LccConverterStationCreationInfos lccConverterStationCreationInfos,
+                                              String logFieldName, ReportNode subReporter) {
+        ReportNode reportConverterStationNode = subReporter.newReportNode()
+                .withMessageTemplate("converterStationCreated", "${fieldName} with id=${id} created")
+                .withUntypedValue("fieldName", logFieldName)
+                .withUntypedValue("id", lccConverterStationCreationInfos.getEquipmentId()).add();
+
+        List<ReportNode> characteristicsReport = List.of(ModificationUtils.getInstance().buildCreationReport(lccConverterStationCreationInfos.getLossFactor(), "Loss Factor"),
+                        ModificationUtils.getInstance().buildCreationReport(lccConverterStationCreationInfos.getPowerFactor(), "Power Factor"));
         List<ReportNode> shuntCompensatorsOnSide = Optional.ofNullable(lccConverterStationCreationInfos.getShuntCompensatorsOnSide())
                 .orElse(List.of())
                 .stream()
@@ -267,6 +259,10 @@ public class LccCreation extends AbstractModification {
                         ModificationUtils.getInstance().buildCreationReport(shuntCompensatorOnSide.getConnectedToHvdc(), "Connected To Hvdc")
                 ))
                 .toList();
-        ModificationUtils.getInstance().reportModifications(subReporter, shuntCompensatorsOnSide, "converterStationFilters", FILTERS);
+
+        ModificationUtils.getInstance().reportModifications(reportConverterStationNode, characteristicsReport, "converterStationCharacteristics", CHARACTERISTICS);
+        reportInjectionCreationConnectivity(lccConverterStationCreationInfos, reportConverterStationNode);
+        ModificationUtils.getInstance().reportModifications(reportConverterStationNode, shuntCompensatorsOnSide, "converterStationFilters", FILTERS);
+
     }
 }
