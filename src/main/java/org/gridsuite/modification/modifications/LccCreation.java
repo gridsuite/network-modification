@@ -160,8 +160,7 @@ public class LccCreation extends AbstractModification {
                                                            InjectionAdder<?, ?> injectionAdder,
                                                            LccConverterStationCreationInfos.ShuntCompensatorInfos shuntCompensatorOnSide,
                                                            ReportNode subReportNode) {
-        int position = ModificationUtils.getInstance().getPosition(lccConverterStationCreationInfos.getConnectionPosition(),
-                lccConverterStationCreationInfos.getBusOrBusbarSectionId(), network, voltageLevel);
+        int position = ModificationUtils.getInstance().getPosition(lccConverterStationCreationInfos.getBusOrBusbarSectionId(), network, voltageLevel);
         CreateFeederBay algo = new CreateFeederBayBuilder()
                 .withBusOrBusbarSectionId(lccConverterStationCreationInfos.getBusOrBusbarSectionId())
                 .withInjectionDirection(lccConverterStationCreationInfos.getConnectionDirection())
