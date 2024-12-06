@@ -12,6 +12,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.CreateFeederBay;
 import com.powsybl.iidm.modification.topology.CreateFeederBayBuilder;
 import com.powsybl.iidm.network.*;
+import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LccConverterStationCreationInfos;
 import org.gridsuite.modification.dto.LccCreationInfos;
@@ -164,9 +165,9 @@ public class LccCreation extends AbstractModification {
         CreateFeederBay algo = new CreateFeederBayBuilder()
                 .withBusOrBusbarSectionId(lccConverterStationCreationInfos.getBusOrBusbarSectionId())
                 .withInjectionDirection(lccConverterStationCreationInfos.getConnectionDirection())
-                .withInjectionFeederName(shuntCompensatorOnSide.getName() != null
-                        ? shuntCompensatorOnSide.getName()
-                        : shuntCompensatorOnSide.getId())
+                .withInjectionFeederName(StringUtils.isBlank(shuntCompensatorOnSide.getName())
+                        ? shuntCompensatorOnSide.getId()
+                        : shuntCompensatorOnSide.getName())
                 .withInjectionPositionOrder(position)
                 .withInjectionAdder(injectionAdder)
                 .build();
