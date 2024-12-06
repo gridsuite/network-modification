@@ -122,6 +122,14 @@ public final class ModificationUtils {
         return vscConverterStation;
     }
 
+    public LccConverterStation getLccConverterStation(Network network, String converterStationId) {
+        LccConverterStation lccConverterStation = network.getLccConverterStation(converterStationId);
+        if (lccConverterStation == null) {
+            throw new NetworkModificationException(LCC_CONVERTER_STATION_NOT_FOUND, "Lcc converter station  " + converterStationId + NOT_EXIST_IN_NETWORK);
+        }
+        return lccConverterStation;
+    }
+
     //get hvdcline
     public HvdcLine getHvdcLine(Network network, String hvdcLineId) {
         HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);
