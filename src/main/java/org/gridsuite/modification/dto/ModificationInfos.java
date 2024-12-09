@@ -66,6 +66,8 @@ import org.gridsuite.modification.modifications.AbstractModification;
     @JsonSubTypes.Type(value = GenerationDispatchInfos.class),
     @JsonSubTypes.Type(value = VoltageInitModificationInfos.class),
     @JsonSubTypes.Type(value = VscCreationInfos.class),
+    @JsonSubTypes.Type(value = LccCreationInfos.class),
+    @JsonSubTypes.Type(value = LccConverterStationCreationInfos.class),
     @JsonSubTypes.Type(value = ConverterStationCreationInfos.class),
     @JsonSubTypes.Type(value = TabularModificationInfos.class),
     @JsonSubTypes.Type(value = ByFormulaModificationInfos.class),
