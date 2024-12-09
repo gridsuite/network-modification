@@ -7,14 +7,17 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.dto.SubstationCreationInfos;
 import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
 import org.gridsuite.modification.utils.ModificationCreation;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -99,6 +102,26 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
         vli.getCouplingDevices().get(0).setBusbarSectionId2("1.1");
         vli.toModification().apply(getNetwork());
         assertNotNull(getNetwork().getVoltageLevel("vl_2"));
+    }
+
+    @Test
+    void testCreateWithSubstationCreation() throws Exception {
+        SubstationCreationInfos substationCreationInfos = SubstationCreationInfos.builder()
+                .stashed(false)
+                .equipmentId("newSubstationId")
+                .equipmentName("newSubstationName")
+                .country(Country.AF)
+                .build();
+        VoltageLevelCreationInfos vli = (VoltageLevelCreationInfos) buildModification();
+        vli.setSubstationId(substationCreationInfos.getEquipmentId());
+        vli.setSubstationCreation(substationCreationInfos);
+        vli.toModification().apply(getNetwork());
+        assertNotNull(getNetwork().getVoltageLevel("vlId"));
+        assertNotNull(getNetwork().getSubstation("newSubstationId"));
+        assertTrue(getNetwork().getSubstation("newSubstationId").getVoltageLevelStream()
+                .anyMatch(vl -> vl.getId().equals("vlId")));
+        assertEquals(1, getNetwork().getSubstation("newSubstationId").getVoltageLevelStream()
+                .filter(vl -> vl.getId().equals("vlId")).count());
     }
 
     @Test
