@@ -64,8 +64,6 @@ public class VoltageLevelCreationInfos extends EquipmentCreationInfos {
     @Schema(description = "coupling devices infos")
     private List<CouplingDeviceInfos> couplingDevices;
 
-    private boolean withSubstationCreation;
-
     @Schema(description = "substation Creation infos")
     private SubstationCreationInfos substationCreation;
 

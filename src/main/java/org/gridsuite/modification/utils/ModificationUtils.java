@@ -15,13 +15,13 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.network.store.iidm.impl.MinMaxReactiveLimitsImpl;
+
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.BusbarSectionFinderTraverser;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -31,6 +31,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
 
@@ -359,6 +361,7 @@ public final class ModificationUtils {
         if (substation == null) {
             throw new NetworkModificationException(SUBSTATION_NOT_FOUND, substationId);
         }
+
         VoltageLevel voltageLevel = substation.newVoltageLevel()
             .setId(voltageLevelCreationInfos.getEquipmentId())
             .setName(voltageLevelCreationInfos.getEquipmentName())
