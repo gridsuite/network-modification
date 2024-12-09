@@ -58,7 +58,7 @@ public class BatteryModificationInfos extends InjectionModificationInfos {
     private AttributeModification<Double> maxQ;
 
     @Schema(description = "Reactive capability curve points")
-    private List<ReactiveCapabilityCurveModificationInfos> reactiveCapabilityCurvePoints;
+    private List<ReactiveCapabilityCurveCreationInfos> reactiveCapabilityCurvePoints;
 
     @Schema(description = "Reactive capability curve")
     private AttributeModification<Boolean> reactiveCapabilityCurve;
