@@ -54,7 +54,9 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
                 .busOrBusbarSectionId1("bus1")
                 .voltageLevelId2("v2")
                 .busOrBusbarSectionId2("bus2")
-                .currentLimits1(CurrentLimitsInfos.builder().permanentLimit(-1.0).build())
+                .currentLimits1(
+                        List.of(CurrentLimitsInfos.builder().permanentLimit(-1.0).build())
+                )
                 .build();
         ValidationException exception = assertThrows(ValidationException.class, () -> lineCreationInfosPermanentLimitNOK.toModification().apply(getNetwork()));
         assertEquals("AC Line 'idLine2': permanent limit must be >= 0", exception.getMessage());
@@ -82,8 +84,12 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
             .b2(20.0)
             .voltageLevelId1("v1")
             .busOrBusbarSectionId1("bus1")
-            .currentLimits1(CurrentLimitsInfos.builder().permanentLimit(5.).temporaryLimits(Collections.emptyList()).build())
-            .currentLimits2(CurrentLimitsInfos.builder().permanentLimit(5.).temporaryLimits(Collections.emptyList()).build())
+            .currentLimits1(
+                    List.of(CurrentLimitsInfos.builder().permanentLimit(5.).temporaryLimits(Collections.emptyList()).build())
+            )
+            .currentLimits2(
+                    List.of(CurrentLimitsInfos.builder().permanentLimit(5.).temporaryLimits(Collections.emptyList()).build())
+            )
             .voltageLevelId2("v2")
             .busOrBusbarSectionId2("bus2")
             .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))

@@ -52,8 +52,12 @@ class TwoWindingsTransformerCreationBusBreakerTest extends AbstractNetworkModifi
                 .voltageLevelId2("v12")
                 .busOrBusbarSectionId2("bus12")
                 .connected2(true)
-                .currentLimits1(CurrentLimitsInfos.builder().permanentLimit(3.).temporaryLimits(List.of(CurrentTemporaryLimitCreationInfos.builder().name("IT5").acceptableDuration(98647).value(45.).build())).build())
-                .currentLimits2(CurrentLimitsInfos.builder().permanentLimit(2.).temporaryLimits(List.of(CurrentTemporaryLimitCreationInfos.builder().name("IT10").acceptableDuration(683647).value(791.).build())).build())
+                .currentLimits1(
+                        List.of(CurrentLimitsInfos.builder().permanentLimit(3.).temporaryLimits(List.of(CurrentTemporaryLimitCreationInfos.builder().name("IT5").acceptableDuration(98647).value(45.).build())).build())
+                )
+                .currentLimits2(
+                        List.of(CurrentLimitsInfos.builder().permanentLimit(2.).temporaryLimits(List.of(CurrentTemporaryLimitCreationInfos.builder().name("IT10").acceptableDuration(683647).value(791.).build())).build())
+                )
                 .connectionName1("cn201")
                 .connectionDirection1(ConnectablePosition.Direction.TOP)
                 .connectionName2("cn202")

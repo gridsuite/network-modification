@@ -7,16 +7,14 @@
 package org.gridsuite.modification.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
 /**
  * @author Sylvain Bouzols <sylvain.bouzols at rte-france.com>
+ * ~= environ operational limit group, ~= limit set
  */
 
 @SuperBuilder
@@ -26,6 +24,9 @@ import java.util.List;
 @ToString
 @Schema(description = "Current Limits")
 public class CurrentLimitsInfos {
+
+    @Schema(description = "Operational limit group name")
+    private String operationalLimitGroupId;
 
     @Schema(description = "Permanent current limit")
     private Double permanentLimit;
