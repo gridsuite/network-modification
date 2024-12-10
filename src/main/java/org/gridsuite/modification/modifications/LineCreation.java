@@ -17,6 +17,8 @@ import org.gridsuite.modification.dto.LineCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
+import java.util.List;
+
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
 
 /**
@@ -67,16 +69,22 @@ public class LineCreation extends AbstractModification {
         }
 
         // Set permanent and temporary current limits
-        CurrentLimitsInfos currentLimitsInfos1 = modificationInfos.getCurrentLimits1();
-        CurrentLimitsInfos currentLimitsInfos2 = modificationInfos.getCurrentLimits2();
-        if (currentLimitsInfos1 != null || currentLimitsInfos2 != null) {
+        List<CurrentLimitsInfos> operationalLimitGroups1 = modificationInfos.getCurrentLimits1();
+        List<CurrentLimitsInfos> operationalLimitGroups2 = modificationInfos.getCurrentLimits2();
+        if (operationalLimitGroups1 != null && !operationalLimitGroups1.isEmpty() || operationalLimitGroups2 != null && !operationalLimitGroups2.isEmpty()) {
             var line = ModificationUtils.getInstance().getLine(network, modificationInfos.getEquipmentId());
-            ModificationUtils.getInstance().setCurrentLimits(currentLimitsInfos1, line.newCurrentLimits1());
-            ModificationUtils.getInstance().setCurrentLimits(currentLimitsInfos2, line.newCurrentLimits2());
+            ModificationUtils.getInstance().setAllCurrentLimits(operationalLimitGroups1, line);
+            ModificationUtils.getInstance().setAllCurrentLimits(operationalLimitGroups2, line);
         }
         ModificationUtils.getInstance().disconnectBranch(modificationInfos, network.getLine(modificationInfos.getEquipmentId()), subReportNode);
         // properties
         Line line = network.getLine(modificationInfos.getEquipmentId());
+        if (modificationInfos.getSelectedOperationalLimitsGroupId1() != null) {
+            line.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroupId1());
+        }
+        if (modificationInfos.getSelectedOperationalLimitsGroupId2() != null) {
+            line.setSelectedOperationalLimitsGroup2(modificationInfos.getSelectedOperationalLimitsGroupId2());
+        }
         PropertiesUtils.applyProperties(line, subReportNode, modificationInfos.getProperties(), "LineProperties");
     }
 

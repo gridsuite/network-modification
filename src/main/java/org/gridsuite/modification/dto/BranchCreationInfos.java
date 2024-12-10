@@ -14,6 +14,8 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 /**
  * @author Sylvain Bouzols <sylvain.bouzols at rte-france.com>
  */
@@ -43,11 +45,17 @@ public class BranchCreationInfos extends EquipmentCreationInfos {
     @Schema(description = "Bus or Busbar section id Side 2")
     private String busOrBusbarSectionId2;
 
-    @Schema(description = "Current limits Side 1")
-    private CurrentLimitsInfos currentLimits1;
+    @Schema(description = "Current limits on side 1")
+    private List<CurrentLimitsInfos> currentLimits1;
 
-    @Schema(description = "Current limits Side 2")
-    private CurrentLimitsInfos currentLimits2;
+    @Schema(description = "Current limits on side 2")
+    private List<CurrentLimitsInfos> currentLimits2;
+
+    @Schema(description = "Selected operational limits group id on Side 1")
+    private String selectedOperationalLimitsGroupId1;
+
+    @Schema(description = "Selected operational limits group id on Side 2")
+    private String selectedOperationalLimitsGroupId2;
 
     @Schema(description = "Connection Name 1")
     private String connectionName1;

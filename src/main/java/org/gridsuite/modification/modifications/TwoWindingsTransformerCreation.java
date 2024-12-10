@@ -16,6 +16,7 @@ import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
@@ -53,11 +54,17 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         }
 
         // Set permanent and temporary current limits
-        CurrentLimitsInfos currentLimitsInfos1 = modificationInfos.getCurrentLimits1();
-        CurrentLimitsInfos currentLimitsInfos2 = modificationInfos.getCurrentLimits2();
-        if (currentLimitsInfos1 != null || currentLimitsInfos2 != null) {
-            ModificationUtils.getInstance().setCurrentLimits(currentLimitsInfos1, twoWindingsTransformer.newCurrentLimits1());
-            ModificationUtils.getInstance().setCurrentLimits(currentLimitsInfos2, twoWindingsTransformer.newCurrentLimits2());
+        List<CurrentLimitsInfos> operationalLimitGroups1 = modificationInfos.getCurrentLimits1();
+        List<CurrentLimitsInfos> operationalLimitGroups2 = modificationInfos.getCurrentLimits2();
+        if (operationalLimitGroups1 != null && !operationalLimitGroups1.isEmpty() || operationalLimitGroups2 != null && !operationalLimitGroups2.isEmpty()) {
+            ModificationUtils.getInstance().setAllCurrentLimits(operationalLimitGroups1, twoWindingsTransformer);
+            ModificationUtils.getInstance().setAllCurrentLimits(operationalLimitGroups2, twoWindingsTransformer);
+        }
+        if (modificationInfos.getSelectedOperationalLimitsGroupId1() != null) {
+            twoWindingsTransformer.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroupId1());
+        }
+        if (modificationInfos.getSelectedOperationalLimitsGroupId2() != null) {
+            twoWindingsTransformer.setSelectedOperationalLimitsGroup2(modificationInfos.getSelectedOperationalLimitsGroupId2());
         }
 
         ModificationUtils.getInstance().disconnectBranch(modificationInfos, network.getTwoWindingsTransformer(modificationInfos.getEquipmentId()), subReportNode);
