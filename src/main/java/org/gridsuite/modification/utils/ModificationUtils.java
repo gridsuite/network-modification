@@ -122,6 +122,14 @@ public final class ModificationUtils {
         return vscConverterStation;
     }
 
+    public LccConverterStation getLccConverterStation(Network network, String converterStationId) {
+        LccConverterStation lccConverterStation = network.getLccConverterStation(converterStationId);
+        if (lccConverterStation == null) {
+            throw new NetworkModificationException(LCC_CONVERTER_STATION_NOT_FOUND, "Lcc converter station  " + converterStationId + NOT_EXIST_IN_NETWORK);
+        }
+        return lccConverterStation;
+    }
+
     //get hvdcline
     public HvdcLine getHvdcLine(Network network, String hvdcLineId) {
         HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);
@@ -326,9 +334,37 @@ public final class ModificationUtils {
         return true;
     }
 
+    public void createSubstation(SubstationCreationInfos substationCreationInfos,
+                                   ReportNode subReportNode, Network network) {
+        network.newSubstation()
+                .setId(substationCreationInfos.getEquipmentId())
+                .setName(substationCreationInfos.getEquipmentName())
+                .setCountry(substationCreationInfos.getCountry())
+                .add();
+
+        subReportNode.newReportNode()
+                .withMessageTemplate("substationCreated", "New substation with id=${id} created")
+                .withUntypedValue("id", substationCreationInfos.getEquipmentId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+
+        // name and country
+        if (substationCreationInfos.getEquipmentName() != null) {
+            ModificationUtils.getInstance()
+                    .reportElementaryCreation(subReportNode, substationCreationInfos.getEquipmentName(), "Name");
+        }
+        if (substationCreationInfos.getCountry() != null) {
+            ModificationUtils.getInstance()
+                    .reportElementaryCreation(subReportNode, substationCreationInfos.getCountry(), "Country");
+        }
+    }
+
     public void createVoltageLevel(VoltageLevelCreationInfos voltageLevelCreationInfos,
                                    ReportNode subReportNode, Network network) {
         String substationId = voltageLevelCreationInfos.getSubstationId();
+        if (voltageLevelCreationInfos.getSubstationCreation() != null) {
+            createSubstation(voltageLevelCreationInfos.getSubstationCreation(), subReportNode, network);
+        }
         Substation substation = network.getSubstation(substationId);
         if (substation == null) {
             throw new NetworkModificationException(SUBSTATION_NOT_FOUND, substationId);
