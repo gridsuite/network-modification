@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.LccConverterStationCreationInfos;
 import org.gridsuite.modification.dto.LccCreationInfos;
@@ -20,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.gridsuite.modification.NetworkModificationException.Type.BUS_NOT_FOUND;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ghazwa REHILI <ghazwa.rehili at rte-france.com>
@@ -47,23 +48,23 @@ class LccCreationInBusBreakerTest extends AbstractNetworkModificationTest {
                 .maxP(56.)
                 .convertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
                 .activePowerSetpoint(5.)
-                .converterStation1(buildConverterStation1WithMcsOnSide())
-                .converterStation2(buildConverterStation2WithMcsOnSide())
+                .converterStation1(buildConverterStation1WithShuntCompensatorsOnSide())
+                .converterStation2(buildConverterStation2WithShuntCompensatorsOnSide())
                 .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
                 .build();
     }
 
-    private static LccConverterStationCreationInfos buildConverterStation1WithMcsOnSide() {
+    private static LccConverterStationCreationInfos buildConverterStation1WithShuntCompensatorsOnSide() {
         var filter1 = LccConverterStationCreationInfos.ShuntCompensatorInfos.builder()
-                .shuntCompensatorId("ShuntStation1Id1")
-                .shuntCompensatorName("ShuntStation1Name1")
+                .id("ShuntStation1Id1")
+                .name("ShuntStation1Name1")
                 .maxQAtNominalV(0.1)
                 .connectedToHvdc(true)
                 .build();
 
         var filter2 = LccConverterStationCreationInfos.ShuntCompensatorInfos.builder()
-                .shuntCompensatorId("ShuntStation1Id2")
-                .shuntCompensatorName("ShuntStation1Name2")
+                .id("ShuntStation1Id2")
+                .name("ShuntStation1Name2")
                 .maxQAtNominalV(0.1)
                 .connectedToHvdc(false)
                 .build();
@@ -77,11 +78,11 @@ class LccCreationInBusBreakerTest extends AbstractNetworkModificationTest {
                 .busOrBusbarSectionId("bus1")
                 .connectionName("top")
                 .connectionDirection(ConnectablePosition.Direction.TOP)
-                .mcsOnSide(List.of(filter1, filter2))
+                .shuntCompensatorsOnSide(List.of(filter1, filter2))
                 .build();
     }
 
-    private static LccConverterStationCreationInfos buildConverterStation2WithMcsOnSide() {
+    private static LccConverterStationCreationInfos buildConverterStation2WithShuntCompensatorsOnSide() {
         return LccConverterStationCreationInfos.builder()
                 .equipmentId("lcc2Station2Id")
                 .equipmentName("lcc2Station2Name")
@@ -91,7 +92,7 @@ class LccCreationInBusBreakerTest extends AbstractNetworkModificationTest {
                 .busOrBusbarSectionId("bus2")
                 .connectionName("top")
                 .connectionDirection(ConnectablePosition.Direction.TOP)
-                .mcsOnSide(List.of())
+                .shuntCompensatorsOnSide(List.of())
                 .build();
     }
 
@@ -111,5 +112,12 @@ class LccCreationInBusBreakerTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void checkModification() {
+        LccCreationInfos lccCreationInfos = (LccCreationInfos) buildModification();
+        lccCreationInfos.getConverterStation1().setBusOrBusbarSectionId("notFoundBus");
+        LccCreation lccCreation = (LccCreation) lccCreationInfos.toModification();
+        Network network = getNetwork();
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lccCreation.check(network));
+        assertEquals(BUS_NOT_FOUND, exception.getType());
+        assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
     }
 }

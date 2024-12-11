@@ -35,8 +35,8 @@ public class LccConverterStationCreationInfos extends InjectionCreationInfos {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ShuntCompensatorInfos {
-        private String shuntCompensatorId;
-        private String shuntCompensatorName;
+        private String id;
+        private String name;
         private Double maxQAtNominalV;
         private Boolean connectedToHvdc;
     }
@@ -49,5 +49,5 @@ public class LccConverterStationCreationInfos extends InjectionCreationInfos {
 
     @Schema(description = "LCC HVDC Converter Station Shunt Compensator")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<ShuntCompensatorInfos> mcsOnSide;
+    private List<ShuntCompensatorInfos> shuntCompensatorsOnSide;
 }

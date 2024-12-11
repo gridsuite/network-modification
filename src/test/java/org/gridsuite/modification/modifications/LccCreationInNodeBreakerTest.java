@@ -48,8 +48,8 @@ class LccCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
                 .maxP(56.)
                 .convertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
                 .activePowerSetpoint(5.)
-                .converterStation1(buildConverterStation1WithMcsOnSide())
-                .converterStation2(buildConverterStation2WithMcsOnSide())
+                .converterStation1(buildConverterStation1WithShuntCompensatorsOnSide())
+                .converterStation2(buildConverterStation2WithShuntCompensatorsOnSide())
                 .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
                 .build();
     }
@@ -80,17 +80,17 @@ class LccCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         assertEquals("v2", lccConverterStation2.getTerminal().getVoltageLevel().getId());
     }
 
-    private static LccConverterStationCreationInfos buildConverterStation1WithMcsOnSide() {
+    private static LccConverterStationCreationInfos buildConverterStation1WithShuntCompensatorsOnSide() {
         var filter1 = LccConverterStationCreationInfos.ShuntCompensatorInfos.builder()
-                .shuntCompensatorId("ShuntStation1Id1")
-                .shuntCompensatorName("ShuntStation1Name1")
+                .id("ShuntStation1Id1")
+                .name("ShuntStation1Name1")
                 .maxQAtNominalV(0.1)
                 .connectedToHvdc(true)
                 .build();
 
         var filter2 = LccConverterStationCreationInfos.ShuntCompensatorInfos.builder()
-                .shuntCompensatorId("ShuntStation1Id2")
-                .shuntCompensatorName("ShuntStation1Name2")
+                .id("ShuntStation1Id2")
+                .name("ShuntStation1Name2")
                 .maxQAtNominalV(0.1)
                 .connectedToHvdc(false)
                 .build();
@@ -104,11 +104,11 @@ class LccCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
                 .busOrBusbarSectionId("1.1")
                 .connectionName("top")
                 .connectionDirection(ConnectablePosition.Direction.TOP)
-                .mcsOnSide(List.of(filter1, filter2))
+                .shuntCompensatorsOnSide(List.of(filter1, filter2))
                 .build();
     }
 
-    private static LccConverterStationCreationInfos buildConverterStation2WithMcsOnSide() {
+    private static LccConverterStationCreationInfos buildConverterStation2WithShuntCompensatorsOnSide() {
         return LccConverterStationCreationInfos.builder()
                 .equipmentId("lcc2Station2Id")
                 .equipmentName("lcc2Station2Name")
@@ -118,7 +118,7 @@ class LccCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
                 .busOrBusbarSectionId("1.1")
                 .connectionName("top")
                 .connectionDirection(ConnectablePosition.Direction.TOP)
-                .mcsOnSide(List.of())
+                .shuntCompensatorsOnSide(List.of())
                 .build();
     }
 
@@ -134,11 +134,12 @@ class LccCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         LccCreationInfos lccCreationInfos = (LccCreationInfos) buildModification();
         // not found voltage level
         lccCreationInfos.setEquipmentId("lccId");
-        LccConverterStationCreationInfos converterStationCreationInfos = buildConverterStation1WithMcsOnSide();
+        LccConverterStationCreationInfos converterStationCreationInfos = buildConverterStation1WithShuntCompensatorsOnSide();
         converterStationCreationInfos.setVoltageLevelId("notFoundVoltageLevelId");
         lccCreationInfos.setConverterStation2(converterStationCreationInfos);
         LccCreation lccCreation = (LccCreation) lccCreationInfos.toModification();
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lccCreation.check(getNetwork()));
+        Network network = getNetwork();
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lccCreation.check(network));
         assertEquals(new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, "notFoundVoltageLevelId").getMessage(), exception.getMessage());
     }
 
