@@ -43,6 +43,11 @@ import static org.gridsuite.modification.NetworkModificationException.Type.*;
 // TODO remove public qualifier for all methods
 public final class ModificationUtils {
 
+    public enum Side {
+        SIDE1,
+        SIDE2
+    }
+
     public static final String DISCONNECTOR = "disconnector_";
     public static final String BREAKER = "breaker_";
     public static final String BUS_BAR_SECTION_ID = "busbarSectionId";
@@ -1013,10 +1018,12 @@ public final class ModificationUtils {
     /**
      * adds the complete operational limit group into the line, and the selectedOperationalLimitsGroupIds
      */
-    public void setAllCurrentLimits(List<CurrentLimitsInfos> allCurrentLimitsInfos, Branch branch) {
+    public void setAllCurrentLimits(List<CurrentLimitsInfos> allCurrentLimitsInfos, Branch branch, Side side) {
         if (allCurrentLimitsInfos != null) {
             for (CurrentLimitsInfos currentLimitsInfos : allCurrentLimitsInfos) {
-                OperationalLimitsGroup opGroup = branch.newOperationalLimitsGroup1(currentLimitsInfos.getOperationalLimitGroupId());
+                OperationalLimitsGroup opGroup = side == Side.SIDE1
+                        ? branch.newOperationalLimitsGroup1(currentLimitsInfos.getOperationalLimitGroupId())
+                        : branch.newOperationalLimitsGroup2(currentLimitsInfos.getOperationalLimitGroupId());
                 CurrentLimitsAdder limitsAdder = opGroup.newCurrentLimits();
                 boolean hasPermanent = currentLimitsInfos.getPermanentLimit() != null;
                 boolean hasTemporary = currentLimitsInfos.getTemporaryLimits() != null && !currentLimitsInfos.getTemporaryLimits().isEmpty();

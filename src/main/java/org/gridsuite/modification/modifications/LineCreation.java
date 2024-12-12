@@ -71,10 +71,13 @@ public class LineCreation extends AbstractModification {
         // Set permanent and temporary current limits
         List<CurrentLimitsInfos> operationalLimitGroups1 = modificationInfos.getCurrentLimits1();
         List<CurrentLimitsInfos> operationalLimitGroups2 = modificationInfos.getCurrentLimits2();
-        if (operationalLimitGroups1 != null && !operationalLimitGroups1.isEmpty() || operationalLimitGroups2 != null && !operationalLimitGroups2.isEmpty()) {
+        if (operationalLimitGroups1 != null && !operationalLimitGroups1.isEmpty()) {
             var line = ModificationUtils.getInstance().getLine(network, modificationInfos.getEquipmentId());
-            ModificationUtils.getInstance().setAllCurrentLimits(operationalLimitGroups1, line);
-            ModificationUtils.getInstance().setAllCurrentLimits(operationalLimitGroups2, line);
+            ModificationUtils.getInstance().setAllCurrentLimits(operationalLimitGroups1, line, ModificationUtils.Side.SIDE1);
+        }
+        if (operationalLimitGroups2 != null && !operationalLimitGroups2.isEmpty()) {
+            var line = ModificationUtils.getInstance().getLine(network, modificationInfos.getEquipmentId());
+            ModificationUtils.getInstance().setAllCurrentLimits(operationalLimitGroups2, line, ModificationUtils.Side.SIDE2);
         }
         ModificationUtils.getInstance().disconnectBranch(modificationInfos, network.getLine(modificationInfos.getEquipmentId()), subReportNode);
         // properties

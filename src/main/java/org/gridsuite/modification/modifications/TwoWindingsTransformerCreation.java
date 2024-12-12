@@ -56,9 +56,11 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         // Set permanent and temporary current limits
         List<CurrentLimitsInfos> operationalLimitGroups1 = modificationInfos.getCurrentLimits1();
         List<CurrentLimitsInfos> operationalLimitGroups2 = modificationInfos.getCurrentLimits2();
-        if (operationalLimitGroups1 != null && !operationalLimitGroups1.isEmpty() || operationalLimitGroups2 != null && !operationalLimitGroups2.isEmpty()) {
-            ModificationUtils.getInstance().setAllCurrentLimits(operationalLimitGroups1, twoWindingsTransformer);
-            ModificationUtils.getInstance().setAllCurrentLimits(operationalLimitGroups2, twoWindingsTransformer);
+        if (operationalLimitGroups1 != null && !operationalLimitGroups1.isEmpty()) {
+            ModificationUtils.getInstance().setAllCurrentLimits(operationalLimitGroups1, twoWindingsTransformer, ModificationUtils.Side.SIDE1);
+        }
+        if (operationalLimitGroups2 != null && !operationalLimitGroups2.isEmpty()) {
+            ModificationUtils.getInstance().setAllCurrentLimits(operationalLimitGroups2, twoWindingsTransformer, ModificationUtils.Side.SIDE2);
         }
         if (modificationInfos.getSelectedOperationalLimitsGroupId1() != null) {
             twoWindingsTransformer.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroupId1());
