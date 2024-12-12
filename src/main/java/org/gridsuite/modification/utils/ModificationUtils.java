@@ -1016,7 +1016,9 @@ public final class ModificationUtils {
     }
 
     /**
-     * adds the complete operational limit group into the line, and the selectedOperationalLimitsGroupIds
+     * @param allCurrentLimitsInfos added current limits
+     * @param branch branch to which limits are going to be added
+     * @param side which side of the branch receives the limits
      */
     public void setAllCurrentLimits(List<CurrentLimitsInfos> allCurrentLimitsInfos, Branch branch, Side side) {
         if (allCurrentLimitsInfos != null) {
