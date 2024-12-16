@@ -43,6 +43,8 @@
 
     <properties>
         <gridsuite-dependencies.version>35</gridsuite-dependencies.version>
+        <!-- FIXEME : remove when upgrade gridsuite-dependencies.version -->
+        <filter.version>1.0.16</filter.version>
     </properties>
 
     <build>
@@ -72,6 +74,12 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.gridsuite</groupId>
+                <artifactId>gridsuite-filter</artifactId>
+                <version>${filter.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -80,6 +88,7 @@
         <dependency>
             <groupId>org.gridsuite</groupId>
             <artifactId>gridsuite-filter</artifactId>
+            <version>${filter.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
