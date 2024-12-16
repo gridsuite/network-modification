@@ -1020,7 +1020,7 @@ public final class ModificationUtils {
      * @param branch branch to which limits are going to be added
      * @param side which side of the branch receives the limits
      */
-    public void setAllCurrentLimits(List<CurrentLimitsInfos> allCurrentLimitsInfos, Branch branch, Side side) {
+    public void setCurrentLimitsOnASide(List<CurrentLimitsInfos> allCurrentLimitsInfos, Branch branch, Side side) {
         if (allCurrentLimitsInfos != null) {
             for (CurrentLimitsInfos currentLimitsInfos : allCurrentLimitsInfos) {
                 OperationalLimitsGroup opGroup = side == Side.SIDE1

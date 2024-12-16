@@ -73,11 +73,11 @@ public class LineCreation extends AbstractModification {
         List<CurrentLimitsInfos> currentLimitsSide2 = modificationInfos.getCurrentLimits2();
         if (currentLimitsSide1 != null && !currentLimitsSide1.isEmpty()) {
             var line = ModificationUtils.getInstance().getLine(network, modificationInfos.getEquipmentId());
-            ModificationUtils.getInstance().setAllCurrentLimits(currentLimitsSide1, line, ModificationUtils.Side.SIDE1);
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(currentLimitsSide1, line, ModificationUtils.Side.SIDE1);
         }
         if (currentLimitsSide2 != null && !currentLimitsSide2.isEmpty()) {
             var line = ModificationUtils.getInstance().getLine(network, modificationInfos.getEquipmentId());
-            ModificationUtils.getInstance().setAllCurrentLimits(currentLimitsSide2, line, ModificationUtils.Side.SIDE2);
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(currentLimitsSide2, line, ModificationUtils.Side.SIDE2);
         }
         ModificationUtils.getInstance().disconnectBranch(modificationInfos, network.getLine(modificationInfos.getEquipmentId()), subReportNode);
         // properties
