@@ -1023,7 +1023,7 @@ public final class ModificationUtils {
     public void setCurrentLimitsOnASide(List<CurrentLimitsInfos> allCurrentLimitsInfos, Branch<?> branch, Side side) {
         for (CurrentLimitsInfos currentLimitsInfos : allCurrentLimitsInfos) {
             boolean hasPermanent = currentLimitsInfos.getPermanentLimit() != null;
-            boolean hasTemporary = CollectionUtils.isEmpty(currentLimitsInfos.getTemporaryLimits());
+            boolean hasTemporary = !CollectionUtils.isEmpty(currentLimitsInfos.getTemporaryLimits());
             boolean hasLimits = hasPermanent || hasTemporary;
             if (hasLimits) {
                 OperationalLimitsGroup opGroup = side == Side.SIDE1
