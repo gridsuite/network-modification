@@ -78,7 +78,7 @@ public class GeneratorModificationInfos extends InjectionModificationInfos {
     private AttributeModification<Double> maxQ;
 
     @Schema(description = "Reactive capability curve points")
-    private List<ReactiveCapabilityCurveCreationInfos> reactiveCapabilityCurvePoints;
+    private List<ReactiveCapabilityCurvePointsInfos> reactiveCapabilityCurvePoints;
 
     @Schema(description = "Participate")
     private AttributeModification<Boolean> participate;

@@ -63,9 +63,9 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
             .minQ(new AttributeModification<>(-100., OperationType.SET))
             .maxP(new AttributeModification<>(100., OperationType.SET))
             .reactiveCapabilityCurvePoints(List.of(
-                            new ReactiveCapabilityCurveCreationInfos(100., 100.,
+                            new ReactiveCapabilityCurvePointsInfos(100., 100.,
                                             0.1),
-                            new ReactiveCapabilityCurveCreationInfos(100., 100.,
+                            new ReactiveCapabilityCurvePointsInfos(100., 100.,
                                             150.)))
             .droop(new AttributeModification<>(0.1f, OperationType.SET))
             .participate(new AttributeModification<>(true, OperationType.SET))
@@ -90,7 +90,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         Collection<ReactiveCapabilityCurve.Point> points = modifiedBattery
                         .getReactiveLimits(ReactiveCapabilityCurve.class).getPoints();
         List<ReactiveCapabilityCurve.Point> batteryPoints = new ArrayList<>(points);
-        List<ReactiveCapabilityCurveCreationInfos> modificationPoints = batteryModificationInfos
+        List<ReactiveCapabilityCurvePointsInfos> modificationPoints = batteryModificationInfos
                         .getReactiveCapabilityCurvePoints();
         if (!CollectionUtils.isEmpty(points)) {
             IntStream.range(0, batteryPoints.size())
@@ -151,31 +151,23 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
                 .endPoint()
                 .add();
         Collection<ReactiveCapabilityCurve.Point> points = battery.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints();
-        List<ReactiveCapabilityCurve.Point> batteryPoints = new ArrayList<>(points);
-        List<ReactiveCapabilityCurveCreationInfos> modificationPoints = batteryModificationInfos.getReactiveCapabilityCurvePoints();
+        List<ReactiveCapabilityCurvePointsInfos> modificationPoints = batteryModificationInfos.getReactiveCapabilityCurvePoints();
         AtomicReference<Double> maxQ = new AtomicReference<>(Double.NaN);
         AtomicReference<Double> minQ = new AtomicReference<>(Double.NaN);
         if (!CollectionUtils.isEmpty(points)) {
             IntStream.range(0, modificationPoints.size())
                     .forEach(i -> {
-                        ReactiveCapabilityCurve.Point oldPoint = batteryPoints.get(i);
-                        ReactiveCapabilityCurveCreationInfos newPoint = modificationPoints.get(i);
-                        Double oldMaxQ = Double.NaN;
-                        Double oldMinQ = Double.NaN;
-                        if (oldPoint != null) {
-                            oldMaxQ = oldPoint.getMaxQ();
-                            oldMinQ = oldPoint.getMinQ();
-                        }
+                        ReactiveCapabilityCurvePointsInfos newPoint = modificationPoints.get(i);
                         newPoint.setMinQ(300.0);
                         newPoint.setMaxQ(250.0);
-                        maxQ.set(newPoint.getMaxQ() != null ? newPoint.getMaxQ() : oldMaxQ);
-                        minQ.set(newPoint.getMinQ() != null ? newPoint.getMinQ() : oldMinQ);
+                        maxQ.set(newPoint.getMaxQ());
+                        minQ.set(newPoint.getMinQ());
                     });
         }
         NetworkModificationException exception = assertThrows(NetworkModificationException.class,
                 () -> batteryModificationInfos.toModification().check(getNetwork()));
-        assertEquals("MODIFY_BATTERY_ERROR : Battery '" + "v3Battery" + "' : maximum reactive power " + maxQ.get() + " is expected to be greater than or equal to minimum reactive power " + minQ.get(),
-                exception.getMessage());
+        assertEquals("MODIFY_BATTERY_ERROR : Battery '" + "v3Battery" + "' : maximum reactive power " + maxQ.get()
+                        + " is expected to be greater than or equal to minimum reactive power " + minQ.get(), exception.getMessage());
     }
 
     @Test
