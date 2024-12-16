@@ -82,6 +82,7 @@
         <dependency>
             <groupId>org.gridsuite</groupId>
             <artifactId>gridsuite-filter</artifactId>
+            <!-- FIXEME : remove when upgrade gridsuite-dependencies.version -->
             <version>${filter.version}</version>
         </dependency>
         <dependency>
