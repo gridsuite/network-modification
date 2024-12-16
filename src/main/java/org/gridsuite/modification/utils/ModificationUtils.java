@@ -1020,31 +1020,29 @@ public final class ModificationUtils {
      * @param branch branch to which limits are going to be added
      * @param side which side of the branch receives the limits
      */
-    public void setCurrentLimitsOnASide(List<CurrentLimitsInfos> allCurrentLimitsInfos, Branch branch, Side side) {
-        if (allCurrentLimitsInfos != null) {
-            for (CurrentLimitsInfos currentLimitsInfos : allCurrentLimitsInfos) {
-                OperationalLimitsGroup opGroup = side == Side.SIDE1
-                        ? branch.newOperationalLimitsGroup1(currentLimitsInfos.getOperationalLimitGroupId())
-                        : branch.newOperationalLimitsGroup2(currentLimitsInfos.getOperationalLimitGroupId());
-                CurrentLimitsAdder limitsAdder = opGroup.newCurrentLimits();
-                boolean hasPermanent = currentLimitsInfos.getPermanentLimit() != null;
-                boolean hasTemporary = currentLimitsInfos.getTemporaryLimits() != null && !currentLimitsInfos.getTemporaryLimits().isEmpty();
-                if (hasPermanent) {
-                    limitsAdder.setPermanentLimit(currentLimitsInfos.getPermanentLimit());
+    public void setCurrentLimitsOnASide(List<CurrentLimitsInfos> allCurrentLimitsInfos, Branch<?> branch, Side side) {
+        for (CurrentLimitsInfos currentLimitsInfos : allCurrentLimitsInfos) {
+            OperationalLimitsGroup opGroup = side == Side.SIDE1
+                    ? branch.newOperationalLimitsGroup1(currentLimitsInfos.getOperationalLimitGroupId())
+                    : branch.newOperationalLimitsGroup2(currentLimitsInfos.getOperationalLimitGroupId());
+            CurrentLimitsAdder limitsAdder = opGroup.newCurrentLimits();
+            boolean hasPermanent = currentLimitsInfos.getPermanentLimit() != null;
+            boolean hasTemporary = currentLimitsInfos.getTemporaryLimits() != null && !currentLimitsInfos.getTemporaryLimits().isEmpty();
+            if (hasPermanent) {
+                limitsAdder.setPermanentLimit(currentLimitsInfos.getPermanentLimit());
+            }
+            if (hasTemporary) {
+                for (CurrentTemporaryLimitCreationInfos limit : currentLimitsInfos.getTemporaryLimits()) {
+                    limitsAdder
+                            .beginTemporaryLimit()
+                            .setName(limit.getName())
+                            .setValue(limit.getValue() == null ? Double.MAX_VALUE : limit.getValue())
+                            .setAcceptableDuration(limit.getAcceptableDuration() == null ? Integer.MAX_VALUE : limit.getAcceptableDuration())
+                            .endTemporaryLimit();
                 }
-                if (hasTemporary) {
-                    for (CurrentTemporaryLimitCreationInfos limit : currentLimitsInfos.getTemporaryLimits()) {
-                        limitsAdder
-                                .beginTemporaryLimit()
-                                .setName(limit.getName())
-                                .setValue(limit.getValue() == null ? Double.MAX_VALUE : limit.getValue())
-                                .setAcceptableDuration(limit.getAcceptableDuration() == null ? Integer.MAX_VALUE : limit.getAcceptableDuration())
-                                .endTemporaryLimit();
-                    }
-                }
-                if (hasPermanent || hasTemporary) {
-                    limitsAdder.add();
-                }
+            }
+            if (hasPermanent || hasTemporary) {
+                limitsAdder.add();
             }
         }
     }
