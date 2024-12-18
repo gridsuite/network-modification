@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
+import static com.powsybl.iidm.network.TwoSides.ONE;
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
 
 /**
@@ -42,11 +43,6 @@ import static org.gridsuite.modification.NetworkModificationException.Type.*;
 // TODO transfer to powsybl-core (com.powsybl.iidm.modification)
 // TODO remove public qualifier for all methods
 public final class ModificationUtils {
-
-    public enum Side {
-        SIDE1,
-        SIDE2
-    }
 
     public static final String DISCONNECTOR = "disconnector_";
     public static final String BREAKER = "breaker_";
@@ -445,7 +441,7 @@ public final class ModificationUtils {
                 .setB2(lineCreationInfos.getB2() != null ? lineCreationInfos.getB2() : 0.0);
 
         // lineAdder completion by topology
-        setBranchAdderNodeOrBus(lineAdder, voltageLevel1, lineCreationInfos, TwoSides.ONE, withSwitch1);
+        setBranchAdderNodeOrBus(lineAdder, voltageLevel1, lineCreationInfos, ONE, withSwitch1);
         setBranchAdderNodeOrBus(lineAdder, voltageLevel2, lineCreationInfos, TwoSides.TWO, withSwitch2);
 
         return lineAdder;
@@ -453,7 +449,7 @@ public final class ModificationUtils {
 
     public void setBranchAdderNodeOrBus(BranchAdder<?, ?> branchAdder, VoltageLevel voltageLevel, BranchCreationInfos branchCreationInfos,
                                  TwoSides side, boolean withSwitch) {
-        String busOrBusbarSectionId = (side == TwoSides.ONE) ? branchCreationInfos.getBusOrBusbarSectionId1() : branchCreationInfos.getBusOrBusbarSectionId2();
+        String busOrBusbarSectionId = (side == ONE) ? branchCreationInfos.getBusOrBusbarSectionId1() : branchCreationInfos.getBusOrBusbarSectionId2();
         if (voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {
             setBranchAdderBusBreaker(branchAdder, voltageLevel, side, busOrBusbarSectionId);
         } else {
@@ -467,7 +463,7 @@ public final class ModificationUtils {
         Bus bus = getBusBreakerBus(voltageLevel, busId);
 
         // complete the lineAdder
-        if (side == TwoSides.ONE) {
+        if (side == ONE) {
             branchAdder.setBus1(bus.getId()).setConnectableBus1(bus.getId());
         } else {
             branchAdder.setBus2(bus.getId()).setConnectableBus2(bus.getId());
@@ -486,7 +482,7 @@ public final class ModificationUtils {
             sideSuffix);
 
         // complete the lineAdder
-        if (side == TwoSides.ONE) {
+        if (side == ONE) {
             branchAdder.setNode1(nodeNum);
         } else {
             branchAdder.setNode2(nodeNum);
@@ -1016,25 +1012,25 @@ public final class ModificationUtils {
     }
 
     /**
-     * @param allCurrentLimitsInfos added current limits
+     * @param opLimitGroups added current limits
      * @param branch branch to which limits are going to be added
      * @param side which side of the branch receives the limits
      */
-    public void setCurrentLimitsOnASide(List<CurrentLimitsInfos> allCurrentLimitsInfos, Branch<?> branch, Side side) {
-        for (CurrentLimitsInfos currentLimitsInfos : allCurrentLimitsInfos) {
-            boolean hasPermanent = currentLimitsInfos.getPermanentLimit() != null;
-            boolean hasTemporary = !CollectionUtils.isEmpty(currentLimitsInfos.getTemporaryLimits());
+    public void setCurrentLimitsOnASide(List<OperationalLimitsGroupInfos> opLimitGroups, Branch<?> branch, TwoSides side) {
+        for (OperationalLimitsGroupInfos opLimitsGroup : opLimitGroups) {
+            boolean hasPermanent = opLimitsGroup.getCurrentLimits().getPermanentLimit() != null;
+            boolean hasTemporary = !CollectionUtils.isEmpty(opLimitsGroup.getCurrentLimits().getTemporaryLimits());
             boolean hasLimits = hasPermanent || hasTemporary;
             if (hasLimits) {
-                OperationalLimitsGroup opGroup = side == Side.SIDE1
-                        ? branch.newOperationalLimitsGroup1(currentLimitsInfos.getOperationalLimitGroupId())
-                        : branch.newOperationalLimitsGroup2(currentLimitsInfos.getOperationalLimitGroupId());
+                OperationalLimitsGroup opGroup = side == ONE
+                        ? branch.newOperationalLimitsGroup1(opLimitsGroup.getId())
+                        : branch.newOperationalLimitsGroup2(opLimitsGroup.getId());
                 CurrentLimitsAdder limitsAdder = opGroup.newCurrentLimits();
                 if (hasPermanent) {
-                    limitsAdder.setPermanentLimit(currentLimitsInfos.getPermanentLimit());
+                    limitsAdder.setPermanentLimit(opLimitsGroup.getCurrentLimits().getPermanentLimit());
                 }
                 if (hasTemporary) {
-                    for (CurrentTemporaryLimitCreationInfos limit : currentLimitsInfos.getTemporaryLimits()) {
+                    for (CurrentTemporaryLimitCreationInfos limit : opLimitsGroup.getCurrentLimits().getTemporaryLimits()) {
                         limitsAdder
                                 .beginTemporaryLimit()
                                 .setName(limit.getName())

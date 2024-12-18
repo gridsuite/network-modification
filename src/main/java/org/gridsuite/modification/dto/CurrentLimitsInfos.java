@@ -14,7 +14,6 @@ import java.util.List;
 
 /**
  * @author Sylvain Bouzols <sylvain.bouzols at rte-france.com>
- * ~= environ operational limit group, ~= limit set
  */
 
 @SuperBuilder
@@ -24,9 +23,6 @@ import java.util.List;
 @ToString
 @Schema(description = "Current Limits")
 public class CurrentLimitsInfos {
-
-    @Schema(description = "Operational limit group name")
-    private String operationalLimitGroupId;
 
     @Schema(description = "Permanent current limit")
     private Double permanentLimit;

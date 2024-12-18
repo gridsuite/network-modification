@@ -12,13 +12,15 @@ import com.powsybl.iidm.modification.topology.CreateBranchFeederBays;
 import com.powsybl.iidm.modification.topology.CreateBranchFeederBaysBuilder;
 import com.powsybl.iidm.network.*;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.CurrentLimitsInfos;
 import org.gridsuite.modification.dto.LineCreationInfos;
+import org.gridsuite.modification.dto.OperationalLimitsGroupInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import java.util.List;
 
+import static com.powsybl.iidm.network.TwoSides.ONE;
+import static com.powsybl.iidm.network.TwoSides.TWO;
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
 
 /**
@@ -69,15 +71,15 @@ public class LineCreation extends AbstractModification {
         }
 
         // Set permanent and temporary current limits
-        List<CurrentLimitsInfos> currentLimitsSide1 = modificationInfos.getCurrentLimits1();
-        List<CurrentLimitsInfos> currentLimitsSide2 = modificationInfos.getCurrentLimits2();
-        if (currentLimitsSide1 != null && !currentLimitsSide1.isEmpty()) {
+        List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = modificationInfos.getOperationalLimitsGroup1();
+        List<OperationalLimitsGroupInfos> opLimitsGroupSide2 = modificationInfos.getOperationalLimitsGroup2();
+        if (opLimitsGroupSide1 != null && !opLimitsGroupSide1.isEmpty()) {
             var line = ModificationUtils.getInstance().getLine(network, modificationInfos.getEquipmentId());
-            ModificationUtils.getInstance().setCurrentLimitsOnASide(currentLimitsSide1, line, ModificationUtils.Side.SIDE1);
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide1, line, ONE);
         }
-        if (currentLimitsSide2 != null && !currentLimitsSide2.isEmpty()) {
+        if (opLimitsGroupSide2 != null && !opLimitsGroupSide2.isEmpty()) {
             var line = ModificationUtils.getInstance().getLine(network, modificationInfos.getEquipmentId());
-            ModificationUtils.getInstance().setCurrentLimitsOnASide(currentLimitsSide2, line, ModificationUtils.Side.SIDE2);
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide2, line, TWO);
         }
         ModificationUtils.getInstance().disconnectBranch(modificationInfos, network.getLine(modificationInfos.getEquipmentId()), subReportNode);
         // properties

@@ -45,11 +45,11 @@ public class BranchCreationInfos extends EquipmentCreationInfos {
     @Schema(description = "Bus or Busbar section id Side 2")
     private String busOrBusbarSectionId2;
 
-    @Schema(description = "Current limits on side 1")
-    private List<CurrentLimitsInfos> currentLimits1;
+    @Schema(description = "Operational limit groups on side 1")
+    private List<OperationalLimitsGroupInfos> operationalLimitsGroup1;
 
-    @Schema(description = "Current limits on side 2")
-    private List<CurrentLimitsInfos> currentLimits2;
+    @Schema(description = "Operational limit groups on side 2")
+    private List<OperationalLimitsGroupInfos> operationalLimitsGroup2;
 
     @Schema(description = "Selected operational limits group id on Side 1")
     private String selectedOperationalLimitsGroupId1;
