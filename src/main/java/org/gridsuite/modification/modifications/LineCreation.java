@@ -11,6 +11,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.CreateBranchFeederBays;
 import com.powsybl.iidm.modification.topology.CreateBranchFeederBaysBuilder;
 import com.powsybl.iidm.network.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LineCreationInfos;
 import org.gridsuite.modification.dto.OperationalLimitsGroupInfos;
@@ -73,11 +74,11 @@ public class LineCreation extends AbstractModification {
         // Set permanent and temporary current limits
         List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = modificationInfos.getOperationalLimitsGroup1();
         List<OperationalLimitsGroupInfos> opLimitsGroupSide2 = modificationInfos.getOperationalLimitsGroup2();
-        if (opLimitsGroupSide1 != null && !opLimitsGroupSide1.isEmpty()) {
+        if (!CollectionUtils.isEmpty(opLimitsGroupSide1)) {
             var line = ModificationUtils.getInstance().getLine(network, modificationInfos.getEquipmentId());
             ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide1, line, ONE);
         }
-        if (opLimitsGroupSide2 != null && !opLimitsGroupSide2.isEmpty()) {
+        if (!CollectionUtils.isEmpty(opLimitsGroupSide2)) {
             var line = ModificationUtils.getInstance().getLine(network, modificationInfos.getEquipmentId());
             ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide2, line, TWO);
         }

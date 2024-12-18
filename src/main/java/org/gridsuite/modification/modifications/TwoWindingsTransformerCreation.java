@@ -11,6 +11,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.CreateBranchFeederBays;
 import com.powsybl.iidm.modification.topology.CreateBranchFeederBaysBuilder;
 import com.powsybl.iidm.network.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -56,10 +57,10 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         // Set permanent and temporary current limits
         List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = modificationInfos.getOperationalLimitsGroup1();
         List<OperationalLimitsGroupInfos> opLimitsGroupSide2 = modificationInfos.getOperationalLimitsGroup2();
-        if (opLimitsGroupSide1 != null && !opLimitsGroupSide1.isEmpty()) {
+        if (!CollectionUtils.isEmpty(opLimitsGroupSide1)) {
             ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide1, twoWindingsTransformer, TwoSides.ONE);
         }
-        if (opLimitsGroupSide2 != null && !opLimitsGroupSide2.isEmpty()) {
+        if (!CollectionUtils.isEmpty(opLimitsGroupSide2)) {
             ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide2, twoWindingsTransformer, TwoSides.TWO);
         }
         if (modificationInfos.getSelectedOperationalLimitsGroupId1() != null) {
