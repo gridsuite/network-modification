@@ -51,7 +51,7 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
                 .busOrBusbarSectionId1("bus1")
                 .voltageLevelId2("v2")
                 .busOrBusbarSectionId2("bus2")
-                .operationalLimitsGroup1(
+                .operationalLimitsGroups1(
                     List.of(
                         OperationalLimitsGroupInfos.builder()
                             .id("limiSet1")
@@ -88,7 +88,7 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
             .b2(20.0)
             .voltageLevelId1("v1")
             .busOrBusbarSectionId1("bus1")
-            .operationalLimitsGroup1(
+            .operationalLimitsGroups1(
                 List.of(
                     OperationalLimitsGroupInfos.builder()
                         .id("limitSet1")
@@ -97,7 +97,7 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
                         ).build()
                 )
             )
-            .operationalLimitsGroup1(
+            .operationalLimitsGroups2(
                 List.of(
                     OperationalLimitsGroupInfos.builder()
                         .id("limitSet2")

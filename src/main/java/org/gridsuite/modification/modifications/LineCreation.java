@@ -72,8 +72,8 @@ public class LineCreation extends AbstractModification {
         }
 
         // Set permanent and temporary current limits
-        List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = modificationInfos.getOperationalLimitsGroup1();
-        List<OperationalLimitsGroupInfos> opLimitsGroupSide2 = modificationInfos.getOperationalLimitsGroup2();
+        List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = modificationInfos.getOperationalLimitsGroups1();
+        List<OperationalLimitsGroupInfos> opLimitsGroupSide2 = modificationInfos.getOperationalLimitsGroups2();
         if (!CollectionUtils.isEmpty(opLimitsGroupSide1)) {
             var line = ModificationUtils.getInstance().getLine(network, modificationInfos.getEquipmentId());
             ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide1, line, ONE);

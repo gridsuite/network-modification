@@ -52,7 +52,7 @@ class TwoWindingsTransformerCreationBusBreakerTest extends AbstractNetworkModifi
                 .voltageLevelId2("v12")
                 .busOrBusbarSectionId2("bus12")
                 .connected2(true)
-                .operationalLimitsGroup1(
+                .operationalLimitsGroups1(
                     List.of(
                         OperationalLimitsGroupInfos.builder()
                             .id("limitSet1")
@@ -65,7 +65,7 @@ class TwoWindingsTransformerCreationBusBreakerTest extends AbstractNetworkModifi
                         ).build()
                     )
                 )
-                .operationalLimitsGroup2(
+                .operationalLimitsGroups2(
                     List.of(
                         OperationalLimitsGroupInfos.builder()
                             .id("limitSet2")
