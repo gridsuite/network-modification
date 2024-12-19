@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRangeAdder;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ConverterStationModificationInfos;
-import org.gridsuite.modification.dto.ReactiveCapabilityCurveModificationInfos;
+import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
 import org.gridsuite.modification.dto.VscModificationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -346,7 +346,7 @@ public class VscModification extends AbstractModification {
                                                         VscConverterStation vscConverterStation, ReportNode subReporter, ReportNode subReportNodeLimits) {
 
         ReactiveCapabilityCurveAdder adder = vscConverterStation.newReactiveCapabilityCurve();
-        List<ReactiveCapabilityCurveModificationInfos> modificationPoints = modificationInfos.getReactiveCapabilityCurvePoints();
+        List<ReactiveCapabilityCurvePointsInfos> modificationPoints = modificationInfos.getReactiveCapabilityCurvePoints();
         Collection<ReactiveCapabilityCurve.Point> points = vscConverterStation.getReactiveLimits().getKind() == ReactiveLimitsKind.CURVE ? vscConverterStation.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints() : List.of();
         ModificationUtils.getInstance().modifyReactiveCapabilityCurvePoints(points, modificationPoints, adder, subReporter, subReportNodeLimits);
     }
