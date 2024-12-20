@@ -53,6 +53,6 @@ public class ConverterStationCreationInfos extends InjectionCreationInfos implem
     private Double maxQ;
 
     @Schema(description = "Reactive capability curve points")
-    private List<ReactiveCapabilityCurveCreationInfos> reactiveCapabilityCurvePoints;
+    private List<ReactiveCapabilityCurvePointsInfos> reactiveCapabilityCurvePoints;
 
 }

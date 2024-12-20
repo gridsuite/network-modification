@@ -25,8 +25,8 @@ import static org.gridsuite.modification.modifications.ShuntCompensatorModificat
 public enum ShuntCompensatorField {
     MAXIMUM_SECTION_COUNT,
     SECTION_COUNT,
-    MAXIMUM_SUSCEPTANCE,
-    MAXIMUM_Q_AT_NOMINAL_VOLTAGE;
+    MAX_SUSCEPTANCE,
+    MAX_Q_AT_NOMINAL_V;
 
     public static String getReferenceValue(ShuntCompensator shuntCompensator, String shuntCompensatorField) {
         VoltageLevel voltageLevel = shuntCompensator.getTerminal().getVoltageLevel();
@@ -35,8 +35,8 @@ public enum ShuntCompensatorField {
         return switch (field) {
             case MAXIMUM_SECTION_COUNT -> String.valueOf(shuntCompensator.getMaximumSectionCount());
             case SECTION_COUNT -> String.valueOf(shuntCompensator.getSectionCount());
-            case MAXIMUM_SUSCEPTANCE -> String.valueOf(bPerSection * shuntCompensator.getMaximumSectionCount());
-            case MAXIMUM_Q_AT_NOMINAL_VOLTAGE -> String.valueOf(Math.abs(Math.pow(voltageLevel.getNominalV(), 2) * bPerSection) * shuntCompensator.getMaximumSectionCount());
+            case MAX_SUSCEPTANCE -> String.valueOf(bPerSection * shuntCompensator.getMaximumSectionCount());
+            case MAX_Q_AT_NOMINAL_V -> String.valueOf(Math.abs(Math.pow(voltageLevel.getNominalV(), 2) * bPerSection) * shuntCompensator.getMaximumSectionCount());
         };
     }
 
@@ -56,9 +56,9 @@ public enum ShuntCompensatorField {
             case MAXIMUM_SECTION_COUNT -> modifyMaximumSectionCount(new AttributeModification<>((int) Double.parseDouble(newValue), OperationType.SET),
                     null, null, null, shuntCompensator, model);
             case SECTION_COUNT -> modifySectionCount(new AttributeModification<>((int) Double.parseDouble(newValue), OperationType.SET), null, shuntCompensator);
-            case MAXIMUM_SUSCEPTANCE -> modifyMaxSusceptance(new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET),
+            case MAX_SUSCEPTANCE -> modifyMaxSusceptance(new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET),
                     shuntCompensator.getMaximumSectionCount(), null, model);
-            case MAXIMUM_Q_AT_NOMINAL_VOLTAGE -> modifyMaximumQAtNominalVoltage(new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET),
+            case MAX_Q_AT_NOMINAL_V -> modifyMaximumQAtNominalVoltage(new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET),
                     voltageLevel, shuntCompensator.getMaximumSectionCount(), null, model, shuntCompensatorType);
         }
     }

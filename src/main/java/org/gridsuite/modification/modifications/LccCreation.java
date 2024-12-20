@@ -75,7 +75,12 @@ public class LccCreation extends AbstractModification {
     public void apply(Network network, ReportNode subReportNode) {
         LccConverterStation converterStation1 = createConverterStation(network, modificationInfos.getConverterStation1(), subReportNode);
         LccConverterStation converterStation2 = createConverterStation(network, modificationInfos.getConverterStation2(), subReportNode);
-
+        if (!modificationInfos.getConverterStation1().isTerminalConnected()) {
+            network.getLccConverterStation(modificationInfos.getConverterStation1().getEquipmentId()).getTerminal().disconnect();
+        }
+        if (!modificationInfos.getConverterStation2().isTerminalConnected()) {
+            network.getLccConverterStation(modificationInfos.getConverterStation2().getEquipmentId()).getTerminal().disconnect();
+        }
         HvdcLine hvdcLine = network.newHvdcLine()
                 .setId(modificationInfos.getEquipmentId())
                 .setName(modificationInfos.getEquipmentName())
@@ -248,7 +253,7 @@ public class LccCreation extends AbstractModification {
                 .withUntypedValue("id", lccConverterStationCreationInfos.getEquipmentId()).add();
 
         List<ReportNode> characteristicsReport = List.of(ModificationUtils.getInstance().buildCreationReport(lccConverterStationCreationInfos.getLossFactor(), "Loss Factor"),
-                        ModificationUtils.getInstance().buildCreationReport(lccConverterStationCreationInfos.getPowerFactor(), "Power Factor"));
+                ModificationUtils.getInstance().buildCreationReport(lccConverterStationCreationInfos.getPowerFactor(), "Power Factor"));
         List<ReportNode> shuntCompensatorsOnSide = Optional.ofNullable(lccConverterStationCreationInfos.getShuntCompensatorsOnSide())
                 .orElse(List.of())
                 .stream()
