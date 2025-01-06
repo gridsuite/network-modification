@@ -20,5 +20,5 @@ public interface ReactiveLimitsHolderInfos {
 
     Double getMaxQ();
 
-    List<ReactiveCapabilityCurveCreationInfos> getReactiveCapabilityCurvePoints();
+    List<ReactiveCapabilityCurvePointsInfos> getReactiveCapabilityCurvePoints();
 }
