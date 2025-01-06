@@ -63,11 +63,11 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         if (!CollectionUtils.isEmpty(opLimitsGroupSide2)) {
             ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide2, twoWindingsTransformer, TwoSides.TWO);
         }
-        if (modificationInfos.getSelectedOperationalLimitsGroupId1() != null) {
-            twoWindingsTransformer.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroupId1());
+        if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
+            twoWindingsTransformer.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroup1());
         }
-        if (modificationInfos.getSelectedOperationalLimitsGroupId2() != null) {
-            twoWindingsTransformer.setSelectedOperationalLimitsGroup2(modificationInfos.getSelectedOperationalLimitsGroupId2());
+        if (modificationInfos.getSelectedOperationalLimitsGroup2() != null) {
+            twoWindingsTransformer.setSelectedOperationalLimitsGroup2(modificationInfos.getSelectedOperationalLimitsGroup2());
         }
 
         ModificationUtils.getInstance().disconnectBranch(modificationInfos, network.getTwoWindingsTransformer(modificationInfos.getEquipmentId()), subReportNode);

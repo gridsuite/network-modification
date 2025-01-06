@@ -51,11 +51,11 @@ public class BranchCreationInfos extends EquipmentCreationInfos {
     @Schema(description = "Operational limit groups on side 2")
     private List<OperationalLimitsGroupInfos> operationalLimitsGroups2;
 
-    @Schema(description = "Selected operational limits group id on Side 1")
-    private String selectedOperationalLimitsGroupId1;
+    @Schema(description = "Selected operational limits group on Side 1")
+    private String selectedOperationalLimitsGroup1;
 
-    @Schema(description = "Selected operational limits group id on Side 2")
-    private String selectedOperationalLimitsGroupId2;
+    @Schema(description = "Selected operational limits group on Side 2")
+    private String selectedOperationalLimitsGroup2;
 
     @Schema(description = "Connection Name 1")
     private String connectionName1;
