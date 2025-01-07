@@ -69,21 +69,19 @@ public class LineCreation extends AbstractModification {
         } else {
             addLine(network, voltageLevel1, voltageLevel2, modificationInfos, true, true, subReportNode);
         }
+        ModificationUtils.getInstance().disconnectBranch(modificationInfos, network.getLine(modificationInfos.getEquipmentId()), subReportNode);
+        Line line = network.getLine(modificationInfos.getEquipmentId());
 
         // Set permanent and temporary current limits
         List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = modificationInfos.getOperationalLimitsGroups1();
         List<OperationalLimitsGroupInfos> opLimitsGroupSide2 = modificationInfos.getOperationalLimitsGroups2();
         if (!CollectionUtils.isEmpty(opLimitsGroupSide1)) {
-            Line line = ModificationUtils.getInstance().getLine(network, modificationInfos.getEquipmentId());
             ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide1, line, ONE);
         }
         if (!CollectionUtils.isEmpty(opLimitsGroupSide2)) {
-            Line line = ModificationUtils.getInstance().getLine(network, modificationInfos.getEquipmentId());
             ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide2, line, TWO);
         }
-        ModificationUtils.getInstance().disconnectBranch(modificationInfos, network.getLine(modificationInfos.getEquipmentId()), subReportNode);
         // properties
-        Line line = network.getLine(modificationInfos.getEquipmentId());
         if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
             line.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroup1());
         }

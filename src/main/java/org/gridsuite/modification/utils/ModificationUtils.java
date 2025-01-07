@@ -1034,14 +1034,16 @@ public final class ModificationUtils {
                 limitsAdder.setPermanentLimit(opLimitsGroup.getCurrentLimits().getPermanentLimit());
             }
             if (hasTemporary) {
-                for (CurrentTemporaryLimitCreationInfos limit : opLimitsGroup.getCurrentLimits().getTemporaryLimits()) {
-                    limitsAdder
-                            .beginTemporaryLimit()
+                opLimitsGroup.getCurrentLimits().getTemporaryLimits().forEach(limit -> {
+                    double value = limit.getValue() != null ? limit.getValue() : Double.MAX_VALUE;
+                    int duration = limit.getAcceptableDuration() != null ? limit.getAcceptableDuration() : Integer.MAX_VALUE;
+
+                    limitsAdder.beginTemporaryLimit()
                             .setName(limit.getName())
-                            .setValue(limit.getValue() == null ? Double.MAX_VALUE : limit.getValue())
-                            .setAcceptableDuration(limit.getAcceptableDuration() == null ? Integer.MAX_VALUE : limit.getAcceptableDuration())
+                            .setValue(value)
+                            .setAcceptableDuration(duration)
                             .endTemporaryLimit();
-                }
+                });
             }
             limitsAdder.add();
         }
