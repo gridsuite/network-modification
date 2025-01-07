@@ -1022,7 +1022,9 @@ public final class ModificationUtils {
             boolean hasTemporary = !CollectionUtils.isEmpty(opLimitsGroup.getCurrentLimits().getTemporaryLimits());
             boolean hasLimits = hasPermanent || hasTemporary;
 
-            if (!hasLimits) { continue; }
+            if (!hasLimits) {
+                continue;
+            }
 
             OperationalLimitsGroup opGroup = side == ONE
                     ? branch.newOperationalLimitsGroup1(opLimitsGroup.getId())
