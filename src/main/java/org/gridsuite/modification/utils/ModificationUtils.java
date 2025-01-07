@@ -1021,26 +1021,27 @@ public final class ModificationUtils {
             boolean hasPermanent = opLimitsGroup.getCurrentLimits().getPermanentLimit() != null;
             boolean hasTemporary = !CollectionUtils.isEmpty(opLimitsGroup.getCurrentLimits().getTemporaryLimits());
             boolean hasLimits = hasPermanent || hasTemporary;
-            if (hasLimits) {
-                OperationalLimitsGroup opGroup = side == ONE
-                        ? branch.newOperationalLimitsGroup1(opLimitsGroup.getId())
-                        : branch.newOperationalLimitsGroup2(opLimitsGroup.getId());
-                CurrentLimitsAdder limitsAdder = opGroup.newCurrentLimits();
-                if (hasPermanent) {
-                    limitsAdder.setPermanentLimit(opLimitsGroup.getCurrentLimits().getPermanentLimit());
-                }
-                if (hasTemporary) {
-                    for (CurrentTemporaryLimitCreationInfos limit : opLimitsGroup.getCurrentLimits().getTemporaryLimits()) {
-                        limitsAdder
-                                .beginTemporaryLimit()
-                                .setName(limit.getName())
-                                .setValue(limit.getValue() == null ? Double.MAX_VALUE : limit.getValue())
-                                .setAcceptableDuration(limit.getAcceptableDuration() == null ? Integer.MAX_VALUE : limit.getAcceptableDuration())
-                                .endTemporaryLimit();
-                    }
-                }
-                limitsAdder.add();
+
+            if (!hasLimits) { continue; }
+
+            OperationalLimitsGroup opGroup = side == ONE
+                    ? branch.newOperationalLimitsGroup1(opLimitsGroup.getId())
+                    : branch.newOperationalLimitsGroup2(opLimitsGroup.getId());
+            CurrentLimitsAdder limitsAdder = opGroup.newCurrentLimits();
+            if (hasPermanent) {
+                limitsAdder.setPermanentLimit(opLimitsGroup.getCurrentLimits().getPermanentLimit());
             }
+            if (hasTemporary) {
+                for (CurrentTemporaryLimitCreationInfos limit : opLimitsGroup.getCurrentLimits().getTemporaryLimits()) {
+                    limitsAdder
+                            .beginTemporaryLimit()
+                            .setName(limit.getName())
+                            .setValue(limit.getValue() == null ? Double.MAX_VALUE : limit.getValue())
+                            .setAcceptableDuration(limit.getAcceptableDuration() == null ? Integer.MAX_VALUE : limit.getAcceptableDuration())
+                            .endTemporaryLimit();
+                }
+            }
+            limitsAdder.add();
         }
     }
 
