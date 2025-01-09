@@ -53,11 +53,11 @@ public abstract class AbstractScaling extends AbstractModification {
 
         Map<UUID, FilterEquipments> exportFilters = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, scalingInfos.getErrorType());
         if (exportFilters != null) {
-            Map<UUID, FilterEquipments> filtersWithWrongEquipmentIds = ModificationUtils.getUuidFilterWrongEquipmentsIdsMap(subReportNode, exportFilters, filters);
+            ModificationUtils.logFilterWrongEquipmentsIds(subReportNode, exportFilters, filters);
 
             // apply variations
             scalingInfos.getVariations().forEach(variation -> {
-                List<IdentifiableAttributes> identifiableAttributes = ModificationUtils.getIdentifiableAttributes(exportFilters, filtersWithWrongEquipmentIds, variation.getFilters(), subReportNode);
+                List<IdentifiableAttributes> identifiableAttributes = ModificationUtils.getIdentifiableAttributes(exportFilters, variation.getFilters(), subReportNode);
 
                 if (CollectionUtils.isEmpty(identifiableAttributes)) {
                     String filterNames = variation.getFilters().stream().map(FilterInfos::getName).collect(Collectors.joining(", "));
