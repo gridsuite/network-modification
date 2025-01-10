@@ -1526,8 +1526,8 @@ public final class ModificationUtils {
         return isValidFilter ? exportFilters : null;
     }
 
-    public static void logFilterWrongEquipmentsIds(ReportNode subReportNode, Map<UUID, FilterEquipments> exportFilters, Map<UUID, String> filters) {
-        // collect all filters with wrong equipments ids
+    public static void logWrongEquipmentsIdsFilters(ReportNode subReportNode, Map<UUID, FilterEquipments> exportFilters, Map<UUID, String> filters) {
+        // collect logs for all filters with wrong equipments ids
         exportFilters.entrySet().stream()
                 .filter(e -> !CollectionUtils.isEmpty(e.getValue().getNotFoundEquipments()))
                 .forEach(f -> {

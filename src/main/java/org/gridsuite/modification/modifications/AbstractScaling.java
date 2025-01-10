@@ -53,7 +53,7 @@ public abstract class AbstractScaling extends AbstractModification {
 
         Map<UUID, FilterEquipments> exportFilters = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, scalingInfos.getErrorType());
         if (exportFilters != null) {
-            ModificationUtils.logFilterWrongEquipmentsIds(subReportNode, exportFilters, filters);
+            ModificationUtils.logWrongEquipmentsIdsFilters(subReportNode, exportFilters, filters);
 
             // apply variations
             scalingInfos.getVariations().forEach(variation -> {

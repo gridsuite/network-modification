@@ -73,7 +73,7 @@ public class ByFilterDeletion extends AbstractModification {
 
         Map<UUID, FilterEquipments> exportFilters = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, modificationInfos.getErrorType());
         if (exportFilters != null) {
-            ModificationUtils.logFilterWrongEquipmentsIds(subReportNode, exportFilters, filters);
+            ModificationUtils.logWrongEquipmentsIdsFilters(subReportNode, exportFilters, filters);
             List<IdentifiableAttributes> identifiableAttributes = ModificationUtils.getIdentifiableAttributes(exportFilters, modificationInfos.getFilters(), subReportNode);
 
             if (CollectionUtils.isEmpty(identifiableAttributes)) {
