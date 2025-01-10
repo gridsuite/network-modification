@@ -28,7 +28,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -1502,7 +1501,7 @@ public final class ModificationUtils {
         return true;
     }
 
-    public static List<IdentifiableAttributes> getIdentifiableAttributes(Map<UUID, FilterEquipments> exportFilters, Map<UUID, FilterEquipments> filtersWithWrongEquipmentIds, List<FilterInfos> filterInfos, ReportNode subReportNode) {
+    public static List<IdentifiableAttributes> getIdentifiableAttributes(Map<UUID, FilterEquipments> exportFilters, List<FilterInfos> filterInfos, ReportNode subReportNode) {
         filterInfos.stream()
                 .filter(f -> !exportFilters.containsKey(f.getId()))
                 .forEach(f -> createReport(subReportNode,
@@ -1512,7 +1511,7 @@ public final class ModificationUtils {
 
         return filterInfos
                 .stream()
-                .filter(f -> !filtersWithWrongEquipmentIds.containsKey(f.getId()) && exportFilters.containsKey(f.getId()))
+                .filter(f -> exportFilters.containsKey(f.getId()))
                 .flatMap(f -> exportFilters.get(f.getId())
                         .getIdentifiableAttributes()
                         .stream())
@@ -1527,21 +1526,18 @@ public final class ModificationUtils {
         return isValidFilter ? exportFilters : null;
     }
 
-    public static Map<UUID, FilterEquipments> getUuidFilterWrongEquipmentsIdsMap(ReportNode subReportNode, Map<UUID, FilterEquipments> exportFilters, Map<UUID, String> filters) {
-        // collect all filters with wrong equipments ids
-        Map<UUID, FilterEquipments> filterWithWrongEquipmentsIds = exportFilters.entrySet().stream()
+    public static void logWrongEquipmentsIdsFilters(ReportNode subReportNode, Map<UUID, FilterEquipments> exportFilters, Map<UUID, String> filters) {
+        // collect logs for all filters with wrong equipments ids
+        exportFilters.entrySet().stream()
                 .filter(e -> !CollectionUtils.isEmpty(e.getValue().getNotFoundEquipments()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        // create report for each wrong filter
-        filterWithWrongEquipmentsIds.values().forEach(f -> {
-            var equipmentIds = String.join(", ", f.getNotFoundEquipments());
-            createReport(subReportNode,
-                    "filterEquipmentsNotFound_" + f.getFilterName(),
-                    "Cannot find the following equipments ${equipmentIds} in filter ${filters}",
-                    Map.of("equipmentIds", equipmentIds, "filters", filters.get(f.getFilterId())), TypedValue.WARN_SEVERITY);
-        });
-        return filterWithWrongEquipmentsIds;
+                .forEach(f -> {
+                    FilterEquipments filterEquipments = f.getValue();
+                    var equipmentIds = String.join(", ", filterEquipments.getNotFoundEquipments());
+                    createReport(subReportNode,
+                            "filterEquipmentsNotFound_" + filterEquipments.getFilterName(),
+                            "Cannot find the following equipments ${equipmentIds} in filter ${filters}",
+                            Map.of("equipmentIds", equipmentIds, "filters", filters.get(filterEquipments.getFilterId())), TypedValue.WARN_SEVERITY);
+                });
     }
 
     public static void insertReportNode(ReportNode parent, ReportNode child) {
