@@ -363,11 +363,15 @@ public final class ModificationUtils {
                                    ReportNode subReportNode, Network network) {
         String substationId = voltageLevelCreationInfos.getSubstationId();
         SubstationCreationInfos substationCreation = voltageLevelCreationInfos.getSubstationCreation();
+        Substation substation;
         if (substationCreation != null) {
             substationId = substationCreation.getEquipmentId();
             createSubstation(substationCreation, subReportNode, network);
+            substation = network.getSubstation(substationId);
+            PropertiesUtils.applyProperties(substation, subReportNode, substationCreation.getProperties(), "SubstationProperties");
+        } else {
+            substation = network.getSubstation(substationId);
         }
-        Substation substation = network.getSubstation(substationId);
         if (substation == null) {
             throw new NetworkModificationException(SUBSTATION_NOT_FOUND, substationId);
         }
