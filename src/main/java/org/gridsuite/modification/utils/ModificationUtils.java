@@ -362,14 +362,19 @@ public final class ModificationUtils {
     public void createVoltageLevel(VoltageLevelCreationInfos voltageLevelCreationInfos,
                                    ReportNode subReportNode, Network network) {
         String substationId = voltageLevelCreationInfos.getSubstationId();
-        if (voltageLevelCreationInfos.getSubstationCreation() != null) {
-            createSubstation(voltageLevelCreationInfos.getSubstationCreation(), subReportNode, network);
+        SubstationCreationInfos substationCreation = voltageLevelCreationInfos.getSubstationCreation();
+        Substation substation;
+        if (substationCreation != null) {
+            substationId = substationCreation.getEquipmentId();
+            createSubstation(substationCreation, subReportNode, network);
+            substation = network.getSubstation(substationId);
+            PropertiesUtils.applyProperties(substation, subReportNode, substationCreation.getProperties(), "SubstationProperties");
+        } else {
+            substation = network.getSubstation(substationId);
         }
-        Substation substation = network.getSubstation(substationId);
         if (substation == null) {
             throw new NetworkModificationException(SUBSTATION_NOT_FOUND, substationId);
         }
-
         VoltageLevel voltageLevel = substation.newVoltageLevel()
             .setId(voltageLevelCreationInfos.getEquipmentId())
             .setName(voltageLevelCreationInfos.getEquipmentName())
