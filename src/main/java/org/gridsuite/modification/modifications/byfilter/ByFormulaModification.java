@@ -19,6 +19,8 @@ import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.dto.byfilter.formula.Operator;
 
 import javax.annotation.Nonnull;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.List;
 
@@ -99,13 +101,19 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
         return applyOperation(formulaInfos.getOperator(), value1, value2).toString();
     }
 
+    static final int MAX_SCALE = 10;
+
     private Double applyOperation(Operator operator, @Nonnull Double value1, @Nonnull Double value2) {
+        BigDecimal bValue1 = BigDecimal.valueOf(value1);
+        BigDecimal bValue2 = BigDecimal.valueOf(value2);
+
         return switch (operator) {
-            case ADDITION -> value1 + value2;
-            case SUBTRACTION -> value1 - value2;
-            case MULTIPLICATION -> value1 * value2;
-            case DIVISION -> value1 / value2;
-            case PERCENTAGE -> (value1 / 100) * value2;
+            case ADDITION -> bValue1.add(bValue2).doubleValue();
+            case SUBTRACTION -> bValue1.subtract(bValue2).doubleValue();
+            case MULTIPLICATION -> bValue1.multiply(bValue2).doubleValue();
+            case DIVISION -> bValue1.divide(bValue2, MAX_SCALE, RoundingMode.HALF_EVEN).doubleValue();
+            case PERCENTAGE -> bValue1.divide(BigDecimal.valueOf(100.0), MAX_SCALE, RoundingMode.HALF_EVEN)
+                .multiply(bValue2).doubleValue();
         };
     }
 

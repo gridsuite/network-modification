@@ -37,6 +37,7 @@ class VoltageLevelByFormulaModificationTest extends AbstractByFormulaModificatio
     private static final String VOLTAGE_LEVEL_ID_5 = "v5";
     private static final String VOLTAGE_LEVEL_ID_6 = "v6";
     private static final String VOLTAGE_LEVEL_ID_7 = "v7";
+    private static final String VOLTAGE_LEVEL_ID_8 = "v8";
 
     @Override
     protected void createEquipments() {
@@ -72,6 +73,9 @@ class VoltageLevelByFormulaModificationTest extends AbstractByFormulaModificatio
 
         getNetwork().getSubstation("s1").newVoltageLevel().setId(VOLTAGE_LEVEL_ID_7)
             .setTopologyKind(TopologyKind.NODE_BREAKER).setNominalV(380.).add();
+
+        getNetwork().getSubstation("s2").newVoltageLevel().setId(VOLTAGE_LEVEL_ID_8)
+            .setTopologyKind(TopologyKind.NODE_BREAKER).setNominalV(100.).add();
     }
 
     @Override
@@ -105,7 +109,12 @@ class VoltageLevelByFormulaModificationTest extends AbstractByFormulaModificatio
             new IdentifiableAttributes(VOLTAGE_LEVEL_ID_7, getIdentifiableType(), 5.0)))
             .build();
 
-        return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3, FILTER_ID_4, filter4, FILTER_ID_5, filter5, FILTER_ID_6, filter6);
+        FilterEquipments filter7 = FilterEquipments.builder().filterId(FILTER_ID_7).identifiableAttributes(List.of(
+                new IdentifiableAttributes(VOLTAGE_LEVEL_ID_8, getIdentifiableType(), 8.0)))
+            .build();
+
+        return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3, FILTER_ID_4, filter4,
+            FILTER_ID_5, filter5, FILTER_ID_6, filter6, FILTER_ID_7, filter7);
     }
 
     @Override
@@ -173,8 +182,20 @@ class VoltageLevelByFormulaModificationTest extends AbstractByFormulaModificatio
             ReferenceFieldOrValue.builder().equipmentField(VoltageLevelField.LOW_SHORT_CIRCUIT_CURRENT_LIMIT.name()).build()
         );
 
+        FormulaInfos formulaInfos10 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
+            List.of(filter7),
+            Operator.MULTIPLICATION,
+            ReferenceFieldOrValue.builder().value(100.).build(),
+            ReferenceFieldOrValue.builder().value(1.1).build());
+
+        FormulaInfos formulaInfos11 = getFormulaInfo(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name(),
+            List.of(filter7),
+            Operator.DIVISION,
+            ReferenceFieldOrValue.builder().value(1000.).build(),
+            ReferenceFieldOrValue.builder().value(3.).build());
+
         return List.of(formulaInfos1, formulaInfos2, formulaInfos3, formulaInfos4, formulaInfos5,
-            formulaInfos6, formulaInfos7, formulaInfos8, formulaInfos9);
+            formulaInfos6, formulaInfos7, formulaInfos8, formulaInfos9, formulaInfos10, formulaInfos11);
     }
 
     @Override
@@ -216,7 +237,9 @@ class VoltageLevelByFormulaModificationTest extends AbstractByFormulaModificatio
 
         assertTrue(Double.isNaN(getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_7).getLowVoltageLimit()));
         assertTrue(Double.isNaN(getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_7).getHighVoltageLimit()));
-        //assertLogMessageWithoutRank("Cannot modify equipment v7 : At least one of the value or referenced field is null", REPORT_KEY_EQUIPMENT_MODIFIED_ERROR, reportService);
-        //assertLogMessageWithoutRank("Some of the equipment have been modified : 14 equipment(s) modified and 4 equipment(s) not modified", REPORT_KEY_BY_FILTER_MODIFICATION_SOME, reportService);
+
+        //Precision tests
+        assertEquals(110., getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_8).getLowVoltageLimit(), 0.);
+        assertEquals(333.3333333333, getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_8).getHighVoltageLimit(), 0.); //scale is defined in byFormulaModifcation (10)
     }
 }
