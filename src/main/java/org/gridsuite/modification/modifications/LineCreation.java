@@ -84,9 +84,19 @@ public class LineCreation extends AbstractModification {
         // properties
         if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
             line.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroup1());
+            subReportNode.newReportNode()
+                    .withMessageTemplate("limit set selected on side 1", "limit set selected on side 1 : ${selectedOperationalLimitsGroup1}")
+                    .withUntypedValue("selectedOperationalLimitsGroup1", modificationInfos.getSelectedOperationalLimitsGroup1())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
         }
         if (modificationInfos.getSelectedOperationalLimitsGroup2() != null) {
             line.setSelectedOperationalLimitsGroup2(modificationInfos.getSelectedOperationalLimitsGroup2());
+            subReportNode.newReportNode()
+                    .withMessageTemplate("limit set selected on side 2", "limit set selected on side 2 : ${selectedOperationalLimitsGroup2}")
+                    .withUntypedValue("selectedOperationalLimitsGroup2", modificationInfos.getSelectedOperationalLimitsGroup2())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
         }
         PropertiesUtils.applyProperties(line, subReportNode, modificationInfos.getProperties(), "LineProperties");
     }
