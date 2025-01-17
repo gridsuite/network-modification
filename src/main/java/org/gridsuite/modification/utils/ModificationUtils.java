@@ -1020,7 +1020,8 @@ public final class ModificationUtils {
      * @param branch branch to which limits are going to be added
      * @param side which side of the branch receives the limits
      */
-    public void setCurrentLimitsOnASide(List<OperationalLimitsGroupInfos> opLimitGroups, Branch<?> branch, TwoSides side) {
+    public void setCurrentLimitsOnASide(List<OperationalLimitsGroupInfos> opLimitGroups, Branch<?> branch, TwoSides side, ReportNode subReportNode) {
+        List<ReportNode> reportNodes = new ArrayList<>();
         for (OperationalLimitsGroupInfos opLimitsGroup : opLimitGroups) {
             boolean hasPermanent = opLimitsGroup.getCurrentLimits().getPermanentLimit() != null;
             boolean hasTemporary = !CollectionUtils.isEmpty(opLimitsGroup.getCurrentLimits().getTemporaryLimits());
@@ -1033,6 +1034,12 @@ public final class ModificationUtils {
             OperationalLimitsGroup opGroup = side == ONE
                     ? branch.newOperationalLimitsGroup1(opLimitsGroup.getId())
                     : branch.newOperationalLimitsGroup2(opLimitsGroup.getId());
+            if (opLimitsGroup.getId() != null) {
+                reportNodes.add(ReportNode.newRootReportNode().withMessageTemplate("limitSetAdded", "     ${name} added")
+                        .withUntypedValue("name", opLimitsGroup.getId())
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .build());
+            }
             CurrentLimitsAdder limitsAdder = opGroup.newCurrentLimits();
             if (hasPermanent) {
                 limitsAdder.setPermanentLimit(opLimitsGroup.getCurrentLimits().getPermanentLimit());
@@ -1050,6 +1057,11 @@ public final class ModificationUtils {
                 });
             }
             limitsAdder.add();
+        }
+        if (!reportNodes.isEmpty()) {
+            ModificationUtils.getInstance().reportModifications(subReportNode, reportNodes,
+                    "LimitSets", "Limit sets " + (side == ONE ? "side one" : "side two")
+            );
         }
     }
 
