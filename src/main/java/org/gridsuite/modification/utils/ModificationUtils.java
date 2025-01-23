@@ -1059,8 +1059,9 @@ public final class ModificationUtils {
             limitsAdder.add();
         }
         if (!reportNodes.isEmpty()) {
+            String sideStr = side == ONE ? "side one" : "side two";
             ModificationUtils.getInstance().reportModifications(subReportNode, reportNodes,
-                    "LimitSets", "Limit sets " + (side == ONE ? "side one" : "side two")
+                    "LimitSets" + sideStr, "Limit sets on side " + sideStr
             );
         }
     }
