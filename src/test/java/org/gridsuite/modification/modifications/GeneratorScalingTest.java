@@ -233,7 +233,7 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                 .filterId(FILTER_WRONG_ID_2)
                 .identifiableAttributes(
                     List.of(new IdentifiableAttributes(GENERATOR_WRONG_ID_1, IdentifiableType.GENERATOR, 2.0),
-                    new IdentifiableAttributes(GENERATOR_ID_10, IdentifiableType.LOAD, 9.0)))
+                        new IdentifiableAttributes(GENERATOR_ID_10, IdentifiableType.LOAD, 9.0)))
                 .build());
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filters);
 
