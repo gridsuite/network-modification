@@ -219,8 +219,9 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
 
     @Test
     void testScalingCreationWithDupeGenerator() throws Exception {
-        // GENERATOR 10 is in both filter and the one with wrong ids
-        // it will be count twice
+        // GENERATOR 10 is in both filter
+        // the filter with wrong ids will be taken for valid ids
+        // it will be counted twice
         // as his target p is 100MW and target p of GENERATOR 9 is 200MW
         // both will be up of 300MW
         Map<UUID, FilterEquipments> filters = Map.of(FILTER_ID_5, FilterEquipments.builder()
