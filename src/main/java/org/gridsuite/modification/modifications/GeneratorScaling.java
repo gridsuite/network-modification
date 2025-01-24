@@ -137,6 +137,7 @@ public class GeneratorScaling extends AbstractScaling {
                                               ReportNode subReportNode,
                                            List<IdentifiableAttributes> identifiableAttributes,
                                            ScalingVariationInfos generatorScalingVariation) {
+        AtomicReference<Double> percentageSum = new AtomicReference<>(0D);
         AtomicReference<Double> sum = new AtomicReference<>(0D);
         List<Generator> generators = identifiableAttributes
                 .stream()
@@ -149,12 +150,17 @@ public class GeneratorScaling extends AbstractScaling {
 
         // we retrieve the target P for every generator and calculate their sum
         generators.forEach(generator -> {
-            targetPMap.put(generator.getId(), generator.getTargetP());
-            sum.set(sum.get() + generator.getTargetP());
+            if (targetPMap.containsKey(generator.getId())) {
+                targetPMap.put(generator.getId(), targetPMap.get(generator.getId()) + generator.getTargetP());
+            } else {
+                targetPMap.put(generator.getId(), generator.getTargetP());
+                sum.set(sum.get() + generator.getTargetP());
+            }
+            percentageSum.set(percentageSum.get() + generator.getTargetP());
         });
 
         // we calculate percentage of each target P value relative to the sum of target P
-        setScalablePercentage(sum, targetPMap, percentages, scalables);
+        setScalablePercentage(percentageSum, targetPMap, percentages, scalables);
         Scalable proportionalScalable = Scalable.proportional(percentages, scalables);
         scale(network, subReportNode, generatorScalingVariation, sum, proportionalScalable, new ScalingParameters().setPriority(RESPECT_OF_VOLUME_ASKED));
     }
