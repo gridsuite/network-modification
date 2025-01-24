@@ -218,7 +218,7 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void testScalingCreationWithDupeGenerator() throws Exception {
+    void testScalingCreationWithDupeGenerator() {
         // GENERATOR 10 is in both filter
         // the filter with wrong ids will be taken for valid ids
         // it will be counted twice
