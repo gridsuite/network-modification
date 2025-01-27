@@ -83,20 +83,20 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
     }
 
     private static Map<UUID, FilterEquipments> getTestFilters() {
-        FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(new IdentifiableAttributes(GENERATOR_ID_1, IdentifiableType.LOAD, 1.0),
-            new IdentifiableAttributes(GENERATOR_ID_2, IdentifiableType.LOAD, 2.0))).build();
+        FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(new IdentifiableAttributes(GENERATOR_ID_1, IdentifiableType.GENERATOR, 1.0),
+            new IdentifiableAttributes(GENERATOR_ID_2, IdentifiableType.GENERATOR, 2.0))).build();
 
-        FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(new IdentifiableAttributes(GENERATOR_ID_3, IdentifiableType.LOAD, 2.0),
-            new IdentifiableAttributes(GENERATOR_ID_4, IdentifiableType.LOAD, 5.0))).build();
+        FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(new IdentifiableAttributes(GENERATOR_ID_3, IdentifiableType.GENERATOR, 2.0),
+            new IdentifiableAttributes(GENERATOR_ID_4, IdentifiableType.GENERATOR, 5.0))).build();
 
-        FilterEquipments filter3 = FilterEquipments.builder().filterId(FILTER_ID_3).identifiableAttributes(List.of(new IdentifiableAttributes(GENERATOR_ID_5, IdentifiableType.LOAD, 6.0),
-            new IdentifiableAttributes(GENERATOR_ID_6, IdentifiableType.LOAD, 7.0))).build();
+        FilterEquipments filter3 = FilterEquipments.builder().filterId(FILTER_ID_3).identifiableAttributes(List.of(new IdentifiableAttributes(GENERATOR_ID_5, IdentifiableType.GENERATOR, 6.0),
+            new IdentifiableAttributes(GENERATOR_ID_6, IdentifiableType.GENERATOR, 7.0))).build();
 
-        FilterEquipments filter4 = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(new IdentifiableAttributes(GENERATOR_ID_7, IdentifiableType.LOAD, 3.0),
-            new IdentifiableAttributes(GENERATOR_ID_8, IdentifiableType.LOAD, 8.0))).build();
+        FilterEquipments filter4 = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(new IdentifiableAttributes(GENERATOR_ID_7, IdentifiableType.GENERATOR, 3.0),
+            new IdentifiableAttributes(GENERATOR_ID_8, IdentifiableType.GENERATOR, 8.0))).build();
 
-        FilterEquipments filter5 = FilterEquipments.builder().filterId(FILTER_ID_5).identifiableAttributes(List.of(new IdentifiableAttributes(GENERATOR_ID_9, IdentifiableType.LOAD, 0.0),
-            new IdentifiableAttributes(GENERATOR_ID_10, IdentifiableType.LOAD, 9.0))).build();
+        FilterEquipments filter5 = FilterEquipments.builder().filterId(FILTER_ID_5).identifiableAttributes(List.of(new IdentifiableAttributes(GENERATOR_ID_9, IdentifiableType.GENERATOR, 0.0),
+            new IdentifiableAttributes(GENERATOR_ID_10, IdentifiableType.GENERATOR, 9.0))).build();
 
         return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3, FILTER_ID_4, filter4, FILTER_ID_5, filter5);
     }
@@ -106,9 +106,9 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
     public void testApply() throws Exception {
         GeneratorScalingInfos modificationInfo = (GeneratorScalingInfos) buildModification();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(getTestFilters());
-        GeneratorScaling loadScaling = (GeneratorScaling) modificationInfo.toModification();
-        loadScaling.initApplicationContext(filterService);
-        loadScaling.apply(getNetwork());
+        GeneratorScaling generatorScaling = (GeneratorScaling) modificationInfo.toModification();
+        generatorScaling.initApplicationContext(filterService);
+        generatorScaling.apply(getNetwork());
         assertAfterNetworkModificationApplication();
     }
 
@@ -179,7 +179,7 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
         Map<UUID, FilterEquipments> filters = Map.of(FILTER_ID_5, FilterEquipments.builder()
                 .filterId(FILTER_ID_5)
                 .identifiableAttributes(List.of(new IdentifiableAttributes(GENERATOR_ID_9, IdentifiableType.GENERATOR, 0.0),
-                        new IdentifiableAttributes(GENERATOR_ID_10, IdentifiableType.LOAD, 9.0)))
+                        new IdentifiableAttributes(GENERATOR_ID_10, IdentifiableType.GENERATOR, 9.0)))
                 .build(),
                 FILTER_WRONG_ID_2, FilterEquipments.builder()
                         .filterId(FILTER_WRONG_ID_2)

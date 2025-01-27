@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -1506,7 +1507,7 @@ public final class ModificationUtils {
         return true;
     }
 
-    public static List<IdentifiableAttributes> getIdentifiableAttributes(Map<UUID, FilterEquipments> exportFilters, List<FilterInfos> filterInfos, ReportNode subReportNode) {
+    public static Set<IdentifiableAttributes> getIdentifiableAttributes(Map<UUID, FilterEquipments> exportFilters, List<FilterInfos> filterInfos, ReportNode subReportNode) {
         filterInfos.stream()
                 .filter(f -> !exportFilters.containsKey(f.getId()))
                 .forEach(f -> createReport(subReportNode,
@@ -1520,7 +1521,7 @@ public final class ModificationUtils {
                 .flatMap(f -> exportFilters.get(f.getId())
                         .getIdentifiableAttributes()
                         .stream())
-                .toList();
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Nullable
