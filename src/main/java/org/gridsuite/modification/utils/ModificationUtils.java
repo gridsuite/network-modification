@@ -1521,7 +1521,7 @@ public final class ModificationUtils {
                 .flatMap(f -> exportFilters.get(f.getId())
                         .getIdentifiableAttributes()
                         .stream())
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Nullable
