@@ -46,10 +46,12 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
     private static final UUID FILTER_ID_3 = UUID.randomUUID();
     private static final UUID FILTER_ID_4 = UUID.randomUUID();
     private static final UUID FILTER_ID_5 = UUID.randomUUID();
+    private static final UUID FILTER_ID_6 = UUID.randomUUID();
     private static final UUID FILTER_ID_ALL_GEN = UUID.randomUUID();
     private static final UUID FILTER_NO_DK = UUID.randomUUID();
     private static final UUID FILTER_WRONG_ID_1 = UUID.randomUUID();
     private static final UUID FILTER_WRONG_ID_2 = UUID.randomUUID();
+    private static final UUID FILTER_WRONG_ID_3 = UUID.randomUUID();
     private static final String GENERATOR_ID_1 = "gen1";
     private static final String GENERATOR_ID_2 = "gen2";
     private static final String GENERATOR_ID_3 = "gen3";
@@ -222,13 +224,13 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
         // GENERATOR 10 is in both filter
         // the filter with wrong ids will be taken for valid ids
         // it will be counted only once even if it is twice
-        Map<UUID, FilterEquipments> filters = Map.of(FILTER_ID_5, FilterEquipments.builder()
-                .filterId(FILTER_ID_5)
+        Map<UUID, FilterEquipments> filters = Map.of(FILTER_ID_6, FilterEquipments.builder()
+                .filterId(FILTER_ID_6)
                 .identifiableAttributes(List.of(new IdentifiableAttributes(GENERATOR_ID_9, IdentifiableType.GENERATOR, 0.0),
                     new IdentifiableAttributes(GENERATOR_ID_10, IdentifiableType.LOAD, 9.0)))
                 .build(),
-            FILTER_WRONG_ID_2, FilterEquipments.builder()
-                .filterId(FILTER_WRONG_ID_2)
+            FILTER_WRONG_ID_3, FilterEquipments.builder()
+                .filterId(FILTER_WRONG_ID_3)
                 .identifiableAttributes(
                     List.of(new IdentifiableAttributes(GENERATOR_WRONG_ID_1, IdentifiableType.GENERATOR, 2.0),
                         new IdentifiableAttributes(GENERATOR_ID_10, IdentifiableType.LOAD, 9.0)))
@@ -237,12 +239,12 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
 
         var filter = FilterInfos.builder()
             .name("filter")
-            .id(FILTER_WRONG_ID_2)
+            .id(FILTER_WRONG_ID_3)
             .build();
 
         var filter2 = FilterInfos.builder()
             .name("filter2")
-            .id(FILTER_ID_5)
+            .id(FILTER_ID_6)
             .build();
 
         var variation = ScalingVariationInfos.builder()
