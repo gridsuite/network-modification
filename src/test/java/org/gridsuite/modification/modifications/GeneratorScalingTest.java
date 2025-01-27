@@ -46,12 +46,10 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
     private static final UUID FILTER_ID_3 = UUID.randomUUID();
     private static final UUID FILTER_ID_4 = UUID.randomUUID();
     private static final UUID FILTER_ID_5 = UUID.randomUUID();
-    private static final UUID FILTER_ID_6 = UUID.randomUUID();
     private static final UUID FILTER_ID_ALL_GEN = UUID.randomUUID();
     private static final UUID FILTER_NO_DK = UUID.randomUUID();
     private static final UUID FILTER_WRONG_ID_1 = UUID.randomUUID();
     private static final UUID FILTER_WRONG_ID_2 = UUID.randomUUID();
-    private static final UUID FILTER_WRONG_ID_3 = UUID.randomUUID();
     private static final String GENERATOR_ID_1 = "gen1";
     private static final String GENERATOR_ID_2 = "gen2";
     private static final String GENERATOR_ID_3 = "gen3";
