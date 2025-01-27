@@ -29,10 +29,7 @@ import org.springframework.util.CollectionUtils;
 import static org.gridsuite.modification.utils.ModificationUtils.createReport;
 import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -74,7 +71,7 @@ public class ByFilterDeletion extends AbstractModification {
         Map<UUID, FilterEquipments> exportFilters = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, modificationInfos.getErrorType());
         if (exportFilters != null) {
             ModificationUtils.logWrongEquipmentsIdsFilters(subReportNode, exportFilters, filters);
-            List<IdentifiableAttributes> identifiableAttributes = ModificationUtils.getIdentifiableAttributes(exportFilters, modificationInfos.getFilters(), subReportNode);
+            Set<IdentifiableAttributes> identifiableAttributes = ModificationUtils.getIdentifiableAttributes(exportFilters, modificationInfos.getFilters(), subReportNode);
 
             if (CollectionUtils.isEmpty(identifiableAttributes)) {
                 String filterNames = modificationInfos.getFilters().stream().map(FilterInfos::getName).collect(Collectors.joining(", "));
@@ -99,7 +96,7 @@ public class ByFilterDeletion extends AbstractModification {
         return "ByFilterDeletion";
     }
 
-    private void applyFilterDeletion(Network network, ReportNode subReportNode, List<IdentifiableAttributes> identifiableAttributes) {
+    private void applyFilterDeletion(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes) {
         IdentifiableType identifiableType = modificationInfos.getEquipmentType();
         if (CONNECTABLE_TYPES.contains(identifiableType)) {
             identifiableAttributes.forEach(identifiableAttribute -> new RemoveFeederBay(identifiableAttribute.getId()).apply(network, true, subReportNode));

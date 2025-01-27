@@ -221,9 +221,7 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
     void testScalingCreationWithDupeGenerator() {
         // GENERATOR 10 is in both filter
         // the filter with wrong ids will be taken for valid ids
-        // it will be counted twice
-        // as his target p is 100MW and target p of GENERATOR 9 is 200MW
-        // both will be up of 300MW
+        // it will be counted only once even if it is twice
         Map<UUID, FilterEquipments> filters = Map.of(FILTER_ID_5, FilterEquipments.builder()
                 .filterId(FILTER_ID_5)
                 .identifiableAttributes(List.of(new IdentifiableAttributes(GENERATOR_ID_9, IdentifiableType.GENERATOR, 0.0),
@@ -261,8 +259,8 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
         GeneratorScaling generatorScaling = (GeneratorScaling) generatorScalingInfo.toModification();
         generatorScaling.initApplicationContext(filterService);
         generatorScaling.apply(getNetwork());
-        assertEquals(500, getNetwork().getGenerator(GENERATOR_ID_9).getTargetP(), 0.01D);
-        assertEquals(400, getNetwork().getGenerator(GENERATOR_ID_10).getTargetP(), 0.01D);
+        assertEquals(600, getNetwork().getGenerator(GENERATOR_ID_9).getTargetP(), 0.01D);
+        assertEquals(300, getNetwork().getGenerator(GENERATOR_ID_10).getTargetP(), 0.01D);
     }
 
     @Override

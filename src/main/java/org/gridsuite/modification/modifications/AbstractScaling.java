@@ -20,8 +20,8 @@ import org.springframework.util.CollectionUtils;
 import static org.gridsuite.modification.utils.ModificationUtils.createReport;
 import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -57,7 +57,7 @@ public abstract class AbstractScaling extends AbstractModification {
 
             // apply variations
             scalingInfos.getVariations().forEach(variation -> {
-                List<IdentifiableAttributes> identifiableAttributes = ModificationUtils.getIdentifiableAttributes(exportFilters, variation.getFilters(), subReportNode);
+                Set<IdentifiableAttributes> identifiableAttributes = ModificationUtils.getIdentifiableAttributes(exportFilters, variation.getFilters(), subReportNode);
 
                 if (CollectionUtils.isEmpty(identifiableAttributes)) {
                     String filterNames = variation.getFilters().stream().map(FilterInfos::getName).collect(Collectors.joining(", "));
@@ -75,7 +75,7 @@ public abstract class AbstractScaling extends AbstractModification {
 
     private void applyVariation(Network network,
                                 ReportNode subReportNode,
-                                List<IdentifiableAttributes> identifiableAttributes,
+                                Set<IdentifiableAttributes> identifiableAttributes,
                                 ScalingVariationInfos variation) {
         switch (variation.getVariationMode()) {
             case PROPORTIONAL:
@@ -98,7 +98,7 @@ public abstract class AbstractScaling extends AbstractModification {
         }
     }
 
-    private Double getDistributionKeys(List<IdentifiableAttributes> identifiableAttributes, ReportNode subReportNode) {
+    private Double getDistributionKeys(Set<IdentifiableAttributes> identifiableAttributes, ReportNode subReportNode) {
         var distributionKeys = identifiableAttributes.stream()
                 .filter(equipment -> equipment.getDistributionKey() != null)
                 .mapToDouble(IdentifiableAttributes::getDistributionKey)
@@ -110,15 +110,15 @@ public abstract class AbstractScaling extends AbstractModification {
         return distributionKeys;
     }
 
-    protected abstract void applyStackingUpVariation(Network network, ReportNode subReportNode, List<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos);
+    protected abstract void applyStackingUpVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos);
 
-    protected abstract void applyVentilationVariation(Network network, ReportNode subReportNode, List<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos, Double distributionKeys);
+    protected abstract void applyVentilationVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos, Double distributionKeys);
 
-    protected abstract void applyRegularDistributionVariation(Network network, ReportNode subReportNode, List<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos);
+    protected abstract void applyRegularDistributionVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos);
 
-    protected abstract void applyProportionalToPmaxVariation(Network network, ReportNode subReportNode, List<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos);
+    protected abstract void applyProportionalToPmaxVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos);
 
-    protected abstract void applyProportionalVariation(Network network, ReportNode subReportNode, List<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos);
+    protected abstract void applyProportionalVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos);
 
     protected abstract double getAsked(ScalingVariationInfos variationInfos, AtomicReference<Double> sum);
 
