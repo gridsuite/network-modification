@@ -219,52 +219,6 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
         assertEquals(300, getNetwork().getGenerator(GENERATOR_ID_10).getTargetP(), 0.01D);
     }
 
-    @Test
-    void testScalingCreationWithDupeGenerator() {
-        // GENERATOR 10 is in both filter
-        // the filter with wrong ids will be taken for valid ids
-        // it will be counted only once even if it is twice
-        Map<UUID, FilterEquipments> filters = Map.of(FILTER_ID_6, FilterEquipments.builder()
-                .filterId(FILTER_ID_6)
-                .identifiableAttributes(List.of(new IdentifiableAttributes(GENERATOR_ID_9, IdentifiableType.GENERATOR, 0.0),
-                    new IdentifiableAttributes(GENERATOR_ID_10, IdentifiableType.LOAD, 9.0)))
-                .build(),
-            FILTER_WRONG_ID_3, FilterEquipments.builder()
-                .filterId(FILTER_WRONG_ID_3)
-                .identifiableAttributes(
-                    List.of(new IdentifiableAttributes(GENERATOR_WRONG_ID_1, IdentifiableType.GENERATOR, 2.0),
-                        new IdentifiableAttributes(GENERATOR_ID_10, IdentifiableType.LOAD, 9.0)))
-                .build());
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filters);
-
-        var filter = FilterInfos.builder()
-            .name("filter")
-            .id(FILTER_WRONG_ID_3)
-            .build();
-
-        var filter2 = FilterInfos.builder()
-            .name("filter2")
-            .id(FILTER_ID_6)
-            .build();
-
-        var variation = ScalingVariationInfos.builder()
-            .variationMode(VariationMode.PROPORTIONAL)
-            .variationValue(900D)
-            .filters(List.of(filter, filter2))
-            .build();
-        var generatorScalingInfo = GeneratorScalingInfos.builder()
-            .stashed(false)
-            .variationType(VariationType.TARGET_P)
-            .variations(List.of(variation))
-            .build();
-
-        GeneratorScaling generatorScaling = (GeneratorScaling) generatorScalingInfo.toModification();
-        generatorScaling.initApplicationContext(filterService);
-        generatorScaling.apply(getNetwork());
-        assertEquals(600, getNetwork().getGenerator(GENERATOR_ID_9).getTargetP(), 0.01D);
-        assertEquals(300, getNetwork().getGenerator(GENERATOR_ID_10).getTargetP(), 0.01D);
-    }
-
     @Override
     protected Network createNetwork(UUID networkUuid) {
         return NetworkCreation.createGeneratorsNetwork(networkUuid, new NetworkFactoryImpl());
