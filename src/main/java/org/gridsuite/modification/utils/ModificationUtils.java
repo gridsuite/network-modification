@@ -168,6 +168,8 @@ public final class ModificationUtils {
     public void controlBus(Network network, VoltageLevel voltageLevel, String busOrBusbarSectionId) {
         if (voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {
             getBusBreakerBus(voltageLevel, busOrBusbarSectionId);
+        } else if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            getNodeBreakerBusbarSection(voltageLevel, busOrBusbarSectionId);
         } else if (network.getBusbarSection(busOrBusbarSectionId) == null) {
             throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, busOrBusbarSectionId);
         }
@@ -232,6 +234,15 @@ public final class ModificationUtils {
             throw new NetworkModificationException(BUS_NOT_FOUND, busId);
         }
         return bus;
+    }
+
+    public BusbarSection getNodeBreakerBusbarSection(VoltageLevel voltageLevel, String busBarSectionId) {
+        VoltageLevel.NodeBreakerView nodeBreakerView = voltageLevel.getNodeBreakerView();
+        BusbarSection busbarSection = nodeBreakerView.getBusbarSection(busBarSectionId);
+        if (busbarSection == null) {
+            throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, busBarSectionId);
+        }
+        return busbarSection;
     }
 
     public int createNodeBreakerCellSwitches(VoltageLevel voltageLevel, String busBarSectionId, String equipmentId,
