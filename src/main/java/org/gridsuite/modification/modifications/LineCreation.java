@@ -11,12 +11,16 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.CreateBranchFeederBays;
 import com.powsybl.iidm.modification.topology.CreateBranchFeederBaysBuilder;
 import com.powsybl.iidm.network.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.CurrentLimitsInfos;
 import org.gridsuite.modification.dto.LineCreationInfos;
+import org.gridsuite.modification.dto.OperationalLimitsGroupInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
+import java.util.List;
+
+import static com.powsybl.iidm.network.TwoSides.*;
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
 
 /**
@@ -65,18 +69,35 @@ public class LineCreation extends AbstractModification {
         } else {
             addLine(network, voltageLevel1, voltageLevel2, modificationInfos, true, true, subReportNode);
         }
+        ModificationUtils.getInstance().disconnectBranch(modificationInfos, network.getLine(modificationInfos.getEquipmentId()), subReportNode);
+        Line line = network.getLine(modificationInfos.getEquipmentId());
 
         // Set permanent and temporary current limits
-        CurrentLimitsInfos currentLimitsInfos1 = modificationInfos.getCurrentLimits1();
-        CurrentLimitsInfos currentLimitsInfos2 = modificationInfos.getCurrentLimits2();
-        if (currentLimitsInfos1 != null || currentLimitsInfos2 != null) {
-            var line = ModificationUtils.getInstance().getLine(network, modificationInfos.getEquipmentId());
-            ModificationUtils.getInstance().setCurrentLimits(currentLimitsInfos1, line.newCurrentLimits1());
-            ModificationUtils.getInstance().setCurrentLimits(currentLimitsInfos2, line.newCurrentLimits2());
+        List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = modificationInfos.getOperationalLimitsGroups1();
+        List<OperationalLimitsGroupInfos> opLimitsGroupSide2 = modificationInfos.getOperationalLimitsGroups2();
+        if (!CollectionUtils.isEmpty(opLimitsGroupSide1)) {
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide1, line, ONE, subReportNode);
         }
-        ModificationUtils.getInstance().disconnectBranch(modificationInfos, network.getLine(modificationInfos.getEquipmentId()), subReportNode);
+        if (!CollectionUtils.isEmpty(opLimitsGroupSide2)) {
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide2, line, TWO, subReportNode);
+        }
         // properties
-        Line line = network.getLine(modificationInfos.getEquipmentId());
+        if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
+            line.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroup1());
+            subReportNode.newReportNode()
+                    .withMessageTemplate("limit set selected on side 1", "limit set selected on side 1 : ${selectedOperationalLimitsGroup1}")
+                    .withUntypedValue("selectedOperationalLimitsGroup1", modificationInfos.getSelectedOperationalLimitsGroup1())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
+        }
+        if (modificationInfos.getSelectedOperationalLimitsGroup2() != null) {
+            line.setSelectedOperationalLimitsGroup2(modificationInfos.getSelectedOperationalLimitsGroup2());
+            subReportNode.newReportNode()
+                    .withMessageTemplate("limit set selected on side 2", "limit set selected on side 2 : ${selectedOperationalLimitsGroup2}")
+                    .withUntypedValue("selectedOperationalLimitsGroup2", modificationInfos.getSelectedOperationalLimitsGroup2())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
+        }
         PropertiesUtils.applyProperties(line, subReportNode, modificationInfos.getProperties(), "LineProperties");
     }
 

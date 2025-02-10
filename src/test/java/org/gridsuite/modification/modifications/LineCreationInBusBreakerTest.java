@@ -11,10 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.CurrentLimitsInfos;
-import org.gridsuite.modification.dto.FreePropertyInfos;
-import org.gridsuite.modification.dto.LineCreationInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 import java.util.Collections;
@@ -54,7 +51,16 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
                 .busOrBusbarSectionId1("bus1")
                 .voltageLevelId2("v2")
                 .busOrBusbarSectionId2("bus2")
-                .currentLimits1(CurrentLimitsInfos.builder().permanentLimit(-1.0).build())
+                .operationalLimitsGroups1(
+                    List.of(
+                        OperationalLimitsGroupInfos.builder()
+                            .id("limiSet1")
+                            .currentLimits(
+                                CurrentLimitsInfos.builder().permanentLimit(-1.0).build()
+                        ).build()
+                    )
+                )
+                .selectedOperationalLimitsGroup1("limiSet1")
                 .build();
         ValidationException exception = assertThrows(ValidationException.class, () -> lineCreationInfosPermanentLimitNOK.toModification().apply(getNetwork()));
         assertEquals("AC Line 'idLine2': permanent limit must be >= 0", exception.getMessage());
@@ -82,8 +88,26 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
             .b2(20.0)
             .voltageLevelId1("v1")
             .busOrBusbarSectionId1("bus1")
-            .currentLimits1(CurrentLimitsInfos.builder().permanentLimit(5.).temporaryLimits(Collections.emptyList()).build())
-            .currentLimits2(CurrentLimitsInfos.builder().permanentLimit(5.).temporaryLimits(Collections.emptyList()).build())
+            .operationalLimitsGroups1(
+                List.of(
+                    OperationalLimitsGroupInfos.builder()
+                        .id("limitSet1")
+                        .currentLimits(
+                            CurrentLimitsInfos.builder().permanentLimit(5.).temporaryLimits(Collections.emptyList()).build()
+                        ).build()
+                )
+            )
+            .operationalLimitsGroups2(
+                List.of(
+                    OperationalLimitsGroupInfos.builder()
+                        .id("limitSet2")
+                        .currentLimits(
+                                CurrentLimitsInfos.builder().permanentLimit(5.).temporaryLimits(Collections.emptyList()).build()
+                    ).build()
+                )
+            )
+            .selectedOperationalLimitsGroup1("limitSet1")
+            .selectedOperationalLimitsGroup2("limitSet2")
             .voltageLevelId2("v2")
             .busOrBusbarSectionId2("bus2")
             .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))

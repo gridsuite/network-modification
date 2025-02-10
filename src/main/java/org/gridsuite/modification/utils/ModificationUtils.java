@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
+import static com.powsybl.iidm.network.TwoSides.ONE;
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
 
 /**
@@ -445,7 +446,7 @@ public final class ModificationUtils {
                 .setB2(lineCreationInfos.getB2() != null ? lineCreationInfos.getB2() : 0.0);
 
         // lineAdder completion by topology
-        setBranchAdderNodeOrBus(lineAdder, voltageLevel1, lineCreationInfos, TwoSides.ONE, withSwitch1);
+        setBranchAdderNodeOrBus(lineAdder, voltageLevel1, lineCreationInfos, ONE, withSwitch1);
         setBranchAdderNodeOrBus(lineAdder, voltageLevel2, lineCreationInfos, TwoSides.TWO, withSwitch2);
 
         return lineAdder;
@@ -453,7 +454,7 @@ public final class ModificationUtils {
 
     public void setBranchAdderNodeOrBus(BranchAdder<?, ?> branchAdder, VoltageLevel voltageLevel, BranchCreationInfos branchCreationInfos,
                                  TwoSides side, boolean withSwitch) {
-        String busOrBusbarSectionId = (side == TwoSides.ONE) ? branchCreationInfos.getBusOrBusbarSectionId1() : branchCreationInfos.getBusOrBusbarSectionId2();
+        String busOrBusbarSectionId = (side == ONE) ? branchCreationInfos.getBusOrBusbarSectionId1() : branchCreationInfos.getBusOrBusbarSectionId2();
         if (voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {
             setBranchAdderBusBreaker(branchAdder, voltageLevel, side, busOrBusbarSectionId);
         } else {
@@ -467,7 +468,7 @@ public final class ModificationUtils {
         Bus bus = getBusBreakerBus(voltageLevel, busId);
 
         // complete the lineAdder
-        if (side == TwoSides.ONE) {
+        if (side == ONE) {
             branchAdder.setBus1(bus.getId()).setConnectableBus1(bus.getId());
         } else {
             branchAdder.setBus2(bus.getId()).setConnectableBus2(bus.getId());
@@ -486,7 +487,7 @@ public final class ModificationUtils {
             sideSuffix);
 
         // complete the lineAdder
-        if (side == TwoSides.ONE) {
+        if (side == ONE) {
             branchAdder.setNode1(nodeNum);
         } else {
             branchAdder.setNode2(nodeNum);
@@ -1015,26 +1016,54 @@ public final class ModificationUtils {
         };
     }
 
-    public void setCurrentLimits(CurrentLimitsInfos currentLimitsInfos, CurrentLimitsAdder limitsAdder) {
-        if (currentLimitsInfos != null) {
-            boolean hasPermanent = currentLimitsInfos.getPermanentLimit() != null;
-            boolean hasTemporary = currentLimitsInfos.getTemporaryLimits() != null && !currentLimitsInfos.getTemporaryLimits().isEmpty();
+    /**
+     * @param opLimitGroups added current limits
+     * @param branch branch to which limits are going to be added
+     * @param side which side of the branch receives the limits
+     */
+    public void setCurrentLimitsOnASide(List<OperationalLimitsGroupInfos> opLimitGroups, Branch<?> branch, TwoSides side, ReportNode subReportNode) {
+        List<ReportNode> reportNodes = new ArrayList<>();
+        for (OperationalLimitsGroupInfos opLimitsGroup : opLimitGroups) {
+            boolean hasPermanent = opLimitsGroup.getCurrentLimits().getPermanentLimit() != null;
+            boolean hasTemporary = !CollectionUtils.isEmpty(opLimitsGroup.getCurrentLimits().getTemporaryLimits());
+            boolean hasLimits = hasPermanent || hasTemporary;
+
+            if (!hasLimits) {
+                continue;
+            }
+
+            OperationalLimitsGroup opGroup = side == ONE
+                    ? branch.newOperationalLimitsGroup1(opLimitsGroup.getId())
+                    : branch.newOperationalLimitsGroup2(opLimitsGroup.getId());
+            if (opLimitsGroup.getId() != null) {
+                reportNodes.add(ReportNode.newRootReportNode().withMessageTemplate("limitSetAdded", "     ${name} added")
+                        .withUntypedValue("name", opLimitsGroup.getId())
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .build());
+            }
+            CurrentLimitsAdder limitsAdder = opGroup.newCurrentLimits();
             if (hasPermanent) {
-                limitsAdder.setPermanentLimit(currentLimitsInfos.getPermanentLimit());
+                limitsAdder.setPermanentLimit(opLimitsGroup.getCurrentLimits().getPermanentLimit());
             }
             if (hasTemporary) {
-                for (CurrentTemporaryLimitCreationInfos limit : currentLimitsInfos.getTemporaryLimits()) {
-                    limitsAdder
-                            .beginTemporaryLimit()
+                opLimitsGroup.getCurrentLimits().getTemporaryLimits().forEach(limit -> {
+                    double value = limit.getValue() != null ? limit.getValue() : Double.MAX_VALUE;
+                    int duration = limit.getAcceptableDuration() != null ? limit.getAcceptableDuration() : Integer.MAX_VALUE;
+
+                    limitsAdder.beginTemporaryLimit()
                             .setName(limit.getName())
-                            .setValue(limit.getValue() == null ? Double.MAX_VALUE : limit.getValue())
-                            .setAcceptableDuration(limit.getAcceptableDuration() == null ? Integer.MAX_VALUE : limit.getAcceptableDuration())
+                            .setValue(value)
+                            .setAcceptableDuration(duration)
                             .endTemporaryLimit();
-                }
+                });
             }
-            if (hasPermanent || hasTemporary) {
-                limitsAdder.add();
-            }
+            limitsAdder.add();
+        }
+        if (!reportNodes.isEmpty()) {
+            String sideStr = side == ONE ? "side one" : "side two";
+            ModificationUtils.getInstance().reportModifications(subReportNode, reportNodes,
+                    "LimitSets" + sideStr, "Limit sets on side " + sideStr
+            );
         }
     }
 

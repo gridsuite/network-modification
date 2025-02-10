@@ -11,11 +11,13 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.CreateBranchFeederBays;
 import com.powsybl.iidm.modification.topology.CreateBranchFeederBaysBuilder;
 import com.powsybl.iidm.network.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
@@ -53,11 +55,29 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         }
 
         // Set permanent and temporary current limits
-        CurrentLimitsInfos currentLimitsInfos1 = modificationInfos.getCurrentLimits1();
-        CurrentLimitsInfos currentLimitsInfos2 = modificationInfos.getCurrentLimits2();
-        if (currentLimitsInfos1 != null || currentLimitsInfos2 != null) {
-            ModificationUtils.getInstance().setCurrentLimits(currentLimitsInfos1, twoWindingsTransformer.newCurrentLimits1());
-            ModificationUtils.getInstance().setCurrentLimits(currentLimitsInfos2, twoWindingsTransformer.newCurrentLimits2());
+        List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = modificationInfos.getOperationalLimitsGroups1();
+        List<OperationalLimitsGroupInfos> opLimitsGroupSide2 = modificationInfos.getOperationalLimitsGroups2();
+        if (!CollectionUtils.isEmpty(opLimitsGroupSide1)) {
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide1, twoWindingsTransformer, TwoSides.ONE, subReportNode);
+        }
+        if (!CollectionUtils.isEmpty(opLimitsGroupSide2)) {
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide2, twoWindingsTransformer, TwoSides.TWO, subReportNode);
+        }
+        if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
+            twoWindingsTransformer.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroup1());
+            subReportNode.newReportNode()
+                    .withMessageTemplate("limit set selected on side 1", "limit set selected on side 1 : ${selectedOperationalLimitsGroup1}")
+                    .withUntypedValue("selectedOperationalLimitsGroup1", modificationInfos.getSelectedOperationalLimitsGroup1())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
+        }
+        if (modificationInfos.getSelectedOperationalLimitsGroup2() != null) {
+            twoWindingsTransformer.setSelectedOperationalLimitsGroup2(modificationInfos.getSelectedOperationalLimitsGroup2());
+            subReportNode.newReportNode()
+                    .withMessageTemplate("limit set selected on side 2", "limit set selected on side 2 : ${selectedOperationalLimitsGroup2}")
+                    .withUntypedValue("selectedOperationalLimitsGroup2", modificationInfos.getSelectedOperationalLimitsGroup2())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
         }
 
         ModificationUtils.getInstance().disconnectBranch(modificationInfos, network.getTwoWindingsTransformer(modificationInfos.getEquipmentId()), subReportNode);
