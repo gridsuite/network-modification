@@ -12,6 +12,9 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import com.powsybl.iidm.network.extensions.Measurement;
+import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.BranchModificationInfos;
 import org.gridsuite.modification.dto.CurrentLimitsModificationInfos;
@@ -78,12 +81,73 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
 
         updateConnections(branch, branchModificationInfos);
-        updateMeasurements(branch, branchModificationInfos);
+
+        updateMeasurements(branch, branchModificationInfos, subReportNode);
     }
 
-    private void updateMeasurements(Branch<?> branch, BranchModificationInfos branchModificationInfos) {
-        //Measurements<Branch> measurements = branch.getExtension(Measurements.class);
-        //MeasurementsAdder<Branch> measurementsAdder = branch.newExtension(Measurements.class);
+    private void updateMeasurements(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode) {
+        Double p1Value = branchModificationInfos.getP1MeasurementValue() != null ? branchModificationInfos.getP1MeasurementValue().getValue() : null;
+        Double q1Value = branchModificationInfos.getQ1MeasurementValue() != null ? branchModificationInfos.getQ1MeasurementValue().getValue() : null;
+        Double p2Value = branchModificationInfos.getP2MeasurementValue() != null ? branchModificationInfos.getP2MeasurementValue().getValue() : null;
+        Double q2Value = branchModificationInfos.getQ2MeasurementValue() != null ? branchModificationInfos.getQ2MeasurementValue().getValue() : null;
+        Boolean p1Validity = branchModificationInfos.getP1MeasurementValidity() != null ? branchModificationInfos.getP1MeasurementValidity().getValue() : null;
+        Boolean q1Validity = branchModificationInfos.getQ1MeasurementValidity() != null ? branchModificationInfos.getQ1MeasurementValidity().getValue() : null;
+        Boolean p2Validity = branchModificationInfos.getP2MeasurementValidity() != null ? branchModificationInfos.getP2MeasurementValidity().getValue() : null;
+        Boolean q2Validity = branchModificationInfos.getQ2MeasurementValidity() != null ? branchModificationInfos.getQ2MeasurementValidity().getValue() : null;
+
+        ReportNode measurementsReporter = subReportNode.newReportNode().withMessageTemplate("measurements", "State estimation").add();
+        List<ReportNode> reports = new ArrayList<>();
+
+        Measurements<?> measurements = (Measurements<?>) branch.getExtension(Measurements.class);
+        if (measurements == null && (p1Value != null || p1Validity != null || q1Value != null || q1Validity != null
+                || p2Value != null || p2Validity != null || q2Value != null || q2Validity != null)) {
+            // at least one modification requested, then we have to create the missing extension
+            MeasurementsAdder<?> measurementsAdder = branch.newExtension(MeasurementsAdder.class);
+            measurements = measurementsAdder.add();
+        }
+
+        upsertMeasurement(branch, measurements, Measurement.Type.ACTIVE_POWER, ThreeSides.ONE, p1Value, p1Validity);
+        upsertMeasurement(branch, measurements, Measurement.Type.REACTIVE_POWER, ThreeSides.ONE, q1Value, q1Validity);
+        upsertMeasurement(branch, measurements, Measurement.Type.ACTIVE_POWER, ThreeSides.TWO, p2Value, p2Validity);
+        upsertMeasurement(branch, measurements, Measurement.Type.REACTIVE_POWER, ThreeSides.TWO, q2Value, q2Validity);
+    }
+
+    private void upsertMeasurement(Branch<?> branch, Measurements<?> measurements, Measurement.Type type, ThreeSides side, Double value, Boolean validity) {
+        if (value == null && validity == null) {
+            return;
+        }
+        Measurement m = getExistingMeasurement(measurements, type, side);
+        if (m != null) { // update it
+            if (value != null) {
+                double oldValue = m.getValue();
+                m.setValue(value);
+            }
+            if (validity != null) {
+                boolean oldValidity = m.isValid();
+                m.setValid(validity);
+            }
+        } else { // add it
+            String mId = computeMeasurementId(branch, type, side); // we need a unique ID here
+            var mAdder = measurements.newMeasurement().setId(mId).setType(type).setSide(side);
+            if (value != null) {
+                mAdder.setValue(value);
+            }
+            if (validity != null) {
+                mAdder.setValid(validity);
+            }
+            mAdder.add();
+        }
+    }
+
+    private Measurement getExistingMeasurement(Measurements<?> measurements, Measurement.Type type, ThreeSides side) {
+        return measurements.getMeasurements(type).stream().filter(m -> m.getSide() == side).findFirst().orElse(null);
+    }
+
+    private String computeMeasurementId(Branch<?> branch, Measurement.Type type, ThreeSides side) {
+        String part1 = branch.getTerminal(side == ThreeSides.ONE ? TwoSides.ONE : TwoSides.TWO).getVoltageLevel().getId();
+        String part2 = branch.getTerminal(side == ThreeSides.ONE ? TwoSides.TWO : TwoSides.ONE).getVoltageLevel().getId();
+        String part3 = type == Measurement.Type.ACTIVE_POWER ? "P" : "Q";
+        return part1 + part2 + part3; // Ex: DRONNP6TOURBP6Q
     }
 
     private void updateConnections(Branch<?> branch, BranchModificationInfos branchModificationInfos) {
@@ -156,7 +220,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 if (limitToModify != null && !limitToModify.getName().equals(limit.getName())) {
                     throw new PowsyblException("2temporary limits have the same duration " + limitAcceptableDuration);
                 }
-                // we remove the limit to modify from the list of temporary limits so we can get the list of temporary limits comming from previous modifications
+                // we remove the limit to modify from the list of temporary limits so we can get the list of temporary limits coming from previous modifications
                 branchTemporaryLimits.removeIf(temporaryLimit -> temporaryLimit.getAcceptableDuration() == limitAcceptableDuration);
             }
             if (limitToModify == null && limit.getModificationType() == TemporaryLimitModificationType.ADDED) {
