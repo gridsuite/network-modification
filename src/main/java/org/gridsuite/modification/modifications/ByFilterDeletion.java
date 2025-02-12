@@ -86,6 +86,8 @@ public class ByFilterDeletion extends AbstractModification {
                         .withUntypedValue("type", modificationInfos.getEquipmentType().name())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add();
+                // Report node is pushed to network instance to allow deletion logs from other libraries to be added
+                network.getReportNodeContext().pushReportNode(subReportNode);
                 applyFilterDeletion(network, subReportNode, identifiableAttributes);
             }
         }

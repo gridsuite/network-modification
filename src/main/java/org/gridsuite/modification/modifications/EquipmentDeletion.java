@@ -43,6 +43,9 @@ public class EquipmentDeletion extends AbstractModification {
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         Identifiable<?> identifiable = ModificationUtils.getInstance().getEquipmentByIdentifiableType(network, modificationInfos.getEquipmentType(), modificationInfos.getEquipmentId());
+
+        // Report node is pushed to network instance to allow deletion logs from other libraries to be added
+        network.getReportNodeContext().pushReportNode(subReportNode);
         if (identifiable instanceof Connectable) {
             new RemoveFeederBay(modificationInfos.getEquipmentId()).apply(network, true, subReportNode);
         } else if (identifiable instanceof HvdcLine) {
