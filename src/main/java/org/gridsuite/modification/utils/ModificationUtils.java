@@ -168,10 +168,12 @@ public final class ModificationUtils {
     public void controlBus(Network network, VoltageLevel voltageLevel, String busOrBusbarSectionId) {
         if (voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {
             getBusBreakerBus(voltageLevel, busOrBusbarSectionId);
-        } else if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            getNodeBreakerBusbarSection(voltageLevel, busOrBusbarSectionId);
-        } else if (network.getBusbarSection(busOrBusbarSectionId) == null) {
-            throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, busOrBusbarSectionId);
+        } else {
+            if (network.getBusbarSection(busOrBusbarSectionId) == null) {
+                throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, busOrBusbarSectionId);
+            } else {
+                getNodeBreakerBusbarSection(voltageLevel, busOrBusbarSectionId);
+            }
         }
     }
 
