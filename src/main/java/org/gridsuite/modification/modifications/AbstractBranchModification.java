@@ -78,6 +78,12 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
 
         updateConnections(branch, branchModificationInfos);
+        updateMeasurements(branch, branchModificationInfos);
+    }
+
+    private void updateMeasurements(Branch<?> branch, BranchModificationInfos branchModificationInfos) {
+        //Measurements<Branch> measurements = branch.getExtension(Measurements.class);
+        //MeasurementsAdder<Branch> measurementsAdder = branch.newExtension(Measurements.class);
     }
 
     private void updateConnections(Branch<?> branch, BranchModificationInfos branchModificationInfos) {
