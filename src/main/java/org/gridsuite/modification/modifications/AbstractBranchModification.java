@@ -37,6 +37,8 @@ public abstract class AbstractBranchModification extends AbstractModification {
 
     private static final String DURATION = "duration";
     private static final String NAME = "name";
+    private static final String VALUE = "value";
+    private static final String VALIDITY = "validity";
     protected final BranchModificationInfos modificationInfos;
 
     protected AbstractBranchModification(BranchModificationInfos modificationInfos) {
@@ -95,45 +97,60 @@ public abstract class AbstractBranchModification extends AbstractModification {
         Boolean p2Validity = branchModificationInfos.getP2MeasurementValidity() != null ? branchModificationInfos.getP2MeasurementValidity().getValue() : null;
         Boolean q2Validity = branchModificationInfos.getQ2MeasurementValidity() != null ? branchModificationInfos.getQ2MeasurementValidity().getValue() : null;
 
-        ReportNode measurementsReporter = subReportNode.newReportNode().withMessageTemplate("measurements", "State estimation").add();
-        List<ReportNode> reports = new ArrayList<>();
-
         Measurements<?> measurements = (Measurements<?>) branch.getExtension(Measurements.class);
-        if (measurements == null && (p1Value != null || p1Validity != null || q1Value != null || q1Validity != null
-                || p2Value != null || p2Validity != null || q2Value != null || q2Validity != null)) {
+        if (measurements == null && (p1Value != null || p1Validity != null || q1Value != null || q1Validity != null || p2Value != null || p2Validity != null || q2Value != null || q2Validity != null)) {
             // at least one modification requested, then we have to create the missing extension
             MeasurementsAdder<?> measurementsAdder = branch.newExtension(MeasurementsAdder.class);
             measurements = measurementsAdder.add();
         }
-
-        upsertMeasurement(branch, measurements, Measurement.Type.ACTIVE_POWER, ThreeSides.ONE, p1Value, p1Validity);
-        upsertMeasurement(branch, measurements, Measurement.Type.REACTIVE_POWER, ThreeSides.ONE, q1Value, q1Validity);
-        upsertMeasurement(branch, measurements, Measurement.Type.ACTIVE_POWER, ThreeSides.TWO, p2Value, p2Validity);
-        upsertMeasurement(branch, measurements, Measurement.Type.REACTIVE_POWER, ThreeSides.TWO, q2Value, q2Validity);
+        // Side 1 measurements update
+        List<ReportNode> side1Reports = new ArrayList<>();
+        upsertMeasurement(branch, measurements, Measurement.Type.ACTIVE_POWER, ThreeSides.ONE, p1Value, p1Validity, side1Reports);
+        upsertMeasurement(branch, measurements, Measurement.Type.REACTIVE_POWER, ThreeSides.ONE, q1Value, q1Validity, side1Reports);
+        // Side 2 measurements update
+        List<ReportNode> side2Reports = new ArrayList<>();
+        upsertMeasurement(branch, measurements, Measurement.Type.ACTIVE_POWER, ThreeSides.TWO, p2Value, p2Validity, side2Reports);
+        upsertMeasurement(branch, measurements, Measurement.Type.REACTIVE_POWER, ThreeSides.TWO, q2Value, q2Validity, side2Reports);
+        // report changes
+        ReportNode estimSubReportNode = null;
+        if (!side1Reports.isEmpty() || !side2Reports.isEmpty()) {
+            estimSubReportNode = subReportNode.newReportNode().withMessageTemplate("measurements", "State estimation").add();
+        }
+        if (!side1Reports.isEmpty()) {
+            ModificationUtils.getInstance().reportModifications(estimSubReportNode, side1Reports, "measurementsSide1", "Side 1");
+        }
+        if (!side2Reports.isEmpty()) {
+            ModificationUtils.getInstance().reportModifications(estimSubReportNode, side2Reports, "measurementsSide2", "Side 2");
+        }
     }
 
-    private void upsertMeasurement(Branch<?> branch, Measurements<?> measurements, Measurement.Type type, ThreeSides side, Double value, Boolean validity) {
+    private void upsertMeasurement(Branch<?> branch, Measurements<?> measurements, Measurement.Type type, ThreeSides side, Double value, Boolean validity, List<ReportNode> reports) {
         if (value == null && validity == null) {
             return;
         }
+        String measurementType = (type == Measurement.Type.ACTIVE_POWER ? "Active power" : "Reactive power") + " measurement ";
         Measurement m = getExistingMeasurement(measurements, type, side);
-        if (m != null) { // update it
+        if (m != null) { // update measurement
             if (value != null) {
                 double oldValue = m.getValue();
                 m.setValue(value);
+                reports.add(ModificationUtils.buildModificationReport(oldValue, value, measurementType + VALUE, 1, TypedValue.INFO_SEVERITY));
             }
             if (validity != null) {
                 boolean oldValidity = m.isValid();
                 m.setValid(validity);
+                reports.add(ModificationUtils.buildModificationReport(oldValidity, validity, measurementType + VALIDITY, 1, TypedValue.INFO_SEVERITY));
             }
-        } else { // add it
+        } else { // add new measurement
             String mId = computeMeasurementId(branch, type, side); // we need a unique ID here
             var mAdder = measurements.newMeasurement().setId(mId).setType(type).setSide(side);
             if (value != null) {
                 mAdder.setValue(value);
+                reports.add(ModificationUtils.buildModificationReport(null, value, measurementType + VALUE, 1, TypedValue.INFO_SEVERITY));
             }
             if (validity != null) {
                 mAdder.setValid(validity);
+                reports.add(ModificationUtils.buildModificationReport(null, validity, measurementType + VALIDITY, 1, TypedValue.INFO_SEVERITY));
             }
             mAdder.add();
         }
@@ -228,7 +245,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
                         .withMessageTemplate("temporaryLimitAdded" + limit.getName(), "            ${name} (${duration}) added with ${value}")
                         .withUntypedValue(NAME, limit.getName())
                         .withUntypedValue(DURATION, limitDurationToReport)
-                        .withUntypedValue("value", limitValueToReport)
+                        .withUntypedValue(VALUE, limitValueToReport)
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .build());
 
