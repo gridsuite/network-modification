@@ -152,7 +152,7 @@ public final class ModificationUtils {
         VoltageLevel voltageLevel = getVoltageLevel(network, voltageLevelId);
         if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             // bus bar section must exist
-            controlBus(network, voltageLevel, busOrBusbarSectionId);
+            controlBus(voltageLevel, busOrBusbarSectionId);
             // check if position is free
             Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
             var position = getPosition(connectionPosition, busOrBusbarSectionId, network, voltageLevel);
@@ -161,19 +161,15 @@ public final class ModificationUtils {
             }
         } else {
             // bus breaker must exist
-            controlBus(network, voltageLevel, busOrBusbarSectionId);
+            controlBus(voltageLevel, busOrBusbarSectionId);
         }
     }
 
-    public void controlBus(Network network, VoltageLevel voltageLevel, String busOrBusbarSectionId) {
+    public void controlBus(VoltageLevel voltageLevel, String busOrBusbarSectionId) {
         if (voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {
             getBusBreakerBus(voltageLevel, busOrBusbarSectionId);
         } else {
-            if (network.getBusbarSection(busOrBusbarSectionId) == null) {
-                throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, busOrBusbarSectionId);
-            } else {
-                getNodeBreakerBusbarSection(voltageLevel, busOrBusbarSectionId);
-            }
+            getNodeBreakerBusbarSection(voltageLevel, busOrBusbarSectionId);
         }
     }
 
@@ -189,8 +185,8 @@ public final class ModificationUtils {
                     busOrBusbarSectionId2, connectionPosition2);
         } else {
             // bus or mixed mode
-            controlBus(network, voltageLevel1, busOrBusbarSectionId1);
-            controlBus(network, voltageLevel2, busOrBusbarSectionId2);
+            controlBus(voltageLevel1, busOrBusbarSectionId1);
+            controlBus(voltageLevel2, busOrBusbarSectionId2);
         }
     }
 
@@ -298,7 +294,7 @@ public final class ModificationUtils {
                 throw new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, existingVoltageLevelId);
             }
             // check existing busbar/bus
-            controlBus(network, vl, bbsOrBusId);
+            controlBus(vl, bbsOrBusId);
         }
     }
 
