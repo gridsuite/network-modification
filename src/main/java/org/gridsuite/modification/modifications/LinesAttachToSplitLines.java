@@ -42,7 +42,7 @@ public class LinesAttachToSplitLines extends AbstractModification {
             throw new NetworkModificationException(LINE_NOT_FOUND, modificationInfos.getAttachedLineId());
         }
         VoltageLevel vl = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId());
-        ModificationUtils.getInstance().controlBus(network, vl, modificationInfos.getBbsBusId());
+        ModificationUtils.getInstance().controlBus(vl, modificationInfos.getBbsBusId());
         // check future lines don't exist
         if (network.getLine(modificationInfos.getReplacingLine1Id()) != null) {
             throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationInfos.getReplacingLine1Id());

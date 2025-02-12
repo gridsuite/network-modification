@@ -72,7 +72,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
                 .minQ(55.)
                 .voltageSetpoint(34.)
                 .voltageLevelId("v2")
-                .busOrBusbarSectionId("1.1")
+                .busOrBusbarSectionId("1B")
                 .connectionName("top")
                 .connectionDirection(ConnectablePosition.Direction.TOP)
                 .reactiveCapabilityCurvePoints(List.of())
