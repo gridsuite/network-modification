@@ -44,7 +44,7 @@ public class EquipmentDeletion extends AbstractModification {
     public void apply(Network network, ReportNode subReportNode) {
         Identifiable<?> identifiable = ModificationUtils.getInstance().getEquipmentByIdentifiableType(network, modificationInfos.getEquipmentType(), modificationInfos.getEquipmentId());
 
-        // needed to get network store logs especially those about the reset of regulation
+        // Report node is pushed to network instance to allow deletion logs from other libraries to be added  
         network.getReportNodeContext().pushReportNode(subReportNode);
         if (identifiable instanceof Connectable) {
             new RemoveFeederBay(modificationInfos.getEquipmentId()).apply(network, true, subReportNode);
