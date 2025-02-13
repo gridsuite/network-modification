@@ -114,6 +114,22 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
                 () -> generatorModificationInfos.toModification().apply(getNetwork()));
         assertEquals("Generator 'idGenerator': energy source is not set",
                 exception.getMessage());
+
+        // check regulating terminal
+        GeneratorModificationInfos generatorModificationInfos2 = (GeneratorModificationInfos) buildModification();
+        generatorModificationInfos2.setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
+        NetworkModificationException exception2 = assertThrows(NetworkModificationException.class,
+            () -> generatorModificationInfos2.toModification().check(getNetwork()));
+        assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : Regulation is set to Distant but regulating terminal is missing",
+            exception2.getMessage());
+
+        // check regulating terminal
+        GeneratorModificationInfos generatorModificationInfos3 = (GeneratorModificationInfos) buildModification();
+        generatorModificationInfos3.setRegulatingTerminalVlId(new AttributeModification<>(null, OperationType.UNSET));
+        NetworkModificationException exception3 = assertThrows(NetworkModificationException.class,
+            () -> generatorModificationInfos3.toModification().check(getNetwork()));
+        assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : Regulation is set to Distant but regulating terminal is missing",
+            exception3.getMessage());
     }
 
     @Test

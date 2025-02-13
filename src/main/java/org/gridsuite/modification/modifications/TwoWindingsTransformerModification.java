@@ -36,9 +36,32 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
 
     @Override
     public void check(Network network) throws NetworkModificationException {
+        String errorMessage = "Two winding transformer '" + modificationInfos.getEquipmentId() + "' : ";
         if (network.getTwoWindingsTransformer(modificationInfos.getEquipmentId()) == null) {
             throw new NetworkModificationException(TWO_WINDINGS_TRANSFORMER_NOT_FOUND,
                     "Two windings transformer with ID '" + modificationInfos.getEquipmentId() + "' does not exist in the network");
+        }
+        TwoWindingsTransformerModificationInfos twtModificationInfos = (TwoWindingsTransformerModificationInfos) modificationInfos;
+        if (twtModificationInfos.getRatioTapChanger() != null) {
+            checkTapChangerModification(network, twtModificationInfos.getRatioTapChanger(), errorMessage);
+        }
+        if (twtModificationInfos.getPhaseTapChanger() != null) {
+            checkTapChangerModification(network, twtModificationInfos.getPhaseTapChanger(), errorMessage);
+        }
+    }
+
+    private void checkTapChangerModification(Network network, TapChangerModificationInfos tapChangerModificationInfos, String errorMessage) {
+        if (ModificationUtils.getInstance().checkEnableRegulation(tapChangerModificationInfos.getRegulationType(),
+            tapChangerModificationInfos.getRegulatingTerminalId(),
+            tapChangerModificationInfos.getRegulatingTerminalType(),
+            tapChangerModificationInfos.getRegulatingTerminalVlId(),
+            MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, errorMessage)) {
+            VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, tapChangerModificationInfos.getRegulatingTerminalVlId().getValue());
+            // if the regulating terminal info is present and regulation is enabled check if the distant terminal is found
+            ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
+                tapChangerModificationInfos.getRegulatingTerminalId().getValue(),
+                tapChangerModificationInfos.getRegulatingTerminalType().getValue(),
+                tapChangerModificationInfos.getRegulatingTerminalVlId().getValue());
         }
     }
 
