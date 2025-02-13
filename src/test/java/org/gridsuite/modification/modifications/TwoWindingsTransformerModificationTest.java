@@ -208,6 +208,12 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         NetworkModificationException exception4 = assertThrows(NetworkModificationException.class,
             () -> twtModificationInfos4.toModification().check(getNetwork()));
         assertEquals("VOLTAGE_LEVEL_NOT_FOUND : test", exception4.getMessage());
+
+        // do not throw
+        TwoWindingsTransformerModificationInfos twtModificationInfos5 = (TwoWindingsTransformerModificationInfos) buildModification();
+        twtModificationInfos5.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
+        twtModificationInfos5.getPhaseTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
+        assertDoesNotThrow(() -> twtModificationInfos5.toModification().check(getNetwork()));
     }
 
     private TwoWindingsTransformer createPhaseTapChanger() {
