@@ -25,6 +25,7 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.BRANCH_MODIFICATION_ERROR;
@@ -96,21 +97,23 @@ public abstract class AbstractBranchModification extends AbstractModification {
         Boolean q1Validity = branchModificationInfos.getQ1MeasurementValidity() != null ? branchModificationInfos.getQ1MeasurementValidity().getValue() : null;
         Boolean p2Validity = branchModificationInfos.getP2MeasurementValidity() != null ? branchModificationInfos.getP2MeasurementValidity().getValue() : null;
         Boolean q2Validity = branchModificationInfos.getQ2MeasurementValidity() != null ? branchModificationInfos.getQ2MeasurementValidity().getValue() : null;
-
+        if (p1Value == null && p1Validity == null && q1Value == null && q1Validity == null && p2Value == null && p2Validity == null && q2Value == null && q2Validity == null) {
+            // no measurement modification requested
+            return;
+        }
         Measurements<?> measurements = (Measurements<?>) branch.getExtension(Measurements.class);
-        if (measurements == null && (p1Value != null || p1Validity != null || q1Value != null || q1Validity != null || p2Value != null || p2Validity != null || q2Value != null || q2Validity != null)) {
-            // at least one modification requested, then we have to create the missing extension
+        if (measurements == null) {
             MeasurementsAdder<?> measurementsAdder = branch.newExtension(MeasurementsAdder.class);
             measurements = measurementsAdder.add();
         }
         // Side 1 measurements update
         List<ReportNode> side1Reports = new ArrayList<>();
-        upsertMeasurement(branch, measurements, Measurement.Type.ACTIVE_POWER, ThreeSides.ONE, p1Value, p1Validity, side1Reports);
-        upsertMeasurement(branch, measurements, Measurement.Type.REACTIVE_POWER, ThreeSides.ONE, q1Value, q1Validity, side1Reports);
+        upsertMeasurement(measurements, Measurement.Type.ACTIVE_POWER, ThreeSides.ONE, p1Value, p1Validity, side1Reports);
+        upsertMeasurement(measurements, Measurement.Type.REACTIVE_POWER, ThreeSides.ONE, q1Value, q1Validity, side1Reports);
         // Side 2 measurements update
         List<ReportNode> side2Reports = new ArrayList<>();
-        upsertMeasurement(branch, measurements, Measurement.Type.ACTIVE_POWER, ThreeSides.TWO, p2Value, p2Validity, side2Reports);
-        upsertMeasurement(branch, measurements, Measurement.Type.REACTIVE_POWER, ThreeSides.TWO, q2Value, q2Validity, side2Reports);
+        upsertMeasurement(measurements, Measurement.Type.ACTIVE_POWER, ThreeSides.TWO, p2Value, p2Validity, side2Reports);
+        upsertMeasurement(measurements, Measurement.Type.REACTIVE_POWER, ThreeSides.TWO, q2Value, q2Validity, side2Reports);
         // report changes
         ReportNode estimSubReportNode = null;
         if (!side1Reports.isEmpty() || !side2Reports.isEmpty()) {
@@ -124,7 +127,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
     }
 
-    private void upsertMeasurement(Branch<?> branch, Measurements<?> measurements, Measurement.Type type, ThreeSides side, Double value, Boolean validity, List<ReportNode> reports) {
+    private void upsertMeasurement(Measurements<?> measurements, Measurement.Type type, ThreeSides side, Double value, Boolean validity, List<ReportNode> reports) {
         if (value == null && validity == null) {
             return;
         }
@@ -142,8 +145,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 reports.add(ModificationUtils.buildModificationReport(oldValidity, validity, measurementType + VALIDITY, 1, TypedValue.INFO_SEVERITY));
             }
         } else { // add new measurement
-            String mId = computeMeasurementId(branch, type, side); // we need a unique ID here
-            var mAdder = measurements.newMeasurement().setId(mId).setType(type).setSide(side);
+            var mAdder = measurements.newMeasurement().setId(UUID.randomUUID().toString()).setType(type).setSide(side);
             if (value != null) {
                 mAdder.setValue(value);
                 reports.add(ModificationUtils.buildModificationReport(null, value, measurementType + VALUE, 1, TypedValue.INFO_SEVERITY));
@@ -158,13 +160,6 @@ public abstract class AbstractBranchModification extends AbstractModification {
 
     private Measurement getExistingMeasurement(Measurements<?> measurements, Measurement.Type type, ThreeSides side) {
         return measurements.getMeasurements(type).stream().filter(m -> m.getSide() == side).findFirst().orElse(null);
-    }
-
-    private String computeMeasurementId(Branch<?> branch, Measurement.Type type, ThreeSides side) {
-        String part1 = branch.getTerminal(side == ThreeSides.ONE ? TwoSides.ONE : TwoSides.TWO).getVoltageLevel().getId();
-        String part2 = branch.getTerminal(side == ThreeSides.ONE ? TwoSides.TWO : TwoSides.ONE).getVoltageLevel().getId();
-        String part3 = type == Measurement.Type.ACTIVE_POWER ? "P" : "Q";
-        return part1 + part2 + part3; // Ex: DRONNP6TOURBP6Q
     }
 
     private void updateConnections(Branch<?> branch, BranchModificationInfos branchModificationInfos) {
@@ -263,7 +258,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
                             .withMessageTemplate("temporaryLimitModified" + limit.getName(), "            ${name} (${duration}) : ${oldValue} -> ${value}")
                             .withUntypedValue(NAME, limit.getName())
                             .withUntypedValue(DURATION, limitDurationToReport)
-                            .withUntypedValue("value", limitValueToReport)
+                            .withUntypedValue(VALUE, limitValueToReport)
                             .withUntypedValue("oldValue",
                                     limitToModify.getValue() == Double.MAX_VALUE ? "no value"
                                             : String.valueOf(limitToModify.getValue()))
