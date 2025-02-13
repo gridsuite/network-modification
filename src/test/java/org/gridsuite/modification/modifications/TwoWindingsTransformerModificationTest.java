@@ -200,6 +200,14 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
             () -> twtModificationInfos3.toModification().check(getNetwork()));
         assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two winding transformer 'trf1' : Regulation is set to Distant but regulating terminal is missing",
             exception3.getMessage());
+
+        // ratio tap changer check regulating terminal
+        TwoWindingsTransformerModificationInfos twtModificationInfos4 = (TwoWindingsTransformerModificationInfos) buildModification();
+        twtModificationInfos4.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
+        twtModificationInfos4.getRatioTapChanger().setRegulatingTerminalVlId(new AttributeModification<>("test", OperationType.UNSET));
+        NetworkModificationException exception4 = assertThrows(NetworkModificationException.class,
+            () -> twtModificationInfos4.toModification().check(getNetwork()));
+        assertEquals("VOLTAGE_LEVEL_NOT_FOUND : test", exception4.getMessage());
     }
 
     private TwoWindingsTransformer createPhaseTapChanger() {
