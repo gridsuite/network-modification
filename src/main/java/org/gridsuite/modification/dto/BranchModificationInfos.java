@@ -71,4 +71,28 @@ public class BranchModificationInfos extends BasicEquipmentModificationInfos {
 
     @Schema(description = "Connected 2")
     private AttributeModification<Boolean> terminal2Connected;
+
+    @Schema(description = "P1 measurement value")
+    private AttributeModification<Double> p1MeasurementValue;
+
+    @Schema(description = "P1 measurement validity")
+    private AttributeModification<Boolean> p1MeasurementValidity;
+
+    @Schema(description = "P2 measurement value")
+    private AttributeModification<Double> p2MeasurementValue;
+
+    @Schema(description = "P2 measurement validity")
+    private AttributeModification<Boolean> p2MeasurementValidity;
+
+    @Schema(description = "Q1 measurement value")
+    private AttributeModification<Double> q1MeasurementValue;
+
+    @Schema(description = "Q1 measurement validity")
+    private AttributeModification<Boolean> q1MeasurementValidity;
+
+    @Schema(description = "Q2 measurement value")
+    private AttributeModification<Double> q2MeasurementValue;
+
+    @Schema(description = "Q2 measurement validity")
+    private AttributeModification<Boolean> q2MeasurementValidity;
 }
