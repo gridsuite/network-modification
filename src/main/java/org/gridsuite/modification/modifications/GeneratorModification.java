@@ -50,8 +50,8 @@ public class GeneratorModification extends AbstractModification {
         ModificationUtils.getInstance().checkReactiveLimit(generator, modificationInfos.getMinQ(), modificationInfos.getMaxQ(),
                 modificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_GENERATOR_ERROR, errorMessage);
         // check regulated terminal
-        if (modificationInfos.getRegulatingTerminalId() != null && modificationInfos.getRegulatingTerminalType() != null &&
-                modificationInfos.getRegulatingTerminalVlId() != null) {
+        if (ModificationUtils.getInstance().checkEnableRegulation(modificationInfos.getVoltageRegulationType(), modificationInfos.getRegulatingTerminalId(),
+            modificationInfos.getRegulatingTerminalType(), modificationInfos.getRegulatingTerminalVlId(), MODIFY_GENERATOR_ERROR, errorMessage)) {
             VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getRegulatingTerminalVlId().getValue());
             ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
                     modificationInfos.getRegulatingTerminalId().getValue(),

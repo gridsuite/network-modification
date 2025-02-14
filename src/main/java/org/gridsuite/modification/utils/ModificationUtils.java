@@ -1357,6 +1357,21 @@ public final class ModificationUtils {
         }
     }
 
+    public boolean checkEnableRegulation(AttributeModification<VoltageRegulationType> voltageRegulationType,
+                                         AttributeModification<String> regulatingTerminalId,
+                                         AttributeModification<String> regulatingTerminalType,
+                                         AttributeModification<String> regulatingTerminalVlId,
+                                         NetworkModificationException.Type exceptionType,
+                                         String errorMessage) {
+        if (voltageRegulationType != null && voltageRegulationType.getValue().equals(VoltageRegulationType.DISTANT) &&
+            (regulatingTerminalId == null || regulatingTerminalId.getValue() == null
+                || regulatingTerminalType == null || regulatingTerminalType.getValue() == null
+                || regulatingTerminalVlId == null || regulatingTerminalVlId.getValue() == null)) {
+            throw new NetworkModificationException(exceptionType, errorMessage + "Regulation is set to Distant but regulating terminal is missing");
+        }
+        return voltageRegulationType != null && voltageRegulationType.getValue().equals(VoltageRegulationType.DISTANT);
+    }
+
     public void checkActivePowerZeroOrBetweenMinAndMaxActivePower(AttributeModification<Double> activePowerInfos, AttributeModification<Double> minActivePowerInfos, AttributeModification<Double> maxActivePowerInfos, Double previousMinActivePower, Double previousMaxActivePower, Double previousActivePower, NetworkModificationException.Type exceptionType, String errorMessage) {
         Double minActivePower = minActivePowerInfos != null ? minActivePowerInfos.getValue() : previousMinActivePower;
         Double maxActivePower = maxActivePowerInfos != null ? maxActivePowerInfos.getValue() : previousMaxActivePower;
