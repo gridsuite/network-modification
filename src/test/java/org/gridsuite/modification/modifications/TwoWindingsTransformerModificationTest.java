@@ -710,7 +710,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 .tapPosition(new AttributeModification<>(1, OperationType.SET))
                 .regulatingTerminalId(new AttributeModification<>("v3load", OperationType.SET))
                 .regulatingTerminalType(new AttributeModification<>("LOAD", OperationType.SET))
-                .regulatingTerminalVlId(new AttributeModification<>("V3", OperationType.SET))
+                .regulatingTerminalVlId(new AttributeModification<>("v3", OperationType.SET))
                 .regulating(new AttributeModification<>(false, OperationType.SET))
                 .targetDeadband(new AttributeModification<>(10.0, OperationType.SET))
                 .regulationType(new AttributeModification<>(VoltageRegulationType.LOCAL, OperationType.SET))
