@@ -1,0 +1,18 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+
+jobs:
+  build:
+    uses: powsybl/github-ci/.github/workflows/build-backend-lib-generic.yml@3cec8155a76cd0b883b1a7b93c3ef034f0182dc1
+    with:
+      sonarOrganization: gridsuite
+      sonarProjectKey: org.gridsuite:network-modification
+      eventType: network-modification-updated
+    secrets:
+      sonar-token: ${{ secrets.SONAR_TOKEN }}
+      repo-token: ${{ secrets.REPO_ACCESS_TOKEN }}
