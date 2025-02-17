@@ -122,7 +122,8 @@ public class NetworkModificationException extends PowsyblException {
         MODIFICATION_BY_ASSIGNMENT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),
         HVDC_LINE_NOT_FOUND(HttpStatus.NOT_FOUND),
         COMPOSITE_MODIFICATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),
-        WRONG_HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL(HttpStatus.BAD_REQUEST);
+        WRONG_HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL(HttpStatus.BAD_REQUEST),
+        UNSUPPORTED_HYBRID_HVDC(HttpStatus.INTERNAL_SERVER_ERROR);
 
         public final HttpStatus status;
         private final String message;
@@ -176,5 +177,10 @@ public class NetworkModificationException extends PowsyblException {
 
     public static NetworkModificationException createEquipementAttributeNotEditable(@NonNull IdentifiableType equipmentType, @NonNull String attributeName) {
         throw new NetworkModificationException(ATTRIBUTE_NOT_EDITABLE, equipmentType.name() + " attribute '" + attributeName + "' not editable");
+    }
+
+    public static NetworkModificationException createHybridHvdcUnsupported(String hvdcId) {
+        Objects.requireNonNull(hvdcId);
+        return new NetworkModificationException(Type.UNSUPPORTED_HYBRID_HVDC, String.format("The hybrid Hvdc line %s is unsupported", hvdcId));
     }
 }
