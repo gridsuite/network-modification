@@ -379,11 +379,13 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         if (tapChangingReport != null) {
             ratioTapChangerReports.add(tapChangingReport);
         }
-        processRegulating(ratioTapChangerInfos, ratioTapChanger, ratioTapChangerAdder, ratioTapChangerReports, isModification);
 
         List<ReportNode> voltageRegulationReports = new ArrayList<>();
         processRatioVoltageRegulation(ratioTapChangerInfos, twt, ratioTapChanger, ratioTapChangerAdder, voltageRegulationReports, network,
                 isModification);
+        // regulating must be set after target value, regulating mode and regulating terminal are set
+        processRegulating(ratioTapChangerInfos, ratioTapChanger, ratioTapChangerAdder, ratioTapChangerReports, isModification);
+
         List<ReportNode> positionsAndStepsReports = new ArrayList<>();
         processTapChangerPositionsAndSteps(ratioTapChanger, ratioTapChangerAdder, isModification, ratioTapChangerInfos.getLowTapPosition(), ratioTapChangerInfos.getTapPosition(), ratioTapChangerInfos.getSteps(), positionsAndStepsReports
         );
@@ -413,6 +415,17 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
             List<ReportNode> ratioTapChangerReports, boolean isModification) {
         if (ratioTapChangerInfos.getRegulating() != null && ratioTapChangerInfos.getRegulating().getValue() != null) {
             boolean regulating = ratioTapChangerInfos.getRegulating().getValue();
+
+            RatioTapChanger.RegulationMode regulationMode = regulating ? RatioTapChanger.RegulationMode.VOLTAGE : RatioTapChanger.RegulationMode.REACTIVE_POWER;
+            AttributeModification<RatioTapChanger.RegulationMode> regulationModeModification = AttributeModification.toAttributeModification(regulationMode, OperationType.SET);
+            ReportNode regulationModeReport = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
+                isModification ? ratioTapChanger::setRegulationMode : ratioTapChangerAdder::setRegulationMode,
+                isModification ? ratioTapChanger::getRegulationMode : () -> null,
+                regulationModeModification, "Voltage regulation mode set to " + regulationMode, 1);
+            if (regulationModeReport != null) {
+                ratioTapChangerReports.add(regulationModeReport);
+            }
+
             ReportNode voltageRegulationReport = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
                     isModification ? ratioTapChanger::setRegulating
                             : ratioTapChangerAdder::setRegulating,
