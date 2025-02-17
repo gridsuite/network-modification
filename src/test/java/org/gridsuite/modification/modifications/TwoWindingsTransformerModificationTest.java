@@ -17,6 +17,9 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.Measurement;
+import com.powsybl.iidm.network.extensions.Measurements;
+import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -36,6 +39,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class TwoWindingsTransformerModificationTest extends AbstractNetworkModificationTest {
     private static final String PROPERTY_NAME = "property-name";
     private static final String PROPERTY_VALUE = "property-value";
+    private static final Double MEASUREMENT_P_VALUE = 150.0;
+    private static final Double MEASUREMENT_Q_VALUE = -20.0;
+    private static final Boolean MEASUREMENT_P_VALID = false;
+    private static final Boolean MEASUREMENT_Q_VALID = true;
 
     @Override
     protected Network createNetwork(UUID networkUuid) {
@@ -44,7 +51,9 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
 
     @Override
     protected ModificationInfos buildModification() {
-        return TwoWindingsTransformerModificationInfos.builder().stashed(false).equipmentId("trf1")
+        return TwoWindingsTransformerModificationInfos.builder()
+                .equipmentId("trf1")
+                .stashed(false)
                 .equipmentName(new AttributeModification<>("2wt modified name", OperationType.SET))
                 .r(new AttributeModification<>(1., OperationType.SET))
                 .x(new AttributeModification<>(2., OperationType.SET))
@@ -81,6 +90,10 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 .connectionDirection2(new AttributeModification<>(ConnectablePosition.Direction.TOP, OperationType.SET))
                 .connectionPosition1(new AttributeModification<>(1, OperationType.SET))
                 .connectionPosition2(new AttributeModification<>(2, OperationType.SET))
+                .p1MeasurementValue(new AttributeModification<>(MEASUREMENT_P_VALUE, OperationType.SET))
+                .p1MeasurementValidity(new AttributeModification<>(MEASUREMENT_P_VALID, OperationType.SET))
+                .q1MeasurementValue(new AttributeModification<>(MEASUREMENT_Q_VALUE, OperationType.SET))
+                .q1MeasurementValidity(new AttributeModification<>(MEASUREMENT_Q_VALID, OperationType.SET))
                 .ratioTapChanger(RatioTapChangerModificationInfos.builder()
                         .enabled(new AttributeModification<>(true, OperationType.SET))
                         .loadTapChangingCapabilities(new AttributeModification<>(true, OperationType.SET))
@@ -174,6 +187,18 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertEquals("name32", temporaryLimit.getName());
         assertEquals(42.0, temporaryLimit.getValue());
         assertEquals(PROPERTY_VALUE, getNetwork().getTwoWindingsTransformer("trf1").getProperty(PROPERTY_NAME));
+        assertMeasurements(modifiedTwoWindingsTransformer);
+    }
+
+    private void assertMeasurements(TwoWindingsTransformer twt) {
+        Measurements<?> measurements = (Measurements<?>) twt.getExtension(Measurements.class);
+        assertNotNull(measurements);
+        Collection<Measurement> activePowerMeasurements = measurements.getMeasurements(Measurement.Type.ACTIVE_POWER).stream().toList();
+        assertFalse(CollectionUtils.isEmpty(activePowerMeasurements));
+        assertThat(activePowerMeasurements).allMatch(m -> m.getValue() == MEASUREMENT_P_VALUE && m.isValid() == MEASUREMENT_P_VALID);
+        Collection<Measurement> reactivePowerMeasurements = measurements.getMeasurements(Measurement.Type.REACTIVE_POWER).stream().toList();
+        assertFalse(CollectionUtils.isEmpty(reactivePowerMeasurements));
+        assertThat(reactivePowerMeasurements).allMatch(m -> m.getValue() == MEASUREMENT_Q_VALUE && m.isValid() == MEASUREMENT_Q_VALID);
     }
 
     @Override
