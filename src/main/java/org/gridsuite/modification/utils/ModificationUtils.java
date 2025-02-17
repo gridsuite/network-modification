@@ -1385,24 +1385,24 @@ public final class ModificationUtils {
             || regulatingTerminalId == null || regulatingTerminalId.getValue() == null;
         if (isRegulatingTerminalInfoMissing) {
             if (oldRegulatingTerminal == null) {
-                // all modification are null
+                // all modifications are null
                 // and regulating terminal is null
-                // the regulation should be local or regulating terminal modifications must be filled
+                // the regulation should be local or regulating terminal modifications must be provided
                 throw new NetworkModificationException(exceptionType, errorMessage + "Regulation is set to Distant but regulating terminal is missing");
             } else if (oldRegulatingTerminal.equals(localTerminal)) {
-                // all modification are null
+                // all modifications are null
                 // and regulating terminal is local
-                // the regulation should be local or regulating terminal modifications must be filled
+                // the regulation should be local or regulating terminal modifications must be provided
                 throw new NetworkModificationException(exceptionType, errorMessage + "Regulation is set to Distant but regulating terminal is local and there is no modification about regulating terminal");
             }
-            // all modification are null but oldRegulatingTerminal is not
-            // we will get the old regulating terminal
+            // all modifications are null but oldRegulatingTerminal is not
+            // we will retrieve the old regulating terminal
         } else if (isRegulatingTerminalInfoIncomplete) {
             // at least one information about new regulating terminal is null
-            // meaning regulating terminal modification information are incomplete
+            // meaning regulating terminal modification information is incomplete
             throw new NetworkModificationException(exceptionType, errorMessage + "Regulation is set to Distant but regulating terminal information are incomplete");
         } else {
-            // regulating terminal modification information are complete
+            // regulating terminal modification information is complete
             // check if the regulating terminal exists
             getTerminalFromIdentifiable(network,
                 regulatingTerminalId.getValue(),
