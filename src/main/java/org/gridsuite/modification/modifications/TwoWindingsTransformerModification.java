@@ -36,18 +36,19 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        String errorMessage = "Two winding transformer '" + modificationInfos.getEquipmentId() + "' : ";
+        String errorMessage = "Two windings transformer with ID '" + modificationInfos.getEquipmentId() + "' : ";
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(modificationInfos.getEquipmentId());
         if (transformer == null) {
-            throw new NetworkModificationException(TWO_WINDINGS_TRANSFORMER_NOT_FOUND,
-                    "Two windings transformer with ID '" + modificationInfos.getEquipmentId() + "' does not exist in the network");
+            throw new NetworkModificationException(TWO_WINDINGS_TRANSFORMER_NOT_FOUND, errorMessage + "it does not exist in the network");
         }
         TwoWindingsTransformerModificationInfos twtModificationInfos = (TwoWindingsTransformerModificationInfos) modificationInfos;
-        if (transformer.getRatioTapChanger() != null && twtModificationInfos.getRatioTapChanger() != null) {
-            checkTapChangerModification(network, twtModificationInfos.getRatioTapChanger(), transformer.getRatioTapChanger(), errorMessage);
-        }
-        if (transformer.getPhaseTapChanger() != null && twtModificationInfos.getPhaseTapChanger() != null) {
-            checkTapChangerModification(network, twtModificationInfos.getPhaseTapChanger(), transformer.getPhaseTapChanger(), errorMessage);
+        checkAndModifyTapChanger(network, twtModificationInfos.getRatioTapChanger(), transformer.getRatioTapChanger(), errorMessage);
+        checkAndModifyTapChanger(network, twtModificationInfos.getPhaseTapChanger(), transformer.getPhaseTapChanger(), errorMessage);
+    }
+
+    private void checkAndModifyTapChanger(Network network, TapChangerModificationInfos tapChangerModificationInfos, TapChanger tapChanger, String errorMessage) {
+        if (tapChanger != null && tapChangerModificationInfos != null) {
+            checkTapChangerModification(network, tapChangerModificationInfos, tapChanger, errorMessage);
         }
     }
 

@@ -206,7 +206,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos = (TwoWindingsTransformerModificationInfos) buildModification();
         twoWindingsTransformerModificationInfos.setEquipmentId("2wt_not_existing");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> twoWindingsTransformerModificationInfos.toModification().check(getNetwork()));
-        assertEquals("TWO_WINDINGS_TRANSFORMER_NOT_FOUND : Two windings transformer with ID '2wt_not_existing' does not exist in the network", exception.getMessage());
+        assertEquals("TWO_WINDINGS_TRANSFORMER_NOT_FOUND : Two windings transformer with ID '2wt_not_existing' : it does not exist in the network", exception.getMessage());
 
         // no phase tap changer on this transformer
         // ratio tap changer check regulating terminal
@@ -215,7 +215,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         twtModificationInfos2.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
         NetworkModificationException exception2 = assertThrows(NetworkModificationException.class,
             () -> twtModificationInfos2.toModification().check(getNetwork()));
-        assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two winding transformer 'trf1' : Regulation is set to Distant but regulating terminal information are incomplete",
+        assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer with ID 'trf1' : Regulation is set to Distant but regulating terminal information are incomplete",
             exception2.getMessage());
 
         // ratio tap changer check regulating terminal
