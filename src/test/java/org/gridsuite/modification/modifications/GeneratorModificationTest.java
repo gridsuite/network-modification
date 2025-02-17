@@ -120,16 +120,26 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         generatorModificationInfos2.setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
         NetworkModificationException exception2 = assertThrows(NetworkModificationException.class,
             () -> generatorModificationInfos2.toModification().check(getNetwork()));
-        assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : Regulation is set to Distant but regulating terminal is missing",
+        assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : Regulation is set to Distant but regulating terminal information are incomplete",
             exception2.getMessage());
 
         // check regulating terminal
         GeneratorModificationInfos generatorModificationInfos3 = (GeneratorModificationInfos) buildModification();
         generatorModificationInfos3.setRegulatingTerminalVlId(new AttributeModification<>(null, OperationType.UNSET));
+        generatorModificationInfos3.setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
+        generatorModificationInfos3.setRegulatingTerminalType(new AttributeModification<>(null, OperationType.UNSET));
         NetworkModificationException exception3 = assertThrows(NetworkModificationException.class,
             () -> generatorModificationInfos3.toModification().check(getNetwork()));
-        assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : Regulation is set to Distant but regulating terminal is missing",
+        assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : Regulation is set to Distant but regulating terminal is local and there is no modification about regulating terminal",
             exception3.getMessage());
+
+        // check regulating terminal
+        GeneratorModificationInfos generatorModificationInfos4 = (GeneratorModificationInfos) buildModification();
+        generatorModificationInfos4.setRegulatingTerminalVlId(new AttributeModification<>(null, OperationType.UNSET));
+        generatorModificationInfos4.setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
+        generatorModificationInfos4.setRegulatingTerminalType(new AttributeModification<>(null, OperationType.UNSET));
+        getNetwork().getGenerator("idGenerator").setRegulatingTerminal(getNetwork().getBusbarSection("1A1").getTerminal());
+        assertDoesNotThrow(() -> generatorModificationInfos4.toModification().check(getNetwork()));
     }
 
     @Test

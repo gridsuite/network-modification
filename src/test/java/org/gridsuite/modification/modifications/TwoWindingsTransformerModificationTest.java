@@ -183,37 +183,44 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> twoWindingsTransformerModificationInfos.toModification().check(getNetwork()));
         assertEquals("TWO_WINDINGS_TRANSFORMER_NOT_FOUND : Two windings transformer with ID '2wt_not_existing' does not exist in the network", exception.getMessage());
 
+        // no phase tap changer on this transformer
         // ratio tap changer check regulating terminal
         TwoWindingsTransformerModificationInfos twtModificationInfos2 = (TwoWindingsTransformerModificationInfos) buildModification();
         twtModificationInfos2.getRatioTapChanger().setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
         twtModificationInfos2.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
         NetworkModificationException exception2 = assertThrows(NetworkModificationException.class,
             () -> twtModificationInfos2.toModification().check(getNetwork()));
-        assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two winding transformer 'trf1' : Regulation is set to Distant but regulating terminal is missing",
+        assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two winding transformer 'trf1' : Regulation is set to Distant but regulating terminal information are incomplete",
             exception2.getMessage());
-
-        // check regulating terminal
-        TwoWindingsTransformerModificationInfos twtModificationInfos3 = (TwoWindingsTransformerModificationInfos) buildModification();
-        twtModificationInfos3.getPhaseTapChanger().setRegulatingTerminalVlId(new AttributeModification<>(null, OperationType.UNSET));
-        twtModificationInfos3.getPhaseTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
-        NetworkModificationException exception3 = assertThrows(NetworkModificationException.class,
-            () -> twtModificationInfos3.toModification().check(getNetwork()));
-        assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two winding transformer 'trf1' : Regulation is set to Distant but regulating terminal is missing",
-            exception3.getMessage());
 
         // ratio tap changer check regulating terminal
         TwoWindingsTransformerModificationInfos twtModificationInfos4 = (TwoWindingsTransformerModificationInfos) buildModification();
         twtModificationInfos4.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
-        twtModificationInfos4.getRatioTapChanger().setRegulatingTerminalVlId(new AttributeModification<>("test", OperationType.UNSET));
+        twtModificationInfos4.getRatioTapChanger().setRegulatingTerminalId(new AttributeModification<>("test", OperationType.UNSET));
         NetworkModificationException exception4 = assertThrows(NetworkModificationException.class,
             () -> twtModificationInfos4.toModification().check(getNetwork()));
-        assertEquals("VOLTAGE_LEVEL_NOT_FOUND : test", exception4.getMessage());
+        assertEquals("EQUIPMENT_NOT_FOUND : Equipment with id=test not found with type TWO_WINDINGS_TRANSFORMER", exception4.getMessage());
 
-        // do not throw
+        // ratio tap changer check regulating terminal
         TwoWindingsTransformerModificationInfos twtModificationInfos5 = (TwoWindingsTransformerModificationInfos) buildModification();
         twtModificationInfos5.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
-        twtModificationInfos5.getPhaseTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
-        assertDoesNotThrow(() -> twtModificationInfos5.toModification().check(getNetwork()));
+        twtModificationInfos5.getRatioTapChanger().setRegulatingTerminalVlId(new AttributeModification<>("test", OperationType.UNSET));
+        NetworkModificationException exception5 = assertThrows(NetworkModificationException.class,
+            () -> twtModificationInfos5.toModification().check(getNetwork()));
+        assertEquals("VOLTAGE_LEVEL_NOT_FOUND : Voltage level with id=test not found", exception5.getMessage());
+
+        // do not throw
+        TwoWindingsTransformerModificationInfos twtModificationInfos6 = (TwoWindingsTransformerModificationInfos) buildModification();
+        twtModificationInfos6.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
+        twtModificationInfos6.getRatioTapChanger().setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
+        twtModificationInfos6.getRatioTapChanger().setRegulatingTerminalVlId(new AttributeModification<>(null, OperationType.UNSET));
+        twtModificationInfos6.getRatioTapChanger().setRegulatingTerminalType(new AttributeModification<>(null, OperationType.UNSET));
+        assertDoesNotThrow(() -> twtModificationInfos6.toModification().check(getNetwork()));
+
+        // do not throw
+        TwoWindingsTransformerModificationInfos twtModificationInfos7 = (TwoWindingsTransformerModificationInfos) buildModification();
+        twtModificationInfos7.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
+        assertDoesNotThrow(() -> twtModificationInfos7.toModification().check(getNetwork()));
     }
 
     private TwoWindingsTransformer createPhaseTapChanger() {
@@ -228,7 +235,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         Terminal phaseTapChangerTerminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(getNetwork(),
             "v3load",
             "LOAD",
-            "V3");
+            "v3");
         twt3.newPhaseTapChanger()
             .setLowTapPosition(0)
             .setTapPosition(1)
@@ -541,7 +548,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         Terminal phaseTapChangerTerminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(getNetwork(),
             "v3load",
             "LOAD",
-            "V3");
+            "v3");
         phaseTapChangerAdder.setLowTapPosition(0)
             .setTapPosition(1)
             .setRegulationTerminal(phaseTapChangerTerminal)
@@ -585,7 +592,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 .tapPosition(new AttributeModification<>(1, OperationType.SET))
                 .regulatingTerminalId(new AttributeModification<>("v3load", OperationType.SET))
                 .regulatingTerminalType(new AttributeModification<>("LOAD", OperationType.SET))
-                .regulatingTerminalVlId(new AttributeModification<>("V3", OperationType.SET))
+                .regulatingTerminalVlId(new AttributeModification<>("v3", OperationType.SET))
                 .steps(List.of(TapChangerStepCreationInfos.builder()
                         .index(0)
                         .r(0)
@@ -629,7 +636,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 .tapPosition(new AttributeModification<>(1, OperationType.SET))
                 .regulatingTerminalId(new AttributeModification<>("v3load", OperationType.SET))
                 .regulatingTerminalType(new AttributeModification<>("LOAD", OperationType.SET))
-                .regulatingTerminalVlId(new AttributeModification<>("V3", OperationType.SET))
+                .regulatingTerminalVlId(new AttributeModification<>("v3", OperationType.SET))
                 .steps(List.of(TapChangerStepCreationInfos.builder()
                         .index(0)
                         .r(0)

@@ -37,32 +37,29 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
     @Override
     public void check(Network network) throws NetworkModificationException {
         String errorMessage = "Two winding transformer '" + modificationInfos.getEquipmentId() + "' : ";
-        if (network.getTwoWindingsTransformer(modificationInfos.getEquipmentId()) == null) {
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(modificationInfos.getEquipmentId());
+        if (transformer == null) {
             throw new NetworkModificationException(TWO_WINDINGS_TRANSFORMER_NOT_FOUND,
                     "Two windings transformer with ID '" + modificationInfos.getEquipmentId() + "' does not exist in the network");
         }
         TwoWindingsTransformerModificationInfos twtModificationInfos = (TwoWindingsTransformerModificationInfos) modificationInfos;
-        if (twtModificationInfos.getRatioTapChanger() != null) {
-            checkTapChangerModification(network, twtModificationInfos.getRatioTapChanger(), errorMessage);
+        if (transformer.getRatioTapChanger() != null && twtModificationInfos.getRatioTapChanger() != null) {
+            checkTapChangerModification(network, twtModificationInfos.getRatioTapChanger(), transformer.getRatioTapChanger(), errorMessage);
         }
-        if (twtModificationInfos.getPhaseTapChanger() != null) {
-            checkTapChangerModification(network, twtModificationInfos.getPhaseTapChanger(), errorMessage);
+        if (transformer.getPhaseTapChanger() != null && twtModificationInfos.getPhaseTapChanger() != null) {
+            checkTapChangerModification(network, twtModificationInfos.getPhaseTapChanger(), transformer.getPhaseTapChanger(), errorMessage);
         }
     }
 
-    private void checkTapChangerModification(Network network, TapChangerModificationInfos tapChangerModificationInfos, String errorMessage) {
-        if (ModificationUtils.getInstance().checkEnableRegulation(tapChangerModificationInfos.getRegulationType(),
+    private void checkTapChangerModification(Network network, TapChangerModificationInfos tapChangerModificationInfos, TapChanger tapChanger, String errorMessage) {
+        ModificationUtils.getInstance().checkEnableRegulation(tapChangerModificationInfos.getRegulationType(),
             tapChangerModificationInfos.getRegulatingTerminalId(),
             tapChangerModificationInfos.getRegulatingTerminalType(),
             tapChangerModificationInfos.getRegulatingTerminalVlId(),
-            MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, errorMessage)) {
-            VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, tapChangerModificationInfos.getRegulatingTerminalVlId().getValue());
-            // if the regulating terminal info is present and regulation is enabled check if the distant terminal is found
-            ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
-                tapChangerModificationInfos.getRegulatingTerminalId().getValue(),
-                tapChangerModificationInfos.getRegulatingTerminalType().getValue(),
-                tapChangerModificationInfos.getRegulatingTerminalVlId().getValue());
-        }
+            null,
+            tapChanger.getRegulationTerminal(),
+            network,
+            MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, errorMessage);
     }
 
     @Override
