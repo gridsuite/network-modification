@@ -219,7 +219,9 @@ public class VscCreation extends AbstractModification {
         if (converterStationCreationInfos.getVoltageSetpoint() != null) {
             converterStationAdder.setVoltageSetpoint(converterStationCreationInfos.getVoltageSetpoint());
         }
-        createInjectionInNodeBreaker(voltageLevel, converterStationCreationInfos, network, converterStationAdder, subReportNode);
+        createInjectionInNodeBreaker(voltageLevel, converterStationCreationInfos.getBusOrBusbarSectionId(), converterStationCreationInfos.getConnectionPosition(),
+                converterStationCreationInfos.getConnectionDirection(), converterStationCreationInfos.getConnectionName() != null ? converterStationCreationInfos.getConnectionName() : modificationInfos.getEquipmentId(),
+                network, converterStationAdder, subReportNode);
         VscConverterStation vscConverterStation = ModificationUtils.getInstance()
                 .getVscConverterStation(network, converterStationCreationInfos.getEquipmentId());
 

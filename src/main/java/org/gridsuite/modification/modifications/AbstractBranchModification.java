@@ -40,7 +40,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
         this.modificationInfos = modificationInfos;
     }
 
-    protected void modifyBranch(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode, String reporterKey, String reporterDefaultMessage) {
+    protected void modifyBranch(Network network, Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode, String reporterKey, String reporterDefaultMessage) {
         subReportNode.newReportNode()
                 .withMessageTemplate(reporterKey, reporterDefaultMessage)
                 .withUntypedValue("id", branchModificationInfos.getEquipmentId())
@@ -51,7 +51,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
             branch.setName(branchModificationInfos.getEquipmentName().getValue());
         }
 
-        modifyBranchConnectivityAttributes(branchModificationInfos, branch, subReportNode);
+        modifyBranchConnectivityAttributes(network, branchModificationInfos, branch, subReportNode);
 
         if (characteristicsModified(branchModificationInfos)) {
             modifyCharacteristics(branch, branchModificationInfos, subReportNode);
@@ -225,10 +225,25 @@ public abstract class AbstractBranchModification extends AbstractModification {
     protected abstract void modifyCharacteristics(Branch<?> branch, BranchModificationInfos branchModificationInfos,
             ReportNode subReportNode);
 
-    private ReportNode modifyBranchConnectivityAttributes(BranchModificationInfos branchModificationInfos,
+    private ReportNode modifyBranchConnectivityAttributes(Network network, BranchModificationInfos branchModificationInfos,
                                                           Branch<?> branch, ReportNode subReportNode) {
         ConnectablePosition<?> connectablePosition = (ConnectablePosition<?>) branch.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<?> connectablePositionAdder = branch.newExtension(ConnectablePositionAdder.class);
-        return ModificationUtils.getInstance().modifyBranchConnectivityAttributes(connectablePosition, connectablePositionAdder, branch, branchModificationInfos, subReportNode);
+        BranchAdder<?, ?> branchAdder = null;
+        if (branch instanceof Line) {
+            branchAdder = (BranchAdder<?, ?>) ModificationUtils.getInstance().createLineAdder(network, modificationInfos.getVoltageLevelId1() != null ?
+                            network.getVoltageLevel(modificationInfos.getVoltageLevelId1().getValue()) : branch.getTerminal1().getVoltageLevel(),
+                    modificationInfos.getVoltageLevelId2() != null ?
+                            network.getVoltageLevel(modificationInfos.getVoltageLevelId2().getValue()) : branch.getTerminal2().getVoltageLevel(),
+                    branchModificationInfos, false, false).add();
+        }
+        if (branch instanceof TwoWindingsTransformer) {
+            branchAdder = (BranchAdder<?, ?>) ModificationUtils.getInstance().createTwoWindingsTransformerAdder(network, modificationInfos.getVoltageLevelId1() != null ?
+                            network.getVoltageLevel(modificationInfos.getVoltageLevelId1().getValue()) : branch.getTerminal1().getVoltageLevel(),
+                    modificationInfos.getVoltageLevelId2() != null ?
+                            network.getVoltageLevel(modificationInfos.getVoltageLevelId2().getValue()) : branch.getTerminal2().getVoltageLevel(),
+                    branchModificationInfos, false, false).add();
+        }
+        return ModificationUtils.getInstance().modifyBranchConnectivityAttributes(network, connectablePosition, connectablePositionAdder, branch, branchAdder, branchModificationInfos, subReportNode);
     }
 }

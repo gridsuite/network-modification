@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_GENERATOR_ERROR;
+import static org.gridsuite.modification.utils.ModificationUtils.createGeneratorAdderInNodeBreaker;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
 /**
@@ -45,8 +46,13 @@ public class GeneratorModification extends AbstractModification {
             throw new NetworkModificationException(MODIFY_GENERATOR_ERROR, "Missing required attributes to modify the equipment");
         }
         Generator generator = ModificationUtils.getInstance().getGenerator(network, modificationInfos.getEquipmentId());
-        // check min max reactive limits
         String errorMessage = "Generator '" + modificationInfos.getEquipmentId() + "' : ";
+        // check connectivity
+        if (modificationInfos.getVoltageLevelId() != null && modificationInfos.getVoltageLevelId().getValue() != null) {
+            ModificationUtils.getInstance().controlBus(ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId().getValue()),
+                    modificationInfos.getBusOrBusbarSectionId().getValue());
+        }
+        // check min max reactive limits
         ModificationUtils.getInstance().checkReactiveLimit(generator, modificationInfos.getMinQ(), modificationInfos.getMaxQ(),
                 modificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_GENERATOR_ERROR, errorMessage);
         // check regulated terminal
@@ -78,7 +84,7 @@ public class GeneratorModification extends AbstractModification {
     public void apply(Network network, ReportNode subReportNode) {
         Generator generator = ModificationUtils.getInstance().getGenerator(network, modificationInfos.getEquipmentId());
         // modify the generator in the network
-        modifyGenerator(generator, modificationInfos, subReportNode);
+        modifyGenerator(network, generator, modificationInfos, subReportNode);
     }
 
     @Override
@@ -86,7 +92,7 @@ public class GeneratorModification extends AbstractModification {
         return "GeneratorModification";
     }
 
-    private void modifyGenerator(Generator generator, GeneratorModificationInfos modificationInfos, ReportNode subReportNode) {
+    private void modifyGenerator(Network network, Generator generator, GeneratorModificationInfos modificationInfos, ReportNode subReportNode) {
         subReportNode.newReportNode()
                 .withMessageTemplate("generatorModification", "Generator with id=${id} modified :")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
@@ -102,7 +108,7 @@ public class GeneratorModification extends AbstractModification {
         modifyGeneratorSetpointsAttributes(modificationInfos, generator, subReportNode);
         modifyGeneratorShortCircuitAttributes(modificationInfos.getDirectTransX(), modificationInfos.getStepUpTransformerX(), generator, subReportNode);
         modifyGeneratorStartUpAttributes(modificationInfos, generator, subReportNode);
-        modifyGeneratorConnectivityAttributes(modificationInfos, generator, subReportNode);
+        modifyGeneratorConnectivityAttributes(network, modificationInfos, generator, subReportNode);
         PropertiesUtils.applyProperties(generator, subReportNode, modificationInfos.getProperties(), "GeneratorProperties");
     }
 
@@ -489,10 +495,13 @@ public class GeneratorModification extends AbstractModification {
         modifyGeneratorReactiveLimitsAttributes(modificationInfos, generator, subReportNode, subReportNodeLimits);
     }
 
-    private ReportNode modifyGeneratorConnectivityAttributes(GeneratorModificationInfos modificationInfos,
+    private ReportNode modifyGeneratorConnectivityAttributes(Network network, GeneratorModificationInfos modificationInfos,
                                                              Generator generator, ReportNode subReportNode) {
         ConnectablePosition<Generator> connectablePosition = generator.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<Generator> connectablePositionAdder = generator.newExtension(ConnectablePositionAdder.class);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, generator, modificationInfos, subReportNode);
+        GeneratorAdder generatorAdder = createGeneratorAdderInNodeBreaker(network, modificationInfos.getVoltageLevelId() != null ?
+                network.getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : generator.getTerminal().getVoltageLevel(), modificationInfos);
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(network, connectablePosition,
+                connectablePositionAdder, generator, generatorAdder, modificationInfos, subReportNode);
     }
 }

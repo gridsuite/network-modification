@@ -191,7 +191,10 @@ public class LccCreation extends AbstractModification {
         if (lccConverterStationCreationInfos.getPowerFactor() != null) {
             converterStationAdder.setPowerFactor(lccConverterStationCreationInfos.getPowerFactor());
         }
-        createInjectionInNodeBreaker(voltageLevel, lccConverterStationCreationInfos, network, converterStationAdder, subReportNode);
+        createInjectionInNodeBreaker(voltageLevel, lccConverterStationCreationInfos.getBusOrBusbarSectionId(), lccConverterStationCreationInfos.getConnectionPosition(),
+                lccConverterStationCreationInfos.getConnectionDirection(), lccConverterStationCreationInfos.getConnectionName() != null ?
+                        lccConverterStationCreationInfos.getConnectionName() : lccConverterStationCreationInfos.getEquipmentId(),
+                network, converterStationAdder, subReportNode);
         Optional.ofNullable(lccConverterStationCreationInfos.getShuntCompensatorsOnSide())
                 .ifPresent(shuntCompensators ->
                         shuntCompensators.forEach(shuntCompensatorOnSide -> {

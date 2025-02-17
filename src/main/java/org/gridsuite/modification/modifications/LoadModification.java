@@ -9,6 +9,7 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
@@ -19,6 +20,7 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.LOAD_NOT_FOUND;
+import static org.gridsuite.modification.utils.ModificationUtils.createLoadAdderInNodeBreaker;
 
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
@@ -44,7 +46,7 @@ public class LoadModification extends AbstractModification {
     public void apply(Network network, ReportNode subReportNode) {
         Load load = network.getLoad(modificationInfos.getEquipmentId());
         // modify the load in the network
-        modifyLoad(load, subReportNode);
+        modifyLoad(network, load, subReportNode);
     }
 
     @Override
@@ -52,7 +54,7 @@ public class LoadModification extends AbstractModification {
         return "LoadModification";
     }
 
-    private void modifyLoad(Load load, ReportNode subReportNode) {
+    private void modifyLoad(Network network, Load load, ReportNode subReportNode) {
         subReportNode.newReportNode()
             .withMessageTemplate("loadModification", "Load with id=${id} modified :")
             .withUntypedValue("id", modificationInfos.getEquipmentId())
@@ -63,7 +65,7 @@ public class LoadModification extends AbstractModification {
         ModificationUtils.getInstance().applyElementaryModifications(load::setLoadType, load::getLoadType, modificationInfos.getLoadType(), subReportNode, "Type");
         modifyP0(load, modificationInfos.getP0(), subReportNode);
         modifyQ0(load, modificationInfos.getQ0(), subReportNode);
-        modifyLoadConnectivityAttributes(modificationInfos, load, subReportNode);
+        modifyLoadConnectivityAttributes(network, modificationInfos, load, subReportNode);
         // properties
         PropertiesUtils.applyProperties(load, subReportNode, modificationInfos.getProperties(), "LoadProperties");
     }
@@ -76,10 +78,12 @@ public class LoadModification extends AbstractModification {
         ModificationUtils.getInstance().applyElementaryModifications(load::setP0, load::getP0, p0, subReportNode, "Constant active power");
     }
 
-    private ReportNode modifyLoadConnectivityAttributes(LoadModificationInfos modificationInfos,
+    private ReportNode modifyLoadConnectivityAttributes(Network network, LoadModificationInfos modificationInfos,
                                                         Load load, ReportNode subReportNode) {
         ConnectablePosition<Load> connectablePosition = load.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<Load> connectablePositionAdder = load.newExtension(ConnectablePositionAdder.class);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, load, modificationInfos, subReportNode);
+        LoadAdder loadAdder = createLoadAdderInNodeBreaker(network, modificationInfos.getVoltageLevelId() != null ?
+                network.getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : load.getTerminal().getVoltageLevel(), modificationInfos);
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(network, connectablePosition, connectablePositionAdder, load, loadAdder, modificationInfos, subReportNode);
     }
 }

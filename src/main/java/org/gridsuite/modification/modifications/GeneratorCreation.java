@@ -22,7 +22,8 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_GENERATOR_ERROR;
+import static org.gridsuite.modification.NetworkModificationException.Type.GENERATOR_ALREADY_EXISTS;
 import static org.gridsuite.modification.modifications.GeneratorModification.ERROR_MESSAGE;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
@@ -89,39 +90,15 @@ public class GeneratorCreation extends AbstractModification {
     }
 
     private void createGeneratorInNodeBreaker(VoltageLevel voltageLevel, GeneratorCreationInfos generatorCreationInfos, Network network, ReportNode subReportNode) {
-        GeneratorAdder generatorAdder = createGeneratorAdderInNodeBreaker(voltageLevel, generatorCreationInfos);
-        createInjectionInNodeBreaker(voltageLevel, generatorCreationInfos, network, generatorAdder, subReportNode);
-
+        GeneratorAdder generatorAdder = createGeneratorAdderInNodeBreaker(network, voltageLevel, generatorCreationInfos);
+        createInjectionInNodeBreaker(voltageLevel, generatorCreationInfos.getBusOrBusbarSectionId(), generatorCreationInfos.getConnectionPosition(),
+                generatorCreationInfos.getConnectionDirection(), generatorCreationInfos.getConnectionName() != null ?
+                        generatorCreationInfos.getConnectionName() : generatorCreationInfos.getEquipmentId(),
+                network, generatorAdder, subReportNode);
         // CreateFeederBayBuilder already create the generator using
         // (withInjectionAdder(generatorAdder)) so then we can add the additional informations and extensions
         var generator = ModificationUtils.getInstance().getGenerator(network, generatorCreationInfos.getEquipmentId());
         addExtensionsToGenerator(generatorCreationInfos, generator, voltageLevel, subReportNode);
-    }
-
-    private GeneratorAdder createGeneratorAdderInNodeBreaker(VoltageLevel voltageLevel, GeneratorCreationInfos generatorCreationInfos) {
-        Terminal terminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
-            generatorCreationInfos.getRegulatingTerminalId(),
-            generatorCreationInfos.getRegulatingTerminalType(),
-            generatorCreationInfos.getRegulatingTerminalVlId());
-
-        // creating the generator adder
-        GeneratorAdder generatorAdder = voltageLevel.newGenerator()
-            .setId(generatorCreationInfos.getEquipmentId())
-            .setName(generatorCreationInfos.getEquipmentName())
-            .setEnergySource(generatorCreationInfos.getEnergySource())
-            .setMinP(generatorCreationInfos.getMinP())
-            .setMaxP(generatorCreationInfos.getMaxP())
-            .setRatedS(nanIfNull(generatorCreationInfos.getRatedS()))
-            .setTargetP(generatorCreationInfos.getTargetP())
-            .setTargetQ(nanIfNull(generatorCreationInfos.getTargetQ()))
-            .setVoltageRegulatorOn(generatorCreationInfos.isVoltageRegulationOn())
-            .setTargetV(nanIfNull(generatorCreationInfos.getTargetV()));
-
-        if (terminal != null) {
-            generatorAdder.setRegulatingTerminal(terminal);
-        }
-
-        return generatorAdder;
     }
 
     private void addExtensionsToGenerator(GeneratorCreationInfos generatorCreationInfos, Generator generator,

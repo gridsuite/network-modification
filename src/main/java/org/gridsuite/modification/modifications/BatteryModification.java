@@ -8,11 +8,7 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ReactiveCapabilityCurve;
-import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
-import com.powsybl.iidm.network.ReactiveLimitsKind;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -28,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_BATTERY_ERROR;
+import static org.gridsuite.modification.utils.ModificationUtils.createBatteryAdderInNodeBreaker;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
 /**
@@ -75,7 +72,7 @@ public class BatteryModification extends AbstractModification {
     public void apply(Network network, ReportNode subReportNode) {
         Battery battery = ModificationUtils.getInstance().getBattery(network, modificationInfos.getEquipmentId());
         // modify the battery in the network
-        modifyBattery(battery, modificationInfos, subReportNode);
+        modifyBattery(network, battery, modificationInfos, subReportNode);
     }
 
     @Override
@@ -83,7 +80,7 @@ public class BatteryModification extends AbstractModification {
         return "BatteryModification";
     }
 
-    private void modifyBattery(Battery battery, BatteryModificationInfos modificationInfos, ReportNode subReportNode) {
+    private void modifyBattery(Network network, Battery battery, BatteryModificationInfos modificationInfos, ReportNode subReportNode) {
         subReportNode.newReportNode()
                 .withMessageTemplate("batteryModification", "Battery with id=${id} modified :")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
@@ -99,7 +96,7 @@ public class BatteryModification extends AbstractModification {
                 modificationInfos.getTargetP(), modificationInfos.getTargetQ(),
                 modificationInfos.getParticipate(), modificationInfos.getDroop(),
                 battery, subReportNode);
-        modifyBatteryConnectivityAttributes(modificationInfos, battery, subReportNode);
+        modifyBatteryConnectivityAttributes(network, modificationInfos, battery, subReportNode);
         PropertiesUtils.applyProperties(battery, subReportNode, modificationInfos.getProperties(), "BatteryProperties");
     }
 
@@ -183,11 +180,13 @@ public class BatteryModification extends AbstractModification {
             participate, droop, subReportNode, subReportNodeSetpoints, MODIFY_BATTERY_ERROR, String.format(ERROR_MESSAGE, battery.getId()));
     }
 
-    private ReportNode modifyBatteryConnectivityAttributes(BatteryModificationInfos modificationInfos,
+    private ReportNode modifyBatteryConnectivityAttributes(Network network, BatteryModificationInfos modificationInfos,
                                                                  Battery battery, ReportNode subReportNode) {
         ConnectablePosition<Battery> connectablePosition = battery.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<Battery> connectablePositionAdder = battery.newExtension(ConnectablePositionAdder.class);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, battery, modificationInfos, subReportNode);
+        BatteryAdder batteryAdder = createBatteryAdderInNodeBreaker(network, modificationInfos.getVoltageLevelId() != null ?
+                network.getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : battery.getTerminal().getVoltageLevel(), modificationInfos);
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(network, connectablePosition, connectablePositionAdder, battery, batteryAdder, modificationInfos, subReportNode);
     }
 }
 

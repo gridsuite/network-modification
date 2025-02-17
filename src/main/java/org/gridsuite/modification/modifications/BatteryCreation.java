@@ -81,21 +81,13 @@ public class BatteryCreation extends AbstractModification {
     }
 
     private void createBatteryInNodeBreaker(VoltageLevel voltageLevel, BatteryCreationInfos batteryCreationInfos, Network network, ReportNode subReportNode) {
-        BatteryAdder batteryAdder = createBatteryAdderInNodeBreaker(voltageLevel, batteryCreationInfos);
-        createInjectionInNodeBreaker(voltageLevel, batteryCreationInfos, network, batteryAdder, subReportNode);
+        BatteryAdder batteryAdder = createBatteryAdderInNodeBreaker(network, voltageLevel, batteryCreationInfos);
+        createInjectionInNodeBreaker(voltageLevel, batteryCreationInfos.getBusOrBusbarSectionId(), batteryCreationInfos.getConnectionPosition(),
+                batteryCreationInfos.getConnectionDirection(), batteryCreationInfos.getConnectionName() != null ?
+                        batteryCreationInfos.getConnectionName() : batteryCreationInfos.getEquipmentId(),
+                network, batteryAdder, subReportNode);
         var battery = ModificationUtils.getInstance().getBattery(network, batteryCreationInfos.getEquipmentId());
         addExtensionsToBattery(batteryCreationInfos, battery, subReportNode);
-    }
-
-    private BatteryAdder createBatteryAdderInNodeBreaker(VoltageLevel voltageLevel, BatteryCreationInfos batteryCreationInfos) {
-
-        return voltageLevel.newBattery()
-                .setId(batteryCreationInfos.getEquipmentId())
-                .setName(batteryCreationInfos.getEquipmentName())
-                .setMinP(batteryCreationInfos.getMinP())
-                .setMaxP(batteryCreationInfos.getMaxP())
-                .setTargetP(batteryCreationInfos.getTargetP())
-                .setTargetQ(nanIfNull(batteryCreationInfos.getTargetQ()));
     }
 
     private void createBatteryInBusBreaker(VoltageLevel voltageLevel, BatteryCreationInfos batteryCreationInfos, ReportNode subReportNode) {

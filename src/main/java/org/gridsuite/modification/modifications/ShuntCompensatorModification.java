@@ -80,7 +80,7 @@ public class ShuntCompensatorModification extends AbstractModification {
         if (shuntCompensator.getModelType() == ShuntCompensatorModelType.LINEAR) {
             applyModificationOnLinearModel(subReportNode, shuntCompensator, voltageLevel);
         }
-        modifyShuntCompensatorConnectivityAttributes(modificationInfos, shuntCompensator, subReportNode);
+        modifyShuntCompensatorConnectivityAttributes(network, modificationInfos, shuntCompensator, subReportNode);
         PropertiesUtils.applyProperties(shuntCompensator, subReportNode, modificationInfos.getProperties(), "ShuntCompensatorProperties");
     }
 
@@ -230,10 +230,32 @@ public class ShuntCompensatorModification extends AbstractModification {
         }
     }
 
-    private ReportNode modifyShuntCompensatorConnectivityAttributes(ShuntCompensatorModificationInfos modificationInfos,
+    private ShuntCompensatorAdder createShuntCompensatorInBusBreaker(Network network, ShuntCompensator shuntCompensator) {
+        if (modificationInfos.getVoltageLevelId() != null && modificationInfos.getVoltageLevelId().getValue() != null) {
+            VoltageLevel voltageLevel = network.getVoltageLevel(modificationInfos.getVoltageLevelId().getValue());
+            // creating the shuntCompensator
+            return voltageLevel.newShuntCompensator()
+                    .setId(shuntCompensator.getId())
+                    .setName(shuntCompensator.getNameOrId())
+                    .setSectionCount(shuntCompensator.getSectionCount())
+                    .setVoltageRegulatorOn(shuntCompensator.isVoltageRegulatorOn())
+                    .setTargetV(shuntCompensator.getTargetV())
+                    .setTargetDeadband(shuntCompensator.getTargetDeadband())
+                    .setRegulatingTerminal(null)
+                    .newLinearModel()
+                    .setBPerSection(shuntCompensator.getB() / shuntCompensator.getMaximumSectionCount())
+                    .setMaximumSectionCount(shuntCompensator.getMaximumSectionCount())
+                    .add();
+        } else {
+            return null;
+        }
+    }
+
+    private ReportNode modifyShuntCompensatorConnectivityAttributes(Network network, ShuntCompensatorModificationInfos modificationInfos,
                                                         ShuntCompensator shuntCompensator, ReportNode subReportNode) {
         ConnectablePosition<ShuntCompensator> connectablePosition = shuntCompensator.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<ShuntCompensator> connectablePositionAdder = shuntCompensator.newExtension(ConnectablePositionAdder.class);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, shuntCompensator, modificationInfos, subReportNode);
+        ShuntCompensatorAdder shuntCompensatorAdder = createShuntCompensatorInBusBreaker(network, shuntCompensator);
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(network, connectablePosition, connectablePositionAdder, shuntCompensator, shuntCompensatorAdder, modificationInfos, subReportNode);
     }
 }
