@@ -796,6 +796,11 @@ public final class ModificationUtils {
             if (identifiable == null) {
                 throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, "Equipment with id=" + equipmentId + " not found with type " + type);
             }
+            // checking if voltage level exists
+            VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
+            if (voltageLevel == null) {
+                throw new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, "Voltage level with id=" + voltageLevelId + " not found");
+            }
 
             if (identifiable instanceof Injection<?>) {
                 return ((Injection<?>) identifiable).getTerminal();
@@ -1609,6 +1614,55 @@ public final class ModificationUtils {
         }
         if (modificationPoints != null) {
             ModificationUtils.getInstance().checkMaxQGreaterThanMinQ(modificationPoints, exeptionType, errorMessage);
+        }
+    }
+
+    public void checkEnableRegulation(AttributeModification<VoltageRegulationType> voltageRegulationType,
+                                         AttributeModification<String> regulatingTerminalId,
+                                         AttributeModification<String> regulatingTerminalType,
+                                         AttributeModification<String> regulatingTerminalVlId,
+                                         Terminal localTerminal,
+                                         Terminal oldRegulatingTerminal,
+                                         Network network,
+                                         NetworkModificationException.Type exceptionType,
+                                         String errorMessage) {
+        // checking if regulating is set to distant
+        if (voltageRegulationType == null || voltageRegulationType.getValue().equals(VoltageRegulationType.LOCAL)) {
+            return;
+        }
+        boolean isRegulatingTerminalInfoMissing =
+            (regulatingTerminalType == null || regulatingTerminalType.getValue() == null) &&
+            (regulatingTerminalVlId == null || regulatingTerminalVlId.getValue() == null) &&
+            (regulatingTerminalId == null || regulatingTerminalId.getValue() == null);
+        boolean isRegulatingTerminalInfoIncomplete =
+            regulatingTerminalType == null || regulatingTerminalType.getValue() == null
+            || regulatingTerminalVlId == null || regulatingTerminalVlId.getValue() == null
+            || regulatingTerminalId == null || regulatingTerminalId.getValue() == null;
+        if (isRegulatingTerminalInfoMissing) {
+            if (oldRegulatingTerminal == null) {
+                // all modifications are null
+                // and regulating terminal is null
+                // the regulation should be local or regulating terminal modifications must be provided
+                throw new NetworkModificationException(exceptionType, errorMessage + "Regulation is set to Distant but regulating terminal is missing");
+            } else if (oldRegulatingTerminal.equals(localTerminal)) {
+                // all modifications are null
+                // and regulating terminal is local
+                // the regulation should be local or regulating terminal modifications must be provided
+                throw new NetworkModificationException(exceptionType, errorMessage + "Regulation is set to Distant but regulating terminal is local and there is no modification about regulating terminal");
+            }
+            // all modifications are null but oldRegulatingTerminal is not
+            // we will retrieve the old regulating terminal
+        } else if (isRegulatingTerminalInfoIncomplete) {
+            // at least one information about new regulating terminal is null
+            // meaning regulating terminal modification information is incomplete
+            throw new NetworkModificationException(exceptionType, errorMessage + "Regulation is set to Distant but regulating terminal information are incomplete");
+        } else {
+            // regulating terminal modification information is complete
+            // check if the regulating terminal exists
+            getTerminalFromIdentifiable(network,
+                regulatingTerminalId.getValue(),
+                regulatingTerminalType.getValue(),
+                regulatingTerminalVlId.getValue());
         }
     }
 
