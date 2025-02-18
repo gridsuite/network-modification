@@ -21,7 +21,6 @@ import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.BusbarSectionFinderTraverser;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -31,6 +30,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
 
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
@@ -1104,7 +1105,7 @@ public final class ModificationUtils {
         return busOrBusbarSectionId;
     }
 
-    private String getBusbarSection(Terminal terminal) {
+    private String getBusbarSectionId(Terminal terminal) {
         BusbarSectionFinderTraverser connectedBusbarSectionFinder = new BusbarSectionFinderTraverser(terminal.isConnected());
         terminal.traverse(connectedBusbarSectionFinder, TraversalType.BREADTH_FIRST);
         return connectedBusbarSectionFinder.getFirstTraversedBbsId();
@@ -1187,16 +1188,16 @@ public final class ModificationUtils {
         new RemoveFeederBay(branch.getId()).apply(network, true, reports);
 
         // Get voltage levels and busbar section IDs
-        VoltageLevel voltageLevel1 = getVoltageLevel(modificationInfos.getVoltageLevelId1().getValue(), network);
-        VoltageLevel voltageLevel2 = getVoltageLevel(modificationInfos.getVoltageLevelId2().getValue(), network);
-        String busbarSectionId1 = getBusbarSection(branch.getTerminal1());
-        String busbarSectionId2 = getBusbarSection(branch.getTerminal2());
+        VoltageLevel voltageLevel1 = getVoltageLevel(network, modificationInfos.getVoltageLevelId1().getValue());
+        VoltageLevel voltageLevel2 = getVoltageLevel(network, modificationInfos.getVoltageLevelId2().getValue());
+        String busbarSectionId1 = getBusbarSectionId(branch.getTerminal1());
+        String busbarSectionId2 = getBusbarSectionId(branch.getTerminal2());
 
         // If topology kind is NODE_BREAKER, create the branch
         if (voltageLevel1.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             createBranchInNodeBreaker(voltageLevel1, voltageLevel2, busbarSectionId1, busbarSectionId2,
-                    feederData1.getOrder(), feederData2.getOrder(), feederData1.getDirection(),
-                    feederData2.getDirection(), feederData1.getConnectionName(), feederData2.getConnectionName(),
+                    feederData1.order(), feederData2.order(), feederData1.direction(),
+                    feederData2.direction(), feederData1.connectionName(), feederData2.connectionName(),
                     network, branchAdder, reports);
         }
     }
@@ -1209,7 +1210,6 @@ public final class ModificationUtils {
                 modificationInfos.getBusOrBusbarSectionId2().getValue() == null;
     }
 
-    // Helper method to extract feeder data
     private FeederData extractFeederData(ConnectablePosition.Feeder feeder, String defaultConnectionName) {
         if (feeder == null) {
             return new FeederData(defaultConnectionName, null, null);
@@ -1218,41 +1218,6 @@ public final class ModificationUtils {
         Integer order = feeder.getOrder().orElse(null);
         ConnectablePosition.Direction direction = feeder.getDirection();
         return new FeederData(connectionName, order, direction);
-    }
-
-    // Helper method to get voltage level
-    private VoltageLevel getVoltageLevel(String voltageLevelId, Network network) {
-        return ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
-    }
-
-    // Helper method to get busbar section ID
-    private String getBusbarSectionId(Terminal terminal) {
-        return ModificationUtils.getInstance().getBusbarSectionId(terminal);
-    }
-
-    // Class to hold feeder data
-    private static class FeederData {
-        private final String connectionName;
-        private final Integer order;
-        private final ConnectablePosition.Direction direction;
-
-        public FeederData(String connectionName, Integer order, ConnectablePosition.Direction direction) {
-            this.connectionName = connectionName;
-            this.order = order;
-            this.direction = direction;
-        }
-
-        public String getConnectionName() {
-            return connectionName;
-        }
-
-        public Integer getOrder() {
-            return order;
-        }
-
-        public ConnectablePosition.Direction getDirection() {
-            return direction;
-        }
     }
 
     private void validateConnectionChange(boolean success, Identifiable<?> equipment, String action, List<ReportNode> reports) {
