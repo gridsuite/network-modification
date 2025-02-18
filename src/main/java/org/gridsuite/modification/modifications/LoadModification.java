@@ -20,7 +20,6 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.LOAD_NOT_FOUND;
-import static org.gridsuite.modification.utils.ModificationUtils.createLoadAdderInNodeBreaker;
 
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
@@ -40,6 +39,8 @@ public class LoadModification extends AbstractModification {
             throw new NetworkModificationException(LOAD_NOT_FOUND,
                     "Load " + modificationInfos.getEquipmentId() + " does not exist in network");
         }
+        // check voltageLevel
+        ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos, load);
     }
 
     @Override
@@ -82,7 +83,7 @@ public class LoadModification extends AbstractModification {
                                                         Load load, ReportNode subReportNode) {
         ConnectablePosition<Load> connectablePosition = load.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<Load> connectablePositionAdder = load.newExtension(ConnectablePositionAdder.class);
-        LoadAdder loadAdder = createLoadAdderInNodeBreaker(network, modificationInfos.getVoltageLevelId() != null ?
+        LoadAdder loadAdder = ModificationUtils.getInstance().createLoadAdderInNodeBreaker(network, modificationInfos.getVoltageLevelId() != null ?
                 network.getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : load.getTerminal().getVoltageLevel(), modificationInfos);
         return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(network, connectablePosition, connectablePositionAdder, load, loadAdder, modificationInfos, subReportNode);
     }

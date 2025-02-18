@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_BATTERY_ERROR;
-import static org.gridsuite.modification.utils.ModificationUtils.createBatteryAdderInNodeBreaker;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
 /**
@@ -50,6 +49,8 @@ public class BatteryModification extends AbstractModification {
         }
         Battery battery = ModificationUtils.getInstance().getBattery(network, modificationInfos.getEquipmentId());
         String errorMessage = "Battery '" + modificationInfos.getEquipmentId() + "' : ";
+        // check voltageLevel
+        ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos, battery);
         ModificationUtils.getInstance().checkReactiveLimit(battery, modificationInfos.getMinQ(), modificationInfos.getMaxQ(),
                 modificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_BATTERY_ERROR, errorMessage);
         checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(modificationInfos, battery, MODIFY_BATTERY_ERROR, errorMessage);
@@ -184,7 +185,7 @@ public class BatteryModification extends AbstractModification {
                                                                  Battery battery, ReportNode subReportNode) {
         ConnectablePosition<Battery> connectablePosition = battery.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<Battery> connectablePositionAdder = battery.newExtension(ConnectablePositionAdder.class);
-        BatteryAdder batteryAdder = createBatteryAdderInNodeBreaker(network, modificationInfos.getVoltageLevelId() != null ?
+        BatteryAdder batteryAdder = ModificationUtils.getInstance().createBatteryAdderInNodeBreaker(network, modificationInfos.getVoltageLevelId() != null ?
                 network.getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : battery.getTerminal().getVoltageLevel(), modificationInfos);
         return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(network, connectablePosition, connectablePositionAdder, battery, batteryAdder, modificationInfos, subReportNode);
     }

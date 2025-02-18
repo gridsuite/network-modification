@@ -15,8 +15,6 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.LOAD_ALREADY_EXISTS;
-import static org.gridsuite.modification.utils.ModificationUtils.createInjectionInNodeBreaker;
-import static org.gridsuite.modification.utils.ModificationUtils.createLoadAdderInNodeBreaker;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -43,8 +41,8 @@ public class LoadCreation extends AbstractModification {
         // create the load in the network
         VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId());
         if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            LoadAdder loadAdder = createLoadAdderInNodeBreaker(network, voltageLevel, modificationInfos);
-            createInjectionInNodeBreaker(voltageLevel, modificationInfos.getBusOrBusbarSectionId(), modificationInfos.getConnectionPosition(),
+            LoadAdder loadAdder = ModificationUtils.getInstance().createLoadAdderInNodeBreaker(network, voltageLevel, modificationInfos);
+            ModificationUtils.getInstance().createInjectionInNodeBreaker(voltageLevel, modificationInfos.getBusOrBusbarSectionId(), modificationInfos.getConnectionPosition(),
                     modificationInfos.getConnectionDirection(), modificationInfos.getConnectionName() != null ? modificationInfos.getConnectionName() : modificationInfos.getEquipmentId(),
                     network, loadAdder, subReporter);
         } else {

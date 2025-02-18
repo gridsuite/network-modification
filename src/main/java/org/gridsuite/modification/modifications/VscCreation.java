@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
-import static org.gridsuite.modification.utils.ModificationUtils.createInjectionInNodeBreaker;
 import static org.gridsuite.modification.utils.ModificationUtils.reportInjectionCreationConnectivity;
 
 /**
@@ -219,7 +218,7 @@ public class VscCreation extends AbstractModification {
         if (converterStationCreationInfos.getVoltageSetpoint() != null) {
             converterStationAdder.setVoltageSetpoint(converterStationCreationInfos.getVoltageSetpoint());
         }
-        createInjectionInNodeBreaker(voltageLevel, converterStationCreationInfos.getBusOrBusbarSectionId(), converterStationCreationInfos.getConnectionPosition(),
+        ModificationUtils.getInstance().createInjectionInNodeBreaker(voltageLevel, converterStationCreationInfos.getBusOrBusbarSectionId(), converterStationCreationInfos.getConnectionPosition(),
                 converterStationCreationInfos.getConnectionDirection(), converterStationCreationInfos.getConnectionName() != null ? converterStationCreationInfos.getConnectionName() : modificationInfos.getEquipmentId(),
                 network, converterStationAdder, subReportNode);
         VscConverterStation vscConverterStation = ModificationUtils.getInstance()

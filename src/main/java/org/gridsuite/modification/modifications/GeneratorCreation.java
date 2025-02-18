@@ -25,7 +25,8 @@ import java.util.List;
 import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_GENERATOR_ERROR;
 import static org.gridsuite.modification.NetworkModificationException.Type.GENERATOR_ALREADY_EXISTS;
 import static org.gridsuite.modification.modifications.GeneratorModification.ERROR_MESSAGE;
-import static org.gridsuite.modification.utils.ModificationUtils.*;
+import static org.gridsuite.modification.utils.ModificationUtils.nanIfNull;
+import static org.gridsuite.modification.utils.ModificationUtils.reportInjectionCreationConnectivity;
 
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
@@ -90,8 +91,8 @@ public class GeneratorCreation extends AbstractModification {
     }
 
     private void createGeneratorInNodeBreaker(VoltageLevel voltageLevel, GeneratorCreationInfos generatorCreationInfos, Network network, ReportNode subReportNode) {
-        GeneratorAdder generatorAdder = createGeneratorAdderInNodeBreaker(network, voltageLevel, generatorCreationInfos);
-        createInjectionInNodeBreaker(voltageLevel, generatorCreationInfos.getBusOrBusbarSectionId(), generatorCreationInfos.getConnectionPosition(),
+        GeneratorAdder generatorAdder = ModificationUtils.getInstance().createGeneratorAdderInNodeBreaker(network, voltageLevel, generatorCreationInfos);
+        ModificationUtils.getInstance().createInjectionInNodeBreaker(voltageLevel, generatorCreationInfos.getBusOrBusbarSectionId(), generatorCreationInfos.getConnectionPosition(),
                 generatorCreationInfos.getConnectionDirection(), generatorCreationInfos.getConnectionName() != null ?
                         generatorCreationInfos.getConnectionName() : generatorCreationInfos.getEquipmentId(),
                 network, generatorAdder, subReportNode);

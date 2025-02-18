@@ -22,7 +22,8 @@ import java.util.List;
 import static org.gridsuite.modification.NetworkModificationException.Type.BATTERY_ALREADY_EXISTS;
 import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_BATTERY_ERROR;
 import static org.gridsuite.modification.modifications.BatteryModification.ERROR_MESSAGE;
-import static org.gridsuite.modification.utils.ModificationUtils.*;
+import static org.gridsuite.modification.utils.ModificationUtils.nanIfNull;
+import static org.gridsuite.modification.utils.ModificationUtils.reportInjectionCreationConnectivity;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
@@ -81,8 +82,8 @@ public class BatteryCreation extends AbstractModification {
     }
 
     private void createBatteryInNodeBreaker(VoltageLevel voltageLevel, BatteryCreationInfos batteryCreationInfos, Network network, ReportNode subReportNode) {
-        BatteryAdder batteryAdder = createBatteryAdderInNodeBreaker(network, voltageLevel, batteryCreationInfos);
-        createInjectionInNodeBreaker(voltageLevel, batteryCreationInfos.getBusOrBusbarSectionId(), batteryCreationInfos.getConnectionPosition(),
+        BatteryAdder batteryAdder = ModificationUtils.getInstance().createBatteryAdderInNodeBreaker(network, voltageLevel, batteryCreationInfos);
+        ModificationUtils.getInstance().createInjectionInNodeBreaker(voltageLevel, batteryCreationInfos.getBusOrBusbarSectionId(), batteryCreationInfos.getConnectionPosition(),
                 batteryCreationInfos.getConnectionDirection(), batteryCreationInfos.getConnectionName() != null ?
                         batteryCreationInfos.getConnectionName() : batteryCreationInfos.getEquipmentId(),
                 network, batteryAdder, subReportNode);

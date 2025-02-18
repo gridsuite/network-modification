@@ -188,6 +188,31 @@ public final class ModificationUtils {
         }
     }
 
+    public void checkVoltageLevelModification(Network network, InjectionModificationInfos modificationInfos, Injection injection) {
+        if (modificationInfos.getVoltageLevelId() != null && modificationInfos.getVoltageLevelId().getValue() != null &&
+                modificationInfos.getBusOrBusbarSectionId() != null && modificationInfos.getBusOrBusbarSectionId().getValue() != null) {
+
+            ModificationUtils.getInstance().controlBus(
+                    ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId().getValue()),
+                    modificationInfos.getBusOrBusbarSectionId().getValue()
+            );
+        } else if (modificationInfos.getVoltageLevelId() == null && modificationInfos.getBusOrBusbarSectionId() != null &&
+                modificationInfos.getBusOrBusbarSectionId().getValue() != null) {
+
+            ModificationUtils.getInstance().controlBus(
+                    injection.getTerminal().getVoltageLevel(),
+                    modificationInfos.getBusOrBusbarSectionId().getValue()
+            );
+        } else if (modificationInfos.getVoltageLevelId() != null && modificationInfos.getVoltageLevelId().getValue() != null &&
+                modificationInfos.getBusOrBusbarSectionId() == null) {
+
+            ModificationUtils.getInstance().controlBus(
+                    ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId().getValue()),
+                    getBusbarSectionId(injection.getTerminal())
+            );
+        }
+    }
+
     public void controlBranchCreation(Network network, String voltageLevelId1, String busOrBusbarSectionId1, Integer connectionPosition1,
                                       String voltageLevelId2, String busOrBusbarSectionId2, Integer connectionPosition2) {
         VoltageLevel voltageLevel1 = getVoltageLevel(network, voltageLevelId1);
@@ -548,7 +573,7 @@ public final class ModificationUtils {
         }
     }
 
-    public static BatteryAdder createBatteryAdderInNodeBreaker(Network network, VoltageLevel voltageLevel, EquipmentModificationInfos equipmentModificationInfos) {
+    public BatteryAdder createBatteryAdderInNodeBreaker(Network network, VoltageLevel voltageLevel, EquipmentModificationInfos equipmentModificationInfos) {
         if (equipmentModificationInfos instanceof BatteryCreationInfos batteryCreationInfos) {
             return voltageLevel.newBattery()
                     .setId(batteryCreationInfos.getEquipmentId())
@@ -571,7 +596,7 @@ public final class ModificationUtils {
         }
     }
 
-    public static GeneratorAdder createGeneratorAdderInNodeBreaker(Network network, VoltageLevel voltageLevel, EquipmentModificationInfos equipmentModificationInfos) {
+    public GeneratorAdder createGeneratorAdderInNodeBreaker(Network network, VoltageLevel voltageLevel, EquipmentModificationInfos equipmentModificationInfos) {
         if (equipmentModificationInfos instanceof GeneratorCreationInfos generatorCreationInfos) {
             Terminal terminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
                     generatorCreationInfos.getRegulatingTerminalId(),
@@ -614,7 +639,7 @@ public final class ModificationUtils {
         }
     }
 
-    public static LoadAdder createLoadAdderInNodeBreaker(Network network, VoltageLevel voltageLevel, EquipmentModificationInfos equipmentModificationInfos) {
+    public LoadAdder createLoadAdderInNodeBreaker(Network network, VoltageLevel voltageLevel, EquipmentModificationInfos equipmentModificationInfos) {
         if (equipmentModificationInfos instanceof LoadCreationInfos loadCreationInfos) {
             return voltageLevel.newLoad()
                     .setId(loadCreationInfos.getEquipmentId())
@@ -1155,12 +1180,27 @@ public final class ModificationUtils {
     }
 
     private void modifyInjectionVoltageLevelBusOrBusBarSection(Network network, InjectionModificationInfos modificationInfos,
-                                                               Identifiable<?> injection, InjectionAdder<?, ?> injectionAdder,
+                                                               Injection<?> injection, InjectionAdder<?, ?> injectionAdder,
                                                                ConnectablePosition<?> connectablePosition,
                                                                ReportNode reports) {
-        if (modificationInfos.getVoltageLevelId() == null || modificationInfos.getVoltageLevelId().getValue() == null
-                || modificationInfos.getBusOrBusbarSectionId() == null || modificationInfos.getBusOrBusbarSectionId().getValue() == null) {
+        if (modificationInfos.getVoltageLevelId() == null && modificationInfos.getBusOrBusbarSectionId() == null) {
             return;
+        }
+        VoltageLevel voltageLevel = null;
+        String busOrBusbarSectionId = null;
+        if (modificationInfos.getVoltageLevelId() != null && modificationInfos.getVoltageLevelId().getValue() != null &&
+                modificationInfos.getBusOrBusbarSectionId() != null && modificationInfos.getBusOrBusbarSectionId().getValue() != null) {
+            voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId().getValue());
+            busOrBusbarSectionId = modificationInfos.getBusOrBusbarSectionId().getValue();
+        }
+        if (modificationInfos.getVoltageLevelId() == null && modificationInfos.getBusOrBusbarSectionId().getValue() != null) {
+            voltageLevel = injection.getTerminal().getVoltageLevel();
+            busOrBusbarSectionId = modificationInfos.getBusOrBusbarSectionId().getValue();
+        }
+        if (modificationInfos.getVoltageLevelId() != null && modificationInfos.getVoltageLevelId().getValue() != null &&
+                modificationInfos.getBusOrBusbarSectionId() == null) {
+            voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId().getValue());
+            busOrBusbarSectionId = getBusbarSectionId(injection.getTerminal());
         }
         if (connectablePosition.getFeeder() != null) {
             ConnectablePosition.Feeder feeder = connectablePosition.getFeeder();
@@ -1168,9 +1208,8 @@ public final class ModificationUtils {
             Integer order = feeder.getOrder().orElse(null);
             ConnectablePosition.Direction direction = feeder.getDirection();
             new RemoveFeederBay(injection.getId()).apply(network, true, reports);
-            VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId().getValue());
             if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-                createInjectionInNodeBreaker(voltageLevel, modificationInfos.getBusOrBusbarSectionId().getValue(), order, direction, connectionName,
+                createInjectionInNodeBreaker(voltageLevel, busOrBusbarSectionId, order, direction, connectionName,
                         network, injectionAdder, reports);
             }
         }
@@ -1905,7 +1944,7 @@ public final class ModificationUtils {
         }
     }
 
-    public static void createInjectionInNodeBreaker(VoltageLevel voltageLevel, String busOrBusbarSectionId, Integer connectionPosition,
+    public void createInjectionInNodeBreaker(VoltageLevel voltageLevel, String busOrBusbarSectionId, Integer connectionPosition,
                                                     ConnectablePosition.Direction connectionDirection, String connectionName,
                                                     Network network, InjectionAdder<?, ?> injectionAdder, ReportNode subReportNode) {
         int position = ModificationUtils.getInstance().getPosition(connectionPosition, busOrBusbarSectionId, network, voltageLevel);

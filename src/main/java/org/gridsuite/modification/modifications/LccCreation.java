@@ -26,7 +26,6 @@ import java.util.stream.Stream;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_LCC_ERROR;
 import static org.gridsuite.modification.NetworkModificationException.Type.HVDC_LINE_ALREADY_EXISTS;
-import static org.gridsuite.modification.utils.ModificationUtils.createInjectionInNodeBreaker;
 import static org.gridsuite.modification.utils.ModificationUtils.reportInjectionCreationConnectivity;
 
 /**
@@ -191,7 +190,7 @@ public class LccCreation extends AbstractModification {
         if (lccConverterStationCreationInfos.getPowerFactor() != null) {
             converterStationAdder.setPowerFactor(lccConverterStationCreationInfos.getPowerFactor());
         }
-        createInjectionInNodeBreaker(voltageLevel, lccConverterStationCreationInfos.getBusOrBusbarSectionId(), lccConverterStationCreationInfos.getConnectionPosition(),
+        ModificationUtils.getInstance().createInjectionInNodeBreaker(voltageLevel, lccConverterStationCreationInfos.getBusOrBusbarSectionId(), lccConverterStationCreationInfos.getConnectionPosition(),
                 lccConverterStationCreationInfos.getConnectionDirection(), lccConverterStationCreationInfos.getConnectionName() != null ?
                         lccConverterStationCreationInfos.getConnectionName() : lccConverterStationCreationInfos.getEquipmentId(),
                 network, converterStationAdder, subReportNode);

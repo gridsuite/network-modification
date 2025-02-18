@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_GENERATOR_ERROR;
-import static org.gridsuite.modification.utils.ModificationUtils.createGeneratorAdderInNodeBreaker;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
 /**
@@ -47,11 +46,8 @@ public class GeneratorModification extends AbstractModification {
         }
         Generator generator = ModificationUtils.getInstance().getGenerator(network, modificationInfos.getEquipmentId());
         String errorMessage = "Generator '" + modificationInfos.getEquipmentId() + "' : ";
-        // check connectivity
-        if (modificationInfos.getVoltageLevelId() != null && modificationInfos.getVoltageLevelId().getValue() != null) {
-            ModificationUtils.getInstance().controlBus(ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId().getValue()),
-                    modificationInfos.getBusOrBusbarSectionId().getValue());
-        }
+        // check voltageLevel
+        ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos, generator);
         // check min max reactive limits
         ModificationUtils.getInstance().checkReactiveLimit(generator, modificationInfos.getMinQ(), modificationInfos.getMaxQ(),
                 modificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_GENERATOR_ERROR, errorMessage);
@@ -501,7 +497,7 @@ public class GeneratorModification extends AbstractModification {
                                                              Generator generator, ReportNode subReportNode) {
         ConnectablePosition<Generator> connectablePosition = generator.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<Generator> connectablePositionAdder = generator.newExtension(ConnectablePositionAdder.class);
-        GeneratorAdder generatorAdder = createGeneratorAdderInNodeBreaker(network, modificationInfos.getVoltageLevelId() != null ?
+        GeneratorAdder generatorAdder = ModificationUtils.getInstance().createGeneratorAdderInNodeBreaker(network, modificationInfos.getVoltageLevelId() != null ?
                 network.getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : generator.getTerminal().getVoltageLevel(), modificationInfos);
         return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(network, connectablePosition,
                 connectablePositionAdder, generator, generatorAdder, modificationInfos, subReportNode);
