@@ -1201,8 +1201,8 @@ public final class ModificationUtils {
         // If topology kind is NODE_BREAKER, create the branch
         if (voltageLevel1.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             createBranchInNodeBreaker(voltageLevel1, voltageLevel2, busbarSectionId1, busbarSectionId2,
-                    feederData1.order(), feederData2.order(), feederData1.direction(),
-                    feederData2.direction(), feederData1.connectionName(), feederData2.connectionName(),
+                    feederData1.getOrder(), feederData2.getOrder(), feederData1.getDirection(),
+                    feederData2.getDirection(), feederData1.getConnectionName(), feederData2.getConnectionName(),
                     network, branchAdder, reports);
         }
     }
