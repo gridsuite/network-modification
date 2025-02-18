@@ -47,7 +47,7 @@ public class GeneratorModification extends AbstractModification {
         Generator generator = ModificationUtils.getInstance().getGenerator(network, modificationInfos.getEquipmentId());
         String errorMessage = "Generator '" + modificationInfos.getEquipmentId() + "' : ";
         // check voltageLevel
-        ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos, generator);
+        ModificationUtils.getInstance().checkVoltageLevelInjectionModification(network, modificationInfos, generator);
         // check min max reactive limits
         ModificationUtils.getInstance().checkReactiveLimit(generator, modificationInfos.getMinQ(), modificationInfos.getMaxQ(),
                 modificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_GENERATOR_ERROR, errorMessage);

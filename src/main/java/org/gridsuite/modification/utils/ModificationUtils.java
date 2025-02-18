@@ -188,7 +188,7 @@ public final class ModificationUtils {
         }
     }
 
-    public void checkVoltageLevelModification(Network network, InjectionModificationInfos modificationInfos, Injection injection) {
+    public void checkVoltageLevelInjectionModification(Network network, InjectionModificationInfos modificationInfos, Injection injection) {
         if (modificationInfos.getVoltageLevelId() != null && modificationInfos.getVoltageLevelId().getValue() != null &&
                 modificationInfos.getBusOrBusbarSectionId() != null && modificationInfos.getBusOrBusbarSectionId().getValue() != null) {
 
@@ -209,6 +209,53 @@ public final class ModificationUtils {
             ModificationUtils.getInstance().controlBus(
                     ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId().getValue()),
                     getBusbarSectionId(injection.getTerminal())
+            );
+        }
+    }
+
+    public void checkVoltageLevelBranchModification(Network network, BranchModificationInfos modificationInfos, Branch branch) {
+        if (modificationInfos.getVoltageLevelId1() != null && modificationInfos.getVoltageLevelId1().getValue() != null &&
+                modificationInfos.getBusOrBusbarSectionId1() != null && modificationInfos.getBusOrBusbarSectionId1().getValue() != null) {
+
+            ModificationUtils.getInstance().controlBus(
+                    ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId1().getValue()),
+                    modificationInfos.getBusOrBusbarSectionId1().getValue()
+            );
+        } else if (modificationInfos.getVoltageLevelId1() == null && modificationInfos.getBusOrBusbarSectionId1() != null &&
+                modificationInfos.getBusOrBusbarSectionId1().getValue() != null) {
+
+            ModificationUtils.getInstance().controlBus(
+                    branch.getTerminal1().getVoltageLevel(),
+                    modificationInfos.getBusOrBusbarSectionId1().getValue()
+            );
+        } else if (modificationInfos.getVoltageLevelId1() != null && modificationInfos.getVoltageLevelId1().getValue() != null &&
+                modificationInfos.getBusOrBusbarSectionId1() == null) {
+
+            ModificationUtils.getInstance().controlBus(
+                    ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId1().getValue()),
+                    getBusbarSectionId(branch.getTerminal1())
+            );
+        }
+        if (modificationInfos.getVoltageLevelId2() != null && modificationInfos.getVoltageLevelId2().getValue() != null &&
+                modificationInfos.getBusOrBusbarSectionId2() != null && modificationInfos.getBusOrBusbarSectionId2().getValue() != null) {
+
+            ModificationUtils.getInstance().controlBus(
+                    ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId2().getValue()),
+                    modificationInfos.getBusOrBusbarSectionId2().getValue()
+            );
+        } else if (modificationInfos.getVoltageLevelId2() == null && modificationInfos.getBusOrBusbarSectionId2() != null &&
+                modificationInfos.getBusOrBusbarSectionId2().getValue() != null) {
+
+            ModificationUtils.getInstance().controlBus(
+                    branch.getTerminal2().getVoltageLevel(),
+                    modificationInfos.getBusOrBusbarSectionId2().getValue()
+            );
+        } else if (modificationInfos.getVoltageLevelId2() != null && modificationInfos.getVoltageLevelId2().getValue() != null &&
+                modificationInfos.getBusOrBusbarSectionId2() == null) {
+
+            ModificationUtils.getInstance().controlBus(
+                    ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId2().getValue()),
+                    getBusbarSectionId(branch.getTerminal2())
             );
         }
     }
@@ -1219,25 +1266,20 @@ public final class ModificationUtils {
                                                             Branch<?> branch, BranchAdder<?, ?> branchAdder,
                                                             ConnectablePosition<?> connectablePosition,
                                                             ReportNode reports) {
-        // Return early if any required field is null
         if (isModificationInfoInvalid(modificationInfos)) {
             return;
         }
 
-        // Extract feeder data
         FeederData feederData1 = extractFeederData(connectablePosition.getFeeder1(), modificationInfos.getEquipmentId());
         FeederData feederData2 = extractFeederData(connectablePosition.getFeeder2(), modificationInfos.getEquipmentId());
 
-        // Remove feeder bay before modification
         new RemoveFeederBay(branch.getId()).apply(network, true, reports);
 
-        // Get voltage levels and busbar section IDs
         VoltageLevel voltageLevel1 = getVoltageLevel(network, modificationInfos.getVoltageLevelId1().getValue());
         VoltageLevel voltageLevel2 = getVoltageLevel(network, modificationInfos.getVoltageLevelId2().getValue());
         String busbarSectionId1 = getBusbarSectionId(branch.getTerminal1());
         String busbarSectionId2 = getBusbarSectionId(branch.getTerminal2());
 
-        // If topology kind is NODE_BREAKER, create the branch
         if (voltageLevel1.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             createBranchInNodeBreaker(voltageLevel1, voltageLevel2, busbarSectionId1, busbarSectionId2,
                     feederData1.getOrder(), feederData2.getOrder(), feederData1.getDirection(),
@@ -1246,12 +1288,11 @@ public final class ModificationUtils {
         }
     }
 
-    // Helper method to check if modification info is invalid
     private boolean isModificationInfoInvalid(BranchModificationInfos modificationInfos) {
         return modificationInfos.getVoltageLevelId1() == null ||
-                modificationInfos.getVoltageLevelId2().getValue() == null ||
+                modificationInfos.getVoltageLevelId1().getValue() == null ||
                 modificationInfos.getBusOrBusbarSectionId1() == null ||
-                modificationInfos.getBusOrBusbarSectionId2().getValue() == null;
+                modificationInfos.getBusOrBusbarSectionId1().getValue() == null;
     }
 
     private FeederData extractFeederData(ConnectablePosition.Feeder feeder, String defaultConnectionName) {

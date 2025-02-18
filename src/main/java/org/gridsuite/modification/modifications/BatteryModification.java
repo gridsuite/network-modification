@@ -50,7 +50,7 @@ public class BatteryModification extends AbstractModification {
         Battery battery = ModificationUtils.getInstance().getBattery(network, modificationInfos.getEquipmentId());
         String errorMessage = "Battery '" + modificationInfos.getEquipmentId() + "' : ";
         // check voltageLevel
-        ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos, battery);
+        ModificationUtils.getInstance().checkVoltageLevelInjectionModification(network, modificationInfos, battery);
         ModificationUtils.getInstance().checkReactiveLimit(battery, modificationInfos.getMinQ(), modificationInfos.getMaxQ(),
                 modificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_BATTERY_ERROR, errorMessage);
         checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(modificationInfos, battery, MODIFY_BATTERY_ERROR, errorMessage);

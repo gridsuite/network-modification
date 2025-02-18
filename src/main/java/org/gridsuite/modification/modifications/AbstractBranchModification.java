@@ -56,7 +56,8 @@ public abstract class AbstractBranchModification extends AbstractModification {
             insertReportNode(subReportNode, ModificationUtils.getInstance().buildModificationReport(Optional.of(branch.getOptionalName()).orElse(null), branchModificationInfos.getEquipmentName().getValue(), "Name", 0));
             branch.setName(branchModificationInfos.getEquipmentName().getValue());
         }
-
+        // check voltageLevel
+        ModificationUtils.getInstance().checkVoltageLevelBranchModification(network, modificationInfos, branch);
         modifyBranchConnectivityAttributes(network, branchModificationInfos, branch, subReportNode);
 
         if (characteristicsModified(branchModificationInfos)) {
@@ -313,18 +314,18 @@ public abstract class AbstractBranchModification extends AbstractModification {
         ConnectablePositionAdder<?> connectablePositionAdder = branch.newExtension(ConnectablePositionAdder.class);
         BranchAdder<?, ?> branchAdder = null;
         if (branch instanceof Line) {
-            branchAdder = (BranchAdder<?, ?>) ModificationUtils.getInstance().createLineAdder(network, modificationInfos.getVoltageLevelId1() != null ?
+            branchAdder = ModificationUtils.getInstance().createLineAdder(network, modificationInfos.getVoltageLevelId1() != null ?
                             network.getVoltageLevel(modificationInfos.getVoltageLevelId1().getValue()) : branch.getTerminal1().getVoltageLevel(),
                     modificationInfos.getVoltageLevelId2() != null ?
                             network.getVoltageLevel(modificationInfos.getVoltageLevelId2().getValue()) : branch.getTerminal2().getVoltageLevel(),
-                    branchModificationInfos, false, false).add();
+                    branchModificationInfos, false, false);
         }
         if (branch instanceof TwoWindingsTransformer) {
-            branchAdder = (BranchAdder<?, ?>) ModificationUtils.getInstance().createTwoWindingsTransformerAdder(network, modificationInfos.getVoltageLevelId1() != null ?
+            branchAdder = ModificationUtils.getInstance().createTwoWindingsTransformerAdder(network, modificationInfos.getVoltageLevelId1() != null ?
                             network.getVoltageLevel(modificationInfos.getVoltageLevelId1().getValue()) : branch.getTerminal1().getVoltageLevel(),
                     modificationInfos.getVoltageLevelId2() != null ?
                             network.getVoltageLevel(modificationInfos.getVoltageLevelId2().getValue()) : branch.getTerminal2().getVoltageLevel(),
-                    branchModificationInfos, false, false).add();
+                    branchModificationInfos, false, false);
         }
         return ModificationUtils.getInstance().modifyBranchConnectivityAttributes(network, connectablePosition, connectablePositionAdder, branch, branchAdder, branchModificationInfos, subReportNode);
     }

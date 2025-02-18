@@ -40,7 +40,7 @@ public class LoadModification extends AbstractModification {
                     "Load " + modificationInfos.getEquipmentId() + " does not exist in network");
         }
         // check voltageLevel
-        ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos, load);
+        ModificationUtils.getInstance().checkVoltageLevelInjectionModification(network, modificationInfos, load);
     }
 
     @Override
