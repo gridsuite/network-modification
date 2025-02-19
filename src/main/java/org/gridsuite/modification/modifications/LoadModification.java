@@ -85,6 +85,7 @@ public class LoadModification extends AbstractModification {
         ConnectablePositionAdder<Load> connectablePositionAdder = load.newExtension(ConnectablePositionAdder.class);
         LoadAdder loadAdder = ModificationUtils.getInstance().createLoadAdderInNodeBreaker(network, modificationInfos.getVoltageLevelId() != null ?
                 network.getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : load.getTerminal().getVoltageLevel(), modificationInfos);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(network, connectablePosition, connectablePositionAdder, load, loadAdder, modificationInfos, subReportNode);
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, load, loadAdder,
+                modificationInfos, subReportNode);
     }
 }

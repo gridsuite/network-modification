@@ -256,6 +256,7 @@ public class ShuntCompensatorModification extends AbstractModification {
         ConnectablePosition<ShuntCompensator> connectablePosition = shuntCompensator.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<ShuntCompensator> connectablePositionAdder = shuntCompensator.newExtension(ConnectablePositionAdder.class);
         ShuntCompensatorAdder shuntCompensatorAdder = createShuntCompensatorInBusBreaker(network, shuntCompensator);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(network, connectablePosition, connectablePositionAdder, shuntCompensator, shuntCompensatorAdder, modificationInfos, subReportNode);
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder,
+                shuntCompensator, shuntCompensatorAdder, modificationInfos, subReportNode);
     }
 }

@@ -187,7 +187,7 @@ public class BatteryModification extends AbstractModification {
         ConnectablePositionAdder<Battery> connectablePositionAdder = battery.newExtension(ConnectablePositionAdder.class);
         BatteryAdder batteryAdder = ModificationUtils.getInstance().createBatteryAdderInNodeBreaker(network, modificationInfos.getVoltageLevelId() != null ?
                 network.getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : battery.getTerminal().getVoltageLevel(), modificationInfos);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(network, connectablePosition, connectablePositionAdder, battery, batteryAdder, modificationInfos, subReportNode);
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, battery, batteryAdder, modificationInfos, subReportNode);
     }
 }
 

@@ -499,7 +499,7 @@ public class GeneratorModification extends AbstractModification {
         ConnectablePositionAdder<Generator> connectablePositionAdder = generator.newExtension(ConnectablePositionAdder.class);
         GeneratorAdder generatorAdder = ModificationUtils.getInstance().createGeneratorAdderInNodeBreaker(network, modificationInfos.getVoltageLevelId() != null ?
                 network.getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : generator.getTerminal().getVoltageLevel(), modificationInfos);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(network, connectablePosition,
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition,
                 connectablePositionAdder, generator, generatorAdder, modificationInfos, subReportNode);
     }
 }
