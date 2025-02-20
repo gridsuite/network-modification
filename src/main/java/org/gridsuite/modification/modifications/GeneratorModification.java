@@ -82,7 +82,7 @@ public class GeneratorModification extends AbstractModification {
     public void apply(Network network, ReportNode subReportNode) {
         Generator generator = ModificationUtils.getInstance().getGenerator(network, modificationInfos.getEquipmentId());
         // modify the generator in the network
-        modifyGenerator(network, generator, modificationInfos, subReportNode);
+        modifyGenerator(generator, modificationInfos, subReportNode);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class GeneratorModification extends AbstractModification {
         return "GeneratorModification";
     }
 
-    private void modifyGenerator(Network network, Generator generator, GeneratorModificationInfos modificationInfos, ReportNode subReportNode) {
+    private void modifyGenerator(Generator generator, GeneratorModificationInfos modificationInfos, ReportNode subReportNode) {
         subReportNode.newReportNode()
                 .withMessageTemplate("generatorModification", "Generator with id=${id} modified :")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
@@ -101,12 +101,12 @@ public class GeneratorModification extends AbstractModification {
             ModificationUtils.getInstance().applyElementaryModifications(generator::setName, () -> generator.getOptionalName().orElse("No value"), modificationInfos.getEquipmentName(), subReportNode, "Name");
         }
         ModificationUtils.getInstance().applyElementaryModifications(generator::setEnergySource, generator::getEnergySource, modificationInfos.getEnergySource(), subReportNode, "Energy source");
-
+        modifyGeneratorVoltageLevelBusOrBusBarSectionAttributes(modificationInfos, generator, subReportNode);
         modifyGeneratorLimitsAttributes(modificationInfos, generator, subReportNode);
         modifyGeneratorSetpointsAttributes(modificationInfos, generator, subReportNode);
         modifyGeneratorShortCircuitAttributes(modificationInfos.getDirectTransX(), modificationInfos.getStepUpTransformerX(), generator, subReportNode);
         modifyGeneratorStartUpAttributes(modificationInfos, generator, subReportNode);
-        modifyGeneratorConnectivityAttributes(network, modificationInfos, generator, subReportNode);
+        modifyGeneratorConnectivityAttributes(modificationInfos, generator, subReportNode);
         PropertiesUtils.applyProperties(generator, subReportNode, modificationInfos.getProperties(), "GeneratorProperties");
     }
 
@@ -493,13 +493,17 @@ public class GeneratorModification extends AbstractModification {
         modifyGeneratorReactiveLimitsAttributes(modificationInfos, generator, subReportNode, subReportNodeLimits);
     }
 
-    private ReportNode modifyGeneratorConnectivityAttributes(Network network, GeneratorModificationInfos modificationInfos,
+    private void modifyGeneratorVoltageLevelBusOrBusBarSectionAttributes(GeneratorModificationInfos modificationInfos,
+                                                             Generator generator, ReportNode subReportNode) {
+        GeneratorAdder generatorAdder = ModificationUtils.getInstance().createGeneratorAdderInNodeBreaker(generator.getNetwork(), modificationInfos.getVoltageLevelId() != null ?
+                generator.getNetwork().getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : generator.getTerminal().getVoltageLevel(), modificationInfos);
+        ModificationUtils.getInstance().modifyInjectionVoltageLevelBusOrBusBarSection(generator, generatorAdder, modificationInfos, subReportNode);
+    }
+
+    private ReportNode modifyGeneratorConnectivityAttributes(GeneratorModificationInfos modificationInfos,
                                                              Generator generator, ReportNode subReportNode) {
         ConnectablePosition<Generator> connectablePosition = generator.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<Generator> connectablePositionAdder = generator.newExtension(ConnectablePositionAdder.class);
-        GeneratorAdder generatorAdder = ModificationUtils.getInstance().createGeneratorAdderInNodeBreaker(network, modificationInfos.getVoltageLevelId() != null ?
-                network.getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : generator.getTerminal().getVoltageLevel(), modificationInfos);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition,
-                connectablePositionAdder, generator, generatorAdder, modificationInfos, subReportNode);
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, generator, modificationInfos, subReportNode);
     }
 }

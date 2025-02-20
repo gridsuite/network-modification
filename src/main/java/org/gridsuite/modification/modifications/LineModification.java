@@ -33,6 +33,7 @@ public class LineModification extends AbstractBranchModification {
             throw new NetworkModificationException(LINE_NOT_FOUND,
                     "Line " + modificationInfos.getEquipmentId() + " does not exist in network");
         }
+        ModificationUtils.getInstance().checkVoltageLevelBranchModification(network, modificationInfos, line);
     }
 
     @Override
@@ -48,7 +49,7 @@ public class LineModification extends AbstractBranchModification {
     }
 
     private void modifyLine(Network network, Line line, BranchModificationInfos lineModificationInfos, ReportNode subReportNode) {
-        modifyBranch(network, line, lineModificationInfos, subReportNode, "lineModification", "Line with id=${id} modified :");
+        modifyBranch(line, lineModificationInfos, subReportNode, "lineModification", "Line with id=${id} modified :");
         PropertiesUtils.applyProperties(line, subReportNode, modificationInfos.getProperties(), "LineProperties");
     }
 

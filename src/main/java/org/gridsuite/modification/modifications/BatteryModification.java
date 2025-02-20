@@ -73,7 +73,7 @@ public class BatteryModification extends AbstractModification {
     public void apply(Network network, ReportNode subReportNode) {
         Battery battery = ModificationUtils.getInstance().getBattery(network, modificationInfos.getEquipmentId());
         // modify the battery in the network
-        modifyBattery(network, battery, modificationInfos, subReportNode);
+        modifyBattery(battery, modificationInfos, subReportNode);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class BatteryModification extends AbstractModification {
         return "BatteryModification";
     }
 
-    private void modifyBattery(Network network, Battery battery, BatteryModificationInfos modificationInfos, ReportNode subReportNode) {
+    private void modifyBattery(Battery battery, BatteryModificationInfos modificationInfos, ReportNode subReportNode) {
         subReportNode.newReportNode()
                 .withMessageTemplate("batteryModification", "Battery with id=${id} modified :")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
@@ -91,13 +91,13 @@ public class BatteryModification extends AbstractModification {
         if (modificationInfos.getEquipmentName() != null && modificationInfos.getEquipmentName().getValue() != null) {
             ModificationUtils.getInstance().applyElementaryModifications(battery::setName, () -> battery.getOptionalName().orElse("No value"), modificationInfos.getEquipmentName(), subReportNode, "Name");
         }
-
+        modifyBatteryVoltageLevelBusOrBusBarSectionAttributes(modificationInfos, battery, subReportNode);
         modifyBatteryLimitsAttributes(modificationInfos, battery, subReportNode);
         modifyBatterySetpointsAttributes(
                 modificationInfos.getTargetP(), modificationInfos.getTargetQ(),
                 modificationInfos.getParticipate(), modificationInfos.getDroop(),
                 battery, subReportNode);
-        modifyBatteryConnectivityAttributes(network, modificationInfos, battery, subReportNode);
+        modifyBatteryConnectivityAttributes(modificationInfos, battery, subReportNode);
         PropertiesUtils.applyProperties(battery, subReportNode, modificationInfos.getProperties(), "BatteryProperties");
     }
 
@@ -181,13 +181,18 @@ public class BatteryModification extends AbstractModification {
             participate, droop, subReportNode, subReportNodeSetpoints, MODIFY_BATTERY_ERROR, String.format(ERROR_MESSAGE, battery.getId()));
     }
 
-    private ReportNode modifyBatteryConnectivityAttributes(Network network, BatteryModificationInfos modificationInfos,
+    private void modifyBatteryVoltageLevelBusOrBusBarSectionAttributes(BatteryModificationInfos modificationInfos,
+                                                                         Battery battery, ReportNode subReportNode) {
+        BatteryAdder batteryAdder = ModificationUtils.getInstance().createBatteryAdderInNodeBreaker(battery.getNetwork(), modificationInfos.getVoltageLevelId() != null ?
+                battery.getNetwork().getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : battery.getTerminal().getVoltageLevel(), modificationInfos);
+        ModificationUtils.getInstance().modifyInjectionVoltageLevelBusOrBusBarSection(battery, batteryAdder, modificationInfos, subReportNode);
+    }
+
+    private ReportNode modifyBatteryConnectivityAttributes(BatteryModificationInfos modificationInfos,
                                                                  Battery battery, ReportNode subReportNode) {
         ConnectablePosition<Battery> connectablePosition = battery.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<Battery> connectablePositionAdder = battery.newExtension(ConnectablePositionAdder.class);
-        BatteryAdder batteryAdder = ModificationUtils.getInstance().createBatteryAdderInNodeBreaker(network, modificationInfos.getVoltageLevelId() != null ?
-                network.getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : battery.getTerminal().getVoltageLevel(), modificationInfos);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, battery, batteryAdder, modificationInfos, subReportNode);
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, battery, modificationInfos, subReportNode);
     }
 }
 

@@ -80,7 +80,8 @@ public class ShuntCompensatorModification extends AbstractModification {
         if (shuntCompensator.getModelType() == ShuntCompensatorModelType.LINEAR) {
             applyModificationOnLinearModel(subReportNode, shuntCompensator, voltageLevel);
         }
-        modifyShuntCompensatorConnectivityAttributes(network, modificationInfos, shuntCompensator, subReportNode);
+        modifyShuntCompensatorVoltageLevelBusOrBusBarSectionAttributes(modificationInfos, shuntCompensator, subReportNode);
+        modifyShuntCompensatorConnectivityAttributes(modificationInfos, shuntCompensator, subReportNode);
         PropertiesUtils.applyProperties(shuntCompensator, subReportNode, modificationInfos.getProperties(), "ShuntCompensatorProperties");
     }
 
@@ -230,9 +231,9 @@ public class ShuntCompensatorModification extends AbstractModification {
         }
     }
 
-    private ShuntCompensatorAdder createShuntCompensatorInBusBreaker(Network network, ShuntCompensator shuntCompensator) {
+    private ShuntCompensatorAdder createShuntCompensatorInBusBreaker(ShuntCompensator shuntCompensator) {
         if (modificationInfos.getVoltageLevelId() != null && modificationInfos.getVoltageLevelId().getValue() != null) {
-            VoltageLevel voltageLevel = network.getVoltageLevel(modificationInfos.getVoltageLevelId().getValue());
+            VoltageLevel voltageLevel = shuntCompensator.getNetwork().getVoltageLevel(modificationInfos.getVoltageLevelId().getValue());
             // creating the shuntCompensator
             return voltageLevel.newShuntCompensator()
                     .setId(shuntCompensator.getId())
@@ -251,12 +252,16 @@ public class ShuntCompensatorModification extends AbstractModification {
         }
     }
 
-    private ReportNode modifyShuntCompensatorConnectivityAttributes(Network network, ShuntCompensatorModificationInfos modificationInfos,
+    private void modifyShuntCompensatorVoltageLevelBusOrBusBarSectionAttributes(ShuntCompensatorModificationInfos modificationInfos,
+                                                                         ShuntCompensator shuntCompensator, ReportNode subReportNode) {
+        ShuntCompensatorAdder shuntCompensatorAdder = createShuntCompensatorInBusBreaker(shuntCompensator);
+        ModificationUtils.getInstance().modifyInjectionVoltageLevelBusOrBusBarSection(shuntCompensator, shuntCompensatorAdder, modificationInfos, subReportNode);
+    }
+
+    private ReportNode modifyShuntCompensatorConnectivityAttributes(ShuntCompensatorModificationInfos modificationInfos,
                                                         ShuntCompensator shuntCompensator, ReportNode subReportNode) {
         ConnectablePosition<ShuntCompensator> connectablePosition = shuntCompensator.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<ShuntCompensator> connectablePositionAdder = shuntCompensator.newExtension(ConnectablePositionAdder.class);
-        ShuntCompensatorAdder shuntCompensatorAdder = createShuntCompensatorInBusBreaker(network, shuntCompensator);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder,
-                shuntCompensator, shuntCompensatorAdder, modificationInfos, subReportNode);
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, shuntCompensator, modificationInfos, subReportNode);
     }
 }
