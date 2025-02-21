@@ -1288,9 +1288,8 @@ public final class ModificationUtils {
             insertReportNode(reports, ModificationUtils.getInstance().buildModificationReport(terminal.getVoltageLevel().getId(), voltageLevelId.getValue(), fieldName, 1));
             return getVoltageLevel(network, voltageLevelId.getValue());
         } else {
-            terminal.getVoltageLevel();
+            return terminal.getVoltageLevel();
         }
-        return null;
     }
 
     private String getBusOrBusBarSectionInfos(AttributeModification<String> busOrBusbarSectionId, Terminal terminal, FeederSide feederSide, ReportNode reports) {
@@ -1299,9 +1298,8 @@ public final class ModificationUtils {
             insertReportNode(reports, ModificationUtils.getInstance().buildModificationReport(terminal.getVoltageLevel().getId(), busOrBusbarSectionId.getValue(), fieldName, 1));
             return busOrBusbarSectionId.getValue();
         } else {
-            getBusOrBusbarSection(terminal);
+            return getBusOrBusbarSection(terminal);
         }
-        return null;
     }
 
     private void processInjectionNodeBreakerTopology(VoltageLevel voltageLevel, String busOrBusbarSectionId, InjectionModificationInfos modificationInfos,
