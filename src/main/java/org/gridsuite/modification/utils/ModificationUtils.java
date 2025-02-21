@@ -34,6 +34,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.TwoSides.ONE;
+import static com.powsybl.iidm.network.TwoSides.TWO;
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
 
 /**
@@ -101,7 +102,7 @@ public final class ModificationUtils {
     public TwoWindingsTransformer getTwoWindingsTransformer(Network network, String windingsTransformerId) {
         TwoWindingsTransformer windingsTransformer = network.getTwoWindingsTransformer(windingsTransformerId);
         if (windingsTransformer == null) {
-            throw new NetworkModificationException(TWO_WINDINGS_TRANSFORMER_NOT_FOUND, windingsTransformerId);
+            throw new NetworkModificationException(TWO_WINDINGS_TRANSFORMER_NOT_FOUND, "TwoWindingsTransformer " + windingsTransformerId);
         }
         return windingsTransformer;
     }
@@ -543,7 +544,7 @@ public final class ModificationUtils {
 
             // lineAdder completion by topology
             setBranchAdderNodeOrBus(lineAdder, voltageLevel1, lineCreationInfos, ONE, withSwitch1);
-            setBranchAdderNodeOrBus(lineAdder, voltageLevel2, lineCreationInfos, TwoSides.TWO, withSwitch2);
+            setBranchAdderNodeOrBus(lineAdder, voltageLevel2, lineCreationInfos, TWO, withSwitch2);
 
             return lineAdder;
         } else if (equipmentModificationInfos instanceof LineModificationInfos lineModificationInfos) {
@@ -613,7 +614,7 @@ public final class ModificationUtils {
 
             // BranchAdder completion by topology
             ModificationUtils.getInstance().setBranchAdderNodeOrBus(branchAdder, voltageLevel1, twoWindingsTransformerCreationInfos, TwoSides.ONE, withSwitch1);
-            ModificationUtils.getInstance().setBranchAdderNodeOrBus(branchAdder, voltageLevel2, twoWindingsTransformerCreationInfos, TwoSides.TWO, withSwitch2);
+            ModificationUtils.getInstance().setBranchAdderNodeOrBus(branchAdder, voltageLevel2, twoWindingsTransformerCreationInfos, TWO, withSwitch2);
 
             return twoWindingsTransformerAdder;
         } else if (equipmentModificationInfos instanceof TwoWindingsTransformerModificationInfos transformerModificationInfos) {
