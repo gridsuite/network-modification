@@ -41,6 +41,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         if (transformer == null) {
             throw new NetworkModificationException(TWO_WINDINGS_TRANSFORMER_NOT_FOUND, errorMessage + "it does not exist in the network");
         }
+        ModificationUtils.getInstance().checkVoltageLevelBranchModification(network, modificationInfos, transformer);
         TwoWindingsTransformerModificationInfos twtModificationInfos = (TwoWindingsTransformerModificationInfos) modificationInfos;
         checkAndModifyTapChanger(network, twtModificationInfos.getRatioTapChanger(), transformer.getRatioTapChanger(), errorMessage);
         checkAndModifyTapChanger(network, twtModificationInfos.getPhaseTapChanger(), transformer.getPhaseTapChanger(), errorMessage);
@@ -67,7 +68,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
     public void apply(Network network, ReportNode subReportNode) {
         TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(modificationInfos.getEquipmentId());
         // modify the 2wt in the network
-        modifyTwoWindingsTransformer(twoWindingsTransformer, modificationInfos, subReportNode, network);
+        modifyTwoWindingsTransformer(network, twoWindingsTransformer, modificationInfos, subReportNode);
     }
 
     @Override
@@ -75,7 +76,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         return "TwoWindingsTransformerModification";
     }
 
-    private void modifyTwoWindingsTransformer(TwoWindingsTransformer twoWindingsTransformer, BranchModificationInfos twoWindingsTransformerModificationInfos, ReportNode subReportNode, Network network) {
+    private void modifyTwoWindingsTransformer(Network network, TwoWindingsTransformer twoWindingsTransformer, BranchModificationInfos twoWindingsTransformerModificationInfos, ReportNode subReportNode) {
         modifyBranch(twoWindingsTransformer, twoWindingsTransformerModificationInfos, subReportNode, "twoWindingsTransformerModification", "TwoWindingsTransformer with id=${id} modified :");
         addTapChangersToTwoWindingsTransformer(network, (TwoWindingsTransformerModificationInfos) modificationInfos, twoWindingsTransformer, subReportNode);
         PropertiesUtils.applyProperties(twoWindingsTransformer, subReportNode, modificationInfos.getProperties(), "TwoWindingsTransformerProperties");

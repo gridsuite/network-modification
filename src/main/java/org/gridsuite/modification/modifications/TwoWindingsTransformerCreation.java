@@ -8,8 +8,6 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
-import com.powsybl.iidm.modification.topology.CreateBranchFeederBays;
-import com.powsybl.iidm.modification.topology.CreateBranchFeederBaysBuilder;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
@@ -18,9 +16,9 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import java.util.List;
-import java.util.Optional;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import static org.gridsuite.modification.NetworkModificationException.Type.TWO_WINDINGS_TRANSFORMER_ALREADY_EXISTS;
+import static org.gridsuite.modification.utils.ModificationUtils.createBranchInNodeBreaker;
 
 public class TwoWindingsTransformerCreation extends AbstractModification {
 
@@ -91,64 +89,17 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
     }
 
     private TwoWindingsTransformer create2WTInNodeBreaker(Network network, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, ReportNode subReportNode) {
-        var twoWindingsTransformerAdder = createTwoWindingsTransformerAdder(voltageLevel1, voltageLevel2, modificationInfos, false, false);
-
-        var position1 = ModificationUtils.getInstance().getPosition(modificationInfos.getConnectionPosition1(), modificationInfos.getBusOrBusbarSectionId1(), network, voltageLevel1);
-        var position2 = ModificationUtils.getInstance().getPosition(modificationInfos.getConnectionPosition2(), modificationInfos.getBusOrBusbarSectionId2(), network, voltageLevel2);
-
-        CreateBranchFeederBays algo = new CreateBranchFeederBaysBuilder()
-                .withBusOrBusbarSectionId1(modificationInfos.getBusOrBusbarSectionId1())
-                .withBusOrBusbarSectionId2(modificationInfos.getBusOrBusbarSectionId2())
-                .withFeederName1(modificationInfos.getConnectionName1() != null ? modificationInfos.getConnectionName1() : modificationInfos.getEquipmentId())
-                .withFeederName2(modificationInfos.getConnectionName2() != null ? modificationInfos.getConnectionName2() : modificationInfos.getEquipmentId())
-                .withDirection1(modificationInfos.getConnectionDirection1())
-                .withDirection2(modificationInfos.getConnectionDirection2())
-                .withPositionOrder1(position1)
-                .withPositionOrder2(position2)
-                .withBranchAdder(twoWindingsTransformerAdder).build();
-        algo.apply(network, true, subReportNode);
+        var twoWindingsTransformerAdder = ModificationUtils.getInstance().createTwoWindingsTransformerAdder(network, voltageLevel1, voltageLevel2, modificationInfos, false, false);
+        createBranchInNodeBreaker(voltageLevel1, voltageLevel2, modificationInfos.getBusOrBusbarSectionId1(), modificationInfos.getBusOrBusbarSectionId2(),
+                modificationInfos.getConnectionPosition1(), modificationInfos.getConnectionPosition2(), modificationInfos.getConnectionDirection1(),
+                modificationInfos.getConnectionDirection2(), modificationInfos.getConnectionName1() != null ? modificationInfos.getConnectionName1() : modificationInfos.getEquipmentId(),
+                modificationInfos.getConnectionName2() != null ? modificationInfos.getConnectionName2() : modificationInfos.getEquipmentId(),
+                network, twoWindingsTransformerAdder, subReportNode);
 
         var twt = network.getTwoWindingsTransformer(modificationInfos.getEquipmentId());
         addTapChangersToTwoWindingsTransformer(network, modificationInfos, twt);
 
         return twt;
-    }
-
-    private TwoWindingsTransformerAdder createTwoWindingsTransformerAdder(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, boolean withSwitch1, boolean withSwitch2) {
-        Optional<Substation> optS1 = voltageLevel1.getSubstation();
-        Optional<Substation> optS2 = voltageLevel2.getSubstation();
-        Substation s1 = optS1.orElse(null);
-        Substation s2 = optS2.orElse(null);
-        BranchAdder<TwoWindingsTransformer, TwoWindingsTransformerAdder> branchAdder;
-
-        if (s1 != null) {
-            branchAdder = s1.newTwoWindingsTransformer();
-        } else if (s2 != null) {
-            branchAdder = s2.newTwoWindingsTransformer();
-        } else {
-            throw new NetworkModificationException(TWO_WINDINGS_TRANSFORMER_CREATION_ERROR, "The two windings transformer should belong to a substation");
-        }
-        // common settings
-        TwoWindingsTransformerAdder twoWindingsTransformerAdder = branchAdder.setId(twoWindingsTransformerCreationInfos.getEquipmentId())
-                .setName(twoWindingsTransformerCreationInfos.getEquipmentName())
-                .setVoltageLevel1(twoWindingsTransformerCreationInfos.getVoltageLevelId1())
-                .setVoltageLevel2(twoWindingsTransformerCreationInfos.getVoltageLevelId2())
-                .setG(twoWindingsTransformerCreationInfos.getG())
-                .setB(twoWindingsTransformerCreationInfos.getB())
-                .setR(twoWindingsTransformerCreationInfos.getR())
-                .setX(twoWindingsTransformerCreationInfos.getX())
-                .setRatedU1(twoWindingsTransformerCreationInfos.getRatedU1())
-                .setRatedU2(twoWindingsTransformerCreationInfos.getRatedU2());
-
-        if (twoWindingsTransformerCreationInfos.getRatedS() != null) {
-            twoWindingsTransformerAdder.setRatedS(twoWindingsTransformerCreationInfos.getRatedS());
-        }
-
-        // BranchAdder completion by topology
-        ModificationUtils.getInstance().setBranchAdderNodeOrBus(branchAdder, voltageLevel1, twoWindingsTransformerCreationInfos, TwoSides.ONE, withSwitch1);
-        ModificationUtils.getInstance().setBranchAdderNodeOrBus(branchAdder, voltageLevel2, twoWindingsTransformerCreationInfos, TwoSides.TWO, withSwitch2);
-
-        return twoWindingsTransformerAdder;
     }
 
     private void addTapChangersToTwoWindingsTransformer(Network network, TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, com.powsybl.iidm.network.TwoWindingsTransformer twt) {
@@ -220,7 +171,7 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
     }
 
     private TwoWindingsTransformer create2WTInOtherBreaker(Network network, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, boolean withSwitch1, boolean withSwitch2, ReportNode subReportNode) {
-        var twt = createTwoWindingsTransformerAdder(voltageLevel1, voltageLevel2, twoWindingsTransformerCreationInfos, withSwitch1, withSwitch2).add();
+        var twt = ModificationUtils.getInstance().createTwoWindingsTransformerAdder(network, voltageLevel1, voltageLevel2, twoWindingsTransformerCreationInfos, withSwitch1, withSwitch2).add();
         addTapChangersToTwoWindingsTransformer(network, twoWindingsTransformerCreationInfos, twt);
         subReportNode.newReportNode()
                 .withMessageTemplate("twoWindingsTransformerCreated", "New two windings transformer with id=${id} created")

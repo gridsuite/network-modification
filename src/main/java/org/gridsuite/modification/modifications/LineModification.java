@@ -7,9 +7,7 @@
 package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.BranchModificationInfos;
 import org.gridsuite.modification.dto.LineModificationInfos;
@@ -35,13 +33,14 @@ public class LineModification extends AbstractBranchModification {
             throw new NetworkModificationException(LINE_NOT_FOUND,
                     "Line " + modificationInfos.getEquipmentId() + " does not exist in network");
         }
+        ModificationUtils.getInstance().checkVoltageLevelBranchModification(network, modificationInfos, line);
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         Line line = network.getLine(modificationInfos.getEquipmentId());
         // modify the line in the network
-        modifyLine(line, modificationInfos, subReportNode);
+        modifyLine(network, line, modificationInfos, subReportNode);
     }
 
     @Override
@@ -49,7 +48,7 @@ public class LineModification extends AbstractBranchModification {
         return "LineModification";
     }
 
-    private void modifyLine(Line line, BranchModificationInfos lineModificationInfos, ReportNode subReportNode) {
+    private void modifyLine(Network network, Line line, BranchModificationInfos lineModificationInfos, ReportNode subReportNode) {
         modifyBranch(line, lineModificationInfos, subReportNode, "lineModification", "Line with id=${id} modified :");
         PropertiesUtils.applyProperties(line, subReportNode, modificationInfos.getProperties(), "LineProperties");
     }

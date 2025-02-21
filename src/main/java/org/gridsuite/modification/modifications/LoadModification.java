@@ -9,6 +9,7 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
@@ -38,6 +39,8 @@ public class LoadModification extends AbstractModification {
             throw new NetworkModificationException(LOAD_NOT_FOUND,
                     "Load " + modificationInfos.getEquipmentId() + " does not exist in network");
         }
+        // check voltageLevel
+        ModificationUtils.getInstance().checkVoltageLevelInjectionModification(network, modificationInfos, load);
     }
 
     @Override
@@ -58,7 +61,7 @@ public class LoadModification extends AbstractModification {
             .withUntypedValue("id", modificationInfos.getEquipmentId())
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
-
+        modifyLoadVoltageLevelBusOrBusBarSectionAttributes(modificationInfos, load, subReportNode);
         ModificationUtils.getInstance().applyElementaryModifications(load::setName, () -> load.getOptionalName().orElse("No value"), modificationInfos.getEquipmentName(), subReportNode, "Name");
         ModificationUtils.getInstance().applyElementaryModifications(load::setLoadType, load::getLoadType, modificationInfos.getLoadType(), subReportNode, "Type");
         modifyP0(load, modificationInfos.getP0(), subReportNode);
@@ -74,6 +77,13 @@ public class LoadModification extends AbstractModification {
 
     public static void modifyP0(Load load, AttributeModification<Double> p0, ReportNode subReportNode) {
         ModificationUtils.getInstance().applyElementaryModifications(load::setP0, load::getP0, p0, subReportNode, "Constant active power");
+    }
+
+    private void modifyLoadVoltageLevelBusOrBusBarSectionAttributes(LoadModificationInfos modificationInfos,
+                                                                         Load load, ReportNode subReportNode) {
+        LoadAdder loadAdder = ModificationUtils.getInstance().createLoadAdderInNodeBreaker(load.getNetwork(), modificationInfos.getVoltageLevelId() != null ?
+                load.getNetwork().getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : load.getTerminal().getVoltageLevel(), modificationInfos);
+        ModificationUtils.getInstance().modifyInjectionVoltageLevelBusOrBusBarSection(load, loadAdder, modificationInfos, subReportNode);
     }
 
     private ReportNode modifyLoadConnectivityAttributes(LoadModificationInfos modificationInfos,

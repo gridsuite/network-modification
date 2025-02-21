@@ -8,11 +8,7 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ReactiveCapabilityCurve;
-import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
-import com.powsybl.iidm.network.ReactiveLimitsKind;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -53,6 +49,8 @@ public class BatteryModification extends AbstractModification {
         }
         Battery battery = ModificationUtils.getInstance().getBattery(network, modificationInfos.getEquipmentId());
         String errorMessage = "Battery '" + modificationInfos.getEquipmentId() + "' : ";
+        // check voltageLevel
+        ModificationUtils.getInstance().checkVoltageLevelInjectionModification(network, modificationInfos, battery);
         ModificationUtils.getInstance().checkReactiveLimit(battery, modificationInfos.getMinQ(), modificationInfos.getMaxQ(),
                 modificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_BATTERY_ERROR, errorMessage);
         checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(modificationInfos, battery, MODIFY_BATTERY_ERROR, errorMessage);
@@ -93,7 +91,7 @@ public class BatteryModification extends AbstractModification {
         if (modificationInfos.getEquipmentName() != null && modificationInfos.getEquipmentName().getValue() != null) {
             ModificationUtils.getInstance().applyElementaryModifications(battery::setName, () -> battery.getOptionalName().orElse("No value"), modificationInfos.getEquipmentName(), subReportNode, "Name");
         }
-
+        modifyBatteryVoltageLevelBusOrBusBarSectionAttributes(modificationInfos, battery, subReportNode);
         modifyBatteryLimitsAttributes(modificationInfos, battery, subReportNode);
         modifyBatterySetpointsAttributes(
                 modificationInfos.getTargetP(), modificationInfos.getTargetQ(),
@@ -181,6 +179,13 @@ public class BatteryModification extends AbstractModification {
         ActivePowerControlAdder<Battery> activePowerControlAdder = battery.newExtension(ActivePowerControlAdder.class);
         return ModificationUtils.getInstance().modifyActivePowerControlAttributes(activePowerControl, activePowerControlAdder,
             participate, droop, subReportNode, subReportNodeSetpoints, MODIFY_BATTERY_ERROR, String.format(ERROR_MESSAGE, battery.getId()));
+    }
+
+    private void modifyBatteryVoltageLevelBusOrBusBarSectionAttributes(BatteryModificationInfos modificationInfos,
+                                                                         Battery battery, ReportNode subReportNode) {
+        BatteryAdder batteryAdder = ModificationUtils.getInstance().createBatteryAdderInNodeBreaker(battery.getNetwork(), modificationInfos.getVoltageLevelId() != null ?
+                battery.getNetwork().getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : battery.getTerminal().getVoltageLevel(), modificationInfos);
+        ModificationUtils.getInstance().modifyInjectionVoltageLevelBusOrBusBarSection(battery, batteryAdder, modificationInfos, subReportNode);
     }
 
     private ReportNode modifyBatteryConnectivityAttributes(BatteryModificationInfos modificationInfos,

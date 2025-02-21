@@ -17,7 +17,6 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_SHUNT_COMPENSATOR_ERROR;
 import static org.gridsuite.modification.NetworkModificationException.Type.SHUNT_COMPENSATOR_ALREADY_EXISTS;
-import static org.gridsuite.modification.utils.ModificationUtils.createInjectionInNodeBreaker;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -62,7 +61,9 @@ public class ShuntCompensatorCreation extends AbstractModification {
         }
         if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             ShuntCompensatorAdder shuntCompensatorAdder = createShuntAdderInNodeBreaker(voltageLevel, modificationInfos);
-            createInjectionInNodeBreaker(voltageLevel, modificationInfos, network, shuntCompensatorAdder, subReportNode);
+            ModificationUtils.getInstance().createInjectionInNodeBreaker(voltageLevel, modificationInfos.getBusOrBusbarSectionId(), modificationInfos.getConnectionPosition(),
+                    modificationInfos.getConnectionDirection(), modificationInfos.getConnectionName() != null ? modificationInfos.getConnectionName() : modificationInfos.getEquipmentId(),
+                    network, shuntCompensatorAdder, subReportNode);
         } else {
             createShuntInBusBreaker(voltageLevel, modificationInfos);
             subReportNode.newReportNode()

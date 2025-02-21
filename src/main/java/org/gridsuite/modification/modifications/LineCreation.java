@@ -8,8 +8,6 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
-import com.powsybl.iidm.modification.topology.CreateBranchFeederBays;
-import com.powsybl.iidm.modification.topology.CreateBranchFeederBaysBuilder;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
@@ -20,8 +18,10 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 
 import java.util.List;
 
-import static com.powsybl.iidm.network.TwoSides.*;
-import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import static com.powsybl.iidm.network.TwoSides.ONE;
+import static com.powsybl.iidm.network.TwoSides.TWO;
+import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
+import static org.gridsuite.modification.utils.ModificationUtils.createBranchInNodeBreaker;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -52,20 +52,11 @@ public class LineCreation extends AbstractModification {
         if (voltageLevel1.getTopologyKind() == TopologyKind.NODE_BREAKER &&
                 voltageLevel2.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             LineAdder lineAdder = ModificationUtils.getInstance().createLineAdder(network, voltageLevel1, voltageLevel2, modificationInfos, false, false);
-            var position1 = ModificationUtils.getInstance().getPosition(modificationInfos.getConnectionPosition1(), modificationInfos.getBusOrBusbarSectionId1(), network, voltageLevel1);
-            var position2 = ModificationUtils.getInstance().getPosition(modificationInfos.getConnectionPosition2(), modificationInfos.getBusOrBusbarSectionId2(), network, voltageLevel2);
-
-            CreateBranchFeederBays algo = new CreateBranchFeederBaysBuilder()
-                    .withBusOrBusbarSectionId1(modificationInfos.getBusOrBusbarSectionId1())
-                    .withBusOrBusbarSectionId2(modificationInfos.getBusOrBusbarSectionId2())
-                    .withFeederName1(modificationInfos.getConnectionName1() != null ? modificationInfos.getConnectionName1() : modificationInfos.getEquipmentId())
-                    .withFeederName2(modificationInfos.getConnectionName2() != null ? modificationInfos.getConnectionName2() : modificationInfos.getEquipmentId())
-                    .withDirection1(modificationInfos.getConnectionDirection1())
-                    .withDirection2(modificationInfos.getConnectionDirection2())
-                    .withPositionOrder1(position1)
-                    .withPositionOrder2(position2)
-                    .withBranchAdder(lineAdder).build();
-            algo.apply(network, true, subReportNode);
+            createBranchInNodeBreaker(voltageLevel1, voltageLevel2, modificationInfos.getBusOrBusbarSectionId1(), modificationInfos.getBusOrBusbarSectionId2(),
+                    modificationInfos.getConnectionPosition1(), modificationInfos.getConnectionPosition2(), modificationInfos.getConnectionDirection1(),
+                    modificationInfos.getConnectionDirection2(), modificationInfos.getConnectionName1() != null ? modificationInfos.getConnectionName1() : modificationInfos.getEquipmentId(),
+                    modificationInfos.getConnectionName2() != null ? modificationInfos.getConnectionName2() : modificationInfos.getEquipmentId(),
+                    network, lineAdder, subReportNode);
         } else {
             addLine(network, voltageLevel1, voltageLevel2, modificationInfos, true, true, subReportNode);
         }

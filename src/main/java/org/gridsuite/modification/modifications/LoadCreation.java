@@ -15,7 +15,6 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.LOAD_ALREADY_EXISTS;
-import static org.gridsuite.modification.utils.ModificationUtils.createInjectionInNodeBreaker;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -42,8 +41,10 @@ public class LoadCreation extends AbstractModification {
         // create the load in the network
         VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId());
         if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            LoadAdder loadAdder = createLoadAdderInNodeBreaker(voltageLevel, modificationInfos);
-            createInjectionInNodeBreaker(voltageLevel, modificationInfos, network, loadAdder, subReporter);
+            LoadAdder loadAdder = ModificationUtils.getInstance().createLoadAdderInNodeBreaker(network, voltageLevel, modificationInfos);
+            ModificationUtils.getInstance().createInjectionInNodeBreaker(voltageLevel, modificationInfos.getBusOrBusbarSectionId(), modificationInfos.getConnectionPosition(),
+                    modificationInfos.getConnectionDirection(), modificationInfos.getConnectionName() != null ? modificationInfos.getConnectionName() : modificationInfos.getEquipmentId(),
+                    network, loadAdder, subReporter);
         } else {
             createLoadInBusBreaker(voltageLevel, modificationInfos);
             subReporter.newReportNode()
@@ -81,16 +82,6 @@ public class LoadCreation extends AbstractModification {
 
         ModificationUtils.getInstance()
                 .reportElementaryCreation(subReportNode, modificationInfos.getQ0(), "Reactive power");
-    }
-
-    private LoadAdder createLoadAdderInNodeBreaker(VoltageLevel voltageLevel, LoadCreationInfos loadCreationInfos) {
-        // creating the load adder
-        return voltageLevel.newLoad()
-            .setId(loadCreationInfos.getEquipmentId())
-            .setName(loadCreationInfos.getEquipmentName())
-            .setLoadType(loadCreationInfos.getLoadType())
-            .setP0(loadCreationInfos.getP0())
-            .setQ0(loadCreationInfos.getQ0());
     }
 
     private Load createLoadInBusBreaker(VoltageLevel voltageLevel, LoadCreationInfos loadCreationInfos) {

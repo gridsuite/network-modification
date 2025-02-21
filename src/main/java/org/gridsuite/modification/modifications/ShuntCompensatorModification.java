@@ -80,6 +80,7 @@ public class ShuntCompensatorModification extends AbstractModification {
         if (shuntCompensator.getModelType() == ShuntCompensatorModelType.LINEAR) {
             applyModificationOnLinearModel(subReportNode, shuntCompensator, voltageLevel);
         }
+        modifyShuntCompensatorVoltageLevelBusOrBusBarSectionAttributes(modificationInfos, shuntCompensator, subReportNode);
         modifyShuntCompensatorConnectivityAttributes(modificationInfos, shuntCompensator, subReportNode);
         PropertiesUtils.applyProperties(shuntCompensator, subReportNode, modificationInfos.getProperties(), "ShuntCompensatorProperties");
     }
@@ -228,6 +229,33 @@ public class ShuntCompensatorModification extends AbstractModification {
             double newSwitchedOnQAtNominalV = oldQAtNominalV * sectionCount;
             reports.add(ModificationUtils.getInstance().buildModificationReport(oldSwitchedOnQAtNominalV, newSwitchedOnQAtNominalV, SWITCHED_ON_Q_AT_NOMINALV_LOG_MESSAGE));
         }
+    }
+
+    private ShuntCompensatorAdder createShuntCompensatorInBusBreaker(ShuntCompensator shuntCompensator) {
+        if (modificationInfos.getVoltageLevelId() != null && modificationInfos.getVoltageLevelId().getValue() != null) {
+            VoltageLevel voltageLevel = shuntCompensator.getNetwork().getVoltageLevel(modificationInfos.getVoltageLevelId().getValue());
+            // creating the shuntCompensator
+            return voltageLevel.newShuntCompensator()
+                    .setId(shuntCompensator.getId())
+                    .setName(shuntCompensator.getNameOrId())
+                    .setSectionCount(shuntCompensator.getSectionCount())
+                    .setVoltageRegulatorOn(shuntCompensator.isVoltageRegulatorOn())
+                    .setTargetV(shuntCompensator.getTargetV())
+                    .setTargetDeadband(shuntCompensator.getTargetDeadband())
+                    .setRegulatingTerminal(null)
+                    .newLinearModel()
+                    .setBPerSection(shuntCompensator.getB() / shuntCompensator.getMaximumSectionCount())
+                    .setMaximumSectionCount(shuntCompensator.getMaximumSectionCount())
+                    .add();
+        } else {
+            return null;
+        }
+    }
+
+    private void modifyShuntCompensatorVoltageLevelBusOrBusBarSectionAttributes(ShuntCompensatorModificationInfos modificationInfos,
+                                                                         ShuntCompensator shuntCompensator, ReportNode subReportNode) {
+        ShuntCompensatorAdder shuntCompensatorAdder = createShuntCompensatorInBusBreaker(shuntCompensator);
+        ModificationUtils.getInstance().modifyInjectionVoltageLevelBusOrBusBarSection(shuntCompensator, shuntCompensatorAdder, modificationInfos, subReportNode);
     }
 
     private ReportNode modifyShuntCompensatorConnectivityAttributes(ShuntCompensatorModificationInfos modificationInfos,
