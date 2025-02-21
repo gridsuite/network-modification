@@ -1167,15 +1167,11 @@ public final class ModificationUtils {
     }
 
     private AttributeModification<String> getVoltageLevelId(BasicEquipmentModificationInfos modificationInfos, FeederSide feederSide) {
-        return getConnectionDetail(modificationInfos, feederSide,
-                BranchModificationInfos::getVoltageLevelId1, BranchModificationInfos::getVoltageLevelId2,
-                InjectionModificationInfos::getVoltageLevelId);
+        return getConnectionDetail(modificationInfos, feederSide, BranchModificationInfos::getVoltageLevelId1, BranchModificationInfos::getVoltageLevelId2, InjectionModificationInfos::getVoltageLevelId);
     }
 
     private AttributeModification<String> getBusOrBusbarSectionId(BasicEquipmentModificationInfos modificationInfos, FeederSide feederSide) {
-        return getConnectionDetail(modificationInfos, feederSide,
-                BranchModificationInfos::getBusOrBusbarSectionId1, BranchModificationInfos::getBusOrBusbarSectionId2,
-                InjectionModificationInfos::getBusOrBusbarSectionId);
+        return getConnectionDetail(modificationInfos, feederSide, BranchModificationInfos::getBusOrBusbarSectionId1, BranchModificationInfos::getBusOrBusbarSectionId2, InjectionModificationInfos::getBusOrBusbarSectionId);
     }
 
     private AttributeModification<String> getEquipmentId(BasicEquipmentModificationInfos modificationInfos) {
@@ -1183,9 +1179,7 @@ public final class ModificationUtils {
     }
 
     private AttributeModification<String> getConnectionName(BasicEquipmentModificationInfos modificationInfos, FeederSide feederSide) {
-        return getConnectionDetail(modificationInfos, feederSide,
-                BranchModificationInfos::getConnectionName1, BranchModificationInfos::getConnectionName2,
-                InjectionModificationInfos::getConnectionName);
+        return getConnectionDetail(modificationInfos, feederSide, BranchModificationInfos::getConnectionName1, BranchModificationInfos::getConnectionName2, InjectionModificationInfos::getConnectionName);
     }
 
     private String getConnectionNameField(FeederSide feederSide) {
@@ -1275,10 +1269,8 @@ public final class ModificationUtils {
         if (isNotModificationVoltageLevelBusOrBusBarInfos(modificationInfos)) {
             return;
         }
-        VoltageLevel voltageLevel = getVoltageLevelInfos(modificationInfos.getVoltageLevelId(), injection.getTerminal(),
-                injection.getNetwork(), FeederSide.INJECTION_SINGLE_SIDE, reports);
-        String busOrBusbarSectionId = getBusOrBusBarSectionInfos(modificationInfos.getBusOrBusbarSectionId(),
-                injection.getTerminal(), FeederSide.INJECTION_SINGLE_SIDE, reports);
+        VoltageLevel voltageLevel = getVoltageLevelInfos(modificationInfos.getVoltageLevelId(), injection.getTerminal(), injection.getNetwork(), FeederSide.INJECTION_SINGLE_SIDE, reports);
+        String busOrBusbarSectionId = getBusOrBusBarSectionInfos(modificationInfos.getBusOrBusbarSectionId(), injection.getTerminal(), FeederSide.INJECTION_SINGLE_SIDE, reports);
 
         if (voltageLevel != null && voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             processInjectionNodeBreakerTopology(voltageLevel, busOrBusbarSectionId, modificationInfos, injectionAdder, injection, reports);
@@ -1292,8 +1284,7 @@ public final class ModificationUtils {
     private VoltageLevel getVoltageLevelInfos(AttributeModification<String> voltageLevelId, Terminal terminal, Network network, FeederSide feederSide, ReportNode reports) {
         if (voltageLevelId != null && voltageLevelId.getValue() != null) {
             String fieldName = String.format("%s modification", getConnectionFieldName(feederSide, "Voltage level id"));
-            insertReportNode(reports, ModificationUtils.getInstance().buildModificationReport(terminal.getVoltageLevel().getId(),
-                    voltageLevelId.getValue(), fieldName, 1));
+            insertReportNode(reports, ModificationUtils.getInstance().buildModificationReport(terminal.getVoltageLevel().getId(), voltageLevelId.getValue(), fieldName, 1));
             return getVoltageLevel(network, voltageLevelId.getValue());
         } else {
             terminal.getVoltageLevel();
@@ -1304,8 +1295,7 @@ public final class ModificationUtils {
     private String getBusOrBusBarSectionInfos(AttributeModification<String> busOrBusbarSectionId, Terminal terminal, FeederSide feederSide, ReportNode reports) {
         if (busOrBusbarSectionId != null && busOrBusbarSectionId.getValue() != null) {
             String fieldName = String.format("%s modification", getConnectionFieldName(feederSide, "Bus id"));
-            insertReportNode(reports, ModificationUtils.getInstance().buildModificationReport(terminal.getVoltageLevel().getId(),
-                    busOrBusbarSectionId.getValue(), fieldName, 1));
+            insertReportNode(reports, ModificationUtils.getInstance().buildModificationReport(terminal.getVoltageLevel().getId(), busOrBusbarSectionId.getValue(), fieldName, 1));
             return busOrBusbarSectionId.getValue();
         } else {
             getBusOrBusbarSection(terminal);
@@ -1315,68 +1305,59 @@ public final class ModificationUtils {
 
     private void processInjectionNodeBreakerTopology(VoltageLevel voltageLevel, String busOrBusbarSectionId, InjectionModificationInfos modificationInfos,
                                                      InjectionAdder<?, ?> injectionAdder, Injection injection, ReportNode reports) {
+        Network network = injection.getNetwork();
         new RemoveFeederBay(injection.getId()).apply(injection.getNetwork(), true, reports);
-        createInjectionInNodeBreaker(voltageLevel, busOrBusbarSectionId, null,
-                ConnectablePosition.Direction.UNDEFINED, modificationInfos.getEquipmentId(), injection.getNetwork(), injectionAdder, reports);
+        createInjectionInNodeBreaker(voltageLevel, busOrBusbarSectionId, null, ConnectablePosition.Direction.UNDEFINED, modificationInfos.getEquipmentId(), network, injectionAdder, reports);
     }
 
     private void processInjectionBusBreakerTopology(VoltageLevel voltageLevel, String busOrBusbarSectionId, InjectionAdder<?, ?> injectionAdder, Injection injection, ReportNode reports) {
         Bus bus = getBusBreakerBus(voltageLevel, busOrBusbarSectionId);
+        Network network = injection.getNetwork();
         new RemoveFeederBay(injection.getId()).apply(injection.getNetwork(), true, reports);
         CreateFeederBay algo = new CreateFeederBayBuilder()
                 .withBusOrBusbarSectionId(bus.getId())
                 .withInjectionAdder(injectionAdder)
                 .build();
-        algo.apply(injection.getNetwork(), true, reports);
+        algo.apply(network, true, reports);
     }
 
     public void modifyBranchVoltageLevelBusOrBusBarSection(BranchModificationInfos modificationInfos, Branch<?> branch, BranchAdder<?, ?> branchAdder, ReportNode reports) {
         if (isNotModificationVoltageLevel1BusOrBusBar1Infos(modificationInfos) && isNotModificationVoltageLevel2BusOrBusBar2Infos(modificationInfos)) {
             return;
         }
-        VoltageLevel voltageLevel1 = getVoltageLevelInfos(modificationInfos.getVoltageLevelId1(), branch.getTerminal1(),
-                branch.getNetwork(), FeederSide.BRANCH_SIDE_ONE, reports);
-        String busOrBusbarSectionId1 = getBusOrBusBarSectionInfos(modificationInfos.getBusOrBusbarSectionId1(), branch.getTerminal1(),
-                FeederSide.BRANCH_SIDE_ONE, reports);
+        VoltageLevel voltageLevel1 = getVoltageLevelInfos(modificationInfos.getVoltageLevelId1(), branch.getTerminal1(), branch.getNetwork(), FeederSide.BRANCH_SIDE_ONE, reports);
+        String busOrBusbarSectionId1 = getBusOrBusBarSectionInfos(modificationInfos.getBusOrBusbarSectionId1(), branch.getTerminal1(), FeederSide.BRANCH_SIDE_ONE, reports);
 
-        VoltageLevel voltageLevel2 = getVoltageLevelInfos(modificationInfos.getVoltageLevelId2(), branch.getTerminal2(), branch.getNetwork(),
-                FeederSide.BRANCH_SIDE_TWO, reports);
-        String busOrBusbarSectionId2 = getBusOrBusBarSectionInfos(modificationInfos.getBusOrBusbarSectionId2(), branch.getTerminal2(),
-                FeederSide.BRANCH_SIDE_TWO, reports);
+        VoltageLevel voltageLevel2 = getVoltageLevelInfos(modificationInfos.getVoltageLevelId2(), branch.getTerminal2(), branch.getNetwork(), FeederSide.BRANCH_SIDE_TWO, reports);
+        String busOrBusbarSectionId2 = getBusOrBusBarSectionInfos(modificationInfos.getBusOrBusbarSectionId2(), branch.getTerminal2(), FeederSide.BRANCH_SIDE_TWO, reports);
         if (voltageLevel1 != null && voltageLevel2 != null &&
                 voltageLevel1.getTopologyKind() == TopologyKind.NODE_BREAKER &&
                 voltageLevel2.getTopologyKind() == TopologyKind.NODE_BREAKER) {
 
-            processBranchNodeBreakerTopology(voltageLevel1, voltageLevel2, busOrBusbarSectionId1,
-                    busOrBusbarSectionId2, modificationInfos, branch.getNetwork(), branchAdder, branch, reports);
+            processBranchNodeBreakerTopology(voltageLevel1, voltageLevel2, busOrBusbarSectionId1, busOrBusbarSectionId2, modificationInfos, branchAdder, branch, reports);
         }
 
         if (voltageLevel1 != null && voltageLevel2 != null &&
                 voltageLevel1.getTopologyKind() == TopologyKind.BUS_BREAKER &&
                 voltageLevel2.getTopologyKind() == TopologyKind.BUS_BREAKER) {
 
-            processBranchBusBreakerTopology(voltageLevel1, voltageLevel2, busOrBusbarSectionId1, busOrBusbarSectionId2,
-                    branch.getNetwork(), branchAdder, branch, reports);
+            processBranchBusBreakerTopology(voltageLevel1, voltageLevel2, busOrBusbarSectionId1, busOrBusbarSectionId2, branchAdder, branch, reports);
         }
     }
 
-    private void processBranchNodeBreakerTopology(VoltageLevel voltageLevel1,
-                                            VoltageLevel voltageLevel2, String busOrBusbarSectionId1,
-                                            String busOrBusbarSectionId2, BranchModificationInfos modificationInfos,
-                                            Network network, BranchAdder<?, ?> branchAdder, Branch branch, ReportNode reports) {
+    private void processBranchNodeBreakerTopology(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, String busOrBusbarSectionId1,
+                                            String busOrBusbarSectionId2, BranchModificationInfos modificationInfos, BranchAdder<?, ?> branchAdder, Branch branch, ReportNode reports) {
+        Network network = branch.getNetwork();
         new RemoveFeederBay(branch.getId()).apply(network, true, reports);
-        createBranchInNodeBreaker(voltageLevel1, voltageLevel2, busOrBusbarSectionId1, busOrBusbarSectionId2,
-                null, null, ConnectablePosition.Direction.UNDEFINED,
-                ConnectablePosition.Direction.UNDEFINED, modificationInfos.getEquipmentId(),
-                modificationInfos.getEquipmentId(), network, branchAdder, reports);
+        createBranchInNodeBreaker(voltageLevel1, voltageLevel2, busOrBusbarSectionId1, busOrBusbarSectionId2, null, null, ConnectablePosition.Direction.UNDEFINED,
+                ConnectablePosition.Direction.UNDEFINED, modificationInfos.getEquipmentId(), modificationInfos.getEquipmentId(), network, branchAdder, reports);
     }
 
-    private void processBranchBusBreakerTopology(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2,
-                                           String busOrBusbarSectionId1, String busOrBusbarSectionId2,
-                                           Network network, BranchAdder<?, ?> branchAdder, Branch branch, ReportNode reports) {
+    private void processBranchBusBreakerTopology(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, String busOrBusbarSectionId1,
+                                                 String busOrBusbarSectionId2, BranchAdder<?, ?> branchAdder, Branch branch, ReportNode reports) {
         Bus bus1 = getBusBreakerBus(voltageLevel1, busOrBusbarSectionId1);
         Bus bus2 = getBusBreakerBus(voltageLevel2, busOrBusbarSectionId2);
-
+        Network network = branch.getNetwork();
         new RemoveFeederBay(branch.getId()).apply(network, true, reports);
         CreateBranchFeederBays algo = new CreateBranchFeederBaysBuilder()
                 .withBusOrBusbarSectionId1(bus1.getId())
