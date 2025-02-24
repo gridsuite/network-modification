@@ -1415,24 +1415,26 @@ public final class ModificationUtils {
         }
     }
 
-    public void copyExtensionFrom(String extensionName, Injection injection, Map<String, Extension> copiedExtensions) {
+    public void copyExtensionFrom(String extensionName, Identifiable identifiable, Map<String, Extension> copiedExtensions) {
         switch (extensionName) {
-            case "activePowerControl" -> copiedExtensions.put(extensionName, injection.getExtension(ActivePowerControl.class));
-            case "startup" -> copiedExtensions.put(extensionName, injection.getExtension(GeneratorStartup.class));
-            case "generatorShortCircuit" -> copiedExtensions.put(extensionName, injection.getExtension(GeneratorShortCircuit.class));
-            case "coordinatedReactiveControl" -> copiedExtensions.put(extensionName, injection.getExtension(CoordinatedReactiveControl.class));
-            case "injectionObservability" -> copiedExtensions.put(extensionName, injection.getExtension(InjectionObservability.class));
-            case "measurements" -> copiedExtensions.put(extensionName, injection.getExtension(Measurements.class));
-            case "position" -> copiedExtensions.put(extensionName, injection.getExtension(ConnectablePosition.class));
+            case "activePowerControl" -> copiedExtensions.put(extensionName, identifiable.getExtension(ActivePowerControl.class));
+            case "startup" -> copiedExtensions.put(extensionName, identifiable.getExtension(GeneratorStartup.class));
+            case "generatorShortCircuit" -> copiedExtensions.put(extensionName, identifiable.getExtension(GeneratorShortCircuit.class));
+            case "coordinatedReactiveControl" -> copiedExtensions.put(extensionName, identifiable.getExtension(CoordinatedReactiveControl.class));
+            case "injectionObservability" -> copiedExtensions.put(extensionName, identifiable.getExtension(InjectionObservability.class));
+            case "measurements" -> copiedExtensions.put(extensionName, identifiable.getExtension(Measurements.class));
+            case "position" -> copiedExtensions.put(extensionName, identifiable.getExtension(ConnectablePosition.class));
+            case "branchObservability" -> copiedExtensions.put(extensionName, identifiable.getExtension(BranchObservability.class));
+            case "operatingStatus" -> copiedExtensions.put(extensionName, identifiable.getExtension(OperatingStatus.class));
         }
     }
 
-    public void copyExtensionTo(String extensionName, Injection injection, Extension copiedExtensions) {
+    public void copyExtensionTo(String extensionName, Identifiable identifiable, Extension copiedExtensions) {
         switch (extensionName) {
             case "activePowerControl" -> {
                 ActivePowerControl copiedExtensionss = (ActivePowerControl) copiedExtensions;
                 if (copiedExtensionss != null) {
-                    ActivePowerControlAdder adder = (ActivePowerControlAdder) injection.newExtension(ActivePowerControlAdder.class);
+                    ActivePowerControlAdder adder = (ActivePowerControlAdder) identifiable.newExtension(ActivePowerControlAdder.class);
                     if (adder != null) {
                         adder.add();
                     }
@@ -1441,7 +1443,7 @@ public final class ModificationUtils {
             case "startup" -> {
                 GeneratorStartup copiedExtensionss = (GeneratorStartup) copiedExtensions;
                 if (copiedExtensionss != null) {
-                    GeneratorStartupAdder adder = (GeneratorStartupAdder) injection.newExtension(GeneratorStartupAdder.class);
+                    GeneratorStartupAdder adder = (GeneratorStartupAdder) identifiable.newExtension(GeneratorStartupAdder.class);
                     if (adder != null) {
                         adder.add();
                     }
@@ -1450,7 +1452,7 @@ public final class ModificationUtils {
             case "generatorShortCircuit" -> {
                 GeneratorShortCircuit copiedExtensionss = (GeneratorShortCircuit) copiedExtensions;
                 if (copiedExtensionss != null) {
-                    GeneratorShortCircuitAdder adder = (GeneratorShortCircuitAdder) injection.newExtension(GeneratorShortCircuitAdder.class);
+                    GeneratorShortCircuitAdder adder = (GeneratorShortCircuitAdder) identifiable.newExtension(GeneratorShortCircuitAdder.class);
                     if (adder != null) {
                         adder.add();
                     }
@@ -1459,7 +1461,7 @@ public final class ModificationUtils {
             case "coordinatedReactiveControl" -> {
                 CoordinatedReactiveControl copiedExtensionss = (CoordinatedReactiveControl) copiedExtensions;
                 if (copiedExtensionss != null) {
-                    CoordinatedReactiveControlAdder adder = (CoordinatedReactiveControlAdder) injection.newExtension(CoordinatedReactiveControlAdder.class);
+                    CoordinatedReactiveControlAdder adder = (CoordinatedReactiveControlAdder) identifiable.newExtension(CoordinatedReactiveControlAdder.class);
                     if (adder != null) {
                         adder.add();
                     }
@@ -1468,7 +1470,7 @@ public final class ModificationUtils {
             case "injectionObservability" -> {
                 InjectionObservability copiedExtensionss = (InjectionObservability) copiedExtensions;
                 if (copiedExtensionss != null) {
-                    InjectionObservabilityAdder adder = (InjectionObservabilityAdder) injection.newExtension(InjectionObservabilityAdder.class);
+                    InjectionObservabilityAdder adder = (InjectionObservabilityAdder) identifiable.newExtension(InjectionObservabilityAdder.class);
                     if (adder != null) {
                         adder.add();
                     }
@@ -1477,7 +1479,7 @@ public final class ModificationUtils {
             case "measurements" -> {
                 Measurements copiedExtensionss = (Measurements) copiedExtensions;
                 if (copiedExtensionss != null) {
-                    MeasurementsAdder adder = (MeasurementsAdder) injection.newExtension(MeasurementsAdder.class);
+                    MeasurementsAdder adder = (MeasurementsAdder) identifiable.newExtension(MeasurementsAdder.class);
                     if (adder != null) {
                         adder.add();
                     }
@@ -1486,7 +1488,25 @@ public final class ModificationUtils {
             case "position" -> {
                 ConnectablePosition copiedExtensionss = (ConnectablePosition) copiedExtensions;
                 if (copiedExtensionss != null) {
-                    ConnectablePositionAdder adder = (ConnectablePositionAdder) injection.newExtension(ConnectablePositionAdder.class);
+                    ConnectablePositionAdder adder = (ConnectablePositionAdder) identifiable.newExtension(ConnectablePositionAdder.class);
+                    if (adder != null) {
+                        adder.add();
+                    }
+                }
+            }
+            case "branchObservability" -> {
+                BranchObservability copiedExtensionss = (BranchObservability) copiedExtensions;
+                if (copiedExtensionss != null) {
+                    BranchObservabilityAdder adder = (BranchObservabilityAdder) identifiable.newExtension(BranchObservabilityAdder.class);
+                    if (adder != null) {
+                        adder.add();
+                    }
+                }
+            }
+            case "operatingStatus" -> {
+                OperatingStatus copiedExtensionss = (OperatingStatus) copiedExtensions;
+                if (copiedExtensionss != null) {
+                    OperatingStatusAdder adder = (OperatingStatusAdder) identifiable.newExtension(OperatingStatusAdder.class);
                     if (adder != null) {
                         adder.add();
                     }

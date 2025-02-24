@@ -7,22 +7,19 @@
 package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import com.powsybl.iidm.network.extensions.Measurement;
-import com.powsybl.iidm.network.extensions.Measurements;
-import com.powsybl.iidm.network.extensions.MeasurementsAdder;
+import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.dto.BranchModificationInfos;
+import org.gridsuite.modification.dto.CurrentLimitsModificationInfos;
+import org.gridsuite.modification.dto.CurrentTemporaryLimitModificationInfos;
+import org.gridsuite.modification.dto.TemporaryLimitModificationType;
 import org.gridsuite.modification.utils.ModificationUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.BRANCH_MODIFICATION_ERROR;
@@ -306,13 +303,33 @@ public abstract class AbstractBranchModification extends AbstractModification {
 
     private void modifyBranchVoltageLevelBusOrBusBarSectionAttributes(BranchModificationInfos modificationInfos,
                                                                       Branch<?> branch, ReportNode subReportNode) {
-        BranchAdder<?, ?> branchAdder = null;
+        Network network = branch.getNetwork();
+        BranchAdder<?, ?> branchAdder;
+        Map<String, Extension> copiedExtensions = new HashMap<>();
+        List<String> extensionNames = branch.getExtensions().stream()
+                .map(Extension::getName)
+                .toList();
+        for (String extensionName : extensionNames) {
+            ModificationUtils.getInstance().copyExtensionFrom(extensionName, branch, copiedExtensions);
+        }
+        Map<String, String> properties = !branch.hasProperty()
+                ? null
+                : branch.getPropertyNames().stream().collect(Collectors.toMap(name -> name, branch::getProperty));
         if (branch instanceof Line) {
             branchAdder = ModificationUtils.getInstance().createLineAdder(branch.getNetwork(), modificationInfos.getVoltageLevelId1() != null ?
                             branch.getNetwork().getVoltageLevel(modificationInfos.getVoltageLevelId1().getValue()) : branch.getTerminal1().getVoltageLevel(),
                     modificationInfos.getVoltageLevelId2() != null ?
                             branch.getNetwork().getVoltageLevel(modificationInfos.getVoltageLevelId2().getValue()) : branch.getTerminal2().getVoltageLevel(),
                     modificationInfos, false, false);
+            ModificationUtils.getInstance().modifyBranchVoltageLevelBusOrBusBarSection(modificationInfos, branch, branchAdder, subReportNode);
+            var newLine = ModificationUtils.getInstance().getLine(network, modificationInfos.getEquipmentId());
+            for (Map.Entry<String, Extension> entry : copiedExtensions.entrySet()) {
+                ModificationUtils.getInstance().copyExtensionTo(entry.getKey(), newLine, entry.getValue());
+            }
+            if (properties != null) {
+                properties.forEach(newLine::setProperty);
+            }
+            newLine.getExtensions();
         }
         if (branch instanceof TwoWindingsTransformer) {
             branchAdder = ModificationUtils.getInstance().createTwoWindingsTransformerAdder(branch.getNetwork(), modificationInfos.getVoltageLevelId1() != null ?
@@ -320,8 +337,16 @@ public abstract class AbstractBranchModification extends AbstractModification {
                     modificationInfos.getVoltageLevelId2() != null ?
                             branch.getNetwork().getVoltageLevel(modificationInfos.getVoltageLevelId2().getValue()) : branch.getTerminal2().getVoltageLevel(),
                     modificationInfos, false, false);
+            ModificationUtils.getInstance().modifyBranchVoltageLevelBusOrBusBarSection(modificationInfos, branch, branchAdder, subReportNode);
+            var newtransfo = ModificationUtils.getInstance().getTwoWindingsTransformer(network, modificationInfos.getEquipmentId());
+            for (Map.Entry<String, Extension> entry : copiedExtensions.entrySet()) {
+                ModificationUtils.getInstance().copyExtensionTo(entry.getKey(), newtransfo, entry.getValue());
+            }
+            if (properties != null) {
+                properties.forEach(newtransfo::setProperty);
+            }
+            newtransfo.getExtensions();
         }
-        ModificationUtils.getInstance().modifyBranchVoltageLevelBusOrBusBarSection(modificationInfos, branch, branchAdder, subReportNode);
     }
 
     private ReportNode modifyBranchConnectivityAttributes(BranchModificationInfos branchModificationInfos,
