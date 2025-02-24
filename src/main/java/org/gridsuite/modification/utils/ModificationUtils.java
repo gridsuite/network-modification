@@ -17,9 +17,11 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.network.store.iidm.impl.MinMaxReactiveLimitsImpl;
+import com.powsybl.network.store.model.*;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.modifications.BusbarSectionFinderTraverser;
 import org.springframework.util.CollectionUtils;
 
@@ -1415,17 +1417,62 @@ public final class ModificationUtils {
         }
     }
 
-    public void copyExtensionFrom(String extensionName, Identifiable identifiable, Map<String, Extension> copiedExtensions) {
+    public void copyExtensionFrom(String extensionName, Identifiable<?> identifiable, Map<String, Extension<?>> copiedExtensions) {
         switch (extensionName) {
-            case "activePowerControl" -> copiedExtensions.put(extensionName, identifiable.getExtension(ActivePowerControl.class));
-            case "startup" -> copiedExtensions.put(extensionName, identifiable.getExtension(GeneratorStartup.class));
-            case "generatorShortCircuit" -> copiedExtensions.put(extensionName, identifiable.getExtension(GeneratorShortCircuit.class));
-            case "coordinatedReactiveControl" -> copiedExtensions.put(extensionName, identifiable.getExtension(CoordinatedReactiveControl.class));
-            case "injectionObservability" -> copiedExtensions.put(extensionName, identifiable.getExtension(InjectionObservability.class));
-            case "measurements" -> copiedExtensions.put(extensionName, identifiable.getExtension(Measurements.class));
-            case "position" -> copiedExtensions.put(extensionName, identifiable.getExtension(ConnectablePosition.class));
-            case "branchObservability" -> copiedExtensions.put(extensionName, identifiable.getExtension(BranchObservability.class));
-            case "operatingStatus" -> copiedExtensions.put(extensionName, identifiable.getExtension(OperatingStatus.class));
+            case "activePowerControl" -> {
+                var activePowerControl = identifiable.getExtensionByName(extensionName);
+                if (activePowerControl != null) {
+                    copiedExtensions.put(extensionName, activePowerControl);
+                }
+            }
+            case "startup" -> {
+                var generatorStartup = identifiable.getExtension(GeneratorStartupAdder.class);
+                if (generatorStartup != null) {
+                    copiedExtensions.put(extensionName, generatorStartup);
+                }
+            }
+            case "generatorShortCircuit" -> {
+                var generatorShortCircuit = identifiable.getExtension(GeneratorShortCircuitAdder.class);
+                if (generatorShortCircuit != null) {
+                    copiedExtensions.put(extensionName, generatorShortCircuit);
+                }
+            }
+            case "coordinatedReactiveControl" -> {
+                var coordinatedReactiveControl = identifiable.getExtension(CoordinatedReactiveControlAdder.class);
+                if (coordinatedReactiveControl != null) {
+                    copiedExtensions.put(extensionName, coordinatedReactiveControl);
+                }
+            }
+            case "injectionObservability" -> {
+                var injectionObservability = identifiable.getExtension(InjectionObservability.class);
+                if (injectionObservability != null) {
+                    copiedExtensions.put(extensionName, injectionObservability);
+                }
+            }
+            case "measurements" -> {
+                var measurements = identifiable.getExtension(Measurements.class);
+                if (measurements != null) {
+                    copiedExtensions.put(extensionName, measurements);
+                }
+            }
+            case "position" -> {
+                var position = identifiable.getExtension(ConnectablePosition.class);
+                if (position != null) {
+                    copiedExtensions.put(extensionName, position);
+                }
+            }
+            case "branchObservability" -> {
+                var branchObservability = identifiable.getExtension(BranchObservability.class);
+                if (branchObservability != null) {
+                    copiedExtensions.put(extensionName, branchObservability);
+                }
+            }
+            case "operatingStatus" -> {
+                var operatingStatus = identifiable.getExtension(OperatingStatus.class);
+                if (operatingStatus != null) {
+                    copiedExtensions.put(extensionName, operatingStatus);
+                }
+            }
         }
     }
 

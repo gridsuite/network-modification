@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Load;
@@ -20,8 +19,6 @@ import org.gridsuite.modification.dto.LoadModificationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -90,21 +87,11 @@ public class LoadModification extends AbstractModification {
         Network network = load.getNetwork();
         LoadAdder loadAdder = ModificationUtils.getInstance().createLoadAdderInNodeBreaker(load.getNetwork(), modificationInfos.getVoltageLevelId() != null ?
                 load.getNetwork().getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : load.getTerminal().getVoltageLevel(), modificationInfos);
-        Map<String, Extension> copiedExtensions = new HashMap<>();
-        List<String> extensionNames = load.getExtensions().stream()
-                .map(extension -> extension.getClass().getName())
-                .toList();
-        for (String extensionName : extensionNames) {
-            ModificationUtils.getInstance().copyExtensionFrom(extensionName, load, copiedExtensions);
-        }
         Map<String, String> properties = !load.hasProperty()
                 ? null
                 : load.getPropertyNames().stream().collect(Collectors.toMap(name -> name, load::getProperty));
         ModificationUtils.getInstance().modifyInjectionVoltageLevelBusOrBusBarSection(load, loadAdder, modificationInfos, subReportNode);
         var newLoad = ModificationUtils.getInstance().getLoad(network, modificationInfos.getEquipmentId());
-        for (Map.Entry<String, Extension> entry : copiedExtensions.entrySet()) {
-            ModificationUtils.getInstance().copyExtensionTo(entry.getKey(), newLoad, entry.getValue());
-        }
         if (properties != null) {
             properties.forEach(newLoad::setProperty);
         }
