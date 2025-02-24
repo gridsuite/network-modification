@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
@@ -21,7 +22,10 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_BATTERY_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
@@ -183,9 +187,27 @@ public class BatteryModification extends AbstractModification {
 
     private void modifyBatteryVoltageLevelBusOrBusBarSectionAttributes(BatteryModificationInfos modificationInfos,
                                                                          Battery battery, ReportNode subReportNode) {
+        Network network = battery.getNetwork();
         BatteryAdder batteryAdder = ModificationUtils.getInstance().createBatteryAdderInNodeBreaker(battery.getNetwork(), modificationInfos.getVoltageLevelId() != null ?
                 battery.getNetwork().getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : battery.getTerminal().getVoltageLevel(), modificationInfos);
+        Map<String, Extension> copiedExtensions = new HashMap<>();
+        List<String> extensionNames = battery.getExtensions().stream()
+                .map(extension -> extension.getClass().getName())
+                .toList();
+        for (String extensionName : extensionNames) {
+            ModificationUtils.getInstance().copyExtensionFrom(extensionName, battery, copiedExtensions);
+        }
+        Map<String, String> properties = !battery.hasProperty()
+                ? null
+                : battery.getPropertyNames().stream().collect(Collectors.toMap(name -> name, battery::getProperty));
         ModificationUtils.getInstance().modifyInjectionVoltageLevelBusOrBusBarSection(battery, batteryAdder, modificationInfos, subReportNode);
+        var newBattery = ModificationUtils.getInstance().getBattery(network, modificationInfos.getEquipmentId());
+        for (Map.Entry<String, Extension> entry : copiedExtensions.entrySet()) {
+            ModificationUtils.getInstance().copyExtensionTo(entry.getKey(), newBattery, entry.getValue());
+        }
+        if (properties != null) {
+            properties.forEach(newBattery::setProperty);
+        }
     }
 
     private ReportNode modifyBatteryConnectivityAttributes(BatteryModificationInfos modificationInfos,

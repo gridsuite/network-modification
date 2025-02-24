@@ -7,6 +7,7 @@
 package org.gridsuite.modification.utils;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.report.ReportConstants;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.ReportNodeAdder;
@@ -1411,6 +1412,86 @@ public final class ModificationUtils {
                     .withUntypedValue("id", modificationInfos.getEquipmentId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
+        }
+    }
+
+    public void copyExtensionFrom(String extensionName, Injection injection, Map<String, Extension> copiedExtensions) {
+        switch (extensionName) {
+            case "activePowerControl" -> copiedExtensions.put(extensionName, injection.getExtension(ActivePowerControl.class));
+            case "startup" -> copiedExtensions.put(extensionName, injection.getExtension(GeneratorStartup.class));
+            case "generatorShortCircuit" -> copiedExtensions.put(extensionName, injection.getExtension(GeneratorShortCircuit.class));
+            case "coordinatedReactiveControl" -> copiedExtensions.put(extensionName, injection.getExtension(CoordinatedReactiveControl.class));
+            case "injectionObservability" -> copiedExtensions.put(extensionName, injection.getExtension(InjectionObservability.class));
+            case "measurements" -> copiedExtensions.put(extensionName, injection.getExtension(Measurements.class));
+            case "position" -> copiedExtensions.put(extensionName, injection.getExtension(ConnectablePosition.class));
+        }
+    }
+
+    public void copyExtensionTo(String extensionName, Injection injection, Extension copiedExtensions) {
+        switch (extensionName) {
+            case "activePowerControl" -> {
+                ActivePowerControl copiedExtensionss = (ActivePowerControl) copiedExtensions;
+                if (copiedExtensionss != null) {
+                    ActivePowerControlAdder adder = (ActivePowerControlAdder) injection.newExtension(ActivePowerControlAdder.class);
+                    if (adder != null) {
+                        adder.add();
+                    }
+                }
+            }
+            case "startup" -> {
+                GeneratorStartup copiedExtensionss = (GeneratorStartup) copiedExtensions;
+                if (copiedExtensionss != null) {
+                    GeneratorStartupAdder adder = (GeneratorStartupAdder) injection.newExtension(GeneratorStartupAdder.class);
+                    if (adder != null) {
+                        adder.add();
+                    }
+                }
+            }
+            case "generatorShortCircuit" -> {
+                GeneratorShortCircuit copiedExtensionss = (GeneratorShortCircuit) copiedExtensions;
+                if (copiedExtensionss != null) {
+                    GeneratorShortCircuitAdder adder = (GeneratorShortCircuitAdder) injection.newExtension(GeneratorShortCircuitAdder.class);
+                    if (adder != null) {
+                        adder.add();
+                    }
+                }
+            }
+            case "coordinatedReactiveControl" -> {
+                CoordinatedReactiveControl copiedExtensionss = (CoordinatedReactiveControl) copiedExtensions;
+                if (copiedExtensionss != null) {
+                    CoordinatedReactiveControlAdder adder = (CoordinatedReactiveControlAdder) injection.newExtension(CoordinatedReactiveControlAdder.class);
+                    if (adder != null) {
+                        adder.add();
+                    }
+                }
+            }
+            case "injectionObservability" -> {
+                InjectionObservability copiedExtensionss = (InjectionObservability) copiedExtensions;
+                if (copiedExtensionss != null) {
+                    InjectionObservabilityAdder adder = (InjectionObservabilityAdder) injection.newExtension(InjectionObservabilityAdder.class);
+                    if (adder != null) {
+                        adder.add();
+                    }
+                }
+            }
+            case "measurements" -> {
+                Measurements copiedExtensionss = (Measurements) copiedExtensions;
+                if (copiedExtensionss != null) {
+                    MeasurementsAdder adder = (MeasurementsAdder) injection.newExtension(MeasurementsAdder.class);
+                    if (adder != null) {
+                        adder.add();
+                    }
+                }
+            }
+            case "position" -> {
+                ConnectablePosition copiedExtensionss = (ConnectablePosition) copiedExtensions;
+                if (copiedExtensionss != null) {
+                    ConnectablePositionAdder adder = (ConnectablePositionAdder) injection.newExtension(ConnectablePositionAdder.class);
+                    if (adder != null) {
+                        adder.add();
+                    }
+                }
+            }
         }
     }
 

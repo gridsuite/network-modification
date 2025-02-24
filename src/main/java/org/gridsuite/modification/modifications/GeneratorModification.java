@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
@@ -16,9 +17,8 @@ import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_GENERATOR_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
@@ -495,9 +495,27 @@ public class GeneratorModification extends AbstractModification {
 
     private void modifyGeneratorVoltageLevelBusOrBusBarSectionAttributes(GeneratorModificationInfos modificationInfos,
                                                              Generator generator, ReportNode subReportNode) {
+        Network network = generator.getNetwork();
         GeneratorAdder generatorAdder = ModificationUtils.getInstance().createGeneratorAdderInNodeBreaker(generator.getNetwork(), modificationInfos.getVoltageLevelId() != null ?
                 generator.getNetwork().getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : generator.getTerminal().getVoltageLevel(), modificationInfos);
+        Map<String, Extension> copiedExtensions = new HashMap<>();
+        List<String> extensionNames = generator.getExtensions().stream()
+                .map(extension -> extension.getClass().getName())
+                .toList();
+        for (String extensionName : extensionNames) {
+            ModificationUtils.getInstance().copyExtensionFrom(extensionName, generator, copiedExtensions);
+        }
+        Map<String, String> properties = !generator.hasProperty()
+                ? null
+                : generator.getPropertyNames().stream().collect(Collectors.toMap(name -> name, generator::getProperty));
         ModificationUtils.getInstance().modifyInjectionVoltageLevelBusOrBusBarSection(generator, generatorAdder, modificationInfos, subReportNode);
+        var newGenerator = ModificationUtils.getInstance().getGenerator(network, modificationInfos.getEquipmentId());
+        for (Map.Entry<String, Extension> entry : copiedExtensions.entrySet()) {
+            ModificationUtils.getInstance().copyExtensionTo(entry.getKey(), newGenerator, entry.getValue());
+        }
+        if (properties != null) {
+            properties.forEach(newGenerator::setProperty);
+        }
     }
 
     private ReportNode modifyGeneratorConnectivityAttributes(GeneratorModificationInfos modificationInfos,
