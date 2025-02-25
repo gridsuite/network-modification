@@ -89,7 +89,7 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
     }
 
     private TwoWindingsTransformer create2WTInNodeBreaker(Network network, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, ReportNode subReportNode) {
-        var twoWindingsTransformerAdder = ModificationUtils.getInstance().createTwoWindingsTransformerAdder(network, voltageLevel1, voltageLevel2, modificationInfos, false, false);
+        var twoWindingsTransformerAdder = ModificationUtils.getInstance().createTwoWindingsTransformerAdder(voltageLevel1, voltageLevel2, modificationInfos, false, false);
         createBranchInNodeBreaker(voltageLevel1, voltageLevel2, modificationInfos.getBusOrBusbarSectionId1(), modificationInfos.getBusOrBusbarSectionId2(),
                 modificationInfos.getConnectionPosition1(), modificationInfos.getConnectionPosition2(), modificationInfos.getConnectionDirection1(),
                 modificationInfos.getConnectionDirection2(), modificationInfos.getConnectionName1() != null ? modificationInfos.getConnectionName1() : modificationInfos.getEquipmentId(),
@@ -104,74 +104,16 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
 
     private void addTapChangersToTwoWindingsTransformer(Network network, TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, com.powsybl.iidm.network.TwoWindingsTransformer twt) {
         if (twoWindingsTransformerCreationInfos.getRatioTapChanger() != null) {
-            addRatioTapChangersToTwoWindingsTransformer(network, twoWindingsTransformerCreationInfos, twt);
+            ModificationUtils.getInstance().addRatioTapChangersToTwoWindingsTransformer(network, twoWindingsTransformerCreationInfos, twt);
         }
 
         if (twoWindingsTransformerCreationInfos.getPhaseTapChanger() != null) {
-            addPhaseTapChangersToTwoWindingsTransformer(network, twoWindingsTransformerCreationInfos, twt);
-        }
-    }
-
-    private void addPhaseTapChangersToTwoWindingsTransformer(Network network, TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, TwoWindingsTransformer twt) {
-        PhaseTapChangerCreationInfos phaseTapChangerInfos = twoWindingsTransformerCreationInfos.getPhaseTapChanger();
-        PhaseTapChangerAdder phaseTapChangerAdder = twt.newPhaseTapChanger();
-        Terminal terminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(network,
-                phaseTapChangerInfos.getRegulatingTerminalId(),
-                phaseTapChangerInfos.getRegulatingTerminalType(),
-                phaseTapChangerInfos.getRegulatingTerminalVlId());
-        phaseTapChangerAdder.setRegulationTerminal(terminal);
-
-        if (phaseTapChangerInfos.isRegulating()) {
-            phaseTapChangerAdder.setRegulationValue(phaseTapChangerInfos.getRegulationValue())
-                    .setTargetDeadband(phaseTapChangerInfos.getTargetDeadband() != null ? phaseTapChangerInfos.getTargetDeadband() : 0.);
-        }
-
-        phaseTapChangerAdder.setRegulating(phaseTapChangerInfos.isRegulating())
-                .setRegulationMode(phaseTapChangerInfos.getRegulationMode())
-                .setLowTapPosition(phaseTapChangerInfos.getLowTapPosition())
-                .setTapPosition(phaseTapChangerInfos.getTapPosition());
-
-        if (phaseTapChangerInfos.getSteps() != null) {
-            for (TapChangerStepCreationInfos step : phaseTapChangerInfos.getSteps()) {
-                phaseTapChangerAdder.beginStep().setR(step.getR()).setX(step.getX()).setG(step.getG()).setB(step.getB()).setRho(step.getRho()).setAlpha(step.getAlpha()).endStep();
-            }
-
-            phaseTapChangerAdder.add();
-        }
-    }
-
-    private void addRatioTapChangersToTwoWindingsTransformer(Network network, TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, TwoWindingsTransformer twt) {
-        RatioTapChangerCreationInfos ratioTapChangerInfos = twoWindingsTransformerCreationInfos.getRatioTapChanger();
-        RatioTapChangerAdder ratioTapChangerAdder = twt.newRatioTapChanger();
-        Terminal terminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(network,
-                ratioTapChangerInfos.getRegulatingTerminalId(),
-                ratioTapChangerInfos.getRegulatingTerminalType(),
-                ratioTapChangerInfos.getRegulatingTerminalVlId());
-
-        Double targetDeadband = ratioTapChangerInfos.getTargetDeadband();
-        if (targetDeadband == null) {
-            targetDeadband = ratioTapChangerInfos.isRegulating() ? 0. : Double.NaN;
-        }
-        ratioTapChangerAdder.setTargetV(ratioTapChangerInfos.getTargetV() != null ? ratioTapChangerInfos.getTargetV() : Double.NaN)
-                .setTargetDeadband(targetDeadband)
-                .setRegulationTerminal(terminal);
-
-        ratioTapChangerAdder.setRegulating(ratioTapChangerInfos.isRegulating())
-                .setLoadTapChangingCapabilities(ratioTapChangerInfos.isLoadTapChangingCapabilities())
-                .setLowTapPosition(ratioTapChangerInfos.getLowTapPosition())
-                .setTapPosition(ratioTapChangerInfos.getTapPosition());
-
-        if (ratioTapChangerInfos.getSteps() != null) {
-            for (TapChangerStepCreationInfos step : ratioTapChangerInfos.getSteps()) {
-                ratioTapChangerAdder.beginStep().setR(step.getR()).setX(step.getX()).setG(step.getG()).setB(step.getB()).setRho(step.getRho()).endStep();
-            }
-
-            ratioTapChangerAdder.add();
+            ModificationUtils.getInstance().addPhaseTapChangersToTwoWindingsTransformer(network, twoWindingsTransformerCreationInfos, twt);
         }
     }
 
     private TwoWindingsTransformer create2WTInOtherBreaker(Network network, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, boolean withSwitch1, boolean withSwitch2, ReportNode subReportNode) {
-        var twt = ModificationUtils.getInstance().createTwoWindingsTransformerAdder(network, voltageLevel1, voltageLevel2, twoWindingsTransformerCreationInfos, withSwitch1, withSwitch2).add();
+        var twt = ModificationUtils.getInstance().createTwoWindingsTransformerAdder(voltageLevel1, voltageLevel2, twoWindingsTransformerCreationInfos, withSwitch1, withSwitch2).add();
         addTapChangersToTwoWindingsTransformer(network, twoWindingsTransformerCreationInfos, twt);
         subReportNode.newReportNode()
                 .withMessageTemplate("twoWindingsTransformerCreated", "New two windings transformer with id=${id} created")

@@ -82,7 +82,7 @@ public class BatteryCreation extends AbstractModification {
     }
 
     private void createBatteryInNodeBreaker(VoltageLevel voltageLevel, BatteryCreationInfos batteryCreationInfos, Network network, ReportNode subReportNode) {
-        BatteryAdder batteryAdder = ModificationUtils.getInstance().createBatteryAdderInNodeBreaker(network, voltageLevel, batteryCreationInfos);
+        BatteryAdder batteryAdder = ModificationUtils.getInstance().createBatteryAdderInNodeBreaker(voltageLevel, batteryCreationInfos);
         ModificationUtils.getInstance().createInjectionInNodeBreaker(voltageLevel, batteryCreationInfos.getBusOrBusbarSectionId(), batteryCreationInfos.getConnectionPosition(),
                 batteryCreationInfos.getConnectionDirection(), batteryCreationInfos.getConnectionName() != null ?
                         batteryCreationInfos.getConnectionName() : batteryCreationInfos.getEquipmentId(),

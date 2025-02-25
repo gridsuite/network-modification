@@ -9,11 +9,13 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
+import com.powsybl.iidm.modification.topology.RemoveFeederBay;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
+import org.gridsuite.modification.dto.ShuntCompensatorCreationInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorModificationInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorType;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -21,6 +23,8 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_SHUNT_COMPENSATOR_ERROR;
 import static org.gridsuite.modification.NetworkModificationException.Type.SHUNT_COMPENSATOR_NOT_FOUND;
@@ -254,8 +258,53 @@ public class ShuntCompensatorModification extends AbstractModification {
 
     private void modifyShuntCompensatorVoltageLevelBusOrBusBarSectionAttributes(ShuntCompensatorModificationInfos modificationInfos,
                                                                          ShuntCompensator shuntCompensator, ReportNode subReportNode) {
-        ShuntCompensatorAdder shuntCompensatorAdder = createShuntCompensatorInBusBreaker(shuntCompensator);
-        ModificationUtils.getInstance().modifyInjectionVoltageLevelBusOrBusBarSection(shuntCompensator, shuntCompensatorAdder, modificationInfos, subReportNode);
+        if (ModificationUtils.getInstance().isNotModificationVoltageLevelBusOrBusBarInfos(modificationInfos)) {
+            return;
+        }
+        Network network = shuntCompensator.getNetwork();
+        Map<String, String> properties = !shuntCompensator.hasProperty()
+                ? null
+                : shuntCompensator.getPropertyNames().stream().collect(Collectors.toMap(name -> name, shuntCompensator::getProperty));
+        ShuntCompensatorCreationInfos shuntCompensatorCreationInfos = createShuntCompensatorCreationInfos(modificationInfos, shuntCompensator, subReportNode);
+        new RemoveFeederBay(shuntCompensator.getId()).apply(network, true, subReportNode);
+        createShuntCompensator(shuntCompensatorCreationInfos, subReportNode, network);
+        var newShuntCompensator = network.getShuntCompensator(modificationInfos.getEquipmentId());
+        if (properties != null) {
+            properties.forEach(newShuntCompensator::setProperty);
+        }
+    }
+
+    private void createShuntCompensator(ShuntCompensatorCreationInfos modificationInfos, ReportNode subReportNode, Network network) {
+        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId());
+        if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            ShuntCompensatorAdder shuntCompensatorAdder = ModificationUtils.getInstance().createShuntAdderInNodeBreaker(voltageLevel, modificationInfos);
+            ModificationUtils.getInstance().createInjectionInNodeBreaker(voltageLevel, modificationInfos.getBusOrBusbarSectionId(), modificationInfos.getConnectionPosition(),
+                    modificationInfos.getConnectionDirection(), modificationInfos.getConnectionName() != null ? modificationInfos.getConnectionName() : modificationInfos.getEquipmentId(),
+                    network, shuntCompensatorAdder, subReportNode);
+        } else {
+            ModificationUtils.getInstance().createShuntInBusBreaker(voltageLevel, modificationInfos);
+        }
+    }
+
+    private ShuntCompensatorCreationInfos createShuntCompensatorCreationInfos(ShuntCompensatorModificationInfos modificationInfos, ShuntCompensator shuntCompensator, ReportNode subReportNode) {
+        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevelInfos(modificationInfos.getVoltageLevelId(), shuntCompensator.getTerminal(),
+                shuntCompensator.getNetwork(), ModificationUtils.FeederSide.INJECTION_SINGLE_SIDE, subReportNode);
+        String busOrBusbarSectionId = ModificationUtils.getInstance().getBusOrBusBarSectionInfos(modificationInfos.getBusOrBusbarSectionId(),
+                shuntCompensator.getTerminal(), ModificationUtils.FeederSide.INJECTION_SINGLE_SIDE, subReportNode);
+        return ShuntCompensatorCreationInfos.builder().equipmentId(modificationInfos.getEquipmentId())
+                .equipmentName(modificationInfos.getEquipmentName() != null ? modificationInfos.getEquipmentName().getValue() : shuntCompensator.getNameOrId())
+                .voltageLevelId(voltageLevel.getId())
+                .busOrBusbarSectionId(busOrBusbarSectionId)
+                .connectionName(shuntCompensator.getExtension(ConnectablePosition.class) != null && shuntCompensator.getExtension(ConnectablePosition.class).getFeeder() != null ?
+                        shuntCompensator.getExtension(ConnectablePosition.class).getFeeder().getName().orElse(modificationInfos.getEquipmentId()) : modificationInfos.getEquipmentId())
+                .connectionDirection(shuntCompensator.getExtension(ConnectablePosition.class) != null && shuntCompensator.getExtension(ConnectablePosition.class).getFeeder() != null ?
+                        shuntCompensator.getExtension(ConnectablePosition.class).getFeeder().getDirection() : ConnectablePosition.Direction.UNDEFINED)
+                .connectionPosition(null)
+                .terminalConnected(shuntCompensator.getTerminal().isConnected())
+                .maximumSectionCount(shuntCompensator.getMaximumSectionCount())
+                .sectionCount(shuntCompensator.getSectionCount())
+                .maxSusceptance(shuntCompensator.getB())
+                .build();
     }
 
     private ReportNode modifyShuntCompensatorConnectivityAttributes(ShuntCompensatorModificationInfos modificationInfos,

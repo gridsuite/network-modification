@@ -6,8 +6,6 @@
  */
 package org.gridsuite.modification.utils;
 
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.report.ReportConstants;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.ReportNodeAdder;
@@ -17,11 +15,9 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.network.store.iidm.impl.MinMaxReactiveLimitsImpl;
-import com.powsybl.network.store.model.*;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.modifications.BusbarSectionFinderTraverser;
 import org.springframework.util.CollectionUtils;
 
@@ -186,13 +182,17 @@ public final class ModificationUtils {
 
     public void controlBus(VoltageLevel voltageLevel, String busOrBusbarSectionId) {
         if (voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {
-            getBusBreakerBus(voltageLevel, busOrBusbarSectionId);
+            if (voltageLevel.getBusBreakerView().getBus(busOrBusbarSectionId) == null) {
+                throw new NetworkModificationException(BUS_NOT_FOUND, busOrBusbarSectionId);
+            }
         } else {
-            getNodeBreakerBusbarSection(voltageLevel, busOrBusbarSectionId);
+            if (voltageLevel.getNodeBreakerView().getBusbarSection(busOrBusbarSectionId) == null) {
+                throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, busOrBusbarSectionId);
+            }
         }
     }
 
-    public void checkVoltageLevelInjectionModification(Network network, InjectionModificationInfos modificationInfos, Injection injection) {
+    public void checkVoltageLevelInjectionModification(Network network, InjectionModificationInfos modificationInfos, Injection<?> injection) {
         if (modificationInfos.getVoltageLevelId() != null && modificationInfos.getVoltageLevelId().getValue() != null &&
                 modificationInfos.getBusOrBusbarSectionId() != null && modificationInfos.getBusOrBusbarSectionId().getValue() != null) {
 
@@ -217,7 +217,7 @@ public final class ModificationUtils {
         }
     }
 
-    public void checkVoltageLevelBranchModification(Network network, BranchModificationInfos modificationInfos, Branch branch) {
+    public void checkVoltageLevelBranchModification(Network network, BranchModificationInfos modificationInfos, Branch<?> branch) {
         if (modificationInfos.getVoltageLevelId1() != null && modificationInfos.getVoltageLevelId1().getValue() != null &&
                 modificationInfos.getBusOrBusbarSectionId1() != null && modificationInfos.getBusOrBusbarSectionId1().getValue() != null) {
 
@@ -323,15 +323,6 @@ public final class ModificationUtils {
             throw new NetworkModificationException(BUS_NOT_FOUND, busId);
         }
         return bus;
-    }
-
-    public BusbarSection getNodeBreakerBusbarSection(VoltageLevel voltageLevel, String busBarSectionId) {
-        VoltageLevel.NodeBreakerView nodeBreakerView = voltageLevel.getNodeBreakerView();
-        BusbarSection busbarSection = nodeBreakerView.getBusbarSection(busBarSectionId);
-        if (busbarSection == null) {
-            throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, busBarSectionId);
-        }
-        return busbarSection;
     }
 
     public int createNodeBreakerCellSwitches(VoltageLevel voltageLevel, String busBarSectionId, String equipmentId,
@@ -530,239 +521,129 @@ public final class ModificationUtils {
                 .add();
     }
 
-    public LineAdder createLineAdder(Network network, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, EquipmentModificationInfos equipmentModificationInfos, boolean withSwitch1, boolean withSwitch2) {
-        if (equipmentModificationInfos instanceof LineCreationInfos lineCreationInfos) {
-            // common settings
-            LineAdder lineAdder = network.newLine()
-                    .setId(lineCreationInfos.getEquipmentId())
-                    .setName(lineCreationInfos.getEquipmentName())
-                    .setVoltageLevel1(lineCreationInfos.getVoltageLevelId1())
-                    .setVoltageLevel2(lineCreationInfos.getVoltageLevelId2())
-                    .setR(lineCreationInfos.getR())
-                    .setX(lineCreationInfos.getX())
-                    .setG1(lineCreationInfos.getG1() != null ? lineCreationInfos.getG1() : 0.0)
-                    .setB1(lineCreationInfos.getB1() != null ? lineCreationInfos.getB1() : 0.0)
-                    .setG2(lineCreationInfos.getG2() != null ? lineCreationInfos.getG2() : 0.0)
-                    .setB2(lineCreationInfos.getB2() != null ? lineCreationInfos.getB2() : 0.0);
+    public LineAdder createLineAdder(Network network, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, LineCreationInfos lineCreationInfos, boolean withSwitch1, boolean withSwitch2) {
+        // common settings
+        LineAdder lineAdder = network.newLine().setId(lineCreationInfos.getEquipmentId()).setName(lineCreationInfos.getEquipmentName())
+                .setVoltageLevel1(lineCreationInfos.getVoltageLevelId1()).setVoltageLevel2(lineCreationInfos.getVoltageLevelId2()).setR(lineCreationInfos.getR())
+                .setX(lineCreationInfos.getX()).setG1(lineCreationInfos.getG1() != null ? lineCreationInfos.getG1() : 0.0).setB1(lineCreationInfos.getB1() != null ? lineCreationInfos.getB1() : 0.0)
+                .setG2(lineCreationInfos.getG2() != null ? lineCreationInfos.getG2() : 0.0).setB2(lineCreationInfos.getB2() != null ? lineCreationInfos.getB2() : 0.0);
 
-            // lineAdder completion by topology
-            setBranchAdderNodeOrBus(lineAdder, voltageLevel1, lineCreationInfos, ONE, withSwitch1);
-            setBranchAdderNodeOrBus(lineAdder, voltageLevel2, lineCreationInfos, TWO, withSwitch2);
+        // lineAdder completion by topology
+        setBranchAdderNodeOrBus(lineAdder, voltageLevel1, lineCreationInfos, ONE, withSwitch1);
+        setBranchAdderNodeOrBus(lineAdder, voltageLevel2, lineCreationInfos, TWO, withSwitch2);
 
-            return lineAdder;
-        } else if (equipmentModificationInfos instanceof LineModificationInfos lineModificationInfos) {
-            var line = ModificationUtils.getInstance().getLine(network, lineModificationInfos.getEquipmentId());
-            String bus1 = null;
-            String bus2 = null;
-            if (voltageLevel1.getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                bus1 = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel1,
-                        lineModificationInfos.getBusOrBusbarSectionId1() != null ?
-                                lineModificationInfos.getBusOrBusbarSectionId1().getValue() : line.getTerminal1().getBusView().getBus().getId()).getId();
-            }
-            if (voltageLevel2.getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                bus2 = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel2,
-                        lineModificationInfos.getBusOrBusbarSectionId2() != null ?
-                                lineModificationInfos.getBusOrBusbarSectionId2().getValue() : line.getTerminal2().getBusView().getBus().getId()).getId();
-            }
-            return network.newLine()
-                    .setId(line.getId())
-                    .setName(line.getNameOrId())
-                    .setBus1(bus1)
-                    .setBus2(bus2)
-                    .setVoltageLevel1(line.getTerminal1().getVoltageLevel().getId())
-                    .setVoltageLevel2(line.getTerminal2().getVoltageLevel().getId())
-                    .setR(line.getR())
-                    .setX(line.getX())
-                    .setG1(line.getG1())
-                    .setB1(line.getB1())
-                    .setG2(line.getG2())
-                    .setB2(line.getB2());
-        } else {
-            return null;
-        }
+        return lineAdder;
     }
 
-    public TwoWindingsTransformerAdder createTwoWindingsTransformerAdder(Network network, VoltageLevel voltageLevel1,
-                                                                         VoltageLevel voltageLevel2, EquipmentModificationInfos equipmentModificationInfos,
+    public TwoWindingsTransformerAdder createTwoWindingsTransformerAdder(VoltageLevel voltageLevel1,
+                                                                         VoltageLevel voltageLevel2,
+                                                                         TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos,
                                                                          boolean withSwitch1, boolean withSwitch2) {
-        if (equipmentModificationInfos instanceof TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos) {
-            Optional<Substation> optS1 = voltageLevel1.getSubstation();
-            Optional<Substation> optS2 = voltageLevel2.getSubstation();
-            Substation s1 = optS1.orElse(null);
-            Substation s2 = optS2.orElse(null);
-            BranchAdder<TwoWindingsTransformer, TwoWindingsTransformerAdder> branchAdder;
+        Optional<Substation> optS1 = voltageLevel1.getSubstation();
+        Optional<Substation> optS2 = voltageLevel2.getSubstation();
+        Substation s1 = optS1.orElse(null);
+        Substation s2 = optS2.orElse(null);
+        BranchAdder<TwoWindingsTransformer, TwoWindingsTransformerAdder> branchAdder;
 
-            if (s1 != null) {
-                branchAdder = s1.newTwoWindingsTransformer();
-            } else if (s2 != null) {
-                branchAdder = s2.newTwoWindingsTransformer();
-            } else {
-                throw new NetworkModificationException(TWO_WINDINGS_TRANSFORMER_CREATION_ERROR, "The two windings transformer should belong to a substation");
-            }
-            // common settings
-            TwoWindingsTransformerAdder twoWindingsTransformerAdder = branchAdder.setId(twoWindingsTransformerCreationInfos.getEquipmentId())
-                    .setName(twoWindingsTransformerCreationInfos.getEquipmentName())
-                    .setVoltageLevel1(twoWindingsTransformerCreationInfos.getVoltageLevelId1())
-                    .setVoltageLevel2(twoWindingsTransformerCreationInfos.getVoltageLevelId2())
-                    .setG(twoWindingsTransformerCreationInfos.getG())
-                    .setB(twoWindingsTransformerCreationInfos.getB())
-                    .setR(twoWindingsTransformerCreationInfos.getR())
-                    .setX(twoWindingsTransformerCreationInfos.getX())
-                    .setRatedU1(twoWindingsTransformerCreationInfos.getRatedU1())
-                    .setRatedU2(twoWindingsTransformerCreationInfos.getRatedU2());
-
-            if (twoWindingsTransformerCreationInfos.getRatedS() != null) {
-                twoWindingsTransformerAdder.setRatedS(twoWindingsTransformerCreationInfos.getRatedS());
-            }
-
-            // BranchAdder completion by topology
-            ModificationUtils.getInstance().setBranchAdderNodeOrBus(branchAdder, voltageLevel1, twoWindingsTransformerCreationInfos, TwoSides.ONE, withSwitch1);
-            ModificationUtils.getInstance().setBranchAdderNodeOrBus(branchAdder, voltageLevel2, twoWindingsTransformerCreationInfos, TWO, withSwitch2);
-
-            return twoWindingsTransformerAdder;
-        } else if (equipmentModificationInfos instanceof TwoWindingsTransformerModificationInfos transformerModificationInfos) {
-            var transformer = ModificationUtils.getInstance().getTwoWindingsTransformer(network, transformerModificationInfos.getEquipmentId());
-            String bus1 = null;
-            String bus2 = null;
-            if (voltageLevel1.getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                bus1 = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel1,
-                        transformerModificationInfos.getBusOrBusbarSectionId1() != null ?
-                                transformerModificationInfos.getBusOrBusbarSectionId1().getValue() : transformer.getTerminal1().getBusView().getBus().getId()).getId();
-            }
-            if (voltageLevel2.getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                bus2 = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel2,
-                        transformerModificationInfos.getBusOrBusbarSectionId2() != null ?
-                                transformerModificationInfos.getBusOrBusbarSectionId2().getValue() : transformer.getTerminal2().getBusView().getBus().getId()).getId();
-            }
-            return voltageLevel1.getSubstation()
-                    .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
-                    .newTwoWindingsTransformer().setId(transformer.getId())
-                    .setName(transformer.getNameOrId())
-                    .setVoltageLevel1(transformer.getTerminal1().getVoltageLevel().getId())
-                    .setVoltageLevel2(transformer.getTerminal2().getVoltageLevel().getId())
-                    .setBus1(bus1)
-                    .setBus2(bus2)
-                    .setG(transformer.getG())
-                    .setB(transformer.getB())
-                    .setR(transformer.getR())
-                    .setX(transformer.getX())
-                    .setRatedU1(transformer.getRatedU1())
-                    .setRatedU2(transformer.getRatedU2())
-                    .setRatedS(transformer.getRatedS());
+        if (s1 != null) {
+            branchAdder = s1.newTwoWindingsTransformer();
+        } else if (s2 != null) {
+            branchAdder = s2.newTwoWindingsTransformer();
         } else {
-            return null;
+            throw new NetworkModificationException(TWO_WINDINGS_TRANSFORMER_CREATION_ERROR, "The two windings transformer should belong to a substation");
         }
+        // common settings
+        TwoWindingsTransformerAdder twoWindingsTransformerAdder = branchAdder.setId(twoWindingsTransformerCreationInfos.getEquipmentId())
+                .setName(twoWindingsTransformerCreationInfos.getEquipmentName()).setVoltageLevel1(twoWindingsTransformerCreationInfos.getVoltageLevelId1())
+                .setVoltageLevel2(twoWindingsTransformerCreationInfos.getVoltageLevelId2()).setG(twoWindingsTransformerCreationInfos.getG())
+                .setB(twoWindingsTransformerCreationInfos.getB()).setR(twoWindingsTransformerCreationInfos.getR()).setX(twoWindingsTransformerCreationInfos.getX())
+                .setRatedU1(twoWindingsTransformerCreationInfos.getRatedU1()).setRatedU2(twoWindingsTransformerCreationInfos.getRatedU2());
+
+        if (twoWindingsTransformerCreationInfos.getRatedS() != null) {
+            twoWindingsTransformerAdder.setRatedS(twoWindingsTransformerCreationInfos.getRatedS());
+        }
+
+        // BranchAdder completion by topology
+        ModificationUtils.getInstance().setBranchAdderNodeOrBus(branchAdder, voltageLevel1, twoWindingsTransformerCreationInfos, TwoSides.ONE, withSwitch1);
+        ModificationUtils.getInstance().setBranchAdderNodeOrBus(branchAdder, voltageLevel2, twoWindingsTransformerCreationInfos, TWO, withSwitch2);
+
+        return twoWindingsTransformerAdder;
     }
 
-    public BatteryAdder createBatteryAdderInNodeBreaker(Network network, VoltageLevel voltageLevel, EquipmentModificationInfos equipmentModificationInfos) {
-        if (equipmentModificationInfos instanceof BatteryCreationInfos batteryCreationInfos) {
-            return voltageLevel.newBattery()
-                    .setId(batteryCreationInfos.getEquipmentId())
-                    .setName(batteryCreationInfos.getEquipmentName())
-                    .setMinP(batteryCreationInfos.getMinP())
-                    .setMaxP(batteryCreationInfos.getMaxP())
-                    .setTargetP(batteryCreationInfos.getTargetP())
-                    .setTargetQ(nanIfNull(batteryCreationInfos.getTargetQ()));
-        } else if (equipmentModificationInfos instanceof BatteryModificationInfos batteryModificationInfos) {
-            var battery = ModificationUtils.getInstance().getBattery(network, batteryModificationInfos.getEquipmentId());
-            String bus = null;
-            if (voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel,
-                        batteryModificationInfos.getBusOrBusbarSectionId() != null ?
-                                batteryModificationInfos.getBusOrBusbarSectionId().getValue() : battery.getTerminal().getBusView().getBus().getId()).getId();
-            }
-            return voltageLevel.newBattery()
-                    .setId(battery.getId())
-                    .setName(battery.getNameOrId())
-                    .setBus(bus)
-                    .setConnectableBus(bus)
-                    .setMinP(battery.getMinP())
-                    .setMaxP(battery.getMaxP())
-                    .setTargetP(battery.getTargetP())
-                    .setTargetQ(battery.getTargetQ());
-        } else {
-            return null;
-        }
+    public ShuntCompensatorAdder createShuntAdderInNodeBreaker(VoltageLevel voltageLevel, ShuntCompensatorCreationInfos shuntCompensatorInfos) {
+        // creating the shunt compensator
+        ShuntCompensatorAdder shuntAdder = voltageLevel.newShuntCompensator()
+                .setId(shuntCompensatorInfos.getEquipmentId())
+                .setName(shuntCompensatorInfos.getEquipmentName())
+                .setSectionCount(shuntCompensatorInfos.getSectionCount());
+
+        /* when we create non-linear shunt, this is where we branch ;) */
+        shuntAdder.newLinearModel()
+                .setBPerSection(shuntCompensatorInfos.getMaxSusceptance() / shuntCompensatorInfos.getMaximumSectionCount())
+                .setMaximumSectionCount(shuntCompensatorInfos.getMaximumSectionCount())
+                .add();
+
+        return shuntAdder;
     }
 
-    public GeneratorAdder createGeneratorAdderInNodeBreaker(Network network, VoltageLevel voltageLevel, EquipmentModificationInfos equipmentModificationInfos) {
-        if (equipmentModificationInfos instanceof GeneratorCreationInfos generatorCreationInfos) {
-            Terminal terminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
-                    generatorCreationInfos.getRegulatingTerminalId(),
-                    generatorCreationInfos.getRegulatingTerminalType(),
-                    generatorCreationInfos.getRegulatingTerminalVlId());
-
-            // creating the generator adder
-            GeneratorAdder generatorAdder = voltageLevel.newGenerator()
-                    .setId(generatorCreationInfos.getEquipmentId())
-                    .setName(generatorCreationInfos.getEquipmentName())
-                    .setEnergySource(generatorCreationInfos.getEnergySource())
-                    .setMinP(generatorCreationInfos.getMinP())
-                    .setMaxP(generatorCreationInfos.getMaxP())
-                    .setRatedS(nanIfNull(generatorCreationInfos.getRatedS()))
-                    .setTargetP(generatorCreationInfos.getTargetP())
-                    .setTargetQ(nanIfNull(generatorCreationInfos.getTargetQ()))
-                    .setVoltageRegulatorOn(generatorCreationInfos.isVoltageRegulationOn())
-                    .setTargetV(nanIfNull(generatorCreationInfos.getTargetV()));
-
-            if (terminal != null) {
-                generatorAdder.setRegulatingTerminal(terminal);
-            }
-            return generatorAdder;
-        } else if (equipmentModificationInfos instanceof GeneratorModificationInfos generatorModificationInfos) {
-            var generator = ModificationUtils.getInstance().getGenerator(network, generatorModificationInfos.getEquipmentId());
-            String bus = null;
-            if (voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel,
-                        generatorModificationInfos.getBusOrBusbarSectionId() != null ?
-                                generatorModificationInfos.getBusOrBusbarSectionId().getValue() : generator.getTerminal().getBusView().getBus().getId()).getId();
-            }
-            return voltageLevel.newGenerator()
-                    .setId(generator.getId())
-                    .setName(generator.getNameOrId())
-                    .setBus(bus)
-                    .setConnectableBus(bus)
-                    .setEnergySource(generator.getEnergySource())
-                    .setMinP(generator.getMinP())
-                    .setMaxP(generator.getMaxP())
-                    .setRatedS(generator.getRatedS())
-                    .setTargetP(generator.getTargetP())
-                    .setTargetQ(generator.getTargetQ())
-                    .setVoltageRegulatorOn(generator.isVoltageRegulatorOn())
-                    .setTargetV(generator.getTargetV())
-                    .setRegulatingTerminal(null);
-        } else {
-            return null;
-        }
+    public void createShuntInBusBreaker(VoltageLevel voltageLevel, ShuntCompensatorCreationInfos shuntCompensatorInfos) {
+        Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, shuntCompensatorInfos.getBusOrBusbarSectionId());
+        /* creating the shunt compensator */
+        voltageLevel.newShuntCompensator()
+                .setId(shuntCompensatorInfos.getEquipmentId())
+                .setName(shuntCompensatorInfos.getEquipmentName())
+                .setSectionCount(shuntCompensatorInfos.getSectionCount())
+                .setBus(bus.getId())
+                .setConnectableBus(bus.getId())
+                .newLinearModel()
+                .setBPerSection(shuntCompensatorInfos.getMaxSusceptance() / shuntCompensatorInfos.getMaximumSectionCount())
+                .setMaximumSectionCount(shuntCompensatorInfos.getMaximumSectionCount())
+                .add()
+                .add();
     }
 
-    public LoadAdder createLoadAdderInNodeBreaker(Network network, VoltageLevel voltageLevel, EquipmentModificationInfos equipmentModificationInfos) {
-        if (equipmentModificationInfos instanceof LoadCreationInfos loadCreationInfos) {
-            return voltageLevel.newLoad()
-                    .setId(loadCreationInfos.getEquipmentId())
-                    .setName(loadCreationInfos.getEquipmentName())
-                    .setLoadType(loadCreationInfos.getLoadType())
-                    .setP0(loadCreationInfos.getP0())
-                    .setQ0(loadCreationInfos.getQ0());
-        } else if (equipmentModificationInfos instanceof LoadModificationInfos loadModificationInfos) {
-            var load = ModificationUtils.getInstance().getLoad(network, loadModificationInfos.getEquipmentId());
-            String bus = null;
-            if (voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel,
-                        loadModificationInfos.getBusOrBusbarSectionId() != null ?
-                                loadModificationInfos.getBusOrBusbarSectionId().getValue() : load.getTerminal().getBusView().getBus().getId()).getId();
-            }
-            return voltageLevel.newLoad()
-                    .setId(load.getId())
-                    .setName(load.getNameOrId())
-                    .setBus(bus)
-                    .setConnectableBus(bus)
-                    .setLoadType(load.getLoadType())
-                    .setP0(load.getP0())
-                    .setQ0(load.getQ0());
-        } else {
-            return null;
+    public BatteryAdder createBatteryAdderInNodeBreaker(VoltageLevel voltageLevel, BatteryCreationInfos batteryCreationInfos) {
+        return voltageLevel.newBattery().setId(batteryCreationInfos.getEquipmentId()).setName(batteryCreationInfos.getEquipmentName())
+                .setMinP(batteryCreationInfos.getMinP()).setMaxP(batteryCreationInfos.getMaxP()).setTargetP(batteryCreationInfos.getTargetP())
+                .setTargetQ(nanIfNull(batteryCreationInfos.getTargetQ()));
+    }
+
+    public GeneratorAdder createGeneratorAdderInNodeBreaker(VoltageLevel voltageLevel, GeneratorCreationInfos generatorCreationInfos) {
+        Terminal terminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
+                generatorCreationInfos.getRegulatingTerminalId(),
+                generatorCreationInfos.getRegulatingTerminalType(),
+                generatorCreationInfos.getRegulatingTerminalVlId());
+
+        // creating the generator adder
+        GeneratorAdder generatorAdder = voltageLevel.newGenerator().setId(generatorCreationInfos.getEquipmentId())
+                .setName(generatorCreationInfos.getEquipmentName()).setEnergySource(generatorCreationInfos.getEnergySource())
+                .setMinP(generatorCreationInfos.getMinP()).setMaxP(generatorCreationInfos.getMaxP())
+                .setRatedS(nanIfNull(generatorCreationInfos.getRatedS())).setTargetP(generatorCreationInfos.getTargetP())
+                .setTargetQ(nanIfNull(generatorCreationInfos.getTargetQ())).setVoltageRegulatorOn(generatorCreationInfos.isVoltageRegulationOn())
+                .setTargetV(nanIfNull(generatorCreationInfos.getTargetV())).setRegulatingTerminal(null);
+
+        if (terminal != null) {
+            generatorAdder.setRegulatingTerminal(terminal);
         }
+        return generatorAdder;
+    }
+
+    public Load createLoadInBusBreaker(VoltageLevel voltageLevel, LoadCreationInfos loadCreationInfos) {
+        Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, loadCreationInfos.getBusOrBusbarSectionId());
+        // creating the load
+        return voltageLevel.newLoad()
+                .setId(loadCreationInfos.getEquipmentId())
+                .setName(loadCreationInfos.getEquipmentName())
+                .setLoadType(loadCreationInfos.getLoadType())
+                .setBus(bus.getId())
+                .setConnectableBus(bus.getId())
+                .setP0(loadCreationInfos.getP0())
+                .setQ0(loadCreationInfos.getQ0()).add();
+    }
+
+    public LoadAdder createLoadAdderInNodeBreaker(VoltageLevel voltageLevel, LoadCreationInfos loadCreationInfos) {
+        return voltageLevel.newLoad().setId(loadCreationInfos.getEquipmentId()).setName(loadCreationInfos.getEquipmentName())
+                .setLoadType(loadCreationInfos.getLoadType()).setP0(loadCreationInfos.getP0()).setQ0(loadCreationInfos.getQ0());
     }
 
     public void setBranchAdderNodeOrBus(BranchAdder<?, ?> branchAdder, VoltageLevel voltageLevel, BranchCreationInfos branchCreationInfos,
@@ -1210,7 +1091,7 @@ public final class ModificationUtils {
                 InjectionModificationInfos::getConnectionPosition);
     }
 
-    private String getBusOrBusbarSection(Terminal terminal) {
+    public String getBusOrBusbarSection(Terminal terminal) {
         String busOrBusbarSectionId;
         if (terminal.getVoltageLevel().getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
             if (terminal.isConnected()) {
@@ -1268,24 +1149,7 @@ public final class ModificationUtils {
         }
     }
 
-    public void modifyInjectionVoltageLevelBusOrBusBarSection(Injection<?> injection, InjectionAdder<?, ?> injectionAdder,
-                                                              InjectionModificationInfos modificationInfos, ReportNode reports) {
-        if (isNotModificationVoltageLevelBusOrBusBarInfos(modificationInfos)) {
-            return;
-        }
-        VoltageLevel voltageLevel = getVoltageLevelInfos(modificationInfos.getVoltageLevelId(), injection.getTerminal(), injection.getNetwork(), FeederSide.INJECTION_SINGLE_SIDE, reports);
-        String busOrBusbarSectionId = getBusOrBusBarSectionInfos(modificationInfos.getBusOrBusbarSectionId(), injection.getTerminal(), FeederSide.INJECTION_SINGLE_SIDE, reports);
-
-        if (voltageLevel != null && voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            processInjectionNodeBreakerTopology(voltageLevel, busOrBusbarSectionId, modificationInfos, injectionAdder, injection, reports);
-        }
-
-        if (voltageLevel != null && voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {
-            processInjectionBusBreakerTopology(voltageLevel, busOrBusbarSectionId, injectionAdder, injection, reports);
-        }
-    }
-
-    private VoltageLevel getVoltageLevelInfos(AttributeModification<String> voltageLevelId, Terminal terminal, Network network, FeederSide feederSide, ReportNode reports) {
+    public VoltageLevel getVoltageLevelInfos(AttributeModification<String> voltageLevelId, Terminal terminal, Network network, FeederSide feederSide, ReportNode reports) {
         if (voltageLevelId != null && voltageLevelId.getValue() != null) {
             String fieldName = String.format("%s modification", getConnectionFieldName(feederSide, "Voltage level id"));
             insertReportNode(reports, ModificationUtils.getInstance().buildModificationReport(terminal.getVoltageLevel().getId(), voltageLevelId.getValue(), fieldName, 1));
@@ -1295,7 +1159,7 @@ public final class ModificationUtils {
         }
     }
 
-    private String getBusOrBusBarSectionInfos(AttributeModification<String> busOrBusbarSectionId, Terminal terminal, FeederSide feederSide, ReportNode reports) {
+    public String getBusOrBusBarSectionInfos(AttributeModification<String> busOrBusbarSectionId, Terminal terminal, FeederSide feederSide, ReportNode reports) {
         if (busOrBusbarSectionId != null && busOrBusbarSectionId.getValue() != null) {
             String fieldName = String.format("%s modification", getConnectionFieldName(feederSide, "Bus id"));
             insertReportNode(reports, ModificationUtils.getInstance().buildModificationReport(terminal.getVoltageLevel().getId(), busOrBusbarSectionId.getValue(), fieldName, 1));
@@ -1305,78 +1169,15 @@ public final class ModificationUtils {
         }
     }
 
-    private void processInjectionNodeBreakerTopology(VoltageLevel voltageLevel, String busOrBusbarSectionId, InjectionModificationInfos modificationInfos,
-                                                     InjectionAdder<?, ?> injectionAdder, Injection injection, ReportNode reports) {
-        Network network = injection.getNetwork();
-        new RemoveFeederBay(injection.getId()).apply(injection.getNetwork(), true, reports);
-        createInjectionInNodeBreaker(voltageLevel, busOrBusbarSectionId, null, ConnectablePosition.Direction.UNDEFINED, modificationInfos.getEquipmentId(), network, injectionAdder, reports);
-    }
-
-    private void processInjectionBusBreakerTopology(VoltageLevel voltageLevel, String busOrBusbarSectionId, InjectionAdder<?, ?> injectionAdder, Injection injection, ReportNode reports) {
-        Bus bus = getBusBreakerBus(voltageLevel, busOrBusbarSectionId);
-        Network network = injection.getNetwork();
-        new RemoveFeederBay(injection.getId()).apply(injection.getNetwork(), true, reports);
-        CreateFeederBay algo = new CreateFeederBayBuilder()
-                .withBusOrBusbarSectionId(bus.getId())
-                .withInjectionAdder(injectionAdder)
-                .build();
-        algo.apply(network, true, reports);
-    }
-
-    public void modifyBranchVoltageLevelBusOrBusBarSection(BranchModificationInfos modificationInfos, Branch<?> branch, BranchAdder<?, ?> branchAdder, ReportNode reports) {
-        if (isNotModificationVoltageLevel1BusOrBusBar1Infos(modificationInfos) && isNotModificationVoltageLevel2BusOrBusBar2Infos(modificationInfos)) {
-            return;
-        }
-        VoltageLevel voltageLevel1 = getVoltageLevelInfos(modificationInfos.getVoltageLevelId1(), branch.getTerminal1(), branch.getNetwork(), FeederSide.BRANCH_SIDE_ONE, reports);
-        String busOrBusbarSectionId1 = getBusOrBusBarSectionInfos(modificationInfos.getBusOrBusbarSectionId1(), branch.getTerminal1(), FeederSide.BRANCH_SIDE_ONE, reports);
-
-        VoltageLevel voltageLevel2 = getVoltageLevelInfos(modificationInfos.getVoltageLevelId2(), branch.getTerminal2(), branch.getNetwork(), FeederSide.BRANCH_SIDE_TWO, reports);
-        String busOrBusbarSectionId2 = getBusOrBusBarSectionInfos(modificationInfos.getBusOrBusbarSectionId2(), branch.getTerminal2(), FeederSide.BRANCH_SIDE_TWO, reports);
-        if (voltageLevel1 != null && voltageLevel2 != null &&
-                voltageLevel1.getTopologyKind() == TopologyKind.NODE_BREAKER &&
-                voltageLevel2.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-
-            processBranchNodeBreakerTopology(voltageLevel1, voltageLevel2, busOrBusbarSectionId1, busOrBusbarSectionId2, modificationInfos, branchAdder, branch, reports);
-        }
-
-        if (voltageLevel1 != null && voltageLevel2 != null &&
-                voltageLevel1.getTopologyKind() == TopologyKind.BUS_BREAKER &&
-                voltageLevel2.getTopologyKind() == TopologyKind.BUS_BREAKER) {
-
-            processBranchBusBreakerTopology(voltageLevel1, voltageLevel2, busOrBusbarSectionId1, busOrBusbarSectionId2, branchAdder, branch, reports);
-        }
-    }
-
-    private void processBranchNodeBreakerTopology(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, String busOrBusbarSectionId1,
-                                            String busOrBusbarSectionId2, BranchModificationInfos modificationInfos, BranchAdder<?, ?> branchAdder, Branch branch, ReportNode reports) {
-        Network network = branch.getNetwork();
-        new RemoveFeederBay(branch.getId()).apply(network, true, reports);
-        createBranchInNodeBreaker(voltageLevel1, voltageLevel2, busOrBusbarSectionId1, busOrBusbarSectionId2, null, null, ConnectablePosition.Direction.UNDEFINED,
-                ConnectablePosition.Direction.UNDEFINED, modificationInfos.getEquipmentId(), modificationInfos.getEquipmentId(), network, branchAdder, reports);
-    }
-
-    private void processBranchBusBreakerTopology(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, String busOrBusbarSectionId1,
-                                                 String busOrBusbarSectionId2, BranchAdder<?, ?> branchAdder, Branch branch, ReportNode reports) {
-        Bus bus1 = getBusBreakerBus(voltageLevel1, busOrBusbarSectionId1);
-        Bus bus2 = getBusBreakerBus(voltageLevel2, busOrBusbarSectionId2);
-        Network network = branch.getNetwork();
-        new RemoveFeederBay(branch.getId()).apply(network, true, reports);
-        CreateBranchFeederBays algo = new CreateBranchFeederBaysBuilder()
-                .withBusOrBusbarSectionId1(bus1.getId())
-                .withBusOrBusbarSectionId2(bus2.getId())
-                .withBranchAdder(branchAdder).build();
-        algo.apply(network, true, reports);
-    }
-
-    private boolean isNotModificationVoltageLevelBusOrBusBarInfos(InjectionModificationInfos modificationInfos) {
+    public boolean isNotModificationVoltageLevelBusOrBusBarInfos(InjectionModificationInfos modificationInfos) {
         return modificationInfos.getVoltageLevelId() == null && modificationInfos.getBusOrBusbarSectionId() == null;
     }
 
-    private boolean isNotModificationVoltageLevel1BusOrBusBar1Infos(BranchModificationInfos modificationInfos) {
+    public boolean isNotModificationVoltageLevel1BusOrBusBar1Infos(BranchModificationInfos modificationInfos) {
         return modificationInfos.getVoltageLevelId1() == null && modificationInfos.getBusOrBusbarSectionId1() == null;
     }
 
-    private boolean isNotModificationVoltageLevel2BusOrBusBar2Infos(BranchModificationInfos modificationInfos) {
+    public boolean isNotModificationVoltageLevel2BusOrBusBar2Infos(BranchModificationInfos modificationInfos) {
         return modificationInfos.getVoltageLevelId2() == null && modificationInfos.getBusOrBusbarSectionId2() == null;
 
     }
@@ -1414,151 +1215,6 @@ public final class ModificationUtils {
                     .withUntypedValue("id", modificationInfos.getEquipmentId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
-        }
-    }
-
-    public void copyExtensionFrom(String extensionName, Identifiable<?> identifiable, Map<String, Extension<?>> copiedExtensions) {
-        switch (extensionName) {
-            case "activePowerControl" -> {
-                var activePowerControl = identifiable.getExtensionByName(extensionName);
-                if (activePowerControl != null) {
-                    copiedExtensions.put(extensionName, activePowerControl);
-                }
-            }
-            case "startup" -> {
-                var generatorStartup = identifiable.getExtension(GeneratorStartupAdder.class);
-                if (generatorStartup != null) {
-                    copiedExtensions.put(extensionName, generatorStartup);
-                }
-            }
-            case "generatorShortCircuit" -> {
-                var generatorShortCircuit = identifiable.getExtension(GeneratorShortCircuitAdder.class);
-                if (generatorShortCircuit != null) {
-                    copiedExtensions.put(extensionName, generatorShortCircuit);
-                }
-            }
-            case "coordinatedReactiveControl" -> {
-                var coordinatedReactiveControl = identifiable.getExtension(CoordinatedReactiveControlAdder.class);
-                if (coordinatedReactiveControl != null) {
-                    copiedExtensions.put(extensionName, coordinatedReactiveControl);
-                }
-            }
-            case "injectionObservability" -> {
-                var injectionObservability = identifiable.getExtension(InjectionObservability.class);
-                if (injectionObservability != null) {
-                    copiedExtensions.put(extensionName, injectionObservability);
-                }
-            }
-            case "measurements" -> {
-                var measurements = identifiable.getExtension(Measurements.class);
-                if (measurements != null) {
-                    copiedExtensions.put(extensionName, measurements);
-                }
-            }
-            case "position" -> {
-                var position = identifiable.getExtension(ConnectablePosition.class);
-                if (position != null) {
-                    copiedExtensions.put(extensionName, position);
-                }
-            }
-            case "branchObservability" -> {
-                var branchObservability = identifiable.getExtension(BranchObservability.class);
-                if (branchObservability != null) {
-                    copiedExtensions.put(extensionName, branchObservability);
-                }
-            }
-            case "operatingStatus" -> {
-                var operatingStatus = identifiable.getExtension(OperatingStatus.class);
-                if (operatingStatus != null) {
-                    copiedExtensions.put(extensionName, operatingStatus);
-                }
-            }
-        }
-    }
-
-    public void copyExtensionTo(String extensionName, Identifiable identifiable, Extension copiedExtensions) {
-        switch (extensionName) {
-            case "activePowerControl" -> {
-                ActivePowerControl copiedExtensionss = (ActivePowerControl) copiedExtensions;
-                if (copiedExtensionss != null) {
-                    ActivePowerControlAdder adder = (ActivePowerControlAdder) identifiable.newExtension(ActivePowerControlAdder.class);
-                    if (adder != null) {
-                        adder.add();
-                    }
-                }
-            }
-            case "startup" -> {
-                GeneratorStartup copiedExtensionss = (GeneratorStartup) copiedExtensions;
-                if (copiedExtensionss != null) {
-                    GeneratorStartupAdder adder = (GeneratorStartupAdder) identifiable.newExtension(GeneratorStartupAdder.class);
-                    if (adder != null) {
-                        adder.add();
-                    }
-                }
-            }
-            case "generatorShortCircuit" -> {
-                GeneratorShortCircuit copiedExtensionss = (GeneratorShortCircuit) copiedExtensions;
-                if (copiedExtensionss != null) {
-                    GeneratorShortCircuitAdder adder = (GeneratorShortCircuitAdder) identifiable.newExtension(GeneratorShortCircuitAdder.class);
-                    if (adder != null) {
-                        adder.add();
-                    }
-                }
-            }
-            case "coordinatedReactiveControl" -> {
-                CoordinatedReactiveControl copiedExtensionss = (CoordinatedReactiveControl) copiedExtensions;
-                if (copiedExtensionss != null) {
-                    CoordinatedReactiveControlAdder adder = (CoordinatedReactiveControlAdder) identifiable.newExtension(CoordinatedReactiveControlAdder.class);
-                    if (adder != null) {
-                        adder.add();
-                    }
-                }
-            }
-            case "injectionObservability" -> {
-                InjectionObservability copiedExtensionss = (InjectionObservability) copiedExtensions;
-                if (copiedExtensionss != null) {
-                    InjectionObservabilityAdder adder = (InjectionObservabilityAdder) identifiable.newExtension(InjectionObservabilityAdder.class);
-                    if (adder != null) {
-                        adder.add();
-                    }
-                }
-            }
-            case "measurements" -> {
-                Measurements copiedExtensionss = (Measurements) copiedExtensions;
-                if (copiedExtensionss != null) {
-                    MeasurementsAdder adder = (MeasurementsAdder) identifiable.newExtension(MeasurementsAdder.class);
-                    if (adder != null) {
-                        adder.add();
-                    }
-                }
-            }
-            case "position" -> {
-                ConnectablePosition copiedExtensionss = (ConnectablePosition) copiedExtensions;
-                if (copiedExtensionss != null) {
-                    ConnectablePositionAdder adder = (ConnectablePositionAdder) identifiable.newExtension(ConnectablePositionAdder.class);
-                    if (adder != null) {
-                        adder.add();
-                    }
-                }
-            }
-            case "branchObservability" -> {
-                BranchObservability copiedExtensionss = (BranchObservability) copiedExtensions;
-                if (copiedExtensionss != null) {
-                    BranchObservabilityAdder adder = (BranchObservabilityAdder) identifiable.newExtension(BranchObservabilityAdder.class);
-                    if (adder != null) {
-                        adder.add();
-                    }
-                }
-            }
-            case "operatingStatus" -> {
-                OperatingStatus copiedExtensionss = (OperatingStatus) copiedExtensions;
-                if (copiedExtensionss != null) {
-                    OperatingStatusAdder adder = (OperatingStatusAdder) identifiable.newExtension(OperatingStatusAdder.class);
-                    if (adder != null) {
-                        adder.add();
-                    }
-                }
-            }
         }
     }
 
@@ -2239,6 +1895,64 @@ public final class ModificationUtils {
                 .withPositionOrder2(position2)
                 .withBranchAdder(branchAdder).build();
         algo.apply(network, true, subReportNode);
+    }
+
+    public void addRatioTapChangersToTwoWindingsTransformer(Network network, TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, TwoWindingsTransformer twt) {
+        RatioTapChangerCreationInfos ratioTapChangerInfos = twoWindingsTransformerCreationInfos.getRatioTapChanger();
+        RatioTapChangerAdder ratioTapChangerAdder = twt.newRatioTapChanger();
+        Terminal terminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(network,
+                ratioTapChangerInfos.getRegulatingTerminalId(),
+                ratioTapChangerInfos.getRegulatingTerminalType(),
+                ratioTapChangerInfos.getRegulatingTerminalVlId());
+
+        Double targetDeadband = ratioTapChangerInfos.getTargetDeadband();
+        if (targetDeadband == null) {
+            targetDeadband = ratioTapChangerInfos.isRegulating() ? 0. : Double.NaN;
+        }
+        ratioTapChangerAdder.setTargetV(ratioTapChangerInfos.getTargetV() != null ? ratioTapChangerInfos.getTargetV() : Double.NaN)
+                .setTargetDeadband(targetDeadband)
+                .setRegulationTerminal(terminal);
+
+        ratioTapChangerAdder.setRegulating(ratioTapChangerInfos.isRegulating())
+                .setLoadTapChangingCapabilities(ratioTapChangerInfos.isLoadTapChangingCapabilities())
+                .setLowTapPosition(ratioTapChangerInfos.getLowTapPosition())
+                .setTapPosition(ratioTapChangerInfos.getTapPosition());
+
+        if (ratioTapChangerInfos.getSteps() != null) {
+            for (TapChangerStepCreationInfos step : ratioTapChangerInfos.getSteps()) {
+                ratioTapChangerAdder.beginStep().setR(step.getR()).setX(step.getX()).setG(step.getG()).setB(step.getB()).setRho(step.getRho()).endStep();
+            }
+
+            ratioTapChangerAdder.add();
+        }
+    }
+
+    public void addPhaseTapChangersToTwoWindingsTransformer(Network network, TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, TwoWindingsTransformer twt) {
+        PhaseTapChangerCreationInfos phaseTapChangerInfos = twoWindingsTransformerCreationInfos.getPhaseTapChanger();
+        PhaseTapChangerAdder phaseTapChangerAdder = twt.newPhaseTapChanger();
+        Terminal terminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(network,
+                phaseTapChangerInfos.getRegulatingTerminalId(),
+                phaseTapChangerInfos.getRegulatingTerminalType(),
+                phaseTapChangerInfos.getRegulatingTerminalVlId());
+        phaseTapChangerAdder.setRegulationTerminal(terminal);
+
+        if (phaseTapChangerInfos.isRegulating()) {
+            phaseTapChangerAdder.setRegulationValue(phaseTapChangerInfos.getRegulationValue())
+                    .setTargetDeadband(phaseTapChangerInfos.getTargetDeadband() != null ? phaseTapChangerInfos.getTargetDeadband() : 0.);
+        }
+
+        phaseTapChangerAdder.setRegulating(phaseTapChangerInfos.isRegulating())
+                .setRegulationMode(phaseTapChangerInfos.getRegulationMode())
+                .setLowTapPosition(phaseTapChangerInfos.getLowTapPosition())
+                .setTapPosition(phaseTapChangerInfos.getTapPosition());
+
+        if (phaseTapChangerInfos.getSteps() != null) {
+            for (TapChangerStepCreationInfos step : phaseTapChangerInfos.getSteps()) {
+                phaseTapChangerAdder.beginStep().setR(step.getR()).setX(step.getX()).setG(step.getG()).setB(step.getB()).setRho(step.getRho()).setAlpha(step.getAlpha()).endStep();
+            }
+
+            phaseTapChangerAdder.add();
+        }
     }
 
     public static void reportInjectionCreationConnectivity(InjectionCreationInfos injectionCreationInfos, ReportNode subReporter) {

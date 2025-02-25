@@ -8,13 +8,13 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.LoadAdder;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.modification.topology.RemoveFeederBay;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
+import org.gridsuite.modification.dto.LoadCreationInfos;
 import org.gridsuite.modification.dto.LoadModificationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -84,17 +84,54 @@ public class LoadModification extends AbstractModification {
 
     private void modifyLoadVoltageLevelBusOrBusBarSectionAttributes(LoadModificationInfos modificationInfos,
                                                                          Load load, ReportNode subReportNode) {
+        if (ModificationUtils.getInstance().isNotModificationVoltageLevelBusOrBusBarInfos(modificationInfos)) {
+            return;
+        }
+
         Network network = load.getNetwork();
-        LoadAdder loadAdder = ModificationUtils.getInstance().createLoadAdderInNodeBreaker(load.getNetwork(), modificationInfos.getVoltageLevelId() != null ?
-                load.getNetwork().getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : load.getTerminal().getVoltageLevel(), modificationInfos);
         Map<String, String> properties = !load.hasProperty()
                 ? null
                 : load.getPropertyNames().stream().collect(Collectors.toMap(name -> name, load::getProperty));
-        ModificationUtils.getInstance().modifyInjectionVoltageLevelBusOrBusBarSection(load, loadAdder, modificationInfos, subReportNode);
+        LoadCreationInfos loadCreationInfos = createLoadCreationInfos(modificationInfos, load, subReportNode);
+        new RemoveFeederBay(load.getId()).apply(network, true, subReportNode);
+        createLoad(loadCreationInfos, subReportNode, network);
         var newLoad = ModificationUtils.getInstance().getLoad(network, modificationInfos.getEquipmentId());
         if (properties != null) {
             properties.forEach(newLoad::setProperty);
         }
+    }
+
+    private void createLoad(LoadCreationInfos modificationInfos, ReportNode subReportNode, Network network) {
+        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId());
+        if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            LoadAdder loadAdder = ModificationUtils.getInstance().createLoadAdderInNodeBreaker(voltageLevel, modificationInfos);
+            ModificationUtils.getInstance().createInjectionInNodeBreaker(voltageLevel, modificationInfos.getBusOrBusbarSectionId(), modificationInfos.getConnectionPosition(),
+                    modificationInfos.getConnectionDirection(), modificationInfos.getConnectionName() != null ? modificationInfos.getConnectionName() : modificationInfos.getEquipmentId(),
+                    network, loadAdder, subReportNode);
+        } else {
+            ModificationUtils.getInstance().createLoadInBusBreaker(voltageLevel, modificationInfos);
+        }
+    }
+
+    private LoadCreationInfos createLoadCreationInfos(LoadModificationInfos modificationInfos, Load load, ReportNode subReportNode) {
+        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevelInfos(modificationInfos.getVoltageLevelId(), load.getTerminal(),
+                load.getNetwork(), ModificationUtils.FeederSide.INJECTION_SINGLE_SIDE, subReportNode);
+        String busOrBusbarSectionId = ModificationUtils.getInstance().getBusOrBusBarSectionInfos(modificationInfos.getBusOrBusbarSectionId(),
+                load.getTerminal(), ModificationUtils.FeederSide.INJECTION_SINGLE_SIDE, subReportNode);
+        return LoadCreationInfos.builder().equipmentId(modificationInfos.getEquipmentId())
+                .equipmentName(modificationInfos.getEquipmentName() != null ? modificationInfos.getEquipmentName().getValue() : load.getNameOrId())
+                .voltageLevelId(voltageLevel.getId())
+                .busOrBusbarSectionId(busOrBusbarSectionId)
+                .connectionName(load.getExtension(ConnectablePosition.class) != null && load.getExtension(ConnectablePosition.class).getFeeder() != null ?
+                        load.getExtension(ConnectablePosition.class).getFeeder().getName().orElse(modificationInfos.getEquipmentId()) : modificationInfos.getEquipmentId())
+                .connectionDirection(load.getExtension(ConnectablePosition.class) != null && load.getExtension(ConnectablePosition.class).getFeeder() != null ?
+                        load.getExtension(ConnectablePosition.class).getFeeder().getDirection() : ConnectablePosition.Direction.UNDEFINED)
+                .connectionPosition(null)
+                .terminalConnected(modificationInfos.getTerminalConnected() != null ? modificationInfos.getTerminalConnected().getValue() : load.getTerminal().isConnected())
+                .loadType(modificationInfos.getLoadType() != null ? modificationInfos.getLoadType().getValue() : load.getLoadType())
+                .p0(modificationInfos.getP0() != null ? modificationInfos.getP0().getValue() : load.getP0())
+                .q0(modificationInfos.getQ0() != null ? modificationInfos.getQ0().getValue() : load.getQ0())
+                .build();
     }
 
     private ReportNode modifyLoadConnectivityAttributes(LoadModificationInfos modificationInfos,

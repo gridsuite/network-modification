@@ -91,7 +91,7 @@ public class GeneratorCreation extends AbstractModification {
     }
 
     private void createGeneratorInNodeBreaker(VoltageLevel voltageLevel, GeneratorCreationInfos generatorCreationInfos, Network network, ReportNode subReportNode) {
-        GeneratorAdder generatorAdder = ModificationUtils.getInstance().createGeneratorAdderInNodeBreaker(network, voltageLevel, generatorCreationInfos);
+        GeneratorAdder generatorAdder = ModificationUtils.getInstance().createGeneratorAdderInNodeBreaker(voltageLevel, generatorCreationInfos);
         ModificationUtils.getInstance().createInjectionInNodeBreaker(voltageLevel, generatorCreationInfos.getBusOrBusbarSectionId(), generatorCreationInfos.getConnectionPosition(),
                 generatorCreationInfos.getConnectionDirection(), generatorCreationInfos.getConnectionName() != null ?
                         generatorCreationInfos.getConnectionName() : generatorCreationInfos.getEquipmentId(),

@@ -8,15 +8,14 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
+import com.powsybl.iidm.modification.topology.RemoveFeederBay;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.AttributeModification;
-import org.gridsuite.modification.dto.BatteryModificationInfos;
-import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
+import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -24,9 +23,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_BATTERY_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
+import static org.gridsuite.modification.utils.ModificationUtils.nanIfNull;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
@@ -185,16 +186,112 @@ public class BatteryModification extends AbstractModification {
 
     private void modifyBatteryVoltageLevelBusOrBusBarSectionAttributes(BatteryModificationInfos modificationInfos,
                                                                          Battery battery, ReportNode subReportNode) {
+        if (ModificationUtils.getInstance().isNotModificationVoltageLevelBusOrBusBarInfos(modificationInfos)) {
+            return;
+        }
         Network network = battery.getNetwork();
-        BatteryAdder batteryAdder = ModificationUtils.getInstance().createBatteryAdderInNodeBreaker(battery.getNetwork(), modificationInfos.getVoltageLevelId() != null ?
-                battery.getNetwork().getVoltageLevel(modificationInfos.getVoltageLevelId().getValue()) : battery.getTerminal().getVoltageLevel(), modificationInfos);
         Map<String, String> properties = !battery.hasProperty()
                 ? null
                 : battery.getPropertyNames().stream().collect(Collectors.toMap(name -> name, battery::getProperty));
-        ModificationUtils.getInstance().modifyInjectionVoltageLevelBusOrBusBarSection(battery, batteryAdder, modificationInfos, subReportNode);
+        BatteryCreationInfos batteryCreationInfos = createBatteryCreationInfos(modificationInfos, battery, subReportNode);
+        new RemoveFeederBay(battery.getId()).apply(network, true, subReportNode);
+        createBattery(batteryCreationInfos, subReportNode, network);
         var newBattery = ModificationUtils.getInstance().getBattery(network, modificationInfos.getEquipmentId());
         if (properties != null) {
             properties.forEach(newBattery::setProperty);
+        }
+    }
+
+    private BatteryCreationInfos createBatteryCreationInfos(BatteryModificationInfos modificationInfos, Battery battery, ReportNode subReportNode) {
+        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevelInfos(modificationInfos.getVoltageLevelId(), battery.getTerminal(),
+                battery.getNetwork(), ModificationUtils.FeederSide.INJECTION_SINGLE_SIDE, subReportNode);
+        String busOrBusbarSectionId = ModificationUtils.getInstance().getBusOrBusBarSectionInfos(modificationInfos.getBusOrBusbarSectionId(),
+                battery.getTerminal(), ModificationUtils.FeederSide.INJECTION_SINGLE_SIDE, subReportNode);
+        return BatteryCreationInfos.builder().equipmentId(battery.getId())
+                .equipmentName(battery.getNameOrId())
+                .voltageLevelId(voltageLevel.getId())
+                .busOrBusbarSectionId(busOrBusbarSectionId)
+                .connectionName(battery.getExtension(ConnectablePosition.class) != null && battery.getExtension(ConnectablePosition.class).getFeeder() != null ?
+                        battery.getExtension(ConnectablePosition.class).getFeeder().getName().orElse(modificationInfos.getEquipmentId()) : modificationInfos.getEquipmentId())
+                .connectionDirection(battery.getExtension(ConnectablePosition.class) != null && battery.getExtension(ConnectablePosition.class).getFeeder() != null ?
+                        battery.getExtension(ConnectablePosition.class).getFeeder().getDirection() : ConnectablePosition.Direction.UNDEFINED)
+                .connectionPosition(null)
+                .terminalConnected(battery.getTerminal().isConnected())
+                .minP(battery.getMinP())
+                .maxP(battery.getMaxP())
+                .targetP(battery.getTargetP())
+                .targetQ(battery.getTargetQ())
+                .build();
+    }
+
+    private void createBattery(BatteryCreationInfos modificationInfos, ReportNode subReportNode, Network network) {
+        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId());
+        if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            BatteryAdder batteryAdder = ModificationUtils.getInstance().createBatteryAdderInNodeBreaker(voltageLevel, modificationInfos);
+            ModificationUtils.getInstance().createInjectionInNodeBreaker(voltageLevel, modificationInfos.getBusOrBusbarSectionId(), modificationInfos.getConnectionPosition(),
+                    modificationInfos.getConnectionDirection(), modificationInfos.getConnectionName() != null ?
+                            modificationInfos.getConnectionName() : modificationInfos.getEquipmentId(),
+                    network, batteryAdder, subReportNode);
+        } else {
+            Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, modificationInfos.getBusOrBusbarSectionId());
+            voltageLevel.newBattery()
+                    .setBus(bus.getId())
+                    .setConnectableBus(bus.getId())
+                    .setId(modificationInfos.getEquipmentId())
+                    .setName(modificationInfos.getEquipmentName())
+                    .setMinP(modificationInfos.getMinP())
+                    .setMaxP(modificationInfos.getMaxP())
+                    .setTargetP(modificationInfos.getTargetP())
+                    .setTargetQ(nanIfNull(modificationInfos.getTargetQ()))
+                    .add();
+        }
+        var battery = ModificationUtils.getInstance().getBattery(network, modificationInfos.getEquipmentId());
+        createReactiveLimits(modificationInfos, battery);
+        createActivePowerControl(modificationInfos, battery);
+    }
+
+    private void createActivePowerControl(BatteryCreationInfos batteryCreationInfos, Battery battery) {
+        if (batteryCreationInfos.getParticipate() != null && batteryCreationInfos.getDroop() != null) {
+            battery.newExtension(ActivePowerControlAdder.class)
+                        .withParticipate(batteryCreationInfos.getParticipate())
+                        .withDroop(batteryCreationInfos.getDroop())
+                        .add();
+        }
+    }
+
+    private void createReactiveLimits(ReactiveLimitsHolderInfos creationInfos, ReactiveLimitsHolder reactiveLimitsHolder) {
+        if (Boolean.TRUE.equals(creationInfos.getReactiveCapabilityCurve())) {
+            createReactiveCapabilityCurve(creationInfos, reactiveLimitsHolder);
+        } else if (Boolean.FALSE.equals(creationInfos.getReactiveCapabilityCurve())) {
+            createMinMaxReactiveLimits(creationInfos, reactiveLimitsHolder);
+        }
+    }
+
+    private void createReactiveCapabilityCurve(ReactiveLimitsHolderInfos creationInfos, ReactiveLimitsHolder reactiveLimitsHolder) {
+        ReactiveCapabilityCurveAdder adder = reactiveLimitsHolder.newReactiveCapabilityCurve();
+        List<ReactiveCapabilityCurvePointsInfos> points = creationInfos.getReactiveCapabilityCurvePoints();
+        IntStream.range(0, points.size())
+                .forEach(i -> {
+                    ReactiveCapabilityCurvePointsInfos newPoint = points.get(i);
+                    createReactiveCapabilityCurvePoint(adder, newPoint);
+                });
+        adder.add();
+    }
+
+    private void createReactiveCapabilityCurvePoint(ReactiveCapabilityCurveAdder adder, ReactiveCapabilityCurvePointsInfos point) {
+        adder.beginPoint()
+                .setMaxQ(point.getMaxQ())
+                .setMinQ(point.getMinQ())
+                .setP(point.getP())
+                .endPoint();
+    }
+
+    private void createMinMaxReactiveLimits(ReactiveLimitsHolderInfos modificationInfos, ReactiveLimitsHolder reactiveLimitsHolder) {
+        if (modificationInfos.getMinQ() != null && modificationInfos.getMaxQ() != null) {
+            reactiveLimitsHolder.newMinMaxReactiveLimits()
+                    .setMinQ(modificationInfos.getMinQ())
+                    .setMaxQ(modificationInfos.getMaxQ())
+                    .add();
         }
     }
 
