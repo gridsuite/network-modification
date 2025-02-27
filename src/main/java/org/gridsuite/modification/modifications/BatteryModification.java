@@ -14,8 +14,12 @@ import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import com.powsybl.network.store.iidm.impl.MinMaxReactiveLimitsImpl;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.dto.AttributeModification;
+import org.gridsuite.modification.dto.BatteryCreationInfos;
+import org.gridsuite.modification.dto.BatteryModificationInfos;
+import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -206,7 +210,7 @@ public class BatteryModification extends AbstractModification {
                 battery.getNetwork(), ModificationUtils.FeederSide.INJECTION_SINGLE_SIDE, subReportNode);
         String busOrBusbarSectionId = ModificationUtils.getInstance().getBusOrBusBarSectionInfos(modificationInfos.getBusOrBusbarSectionId(),
                 battery.getTerminal(), ModificationUtils.FeederSide.INJECTION_SINGLE_SIDE, subReportNode);
-        return BatteryCreationInfos.builder().equipmentId(battery.getId())
+        BatteryCreationInfos batteryCreationInfos = BatteryCreationInfos.builder().equipmentId(battery.getId())
                 .equipmentName(battery.getNameOrId())
                 .voltageLevelId(voltageLevel.getId())
                 .busOrBusbarSectionId(busOrBusbarSectionId)
@@ -221,6 +225,25 @@ public class BatteryModification extends AbstractModification {
                 .targetP(battery.getTargetP())
                 .targetQ(battery.getTargetQ())
                 .build();
+        var activePowerControl = battery.getExtension(ActivePowerControl.class);
+        if (activePowerControl != null) {
+            batteryCreationInfos.setParticipate(activePowerControl.isParticipate());
+            batteryCreationInfos.setDroop((float) activePowerControl.getDroop());
+        }
+        var reactiveLimits = battery.getReactiveLimits();
+        if (reactiveLimits != null) {
+            ReactiveLimitsKind limitsKind = reactiveLimits.getKind();
+            if (limitsKind == ReactiveLimitsKind.MIN_MAX) {
+                MinMaxReactiveLimits minMaxReactiveLimits = battery.getReactiveLimits(MinMaxReactiveLimitsImpl.class);
+                batteryCreationInfos.setMaxQ(minMaxReactiveLimits.getMaxQ());
+                batteryCreationInfos.setMinQ(minMaxReactiveLimits.getMinQ());
+            } else if (limitsKind == ReactiveLimitsKind.CURVE) {
+                ReactiveCapabilityCurve capabilityCurve = battery.getReactiveLimits(ReactiveCapabilityCurve.class);
+                batteryCreationInfos.setReactiveCapabilityCurvePoints(capabilityCurve.getPoints().stream().map(point ->
+                        new ReactiveCapabilityCurvePointsInfos(point.getMinQ(), point.getMaxQ(), point.getP())).toList());
+            }
+        }
+        return batteryCreationInfos;
     }
 
     private void createBattery(BatteryCreationInfos modificationInfos, ReportNode subReportNode, Network network) {
@@ -245,7 +268,7 @@ public class BatteryModification extends AbstractModification {
                     .add();
         }
         var battery = ModificationUtils.getInstance().getBattery(network, modificationInfos.getEquipmentId());
-        createReactiveLimits(modificationInfos, battery);
+        ModificationUtils.getInstance().createReactiveLimits(modificationInfos, battery);
         createActivePowerControl(modificationInfos, battery);
     }
 
@@ -255,14 +278,6 @@ public class BatteryModification extends AbstractModification {
                         .withParticipate(batteryCreationInfos.getParticipate())
                         .withDroop(batteryCreationInfos.getDroop())
                         .add();
-        }
-    }
-
-    private void createReactiveLimits(ReactiveLimitsHolderInfos creationInfos, ReactiveLimitsHolder reactiveLimitsHolder) {
-        if (Boolean.TRUE.equals(creationInfos.getReactiveCapabilityCurve())) {
-            ModificationUtils.getInstance().createReactiveCapabilityCurve(creationInfos, reactiveLimitsHolder);
-        } else if (Boolean.FALSE.equals(creationInfos.getReactiveCapabilityCurve())) {
-            ModificationUtils.getInstance().createMinMaxReactiveLimits(creationInfos, reactiveLimitsHolder);
         }
     }
 

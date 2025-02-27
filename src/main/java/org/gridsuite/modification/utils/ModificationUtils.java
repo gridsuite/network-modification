@@ -1952,6 +1952,14 @@ public final class ModificationUtils {
         }
     }
 
+    public void createReactiveLimits(ReactiveLimitsHolderInfos creationInfos, ReactiveLimitsHolder reactiveLimitsHolder) {
+        if (Boolean.TRUE.equals(creationInfos.getReactiveCapabilityCurve())) {
+            ModificationUtils.getInstance().createReactiveCapabilityCurve(creationInfos, reactiveLimitsHolder);
+        } else if (Boolean.FALSE.equals(creationInfos.getReactiveCapabilityCurve())) {
+            ModificationUtils.getInstance().createMinMaxReactiveLimits(creationInfos, reactiveLimitsHolder);
+        }
+    }
+
     public void createMinMaxReactiveLimits(ReactiveLimitsHolderInfos modificationInfos, ReactiveLimitsHolder reactiveLimitsHolder) {
         if (modificationInfos.getMinQ() != null && modificationInfos.getMaxQ() != null) {
             reactiveLimitsHolder.newMinMaxReactiveLimits()
