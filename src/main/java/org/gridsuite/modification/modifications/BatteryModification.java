@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_BATTERY_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
@@ -261,37 +260,9 @@ public class BatteryModification extends AbstractModification {
 
     private void createReactiveLimits(ReactiveLimitsHolderInfos creationInfos, ReactiveLimitsHolder reactiveLimitsHolder) {
         if (Boolean.TRUE.equals(creationInfos.getReactiveCapabilityCurve())) {
-            createReactiveCapabilityCurve(creationInfos, reactiveLimitsHolder);
+            ModificationUtils.getInstance().createReactiveCapabilityCurve(creationInfos, reactiveLimitsHolder);
         } else if (Boolean.FALSE.equals(creationInfos.getReactiveCapabilityCurve())) {
-            createMinMaxReactiveLimits(creationInfos, reactiveLimitsHolder);
-        }
-    }
-
-    private void createReactiveCapabilityCurve(ReactiveLimitsHolderInfos creationInfos, ReactiveLimitsHolder reactiveLimitsHolder) {
-        ReactiveCapabilityCurveAdder adder = reactiveLimitsHolder.newReactiveCapabilityCurve();
-        List<ReactiveCapabilityCurvePointsInfos> points = creationInfos.getReactiveCapabilityCurvePoints();
-        IntStream.range(0, points.size())
-                .forEach(i -> {
-                    ReactiveCapabilityCurvePointsInfos newPoint = points.get(i);
-                    createReactiveCapabilityCurvePoint(adder, newPoint);
-                });
-        adder.add();
-    }
-
-    private void createReactiveCapabilityCurvePoint(ReactiveCapabilityCurveAdder adder, ReactiveCapabilityCurvePointsInfos point) {
-        adder.beginPoint()
-                .setMaxQ(point.getMaxQ())
-                .setMinQ(point.getMinQ())
-                .setP(point.getP())
-                .endPoint();
-    }
-
-    private void createMinMaxReactiveLimits(ReactiveLimitsHolderInfos modificationInfos, ReactiveLimitsHolder reactiveLimitsHolder) {
-        if (modificationInfos.getMinQ() != null && modificationInfos.getMaxQ() != null) {
-            reactiveLimitsHolder.newMinMaxReactiveLimits()
-                    .setMinQ(modificationInfos.getMinQ())
-                    .setMaxQ(modificationInfos.getMaxQ())
-                    .add();
+            ModificationUtils.getInstance().createMinMaxReactiveLimits(creationInfos, reactiveLimitsHolder);
         }
     }
 

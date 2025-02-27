@@ -32,8 +32,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.network.TwoSides.ONE;
-import static com.powsybl.iidm.network.TwoSides.TWO;
+import static com.powsybl.iidm.network.TwoSides.*;
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
 
 /**
@@ -1724,9 +1723,7 @@ public final class ModificationUtils {
         }
     }
 
-    public void createReactiveLimits(ReactiveLimitsHolderInfos creationInfos,
-                                            ReactiveLimitsHolder reactiveLimitsHolder,
-                                     ReportNode subReporter) {
+    public void createReactiveLimits(ReactiveLimitsHolderInfos creationInfos, ReactiveLimitsHolder reactiveLimitsHolder, ReportNode subReporter) {
         if (Boolean.TRUE.equals(creationInfos.getReactiveCapabilityCurve())) {
             createReactiveCapabilityCurve(creationInfos, reactiveLimitsHolder, subReporter);
         } else if (Boolean.FALSE.equals(creationInfos.getReactiveCapabilityCurve())) {
@@ -1897,10 +1894,10 @@ public final class ModificationUtils {
         algo.apply(network, true, subReportNode);
     }
 
-    public void addRatioTapChangersToTwoWindingsTransformer(Network network, TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, TwoWindingsTransformer twt) {
+    public void addRatioTapChangersToTwoWindingsTransformer(TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, TwoWindingsTransformer twt) {
         RatioTapChangerCreationInfos ratioTapChangerInfos = twoWindingsTransformerCreationInfos.getRatioTapChanger();
         RatioTapChangerAdder ratioTapChangerAdder = twt.newRatioTapChanger();
-        Terminal terminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(network,
+        Terminal terminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(twt.getNetwork(),
                 ratioTapChangerInfos.getRegulatingTerminalId(),
                 ratioTapChangerInfos.getRegulatingTerminalType(),
                 ratioTapChangerInfos.getRegulatingTerminalVlId());
@@ -1927,10 +1924,10 @@ public final class ModificationUtils {
         }
     }
 
-    public void addPhaseTapChangersToTwoWindingsTransformer(Network network, TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, TwoWindingsTransformer twt) {
+    public void addPhaseTapChangersToTwoWindingsTransformer(TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, TwoWindingsTransformer twt) {
         PhaseTapChangerCreationInfos phaseTapChangerInfos = twoWindingsTransformerCreationInfos.getPhaseTapChanger();
         PhaseTapChangerAdder phaseTapChangerAdder = twt.newPhaseTapChanger();
-        Terminal terminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(network,
+        Terminal terminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(twt.getNetwork(),
                 phaseTapChangerInfos.getRegulatingTerminalId(),
                 phaseTapChangerInfos.getRegulatingTerminalType(),
                 phaseTapChangerInfos.getRegulatingTerminalVlId());
@@ -1953,6 +1950,34 @@ public final class ModificationUtils {
 
             phaseTapChangerAdder.add();
         }
+    }
+
+    public void createMinMaxReactiveLimits(ReactiveLimitsHolderInfos modificationInfos, ReactiveLimitsHolder reactiveLimitsHolder) {
+        if (modificationInfos.getMinQ() != null && modificationInfos.getMaxQ() != null) {
+            reactiveLimitsHolder.newMinMaxReactiveLimits()
+                    .setMinQ(modificationInfos.getMinQ())
+                    .setMaxQ(modificationInfos.getMaxQ())
+                    .add();
+        }
+    }
+
+    public void createReactiveCapabilityCurve(ReactiveLimitsHolderInfos creationInfos, ReactiveLimitsHolder reactiveLimitsHolder) {
+        ReactiveCapabilityCurveAdder adder = reactiveLimitsHolder.newReactiveCapabilityCurve();
+        List<ReactiveCapabilityCurvePointsInfos> points = creationInfos.getReactiveCapabilityCurvePoints();
+        IntStream.range(0, points.size())
+                .forEach(i -> {
+                    ReactiveCapabilityCurvePointsInfos newPoint = points.get(i);
+                    createReactiveCapabilityCurvePoint(adder, newPoint);
+                });
+        adder.add();
+    }
+
+    private void createReactiveCapabilityCurvePoint(ReactiveCapabilityCurveAdder adder, ReactiveCapabilityCurvePointsInfos point) {
+        adder.beginPoint()
+                .setMaxQ(point.getMaxQ())
+                .setMinQ(point.getMinQ())
+                .setP(point.getP())
+                .endPoint();
     }
 
     public static void reportInjectionCreationConnectivity(InjectionCreationInfos injectionCreationInfos, ReportNode subReporter) {

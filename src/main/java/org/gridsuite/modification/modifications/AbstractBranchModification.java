@@ -20,8 +20,7 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.network.TwoSides.ONE;
-import static com.powsybl.iidm.network.TwoSides.TWO;
+import static com.powsybl.iidm.network.TwoSides.*;
 import static org.gridsuite.modification.NetworkModificationException.Type.BRANCH_MODIFICATION_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.createBranchInNodeBreaker;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
@@ -376,10 +375,10 @@ public abstract class AbstractBranchModification extends AbstractModification {
                     network, twoWindingsTransformerAdder, subReportNode);
 
             var twt = network.getTwoWindingsTransformer(modificationInfos.getEquipmentId());
-            addTapChangersToTwoWindingsTransformer(network, modificationInfos, twt);
+            addTapChangersToTwoWindingsTransformer(modificationInfos, twt);
         } else {
             var twt = ModificationUtils.getInstance().createTwoWindingsTransformerAdder(voltageLevel1, voltageLevel2, modificationInfos, false, false).add();
-            addTapChangersToTwoWindingsTransformer(network, modificationInfos, twt);
+            addTapChangersToTwoWindingsTransformer(modificationInfos, twt);
         }
         Line line = network.getLine(modificationInfos.getEquipmentId());
         List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = modificationInfos.getOperationalLimitsGroups1();
@@ -399,13 +398,13 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
     }
 
-    private void addTapChangersToTwoWindingsTransformer(Network network, TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, com.powsybl.iidm.network.TwoWindingsTransformer twt) {
+    private void addTapChangersToTwoWindingsTransformer(TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, TwoWindingsTransformer twt) {
         if (twoWindingsTransformerCreationInfos.getRatioTapChanger() != null) {
-            ModificationUtils.getInstance().addRatioTapChangersToTwoWindingsTransformer(network, twoWindingsTransformerCreationInfos, twt);
+            ModificationUtils.getInstance().addRatioTapChangersToTwoWindingsTransformer(twoWindingsTransformerCreationInfos, twt);
         }
 
         if (twoWindingsTransformerCreationInfos.getPhaseTapChanger() != null) {
-            ModificationUtils.getInstance().addPhaseTapChangersToTwoWindingsTransformer(network, twoWindingsTransformerCreationInfos, twt);
+            ModificationUtils.getInstance().addPhaseTapChangersToTwoWindingsTransformer(twoWindingsTransformerCreationInfos, twt);
         }
     }
 

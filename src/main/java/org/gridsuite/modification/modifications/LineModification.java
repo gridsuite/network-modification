@@ -40,7 +40,7 @@ public class LineModification extends AbstractBranchModification {
     public void apply(Network network, ReportNode subReportNode) {
         Line line = network.getLine(modificationInfos.getEquipmentId());
         // modify the line in the network
-        modifyLine(network, line, modificationInfos, subReportNode);
+        modifyLine(line, modificationInfos, subReportNode);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class LineModification extends AbstractBranchModification {
         return "LineModification";
     }
 
-    private void modifyLine(Network network, Line line, BranchModificationInfos lineModificationInfos, ReportNode subReportNode) {
+    private void modifyLine(Line line, BranchModificationInfos lineModificationInfos, ReportNode subReportNode) {
         modifyBranch(line, lineModificationInfos, subReportNode, "lineModification", "Line with id=${id} modified :");
         PropertiesUtils.applyProperties(line, subReportNode, modificationInfos.getProperties(), "LineProperties");
     }

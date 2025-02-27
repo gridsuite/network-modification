@@ -18,8 +18,7 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 
 import java.util.List;
 
-import static com.powsybl.iidm.network.TwoSides.ONE;
-import static com.powsybl.iidm.network.TwoSides.TWO;
+import static com.powsybl.iidm.network.TwoSides.*;
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
 import static org.gridsuite.modification.utils.ModificationUtils.createBranchInNodeBreaker;
 
