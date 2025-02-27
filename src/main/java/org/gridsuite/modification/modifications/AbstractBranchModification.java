@@ -20,7 +20,8 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.network.TwoSides.*;
+import static com.powsybl.iidm.network.TwoSides.ONE;
+import static com.powsybl.iidm.network.TwoSides.TWO;
 import static org.gridsuite.modification.NetworkModificationException.Type.BRANCH_MODIFICATION_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.createBranchInNodeBreaker;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
@@ -375,10 +376,10 @@ public abstract class AbstractBranchModification extends AbstractModification {
                     network, twoWindingsTransformerAdder, subReportNode);
 
             var twt = network.getTwoWindingsTransformer(modificationInfos.getEquipmentId());
-            addTapChangersToTwoWindingsTransformer(modificationInfos, twt);
+            ModificationUtils.getInstance().addTapChangersToTwoWindingsTransformer(modificationInfos, twt);
         } else {
             var twt = ModificationUtils.getInstance().createTwoWindingsTransformerAdder(voltageLevel1, voltageLevel2, modificationInfos, false, false).add();
-            addTapChangersToTwoWindingsTransformer(modificationInfos, twt);
+            ModificationUtils.getInstance().addTapChangersToTwoWindingsTransformer(modificationInfos, twt);
         }
         Line line = network.getLine(modificationInfos.getEquipmentId());
         List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = modificationInfos.getOperationalLimitsGroups1();
@@ -398,17 +399,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
     }
 
-    private void addTapChangersToTwoWindingsTransformer(TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, TwoWindingsTransformer twt) {
-        if (twoWindingsTransformerCreationInfos.getRatioTapChanger() != null) {
-            ModificationUtils.getInstance().addRatioTapChangersToTwoWindingsTransformer(twoWindingsTransformerCreationInfos, twt);
-        }
-
-        if (twoWindingsTransformerCreationInfos.getPhaseTapChanger() != null) {
-            ModificationUtils.getInstance().addPhaseTapChangersToTwoWindingsTransformer(twoWindingsTransformerCreationInfos, twt);
-        }
-    }
-
-    private BranchCreationInfos createBranchCreationInfos(BranchModificationInfos modificationInfos, Branch branch, ReportNode subReportNode) {
+    private BranchCreationInfos createBranchCreationInfos(BranchModificationInfos modificationInfos, Branch<?> branch, ReportNode subReportNode) {
         VoltageLevel voltageLevel1 = ModificationUtils.getInstance().getVoltageLevelInfos(modificationInfos.getVoltageLevelId1(), branch.getTerminal1(),
                 branch.getNetwork(), ModificationUtils.FeederSide.BRANCH_SIDE_ONE, subReportNode);
         String busOrBusbarSectionId1 = ModificationUtils.getInstance().getBusOrBusBarSectionInfos(modificationInfos.getBusOrBusbarSectionId1(),

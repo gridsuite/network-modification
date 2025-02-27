@@ -235,27 +235,6 @@ public class ShuntCompensatorModification extends AbstractModification {
         }
     }
 
-    private ShuntCompensatorAdder createShuntCompensatorInBusBreaker(ShuntCompensator shuntCompensator) {
-        if (modificationInfos.getVoltageLevelId() != null && modificationInfos.getVoltageLevelId().getValue() != null) {
-            VoltageLevel voltageLevel = shuntCompensator.getNetwork().getVoltageLevel(modificationInfos.getVoltageLevelId().getValue());
-            // creating the shuntCompensator
-            return voltageLevel.newShuntCompensator()
-                    .setId(shuntCompensator.getId())
-                    .setName(shuntCompensator.getNameOrId())
-                    .setSectionCount(shuntCompensator.getSectionCount())
-                    .setVoltageRegulatorOn(shuntCompensator.isVoltageRegulatorOn())
-                    .setTargetV(shuntCompensator.getTargetV())
-                    .setTargetDeadband(shuntCompensator.getTargetDeadband())
-                    .setRegulatingTerminal(null)
-                    .newLinearModel()
-                    .setBPerSection(shuntCompensator.getB() / shuntCompensator.getMaximumSectionCount())
-                    .setMaximumSectionCount(shuntCompensator.getMaximumSectionCount())
-                    .add();
-        } else {
-            return null;
-        }
-    }
-
     private void modifyShuntCompensatorVoltageLevelBusOrBusBarSectionAttributes(ShuntCompensatorModificationInfos modificationInfos,
                                                                          ShuntCompensator shuntCompensator, ReportNode subReportNode) {
         if (ModificationUtils.getInstance().isNotModificationVoltageLevelBusOrBusBarInfos(modificationInfos)) {

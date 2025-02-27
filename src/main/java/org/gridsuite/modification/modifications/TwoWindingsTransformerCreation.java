@@ -11,7 +11,8 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.dto.OperationalLimitsGroupInfos;
+import org.gridsuite.modification.dto.TwoWindingsTransformerCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -97,24 +98,14 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
                 network, twoWindingsTransformerAdder, subReportNode);
 
         var twt = network.getTwoWindingsTransformer(modificationInfos.getEquipmentId());
-        addTapChangersToTwoWindingsTransformer(modificationInfos, twt);
+        ModificationUtils.getInstance().addTapChangersToTwoWindingsTransformer(modificationInfos, twt);
 
         return twt;
     }
 
-    private void addTapChangersToTwoWindingsTransformer(TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, com.powsybl.iidm.network.TwoWindingsTransformer twt) {
-        if (twoWindingsTransformerCreationInfos.getRatioTapChanger() != null) {
-            ModificationUtils.getInstance().addRatioTapChangersToTwoWindingsTransformer(twoWindingsTransformerCreationInfos, twt);
-        }
-
-        if (twoWindingsTransformerCreationInfos.getPhaseTapChanger() != null) {
-            ModificationUtils.getInstance().addPhaseTapChangersToTwoWindingsTransformer(twoWindingsTransformerCreationInfos, twt);
-        }
-    }
-
     private TwoWindingsTransformer create2WTInOtherBreaker(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, boolean withSwitch1, boolean withSwitch2, ReportNode subReportNode) {
         var twt = ModificationUtils.getInstance().createTwoWindingsTransformerAdder(voltageLevel1, voltageLevel2, twoWindingsTransformerCreationInfos, withSwitch1, withSwitch2).add();
-        addTapChangersToTwoWindingsTransformer(twoWindingsTransformerCreationInfos, twt);
+        ModificationUtils.getInstance().addTapChangersToTwoWindingsTransformer(twoWindingsTransformerCreationInfos, twt);
         subReportNode.newReportNode()
                 .withMessageTemplate("twoWindingsTransformerCreated", "New two windings transformer with id=${id} created")
                 .withUntypedValue("id", twoWindingsTransformerCreationInfos.getEquipmentId())

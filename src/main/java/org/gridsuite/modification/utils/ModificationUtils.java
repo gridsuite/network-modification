@@ -425,6 +425,16 @@ public final class ModificationUtils {
         return true;
     }
 
+    public void addTapChangersToTwoWindingsTransformer(TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, TwoWindingsTransformer twt) {
+        if (twoWindingsTransformerCreationInfos.getRatioTapChanger() != null) {
+            addRatioTapChangersToTwoWindingsTransformer(twoWindingsTransformerCreationInfos, twt);
+        }
+
+        if (twoWindingsTransformerCreationInfos.getPhaseTapChanger() != null) {
+            addPhaseTapChangersToTwoWindingsTransformer(twoWindingsTransformerCreationInfos, twt);
+        }
+    }
+
     public void createSubstation(SubstationCreationInfos substationCreationInfos,
                                  ReportNode subReportNode, Network network) {
         network.newSubstation()
