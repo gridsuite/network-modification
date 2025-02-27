@@ -8,9 +8,12 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
+import com.powsybl.iidm.modification.topology.RemoveFeederBay;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.network.store.iidm.impl.MinMaxReactiveLimitsImpl;
 import com.powsybl.network.store.iidm.impl.extensions.CoordinatedReactiveControlAdderImpl;
+import com.powsybl.network.store.iidm.impl.extensions.GeneratorStartupAdderImpl;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -19,9 +22,12 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_GENERATOR_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
+import static org.gridsuite.modification.utils.ModificationUtils.nanIfNull;
 
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
@@ -45,8 +51,10 @@ public class GeneratorModification extends AbstractModification {
             throw new NetworkModificationException(MODIFY_GENERATOR_ERROR, "Missing required attributes to modify the equipment");
         }
         Generator generator = ModificationUtils.getInstance().getGenerator(network, modificationInfos.getEquipmentId());
-        // check min max reactive limits
         String errorMessage = "Generator '" + modificationInfos.getEquipmentId() + "' : ";
+        // check voltageLevel
+        ModificationUtils.getInstance().checkVoltageLevelInjectionModification(network, modificationInfos, generator);
+        // check min max reactive limits
         ModificationUtils.getInstance().checkReactiveLimit(generator, modificationInfos.getMinQ(), modificationInfos.getMaxQ(),
                 modificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_GENERATOR_ERROR, errorMessage);
         // check regulated terminal
@@ -99,7 +107,7 @@ public class GeneratorModification extends AbstractModification {
             ModificationUtils.getInstance().applyElementaryModifications(generator::setName, () -> generator.getOptionalName().orElse("No value"), modificationInfos.getEquipmentName(), subReportNode, "Name");
         }
         ModificationUtils.getInstance().applyElementaryModifications(generator::setEnergySource, generator::getEnergySource, modificationInfos.getEnergySource(), subReportNode, "Energy source");
-
+        modifyGeneratorVoltageLevelBusOrBusBarSectionAttributes(modificationInfos, generator, subReportNode);
         modifyGeneratorLimitsAttributes(modificationInfos, generator, subReportNode);
         modifyGeneratorSetpointsAttributes(modificationInfos, generator, subReportNode);
         modifyGeneratorShortCircuitAttributes(modificationInfos.getDirectTransX(), modificationInfos.getStepUpTransformerX(), generator, subReportNode);
@@ -489,6 +497,162 @@ public class GeneratorModification extends AbstractModification {
                 generator,
                 subReportNode);
         modifyGeneratorReactiveLimitsAttributes(modificationInfos, generator, subReportNode, subReportNodeLimits);
+    }
+
+    private void modifyGeneratorVoltageLevelBusOrBusBarSectionAttributes(GeneratorModificationInfos modificationInfos,
+                                                             Generator generator, ReportNode subReportNode) {
+        if (ModificationUtils.getInstance().isNotModificationVoltageLevelBusOrBusBarInfos(modificationInfos)) {
+            return;
+        }
+
+        Network network = generator.getNetwork();
+        Map<String, String> properties = !generator.hasProperty()
+                ? null
+                : generator.getPropertyNames().stream().collect(Collectors.toMap(name -> name, generator::getProperty));
+        GeneratorCreationInfos generatorCreationInfos = createGeneratorCreationInfos(modificationInfos, generator, subReportNode);
+        new RemoveFeederBay(generator.getId()).apply(network, true, subReportNode);
+        createGenerator(generatorCreationInfos, subReportNode, network);
+        var newGenerator = ModificationUtils.getInstance().getGenerator(network, modificationInfos.getEquipmentId());
+        if (properties != null) {
+            properties.forEach(newGenerator::setProperty);
+        }
+    }
+
+    private void createGenerator(GeneratorCreationInfos modificationInfos, ReportNode subReportNode, Network network) {
+        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId());
+        if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            GeneratorAdder generatorAdder = ModificationUtils.getInstance().createGeneratorAdderInNodeBreaker(voltageLevel, modificationInfos);
+            ModificationUtils.getInstance().createInjectionInNodeBreaker(voltageLevel, modificationInfos.getBusOrBusbarSectionId(), modificationInfos.getConnectionPosition(),
+                    modificationInfos.getConnectionDirection(), modificationInfos.getConnectionName() != null ?
+                            modificationInfos.getConnectionName() : modificationInfos.getEquipmentId(),
+                    network, generatorAdder, subReportNode);
+        } else {
+            Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, modificationInfos.getBusOrBusbarSectionId());
+            voltageLevel.newGenerator()
+                    .setId(modificationInfos.getEquipmentId())
+                    .setName(modificationInfos.getEquipmentName())
+                    .setEnergySource(modificationInfos.getEnergySource())
+                    .setBus(bus.getId())
+                    .setConnectableBus(bus.getId())
+                    .setMinP(modificationInfos.getMinP())
+                    .setMaxP(modificationInfos.getMaxP())
+                    .setRatedS(nanIfNull(modificationInfos.getRatedS()))
+                    .setTargetP(modificationInfos.getTargetP())
+                    .setTargetQ(nanIfNull(modificationInfos.getTargetQ()))
+                    .setVoltageRegulatorOn(modificationInfos.isVoltageRegulationOn())
+                    .setTargetV(nanIfNull(modificationInfos.getTargetV()))
+                    .setRegulatingTerminal(null)
+                    .add();
+        }
+        var generator = ModificationUtils.getInstance().getGenerator(network, modificationInfos.getEquipmentId());
+        ModificationUtils.getInstance().createReactiveLimits(modificationInfos, generator);
+        createCoordinatedReactiveControl(modificationInfos, generator);
+        createActivePowerControl(modificationInfos, generator);
+        createShortCircuit(modificationInfos, generator);
+        createStartUp(modificationInfos, generator);
+    }
+
+    private void createStartUp(GeneratorCreationInfos generatorCreationInfos, Generator generator) {
+        if (generatorCreationInfos.getPlannedActivePowerSetPoint() != null
+                || generatorCreationInfos.getMarginalCost() != null
+                || generatorCreationInfos.getPlannedOutageRate() != null
+                || generatorCreationInfos.getForcedOutageRate() != null) {
+            generator.newExtension(GeneratorStartupAdderImpl.class)
+                    .withPlannedActivePowerSetpoint(nanIfNull(generatorCreationInfos.getPlannedActivePowerSetPoint()))
+                    .withMarginalCost(nanIfNull(generatorCreationInfos.getMarginalCost()))
+                    .withPlannedOutageRate(nanIfNull(generatorCreationInfos.getPlannedOutageRate()))
+                    .withForcedOutageRate(nanIfNull(generatorCreationInfos.getForcedOutageRate()))
+                    .add();
+        }
+    }
+
+    private void createActivePowerControl(GeneratorCreationInfos modificationInfos, Generator generator) {
+        if (modificationInfos.getParticipate() != null && modificationInfos.getDroop() != null) {
+            generator.newExtension(ActivePowerControlAdder.class)
+                    .withParticipate(modificationInfos.getParticipate())
+                    .withDroop(modificationInfos.getDroop())
+                    .add();
+        }
+    }
+
+    private void createShortCircuit(GeneratorCreationInfos generatorCreationInfos, Generator generator) {
+        GeneratorShortCircuitAdder shortCircuitAdder = generator.newExtension(GeneratorShortCircuitAdder.class);
+        if (generatorCreationInfos.getDirectTransX() != null) {
+            shortCircuitAdder.withDirectTransX(generatorCreationInfos.getDirectTransX());
+        }
+        if (generatorCreationInfos.getStepUpTransformerX() != null) {
+            shortCircuitAdder.withStepUpTransformerX(generatorCreationInfos.getStepUpTransformerX());
+        }
+        shortCircuitAdder.add();
+    }
+
+    private void createCoordinatedReactiveControl(GeneratorCreationInfos generatorCreationInfos, Generator generator) {
+        if (generatorCreationInfos.getQPercent() != null) {
+            generator.newExtension(CoordinatedReactiveControlAdderImpl.class).withQPercent(generatorCreationInfos.getQPercent()).add();
+        }
+    }
+
+    private GeneratorCreationInfos createGeneratorCreationInfos(GeneratorModificationInfos modificationInfos, Generator generator, ReportNode subReportNode) {
+        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevelInfos(modificationInfos.getVoltageLevelId(), generator.getTerminal(),
+                generator.getNetwork(), ModificationUtils.FeederSide.INJECTION_SINGLE_SIDE, subReportNode);
+        String busOrBusbarSectionId = ModificationUtils.getInstance().getBusOrBusBarSectionInfos(modificationInfos.getBusOrBusbarSectionId(),
+                generator.getTerminal(), ModificationUtils.FeederSide.INJECTION_SINGLE_SIDE, subReportNode);
+        GeneratorCreationInfos generatorCreationInfos = GeneratorCreationInfos.builder().equipmentId(generator.getId())
+                .equipmentName(generator.getNameOrId())
+                .voltageLevelId(voltageLevel.getId())
+                .busOrBusbarSectionId(busOrBusbarSectionId)
+                .connectionName(generator.getExtension(ConnectablePosition.class) != null && generator.getExtension(ConnectablePosition.class).getFeeder() != null ?
+                        generator.getExtension(ConnectablePosition.class).getFeeder().getName().orElse(modificationInfos.getEquipmentId()) : modificationInfos.getEquipmentId())
+                .connectionDirection(generator.getExtension(ConnectablePosition.class) != null && generator.getExtension(ConnectablePosition.class).getFeeder() != null ?
+                        generator.getExtension(ConnectablePosition.class).getFeeder().getDirection() : ConnectablePosition.Direction.UNDEFINED)
+                .connectionPosition(null)
+                .terminalConnected(generator.getTerminal().isConnected())
+                .minP(generator.getMinP())
+                .maxP(generator.getMaxP())
+                .targetP(generator.getTargetP())
+                .targetQ(generator.getTargetQ())
+                .energySource(generator.getEnergySource())
+                .minP(generator.getMinP())
+                .maxP(generator.getMaxP())
+                .ratedS(generator.getRatedS())
+                .targetP(generator.getTargetP())
+                .targetQ(generator.getTargetQ())
+                .targetV(generator.getTargetV())
+                .build();
+        var generatorStartup = generator.getExtension(GeneratorStartup.class);
+        if (generatorStartup != null) {
+            generatorCreationInfos.setMarginalCost(generatorStartup.getMarginalCost());
+            generatorCreationInfos.setForcedOutageRate(generatorStartup.getForcedOutageRate());
+            generatorCreationInfos.setPlannedActivePowerSetPoint(generatorStartup.getPlannedOutageRate());
+        }
+        var generatorShortCircuit = generator.getExtension(GeneratorShortCircuit.class);
+        if (generatorShortCircuit != null) {
+            generatorCreationInfos.setDirectTransX(generatorShortCircuit.getDirectTransX());
+            generatorCreationInfos.setStepUpTransformerX(generatorShortCircuit.getStepUpTransformerX());
+        }
+        var activePowerControl = generator.getExtension(ActivePowerControl.class);
+        if (activePowerControl != null) {
+            generatorCreationInfos.setParticipate(activePowerControl.isParticipate());
+            generatorCreationInfos.setDroop((float) activePowerControl.getDroop());
+        }
+        var coordinatedReactiveControl = generator.getExtension(CoordinatedReactiveControl.class);
+        if (coordinatedReactiveControl != null) {
+            generatorCreationInfos.setQPercent(coordinatedReactiveControl.getQPercent());
+        }
+        var reactiveLimits = generator.getReactiveLimits();
+        if (reactiveLimits != null) {
+            ReactiveLimitsKind limitsKind = reactiveLimits.getKind();
+            if (limitsKind == ReactiveLimitsKind.MIN_MAX) {
+                MinMaxReactiveLimits minMaxReactiveLimits = generator.getReactiveLimits(MinMaxReactiveLimitsImpl.class);
+                generatorCreationInfos.setMaxQ(minMaxReactiveLimits.getMaxQ());
+                generatorCreationInfos.setMinQ(minMaxReactiveLimits.getMinQ());
+            } else if (limitsKind == ReactiveLimitsKind.CURVE) {
+                ReactiveCapabilityCurve capabilityCurve = generator.getReactiveLimits(ReactiveCapabilityCurve.class);
+                generatorCreationInfos.setReactiveCapabilityCurvePoints(capabilityCurve.getPoints().stream().map(point ->
+                                new ReactiveCapabilityCurvePointsInfos(point.getMinQ(), point.getMaxQ(), point.getP())).toList());
+            }
+        }
+        return generatorCreationInfos;
     }
 
     private ReportNode modifyGeneratorConnectivityAttributes(GeneratorModificationInfos modificationInfos,
