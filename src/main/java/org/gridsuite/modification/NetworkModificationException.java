@@ -37,6 +37,7 @@ public class NetworkModificationException extends PowsyblException {
         BATTERY_NOT_FOUND(HttpStatus.NOT_FOUND),
         GENERATOR_NOT_FOUND(HttpStatus.NOT_FOUND),
         TWO_WINDINGS_TRANSFORMER_NOT_FOUND(HttpStatus.NOT_FOUND),
+        BRANCH_NOT_FOUND(HttpStatus.NOT_FOUND),
         UNKNOWN_MODIFICATION_TYPE(HttpStatus.INTERNAL_SERVER_ERROR),
         UNKNOWN_EQUIPMENT_TYPE(HttpStatus.INTERNAL_SERVER_ERROR),
         WRONG_EQUIPMENT_TYPE(HttpStatus.INTERNAL_SERVER_ERROR),
