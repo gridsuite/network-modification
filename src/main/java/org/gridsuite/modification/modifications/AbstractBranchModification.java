@@ -310,24 +310,27 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
         Network network = branch.getNetwork();
         BranchCreationInfos branchCreationInfos = createBranchCreationInfos(modificationInfos, branch, subReportNode);
+        Measurements<?> measurement = (Measurements<?>) branch.getExtension(Measurements.class);
+        List<Measurement> measurements = measurement != null ? measurement.getMeasurements().stream().toList() : List.of();
         Map<String, String> properties = !branch.hasProperty()
                 ? null
                 : branch.getPropertyNames().stream().collect(Collectors.toMap(name -> name, branch::getProperty));
         new RemoveFeederBay(branch.getId()).apply(network, true, subReportNode);
-        if (branch instanceof Line && branchCreationInfos != null) {
+        if (branch instanceof Line) {
             createLine((LineCreationInfos) branchCreationInfos, subReportNode, network);
-            var newLine = ModificationUtils.getInstance().getLine(network, modificationInfos.getEquipmentId());
-            if (properties != null) {
-                properties.forEach(newLine::setProperty);
-            }
-        } else if (branch instanceof TwoWindingsTransformer && branchCreationInfos != null) {
+        } else if (branch instanceof TwoWindingsTransformer) {
             createTransformer((TwoWindingsTransformerCreationInfos) branchCreationInfos, subReportNode, network);
-            var newTransformer = ModificationUtils.getInstance().getTwoWindingsTransformer(network, modificationInfos.getEquipmentId());
-            if (properties != null) {
-                properties.forEach(newTransformer::setProperty);
-            }
         }
-
+        var newBranch = ModificationUtils.getInstance().getBranch(network, modificationInfos.getEquipmentId());
+        if (properties != null) {
+            properties.forEach(newBranch::setProperty);
+        }
+        if (!measurements.isEmpty()) {
+            MeasurementsAdder<?> measurementsAdder = branch.newExtension(MeasurementsAdder.class);
+            Measurements<?> newMeasurements = measurementsAdder.add();
+            measurements.forEach(m -> newMeasurements.newMeasurement().setId(m.getId()).setType(m.getType())
+                    .setSide(m.getSide()).setValue(m.getValue()).setValid(m.isValid()).add());
+        }
     }
 
     private void createLine(LineCreationInfos modificationInfos, ReportNode subReportNode, Network network) {
@@ -345,21 +348,21 @@ public abstract class AbstractBranchModification extends AbstractModification {
         } else {
             ModificationUtils.getInstance().createLineAdder(network, voltageLevel1, voltageLevel2, modificationInfos, false, false).add();
         }
-        Line line = network.getLine(modificationInfos.getEquipmentId());
+        Branch<?> branch = network.getBranch(modificationInfos.getEquipmentId());
         List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = modificationInfos.getOperationalLimitsGroups1();
         List<OperationalLimitsGroupInfos> opLimitsGroupSide2 = modificationInfos.getOperationalLimitsGroups2();
         if (!CollectionUtils.isEmpty(opLimitsGroupSide1)) {
-            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide1, line, ONE, subReportNode);
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide1, branch, ONE, subReportNode);
         }
         if (!CollectionUtils.isEmpty(opLimitsGroupSide2)) {
-            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide2, line, TWO, subReportNode);
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide2, branch, TWO, subReportNode);
         }
         // properties
         if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
-            line.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroup1());
+            branch.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroup1());
         }
         if (modificationInfos.getSelectedOperationalLimitsGroup2() != null) {
-            line.setSelectedOperationalLimitsGroup2(modificationInfos.getSelectedOperationalLimitsGroup2());
+            branch.setSelectedOperationalLimitsGroup2(modificationInfos.getSelectedOperationalLimitsGroup2());
         }
     }
 
@@ -381,21 +384,21 @@ public abstract class AbstractBranchModification extends AbstractModification {
             var twt = ModificationUtils.getInstance().createTwoWindingsTransformerAdder(voltageLevel1, voltageLevel2, modificationInfos, false, false).add();
             ModificationUtils.getInstance().addTapChangersToTwoWindingsTransformer(modificationInfos, twt);
         }
-        Line line = network.getLine(modificationInfos.getEquipmentId());
+        Branch<?> branch = network.getBranch(modificationInfos.getEquipmentId());
         List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = modificationInfos.getOperationalLimitsGroups1();
         List<OperationalLimitsGroupInfos> opLimitsGroupSide2 = modificationInfos.getOperationalLimitsGroups2();
         if (!CollectionUtils.isEmpty(opLimitsGroupSide1)) {
-            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide1, line, ONE, subReportNode);
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide1, branch, ONE, subReportNode);
         }
         if (!CollectionUtils.isEmpty(opLimitsGroupSide2)) {
-            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide2, line, TWO, subReportNode);
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide2, branch, TWO, subReportNode);
         }
         // properties
         if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
-            line.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroup1());
+            branch.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroup1());
         }
         if (modificationInfos.getSelectedOperationalLimitsGroup2() != null) {
-            line.setSelectedOperationalLimitsGroup2(modificationInfos.getSelectedOperationalLimitsGroup2());
+            branch.setSelectedOperationalLimitsGroup2(modificationInfos.getSelectedOperationalLimitsGroup2());
         }
     }
 
@@ -413,7 +416,6 @@ public abstract class AbstractBranchModification extends AbstractModification {
             ConnectablePosition position = line.getExtension(ConnectablePosition.class);
             ConnectablePosition.Feeder feeder1 = (position != null) ? position.getFeeder1() : null;
             ConnectablePosition.Feeder feeder2 = (position != null) ? position.getFeeder2() : null;
-
             return LineCreationInfos.builder()
                     .equipmentId(modificationInfos.getEquipmentId())
                     .equipmentName(modificationInfos.getEquipmentName() != null
@@ -445,6 +447,8 @@ public abstract class AbstractBranchModification extends AbstractModification {
                     .b1(line.getB1())
                     .g2(line.getG2())
                     .b2(line.getB2())
+                    .selectedOperationalLimitsGroup1(line.getSelectedOperationalLimitsGroupId1().orElse(null))
+                    .selectedOperationalLimitsGroup2(line.getSelectedOperationalLimitsGroupId2().orElse(null))
                     .operationalLimitsGroups1(mapOperationalLimits(line.getOperationalLimitsGroups1().stream().toList()))
                     .operationalLimitsGroups2(mapOperationalLimits(line.getOperationalLimitsGroups2().stream().toList()))
                     .build();
@@ -485,11 +489,52 @@ public abstract class AbstractBranchModification extends AbstractModification {
                     .ratedU1(transformer.getRatedU1())
                     .ratedU2(transformer.getRatedU2())
                     .ratedS(transformer.getRatedS())
+                    .selectedOperationalLimitsGroup1(transformer.getSelectedOperationalLimitsGroupId1().orElse(null))
+                    .selectedOperationalLimitsGroup2(transformer.getSelectedOperationalLimitsGroupId2().orElse(null))
                     .operationalLimitsGroups1(mapOperationalLimits(transformer.getOperationalLimitsGroups1().stream().toList()))
                     .operationalLimitsGroups2(mapOperationalLimits(transformer.getOperationalLimitsGroups2().stream().toList()))
+                    .ratioTapChanger(transformer.getRatioTapChanger() == null ? null :
+                            RatioTapChangerCreationInfos.builder()
+                                    .lowTapPosition(transformer.getRatioTapChanger().getLowTapPosition())
+                                    .tapPosition(transformer.getRatioTapChanger().getTapPosition())
+                                    .loadTapChangingCapabilities(transformer.getRatioTapChanger().hasLoadTapChangingCapabilities())
+                                    .targetV(transformer.getRatioTapChanger().getTargetV())
+                                    .targetDeadband(transformer.getRatioTapChanger().getTargetDeadband())
+                                    .steps(mapRatioTapChangerSteps(transformer.getRatioTapChanger().getAllSteps())).build())
+                    .phaseTapChanger(transformer.getPhaseTapChanger() == null ? null :
+                            PhaseTapChangerCreationInfos.builder()
+                                    .lowTapPosition(transformer.getPhaseTapChanger().getLowTapPosition())
+                                    .tapPosition(transformer.getPhaseTapChanger().getTapPosition())
+                                    .targetDeadband(transformer.getPhaseTapChanger().getTargetDeadband())
+                                    .regulationMode(transformer.getPhaseTapChanger().getRegulationMode())
+                                    .steps(mapPhaseTapChangerSteps(transformer.getPhaseTapChanger().getAllSteps())).build())
                     .build();
         }
         return null;
+    }
+
+    private List<TapChangerStepCreationInfos> mapRatioTapChangerSteps(Map<Integer, RatioTapChangerStep> steps) {
+        return steps == null ? null : steps.values().stream()
+                .map(m -> TapChangerStepCreationInfos.builder()
+                        .r(m.getR())
+                        .b(m.getB())
+                        .g(m.getG())
+                        .rho(m.getRho())
+                        .alpha(m.getRho())
+                        .build())
+                .toList();
+    }
+
+    private List<TapChangerStepCreationInfos> mapPhaseTapChangerSteps(Map<Integer, PhaseTapChangerStep> steps) {
+        return steps == null ? null : steps.values().stream()
+                .map(m -> TapChangerStepCreationInfos.builder()
+                        .r(m.getR())
+                        .b(m.getB())
+                        .g(m.getG())
+                        .rho(m.getRho())
+                        .alpha(m.getRho())
+                        .build())
+                .toList();
     }
 
     private List<OperationalLimitsGroupInfos> mapOperationalLimits(List<OperationalLimitsGroup> limitsGroups) {

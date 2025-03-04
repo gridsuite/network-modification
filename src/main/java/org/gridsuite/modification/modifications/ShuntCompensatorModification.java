@@ -283,6 +283,7 @@ public class ShuntCompensatorModification extends AbstractModification {
                 .maximumSectionCount(shuntCompensator.getMaximumSectionCount())
                 .sectionCount(shuntCompensator.getSectionCount())
                 .maxSusceptance(shuntCompensator.getB())
+                .shuntCompensatorType(shuntCompensator.getB() >= 0 ? ShuntCompensatorType.CAPACITOR : ShuntCompensatorType.REACTOR)
                 .build();
     }
 

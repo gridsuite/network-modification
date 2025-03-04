@@ -105,6 +105,14 @@ public final class ModificationUtils {
         return windingsTransformer;
     }
 
+    public Branch<?> getBranch(Network network, String branchId) {
+        Branch<?> branch = network.getBranch(branchId);
+        if (branch == null) {
+            throw new NetworkModificationException(BRANCH_NOT_FOUND, branchId);
+        }
+        return branch;
+    }
+
     public Load getLoad(Network network, String loadId) {
         Load load = network.getLoad(loadId);
         if (load == null) {
