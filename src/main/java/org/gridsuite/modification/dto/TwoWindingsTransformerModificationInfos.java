@@ -52,6 +52,12 @@ public class TwoWindingsTransformerModificationInfos extends BranchModificationI
     @Builder.Default
     private PhaseTapChangerModificationInfos phaseTapChanger = new PhaseTapChangerModificationInfos();
 
+    @Schema(description = "Ratio tap changer to be estimated status")
+    private AttributeModification<Boolean> ratioTapChangerToBeEstimated;
+
+    @Schema(description = "Phase tap changer to be estimated status")
+    private AttributeModification<Boolean> phaseTapChangerToBeEstimated;
+
     @Override
     public AbstractModification toModification() {
         return new TwoWindingsTransformerModification(this);
