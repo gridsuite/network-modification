@@ -79,9 +79,9 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
 
     private void modifyTwoWindingsTransformer(TwoWindingsTransformer twoWindingsTransformer, BranchModificationInfos twoWindingsTransformerModificationInfos, ReportNode subReportNode, Network network) {
         modifyBranch(twoWindingsTransformer, twoWindingsTransformerModificationInfos, subReportNode, "twoWindingsTransformerModification", "TwoWindingsTransformer with id=${id} modified :");
-        addTapChangersToTwoWindingsTransformer(network, (TwoWindingsTransformerModificationInfos) modificationInfos, twoWindingsTransformer, subReportNode);
-        PropertiesUtils.applyProperties(twoWindingsTransformer, subReportNode, modificationInfos.getProperties(), "TwoWindingsTransformerProperties");
-        modifyToBeEstimated((TwoWindingsTransformerModificationInfos) modificationInfos, twoWindingsTransformer, subReportNode);
+        updateStateEstimationData((TwoWindingsTransformerModificationInfos) twoWindingsTransformerModificationInfos, twoWindingsTransformer, subReportNode);
+        addTapChangersToTwoWindingsTransformer(network, (TwoWindingsTransformerModificationInfos) twoWindingsTransformerModificationInfos, twoWindingsTransformer, subReportNode);
+        PropertiesUtils.applyProperties(twoWindingsTransformer, subReportNode, twoWindingsTransformerModificationInfos.getProperties(), "TwoWindingsTransformerProperties");
     }
 
     @Override
@@ -198,11 +198,18 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         }
     }
 
-    private void modifyToBeEstimated(TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos, TwoWindingsTransformer twt, ReportNode subReportNode) {
+    private void updateStateEstimationData(TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos, TwoWindingsTransformer twt, ReportNode subReportNode) {
+        // Common part for Branch measurements
+        ReportNode estimSubReportNode = updateMeasurements(twt, twoWindingsTransformerModificationInfos, subReportNode);
+
+        // toBeEstimated part specific to 2WT
         Boolean rtcToBeEstim = twoWindingsTransformerModificationInfos.getRatioTapChangerToBeEstimated() != null ? twoWindingsTransformerModificationInfos.getRatioTapChangerToBeEstimated().getValue() : null;
         Boolean ptcToBeEstim = twoWindingsTransformerModificationInfos.getPhaseTapChangerToBeEstimated() != null ? twoWindingsTransformerModificationInfos.getPhaseTapChangerToBeEstimated().getValue() : null;
         if (rtcToBeEstim == null && ptcToBeEstim == null) {
             return;
+        }
+        if (estimSubReportNode == null) {
+            estimSubReportNode = subReportNode.newReportNode().withMessageTemplate("StateEstimationData", "State estimation").add();
         }
         TwoWindingsTransformerToBeEstimated toBeEstimated = twt.getExtension(TwoWindingsTransformerToBeEstimated.class);
         if (toBeEstimated == null) {
@@ -213,14 +220,14 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         if (rtcToBeEstim != null) {
             boolean oldValue = toBeEstimated.shouldEstimateRatioTapChanger();
             toBeEstimated.shouldEstimateRatioTapChanger(rtcToBeEstim);
-            reports.add(ModificationUtils.buildModificationReport(oldValue, rtcToBeEstim, "Ratio tap changer tap position estimation", 1, TypedValue.INFO_SEVERITY));
+            reports.add(ModificationUtils.buildModificationReport(oldValue, rtcToBeEstim, "Ratio tap changer to be estimated", 1, TypedValue.INFO_SEVERITY));
         }
         if (ptcToBeEstim != null) {
             boolean oldValue = toBeEstimated.shouldEstimatePhaseTapChanger();
             toBeEstimated.shouldEstimatePhaseTapChanger(ptcToBeEstim);
-            reports.add(ModificationUtils.buildModificationReport(oldValue, ptcToBeEstim, "Phase tap changer tap position estimation", 1, TypedValue.INFO_SEVERITY));
+            reports.add(ModificationUtils.buildModificationReport(oldValue, ptcToBeEstim, "Phase tap changer tap to be estimated", 1, TypedValue.INFO_SEVERITY));
         }
-        ModificationUtils.getInstance().reportModifications(subReportNode, reports, "twtToBeEstimated", "Estimate tap position");
+        ModificationUtils.getInstance().reportModifications(estimSubReportNode, reports, "twtToBeEstimated", "    Estimate tap position");
     }
 
     private void addTapChangersToTwoWindingsTransformer(Network network, TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos, TwoWindingsTransformer twt, ReportNode subReportNode) {

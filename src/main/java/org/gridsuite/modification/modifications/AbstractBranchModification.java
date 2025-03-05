@@ -84,11 +84,9 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
 
         updateConnections(branch, branchModificationInfos);
-
-        updateMeasurements(branch, branchModificationInfos, subReportNode);
     }
 
-    private void updateMeasurements(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode) {
+    public ReportNode updateMeasurements(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode) {
         Double p1Value = branchModificationInfos.getP1MeasurementValue() != null ? branchModificationInfos.getP1MeasurementValue().getValue() : null;
         Double q1Value = branchModificationInfos.getQ1MeasurementValue() != null ? branchModificationInfos.getQ1MeasurementValue().getValue() : null;
         Double p2Value = branchModificationInfos.getP2MeasurementValue() != null ? branchModificationInfos.getP2MeasurementValue().getValue() : null;
@@ -99,7 +97,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
         Boolean q2Validity = branchModificationInfos.getQ2MeasurementValidity() != null ? branchModificationInfos.getQ2MeasurementValidity().getValue() : null;
         if (p1Value == null && p1Validity == null && q1Value == null && q1Validity == null && p2Value == null && p2Validity == null && q2Value == null && q2Validity == null) {
             // no measurement modification requested
-            return;
+            return null;
         }
         Measurements<?> measurements = (Measurements<?>) branch.getExtension(Measurements.class);
         if (measurements == null) {
@@ -117,14 +115,15 @@ public abstract class AbstractBranchModification extends AbstractModification {
         // report changes
         ReportNode estimSubReportNode = null;
         if (!side1Reports.isEmpty() || !side2Reports.isEmpty()) {
-            estimSubReportNode = subReportNode.newReportNode().withMessageTemplate("measurements", "State estimation").add();
+            estimSubReportNode = subReportNode.newReportNode().withMessageTemplate("StateEstimationData", "State estimation").add();
         }
         if (!side1Reports.isEmpty()) {
-            ModificationUtils.getInstance().reportModifications(estimSubReportNode, side1Reports, "measurementsSide1", "Side 1");
+            ModificationUtils.getInstance().reportModifications(estimSubReportNode, side1Reports, "measurementsSide1", "    Side 1");
         }
         if (!side2Reports.isEmpty()) {
-            ModificationUtils.getInstance().reportModifications(estimSubReportNode, side2Reports, "measurementsSide2", "Side 2");
+            ModificationUtils.getInstance().reportModifications(estimSubReportNode, side2Reports, "measurementsSide2", "    Side 2");
         }
+        return estimSubReportNode;
     }
 
     private void upsertMeasurement(Measurements<?> measurements, Measurement.Type type, ThreeSides side, Double value, Boolean validity, List<ReportNode> reports) {
