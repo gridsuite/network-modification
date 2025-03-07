@@ -19,6 +19,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimated;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
@@ -94,6 +95,8 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 .p1MeasurementValidity(new AttributeModification<>(MEASUREMENT_P_VALID, OperationType.SET))
                 .q1MeasurementValue(new AttributeModification<>(MEASUREMENT_Q_VALUE, OperationType.SET))
                 .q1MeasurementValidity(new AttributeModification<>(MEASUREMENT_Q_VALID, OperationType.SET))
+                .ratioTapChangerToBeEstimated(new AttributeModification<>(true, OperationType.SET))
+                .phaseTapChangerToBeEstimated(new AttributeModification<>(false, OperationType.SET))
                 .ratioTapChanger(RatioTapChangerModificationInfos.builder()
                         .enabled(new AttributeModification<>(true, OperationType.SET))
                         .loadTapChangingCapabilities(new AttributeModification<>(true, OperationType.SET))
@@ -188,6 +191,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertEquals(42.0, temporaryLimit.getValue());
         assertEquals(PROPERTY_VALUE, getNetwork().getTwoWindingsTransformer("trf1").getProperty(PROPERTY_NAME));
         assertMeasurements(modifiedTwoWindingsTransformer);
+        assertToBeEstimated(modifiedTwoWindingsTransformer);
     }
 
     private void assertMeasurements(TwoWindingsTransformer twt) {
@@ -199,6 +203,13 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         Collection<Measurement> reactivePowerMeasurements = measurements.getMeasurements(Measurement.Type.REACTIVE_POWER).stream().toList();
         assertFalse(CollectionUtils.isEmpty(reactivePowerMeasurements));
         assertThat(reactivePowerMeasurements).allMatch(m -> m.getValue() == MEASUREMENT_Q_VALUE && m.isValid() == MEASUREMENT_Q_VALID);
+    }
+
+    private void assertToBeEstimated(TwoWindingsTransformer twt) {
+        TwoWindingsTransformerToBeEstimated toBeEstimated = twt.getExtension(TwoWindingsTransformerToBeEstimated.class);
+        assertNotNull(toBeEstimated);
+        assertTrue(toBeEstimated.shouldEstimateRatioTapChanger());
+        assertFalse(toBeEstimated.shouldEstimatePhaseTapChanger());
     }
 
     @Override

@@ -51,6 +51,7 @@ public class LineModification extends AbstractBranchModification {
 
     private void modifyLine(Line line, BranchModificationInfos lineModificationInfos, ReportNode subReportNode) {
         modifyBranch(line, lineModificationInfos, subReportNode, "lineModification", "Line with id=${id} modified :");
+        updateMeasurements(line, lineModificationInfos, subReportNode);
         PropertiesUtils.applyProperties(line, subReportNode, modificationInfos.getProperties(), "LineProperties");
     }
 
