@@ -225,7 +225,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         if (ptcToBeEstim != null) {
             boolean oldValue = toBeEstimated.shouldEstimatePhaseTapChanger();
             toBeEstimated.shouldEstimatePhaseTapChanger(ptcToBeEstim);
-            reports.add(ModificationUtils.buildModificationReport(oldValue, ptcToBeEstim, "Phase tap changer tap to be estimated", 1, TypedValue.INFO_SEVERITY));
+            reports.add(ModificationUtils.buildModificationReport(oldValue, ptcToBeEstim, "Phase tap changer to be estimated", 1, TypedValue.INFO_SEVERITY));
         }
         ModificationUtils.getInstance().reportModifications(estimSubReportNode, reports, "twtToBeEstimated", "    Estimate tap position");
     }
