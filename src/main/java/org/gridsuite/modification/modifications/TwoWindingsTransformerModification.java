@@ -471,6 +471,25 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
             List<ReportNode> ratioTapChangerReports, boolean isModification) {
         if (ratioTapChangerInfos.getRegulating() != null && ratioTapChangerInfos.getRegulating().getValue() != null) {
             boolean regulating = ratioTapChangerInfos.getRegulating().getValue();
+            // if regulating and targetDeadband is null then it is set by default to 0
+            boolean targetDeadBandIsNull = false;
+            if (isModification) {
+                if (Double.isNaN(ratioTapChanger.getTargetDeadband()) && ratioTapChangerInfos.getTargetDeadband() == null) {
+                    targetDeadBandIsNull = true;
+                }
+            } else {
+                if (ratioTapChangerInfos.getTargetDeadband() == null) {
+                    targetDeadBandIsNull = true;
+                }
+            }
+            if (targetDeadBandIsNull) {
+                ReportNode targetDeadbandReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
+                    isModification ? ratioTapChanger::setTargetDeadband
+                        : ratioTapChangerAdder::setTargetDeadband,
+                    isModification ? ratioTapChanger::getTargetDeadband : () -> null,
+                    AttributeModification.toAttributeModification(0d, OperationType.SET), "Target deadband", 2);
+                ratioTapChangerReports.add(targetDeadbandReportNode);
+            }
 
             RatioTapChanger.RegulationMode regulationMode = regulating ? RatioTapChanger.RegulationMode.VOLTAGE : RatioTapChanger.RegulationMode.REACTIVE_POWER;
             AttributeModification<RatioTapChanger.RegulationMode> regulationModeModification = AttributeModification.toAttributeModification(regulationMode, OperationType.SET);
