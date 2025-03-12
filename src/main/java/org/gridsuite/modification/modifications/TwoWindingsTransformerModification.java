@@ -31,6 +31,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
     private static final String RATIO_TAP_CHANGER_SUBREPORTER_DEFAULT_MESSAGE = "Ratio tap changer";
     private static final String PHASE_TAP_CHANGER_SUBREPORTER_DEFAULT_MESSAGE = "Phase tap changer";
     public static final String MAGNETIZING_CONDUCTANCE_FIELD_NAME = "Magnetizing conductance";
+    private static final String TARGET_DEADBAND = "Target deadband";
 
     public TwoWindingsTransformerModification(TwoWindingsTransformerModificationInfos modificationInfos) {
         super(modificationInfos);
@@ -393,7 +394,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         ReportNode targetDeadbandReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
             isModification ? phaseTapChanger::setTargetDeadband : phaseTapChangerAdder::setTargetDeadband,
             isModification ? phaseTapChanger::getTargetDeadband : () -> null,
-            targetDeadbandModification, "Target deadband", 1);
+            targetDeadbandModification, TARGET_DEADBAND, 1);
         if (regulationReports != null && targetDeadbandReportNode != null) {
             regulationReports.add(targetDeadbandReportNode);
         }
@@ -477,17 +478,13 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 if (Double.isNaN(ratioTapChanger.getTargetDeadband()) && ratioTapChangerInfos.getTargetDeadband() == null) {
                     targetDeadBandIsNull = true;
                 }
-            } else {
-                if (ratioTapChangerInfos.getTargetDeadband() == null) {
-                    targetDeadBandIsNull = true;
-                }
             }
             if (targetDeadBandIsNull) {
                 ReportNode targetDeadbandReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
                     isModification ? ratioTapChanger::setTargetDeadband
                         : ratioTapChangerAdder::setTargetDeadband,
                     isModification ? ratioTapChanger::getTargetDeadband : () -> null,
-                    AttributeModification.toAttributeModification(0d, OperationType.SET), "Target deadband", 2);
+                    AttributeModification.toAttributeModification(0d, OperationType.SET), TARGET_DEADBAND, 2);
                 ratioTapChangerReports.add(targetDeadbandReportNode);
             }
 
@@ -536,7 +533,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 isModification ? ratioTapChanger::setTargetDeadband
                         : ratioTapChangerAdder::setTargetDeadband,
                 isModification ? ratioTapChanger::getTargetDeadband : () -> null,
-                targetDeadband, "Target deadband", 2);
+                targetDeadband, TARGET_DEADBAND, 2);
 
         if (voltageRegulationReports != null) {
             if (targetVoltageReportNode != null) {
