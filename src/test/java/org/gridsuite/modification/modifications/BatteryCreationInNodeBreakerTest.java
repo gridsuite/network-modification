@@ -35,9 +35,11 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
 
     @Override
     public void checkModification() {
+        Network network = getNetwork();
         BatteryCreationInfos batteryCreationInfos = (BatteryCreationInfos) buildModification();
         batteryCreationInfos.setBusOrBusbarSectionId("notFoundBus");
-        assertThrows(NetworkModificationException.class, () -> batteryCreationInfos.toModification().check(getNetwork()));
+        BatteryCreation batteryCreation = (BatteryCreation) batteryCreationInfos.toModification();
+        assertThrows(NetworkModificationException.class, () -> batteryCreation.check(network));
 
         BatteryCreationInfos batteryCreationInfos1 = BatteryCreationInfos.builder()
             .equipmentId("v4Battery")
@@ -45,18 +47,20 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
             .busOrBusbarSectionId("1B")
             .droop(101f)
             .build();
+        BatteryCreation batteryCreation1 = (BatteryCreation) batteryCreationInfos1.toModification();
         String message = assertThrows(NetworkModificationException.class,
-            () -> batteryCreationInfos1.toModification().check(getNetwork())).getMessage();
+            () -> batteryCreation1.check(network)).getMessage();
         assertEquals("CREATE_BATTERY_ERROR : Battery 'v4Battery' : must have Droop between 0 and 100", message);
 
-        BatteryCreationInfos batteryModificationInfos2 = BatteryCreationInfos.builder()
+        BatteryCreationInfos batteryCreationInfos2 = BatteryCreationInfos.builder()
             .equipmentId("v4Battery")
             .voltageLevelId("v2")
             .busOrBusbarSectionId("1B")
             .droop(-1f)
             .build();
+        BatteryCreation batteryCreation2 = (BatteryCreation) batteryCreationInfos2.toModification();
         message = assertThrows(NetworkModificationException.class,
-            () -> batteryModificationInfos2.toModification().check(getNetwork())).getMessage();
+            () -> batteryCreation2.check(network)).getMessage();
         assertEquals("CREATE_BATTERY_ERROR : Battery 'v4Battery' : must have Droop between 0 and 100", message);
     }
 

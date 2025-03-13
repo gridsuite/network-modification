@@ -437,6 +437,7 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
 
     @Test
     void testCreationInfoChecks() {
+        Network network = getNetwork();
         TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos = TwoWindingsTransformerCreationInfos.builder()
             .equipmentId("twt3")
             .voltageLevelId1("v1")
@@ -445,11 +446,12 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
             .busOrBusbarSectionId2("1A")
             .r(-1d)
             .build();
+        TwoWindingsTransformerCreation twoWindingsTransformerCreation = (TwoWindingsTransformerCreation) twoWindingsTransformerCreationInfos.toModification();
         String message = assertThrows(NetworkModificationException.class,
-            () -> twoWindingsTransformerCreationInfos.toModification().check(getNetwork())).getMessage();
+            () -> twoWindingsTransformerCreation.check(network)).getMessage();
         assertEquals("CREATE_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'twt3' : can not have a negative value for R", message);
 
-        TwoWindingsTransformerCreationInfos twoWindingsTransformerModificationInfos2 = TwoWindingsTransformerCreationInfos.builder()
+        TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos2 = TwoWindingsTransformerCreationInfos.builder()
             .equipmentId("twt3")
             .voltageLevelId1("v1")
             .busOrBusbarSectionId1("1.1")
@@ -457,11 +459,12 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
             .busOrBusbarSectionId2("1A")
             .g(-2d)
             .build();
+        TwoWindingsTransformerCreation twoWindingsTransformerCreation2 = (TwoWindingsTransformerCreation) twoWindingsTransformerCreationInfos2.toModification();
         message = assertThrows(NetworkModificationException.class,
-            () -> twoWindingsTransformerModificationInfos2.toModification().check(getNetwork())).getMessage();
+            () -> twoWindingsTransformerCreation2.check(network)).getMessage();
         assertEquals("CREATE_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'twt3' : can not have a negative value for G", message);
 
-        TwoWindingsTransformerCreationInfos twoWindingsTransformerModificationInfos3 = TwoWindingsTransformerCreationInfos.builder()
+        TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos3 = TwoWindingsTransformerCreationInfos.builder()
             .equipmentId("twt3")
             .voltageLevelId1("v1")
             .busOrBusbarSectionId1("1.1")
@@ -469,11 +472,12 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
             .busOrBusbarSectionId2("1A")
             .ratedU1(-1)
             .build();
+        TwoWindingsTransformerCreation twoWindingsTransformerCreation3 = (TwoWindingsTransformerCreation) twoWindingsTransformerCreationInfos3.toModification();
         message = assertThrows(NetworkModificationException.class,
-            () -> twoWindingsTransformerModificationInfos3.toModification().check(getNetwork())).getMessage();
+            () -> twoWindingsTransformerCreation3.check(network)).getMessage();
         assertEquals("CREATE_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'twt3' : can not have a negative value for Rated U1", message);
 
-        TwoWindingsTransformerCreationInfos twoWindingsTransformerModificationInfos4 = TwoWindingsTransformerCreationInfos.builder()
+        TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos4 = TwoWindingsTransformerCreationInfos.builder()
             .equipmentId("twt3")
             .voltageLevelId1("v1")
             .busOrBusbarSectionId1("1.1")
@@ -481,8 +485,9 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
             .busOrBusbarSectionId2("1A")
             .ratedU2(-1)
             .build();
+        TwoWindingsTransformerCreation twoWindingsTransformerCreation4 = (TwoWindingsTransformerCreation) twoWindingsTransformerCreationInfos4.toModification();
         message = assertThrows(NetworkModificationException.class,
-            () -> twoWindingsTransformerModificationInfos4.toModification().check(getNetwork())).getMessage();
+            () -> twoWindingsTransformerCreation4.check(network)).getMessage();
         assertEquals("CREATE_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'twt3' : can not have a negative value for Rated U2", message);
     }
 }
