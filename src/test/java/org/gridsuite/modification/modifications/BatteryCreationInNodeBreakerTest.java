@@ -66,7 +66,7 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         BatteryCreationInfos batteryCreationInfos3 = BatteryCreationInfos.builder()
             .equipmentId("v3Battery")
             .build();
-        BatteryCreation batteryCreation3= (BatteryCreation) batteryCreationInfos3.toModification();
+        BatteryCreation batteryCreation3 = (BatteryCreation) batteryCreationInfos3.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> batteryCreation3.check(network)).getMessage();
         assertEquals("BATTERY_ALREADY_EXISTS : v3Battery", message);
