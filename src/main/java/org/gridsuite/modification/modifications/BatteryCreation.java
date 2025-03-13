@@ -42,6 +42,7 @@ public class BatteryCreation extends AbstractModification {
         if (network.getBattery(modificationInfos.getEquipmentId()) != null) {
             throw new NetworkModificationException(BATTERY_ALREADY_EXISTS, modificationInfos.getEquipmentId());
         }
+        String errorMessage = "Battery '" + modificationInfos.getEquipmentId() + "' : ";
 
         // check connectivity
         ModificationUtils.getInstance()
@@ -56,6 +57,11 @@ public class BatteryCreation extends AbstractModification {
 
         ModificationUtils.getInstance().checkActivePowerControl(modificationInfos.getParticipate(),
             modificationInfos.getDroop(), CREATE_BATTERY_ERROR, String.format(ERROR_MESSAGE, modificationInfos.getEquipmentId()));
+        checkBatteryCreationInfos(errorMessage);
+    }
+
+    private void checkBatteryCreationInfos(String errorMessage) {
+        checkIsPercentage(errorMessage, modificationInfos.getDroop(), CREATE_BATTERY_ERROR, "Droop");
     }
 
     @Override

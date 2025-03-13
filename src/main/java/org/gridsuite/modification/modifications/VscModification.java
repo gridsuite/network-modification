@@ -21,12 +21,16 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_VSC_ERROR;
 import static org.gridsuite.modification.NetworkModificationException.Type.WRONG_HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL;
 import static org.gridsuite.modification.modifications.VscCreation.VSC_CHARACTERISTICS;
 import static org.gridsuite.modification.modifications.VscCreation.VSC_SETPOINTS;
+import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 
 /**
  * @author jamal kheyyad <jamal.kheyyad at rte-france.com>
@@ -63,12 +67,30 @@ public class VscModification extends AbstractModification {
             throw new NetworkModificationException(MODIFY_VSC_ERROR, "Missing required attributes to modify the equipment");
         }
         HvdcLine hvdcLine = ModificationUtils.getInstance().getHvdcLine(network, modificationInfos.getEquipmentId());
+        String errorMessage = "HVDC vsc '" + modificationInfos.getEquipmentId() + "' : ";
 
         VscConverterStation converterStation1 = ModificationUtils.getInstance().getVscConverterStation(network, hvdcLine.getConverterStation1().getId());
         VscConverterStation converterStation2 = ModificationUtils.getInstance().getVscConverterStation(network, hvdcLine.getConverterStation2().getId());
         checkConverterStation(modificationInfos.getConverterStation1(), converterStation1);
         checkConverterStation(modificationInfos.getConverterStation2(), converterStation2);
         checkDroop(hvdcLine);
+        checkVscModification(errorMessage);
+    }
+
+    private void checkVscModification(String errorMessage) {
+        if (modificationInfos.getR() != null && modificationInfos.getR().getValue() != null) {
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getR().getValue(), MODIFY_VSC_ERROR, "R");
+        }
+        if (modificationInfos.getConverterStation1().getVoltageSetpoint() != null &&
+            modificationInfos.getConverterStation1().getVoltageSetpoint().getValue() != null) {
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getConverterStation1().getVoltageSetpoint().getValue(),
+                MODIFY_VSC_ERROR, "voltage set point side 1");
+        }
+        if (modificationInfos.getConverterStation2().getVoltageSetpoint() != null &&
+            modificationInfos.getConverterStation2().getVoltageSetpoint().getValue() != null) {
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getConverterStation2().getVoltageSetpoint().getValue(),
+                MODIFY_VSC_ERROR, "voltage set point side 2");
+        }
     }
 
     private void checkDroop(HvdcLine hvdcLine) {

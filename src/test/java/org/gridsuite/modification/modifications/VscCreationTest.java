@@ -15,6 +15,7 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -230,6 +231,44 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         VscCreation vscCreation5 = (VscCreation) vscCreationInfos.toModification();
         exception = assertThrows(NetworkModificationException.class, () -> vscCreation5.check(getNetwork()));
         assertEquals(new NetworkModificationException(HVDC_LINE_ALREADY_EXISTS, "hvdcLine").getMessage(), exception.getMessage());
+
+        VscCreationInfos vscCreationInfos1 = VscCreationInfos.builder()
+            .equipmentId("hvdcLine2")
+            .converterStation1(buildConverterStationWithReactiveCapabilityCurve())
+            .converterStation2(buildConverterStationWithMinMaxReactiveLimits())
+            .r(-1d)
+            .build();
+        String message = assertThrows(NetworkModificationException.class,
+            () -> vscCreationInfos1.toModification().check(getNetwork())).getMessage();
+        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : can not have a negative value for R", message);
+
+        VscCreationInfos vscCreationInfos2 = VscCreationInfos.builder()
+            .equipmentId("hvdcLine2")
+            .converterStation1(ConverterStationCreationInfos.builder()
+                .equipmentId("station1")
+                .voltageLevelId("v2")
+                .busOrBusbarSectionId("1B")
+                .voltageSetpoint(-100d)
+                .build())
+            .converterStation2(buildConverterStationWithReactiveCapabilityCurve())
+            .build();
+        message = assertThrows(NetworkModificationException.class,
+            () -> vscCreationInfos2.toModification().check(getNetwork())).getMessage();
+        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : can not have a negative value for voltage set point side 1", message);
+
+        VscCreationInfos vscCreationInfos3 = VscCreationInfos.builder()
+            .equipmentId("hvdcLine2")
+            .converterStation1(buildConverterStationWithReactiveCapabilityCurve())
+            .converterStation2(ConverterStationCreationInfos.builder()
+                .equipmentId("station2")
+                .voltageLevelId("v2")
+                .busOrBusbarSectionId("1B")
+                .voltageSetpoint(-100d)
+                .build())
+            .build();
+        message = assertThrows(NetworkModificationException.class,
+            () -> vscCreationInfos3.toModification().check(getNetwork())).getMessage();
+        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : can not have a negative value for voltage set point side 2", message);
     }
 
     @Test

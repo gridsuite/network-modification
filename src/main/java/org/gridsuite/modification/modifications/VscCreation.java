@@ -22,8 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
-import static org.gridsuite.modification.utils.ModificationUtils.createInjectionInNodeBreaker;
-import static org.gridsuite.modification.utils.ModificationUtils.reportInjectionCreationConnectivity;
+import static org.gridsuite.modification.utils.ModificationUtils.*;
 
 /**
  * @author Seddik Yengui <seddik.yengui at rte-france.com>
@@ -45,10 +44,17 @@ public class VscCreation extends AbstractModification {
         if (network.getHvdcLine(modificationInfos.getEquipmentId()) != null) {
             throw new NetworkModificationException(HVDC_LINE_ALREADY_EXISTS, modificationInfos.getEquipmentId());
         }
-
+        String errorMessage = "HVDC vsc '" + modificationInfos.getEquipmentId() + "' : ";
         checkConverterStation(network, modificationInfos.getConverterStation1());
         checkConverterStation(network, modificationInfos.getConverterStation2());
         checkDroop();
+        checkVscCreation(errorMessage);
+    }
+
+    private void checkVscCreation(String errorMessage) {
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getR(), CREATE_VSC_ERROR, "R");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getConverterStation1().getVoltageSetpoint(), CREATE_VSC_ERROR, "voltage set point side 1");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getConverterStation2().getVoltageSetpoint(), CREATE_VSC_ERROR, "voltage set point side 2");
     }
 
     private void checkDroop() {

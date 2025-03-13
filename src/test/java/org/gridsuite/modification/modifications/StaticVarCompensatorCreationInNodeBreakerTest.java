@@ -12,8 +12,13 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.dto.FreePropertyInfos;
+import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.dto.StaticVarCompensatorCreationInfos;
+import org.gridsuite.modification.dto.VoltageRegulationType;
 import org.gridsuite.modification.utils.NetworkCreation;
+import org.junit.jupiter.api.Test;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -198,5 +203,92 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
         Map<String, String> updatedValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         });
         assertEquals("idStaticVarCompensator1", updatedValues.get("equipmentId"));
+    }
+
+    @Test
+    void testCreationInfoChecks() {
+        StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos = StaticVarCompensatorCreationInfos.builder()
+            .equipmentId("svc3")
+            .voltageLevelId("v2")
+            .busOrBusbarSectionId("1B")
+            .maxSusceptance(224.0)
+            .minSusceptance(200.0)
+            .regulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+            .reactivePowerSetpoint(300.0)
+            .voltageRegulationType(VoltageRegulationType.LOCAL)
+            .standbyAutomatonOn(false)
+            .voltageSetpoint(-1d)
+            .build();
+        String message = assertThrows(NetworkModificationException.class,
+            () -> staticVarCompensatorCreationInfos.toModification().check(getNetwork())).getMessage();
+        assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : Static var compensator 'svc3' : can not have a negative value for voltage setpoint", message);
+
+        StaticVarCompensatorCreationInfos staticVarCompensatorModificationInfos2 = StaticVarCompensatorCreationInfos.builder()
+            .equipmentId("svc3")
+            .voltageLevelId("v2")
+            .busOrBusbarSectionId("1B")
+            .maxSusceptance(224.0)
+            .minSusceptance(200.0)
+            .regulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+            .reactivePowerSetpoint(300.0)
+            .voltageRegulationType(VoltageRegulationType.LOCAL)
+            .standbyAutomatonOn(false)
+            .voltageSetpoint(100d)
+            .highVoltageSetpoint(-1d)
+            .build();
+        message = assertThrows(NetworkModificationException.class,
+            () -> staticVarCompensatorModificationInfos2.toModification().check(getNetwork())).getMessage();
+        assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : Static var compensator 'svc3' : can not have a negative value for high voltage setpoint", message);
+
+        StaticVarCompensatorCreationInfos staticVarCompensatorModificationInfos3 = StaticVarCompensatorCreationInfos.builder()
+            .equipmentId("svc3")
+            .voltageLevelId("v2")
+            .busOrBusbarSectionId("1B")
+            .maxSusceptance(224.0)
+            .minSusceptance(200.0)
+            .regulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+            .reactivePowerSetpoint(300.0)
+            .voltageRegulationType(VoltageRegulationType.LOCAL)
+            .standbyAutomatonOn(false)
+            .voltageSetpoint(100d)
+            .lowVoltageSetpoint(-1d)
+            .build();
+        message = assertThrows(NetworkModificationException.class,
+            () -> staticVarCompensatorModificationInfos3.toModification().check(getNetwork())).getMessage();
+        assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : Static var compensator 'svc3' : can not have a negative value for low voltage setpoint", message);
+
+        StaticVarCompensatorCreationInfos staticVarCompensatorModificationInfos4 = StaticVarCompensatorCreationInfos.builder()
+            .equipmentId("svc3")
+            .voltageLevelId("v2")
+            .busOrBusbarSectionId("1B")
+            .maxSusceptance(224.0)
+            .minSusceptance(200.0)
+            .regulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+            .reactivePowerSetpoint(300.0)
+            .voltageRegulationType(VoltageRegulationType.LOCAL)
+            .standbyAutomatonOn(false)
+            .voltageSetpoint(100d)
+            .highVoltageThreshold(-1d)
+            .build();
+        message = assertThrows(NetworkModificationException.class,
+            () -> staticVarCompensatorModificationInfos4.toModification().check(getNetwork())).getMessage();
+        assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : Static var compensator 'svc3' : can not have a negative value for high voltage threshold", message);
+
+        StaticVarCompensatorCreationInfos staticVarCompensatorModificationInfos5 = StaticVarCompensatorCreationInfos.builder()
+            .equipmentId("svc3")
+            .voltageLevelId("v2")
+            .busOrBusbarSectionId("1B")
+            .maxSusceptance(224.0)
+            .minSusceptance(200.0)
+            .regulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+            .reactivePowerSetpoint(300.0)
+            .voltageRegulationType(VoltageRegulationType.LOCAL)
+            .standbyAutomatonOn(false)
+            .voltageSetpoint(100d)
+            .lowVoltageThreshold(-1d)
+            .build();
+        message = assertThrows(NetworkModificationException.class,
+            () -> staticVarCompensatorModificationInfos5.toModification().check(getNetwork())).getMessage();
+        assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : Static var compensator 'svc3' : can not have a negative value for low voltage threshold", message);
     }
 }

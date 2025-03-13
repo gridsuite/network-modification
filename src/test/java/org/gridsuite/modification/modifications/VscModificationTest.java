@@ -364,5 +364,38 @@ class VscModificationTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void checkModification() {
+        VscModificationInfos vscModificationInfos = VscModificationInfos.builder()
+            .equipmentId("hvdcLine")
+            .converterStation1(buildConverterStationWithReactiveCapabilityCurve())
+            .converterStation2(buildConverterStationWithMinMaxReactiveLimits())
+            .r(new AttributeModification<>(-1d, OperationType.SET))
+            .build();
+        String message = assertThrows(NetworkModificationException.class,
+            () -> vscModificationInfos.toModification().check(getNetwork())).getMessage();
+        assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : can not have a negative value for R", message);
+
+        VscModificationInfos vscModificationInfos2 = VscModificationInfos.builder()
+            .equipmentId("hvdcLine")
+            .converterStation1(ConverterStationModificationInfos.builder()
+                .equipmentId("v1vsc")
+                .voltageSetpoint(new AttributeModification<>(-100d, OperationType.SET))
+                .build())
+            .converterStation2(buildConverterStationWithReactiveCapabilityCurve())
+            .build();
+        message = assertThrows(NetworkModificationException.class,
+            () -> vscModificationInfos2.toModification().check(getNetwork())).getMessage();
+        assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : can not have a negative value for voltage set point side 1", message);
+
+        VscModificationInfos vscModificationInfos3 = VscModificationInfos.builder()
+            .equipmentId("hvdcLine")
+            .converterStation1(buildConverterStationWithReactiveCapabilityCurve())
+            .converterStation2(ConverterStationModificationInfos.builder()
+                .equipmentId("v1vsc")
+                .voltageSetpoint(new AttributeModification<>(-100d, OperationType.SET))
+                .build())
+            .build();
+        message = assertThrows(NetworkModificationException.class,
+            () -> vscModificationInfos3.toModification().check(getNetwork())).getMessage();
+        assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : can not have a negative value for voltage set point side 2", message);
     }
 }

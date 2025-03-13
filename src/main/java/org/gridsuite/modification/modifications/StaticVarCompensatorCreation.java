@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_STATIC_VAR_COMPENSATOR_ERROR;
 import static org.gridsuite.modification.NetworkModificationException.Type.STATIC_VAR_COMPENSATOR_ALREADY_EXISTS;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
@@ -39,6 +40,7 @@ public class StaticVarCompensatorCreation extends AbstractModification {
         if (network.getStaticVarCompensator(modificationInfos.getEquipmentId()) != null) {
             throw new NetworkModificationException(STATIC_VAR_COMPENSATOR_ALREADY_EXISTS, modificationInfos.getEquipmentId());
         }
+        String errorMessage = "Static var compensator '" + modificationInfos.getEquipmentId() + "' : ";
 
         // check connectivity
         ModificationUtils.getInstance()
@@ -55,6 +57,15 @@ public class StaticVarCompensatorCreation extends AbstractModification {
 
         // check standby automaton
         ModificationUtils.getInstance().checkStandbyAutomatonCreation(modificationInfos);
+        checkStaticVarCompensatorCreationInfo(errorMessage);
+    }
+
+    private void checkStaticVarCompensatorCreationInfo(String errorMessage) {
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getVoltageSetpoint(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "voltage setpoint");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getHighVoltageSetpoint(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "high voltage setpoint");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getLowVoltageSetpoint(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "low voltage setpoint");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getHighVoltageThreshold(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "high voltage threshold");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getLowVoltageThreshold(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "low voltage threshold");
     }
 
     @Override

@@ -28,10 +28,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
@@ -147,8 +144,31 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         LineModificationInfos lineModificationInfos = (LineModificationInfos) buildModification();
         lineModificationInfos.setEquipmentId("lineNotFound");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lineModificationInfos.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(LINE_NOT_FOUND, "Line lineNotFound does not exist in network").getMessage(),
+        assertEquals(new NetworkModificationException(LINE_NOT_FOUND, "Line 'lineNotFound' : does not exist in network").getMessage(),
                 exception.getMessage());
+        LineModificationInfos lineModificationInfos1 = LineModificationInfos.builder()
+            .equipmentId("line1")
+            .r(new AttributeModification<>(-1d, OperationType.SET))
+            .build();
+        String message = assertThrows(NetworkModificationException.class,
+            () -> lineModificationInfos1.toModification().check(getNetwork())).getMessage();
+        assertEquals("MODIFY_LINE_ERROR : Line 'line1' : can not have a negative value for R", message);
+
+        LineModificationInfos lineModificationInfos2 = LineModificationInfos.builder()
+            .equipmentId("line1")
+            .g1(new AttributeModification<>(-2d, OperationType.SET))
+            .build();
+        message = assertThrows(NetworkModificationException.class,
+            () -> lineModificationInfos2.toModification().check(getNetwork())).getMessage();
+        assertEquals("MODIFY_LINE_ERROR : Line 'line1' : can not have a negative value for G1", message);
+
+        LineModificationInfos lineModificationInfos3 = lineModificationInfos.builder()
+            .equipmentId("line1")
+            .g2(new AttributeModification<>(-100d, OperationType.SET))
+            .build();
+        message = assertThrows(NetworkModificationException.class,
+            () -> lineModificationInfos3.toModification().check(getNetwork())).getMessage();
+        assertEquals("MODIFY_LINE_ERROR : Line 'line1' : can not have a negative value for G2", message);
     }
 
     @Override

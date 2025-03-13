@@ -12,14 +12,16 @@ import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
-
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
@@ -140,6 +142,30 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         generatorModificationInfos4.setRegulatingTerminalType(new AttributeModification<>(null, OperationType.UNSET));
         getNetwork().getGenerator("idGenerator").setRegulatingTerminal(getNetwork().getBusbarSection("1A1").getTerminal());
         assertDoesNotThrow(() -> generatorModificationInfos4.toModification().check(getNetwork()));
+
+        GeneratorModificationInfos generatorModificationInfos5 = GeneratorModificationInfos.builder()
+            .equipmentId("idGenerator")
+            .droop(new AttributeModification<>(101f, OperationType.SET))
+            .build();
+        String message = assertThrows(NetworkModificationException.class,
+            () -> generatorModificationInfos5.toModification().check(getNetwork())).getMessage();
+        assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : must have Droop between 0 and 100", message);
+
+        GeneratorModificationInfos generatorModificationInfos6 = GeneratorModificationInfos.builder()
+            .equipmentId("idGenerator")
+            .droop(new AttributeModification<>(-1f, OperationType.SET))
+            .build();
+        message = assertThrows(NetworkModificationException.class,
+            () -> generatorModificationInfos6.toModification().check(getNetwork())).getMessage();
+        assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : must have Droop between 0 and 100", message);
+
+        GeneratorModificationInfos generatorModificationInfos7 = GeneratorModificationInfos.builder()
+            .equipmentId("idGenerator")
+            .targetV(new AttributeModification<>(-100d, OperationType.SET))
+            .build();
+        message = assertThrows(NetworkModificationException.class,
+            () -> generatorModificationInfos7.toModification().check(getNetwork())).getMessage();
+        assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : can not have a negative value for Target V", message);
     }
 
     @Test

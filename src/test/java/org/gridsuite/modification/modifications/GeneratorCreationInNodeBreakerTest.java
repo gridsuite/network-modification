@@ -14,10 +14,17 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.dto.FreePropertyInfos;
+import org.gridsuite.modification.dto.GeneratorCreationInfos;
+import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
-import java.util.*;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.*;
@@ -144,6 +151,26 @@ class GeneratorCreationInNodeBreakerTest extends AbstractNetworkModificationTest
         generatorCreationInfos.setEquipmentId("v5generator");
         exception = assertThrows(NetworkModificationException.class, () -> generatorCreationInfos.toModification().check(getNetwork()));
         assertEquals("GENERATOR_ALREADY_EXISTS : v5generator", exception.getMessage());
+
+        GeneratorCreationInfos generatorCreationInfos1 = GeneratorCreationInfos.builder()
+            .equipmentId("v4Generator")
+            .voltageLevelId("v2")
+            .busOrBusbarSectionId("1B")
+            .droop(101f)
+            .build();
+        String message = assertThrows(NetworkModificationException.class,
+            () -> generatorCreationInfos1.toModification().check(getNetwork())).getMessage();
+        assertEquals("CREATE_GENERATOR_ERROR : Generator 'v4Generator' : must have Droop between 0 and 100", message);
+
+        GeneratorCreationInfos generatorModificationInfos2 = GeneratorCreationInfos.builder()
+            .equipmentId("v4Generator")
+            .voltageLevelId("v2")
+            .busOrBusbarSectionId("1B")
+            .droop(-1f)
+            .build();
+        message = assertThrows(NetworkModificationException.class,
+            () -> generatorModificationInfos2.toModification().check(getNetwork())).getMessage();
+        assertEquals("CREATE_GENERATOR_ERROR : Generator 'v4Generator' : must have Droop between 0 and 100", message);
     }
 
     @Test

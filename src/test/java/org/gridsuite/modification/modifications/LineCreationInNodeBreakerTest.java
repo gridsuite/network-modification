@@ -11,9 +11,14 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.dto.FreePropertyInfos;
+import org.gridsuite.modification.dto.LineCreationInfos;
+import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
-import java.util.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -56,6 +61,42 @@ class LineCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         exception = assertThrows(NetworkModificationException.class, () -> lineCreationInfos.toModification().check(getNetwork()));
         assertEquals(new NetworkModificationException(LINE_ALREADY_EXISTS, "line2").getMessage(),
                 exception.getMessage());
+
+        LineCreationInfos lineCreationInfos1 = LineCreationInfos.builder()
+            .equipmentId("line8")
+            .voltageLevelId1("v1")
+            .busOrBusbarSectionId1("1.1")
+            .voltageLevelId2("v2")
+            .busOrBusbarSectionId2("1A")
+            .r(-1d)
+            .build();
+        String message = assertThrows(NetworkModificationException.class,
+            () -> lineCreationInfos1.toModification().check(getNetwork())).getMessage();
+        assertEquals("CREATE_LINE_ERROR : Line 'line8' : can not have a negative value for R", message);
+
+        LineCreationInfos lineModificationInfos2 = LineCreationInfos.builder()
+            .equipmentId("line8")
+            .voltageLevelId1("v1")
+            .busOrBusbarSectionId1("1.1")
+            .voltageLevelId2("v2")
+            .busOrBusbarSectionId2("1A")
+            .g1(-2d)
+            .build();
+        message = assertThrows(NetworkModificationException.class,
+            () -> lineModificationInfos2.toModification().check(getNetwork())).getMessage();
+        assertEquals("CREATE_LINE_ERROR : Line 'line8' : can not have a negative value for G1", message);
+
+        LineCreationInfos lineModificationInfos3 = lineCreationInfos.builder()
+            .equipmentId("line8")
+            .voltageLevelId1("v1")
+            .busOrBusbarSectionId1("1.1")
+            .voltageLevelId2("v2")
+            .busOrBusbarSectionId2("1A")
+            .g2(-100d)
+            .build();
+        message = assertThrows(NetworkModificationException.class,
+            () -> lineModificationInfos3.toModification().check(getNetwork())).getMessage();
+        assertEquals("CREATE_LINE_ERROR : Line 'line8' : can not have a negative value for G2", message);
     }
 
     @Override

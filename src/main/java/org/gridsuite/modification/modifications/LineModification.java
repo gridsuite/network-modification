@@ -17,6 +17,8 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
+import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_LINE_ERROR;
+import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
 /**
@@ -31,9 +33,23 @@ public class LineModification extends AbstractBranchModification {
     @Override
     public void check(Network network) throws NetworkModificationException {
         Line line = network.getLine(modificationInfos.getEquipmentId());
+        String errorMessage = "Line '" + modificationInfos.getEquipmentId() + "' : ";
         if (line == null) {
-            throw new NetworkModificationException(LINE_NOT_FOUND,
-                    "Line " + modificationInfos.getEquipmentId() + " does not exist in network");
+            throw new NetworkModificationException(LINE_NOT_FOUND, errorMessage + "does not exist in network");
+        }
+        LineModificationInfos lineModificationInfos = (LineModificationInfos) modificationInfos;
+        checkLineModificationInfos(lineModificationInfos, errorMessage);
+    }
+
+    private void checkLineModificationInfos(LineModificationInfos lineModificationInfos, String errorMessage) {
+        if (lineModificationInfos.getR() != null && lineModificationInfos.getR().getValue() != null) {
+            checkIsNotNegativeValue(errorMessage, lineModificationInfos.getR().getValue(), MODIFY_LINE_ERROR, "R");
+        }
+        if (lineModificationInfos.getG1() != null && lineModificationInfos.getG1().getValue() != null) {
+            checkIsNotNegativeValue(errorMessage, lineModificationInfos.getG1().getValue(), MODIFY_LINE_ERROR, "G1");
+        }
+        if (lineModificationInfos.getG2() != null && lineModificationInfos.getG2().getValue() != null) {
+            checkIsNotNegativeValue(errorMessage, lineModificationInfos.getG2().getValue(), MODIFY_LINE_ERROR, "G2");
         }
     }
 

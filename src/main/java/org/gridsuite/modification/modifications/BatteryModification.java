@@ -8,11 +8,7 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ReactiveCapabilityCurve;
-import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
-import com.powsybl.iidm.network.ReactiveLimitsKind;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -28,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_BATTERY_ERROR;
+import static org.gridsuite.modification.utils.ModificationUtils.checkIsPercentage;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
 /**
@@ -56,6 +53,13 @@ public class BatteryModification extends AbstractModification {
         ModificationUtils.getInstance().checkReactiveLimit(battery, modificationInfos.getMinQ(), modificationInfos.getMaxQ(),
                 modificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_BATTERY_ERROR, errorMessage);
         checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(modificationInfos, battery, MODIFY_BATTERY_ERROR, errorMessage);
+        checkBatteryModificationInfos(errorMessage);
+    }
+
+    private void checkBatteryModificationInfos(String errorMessage) {
+        if (modificationInfos.getDroop() != null && modificationInfos.getDroop().getValue() != null) {
+            checkIsPercentage(errorMessage, modificationInfos.getDroop().getValue(), MODIFY_BATTERY_ERROR, "Droop");
+        }
     }
 
     private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(BatteryModificationInfos modificationInfos, Battery battery, NetworkModificationException.Type exceptionType, String errorMessage) {
