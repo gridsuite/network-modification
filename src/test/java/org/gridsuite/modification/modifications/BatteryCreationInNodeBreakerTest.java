@@ -62,6 +62,14 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         message = assertThrows(NetworkModificationException.class,
             () -> batteryCreation2.check(network)).getMessage();
         assertEquals("CREATE_BATTERY_ERROR : Battery 'v4Battery' : must have Droop between 0 and 100", message);
+
+        BatteryCreationInfos batteryCreationInfos3 = BatteryCreationInfos.builder()
+            .equipmentId("v3Battery")
+            .build();
+        BatteryCreation batteryCreation3= (BatteryCreation) batteryCreationInfos3.toModification();
+        message = assertThrows(NetworkModificationException.class,
+            () -> batteryCreation3.check(network)).getMessage();
+        assertEquals("BATTERY_ALREADY_EXISTS : v3Battery", message);
     }
 
     @Override

@@ -183,6 +183,17 @@ class GeneratorCreationInNodeBreakerTest extends AbstractNetworkModificationTest
         message = assertThrows(NetworkModificationException.class,
             () -> generatorCreation10.check(network)).getMessage();
         assertEquals("CREATE_GENERATOR_ERROR : Generator 'v4Generator' : must have Droop between 0 and 100", message);
+
+        GeneratorCreationInfos generatorCreationInfos3 = GeneratorCreationInfos.builder()
+            .equipmentId("v4Generator")
+            .voltageLevelId("v2")
+            .busOrBusbarSectionId("1B")
+            .targetV(-100d)
+            .build();
+        GeneratorCreation generatorCreation11 = (GeneratorCreation) generatorCreationInfos3.toModification();
+        message = assertThrows(NetworkModificationException.class,
+            () -> generatorCreation11.check(network)).getMessage();
+        assertEquals("CREATE_GENERATOR_ERROR : Generator 'v4Generator' : can not have a negative value for Target V", message);
     }
 
     @Test
