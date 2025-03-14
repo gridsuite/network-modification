@@ -7,15 +7,8 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TwoSides;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
@@ -23,9 +16,10 @@ import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimated;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.utils.NetworkCreation;
 import org.gridsuite.modification.utils.ModificationUtils;
+import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
+
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -806,22 +800,15 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         ratioTapChangerCreation.toModification().apply(getNetwork());
         RatioTapChanger ratioTapChanger = twt3.getRatioTapChanger();
 
-        assertTrue(Double.isNaN(ratioTapChanger.getTargetDeadband()));
+        // when creating the ratioTapChanger in a modification the targetDeadband is set to 0
+        assertEquals(0.0, ratioTapChanger.getTargetDeadband());
 
-        // apply a modification that does not touch the regulating thus targetdead band is still NaN
-        TwoWindingsTransformerModificationInfos ratioTapChangerModification = TwoWindingsTransformerModificationInfos.builder()
-            .stashed(false)
-            .equipmentId(twtId)
-            .ratioTapChanger(RatioTapChangerModificationInfos.builder()
-                .targetV(new AttributeModification<>(100.0, OperationType.SET))
-                .build())
-            .build();
-        ratioTapChangerModification.toModification().apply(getNetwork());
-
+        // hard set to NaN
+        ratioTapChanger.setTargetDeadband(Double.NaN);
         assertTrue(Double.isNaN(ratioTapChanger.getTargetDeadband()));
 
         // set regulation without target deadband it will set target deadband to 0
-        ratioTapChangerModification = TwoWindingsTransformerModificationInfos.builder()
+        TwoWindingsTransformerModificationInfos ratioTapChangerModification = TwoWindingsTransformerModificationInfos.builder()
             .stashed(false)
             .equipmentId(twtId)
             .ratioTapChanger(RatioTapChangerModificationInfos.builder()

@@ -473,8 +473,8 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         if (ratioTapChangerInfos.getRegulating() != null && ratioTapChangerInfos.getRegulating().getValue() != null) {
             boolean regulating = ratioTapChangerInfos.getRegulating().getValue();
             // if regulating and targetDeadband is null then it is set by default to 0
-            boolean targetDeadBandIsNull = isModification && Double.isNaN(ratioTapChanger.getTargetDeadband()) &&
-                (ratioTapChangerInfos.getTargetDeadband() == null || ratioTapChangerInfos.getTargetDeadband().getValue() == null);
+            boolean targetDeadBandIsNull = isModification && Double.isNaN(ratioTapChanger.getTargetDeadband()) && ratioTapChangerInfos.getTargetDeadband() == null ||
+                !isModification && ratioTapChangerInfos.getTargetDeadband() == null;
 
             if (targetDeadBandIsNull) {
                 ReportNode targetDeadbandReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
