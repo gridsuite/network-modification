@@ -759,7 +759,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
     }
 
     @Test
-    void testRatioTapChangerTargetDeadBandModification() throws Exception {
+    void testRatioTapChangerTargetDeadBandModification() {
         String twtId = "trf3";
         TwoWindingsTransformer twt3 = createTwoWindingsTransformer(getNetwork().getSubstation("s1"), "trf3", "trf3", 2.0, 14.745, 0.0, 3.2E-5, 400.0, 225.0,
             41, 151, getNetwork().getVoltageLevel("v1").getId(), getNetwork().getVoltageLevel("v2").getId(),

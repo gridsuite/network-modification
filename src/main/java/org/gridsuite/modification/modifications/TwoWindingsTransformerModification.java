@@ -499,7 +499,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 isModification ? ratioTapChanger::setRegulating
                     : ratioTapChangerAdder::setRegulating,
                 isModification ? ratioTapChanger::isRegulating : () -> null,
-                ratioTapChangerInfos.getRegulating(), regulatingValue ? "Voltage regulation" : "Fixed ratio", 1);
+                ratioTapChangerInfos.getRegulating(), Boolean.TRUE.equals(regulatingValue) ? "Voltage regulation" : "Fixed ratio", 1);
             if (voltageRegulationReport != null) {
                 ratioTapChangerReports.add(voltageRegulationReport);
             }
