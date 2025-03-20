@@ -242,7 +242,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         VscCreation vscCreation6 = (VscCreation) vscCreationInfos6.toModification();
         String message = assertThrows(NetworkModificationException.class,
             () -> vscCreation6.check(network)).getMessage();
-        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : can not have a negative value for R", message);
+        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : can not have a negative value for Resistance R", message);
 
         VscCreationInfos vscCreationInfos7 = VscCreationInfos.builder()
             .equipmentId("hvdcLine2")

@@ -46,13 +46,9 @@ public class LineCreation extends AbstractModification {
         ModificationUtils.getInstance().controlBranchCreation(network,
                 modificationInfos.getVoltageLevelId1(), modificationInfos.getBusOrBusbarSectionId1(), modificationInfos.getConnectionPosition1(),
                 modificationInfos.getVoltageLevelId2(), modificationInfos.getBusOrBusbarSectionId2(), modificationInfos.getConnectionPosition2());
-        checkLineModificationInfos(errorMessage);
-    }
-
-    private void checkLineModificationInfos(String errorMessage) {
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getR(), CREATE_LINE_ERROR, "R");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getG1(), CREATE_LINE_ERROR, "G1");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getG2(), CREATE_LINE_ERROR, "G2");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getR(), CREATE_LINE_ERROR, "Resistance R");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getG1(), CREATE_LINE_ERROR, "Conductance on side 1 G1");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getG2(), CREATE_LINE_ERROR, "Conductance on side 2 G2");
     }
 
     @Override

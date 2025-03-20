@@ -258,7 +258,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
             .build();
         String message = assertThrows(NetworkModificationException.class,
             () -> twoWindingsTransformerModificationInfos1.toModification().check(getNetwork())).getMessage();
-        assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : can not have a negative value for R", message);
+        assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : can not have a negative value for Resistance R", message);
 
         TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos2 = TwoWindingsTransformerModificationInfos.builder()
             .equipmentId("trf1")
@@ -266,7 +266,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
             .build();
         message = assertThrows(NetworkModificationException.class,
             () -> twoWindingsTransformerModificationInfos2.toModification().check(getNetwork())).getMessage();
-        assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : can not have a negative value for G", message);
+        assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : can not have a negative value for Conductance G", message);
 
         TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos3 = TwoWindingsTransformerModificationInfos.builder()
             .equipmentId("trf1")
@@ -274,7 +274,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
             .build();
         message = assertThrows(NetworkModificationException.class,
             () -> twoWindingsTransformerModificationInfos3.toModification().check(getNetwork())).getMessage();
-        assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : can not have a negative value for Rated U1", message);
+        assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : can not have a negative value for Rated Voltage on side 1", message);
 
         TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos4 = TwoWindingsTransformerModificationInfos.builder()
             .equipmentId("trf1")
@@ -282,7 +282,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
             .build();
         message = assertThrows(NetworkModificationException.class,
             () -> twoWindingsTransformerModificationInfos4.toModification().check(getNetwork())).getMessage();
-        assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : can not have a negative value for Rated U2", message);
+        assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : can not have a negative value for Rated Voltage on side 2", message);
     }
 
     private TwoWindingsTransformer createPhaseTapChanger() {

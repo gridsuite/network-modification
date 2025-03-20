@@ -221,7 +221,7 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
             .build();
         String message = assertThrows(NetworkModificationException.class,
             () -> staticVarCompensatorCreationInfos.toModification().check(getNetwork())).getMessage();
-        assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : Static var compensator 'svc3' : can not have a negative value for voltage setpoint", message);
+        assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : Static var compensator 'svc3' : can not have a negative value for voltage set point", message);
 
         StaticVarCompensatorCreationInfos staticVarCompensatorModificationInfos2 = StaticVarCompensatorCreationInfos.builder()
             .equipmentId("svc3")
@@ -238,7 +238,7 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
             .build();
         message = assertThrows(NetworkModificationException.class,
             () -> staticVarCompensatorModificationInfos2.toModification().check(getNetwork())).getMessage();
-        assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : Static var compensator 'svc3' : can not have a negative value for high voltage setpoint", message);
+        assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : Static var compensator 'svc3' : can not have a negative value for high voltage set point", message);
 
         StaticVarCompensatorCreationInfos staticVarCompensatorModificationInfos3 = StaticVarCompensatorCreationInfos.builder()
             .equipmentId("svc3")
@@ -255,7 +255,7 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
             .build();
         message = assertThrows(NetworkModificationException.class,
             () -> staticVarCompensatorModificationInfos3.toModification().check(getNetwork())).getMessage();
-        assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : Static var compensator 'svc3' : can not have a negative value for low voltage setpoint", message);
+        assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : Static var compensator 'svc3' : can not have a negative value for low voltage set point", message);
 
         StaticVarCompensatorCreationInfos staticVarCompensatorModificationInfos4 = StaticVarCompensatorCreationInfos.builder()
             .equipmentId("svc3")

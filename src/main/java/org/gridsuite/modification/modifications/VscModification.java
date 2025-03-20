@@ -74,12 +74,8 @@ public class VscModification extends AbstractModification {
         checkConverterStation(modificationInfos.getConverterStation1(), converterStation1);
         checkConverterStation(modificationInfos.getConverterStation2(), converterStation2);
         checkDroop(hvdcLine);
-        checkVscModification(errorMessage);
-    }
-
-    private void checkVscModification(String errorMessage) {
         if (modificationInfos.getR() != null && modificationInfos.getR().getValue() != null) {
-            checkIsNotNegativeValue(errorMessage, modificationInfos.getR().getValue(), MODIFY_VSC_ERROR, "R");
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getR().getValue(), MODIFY_VSC_ERROR, "Resistance R");
         }
         if (modificationInfos.getConverterStation1().getVoltageSetpoint() != null &&
             modificationInfos.getConverterStation1().getVoltageSetpoint().getValue() != null) {

@@ -193,7 +193,7 @@ class GeneratorCreationInNodeBreakerTest extends AbstractNetworkModificationTest
         GeneratorCreation generatorCreation11 = (GeneratorCreation) generatorCreationInfos3.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> generatorCreation11.check(network)).getMessage();
-        assertEquals("CREATE_GENERATOR_ERROR : Generator 'v4Generator' : can not have a negative value for Target V", message);
+        assertEquals("CREATE_GENERATOR_ERROR : Generator 'v4Generator' : can not have a negative value for Target Voltage", message);
     }
 
     @Test

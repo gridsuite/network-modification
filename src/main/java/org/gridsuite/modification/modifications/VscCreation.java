@@ -48,11 +48,7 @@ public class VscCreation extends AbstractModification {
         checkConverterStation(network, modificationInfos.getConverterStation1());
         checkConverterStation(network, modificationInfos.getConverterStation2());
         checkDroop();
-        checkVscCreation(errorMessage);
-    }
-
-    private void checkVscCreation(String errorMessage) {
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getR(), CREATE_VSC_ERROR, "R");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getR(), CREATE_VSC_ERROR, "Resistance R");
         checkIsNotNegativeValue(errorMessage, modificationInfos.getConverterStation1().getVoltageSetpoint(), CREATE_VSC_ERROR, "voltage set point side 1");
         checkIsNotNegativeValue(errorMessage, modificationInfos.getConverterStation2().getVoltageSetpoint(), CREATE_VSC_ERROR, "voltage set point side 2");
     }

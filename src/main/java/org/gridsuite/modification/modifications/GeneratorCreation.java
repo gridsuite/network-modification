@@ -66,11 +66,8 @@ public class GeneratorCreation extends AbstractModification {
 
         ModificationUtils.getInstance().checkActivePowerControl(modificationInfos.getParticipate(),
             modificationInfos.getDroop(), CREATE_GENERATOR_ERROR, String.format(ERROR_MESSAGE, modificationInfos.getEquipmentId()));
-        checkGeneratorCreation(errorMessage);
-    }
 
-    private void checkGeneratorCreation(String errorMessage) {
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getTargetV(), CREATE_GENERATOR_ERROR, "Target V");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getTargetV(), CREATE_GENERATOR_ERROR, "Target Voltage");
         checkIsPercentage(errorMessage, modificationInfos.getDroop(), CREATE_GENERATOR_ERROR, "Droop");
     }
 

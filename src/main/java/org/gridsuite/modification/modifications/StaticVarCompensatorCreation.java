@@ -57,13 +57,9 @@ public class StaticVarCompensatorCreation extends AbstractModification {
 
         // check standby automaton
         ModificationUtils.getInstance().checkStandbyAutomatonCreation(modificationInfos);
-        checkStaticVarCompensatorCreationInfo(errorMessage);
-    }
-
-    private void checkStaticVarCompensatorCreationInfo(String errorMessage) {
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getVoltageSetpoint(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "voltage setpoint");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getHighVoltageSetpoint(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "high voltage setpoint");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getLowVoltageSetpoint(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "low voltage setpoint");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getVoltageSetpoint(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "voltage set point");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getHighVoltageSetpoint(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "high voltage set point");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getLowVoltageSetpoint(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "low voltage set point");
         checkIsNotNegativeValue(errorMessage, modificationInfos.getHighVoltageThreshold(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "high voltage threshold");
         checkIsNotNegativeValue(errorMessage, modificationInfos.getLowVoltageThreshold(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "low voltage threshold");
     }

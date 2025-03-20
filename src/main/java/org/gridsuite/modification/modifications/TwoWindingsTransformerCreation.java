@@ -40,14 +40,10 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         ModificationUtils.getInstance().controlBranchCreation(network,
                 modificationInfos.getVoltageLevelId1(), modificationInfos.getBusOrBusbarSectionId1(), modificationInfos.getConnectionPosition1(),
                 modificationInfos.getVoltageLevelId2(), modificationInfos.getBusOrBusbarSectionId2(), modificationInfos.getConnectionPosition2());
-        checkTwoWindingsTransformerCreationInfo(errorMessage);
-    }
-
-    private void checkTwoWindingsTransformerCreationInfo(String errorMessage) {
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getR(), CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "R");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getG(), CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "G");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedU1(), CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated U1");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedU2(), CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated U2");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getR(), CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Resistance R");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getG(), CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Conductance G");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedU1(), CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 1");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedU2(), CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 2");
     }
 
     @Override

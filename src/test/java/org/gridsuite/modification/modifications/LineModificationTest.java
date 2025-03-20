@@ -152,7 +152,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
             .build();
         String message = assertThrows(NetworkModificationException.class,
             () -> lineModificationInfos1.toModification().check(getNetwork())).getMessage();
-        assertEquals("MODIFY_LINE_ERROR : Line 'line1' : can not have a negative value for R", message);
+        assertEquals("MODIFY_LINE_ERROR : Line 'line1' : can not have a negative value for Resistance R", message);
 
         LineModificationInfos lineModificationInfos2 = LineModificationInfos.builder()
             .equipmentId("line1")
@@ -160,7 +160,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
             .build();
         message = assertThrows(NetworkModificationException.class,
             () -> lineModificationInfos2.toModification().check(getNetwork())).getMessage();
-        assertEquals("MODIFY_LINE_ERROR : Line 'line1' : can not have a negative value for G1", message);
+        assertEquals("MODIFY_LINE_ERROR : Line 'line1' : can not have a negative value for Conductance on side 1 G1", message);
 
         LineModificationInfos lineModificationInfos3 = lineModificationInfos.builder()
             .equipmentId("line1")
@@ -168,7 +168,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
             .build();
         message = assertThrows(NetworkModificationException.class,
             () -> lineModificationInfos3.toModification().check(getNetwork())).getMessage();
-        assertEquals("MODIFY_LINE_ERROR : Line 'line1' : can not have a negative value for G2", message);
+        assertEquals("MODIFY_LINE_ERROR : Line 'line1' : can not have a negative value for Conductance on side 2 G2", message);
     }
 
     @Override

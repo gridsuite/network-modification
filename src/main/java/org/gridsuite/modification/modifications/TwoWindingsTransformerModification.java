@@ -48,21 +48,17 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         TwoWindingsTransformerModificationInfos twtModificationInfos = (TwoWindingsTransformerModificationInfos) modificationInfos;
         checkAndModifyTapChanger(network, twtModificationInfos.getRatioTapChanger(), transformer.getRatioTapChanger(), errorMessage);
         checkAndModifyTapChanger(network, twtModificationInfos.getPhaseTapChanger(), transformer.getPhaseTapChanger(), errorMessage);
-        checkTwoWindingsTransformerModificationInfo(twtModificationInfos, errorMessage);
-    }
-
-    private void checkTwoWindingsTransformerModificationInfo(TwoWindingsTransformerModificationInfos twtModificationInfos, String errorMessage) {
         if (twtModificationInfos.getR() != null && twtModificationInfos.getR().getValue() != null) {
-            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getR().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "R");
+            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getR().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Resistance R");
         }
         if (twtModificationInfos.getG() != null && twtModificationInfos.getG().getValue() != null) {
-            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getG().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "G");
+            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getG().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Conductance G");
         }
         if (twtModificationInfos.getRatedU1() != null && twtModificationInfos.getRatedU1().getValue() != null) {
-            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getRatedU1().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated U1");
+            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getRatedU1().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 1");
         }
         if (twtModificationInfos.getRatedU2() != null && twtModificationInfos.getRatedU2().getValue() != null) {
-            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getRatedU2().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated U2");
+            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getRatedU2().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 2");
         }
     }
 

@@ -79,7 +79,7 @@ class LineCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         LineCreation lineCreation5 = (LineCreation) lineCreationInfos1.toModification();
         String message = assertThrows(NetworkModificationException.class,
             () -> lineCreation5.check(network)).getMessage();
-        assertEquals("CREATE_LINE_ERROR : Line 'line8' : can not have a negative value for R", message);
+        assertEquals("CREATE_LINE_ERROR : Line 'line8' : can not have a negative value for Resistance R", message);
 
         LineCreationInfos lineCreationInfos2 = LineCreationInfos.builder()
             .equipmentId("line8")
@@ -92,7 +92,7 @@ class LineCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         LineCreation lineCreation6 = (LineCreation) lineCreationInfos2.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> lineCreation6.check(network)).getMessage();
-        assertEquals("CREATE_LINE_ERROR : Line 'line8' : can not have a negative value for G1", message);
+        assertEquals("CREATE_LINE_ERROR : Line 'line8' : can not have a negative value for Conductance on side 1 G1", message);
 
         LineCreationInfos lineCreationInfos3 = LineCreationInfos.builder()
             .equipmentId("line8")
@@ -105,7 +105,7 @@ class LineCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         LineCreation lineCreation7 = (LineCreation) lineCreationInfos3.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> lineCreation7.check(network)).getMessage();
-        assertEquals("CREATE_LINE_ERROR : Line 'line8' : can not have a negative value for G2", message);
+        assertEquals("CREATE_LINE_ERROR : Line 'line8' : can not have a negative value for Conductance on side 2 G2", message);
     }
 
     @Override

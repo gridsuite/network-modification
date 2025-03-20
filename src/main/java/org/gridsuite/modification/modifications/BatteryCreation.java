@@ -57,10 +57,6 @@ public class BatteryCreation extends AbstractModification {
 
         ModificationUtils.getInstance().checkActivePowerControl(modificationInfos.getParticipate(),
             modificationInfos.getDroop(), CREATE_BATTERY_ERROR, String.format(ERROR_MESSAGE, modificationInfos.getEquipmentId()));
-        checkBatteryCreationInfos(errorMessage);
-    }
-
-    private void checkBatteryCreationInfos(String errorMessage) {
         checkIsPercentage(errorMessage, modificationInfos.getDroop(), CREATE_BATTERY_ERROR, "Droop");
     }
 

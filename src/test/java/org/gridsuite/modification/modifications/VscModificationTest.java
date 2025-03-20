@@ -372,7 +372,7 @@ class VscModificationTest extends AbstractNetworkModificationTest {
             .build();
         String message = assertThrows(NetworkModificationException.class,
             () -> vscModificationInfos.toModification().check(getNetwork())).getMessage();
-        assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : can not have a negative value for R", message);
+        assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : can not have a negative value for Resistance R", message);
 
         VscModificationInfos vscModificationInfos2 = VscModificationInfos.builder()
             .equipmentId("hvdcLine")
