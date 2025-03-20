@@ -12,11 +12,17 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.dto.BatteryCreationInfos;
+import org.gridsuite.modification.dto.FreePropertyInfos;
+import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,9 +35,41 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
 
     @Override
     public void checkModification() {
+        Network network = getNetwork();
         BatteryCreationInfos batteryCreationInfos = (BatteryCreationInfos) buildModification();
         batteryCreationInfos.setBusOrBusbarSectionId("notFoundBus");
-        assertThrows(NetworkModificationException.class, () -> batteryCreationInfos.toModification().check(getNetwork()));
+        BatteryCreation batteryCreation = (BatteryCreation) batteryCreationInfos.toModification();
+        assertThrows(NetworkModificationException.class, () -> batteryCreation.check(network));
+
+        BatteryCreationInfos batteryCreationInfos1 = BatteryCreationInfos.builder()
+            .equipmentId("v4Battery")
+            .voltageLevelId("v2")
+            .busOrBusbarSectionId("1B")
+            .droop(101f)
+            .build();
+        BatteryCreation batteryCreation1 = (BatteryCreation) batteryCreationInfos1.toModification();
+        String message = assertThrows(NetworkModificationException.class,
+            () -> batteryCreation1.check(network)).getMessage();
+        assertEquals("CREATE_BATTERY_ERROR : Battery 'v4Battery' : must have Droop between 0 and 100", message);
+
+        BatteryCreationInfos batteryCreationInfos2 = BatteryCreationInfos.builder()
+            .equipmentId("v4Battery")
+            .voltageLevelId("v2")
+            .busOrBusbarSectionId("1B")
+            .droop(-1f)
+            .build();
+        BatteryCreation batteryCreation2 = (BatteryCreation) batteryCreationInfos2.toModification();
+        message = assertThrows(NetworkModificationException.class,
+            () -> batteryCreation2.check(network)).getMessage();
+        assertEquals("CREATE_BATTERY_ERROR : Battery 'v4Battery' : must have Droop between 0 and 100", message);
+
+        BatteryCreationInfos batteryCreationInfos3 = BatteryCreationInfos.builder()
+            .equipmentId("v3Battery")
+            .build();
+        BatteryCreation batteryCreation3 = (BatteryCreation) batteryCreationInfos3.toModification();
+        message = assertThrows(NetworkModificationException.class,
+            () -> batteryCreation3.check(network)).getMessage();
+        assertEquals("BATTERY_ALREADY_EXISTS : v3Battery", message);
     }
 
     @Override
