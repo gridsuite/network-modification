@@ -208,9 +208,11 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
 
     @Override
     protected void checkModification() {
+        Network network = getNetwork();
         TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos = (TwoWindingsTransformerModificationInfos) buildModification();
         twoWindingsTransformerModificationInfos.setEquipmentId("2wt_not_existing");
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> twoWindingsTransformerModificationInfos.toModification().check(getNetwork()));
+        TwoWindingsTransformerModification twoWindingsTransformerModification = (TwoWindingsTransformerModification) twoWindingsTransformerModificationInfos.toModification();
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> twoWindingsTransformerModification.check(network));
         assertEquals("TWO_WINDINGS_TRANSFORMER_NOT_FOUND : Two windings transformer '2wt_not_existing' : it does not exist in the network", exception.getMessage());
 
         // no phase tap changer on this transformer
@@ -218,8 +220,9 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         TwoWindingsTransformerModificationInfos twtModificationInfos2 = (TwoWindingsTransformerModificationInfos) buildModification();
         twtModificationInfos2.getRatioTapChanger().setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
         twtModificationInfos2.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
+        TwoWindingsTransformerModification twoWindingsTransformerModification2 = (TwoWindingsTransformerModification) twtModificationInfos2.toModification();
         NetworkModificationException exception2 = assertThrows(NetworkModificationException.class,
-            () -> twtModificationInfos2.toModification().check(getNetwork()));
+            () -> twoWindingsTransformerModification2.check(network));
         assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : Regulation is set to Distant but regulating terminal information are incomplete",
             exception2.getMessage());
 
@@ -227,16 +230,18 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         TwoWindingsTransformerModificationInfos twtModificationInfos4 = (TwoWindingsTransformerModificationInfos) buildModification();
         twtModificationInfos4.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
         twtModificationInfos4.getRatioTapChanger().setRegulatingTerminalId(new AttributeModification<>("test", OperationType.UNSET));
+        TwoWindingsTransformerModification twoWindingsTransformerModification4 = (TwoWindingsTransformerModification) twtModificationInfos4.toModification();
         NetworkModificationException exception4 = assertThrows(NetworkModificationException.class,
-            () -> twtModificationInfos4.toModification().check(getNetwork()));
+            () -> twoWindingsTransformerModification4.check(network));
         assertEquals("EQUIPMENT_NOT_FOUND : Equipment with id=test not found with type TWO_WINDINGS_TRANSFORMER", exception4.getMessage());
 
         // ratio tap changer check regulating terminal
         TwoWindingsTransformerModificationInfos twtModificationInfos5 = (TwoWindingsTransformerModificationInfos) buildModification();
         twtModificationInfos5.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
         twtModificationInfos5.getRatioTapChanger().setRegulatingTerminalVlId(new AttributeModification<>("test", OperationType.UNSET));
+        TwoWindingsTransformerModification twoWindingsTransformerModification5 = (TwoWindingsTransformerModification) twtModificationInfos5.toModification();
         NetworkModificationException exception5 = assertThrows(NetworkModificationException.class,
-            () -> twtModificationInfos5.toModification().check(getNetwork()));
+            () -> twoWindingsTransformerModification5.check(network));
         assertEquals("VOLTAGE_LEVEL_NOT_FOUND : Voltage level with id=test not found", exception5.getMessage());
 
         // do not throw
@@ -256,32 +261,35 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
             .equipmentId("trf1")
             .r(new AttributeModification<>(-1d, OperationType.SET))
             .build();
+        TwoWindingsTransformerModification twoWindingsTransformerModification6 = (TwoWindingsTransformerModification) twoWindingsTransformerModificationInfos1.toModification();
         String message = assertThrows(NetworkModificationException.class,
-            () -> twoWindingsTransformerModificationInfos1.toModification().check(getNetwork())).getMessage();
+            () -> twoWindingsTransformerModification6.check(network)).getMessage();
         assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : can not have a negative value for Resistance R", message);
 
         TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos2 = TwoWindingsTransformerModificationInfos.builder()
             .equipmentId("trf1")
             .g(new AttributeModification<>(-2d, OperationType.SET))
             .build();
+        TwoWindingsTransformerModification twoWindingsTransformerModification7 = (TwoWindingsTransformerModification) twoWindingsTransformerModificationInfos2.toModification();
         message = assertThrows(NetworkModificationException.class,
-            () -> twoWindingsTransformerModificationInfos2.toModification().check(getNetwork())).getMessage();
+            () -> twoWindingsTransformerModification7.check(network)).getMessage();
         assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : can not have a negative value for Conductance G", message);
 
         TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos3 = TwoWindingsTransformerModificationInfos.builder()
             .equipmentId("trf1")
             .ratedU1(new AttributeModification<>(-100d, OperationType.SET))
             .build();
+        TwoWindingsTransformerModification twoWindingsTransformerModification8 = (TwoWindingsTransformerModification) twoWindingsTransformerModificationInfos3.toModification();
         message = assertThrows(NetworkModificationException.class,
-            () -> twoWindingsTransformerModificationInfos3.toModification().check(getNetwork())).getMessage();
+            () -> twoWindingsTransformerModification8.check(network)).getMessage();
         assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : can not have a negative value for Rated Voltage on side 1", message);
 
         TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos4 = TwoWindingsTransformerModificationInfos.builder()
             .equipmentId("trf1")
             .ratedU2(new AttributeModification<>(-100d, OperationType.SET))
             .build();
-        message = assertThrows(NetworkModificationException.class,
-            () -> twoWindingsTransformerModificationInfos4.toModification().check(getNetwork())).getMessage();
+        TwoWindingsTransformerModification twoWindingsTransformerModification9 = (TwoWindingsTransformerModification) twoWindingsTransformerModificationInfos4.toModification();
+        message = assertThrows(NetworkModificationException.class, () -> twoWindingsTransformerModification9.check(network)).getMessage();
         assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : can not have a negative value for Rated Voltage on side 2", message);
     }
 
@@ -324,7 +332,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
     }
 
     @Test
-    void testPhaseTapChangerRegulationModification() throws Exception {
+    void testPhaseTapChangerRegulationModification() {
         TwoWindingsTransformer twt3 = createPhaseTapChanger();
         String twtId = "trf3";
         // modification 1 : FIXED_TAP -> CURRENT_LIMITER
@@ -408,7 +416,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
     }
 
     @Test
-    void testPhaseTapChangerRegulationModification2() throws Exception {
+    void testPhaseTapChangerRegulationModification2() {
         TwoWindingsTransformer twt3 = createPhaseTapChanger();
         String twtId = "trf3";
 
@@ -425,7 +433,9 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
             .build();
 
         // modification 1 assert
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> phaseTapChangerCreation.toModification().apply(getNetwork()));
+        Network network = getNetwork();
+        TwoWindingsTransformerModification twoWindingsTransformerModification = (TwoWindingsTransformerModification) phaseTapChangerCreation.toModification();
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> twoWindingsTransformerModification.apply(network));
         assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Regulation value is missing, phase tap changer can not regulate", exception.getMessage());
 
         // modification 2 : FIXED_TAP -> FIXED_TAP
@@ -504,7 +514,9 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                         .build();
 
         if (!Objects.isNull(errorMessage)) {
-            NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> modificationInfos.toModification().apply(getNetwork()));
+            Network network = getNetwork();
+            TwoWindingsTransformerModification twoWindingsTransformerModification = (TwoWindingsTransformerModification) modificationInfos.toModification();
+            NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> twoWindingsTransformerModification.apply(network));
             // change not applied
             assertThat(terminal.isConnected()).isNotEqualTo(expectedState);
             assertThat(exception.getMessage()).isEqualTo(errorMessage);
@@ -633,7 +645,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
     }
 
     @Test
-    void testPhaseTapChangerRegulationCreation() throws Exception {
+    void testPhaseTapChangerRegulationCreation() {
         // test with non pre-existent phase tap changer
         String twtId = "trf3";
         TwoWindingsTransformer twt3 = createTwoWindingsTransformer(getNetwork().getSubstation("s1"), "trf3", "trf3", 2.0, 14.745, 0.0, 3.2E-5, 400.0, 225.0,
@@ -731,7 +743,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
     }
 
     @Test
-    void testRatioTapChangerRegulationCreation() throws Exception {
+    void testRatioTapChangerRegulationCreation() {
         String twtId = "trf3";
         TwoWindingsTransformer twt3 = createTwoWindingsTransformer(getNetwork().getSubstation("s1"), "trf3", "trf3", 2.0, 14.745, 0.0, 3.2E-5, 400.0, 225.0,
             41, 151, getNetwork().getVoltageLevel("v1").getId(), getNetwork().getVoltageLevel("v2").getId(),

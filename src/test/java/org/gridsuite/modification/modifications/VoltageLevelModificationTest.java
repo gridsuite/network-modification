@@ -15,6 +15,7 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -66,7 +67,7 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void testModifyShortCircuitExtension() throws Exception {
+    void testModifyShortCircuitExtension() {
         VoltageLevelModificationInfos infos = (VoltageLevelModificationInfos) buildModification();
         applyModification(infos);
 
@@ -107,7 +108,9 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
         if (ipMax != null) {
             vli.setIpMax(new AttributeModification<>(ipMax, OperationType.SET));
         }
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> vli.toModification().check(getNetwork()));
+        Network network = getNetwork();
+        VoltageLevelModification voltageLevelModification = (VoltageLevelModification) vli.toModification();
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelModification.check(network));
         assertEquals(new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, reportError).getMessage(), exception.getMessage());
     }
 
@@ -137,7 +140,7 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void testIpMinEqualsIpMax() throws Exception {
+    void testIpMinEqualsIpMax() {
         final String vlWithBothIcc = "v3";
         final double iccValue = 29.0;
         VoltageLevelModificationInfos vli = (VoltageLevelModificationInfos) buildModification();
@@ -162,7 +165,9 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
                 .equipmentId(vlWithNoIcc)
                 .ipMin(new AttributeModification<>(10.0, OperationType.SET))
                 .build();
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> vli.toModification().check(getNetwork()));
+        Network network = getNetwork();
+        VoltageLevelModification voltageLevelModification = (VoltageLevelModification) vli.toModification();
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelModification.check(network));
         assertEquals(new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "IpMax is required").getMessage(), exception.getMessage());
     }
 
@@ -173,7 +178,9 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
             .equipmentId(vlWithNoIcc)
             .nominalV(new AttributeModification<>(-10.0, OperationType.SET))
             .build();
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> vli.toModification().check(getNetwork()));
+        Network network = getNetwork();
+        VoltageLevelModification voltageLevelModification = (VoltageLevelModification) vli.toModification();
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelModification.check(network));
         assertEquals(new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "Voltage level 'v2' : can not have a negative value for Nominal Voltage").getMessage(), exception.getMessage());
     }
 
@@ -184,7 +191,9 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
             .equipmentId(vlWithNoIcc)
             .lowVoltageLimit(new AttributeModification<>(-11.0, OperationType.SET))
             .build();
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> vli.toModification().check(getNetwork()));
+        Network network = getNetwork();
+        VoltageLevelModification voltageLevelModification = (VoltageLevelModification) vli.toModification();
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelModification.check(network));
         assertEquals(new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "Voltage level 'v2' : can not have a negative value for Low voltage limit").getMessage(), exception.getMessage());
     }
 
@@ -195,12 +204,14 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
             .equipmentId(vlWithNoIcc)
             .highVoltageLimit(new AttributeModification<>(-12.0, OperationType.SET))
             .build();
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> vli.toModification().check(getNetwork()));
+        Network network = getNetwork();
+        VoltageLevelModification voltageLevelModification = (VoltageLevelModification) vli.toModification();
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelModification.check(network));
         assertEquals(new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "Voltage level 'v2' : can not have a negative value for High voltage limit").getMessage(), exception.getMessage());
     }
 
     @Test
-    void testSetIpMaxOnEquipmentWitOnlyIpMaxExtension() throws Exception {
+    void testSetIpMaxOnEquipmentWitOnlyIpMaxExtension() {
         final String vlName = "v2"; // has no ICC
         getNetwork().getVoltageLevel(vlName)
                 .newExtension(IdentifiableShortCircuitAdder.class).withIpMax(30.0).add();
@@ -221,7 +232,7 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
         assertEquals(targetIpMax, identifiableShortCircuit1.getIpMax(), 0);
     }
 
-    private void applyModification(VoltageLevelModificationInfos infos) throws Exception {
+    private void applyModification(VoltageLevelModificationInfos infos) {
         infos.toModification().apply(getNetwork());
     }
 

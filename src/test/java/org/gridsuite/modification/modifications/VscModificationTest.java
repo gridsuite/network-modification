@@ -29,7 +29,7 @@ import static org.gridsuite.modification.modifications.VscModification.ACTIVE_PO
 import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author jamal kheyyad <jamal.kheyyad at rte-france.com>
- * @auther Ayoub LABIDI <ayoub.labidi at rte-france.com>
+ * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
 class VscModificationTest extends AbstractNetworkModificationTest {
     private static final String PROPERTY_NAME = "property-name";
@@ -364,14 +364,16 @@ class VscModificationTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void checkModification() {
+        Network network = getNetwork();
         VscModificationInfos vscModificationInfos = VscModificationInfos.builder()
             .equipmentId("hvdcLine")
             .converterStation1(buildConverterStationWithReactiveCapabilityCurve())
             .converterStation2(buildConverterStationWithMinMaxReactiveLimits())
             .r(new AttributeModification<>(-1d, OperationType.SET))
             .build();
+        VscModification vscModification = (VscModification) vscModificationInfos.toModification();
         String message = assertThrows(NetworkModificationException.class,
-            () -> vscModificationInfos.toModification().check(getNetwork())).getMessage();
+            () -> vscModification.check(network)).getMessage();
         assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : can not have a negative value for Resistance R", message);
 
         VscModificationInfos vscModificationInfos2 = VscModificationInfos.builder()
@@ -382,8 +384,9 @@ class VscModificationTest extends AbstractNetworkModificationTest {
                 .build())
             .converterStation2(buildConverterStationWithReactiveCapabilityCurve())
             .build();
+        VscModification vscModification2 = (VscModification) vscModificationInfos2.toModification();
         message = assertThrows(NetworkModificationException.class,
-            () -> vscModificationInfos2.toModification().check(getNetwork())).getMessage();
+            () -> vscModification2.check(network)).getMessage();
         assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : can not have a negative value for voltage set point side 1", message);
 
         VscModificationInfos vscModificationInfos3 = VscModificationInfos.builder()
@@ -394,8 +397,9 @@ class VscModificationTest extends AbstractNetworkModificationTest {
                 .voltageSetpoint(new AttributeModification<>(-100d, OperationType.SET))
                 .build())
             .build();
+        VscModification vscModification3 = (VscModification) vscModificationInfos3.toModification();
         message = assertThrows(NetworkModificationException.class,
-            () -> vscModificationInfos3.toModification().check(getNetwork())).getMessage();
+            () -> vscModification3.check(network)).getMessage();
         assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : can not have a negative value for voltage set point side 2", message);
     }
 }

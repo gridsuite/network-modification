@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
- * @auther Ayoub LABIDI <ayoub.labidi at rte-france.com>
+ * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
 class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
     private static final String PROPERTY_NAME = "property-name";
@@ -74,24 +74,28 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
 
     @Override
     protected void checkModification() {
+        Network network = getNetwork();
         StaticVarCompensatorCreationInfos compensatorCreationInfos = (StaticVarCompensatorCreationInfos) buildModification();
         // try to create an existing cspr
         compensatorCreationInfos.setEquipmentId("v5Compensator");
-        Exception exception = assertThrows(NetworkModificationException.class, () -> compensatorCreationInfos.toModification().check(getNetwork()));
+        StaticVarCompensatorCreation staticVarCompensatorCreation = (StaticVarCompensatorCreation) compensatorCreationInfos.toModification();
+        Exception exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreation.check(network));
         assertEquals(new NetworkModificationException(STATIC_VAR_COMPENSATOR_ALREADY_EXISTS, "v5Compensator").getMessage(),
                 exception.getMessage());
 
         // not found voltage level
         compensatorCreationInfos.setEquipmentId("idStaticVarCompensator2");
         compensatorCreationInfos.setVoltageLevelId("notFoundVoltageLevelId");
-        exception = assertThrows(NetworkModificationException.class, () -> compensatorCreationInfos.toModification().check(getNetwork()));
+        StaticVarCompensatorCreation staticVarCompensatorCreation1 = (StaticVarCompensatorCreation) compensatorCreationInfos.toModification();
+        exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreation1.check(network));
         assertEquals(new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, "notFoundVoltageLevelId").getMessage(),
                 exception.getMessage());
 
         // not found busbar section
         compensatorCreationInfos.setVoltageLevelId("v2");
         compensatorCreationInfos.setBusOrBusbarSectionId("notFoundBusbarSection");
-        exception = assertThrows(NetworkModificationException.class, () -> compensatorCreationInfos.toModification().check(getNetwork()));
+        StaticVarCompensatorCreation staticVarCompensatorCreation2 = (StaticVarCompensatorCreation) compensatorCreationInfos.toModification();
+        exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreation2.check(network));
         assertEquals(new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, "notFoundBusbarSection").getMessage(),
                 exception.getMessage());
 
@@ -101,14 +105,16 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
         compensatorCreationInfos.setMinSusceptance(null);
         compensatorCreationInfos.setMinQAtNominalV(null);
 
-        exception = assertThrows(NetworkModificationException.class, () -> compensatorCreationInfos.toModification().check(getNetwork()));
+        StaticVarCompensatorCreation staticVarCompensatorCreation3 = (StaticVarCompensatorCreation) compensatorCreationInfos.toModification();
+        exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreation3.check(network));
         assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : StaticVarCompensator 'idStaticVarCompensator2' : minimum susceptance is not set",
                 exception.getMessage());
         compensatorCreationInfos.setMinSusceptance(200.0);
         compensatorCreationInfos.setMaxSusceptance(null);
         compensatorCreationInfos.setMaxQAtNominalV(null);
         compensatorCreationInfos.setMinQAtNominalV(null);
-        exception = assertThrows(NetworkModificationException.class, () -> compensatorCreationInfos.toModification().check(getNetwork()));
+        StaticVarCompensatorCreation staticVarCompensatorCreation4 = (StaticVarCompensatorCreation) compensatorCreationInfos.toModification();
+        exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreation4.check(network));
         assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : " +
                         "StaticVarCompensator 'idStaticVarCompensator2' : maximum susceptance is not set",
                 exception.getMessage());
@@ -117,7 +123,8 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
         compensatorCreationInfos.setMinSusceptance(200.0);
         compensatorCreationInfos.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
         compensatorCreationInfos.setReactivePowerSetpoint(null);
-        exception = assertThrows(NetworkModificationException.class, () -> compensatorCreationInfos.toModification().check(getNetwork()));
+        StaticVarCompensatorCreation staticVarCompensatorCreation5 = (StaticVarCompensatorCreation) compensatorCreationInfos.toModification();
+        exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreation5.check(network));
         assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : " +
                         "StaticVarCompensator 'idStaticVarCompensator2' : maximum susceptance is expected to be greater than or equal to minimum susceptance",
                 exception.getMessage());
@@ -125,7 +132,8 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
         compensatorCreationInfos.setMinSusceptance(null);
         compensatorCreationInfos.setMaxQAtNominalV(200.0);
         compensatorCreationInfos.setMinQAtNominalV(300.0);
-        exception = assertThrows(NetworkModificationException.class, () -> compensatorCreationInfos.toModification().check(getNetwork()));
+        StaticVarCompensatorCreation staticVarCompensatorCreation6 = (StaticVarCompensatorCreation) compensatorCreationInfos.toModification();
+        exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreation6.check(network));
         assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : " +
                         "StaticVarCompensator 'idStaticVarCompensator2' : maximum Q at nominal voltage is expected to be greater than or equal to minimum Q",
                 exception.getMessage());
@@ -133,14 +141,16 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
         compensatorCreationInfos.setMinQAtNominalV(100.0);
         compensatorCreationInfos.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
         compensatorCreationInfos.setReactivePowerSetpoint(null);
-        exception = assertThrows(NetworkModificationException.class, () -> compensatorCreationInfos.toModification().check(getNetwork()));
+        StaticVarCompensatorCreation staticVarCompensatorCreation7 = (StaticVarCompensatorCreation) compensatorCreationInfos.toModification();
+        exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreation7.check(network));
         assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : " +
                         "StaticVarCompensator 'idStaticVarCompensator2' : Reactive power setpoint is not set",
                 exception.getMessage());
 
         compensatorCreationInfos.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
         compensatorCreationInfos.setVoltageSetpoint(null);
-        exception = assertThrows(NetworkModificationException.class, () -> compensatorCreationInfos.toModification().check(getNetwork()));
+        StaticVarCompensatorCreation staticVarCompensatorCreation8 = (StaticVarCompensatorCreation) compensatorCreationInfos.toModification();
+        exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreation8.check(network));
         assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : " +
                         "StaticVarCompensator 'idStaticVarCompensator2' : Voltage setpoint is not set",
                 exception.getMessage());
@@ -173,7 +183,8 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
         compensatorCreationInfos2.setHighVoltageThreshold(300.0);
         compensatorCreationInfos2.setQ0(400.0);
 
-        exception = assertThrows(NetworkModificationException.class, () -> compensatorCreationInfos2.toModification().check(getNetwork()));
+        StaticVarCompensatorCreation staticVarCompensatorCreation9 = (StaticVarCompensatorCreation) compensatorCreationInfos2.toModification();
+        exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreation9.check(network));
         assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : " +
                         "StaticVarCompensator 'idStaticVarCompensator2' : q0 must be within the range of minimum Q and maximum Q",
                 exception.getMessage());
@@ -183,14 +194,16 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
         compensatorCreationInfos2.setMinSusceptance(200.0);
         compensatorCreationInfos2.setB0(400.0);
         compensatorCreationInfos2.setQ0(null);
-        exception = assertThrows(NetworkModificationException.class, () -> compensatorCreationInfos2.toModification().check(getNetwork()));
+        StaticVarCompensatorCreation staticVarCompensatorCreation10 = (StaticVarCompensatorCreation) compensatorCreationInfos2.toModification();
+        exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreation10.check(network));
         assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : " +
                         "StaticVarCompensator 'idStaticVarCompensator2' : b0 must be within the range of minimum susceptance and maximum susceptance",
                 exception.getMessage());
         compensatorCreationInfos2.setRegulationMode(OFF);
         compensatorCreationInfos2.setStandby(true);
 
-        exception = assertThrows(NetworkModificationException.class, () -> compensatorCreationInfos2.toModification().check(getNetwork()));
+        StaticVarCompensatorCreation staticVarCompensatorCreation11 = (StaticVarCompensatorCreation) compensatorCreationInfos2.toModification();
+        exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreation11.check(network));
         assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : " +
                         "StaticVarCompensator 'idStaticVarCompensator2' : Standby is only supported in Voltage Regulation mode",
                 exception.getMessage());
@@ -207,6 +220,7 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
 
     @Test
     void testCreationInfoChecks() {
+        Network network = getNetwork();
         StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos = StaticVarCompensatorCreationInfos.builder()
             .equipmentId("svc3")
             .voltageLevelId("v2")
@@ -219,8 +233,9 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
             .standbyAutomatonOn(false)
             .voltageSetpoint(-1d)
             .build();
+        StaticVarCompensatorCreation staticVarCompensatorCreation = (StaticVarCompensatorCreation) staticVarCompensatorCreationInfos.toModification();
         String message = assertThrows(NetworkModificationException.class,
-            () -> staticVarCompensatorCreationInfos.toModification().check(getNetwork())).getMessage();
+            () -> staticVarCompensatorCreation.check(network)).getMessage();
         assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : Static var compensator 'svc3' : can not have a negative value for voltage set point", message);
 
         StaticVarCompensatorCreationInfos staticVarCompensatorModificationInfos2 = StaticVarCompensatorCreationInfos.builder()
@@ -236,8 +251,9 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
             .voltageSetpoint(100d)
             .highVoltageSetpoint(-1d)
             .build();
+        StaticVarCompensatorCreation staticVarCompensatorCreation2 = (StaticVarCompensatorCreation) staticVarCompensatorModificationInfos2.toModification();
         message = assertThrows(NetworkModificationException.class,
-            () -> staticVarCompensatorModificationInfos2.toModification().check(getNetwork())).getMessage();
+            () -> staticVarCompensatorCreation2.check(network)).getMessage();
         assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : Static var compensator 'svc3' : can not have a negative value for high voltage set point", message);
 
         StaticVarCompensatorCreationInfos staticVarCompensatorModificationInfos3 = StaticVarCompensatorCreationInfos.builder()
@@ -253,8 +269,9 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
             .voltageSetpoint(100d)
             .lowVoltageSetpoint(-1d)
             .build();
+        StaticVarCompensatorCreation staticVarCompensatorCreation3 = (StaticVarCompensatorCreation) staticVarCompensatorModificationInfos3.toModification();
         message = assertThrows(NetworkModificationException.class,
-            () -> staticVarCompensatorModificationInfos3.toModification().check(getNetwork())).getMessage();
+            () -> staticVarCompensatorCreation3.check(network)).getMessage();
         assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : Static var compensator 'svc3' : can not have a negative value for low voltage set point", message);
 
         StaticVarCompensatorCreationInfos staticVarCompensatorModificationInfos4 = StaticVarCompensatorCreationInfos.builder()
@@ -270,8 +287,9 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
             .voltageSetpoint(100d)
             .highVoltageThreshold(-1d)
             .build();
+        StaticVarCompensatorCreation staticVarCompensatorCreation4 = (StaticVarCompensatorCreation) staticVarCompensatorModificationInfos4.toModification();
         message = assertThrows(NetworkModificationException.class,
-            () -> staticVarCompensatorModificationInfos4.toModification().check(getNetwork())).getMessage();
+            () -> staticVarCompensatorCreation4.check(network)).getMessage();
         assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : Static var compensator 'svc3' : can not have a negative value for high voltage threshold", message);
 
         StaticVarCompensatorCreationInfos staticVarCompensatorModificationInfos5 = StaticVarCompensatorCreationInfos.builder()
@@ -287,8 +305,9 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
             .voltageSetpoint(100d)
             .lowVoltageThreshold(-1d)
             .build();
+        StaticVarCompensatorCreation staticVarCompensatorCreation5 = (StaticVarCompensatorCreation) staticVarCompensatorModificationInfos5.toModification();
         message = assertThrows(NetworkModificationException.class,
-            () -> staticVarCompensatorModificationInfos5.toModification().check(getNetwork())).getMessage();
+            () -> staticVarCompensatorCreation5.check(network)).getMessage();
         assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : Static var compensator 'svc3' : can not have a negative value for low voltage threshold", message);
     }
 }

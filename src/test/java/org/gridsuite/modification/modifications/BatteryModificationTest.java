@@ -34,25 +34,29 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
 
     @Override
     public void checkModification() {
+        Network network = getNetwork();
         BatteryModificationInfos batteryModificationInfos = (BatteryModificationInfos) buildModification();
         batteryModificationInfos.setTargetP(new AttributeModification<>(-1.0, OperationType.SET));
+        BatteryModification batteryModification = (BatteryModification) batteryModificationInfos.toModification();
         assertThrows(NetworkModificationException.class,
-            () -> batteryModificationInfos.toModification().check(getNetwork()));
+            () -> batteryModification.check(network));
 
         BatteryModificationInfos batteryModificationInfos1 = BatteryModificationInfos.builder()
             .equipmentId("v3Battery")
             .droop(new AttributeModification<>(101f, OperationType.SET))
             .build();
+        BatteryModification batteryModification1 = (BatteryModification) batteryModificationInfos1.toModification();
         String message = assertThrows(NetworkModificationException.class,
-            () -> batteryModificationInfos1.toModification().check(getNetwork())).getMessage();
+            () -> batteryModification1.check(network)).getMessage();
         assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : must have Droop between 0 and 100", message);
 
         BatteryModificationInfos batteryModificationInfos2 = BatteryModificationInfos.builder()
             .equipmentId("v3Battery")
             .droop(new AttributeModification<>(-1f, OperationType.SET))
             .build();
+        BatteryModification batteryModification2 = (BatteryModification) batteryModificationInfos2.toModification();
         message = assertThrows(NetworkModificationException.class,
-            () -> batteryModificationInfos2.toModification().check(getNetwork())).getMessage();
+            () -> batteryModification2.check(network)).getMessage();
         assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : must have Droop between 0 and 100", message);
     }
 
