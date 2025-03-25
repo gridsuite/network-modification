@@ -13,7 +13,10 @@ import jakarta.validation.constraints.NotNull;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
 
+import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_VOLTAGE_LEVEL_ERROR;
+import static org.gridsuite.modification.modifications.GeneratorModification.ERROR_MESSAGE;
 import static org.gridsuite.modification.modifications.VoltageLevelModification.*;
+import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -39,10 +42,23 @@ public enum VoltageLevelField {
 
     public static void setNewValue(VoltageLevel voltageLevel, String voltageLevelField, @NotNull String newValue) {
         VoltageLevelField field = VoltageLevelField.valueOf(voltageLevelField);
+        final String errorMessage = String.format(ERROR_MESSAGE, voltageLevel.getId());
         switch (field) {
-            case NOMINAL_VOLTAGE -> modifyNominalV(voltageLevel, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null);
-            case LOW_VOLTAGE_LIMIT -> modifLowVoltageLimit(voltageLevel, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null);
-            case HIGH_VOLTAGE_LIMIT -> modifyHighVoltageLimit(voltageLevel, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null);
+            case NOMINAL_VOLTAGE -> {
+                Double nominalVoltage = Double.valueOf(newValue);
+                checkIsNotNegativeValue(errorMessage, nominalVoltage, MODIFY_VOLTAGE_LEVEL_ERROR, "Nominal voltage");
+                modifyNominalV(voltageLevel, new AttributeModification<>(nominalVoltage, OperationType.SET), null);
+            }
+            case LOW_VOLTAGE_LIMIT -> {
+                Double lowVoltageLimit = Double.valueOf(newValue);
+                checkIsNotNegativeValue(errorMessage, lowVoltageLimit, MODIFY_VOLTAGE_LEVEL_ERROR, "Low voltage limit");
+                modifLowVoltageLimit(voltageLevel, new AttributeModification<>(lowVoltageLimit, OperationType.SET), null);
+            }
+            case HIGH_VOLTAGE_LIMIT -> {
+                Double highVoltageLimit = Double.valueOf(newValue);
+                checkIsNotNegativeValue(errorMessage, highVoltageLimit, MODIFY_VOLTAGE_LEVEL_ERROR, "High voltage limit");
+                modifyHighVoltageLimit(voltageLevel, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null);
+            }
             case LOW_SHORT_CIRCUIT_CURRENT_LIMIT -> modifyVoltageLevelShortCircuit(
                     new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null, null, voltageLevel);
             case HIGH_SHORT_CIRCUIT_CURRENT_LIMIT -> modifyVoltageLevelShortCircuit(

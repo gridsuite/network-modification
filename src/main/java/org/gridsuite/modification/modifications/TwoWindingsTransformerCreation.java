@@ -44,6 +44,10 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         checkIsNotNegativeValue(errorMessage, modificationInfos.getG(), CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Conductance G");
         checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedU1(), CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 1");
         checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedU2(), CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 2");
+        if (modificationInfos.getRatioTapChanger() != null) {
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getRatioTapChanger().getTargetV(),
+                CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Target voltage for ratio tap changer");
+        }
     }
 
     @Override
