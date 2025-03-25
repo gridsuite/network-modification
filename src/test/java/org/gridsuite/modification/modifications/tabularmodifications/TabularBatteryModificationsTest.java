@@ -12,6 +12,7 @@ import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
+import org.gridsuite.modification.modifications.TabularCreation;
 import org.gridsuite.modification.utils.NetworkCreation;
 
 import java.util.ArrayList;
@@ -74,8 +75,10 @@ class TabularBatteryModificationsTest extends AbstractNetworkModificationTest {
             .creationType(ModificationType.BATTERY_CREATION)
             .creations(batteryCreations)
             .build();
+        Network network = getNetwork();
+        TabularCreation tabularCreation = (TabularCreation) tabularCreationInfos.toModification();
         String message = assertThrows(NetworkModificationException.class,
-            () -> tabularCreationInfos.toModification().check(getNetwork())).getMessage();
+            () -> tabularCreation.check(network)).getMessage();
         assertEquals("CREATE_BATTERY_ERROR : Battery 'v4Battery' : must have Droop between 0 and 100", message);
     }
 }

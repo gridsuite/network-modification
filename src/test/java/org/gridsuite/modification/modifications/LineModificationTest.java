@@ -184,12 +184,12 @@ class LineModificationTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void testDisconnection() throws Exception {
+    void testDisconnection() {
         changeLineConnectionState(getNetwork().getLine("line1"), false);
     }
 
     @Test
-    void testConnection() throws Exception {
+    void testConnection() {
         changeLineConnectionState(getNetwork().getLine("line1"), true);
     }
 
