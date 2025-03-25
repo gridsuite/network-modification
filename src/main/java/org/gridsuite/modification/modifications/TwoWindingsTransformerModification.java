@@ -48,16 +48,16 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         TwoWindingsTransformerModificationInfos twtModificationInfos = (TwoWindingsTransformerModificationInfos) modificationInfos;
         checkAndModifyTapChanger(network, twtModificationInfos.getRatioTapChanger(), transformer.getRatioTapChanger(), errorMessage);
         checkAndModifyTapChanger(network, twtModificationInfos.getPhaseTapChanger(), transformer.getPhaseTapChanger(), errorMessage);
-        if (twtModificationInfos.getR() != null && twtModificationInfos.getR().getValue() != null) {
+        if (twtModificationInfos.getR() != null) {
             checkIsNotNegativeValue(errorMessage, twtModificationInfos.getR().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Resistance R");
         }
-        if (twtModificationInfos.getG() != null && twtModificationInfos.getG().getValue() != null) {
+        if (twtModificationInfos.getG() != null) {
             checkIsNotNegativeValue(errorMessage, twtModificationInfos.getG().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Conductance G");
         }
-        if (twtModificationInfos.getRatedU1() != null && twtModificationInfos.getRatedU1().getValue() != null) {
+        if (twtModificationInfos.getRatedU1() != null) {
             checkIsNotNegativeValue(errorMessage, twtModificationInfos.getRatedU1().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 1");
         }
-        if (twtModificationInfos.getRatedU2() != null && twtModificationInfos.getRatedU2().getValue() != null) {
+        if (twtModificationInfos.getRatedU2() != null) {
             checkIsNotNegativeValue(errorMessage, twtModificationInfos.getRatedU2().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 2");
         }
     }

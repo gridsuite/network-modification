@@ -38,13 +38,13 @@ public class LineModification extends AbstractBranchModification {
             throw new NetworkModificationException(LINE_NOT_FOUND, errorMessage + "does not exist in network");
         }
         LineModificationInfos lineModificationInfos = (LineModificationInfos) modificationInfos;
-        if (lineModificationInfos.getR() != null && lineModificationInfos.getR().getValue() != null) {
+        if (lineModificationInfos.getR() != null) {
             checkIsNotNegativeValue(errorMessage, lineModificationInfos.getR().getValue(), MODIFY_LINE_ERROR, "Resistance R");
         }
-        if (lineModificationInfos.getG1() != null && lineModificationInfos.getG1().getValue() != null) {
+        if (lineModificationInfos.getG1() != null) {
             checkIsNotNegativeValue(errorMessage, lineModificationInfos.getG1().getValue(), MODIFY_LINE_ERROR, "Conductance on side 1 G1");
         }
-        if (lineModificationInfos.getG2() != null && lineModificationInfos.getG2().getValue() != null) {
+        if (lineModificationInfos.getG2() != null) {
             checkIsNotNegativeValue(errorMessage, lineModificationInfos.getG2().getValue(), MODIFY_LINE_ERROR, "Conductance on side 2 G2");
         }
     }

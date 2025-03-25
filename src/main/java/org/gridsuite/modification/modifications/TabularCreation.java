@@ -37,7 +37,7 @@ public class TabularCreation extends AbstractModification {
         if (creationInfos == null) {
             throw new NetworkModificationException(TABULAR_CREATION_ERROR, "No tabular creation to apply !!");
         }
-        creationInfos.getCreations().forEach(creationInfos -> creationInfos.toModification().check(network));
+        creationInfos.getCreations().forEach(creationInfo -> creationInfo.toModification().check(network));
     }
 
     @Override

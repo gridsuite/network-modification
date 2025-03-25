@@ -53,7 +53,7 @@ public class BatteryModification extends AbstractModification {
         ModificationUtils.getInstance().checkReactiveLimit(battery, modificationInfos.getMinQ(), modificationInfos.getMaxQ(),
                 modificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_BATTERY_ERROR, errorMessage);
         checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(modificationInfos, battery, MODIFY_BATTERY_ERROR, errorMessage);
-        if (modificationInfos.getDroop() != null && modificationInfos.getDroop().getValue() != null) {
+        if (modificationInfos.getDroop() != null) {
             checkIsPercentage(errorMessage, modificationInfos.getDroop().getValue(), MODIFY_BATTERY_ERROR, "Droop");
         }
     }

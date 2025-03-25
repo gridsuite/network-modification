@@ -166,6 +166,39 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
         assertEquals(new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "IpMax is required").getMessage(), exception.getMessage());
     }
 
+    private void testSetNominalVoltage() {
+        final String vlWithNoIcc = "v2";
+        VoltageLevelModificationInfos vli = VoltageLevelModificationInfos.builder()
+            .stashed(false)
+            .equipmentId(vlWithNoIcc)
+            .nominalV(new AttributeModification<>(-10.0, OperationType.SET))
+            .build();
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> vli.toModification().check(getNetwork()));
+        assertEquals(new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "Voltage level 'v2' : can not have a negative value for Nominal Voltage").getMessage(), exception.getMessage());
+    }
+
+    private void testSetLowVoltageLimit() {
+        final String vlWithNoIcc = "v2";
+        VoltageLevelModificationInfos vli = VoltageLevelModificationInfos.builder()
+            .stashed(false)
+            .equipmentId(vlWithNoIcc)
+            .lowVoltageLimit(new AttributeModification<>(-11.0, OperationType.SET))
+            .build();
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> vli.toModification().check(getNetwork()));
+        assertEquals(new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "Voltage level 'v2' : can not have a negative value for Low voltage limit").getMessage(), exception.getMessage());
+    }
+
+    private void testSetHighVoltageLimit() {
+        final String vlWithNoIcc = "v2";
+        VoltageLevelModificationInfos vli = VoltageLevelModificationInfos.builder()
+            .stashed(false)
+            .equipmentId(vlWithNoIcc)
+            .highVoltageLimit(new AttributeModification<>(-12.0, OperationType.SET))
+            .build();
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> vli.toModification().check(getNetwork()));
+        assertEquals(new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "Voltage level 'v2' : can not have a negative value for High voltage limit").getMessage(), exception.getMessage());
+    }
+
     @Test
     void testSetIpMaxOnEquipmentWitOnlyIpMaxExtension() throws Exception {
         final String vlName = "v2"; // has no ICC
@@ -207,5 +240,8 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
         testIpMinGreaterThanEquipmentIpMax();
         testEquipmentIpMinGreaterThanIpMax();
         testSetIpMinOnEquipmentWithoutExtension();
+        testSetNominalVoltage();
+        testSetLowVoltageLimit();
+        testSetHighVoltageLimit();
     }
 }
