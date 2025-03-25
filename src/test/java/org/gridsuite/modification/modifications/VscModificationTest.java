@@ -401,5 +401,42 @@ class VscModificationTest extends AbstractNetworkModificationTest {
         message = assertThrows(NetworkModificationException.class,
             () -> vscModification3.check(network)).getMessage();
         assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : can not have a negative value for voltage set point side 2", message);
+
+        VscModificationInfos vscModificationInfos4 = VscModificationInfos.builder()
+            .equipmentId("hvdcLine")
+            .nominalV(new AttributeModification<>(-100d, OperationType.SET))
+            .converterStation1(buildConverterStationWithReactiveCapabilityCurve())
+            .converterStation2(buildConverterStationWithReactiveCapabilityCurve())
+            .build();
+        VscModification vscModification4 = (VscModification) vscModificationInfos4.toModification();
+        message = assertThrows(NetworkModificationException.class,
+            () -> vscModification4.check(network)).getMessage();
+        assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : can not have a negative value for Nominal voltage", message);
+
+        VscModificationInfos vscModificationInfos5 = VscModificationInfos.builder()
+            .equipmentId("hvdcLine")
+            .converterStation1(buildConverterStationWithReactiveCapabilityCurve())
+            .converterStation2(ConverterStationModificationInfos.builder()
+                .equipmentId("v1vsc")
+                .lossFactor(new AttributeModification<>(-100f, OperationType.SET))
+                .build())
+            .build();
+        VscModification vscModification5 = (VscModification) vscModificationInfos5.toModification();
+        message = assertThrows(NetworkModificationException.class,
+            () -> vscModification5.check(network)).getMessage();
+        assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : must have loss factor side 2 between 0 and 100", message);
+
+        VscModificationInfos vscModificationInfos6 = VscModificationInfos.builder()
+            .equipmentId("hvdcLine")
+            .converterStation2(buildConverterStationWithReactiveCapabilityCurve())
+            .converterStation1(ConverterStationModificationInfos.builder()
+                .equipmentId("v1vsc")
+                .lossFactor(new AttributeModification<>(-100f, OperationType.SET))
+                .build())
+            .build();
+        VscModification vscModification6 = (VscModification) vscModificationInfos6.toModification();
+        message = assertThrows(NetworkModificationException.class,
+            () -> vscModification6.check(network)).getMessage();
+        assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : must have loss factor side 1 between 0 and 100", message);
     }
 }

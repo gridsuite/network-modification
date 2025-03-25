@@ -51,7 +51,7 @@ public abstract class AbstractNetworkModificationTest {
     }
 
     @Test
-    public void testCheck() throws Exception {
+    public void testCheck() {
         checkModification();
     }
 

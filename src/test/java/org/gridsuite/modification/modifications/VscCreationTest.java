@@ -219,7 +219,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         vscCreationInfos = (VscCreationInfos) buildModification();
         converterStationCreationInfos = buildConverterStationWithReactiveCapabilityCurve();
         converterStationCreationInfos.setConnectionPosition(55);
-        converterStationCreationInfos.getReactiveCapabilityCurvePoints().get(0).setP(Double.NaN);
+        converterStationCreationInfos.getReactiveCapabilityCurvePoints().getFirst().setP(Double.NaN);
         vscCreationInfos.setConverterStation1(converterStationCreationInfos);
 
         VscCreation vscCreation4 = (VscCreation) vscCreationInfos.toModification();
@@ -273,10 +273,51 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         message = assertThrows(NetworkModificationException.class,
             () -> vscCreation8.check(network)).getMessage();
         assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : can not have a negative value for voltage set point side 2", message);
+
+        VscCreationInfos vscCreationInfos9 = VscCreationInfos.builder()
+            .equipmentId("hvdcLine2")
+            .nominalV(-10d)
+            .converterStation1(buildConverterStationWithReactiveCapabilityCurve())
+            .converterStation2(buildConverterStationWithReactiveCapabilityCurve())
+            .build();
+        VscCreation vscCreation9 = (VscCreation) vscCreationInfos9.toModification();
+        message = assertThrows(NetworkModificationException.class,
+            () -> vscCreation9.check(network)).getMessage();
+        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : can not have a negative value for Nominal voltage", message);
+
+        VscCreationInfos vscCreationInfos10 = VscCreationInfos.builder()
+            .equipmentId("hvdcLine2")
+            .converterStation1(buildConverterStationWithReactiveCapabilityCurve())
+            .converterStation2(ConverterStationCreationInfos.builder()
+                .equipmentId("station2")
+                .voltageLevelId("v2")
+                .busOrBusbarSectionId("1B")
+                .lossFactor(101f)
+                .build())
+            .build();
+        VscCreation vscCreation10 = (VscCreation) vscCreationInfos10.toModification();
+        message = assertThrows(NetworkModificationException.class,
+            () -> vscCreation10.check(network)).getMessage();
+        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : must have loss factor side 2 between 0 and 100", message);
+
+        VscCreationInfos vscCreationInfos11 = VscCreationInfos.builder()
+            .equipmentId("hvdcLine2")
+            .converterStation2(buildConverterStationWithReactiveCapabilityCurve())
+            .converterStation1(ConverterStationCreationInfos.builder()
+                .equipmentId("station2")
+                .voltageLevelId("v2")
+                .busOrBusbarSectionId("1B")
+                .lossFactor(-1f)
+                .build())
+            .build();
+        VscCreation vscCreation11 = (VscCreation) vscCreationInfos11.toModification();
+        message = assertThrows(NetworkModificationException.class,
+            () -> vscCreation11.check(network)).getMessage();
+        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : must have loss factor side 1 between 0 and 100", message);
     }
 
     @Test
-    void testCreateAngleDroopPowerControlWithoutEnabling() throws Exception {
+    void testCreateAngleDroopPowerControlWithoutEnabling() {
         VscCreationInfos vscCreationInfos = (VscCreationInfos) buildModification();
         vscCreationInfos.setAngleDroopActivePowerControl(false);
         vscCreationInfos.toModification().apply(getNetwork());
@@ -290,7 +331,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void testNotCreateAngleDroopPowerControlWithoutEnabling() throws Exception {
+    void testNotCreateAngleDroopPowerControlWithoutEnabling() {
         VscCreationInfos vscCreationInfos = (VscCreationInfos) buildModification();
         vscCreationInfos.setAngleDroopActivePowerControl(false);
         vscCreationInfos.setDroop(null);
@@ -303,7 +344,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void testAngleDroopPowerControlWithAbsentInfos() throws Exception {
+    void testAngleDroopPowerControlWithAbsentInfos() {
         boolean[][] droopInfosIsPresentData = {
             {true, false, false},
             {true, true, false},
@@ -334,8 +375,10 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         return vscCreationInfos;
     }
 
-    private void checkDroopWithAbsentInfos(VscCreationInfos vscCreationInfos) throws Exception {
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> vscCreationInfos.toModification().check(getNetwork()));
+    private void checkDroopWithAbsentInfos(VscCreationInfos vscCreationInfos) {
+        Network network = getNetwork();
+        VscCreation vscCreation = (VscCreation) vscCreationInfos.toModification();
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> vscCreation.check(network));
         assertEquals(new NetworkModificationException(WRONG_HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL,
                         ACTIVE_POWER_CONTROL_DROOP_P0_REQUIRED_ERROR_MSG).getMessage(),
                 exception.getMessage());

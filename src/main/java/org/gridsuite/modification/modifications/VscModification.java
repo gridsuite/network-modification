@@ -31,6 +31,7 @@ import static org.gridsuite.modification.NetworkModificationException.Type.WRONG
 import static org.gridsuite.modification.modifications.VscCreation.VSC_CHARACTERISTICS;
 import static org.gridsuite.modification.modifications.VscCreation.VSC_SETPOINTS;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
+import static org.gridsuite.modification.utils.ModificationUtils.checkIsPercentage;
 
 /**
  * @author jamal kheyyad <jamal.kheyyad at rte-france.com>
@@ -74,18 +75,27 @@ public class VscModification extends AbstractModification {
         checkConverterStation(modificationInfos.getConverterStation1(), converterStation1);
         checkConverterStation(modificationInfos.getConverterStation2(), converterStation2);
         checkDroop(hvdcLine);
-        if (modificationInfos.getR() != null && modificationInfos.getR().getValue() != null) {
+        if (modificationInfos.getR() != null) {
             checkIsNotNegativeValue(errorMessage, modificationInfos.getR().getValue(), MODIFY_VSC_ERROR, "Resistance R");
         }
-        if (modificationInfos.getConverterStation1().getVoltageSetpoint() != null &&
-            modificationInfos.getConverterStation1().getVoltageSetpoint().getValue() != null) {
+        if (modificationInfos.getNominalV() != null) {
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getNominalV().getValue(), MODIFY_VSC_ERROR, "Nominal voltage");
+        }
+        if (modificationInfos.getConverterStation1().getVoltageSetpoint() != null) {
             checkIsNotNegativeValue(errorMessage, modificationInfos.getConverterStation1().getVoltageSetpoint().getValue(),
                 MODIFY_VSC_ERROR, "voltage set point side 1");
         }
-        if (modificationInfos.getConverterStation2().getVoltageSetpoint() != null &&
-            modificationInfos.getConverterStation2().getVoltageSetpoint().getValue() != null) {
+        if (modificationInfos.getConverterStation2().getVoltageSetpoint() != null) {
             checkIsNotNegativeValue(errorMessage, modificationInfos.getConverterStation2().getVoltageSetpoint().getValue(),
                 MODIFY_VSC_ERROR, "voltage set point side 2");
+        }
+        if (modificationInfos.getConverterStation1().getLossFactor() != null) {
+            checkIsPercentage(errorMessage, modificationInfos.getConverterStation1().getLossFactor().getValue(),
+                MODIFY_VSC_ERROR, "loss factor side 1");
+        }
+        if (modificationInfos.getConverterStation2().getLossFactor() != null) {
+            checkIsPercentage(errorMessage, modificationInfos.getConverterStation2().getLossFactor().getValue(),
+                MODIFY_VSC_ERROR, "loss factor side 2");
         }
     }
 

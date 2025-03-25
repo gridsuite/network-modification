@@ -22,8 +22,7 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_GENERATOR_ERROR;
-import static org.gridsuite.modification.NetworkModificationException.Type.GENERATOR_ALREADY_EXISTS;
+import static org.gridsuite.modification.NetworkModificationException.Type.*;
 import static org.gridsuite.modification.modifications.GeneratorModification.ERROR_MESSAGE;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
@@ -69,6 +68,7 @@ public class GeneratorCreation extends AbstractModification {
 
         checkIsNotNegativeValue(errorMessage, modificationInfos.getTargetV(), CREATE_GENERATOR_ERROR, "Target Voltage");
         checkIsPercentage(errorMessage, modificationInfos.getDroop(), CREATE_GENERATOR_ERROR, "Droop");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedS(), CREATE_GENERATOR_ERROR, "Rated apparent power");
     }
 
     @Override

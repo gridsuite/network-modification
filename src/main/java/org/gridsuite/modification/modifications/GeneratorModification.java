@@ -61,6 +61,9 @@ public class GeneratorModification extends AbstractModification {
             MODIFY_GENERATOR_ERROR,
             errorMessage);
         checkActivePowerZeroOrBetweenMinAndMaxActivePowerGenerator(modificationInfos, generator, MODIFY_GENERATOR_ERROR, errorMessage);
+        if (modificationInfos.getRatedS() != null) {
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedS().getValue(), MODIFY_GENERATOR_ERROR, "Rated apparent power");
+        }
         if (modificationInfos.getDroop() != null) {
             checkIsPercentage(errorMessage, modificationInfos.getDroop().getValue(), MODIFY_GENERATOR_ERROR, "Droop");
         }

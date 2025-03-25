@@ -194,6 +194,17 @@ class GeneratorCreationInNodeBreakerTest extends AbstractNetworkModificationTest
         message = assertThrows(NetworkModificationException.class,
             () -> generatorCreation11.check(network)).getMessage();
         assertEquals("CREATE_GENERATOR_ERROR : Generator 'v4Generator' : can not have a negative value for Target Voltage", message);
+
+        GeneratorCreationInfos generatorCreationInfos4 = GeneratorCreationInfos.builder()
+            .equipmentId("v4Generator")
+            .voltageLevelId("v2")
+            .busOrBusbarSectionId("1B")
+            .ratedS(-100d)
+            .build();
+        GeneratorCreation generatorCreation12 = (GeneratorCreation) generatorCreationInfos4.toModification();
+        message = assertThrows(NetworkModificationException.class,
+            () -> generatorCreation12.check(network)).getMessage();
+        assertEquals("CREATE_GENERATOR_ERROR : Generator 'v4Generator' : can not have a negative value for Rated apparent power", message);
     }
 
     @Test

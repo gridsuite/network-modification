@@ -172,6 +172,15 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         message = assertThrows(NetworkModificationException.class,
             () -> generatorModification7.check(network)).getMessage();
         assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : can not have a negative value for Target Voltage", message);
+
+        GeneratorModificationInfos generatorModificationInfos8 = GeneratorModificationInfos.builder()
+            .equipmentId("idGenerator")
+            .ratedS(new AttributeModification<>(-100d, OperationType.SET))
+            .build();
+        GeneratorModification generatorModification8 = (GeneratorModification) generatorModificationInfos8.toModification();
+        message = assertThrows(NetworkModificationException.class,
+            () -> generatorModification8.check(network)).getMessage();
+        assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : can not have a negative value for Rated apparent power", message);
     }
 
     @Test

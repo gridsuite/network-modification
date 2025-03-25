@@ -49,8 +49,11 @@ public class VscCreation extends AbstractModification {
         checkConverterStation(network, modificationInfos.getConverterStation2());
         checkDroop();
         checkIsNotNegativeValue(errorMessage, modificationInfos.getR(), CREATE_VSC_ERROR, "Resistance R");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getNominalV(), CREATE_VSC_ERROR, "Nominal voltage");
         checkIsNotNegativeValue(errorMessage, modificationInfos.getConverterStation1().getVoltageSetpoint(), CREATE_VSC_ERROR, "voltage set point side 1");
         checkIsNotNegativeValue(errorMessage, modificationInfos.getConverterStation2().getVoltageSetpoint(), CREATE_VSC_ERROR, "voltage set point side 2");
+        checkIsPercentage(errorMessage, modificationInfos.getConverterStation1().getLossFactor(), CREATE_VSC_ERROR, "loss factor side 1");
+        checkIsPercentage(errorMessage, modificationInfos.getConverterStation2().getLossFactor(), CREATE_VSC_ERROR, "loss factor side 2");
     }
 
     private void checkDroop() {
