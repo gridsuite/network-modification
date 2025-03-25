@@ -89,7 +89,10 @@ public enum TwoWindingsTransformerField {
                 checkIsNotNegativeValue(errorMessage, doubleValue, MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 2");
                 modifyRatedU2(transformer, attributeModification, null);
             }
-            case RATED_S -> modifyRatedS(transformer, attributeModification, null);
+            case RATED_S -> {
+                checkIsNotNegativeValue(errorMessage, doubleValue, MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated nominal power");
+                modifyRatedS(transformer, attributeModification, null);
+            }
             case TARGET_V -> {
                 checkIsNotNegativeValue(errorMessage, doubleValue, MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Target Voltage");
                 modifyTargets(ratioTapChanger, null, true, attributeModification, null, null);

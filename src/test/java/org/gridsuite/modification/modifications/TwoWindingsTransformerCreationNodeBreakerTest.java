@@ -504,6 +504,19 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
         message = assertThrows(NetworkModificationException.class,
             () -> twoWindingsTransformerCreation5.check(network)).getMessage();
         assertEquals("CREATE_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'twt3' : can not have a negative value for Target voltage for ratio tap changer", message);
+
+        TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos6 = TwoWindingsTransformerCreationInfos.builder()
+            .equipmentId("twt3")
+            .voltageLevelId1("v1")
+            .busOrBusbarSectionId1("1.1")
+            .voltageLevelId2("v2")
+            .busOrBusbarSectionId2("1A")
+            .ratedS(-200d)
+            .build();
+        TwoWindingsTransformerCreation twoWindingsTransformerCreation6 = (TwoWindingsTransformerCreation) twoWindingsTransformerCreationInfos6.toModification();
+        message = assertThrows(NetworkModificationException.class,
+            () -> twoWindingsTransformerCreation6.check(network)).getMessage();
+        assertEquals("CREATE_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'twt3' : can not have a negative value for Rated nominal power", message);
     }
 }
 
