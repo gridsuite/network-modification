@@ -33,8 +33,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
 class GeneratorCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
-    private static String PROPERTY_NAME = "property-name";
-    private static String PROPERTY_VALUE = "property-value";
+    private static final String PROPERTY_NAME = "property-name";
+    private static final String PROPERTY_VALUE = "property-value";
 
     @Override
     protected Network createNetwork(UUID networkUuid) {
@@ -208,7 +208,7 @@ class GeneratorCreationInNodeBreakerTest extends AbstractNetworkModificationTest
     }
 
     @Test
-    void testCreateWithShortCircuitErrors() throws Exception {
+    void testCreateWithShortCircuitErrors() {
         // invalid short circuit transient reactance
         GeneratorCreationInfos generatorCreationInfos = (GeneratorCreationInfos) buildModification();
         generatorCreationInfos.setDirectTransX(Double.NaN);
