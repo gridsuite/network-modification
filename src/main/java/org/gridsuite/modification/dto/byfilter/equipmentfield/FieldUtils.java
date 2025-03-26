@@ -32,6 +32,7 @@ public final class FieldUtils {
             case LOAD -> LoadField.getReferenceValue((Load) equipment, equipmentField);
             case TWO_WINDINGS_TRANSFORMER ->
                     TwoWindingsTransformerField.getReferenceValue((TwoWindingsTransformer) equipment, equipmentField);
+            case LINE -> LineField.getReferenceValue((Line) equipment, equipmentField);
             default -> throw new NetworkModificationException(NetworkModificationException.Type.MODIFICATION_ERROR,
                             "Unsupported getting value for equipment type : " + equipment.getType().name());
         };
@@ -45,6 +46,7 @@ public final class FieldUtils {
             case VOLTAGE_LEVEL -> VoltageLevelField.setNewValue((VoltageLevel) equipment, equipmentField, newValue);
             case LOAD -> LoadField.setNewValue((Load) equipment, equipmentField, newValue);
             case TWO_WINDINGS_TRANSFORMER -> TwoWindingsTransformerField.setNewValue((TwoWindingsTransformer) equipment, equipmentField, newValue);
+            case LINE -> LineField.setNewValue((Line) equipment, equipmentField, newValue);
             default -> throw new NetworkModificationException(NetworkModificationException.Type.MODIFICATION_ERROR,
                             "Unsupported setting value for equipment type : " + equipment.getType().name());
         }
