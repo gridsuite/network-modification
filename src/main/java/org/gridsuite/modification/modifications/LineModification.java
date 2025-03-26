@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.BranchModificationInfos;
 import org.gridsuite.modification.dto.LineModificationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -136,6 +137,66 @@ public class LineModification extends AbstractBranchModification {
                         && lineModificationInfos.getG2().getValue() != null
                 || lineModificationInfos.getB2() != null
                         && lineModificationInfos.getB2().getValue() != null;
+    }
+
+    public static void modifyX(Line line, AttributeModification<Double> modifX, ReportNode reportNode) {
+        if (modifX != null && modifX.getValue() != null) {
+            if (reportNode != null) {
+                insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(line.getX(),
+                    modifX.getValue(), "Series reactance", 1));
+            }
+            line.setX(modifX.getValue());
+        }
+    }
+
+    public static void modifyR(Line line, AttributeModification<Double> modifR, ReportNode reportNode) {
+        if (modifR != null && modifR.getValue() != null) {
+            if (reportNode != null) {
+                insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(line.getR(),
+                    modifR.getValue(), "Series resistance", 1));
+            }
+            line.setR(modifR.getValue());
+        }
+    }
+
+    public static void modifyG1(Line line, AttributeModification<Double> modifG1, ReportNode reportNode) {
+        if (modifG1 != null && modifG1.getValue() != null) {
+            if (reportNode != null) {
+                insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(line.getG1(),
+                    modifG1.getValue(), "Series resistance", 1));
+            }
+            line.setG1(modifG1.getValue());
+        }
+    }
+
+    public static void modifyG2(Line line, AttributeModification<Double> modifG2, ReportNode reportNode) {
+        if (modifG2 != null && modifG2.getValue() != null) {
+            if (reportNode != null) {
+                insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(line.getG2(),
+                    modifG2.getValue(), "Series resistance", 1));
+            }
+            line.setG2(modifG2.getValue());
+        }
+    }
+
+    public static void modifyB1(Line line, AttributeModification<Double> modifB1, ReportNode reportNode) {
+        if (modifB1 != null && modifB1.getValue() != null) {
+            if (reportNode != null) {
+                insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(line.getB1(),
+                    modifB1.getValue(), "Series resistance", 1));
+            }
+            line.setB1(modifB1.getValue());
+        }
+    }
+
+    public static void modifyB2(Line line, AttributeModification<Double> modifB2, ReportNode reportNode) {
+        if (modifB2 != null && modifB2.getValue() != null) {
+            if (reportNode != null) {
+                insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(line.getB2(),
+                    modifB2.getValue(), "Series resistance", 1));
+            }
+            line.setB2(modifB2.getValue());
+        }
     }
 
 }
