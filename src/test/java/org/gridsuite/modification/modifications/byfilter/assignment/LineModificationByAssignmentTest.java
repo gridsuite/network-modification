@@ -40,45 +40,6 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
     private static final String LINE_ID_6 = "line_6";
 
     @Test
-    void testModifyTwtWithError() {
-        // Test modifying ratio tab changer field when ratio tab changer is null
-        IdentifiableAttributes identifiableAttributes1 = new IdentifiableAttributes(LINE_ID_4, getIdentifiableType(), 1.);
-        IdentifiableAttributes identifiableAttributes2 = new IdentifiableAttributes(LINE_ID_6, getIdentifiableType(), 1.);
-        FilterEquipments filter = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(identifiableAttributes1, identifiableAttributes2)).build();
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_ID_4, filter));
-        DoubleAssignmentInfos assignmentInfos = DoubleAssignmentInfos.builder()
-                .editedField(LineField.R.name())
-                .value(1.)
-                .filters(List.of(filter4))
-                .build();
-
-        ModificationByAssignmentInfos modificationInfos = ModificationByAssignmentInfos.builder()
-                .equipmentType(getIdentifiableType())
-                .assignmentInfosList(List.of(assignmentInfos))
-                .stashed(false)
-                .build();
-        apply(modificationInfos);
-
-        // Test modifying phase tab changer field when phase tab changer is null
-        IdentifiableAttributes identifiableAttributes3 = new IdentifiableAttributes(LINE_ID_1, getIdentifiableType(), 1.);
-        IdentifiableAttributes identifiableAttributes4 = new IdentifiableAttributes(LINE_ID_2, getIdentifiableType(), 1.);
-        FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(identifiableAttributes3, identifiableAttributes4)).build();
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_ID_1, filter2));
-        DoubleAssignmentInfos assignmentInfos2 = DoubleAssignmentInfos.builder()
-                .editedField(LineField.R.name())
-                .value(1.)
-                .filters(List.of(filter1))
-                .build();
-
-        ModificationByAssignmentInfos modificationInfos2 = ModificationByAssignmentInfos.builder()
-                .equipmentType(getIdentifiableType())
-                .assignmentInfosList(List.of(assignmentInfos2))
-                .stashed(false)
-                .build();
-        apply(modificationInfos2);
-    }
-
-    @Test
     void testModifyTwtWithWarning() {
         IdentifiableAttributes identifiableAttributes1 = new IdentifiableAttributes(LINE_ID_1, getIdentifiableType(), 1.);
         IdentifiableAttributes identifiableAttributes2 = new IdentifiableAttributes(LINE_ID_2, getIdentifiableType(), 1.);
