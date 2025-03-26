@@ -14,10 +14,17 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.dto.FreePropertyInfos;
+import org.gridsuite.modification.dto.GeneratorCreationInfos;
+import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
-import java.util.*;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,8 +33,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
 class GeneratorCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
-    private static String PROPERTY_NAME = "property-name";
-    private static String PROPERTY_VALUE = "property-value";
+    private static final String PROPERTY_NAME = "property-name";
+    private static final String PROPERTY_VALUE = "property-value";
 
     @Override
     protected Network createNetwork(UUID networkUuid) {
@@ -84,22 +91,26 @@ class GeneratorCreationInNodeBreakerTest extends AbstractNetworkModificationTest
 
     @Override
     protected void checkModification() {
+        Network network = getNetwork();
         // invalid Generator id
         GeneratorCreationInfos generatorCreationInfos = (GeneratorCreationInfos) buildModification();
         generatorCreationInfos.setEquipmentId("");
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> generatorCreationInfos.toModification().apply(getNetwork()));
+        GeneratorCreation generatorCreation = (GeneratorCreation) generatorCreationInfos.toModification();
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> generatorCreation.apply(network));
         assertEquals("Invalid id ''", exception.getMessage());
 
         // not found voltage level
         generatorCreationInfos.setEquipmentId("idGenerator1");
         generatorCreationInfos.setVoltageLevelId("notFoundVoltageLevelId");
-        exception = assertThrows(NetworkModificationException.class, () -> generatorCreationInfos.toModification().check(getNetwork()));
+        GeneratorCreation generatorCreation1 = (GeneratorCreation) generatorCreationInfos.toModification();
+        exception = assertThrows(NetworkModificationException.class, () -> generatorCreation1.check(network));
         assertEquals("VOLTAGE_LEVEL_NOT_FOUND : notFoundVoltageLevelId", exception.getMessage());
 
         // not found busbar section
         generatorCreationInfos.setVoltageLevelId("v2");
         generatorCreationInfos.setBusOrBusbarSectionId("notFoundBusbarSection");
-        exception = assertThrows(NetworkModificationException.class, () -> generatorCreationInfos.toModification().check(getNetwork()));
+        GeneratorCreation generatorCreation2 = (GeneratorCreation) generatorCreationInfos.toModification();
+        exception = assertThrows(NetworkModificationException.class, () -> generatorCreation2.check(network));
         assertEquals("BUSBAR_SECTION_NOT_FOUND : notFoundBusbarSection", exception.getMessage());
 
         // invalid min active power
@@ -107,47 +118,97 @@ class GeneratorCreationInNodeBreakerTest extends AbstractNetworkModificationTest
 
         generatorCreationInfos.setBusOrBusbarSectionId("1B");
         generatorCreationInfos.setMinP(Double.NaN);
-        exception = assertThrows(ValidationException.class, () -> generatorCreationInfos.toModification().apply(getNetwork()));
+        GeneratorCreation generatorCreation3 = (GeneratorCreation) generatorCreationInfos.toModification();
+        exception = assertThrows(ValidationException.class, () -> generatorCreation3.apply(network));
         assertEquals("Generator 'idGenerator1': invalid value (NaN) for minimum P", exception.getMessage());
 
         // invalid min max reactive limit
         generatorCreationInfos.setMinP(0.0);
         generatorCreationInfos.setReactiveCapabilityCurve(false);
         generatorCreationInfos.setMinQ(Double.NaN);
+        GeneratorCreation generatorCreation4 = (GeneratorCreation) generatorCreationInfos.toModification();
 
-        exception = assertThrows(NetworkModificationException.class, () -> generatorCreationInfos.toModification().check(getNetwork()));
+        exception = assertThrows(NetworkModificationException.class, () -> generatorCreation4.check(network));
         assertEquals("CREATE_GENERATOR_ERROR : Generator 'idGenerator1' : minimum reactive power is not set", exception.getMessage());
 
         generatorCreationInfos.setMinQ(0.0);
         generatorCreationInfos.setReactiveCapabilityCurve(false);
         generatorCreationInfos.setMaxQ(Double.NaN);
+        GeneratorCreation generatorCreation5 = (GeneratorCreation) generatorCreationInfos.toModification();
 
-        exception = assertThrows(NetworkModificationException.class, () -> generatorCreationInfos.toModification().check(getNetwork()));
+        exception = assertThrows(NetworkModificationException.class, () -> generatorCreation5.check(network));
         assertEquals("CREATE_GENERATOR_ERROR : Generator 'idGenerator1' : maximum reactive power is not set", exception.getMessage());
 
         generatorCreationInfos.setReactiveCapabilityCurve(false);
         generatorCreationInfos.setMinQ(200.);
         generatorCreationInfos.setMaxQ(100.);
+        GeneratorCreation generatorCreation6 = (GeneratorCreation) generatorCreationInfos.toModification();
 
-        exception = assertThrows(NetworkModificationException.class, () -> generatorCreationInfos.toModification().check(getNetwork()));
+        exception = assertThrows(NetworkModificationException.class, () -> generatorCreation6.check(network));
         assertEquals("CREATE_GENERATOR_ERROR : Generator 'idGenerator1' : maximum reactive power is expected to be greater than or equal to minimum reactive power", exception.getMessage());
 
         // invalid reactive capability curve limit
         generatorCreationInfos.setMinQ(20.0);
         generatorCreationInfos.setReactiveCapabilityCurve(true);
-        generatorCreationInfos.getReactiveCapabilityCurvePoints().get(0).setP(Double.NaN);
+        generatorCreationInfos.getReactiveCapabilityCurvePoints().getFirst().setP(Double.NaN);
+        GeneratorCreation generatorCreation7 = (GeneratorCreation) generatorCreationInfos.toModification();
 
-        exception = assertThrows(NetworkModificationException.class, () -> generatorCreationInfos.toModification().check(getNetwork()));
+        exception = assertThrows(NetworkModificationException.class, () -> generatorCreation7.check(network));
         assertEquals("CREATE_GENERATOR_ERROR : Generator 'idGenerator1' : P is not set in a reactive capability curve limits point", exception.getMessage());
 
         // // try to create an existing generator
         generatorCreationInfos.setEquipmentId("v5generator");
-        exception = assertThrows(NetworkModificationException.class, () -> generatorCreationInfos.toModification().check(getNetwork()));
+        GeneratorCreation generatorCreation8 = (GeneratorCreation) generatorCreationInfos.toModification();
+        exception = assertThrows(NetworkModificationException.class, () -> generatorCreation8.check(network));
         assertEquals("GENERATOR_ALREADY_EXISTS : v5generator", exception.getMessage());
+
+        GeneratorCreationInfos generatorCreationInfos1 = GeneratorCreationInfos.builder()
+            .equipmentId("v4Generator")
+            .voltageLevelId("v2")
+            .busOrBusbarSectionId("1B")
+            .droop(101f)
+            .build();
+        GeneratorCreation generatorCreation9 = (GeneratorCreation) generatorCreationInfos1.toModification();
+        String message = assertThrows(NetworkModificationException.class,
+            () -> generatorCreation9.check(network)).getMessage();
+        assertEquals("CREATE_GENERATOR_ERROR : Generator 'v4Generator' : must have Droop between 0 and 100", message);
+
+        GeneratorCreationInfos generatorCreationInfos2 = GeneratorCreationInfos.builder()
+            .equipmentId("v4Generator")
+            .voltageLevelId("v2")
+            .busOrBusbarSectionId("1B")
+            .droop(-1f)
+            .build();
+        GeneratorCreation generatorCreation10 = (GeneratorCreation) generatorCreationInfos2.toModification();
+        message = assertThrows(NetworkModificationException.class,
+            () -> generatorCreation10.check(network)).getMessage();
+        assertEquals("CREATE_GENERATOR_ERROR : Generator 'v4Generator' : must have Droop between 0 and 100", message);
+
+        GeneratorCreationInfos generatorCreationInfos3 = GeneratorCreationInfos.builder()
+            .equipmentId("v4Generator")
+            .voltageLevelId("v2")
+            .busOrBusbarSectionId("1B")
+            .targetV(-100d)
+            .build();
+        GeneratorCreation generatorCreation11 = (GeneratorCreation) generatorCreationInfos3.toModification();
+        message = assertThrows(NetworkModificationException.class,
+            () -> generatorCreation11.check(network)).getMessage();
+        assertEquals("CREATE_GENERATOR_ERROR : Generator 'v4Generator' : can not have a negative value for Target Voltage", message);
+
+        GeneratorCreationInfos generatorCreationInfos4 = GeneratorCreationInfos.builder()
+            .equipmentId("v4Generator")
+            .voltageLevelId("v2")
+            .busOrBusbarSectionId("1B")
+            .ratedS(-100d)
+            .build();
+        GeneratorCreation generatorCreation12 = (GeneratorCreation) generatorCreationInfos4.toModification();
+        message = assertThrows(NetworkModificationException.class,
+            () -> generatorCreation12.check(network)).getMessage();
+        assertEquals("CREATE_GENERATOR_ERROR : Generator 'v4Generator' : can not have a negative value for Rated apparent power", message);
     }
 
     @Test
-    void testCreateWithShortCircuitErrors() throws Exception {
+    void testCreateWithShortCircuitErrors() {
         // invalid short circuit transient reactance
         GeneratorCreationInfos generatorCreationInfos = (GeneratorCreationInfos) buildModification();
         generatorCreationInfos.setDirectTransX(Double.NaN);

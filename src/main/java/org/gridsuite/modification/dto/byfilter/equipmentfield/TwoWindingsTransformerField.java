@@ -14,7 +14,10 @@ import jakarta.validation.constraints.NotNull;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
 
+import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR;
+import static org.gridsuite.modification.modifications.GeneratorModification.ERROR_MESSAGE;
 import static org.gridsuite.modification.modifications.TwoWindingsTransformerModification.*;
+import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -63,17 +66,37 @@ public enum TwoWindingsTransformerField {
         TwoWindingsTransformerField field = TwoWindingsTransformerField.valueOf(twoWindingsTransformerField);
         final PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
         final RatioTapChanger ratioTapChanger = transformer.getRatioTapChanger();
-        final AttributeModification<Double> attributeModification = new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET);
+        final Double doubleValue = Double.valueOf(newValue);
+        final AttributeModification<Double> attributeModification = new AttributeModification<>(doubleValue, OperationType.SET);
+        final String errorMessage = String.format(ERROR_MESSAGE, transformer.getId());
 
         switch (field) {
-            case R -> modifyR(transformer, attributeModification, null);
+            case R -> {
+                checkIsNotNegativeValue(errorMessage, doubleValue, MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Resistance R");
+                modifyR(transformer, attributeModification, null);
+            }
             case X -> modifyX(transformer, attributeModification, null);
-            case G -> modifyG(transformer, attributeModification, null);
+            case G -> {
+                checkIsNotNegativeValue(errorMessage, doubleValue, MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Conductance G");
+                modifyG(transformer, attributeModification, null);
+            }
             case B -> modifyB(transformer, attributeModification, null);
-            case RATED_U1 -> modifyRatedU1(transformer, attributeModification, null);
-            case RATED_U2 -> modifyRatedU2(transformer, attributeModification, null);
-            case RATED_S -> modifyRatedS(transformer, attributeModification, null);
-            case TARGET_V -> modifyTargets(ratioTapChanger, null, true, attributeModification, null, null);
+            case RATED_U1 -> {
+                checkIsNotNegativeValue(errorMessage, doubleValue, MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 1");
+                modifyRatedU1(transformer, attributeModification, null);
+            }
+            case RATED_U2 -> {
+                checkIsNotNegativeValue(errorMessage, doubleValue, MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 2");
+                modifyRatedU2(transformer, attributeModification, null);
+            }
+            case RATED_S -> {
+                checkIsNotNegativeValue(errorMessage, doubleValue, MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated nominal power");
+                modifyRatedS(transformer, attributeModification, null);
+            }
+            case TARGET_V -> {
+                checkIsNotNegativeValue(errorMessage, doubleValue, MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Target Voltage");
+                modifyTargets(ratioTapChanger, null, true, attributeModification, null, null);
+            }
             case RATIO_LOW_TAP_POSITION -> processTapChangerPositionsAndSteps(ratioTapChanger, null, true,
                     new AttributeModification<>((int) Double.parseDouble(newValue), OperationType.SET), null, null, null);
             case RATIO_TAP_POSITION -> processTapChangerPositionsAndSteps(ratioTapChanger, null, true,
