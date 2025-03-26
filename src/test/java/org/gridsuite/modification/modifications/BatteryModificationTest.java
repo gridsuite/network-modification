@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
-
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -23,9 +22,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
@@ -37,10 +34,30 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
 
     @Override
     public void checkModification() {
+        Network network = getNetwork();
         BatteryModificationInfos batteryModificationInfos = (BatteryModificationInfos) buildModification();
         batteryModificationInfos.setTargetP(new AttributeModification<>(-1.0, OperationType.SET));
+        BatteryModification batteryModification = (BatteryModification) batteryModificationInfos.toModification();
         assertThrows(NetworkModificationException.class,
-            () -> batteryModificationInfos.toModification().check(getNetwork()));
+            () -> batteryModification.check(network));
+
+        BatteryModificationInfos batteryModificationInfos1 = BatteryModificationInfos.builder()
+            .equipmentId("v3Battery")
+            .droop(new AttributeModification<>(101f, OperationType.SET))
+            .build();
+        BatteryModification batteryModification1 = (BatteryModification) batteryModificationInfos1.toModification();
+        String message = assertThrows(NetworkModificationException.class,
+            () -> batteryModification1.check(network)).getMessage();
+        assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : must have Droop between 0 and 100", message);
+
+        BatteryModificationInfos batteryModificationInfos2 = BatteryModificationInfos.builder()
+            .equipmentId("v3Battery")
+            .droop(new AttributeModification<>(-1f, OperationType.SET))
+            .build();
+        BatteryModification batteryModification2 = (BatteryModification) batteryModificationInfos2.toModification();
+        message = assertThrows(NetworkModificationException.class,
+            () -> batteryModification2.check(network)).getMessage();
+        assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : must have Droop between 0 and 100", message);
     }
 
     @Override
@@ -136,7 +153,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
 
     @Test
     void testMinQGreaterThanMaxQ() throws Exception {
-        BatteryModificationInfos batteryModificationInfos = (BatteryModificationInfos) buildModification();
+        BatteryModificationInfos batteryModificationInfos = buildModification();
         Battery battery = getNetwork().getBattery("v3Battery");
         battery.newReactiveCapabilityCurve()
                 .beginPoint()

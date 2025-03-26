@@ -9,7 +9,8 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 import org.gridsuite.modification.NetworkModificationException;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_VOLTAGE_LEVEL_ERROR;
+import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
 /**
@@ -40,6 +42,7 @@ public class VoltageLevelModification extends AbstractModification {
     public void check(Network network) throws NetworkModificationException {
         boolean ipMinSet = false;
         boolean ipMaxSet = false;
+        String errorMessage = "Voltage level '" + modificationInfos.getEquipmentId() + "' : ";
         if (Objects.nonNull(modificationInfos.getIpMin())) {
             ipMinSet = true;
             if (modificationInfos.getIpMin().getValue() < 0) {
@@ -59,6 +62,15 @@ public class VoltageLevelModification extends AbstractModification {
         } else if (ipMinSet || ipMaxSet) {
             // only one Icc set: check with existing VL attributes
             checkIccValuesAgainstEquipmentInNetwork(network, ipMinSet, ipMaxSet);
+        }
+        if (modificationInfos.getNominalV() != null) {
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getNominalV().getValue(), MODIFY_VOLTAGE_LEVEL_ERROR, "Nominal Voltage");
+        }
+        if (modificationInfos.getLowVoltageLimit() != null) {
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getLowVoltageLimit().getValue(), MODIFY_VOLTAGE_LEVEL_ERROR, "Low voltage limit");
+        }
+        if (modificationInfos.getHighVoltageLimit() != null) {
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getHighVoltageLimit().getValue(), MODIFY_VOLTAGE_LEVEL_ERROR, "High voltage limit");
         }
     }
 

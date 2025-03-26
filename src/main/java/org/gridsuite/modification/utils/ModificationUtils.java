@@ -1703,5 +1703,11 @@ public final class ModificationUtils {
             throw new NetworkModificationException(exceptionType, errorMessage + "can not have a negative value for " + valueName);
         }
     }
+
+    public static void checkIsPercentage(String errorMessage, Float valueToCheck, NetworkModificationException.Type exceptionType, String valueName) throws NetworkModificationException {
+        if (valueToCheck != null && (valueToCheck < 0 || valueToCheck > 100)) {
+            throw new NetworkModificationException(exceptionType, errorMessage + "must have " + valueName + " between 0 and 100");
+        }
+    }
 }
 
