@@ -5,26 +5,18 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ReactiveCapabilityCurve;
-import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
-import com.powsybl.iidm.network.ReactiveLimitsKind;
-import com.powsybl.iidm.network.VscConverterStation;
-import org.gridsuite.modification.dto.ConverterStationModificationInfos;
 import org.gridsuite.modification.dto.LccConverterStationModificationInfos;
 import org.gridsuite.modification.dto.LccModificationInfos;
-import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.gridsuite.modification.modifications.LccCreation.FILTERS;
 import static org.gridsuite.modification.modifications.LccCreation.LCC_CHARACTERISTICS;
-import static org.gridsuite.modification.modifications.VscCreation.VSC_CHARACTERISTICS;
 
 @SuppressWarnings("checkstyle:RegexpSingleline")
 public class LccModification extends AbstractModification {

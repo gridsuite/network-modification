@@ -18,7 +18,6 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.LccCreation;
 import org.gridsuite.modification.modifications.LccModification;
 
 /**
@@ -33,7 +32,7 @@ import org.gridsuite.modification.modifications.LccModification;
 @Schema(description = "LCC modification")
 @JsonTypeName("LCC_MODIFICATION")
 @ModificationErrorTypeName("MODIFY_LCC_ERROR")
-public class LccModificationInfos extends EquipmentModificationInfos {
+public class LccModificationInfos extends BasicEquipmentModificationInfos {
     @Schema(description = "DC nominal voltage")
     private AttributeModification<Double> nominalV;
 
