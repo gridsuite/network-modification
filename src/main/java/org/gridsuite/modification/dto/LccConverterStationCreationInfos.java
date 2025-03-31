@@ -29,18 +29,6 @@ import java.util.List;
 @JsonTypeName("LCC_CONVERTER_STATION_CREATION")
 @ModificationErrorTypeName("LCC_CREATE_CONVERTER_STATION_ERROR")
 public class LccConverterStationCreationInfos extends InjectionCreationInfos {
-    @Builder
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ShuntCompensatorInfos {
-        private String id;
-        private String name;
-        private Double maxQAtNominalV;
-        private Boolean connectedToHvdc;
-    }
-
     @Schema(description = "Loss Factor")
     private Float lossFactor;
 
@@ -49,5 +37,5 @@ public class LccConverterStationCreationInfos extends InjectionCreationInfos {
 
     @Schema(description = "LCC HVDC Converter Station Shunt Compensator")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<ShuntCompensatorInfos> shuntCompensatorsOnSide;
+    private List<LccShuntCompensatorInfos> shuntCompensatorsOnSide;
 }
