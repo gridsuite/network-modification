@@ -9,15 +9,19 @@ package org.gridsuite.modification.modifications.tabularmodifications;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
+import org.gridsuite.modification.modifications.TabularCreation;
 import org.gridsuite.modification.utils.NetworkCreation;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -60,5 +64,21 @@ class TabularBatteryModificationsTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void checkModification() {
+        List<ModificationInfos> batteryCreations = new ArrayList<>();
+        batteryCreations.add(BatteryCreationInfos.builder()
+            .equipmentId("v4Battery")
+            .voltageLevelId("v2")
+            .busOrBusbarSectionId("1B")
+            .droop(101f)
+            .build());
+        TabularCreationInfos tabularCreationInfos = TabularCreationInfos.builder()
+            .creationType(ModificationType.BATTERY_CREATION)
+            .creations(batteryCreations)
+            .build();
+        Network network = getNetwork();
+        TabularCreation tabularCreation = (TabularCreation) tabularCreationInfos.toModification();
+        String message = assertThrows(NetworkModificationException.class,
+            () -> tabularCreation.check(network)).getMessage();
+        assertEquals("CREATE_BATTERY_ERROR : Battery 'v4Battery' : must have Droop between 0 and 100", message);
     }
 }
