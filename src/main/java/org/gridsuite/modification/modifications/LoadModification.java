@@ -112,7 +112,7 @@ public class LoadModification extends AbstractModification {
             MeasurementsAdder<?> measurementsAdder = injection.newExtension(MeasurementsAdder.class);
             measurements = measurementsAdder.add();
         }
-        // Side 1 measurements update
+        // measurements update
         List<ReportNode> reports = new ArrayList<>();
         upsertMeasurement(measurements, Measurement.Type.ACTIVE_POWER, pValue, pValidity, reports);
         upsertMeasurement(measurements, Measurement.Type.REACTIVE_POWER, qValue, qValidity, reports);
@@ -130,29 +130,29 @@ public class LoadModification extends AbstractModification {
             return;
         }
         String measurementType = (type == Measurement.Type.ACTIVE_POWER ? "Active power" : "Reactive power") + " measurement ";
-        Measurement m = getExistingMeasurement(measurements, type);
-        if (m != null) { // update measurement
+        Measurement measurement = getExistingMeasurement(measurements, type);
+        if (measurement != null) { // update measurement
             if (value != null) {
-                double oldValue = m.getValue();
-                m.setValue(value);
+                double oldValue = measurement.getValue();
+                measurement.setValue(value);
                 reports.add(ModificationUtils.buildModificationReport(oldValue, value, measurementType + VALUE, 1, TypedValue.INFO_SEVERITY));
             }
             if (validity != null) {
-                boolean oldValidity = m.isValid();
-                m.setValid(validity);
+                boolean oldValidity = measurement.isValid();
+                measurement.setValid(validity);
                 reports.add(ModificationUtils.buildModificationReport(oldValidity, validity, measurementType + VALIDITY, 1, TypedValue.INFO_SEVERITY));
             }
-        } else { // add new measurement
-            var mAdder = measurements.newMeasurement().setId(UUID.randomUUID().toString()).setType(type);
+        } else {
+            var measurementAdder = measurements.newMeasurement().setId(UUID.randomUUID().toString()).setType(type);
             if (value != null) {
-                mAdder.setValue(value);
+                measurementAdder.setValue(value);
                 reports.add(ModificationUtils.buildModificationReport(null, value, measurementType + VALUE, 1, TypedValue.INFO_SEVERITY));
             }
             if (validity != null) {
-                mAdder.setValid(validity);
+                measurementAdder.setValid(validity);
                 reports.add(ModificationUtils.buildModificationReport(null, validity, measurementType + VALIDITY, 1, TypedValue.INFO_SEVERITY));
             }
-            mAdder.add();
+            measurementAdder.add();
         }
     }
 
