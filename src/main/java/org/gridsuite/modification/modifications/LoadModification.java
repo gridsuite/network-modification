@@ -8,10 +8,15 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import com.powsybl.iidm.network.extensions.Measurement;
+import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.iidm.network.extensions.MeasurementsAdder;
+
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.LoadModificationInfos;
@@ -20,10 +25,17 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.LOAD_NOT_FOUND;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
  */
 public class LoadModification extends AbstractModification {
+
+    private static final String VALUE = "value";
+    private static final String VALIDITY = "validity";
 
     private final LoadModificationInfos modificationInfos;
 
@@ -64,6 +76,8 @@ public class LoadModification extends AbstractModification {
         modifyP0(load, modificationInfos.getP0(), subReportNode);
         modifyQ0(load, modificationInfos.getQ0(), subReportNode);
         modifyLoadConnectivityAttributes(modificationInfos, load, subReportNode);
+        // measurements
+        updateMeasurements(load, modificationInfos, subReportNode);
         // properties
         PropertiesUtils.applyProperties(load, subReportNode, modificationInfos.getProperties(), "LoadProperties");
     }
@@ -81,5 +95,68 @@ public class LoadModification extends AbstractModification {
         ConnectablePosition<Load> connectablePosition = load.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<Load> connectablePositionAdder = load.newExtension(ConnectablePositionAdder.class);
         return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, load, modificationInfos, subReportNode);
+    }
+
+    public ReportNode updateMeasurements(Injection<?> injection, LoadModificationInfos loadModificationInfos, ReportNode subReportNode) {
+        Double pValue = loadModificationInfos.getPMeasurementValue() != null ? loadModificationInfos.getPMeasurementValue().getValue() : null;
+        Double qValue = loadModificationInfos.getQMeasurementValue() != null ? loadModificationInfos.getQMeasurementValue().getValue() : null;
+        Boolean pValidity = loadModificationInfos.getPMeasurementValidity() != null ? loadModificationInfos.getPMeasurementValidity().getValue() : null;
+        Boolean qValidity = loadModificationInfos.getQMeasurementValidity() != null ? loadModificationInfos.getQMeasurementValidity().getValue() : null;
+
+        if (pValue == null && pValidity == null && qValue == null && qValidity == null) {
+            // no measurement modification requested
+            return null;
+        }
+        Measurements<?> measurements = (Measurements<?>) injection.getExtension(Measurements.class);
+        if (measurements == null) {
+            MeasurementsAdder<?> measurementsAdder = injection.newExtension(MeasurementsAdder.class);
+            measurements = measurementsAdder.add();
+        }
+        // Side 1 measurements update
+        List<ReportNode> reports = new ArrayList<>();
+        upsertMeasurement(measurements, Measurement.Type.ACTIVE_POWER, pValue, pValidity, reports);
+        upsertMeasurement(measurements, Measurement.Type.REACTIVE_POWER, qValue, qValidity, reports);
+        // report changes
+        ReportNode estimSubReportNode = null;
+        if (!reports.isEmpty()) {
+            estimSubReportNode = subReportNode.newReportNode().withMessageTemplate("StateEstimationData", "State estimation").add();
+            ModificationUtils.getInstance().reportModifications(estimSubReportNode, reports, "measurements", "    Measurements");
+        }
+        return estimSubReportNode;
+    }
+
+    private void upsertMeasurement(Measurements<?> measurements, Measurement.Type type, Double value, Boolean validity, List<ReportNode> reports) {
+        if (value == null && validity == null) {
+            return;
+        }
+        String measurementType = (type == Measurement.Type.ACTIVE_POWER ? "Active power" : "Reactive power") + " measurement ";
+        Measurement m = getExistingMeasurement(measurements, type);
+        if (m != null) { // update measurement
+            if (value != null) {
+                double oldValue = m.getValue();
+                m.setValue(value);
+                reports.add(ModificationUtils.buildModificationReport(oldValue, value, measurementType + VALUE, 1, TypedValue.INFO_SEVERITY));
+            }
+            if (validity != null) {
+                boolean oldValidity = m.isValid();
+                m.setValid(validity);
+                reports.add(ModificationUtils.buildModificationReport(oldValidity, validity, measurementType + VALIDITY, 1, TypedValue.INFO_SEVERITY));
+            }
+        } else { // add new measurement
+            var mAdder = measurements.newMeasurement().setId(UUID.randomUUID().toString()).setType(type);
+            if (value != null) {
+                mAdder.setValue(value);
+                reports.add(ModificationUtils.buildModificationReport(null, value, measurementType + VALUE, 1, TypedValue.INFO_SEVERITY));
+            }
+            if (validity != null) {
+                mAdder.setValid(validity);
+                reports.add(ModificationUtils.buildModificationReport(null, validity, measurementType + VALIDITY, 1, TypedValue.INFO_SEVERITY));
+            }
+            mAdder.add();
+        }
+    }
+
+    private Measurement getExistingMeasurement(Measurements<?> measurements, Measurement.Type type) {
+        return measurements.getMeasurements(type).stream().findFirst().orElse(null);
     }
 }
