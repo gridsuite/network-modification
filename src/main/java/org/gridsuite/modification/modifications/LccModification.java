@@ -43,6 +43,13 @@ public class LccModification extends AbstractModification {
     private static void modifyCharacteristics(HvdcLine hvdcLine, LccModificationInfos modificationInfos, ReportNode subReportNode) {
         List<ReportNode> characteristicsReportsContainer = new ArrayList<>();
 
+        //Name
+        if (modificationInfos.getEquipmentName() != null) {
+            characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setName,
+                () -> hvdcLine.getOptionalName().orElse(NO_VALUE),
+                modificationInfos.getEquipmentName(), "Name"));
+        }
+
         // Nominal Voltage
         if (modificationInfos.getNominalV() != null) {
             characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setNominalV,
@@ -85,17 +92,23 @@ public class LccModification extends AbstractModification {
         modifyCharacteristics(hvdcLine, modificationInfos, subReportNode);
 
         // stations
-        modifyConverterStation(ModificationUtils.getInstance().getLccConverterStation(network,
-            hvdcLine.getConverterStation1().getId()), modificationInfos.getConverterStation1(), subReportNode);
-        modifyConverterStation(ModificationUtils.getInstance().getLccConverterStation(network,
-            hvdcLine.getConverterStation2().getId()), modificationInfos.getConverterStation2(), subReportNode);
+        if (modificationInfos.getConverterStation1() != null) {
+            modifyConverterStation(network.getLccConverterStation(modificationInfos.getConverterStation1().getEquipmentId()),
+                modificationInfos.getConverterStation1(), subReportNode);
+        }
+
+        if (modificationInfos.getConverterStation2() != null) {
+            modifyConverterStation(network.getLccConverterStation(modificationInfos.getConverterStation2().getEquipmentId()),
+                modificationInfos.getConverterStation2(), subReportNode);
+
+        }
 
     }
 
     private void modifyConverterStation(LccConverterStation converterStation,
                                         LccConverterStationModificationInfos converterStationModificationInfos, ReportNode subReportNode) {
 
-        if (converterStationModificationInfos == null || !converterStationModificationInfos.hasModifications()) {
+        if (converterStation == null || converterStationModificationInfos == null || !converterStationModificationInfos.hasModifications()) {
             return;
         }
 
