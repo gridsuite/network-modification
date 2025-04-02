@@ -81,8 +81,8 @@ public class ByFilterDeletion extends AbstractModification {
                         Map.of("filterNames", filterNames), TypedValue.WARN_SEVERITY);
             } else {
                 subReportNode.newReportNode()
-                        .withMessageTemplate("equipmentDeleted", "${nbEquipments} equipments of type=${type} will be removed")
-                        .withUntypedValue("nbEquipments", identifiableAttributes.stream().map(IdentifiableAttributes::getId).count())
+                        .withMessageTemplate("equipmentByFilterDeleted", "${nbEquipments} equipments of type=${type} will be removed")
+                        .withUntypedValue("nbEquipments", (long) identifiableAttributes.size())
                         .withUntypedValue("type", modificationInfos.getEquipmentType().name())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add();
