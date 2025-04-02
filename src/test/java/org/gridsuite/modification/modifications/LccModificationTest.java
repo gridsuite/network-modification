@@ -3,7 +3,6 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -19,7 +18,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class LccModificationTest extends AbstractInjectionModificationTest{
+public class LccModificationTest extends AbstractInjectionModificationTest {
     private static final String PROPERTY_NAME = "property-name";
     private static final String PROPERTY_VALUE = "property-value";
 
@@ -36,7 +35,7 @@ public class LccModificationTest extends AbstractInjectionModificationTest{
             .nominalV(new AttributeModification<>(40., OperationType.SET))
             .maxP(new AttributeModification<>(50., OperationType.SET))
             .r(new AttributeModification<>(5., OperationType.SET))
-            .activePowerSetpoint(new AttributeModification<>(5., OperationType.SET) )
+            .activePowerSetpoint(new AttributeModification<>(5., OperationType.SET))
             .convertersMode(new AttributeModification<>(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, OperationType.SET))
             .converterStation1(buildLccConverterStationModificationInfos1())
             .converterStation2(buildLccConverterStationModificationInfos2())
@@ -72,8 +71,7 @@ public class LccModificationTest extends AbstractInjectionModificationTest{
             .build();
     }
 
-    private static LccConverterStationModificationInfos buildLccConverterStationModificationInfos2()
-    {
+    private static LccConverterStationModificationInfos buildLccConverterStationModificationInfos2() {
         return LccConverterStationModificationInfos.builder()
             .equipmentId("v2lcc")
             .equipmentName(new AttributeModification<>("lcc2Station2Name", OperationType.SET))
