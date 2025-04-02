@@ -86,9 +86,9 @@ public class LineModification extends AbstractBranchModification {
     }
 
     private void modifySide1Characteristics(Line line, LineModificationInfos lineModificationInfos,
-            ReportNode characteristicsReportNode) {
+                                            ReportNode characteristicsReportNode) {
         if (lineModificationInfos.getG1() != null && lineModificationInfos.getG1().getValue() != null
-                || lineModificationInfos.getB1() != null && lineModificationInfos.getB1().getValue() != null) {
+            || lineModificationInfos.getB1() != null && lineModificationInfos.getB1().getValue() != null) {
             ReportNode side1ReportNode = characteristicsReportNode.newReportNode().withMessageTemplate("side1Characteristics", "Side 1").add();
             modifyG1(line, lineModificationInfos.getG1(), side1ReportNode);
             modifyB1(line, lineModificationInfos.getB1(), side1ReportNode);
@@ -96,9 +96,9 @@ public class LineModification extends AbstractBranchModification {
     }
 
     private void modifySide2Characteristics(Line line, LineModificationInfos lineModificationInfos,
-            ReportNode characteristicsReportNode) {
+                                            ReportNode characteristicsReportNode) {
         if (lineModificationInfos.getG2() != null && lineModificationInfos.getG2().getValue() != null
-                || lineModificationInfos.getB2() != null && lineModificationInfos.getB2().getValue() != null) {
+            || lineModificationInfos.getB2() != null && lineModificationInfos.getB2().getValue() != null) {
             ReportNode side2Reporter = characteristicsReportNode.newReportNode().withMessageTemplate("side2Characteristics", "Side 2").add();
             modifyG2(line, lineModificationInfos.getG2(), side2Reporter);
             modifyB2(line, lineModificationInfos.getB2(), side2Reporter);
@@ -109,14 +109,14 @@ public class LineModification extends AbstractBranchModification {
     protected boolean characteristicsModified(BranchModificationInfos branchModificationInfos) {
         LineModificationInfos lineModificationInfos = (LineModificationInfos) branchModificationInfos;
         return super.characteristicsModified(branchModificationInfos)
-                || lineModificationInfos.getG1() != null
-                        && lineModificationInfos.getG1().getValue() != null
-                || lineModificationInfos.getB1() != null
-                        && lineModificationInfos.getB1().getValue() != null
-                || lineModificationInfos.getG2() != null
-                        && lineModificationInfos.getG2().getValue() != null
-                || lineModificationInfos.getB2() != null
-                        && lineModificationInfos.getB2().getValue() != null;
+            || lineModificationInfos.getG1() != null
+            && lineModificationInfos.getG1().getValue() != null
+            || lineModificationInfos.getB1() != null
+            && lineModificationInfos.getB1().getValue() != null
+            || lineModificationInfos.getG2() != null
+            && lineModificationInfos.getG2().getValue() != null
+            || lineModificationInfos.getB2() != null
+            && lineModificationInfos.getB2().getValue() != null;
     }
 
     public static void modifyX(Line line, AttributeModification<Double> modifX, ReportNode reportNode) {
@@ -142,11 +142,8 @@ public class LineModification extends AbstractBranchModification {
     public static void modifyG1(Line line, AttributeModification<Double> modifG1, ReportNode reportNode) {
         if (modifG1 != null && modifG1.getValue() != null) {
             if (reportNode != null) {
-                double oldMagnetizingConductanceToReport = line.getG1() * Math.pow(10, 6);
-                double newMagnetizingConductanceToReport = modifG1.getValue() * Math.pow(10, 6);
-                ReportNode gReportNode = ModificationUtils.getInstance().buildModificationReport(
-                    oldMagnetizingConductanceToReport,
-                    newMagnetizingConductanceToReport,
+                ReportNode gReportNode = ModificationUtils.getInstance().buildModificationReport(line.getG1(),
+                    modifG1.getValue(),
                     MAGNETIZING_CONDUCTANCE_MESSAGE,
                     2);
                 insertReportNode(reportNode, gReportNode);
@@ -158,11 +155,8 @@ public class LineModification extends AbstractBranchModification {
     public static void modifyG2(Line line, AttributeModification<Double> modifG2, ReportNode reportNode) {
         if (modifG2 != null && modifG2.getValue() != null) {
             if (reportNode != null) {
-                double oldMagnetizingConductanceToReport = line.getG2() * Math.pow(10, 6);
-                double newMagnetizingConductanceToReport = modifG2.getValue() * Math.pow(10, 6);
-                ReportNode gReportNode = ModificationUtils.getInstance().buildModificationReport(
-                    oldMagnetizingConductanceToReport,
-                    newMagnetizingConductanceToReport,
+                ReportNode gReportNode = ModificationUtils.getInstance().buildModificationReport(line.getG2(),
+                    modifG2.getValue(),
                     MAGNETIZING_CONDUCTANCE_MESSAGE,
                     2);
                 insertReportNode(reportNode, gReportNode);
@@ -174,10 +168,8 @@ public class LineModification extends AbstractBranchModification {
     public static void modifyB1(Line line, AttributeModification<Double> modifB1, ReportNode reportNode) {
         if (modifB1 != null && modifB1.getValue() != null) {
             if (reportNode != null) {
-                double oldMagnetizingSusceptanceToReport = line.getB1() * Math.pow(10, 6);
-                double newMagnetizingSusceptanceToReport = modifB1.getValue() * Math.pow(10, 6);
-                insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(oldMagnetizingSusceptanceToReport,
-                    newMagnetizingSusceptanceToReport, MAGNETIZING_SUSCEPTANCE_MESSAGE, 2));
+                insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(line.getB1(),
+                    modifB1.getValue(), MAGNETIZING_SUSCEPTANCE_MESSAGE, 2));
             }
             line.setB1(modifB1.getValue());
         }
@@ -186,10 +178,8 @@ public class LineModification extends AbstractBranchModification {
     public static void modifyB2(Line line, AttributeModification<Double> modifB2, ReportNode reportNode) {
         if (modifB2 != null && modifB2.getValue() != null) {
             if (reportNode != null) {
-                double oldMagnetizingSusceptanceToReport = line.getB2() * Math.pow(10, 6);
-                double newMagnetizingSusceptanceToReport = modifB2.getValue() * Math.pow(10, 6);
-                insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(oldMagnetizingSusceptanceToReport,
-                    newMagnetizingSusceptanceToReport, MAGNETIZING_SUSCEPTANCE_MESSAGE, 2));
+                insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(line.getB2(),
+                    modifB2.getValue(), MAGNETIZING_SUSCEPTANCE_MESSAGE, 2));
             }
             line.setB2(modifB2.getValue());
         }
