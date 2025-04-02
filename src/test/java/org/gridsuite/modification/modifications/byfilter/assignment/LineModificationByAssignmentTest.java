@@ -40,15 +40,15 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
     private static final String LINE_ID_6 = "line_6";
 
     @Test
-    void testModifyTwtWithWarning() {
+    void testModifyLineWithWarning() {
         IdentifiableAttributes identifiableAttributes1 = new IdentifiableAttributes(LINE_ID_1, getIdentifiableType(), 1.);
         IdentifiableAttributes identifiableAttributes2 = new IdentifiableAttributes(LINE_ID_2, getIdentifiableType(), 1.);
         IdentifiableAttributes identifiableAttributes3 = new IdentifiableAttributes(LINE_ID_4, getIdentifiableType(), 1.);
         IdentifiableAttributes identifiableAttributes4 = new IdentifiableAttributes(LINE_ID_6, getIdentifiableType(), 1.);
-        FilterEquipments filterTwt1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(identifiableAttributes1, identifiableAttributes2)).build();
-        FilterEquipments filterTwt2 = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(identifiableAttributes3, identifiableAttributes4)).build();
+        FilterEquipments filterLine1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(identifiableAttributes1, identifiableAttributes2)).build();
+        FilterEquipments filterLine2 = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(identifiableAttributes3, identifiableAttributes4)).build();
 
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_ID_1, filterTwt1, FILTER_ID_4, filterTwt2));
+        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_ID_1, filterLine1, FILTER_ID_4, filterLine2));
 
         IntegerAssignmentInfos assignmentInfos = IntegerAssignmentInfos.builder()
                 .filters(List.of(filter1, filter4))

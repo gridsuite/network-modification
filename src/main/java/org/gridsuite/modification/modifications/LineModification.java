@@ -29,6 +29,7 @@ public class LineModification extends AbstractBranchModification {
 
     private static final String MAGNETIZING_SUSCEPTANCE_MESSAGE = "Magnetizing susceptance";
     private static final String MAGNETIZING_CONDUCTANCE_MESSAGE = "Magnetizing conductance";
+    public static final String ERROR_MESSAGE = "Line '%s' : ";
 
     public LineModification(LineModificationInfos modificationInfos) {
         super(modificationInfos);

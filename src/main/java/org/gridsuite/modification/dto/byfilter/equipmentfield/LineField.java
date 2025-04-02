@@ -13,7 +13,6 @@ import org.gridsuite.modification.dto.OperationType;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_LINE_ERROR;
-import static org.gridsuite.modification.modifications.BatteryModification.ERROR_MESSAGE;
 import static org.gridsuite.modification.modifications.LineModification.*;
 
 /**
