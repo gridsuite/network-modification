@@ -13,7 +13,6 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LoadModification;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.iidm.network.LoadType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -40,22 +39,6 @@ public class LoadModificationInfos extends InjectionModificationInfos {
 
     @Schema(description = "Reactive power modification")
     private AttributeModification<Double> q0;
-
-    @JsonProperty("pMeasurementValue")
-    @Schema(description = "P measurement value")
-    private AttributeModification<Double> pMeasurementValue;
-
-    @JsonProperty("pMeasurementValidity")
-    @Schema(description = "P measurement validity")
-    private AttributeModification<Boolean> pMeasurementValidity;
-
-    @JsonProperty("qMeasurementValue")
-    @Schema(description = "Q measurement value")
-    private AttributeModification<Double> qMeasurementValue;
-
-    @JsonProperty("qMeasurementValidity")
-    @Schema(description = "Q measurement validity")
-    private AttributeModification<Boolean> qMeasurementValidity;
 
     @Override
     public AbstractModification toModification() {

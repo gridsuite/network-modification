@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -41,4 +42,20 @@ public class InjectionModificationInfos extends BasicEquipmentModificationInfos 
 
     @Schema(description = "Connected")
     private AttributeModification<Boolean> terminalConnected;
+
+    @JsonProperty("pMeasurementValue")
+    @Schema(description = "P measurement value")
+    private AttributeModification<Double> pMeasurementValue;
+
+    @JsonProperty("pMeasurementValidity")
+    @Schema(description = "P measurement validity")
+    private AttributeModification<Boolean> pMeasurementValidity;
+
+    @JsonProperty("qMeasurementValue")
+    @Schema(description = "Q measurement value")
+    private AttributeModification<Double> qMeasurementValue;
+
+    @JsonProperty("qMeasurementValidity")
+    @Schema(description = "Q measurement validity")
+    private AttributeModification<Boolean> qMeasurementValidity;
 }
