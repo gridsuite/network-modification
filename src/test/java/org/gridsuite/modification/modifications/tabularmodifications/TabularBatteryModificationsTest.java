@@ -32,16 +32,16 @@ class TabularBatteryModificationsTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationInfos buildModification() {
         List<ModificationInfos> modifications = List.of(
-            BatteryModificationInfos.builder().equipmentId("v1Battery").maxP(new AttributeModification<>(50., OperationType.SET)).build(),
-            BatteryModificationInfos.builder().equipmentId("v2Battery").minP(new AttributeModification<>(5., OperationType.SET)).build(),
-            BatteryModificationInfos.builder().equipmentId("v3Battery").targetP(new AttributeModification<>(5., OperationType.SET)).build(),
-            BatteryModificationInfos.builder().equipmentId("unknownBattery").targetQ(new AttributeModification<>(500., OperationType.SET)).build()
+                BatteryModificationInfos.builder().equipmentId("v1Battery").maxP(new AttributeModification<>(50., OperationType.SET)).build(),
+                BatteryModificationInfos.builder().equipmentId("v2Battery").minP(new AttributeModification<>(5., OperationType.SET)).build(),
+                BatteryModificationInfos.builder().equipmentId("v3Battery").targetP(new AttributeModification<>(5., OperationType.SET)).build(),
+                BatteryModificationInfos.builder().equipmentId("unknownBattery").targetQ(new AttributeModification<>(500., OperationType.SET)).build()
         );
         return TabularModificationInfos.builder()
-            .modificationType(ModificationType.BATTERY_MODIFICATION)
-            .modifications(modifications)
-            .stashed(false)
-            .build();
+                .modificationType(ModificationType.BATTERY_MODIFICATION)
+                .modifications(modifications)
+                .stashed(false)
+                .build();
     }
 
     @Override
@@ -54,8 +54,7 @@ class TabularBatteryModificationsTest extends AbstractNetworkModificationTest {
     @Override
     protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
         assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
-        });
+        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
         assertEquals(ModificationType.BATTERY_MODIFICATION.name(), createdValues.get("tabularModificationType"));
     }
 
