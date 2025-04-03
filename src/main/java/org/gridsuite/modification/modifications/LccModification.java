@@ -18,7 +18,6 @@ import java.util.stream.Stream;
 import static org.gridsuite.modification.modifications.LccCreation.FILTERS;
 import static org.gridsuite.modification.modifications.LccCreation.LCC_CHARACTERISTICS;
 
-@SuppressWarnings("checkstyle:RegexpSingleline")
 public class LccModification extends AbstractModification {
 
     public static final String NO_VALUE = "No value";
