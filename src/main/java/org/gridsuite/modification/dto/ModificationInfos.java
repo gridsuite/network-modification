@@ -75,7 +75,9 @@ import org.gridsuite.modification.modifications.AbstractModification;
     @JsonSubTypes.Type(value = VscModificationInfos.class),
     @JsonSubTypes.Type(value = ConverterStationModificationInfos.class),
     @JsonSubTypes.Type(value = TabularCreationInfos.class),
-    @JsonSubTypes.Type(value = CompositeModificationInfos.class)
+    @JsonSubTypes.Type(value = CompositeModificationInfos.class),
+    @JsonSubTypes.Type(value = LccModificationInfos.class),
+    @JsonSubTypes.Type(value = LccConverterStationModificationInfos.class)
 })
 @SuperBuilder
 @NoArgsConstructor
