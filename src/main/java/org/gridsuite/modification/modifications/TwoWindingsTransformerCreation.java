@@ -23,7 +23,8 @@ import static org.gridsuite.modification.NetworkModificationException.Type.*;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
 public class TwoWindingsTransformerCreation extends AbstractModification {
-
+    private static final String PHASE_TAP_CHANGER = "Phase Tap Changer";
+    private static final String RATIO_TAP_CHANGER = "Ratio Tap Changer";
     private final TwoWindingsTransformerCreationInfos modificationInfos;
 
     public TwoWindingsTransformerCreation(TwoWindingsTransformerCreationInfos modificationInfos) {
@@ -158,7 +159,6 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
                     phaseTapChangerInfos.getRegulatingTerminalType() + ":"
                             + phaseTapChangerInfos.getRegulatingTerminalId(),
                     "Equipment"));
-            ModificationUtils.getInstance().reportModifications(subReportNode, regulatedTerminalReports, "PhaseRegulatedTerminalCreated", "Phase Regulated terminal");
         }
 
         phaseTapChangerAdder.setLowTapPosition(phaseTapChangerInfos.getLowTapPosition())
@@ -170,6 +170,10 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
             }
 
             phaseTapChangerAdder.add();
+            if (!regulatedTerminalReports.isEmpty()) {
+                ReportNode ratioTapChangerReporter = subReportNode.newReportNode().withMessageTemplate("RatioTapChangerCreated", PHASE_TAP_CHANGER).add();
+                ModificationUtils.getInstance().reportModifications(ratioTapChangerReporter, regulatedTerminalReports, "RegulatedTerminalCreated", "Regulated terminal");
+            }
         }
     }
 
@@ -182,7 +186,6 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
                 ratioTapChangerInfos.getRegulatingTerminalType(),
                 ratioTapChangerInfos.getRegulatingTerminalVlId());
         if (terminal != null) {
-            ratioTapChangerAdder.setRegulationTerminal(terminal);
             regulatedTerminalReports.add(ModificationUtils.getInstance().buildCreationReport(
                     ratioTapChangerInfos.getRegulatingTerminalVlId(),
                     "Voltage level"));
@@ -190,7 +193,6 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
                     ratioTapChangerInfos.getRegulatingTerminalType() + ":"
                             + ratioTapChangerInfos.getRegulatingTerminalId(),
                     "Equipment"));
-            ModificationUtils.getInstance().reportModifications(subReportNode, regulatedTerminalReports, "RatioRegulatedTerminalCreated", "Ratio Regulated terminal");
         }
 
         ratioTapChangerAdder.setTargetV(ratioTapChangerInfos.getTargetV() != null ? ratioTapChangerInfos.getTargetV() : Double.NaN)
@@ -208,6 +210,10 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
                 ratioTapChangerAdder.beginStep().setR(step.getR()).setX(step.getX()).setG(step.getG()).setB(step.getB()).setRho(step.getRho()).endStep();
             }
             ratioTapChangerAdder.add();
+            if (!regulatedTerminalReports.isEmpty()) {
+                ReportNode ratioTapChangerReporter = subReportNode.newReportNode().withMessageTemplate("RatioTapChangerCreated", RATIO_TAP_CHANGER).add();
+                ModificationUtils.getInstance().reportModifications(ratioTapChangerReporter, regulatedTerminalReports, "RegulatedTerminalCreated", "Regulated terminal");
+            }
         }
     }
 
@@ -223,14 +229,14 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         return twt;
     }
 
-    private void setCurrentLimitsForSide(List<OperationalLimitsGroupInfos> operationalLimitsGroups, String selectedGroup, TwoWindingsTransformer transformer, TwoSides side, ReportNode reportNode) {
+    private void setCurrentLimitsForSide(List<OperationalLimitsGroupInfos> operationalLimitsGroups, String selectedGroup, TwoWindingsTransformer transformer, TwoSides side, ReportNode subReportNode) {
         if (!CollectionUtils.isEmpty(operationalLimitsGroups)) {
-            ModificationUtils.getInstance().setCurrentLimitsOnASide(operationalLimitsGroups, transformer, side, reportNode);
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(operationalLimitsGroups, transformer, side, subReportNode);
         }
         if (selectedGroup != null) {
             if (side == TwoSides.ONE) {
                 transformer.setSelectedOperationalLimitsGroup1(selectedGroup);
-                reportNode.newReportNode().withMessageTemplate(
+                subReportNode.newReportNode().withMessageTemplate(
                         "limit set selected on side 1",
                                 "limit set selected on side 1 : ${selectedOperationalLimitsGroup1}")
                         .withUntypedValue("selectedOperationalLimitsGroup1", modificationInfos.getSelectedOperationalLimitsGroup1())
@@ -239,7 +245,7 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
             }
             if (side == TwoSides.TWO) {
                 transformer.setSelectedOperationalLimitsGroup2(selectedGroup);
-                reportNode.newReportNode().withMessageTemplate(
+                subReportNode.newReportNode().withMessageTemplate(
                         "limit set selected on side 2",
                                 "limit set selected on side 2 : ${selectedOperationalLimitsGroup2}")
                         .withUntypedValue("selectedOperationalLimitsGroup2", modificationInfos.getSelectedOperationalLimitsGroup2())
