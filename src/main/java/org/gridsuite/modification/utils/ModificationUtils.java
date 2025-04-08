@@ -981,7 +981,7 @@ public final class ModificationUtils {
         }
         String equipmentMessage = "Equipment with id=${id} %sed";
         if (side != null) {
-            equipmentMessage += String.format(" on side %s", side);
+            equipmentMessage += String.format(" on side %d", side.getNum());
         }
         reports.add(ReportNode.newRootReportNode()
                 .withMessageTemplate("equipment" + capitalize(action), String.format(equipmentMessage, action))

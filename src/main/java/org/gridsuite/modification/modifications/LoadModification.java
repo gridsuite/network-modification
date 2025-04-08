@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.LoadModificationInfos;
@@ -23,12 +24,10 @@ import static org.gridsuite.modification.NetworkModificationException.Type.LOAD_
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
  */
-public class LoadModification extends AbstractModification {
-
-    private final LoadModificationInfos modificationInfos;
+public class LoadModification extends AbstractInjectionModification {
 
     public LoadModification(LoadModificationInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
+        super(modificationInfos);
     }
 
     @Override
@@ -53,19 +52,22 @@ public class LoadModification extends AbstractModification {
     }
 
     private void modifyLoad(Load load, ReportNode subReportNode) {
+        LoadModificationInfos loadModificationInfos = (LoadModificationInfos) modificationInfos;
         subReportNode.newReportNode()
             .withMessageTemplate("loadModification", "Load with id=${id} modified :")
-            .withUntypedValue("id", modificationInfos.getEquipmentId())
+            .withUntypedValue("id", loadModificationInfos.getEquipmentId())
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
 
-        ModificationUtils.getInstance().applyElementaryModifications(load::setName, () -> load.getOptionalName().orElse("No value"), modificationInfos.getEquipmentName(), subReportNode, "Name");
-        ModificationUtils.getInstance().applyElementaryModifications(load::setLoadType, load::getLoadType, modificationInfos.getLoadType(), subReportNode, "Type");
-        modifyP0(load, modificationInfos.getP0(), subReportNode);
-        modifyQ0(load, modificationInfos.getQ0(), subReportNode);
-        modifyLoadConnectivityAttributes(modificationInfos, load, subReportNode);
+        ModificationUtils.getInstance().applyElementaryModifications(load::setName, () -> load.getOptionalName().orElse("No value"), loadModificationInfos.getEquipmentName(), subReportNode, "Name");
+        ModificationUtils.getInstance().applyElementaryModifications(load::setLoadType, load::getLoadType, loadModificationInfos.getLoadType(), subReportNode, "Type");
+        modifyP0(load, loadModificationInfos.getP0(), subReportNode);
+        modifyQ0(load, loadModificationInfos.getQ0(), subReportNode);
+        modifyLoadConnectivityAttributes(loadModificationInfos, load, subReportNode);
+        // measurements
+        updateMeasurements(load, loadModificationInfos, subReportNode);
         // properties
-        PropertiesUtils.applyProperties(load, subReportNode, modificationInfos.getProperties(), "LoadProperties");
+        PropertiesUtils.applyProperties(load, subReportNode, loadModificationInfos.getProperties(), "LoadProperties");
     }
 
     public static void modifyQ0(Load load, AttributeModification<Double> q0, ReportNode subReportNode) {
@@ -76,10 +78,11 @@ public class LoadModification extends AbstractModification {
         ModificationUtils.getInstance().applyElementaryModifications(load::setP0, load::getP0, p0, subReportNode, "Constant active power");
     }
 
-    private ReportNode modifyLoadConnectivityAttributes(LoadModificationInfos modificationInfos,
+    private ReportNode modifyLoadConnectivityAttributes(LoadModificationInfos loadModificationInfos,
                                                         Load load, ReportNode subReportNode) {
         ConnectablePosition<Load> connectablePosition = load.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<Load> connectablePositionAdder = load.newExtension(ConnectablePositionAdder.class);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, load, modificationInfos, subReportNode);
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, load, loadModificationInfos, subReportNode);
     }
+
 }
