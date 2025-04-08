@@ -141,8 +141,6 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         PhaseTapChangerCreationInfos phaseTapChangerInfos = twoWindingsTransformerCreationInfos.getPhaseTapChanger();
         PhaseTapChangerAdder phaseTapChangerAdder = twt.newPhaseTapChanger();
         if (phaseTapChangerInfos.isRegulating()) {
-            phaseTapChangerAdder.setRegulating(phaseTapChangerInfos.isRegulating())
-                    .setRegulationMode(phaseTapChangerInfos.getRegulationMode());
             phaseTapChangerAdder.setRegulationValue(phaseTapChangerInfos.getRegulationValue())
                     .setTargetDeadband(phaseTapChangerInfos.getTargetDeadband() != null ? phaseTapChangerInfos.getTargetDeadband() : 0.);
         }
@@ -161,7 +159,9 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
                     "Equipment"));
         }
 
-        phaseTapChangerAdder.setLowTapPosition(phaseTapChangerInfos.getLowTapPosition())
+        phaseTapChangerAdder.setRegulating(phaseTapChangerInfos.isRegulating())
+                .setRegulationMode(phaseTapChangerInfos.getRegulationMode())
+                .setLowTapPosition(phaseTapChangerInfos.getLowTapPosition())
                 .setTapPosition(phaseTapChangerInfos.getTapPosition());
 
         if (phaseTapChangerInfos.getSteps() != null) {
