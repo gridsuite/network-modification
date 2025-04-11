@@ -980,11 +980,13 @@ public final class ModificationUtils {
                     String.format("Could not %s equipment '%s'", action, equipment.getId()));
         }
         String equipmentMessage = "Equipment with id=${id} %sed";
+        String reportKey = "equipment" + capitalize(action);
         if (side != null) {
             equipmentMessage += String.format(" on side %d", side.getNum());
+            reportKey += String.format("side%d", side.getNum());
         }
         reports.add(ReportNode.newRootReportNode()
-                .withMessageTemplate("equipment" + capitalize(action), String.format(equipmentMessage, action))
+                .withMessageTemplate(reportKey, String.format(equipmentMessage, action))
                 .withUntypedValue("id", equipment.getId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
