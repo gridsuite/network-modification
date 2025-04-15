@@ -1058,7 +1058,9 @@ public final class ModificationUtils {
                     ? branch.newOperationalLimitsGroup1(opLimitsGroup.getId())
                     : branch.newOperationalLimitsGroup2(opLimitsGroup.getId());
             if (opLimitsGroup.getId() != null) {
-                reportNodes.add(ReportNode.newRootReportNode().withMessageTemplate("limitSetAdded", "     ${name} added")
+                reportNodes.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
+                        .withMessageTemplate("network.modification.limitSetAdded")
                         .withUntypedValue("name", opLimitsGroup.getId())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .build());
