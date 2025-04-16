@@ -1042,9 +1042,10 @@ public final class ModificationUtils {
      * @param opLimitGroups added current limits
      * @param branch branch to which limits are going to be added
      * @param side which side of the branch receives the limits
+     * @param limitsReporter reporter limits on side
      */
-    public void setCurrentLimitsOnASide(List<OperationalLimitsGroupInfos> opLimitGroups, Branch<?> branch, TwoSides side, ReportNode subReportNode) {
-        List<ReportNode> reportNodes = new ArrayList<>();
+    public void setCurrentLimitsOnASide(List<OperationalLimitsGroupInfos> opLimitGroups, Branch<?> branch, TwoSides side, ReportNode limitsReporter) {
+        List<ReportNode> limitSetsOnSideReportNodes = new ArrayList<>();
         for (OperationalLimitsGroupInfos opLimitsGroup : opLimitGroups) {
             boolean hasPermanent = opLimitsGroup.getCurrentLimits().getPermanentLimit() != null;
             boolean hasTemporary = !CollectionUtils.isEmpty(opLimitsGroup.getCurrentLimits().getTemporaryLimits());
@@ -1058,7 +1059,7 @@ public final class ModificationUtils {
                     ? branch.newOperationalLimitsGroup1(opLimitsGroup.getId())
                     : branch.newOperationalLimitsGroup2(opLimitsGroup.getId());
             if (opLimitsGroup.getId() != null) {
-                reportNodes.add(ReportNode.newRootReportNode().withMessageTemplate("limitSetAdded", "     ${name} added")
+                limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode().withMessageTemplate("limitSetAdded", "     ${name} added")
                         .withUntypedValue("name", opLimitsGroup.getId())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .build());
@@ -1081,10 +1082,9 @@ public final class ModificationUtils {
             }
             limitsAdder.add();
         }
-        if (!reportNodes.isEmpty()) {
-            String sideStr = side == ONE ? "side one" : "side two";
-            ModificationUtils.getInstance().reportModifications(subReportNode, reportNodes,
-                    "LimitSets" + sideStr, "Limit sets on side " + sideStr
+        if (!limitSetsOnSideReportNodes.isEmpty()) {
+            ModificationUtils.getInstance().reportModifications(limitsReporter, limitSetsOnSideReportNodes,
+                    "LimitsSetsOnSide" + side.getNum(), "Limit Sets Side " + side.getNum()
             );
         }
     }
