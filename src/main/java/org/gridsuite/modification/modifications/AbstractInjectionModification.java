@@ -54,7 +54,7 @@ public abstract class AbstractInjectionModification extends AbstractModification
         // report changes
         ReportNode estimSubReportNode = null;
         if (!reports.isEmpty()) {
-            estimSubReportNode = subReportNode.newReportNode().withMessageTemplate("StateEstimationData", "State estimation").add();
+            estimSubReportNode = subReportNode.newReportNode().withMessageTemplate("network.modification.stateEstimationData").add();
             ModificationUtils.getInstance().reportModifications(estimSubReportNode, reports, "measurements", "    Measurements");
         }
         return estimSubReportNode;

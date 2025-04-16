@@ -118,7 +118,7 @@ public class BatteryCreation extends AbstractModification {
         addExtensionsToBattery(batteryCreationInfos, battery, subReportNode);
 
         subReportNode.newReportNode()
-                .withMessageTemplate("batteryCreated", "New battery with id=${id} created")
+                .withMessageTemplate("network.modification.batteryCreated")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -147,7 +147,7 @@ public class BatteryCreation extends AbstractModification {
     }
 
     private ReportNode reportBatteryActiveLimits(BatteryCreationInfos batteryCreationInfos, ReportNode subReportNode) {
-        ReportNode subReportNodeLimits = subReportNode.newReportNode().withMessageTemplate(LIMITS, LIMITS).add();
+        ReportNode subReportNodeLimits = subReportNode.newReportNode().withMessageTemplate("network.modification.limits").add();
         List<ReportNode> limitsReports = new ArrayList<>();
         limitsReports.add(ModificationUtils.getInstance().buildCreationReport(
             batteryCreationInfos.getMinP(), "Min active power"));
@@ -173,7 +173,8 @@ public class BatteryCreation extends AbstractModification {
                         "Droop"));
             } catch (PowsyblException e) {
                 activePowerRegulationReports.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("ActivePowerExtensionAddError", "cannot add active power extension on battery with id=${id} : ${message}")
+                        .withAllResourceBundlesFromClasspath()
+                        .withMessageTemplate("network.modification.activePowerExtensionAddError.battery")
                         .withUntypedValue("id", batteryCreationInfos.getEquipmentId())
                         .withUntypedValue("message", e.getMessage())
                         .withSeverity(TypedValue.ERROR_SEVERITY)

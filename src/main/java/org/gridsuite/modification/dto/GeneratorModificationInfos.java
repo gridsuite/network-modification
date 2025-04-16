@@ -121,7 +121,7 @@ public class GeneratorModificationInfos extends InjectionModificationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(getType().name(), "Generator modification ${generatorId}")
+                .withMessageTemplate("network.modification.generator.modification")
                 .withUntypedValue("generatorId", this.getEquipmentId())
                 .add();
     }

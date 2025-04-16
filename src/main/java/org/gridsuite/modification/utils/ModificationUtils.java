@@ -547,6 +547,7 @@ public final class ModificationUtils {
 
     public ReportNode createEnabledDisabledReport(String key, boolean enabled) {
         return ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate(key, "    ${status}")
                 .withUntypedValue("status", enabled ? "Enabled" : "Disabled")
                 .withSeverity(TypedValue.INFO_SEVERITY)
@@ -607,6 +608,7 @@ public final class ModificationUtils {
                 ? NO_VALUE : newValue.toString();
         final String indentation = "\t".repeat(indentationLevel);
         return ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("modification-indent" + indentationLevel, indentation + "${fieldName} : ${oldValue} → ${newValue}")
                 .withUntypedValue("fieldName", fieldName)
                 .withUntypedValue("oldValue", oldValueString)
@@ -984,6 +986,7 @@ public final class ModificationUtils {
             equipmentMessage += String.format(" on side %s", side);
         }
         reports.add(ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("equipment" + capitalize(action), String.format(equipmentMessage, action))
                 .withUntypedValue("id", equipment.getId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
@@ -1094,6 +1097,7 @@ public final class ModificationUtils {
     public <T> ReportNode buildCreationReport(T value, String fieldName) {
         String newValueString = value == null ? NO_VALUE : value.toString();
         return ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("Creation" + fieldName, "    ${fieldName} : ${value}")
                 .withUntypedValue("fieldName", fieldName)
                 .withUntypedValue("value", newValueString)
@@ -1699,6 +1703,7 @@ public final class ModificationUtils {
             }
             if (!injectionCreationInfos.isTerminalConnected()) {
                 connectivityReports.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate(EQUIPMENT_DISCONNECTED, "    Equipment with id=${id} disconnected")
                         .withUntypedValue("id", injectionCreationInfos.getEquipmentId())
                         .withSeverity(TypedValue.INFO_SEVERITY)

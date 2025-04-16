@@ -623,6 +623,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                                         List<TapChangerStepCreationInfos> modifSteps) {
         if (tapChangerStepsReports != null) {
             tapChangerStepsReports.add(ReportNode.newRootReportNode()
+                    .withAllResourceBundlesFromClasspath()
                     .withMessageTemplate("tapChangerStepsModification", "            Taps were replaced by new ones below")
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .build());
@@ -713,6 +714,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         if (modifySteps != null) {
             if (tapChangerReports != null) {
                 tapChangerReports.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("tapsModification", "        Taps")
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .build());
@@ -725,6 +727,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
     private static void addStepAttributeReport(List<ReportNode> tapChangerStepsReports, String key, String defaultMessage,
             String valueKey, String value) {
         tapChangerStepsReports.add(ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate(key, defaultMessage)
                 .withUntypedValue(valueKey, value)
                 .withSeverity(TypedValue.INFO_SEVERITY)

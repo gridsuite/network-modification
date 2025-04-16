@@ -76,7 +76,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
             modifyCurrentLimits(currentLimitsInfos2, branch.newCurrentLimits2(), currentLimits2, side2LimitsReports);
         }
         if (!side1LimitsReports.isEmpty() || !side2LimitsReports.isEmpty()) {
-            ReportNode limitsReportNode = subReportNode.newReportNode().withMessageTemplate("limits", "Limits").add();
+            ReportNode limitsReportNode = subReportNode.newReportNode().withMessageTemplate("network.modification.limits").add();
             ModificationUtils.getInstance().reportModifications(limitsReportNode, side1LimitsReports, "side1LimitsModification",
                     "    Side 1");
             ModificationUtils.getInstance().reportModifications(limitsReportNode, side2LimitsReports, "side2LimitsModification",
@@ -115,7 +115,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
         // report changes
         ReportNode estimSubReportNode = null;
         if (!side1Reports.isEmpty() || !side2Reports.isEmpty()) {
-            estimSubReportNode = subReportNode.newReportNode().withMessageTemplate("StateEstimationData", "State estimation").add();
+            estimSubReportNode = subReportNode.newReportNode().withMessageTemplate("network.modification.stateEstimationData").add();
         }
         if (!side1Reports.isEmpty()) {
             ModificationUtils.getInstance().reportModifications(estimSubReportNode, side1Reports, "measurementsSide1", "    Side 1");
@@ -236,7 +236,8 @@ public abstract class AbstractBranchModification extends AbstractModification {
             }
             if (limitToModify == null && limit.getModificationType() == TemporaryLimitModificationType.ADDED) {
                 temporaryLimitsReports.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("temporaryLimitAdded" + limit.getName(), "            ${name} (${duration}) added with ${value}")
+                        .withAllResourceBundlesFromClasspath()
+                        .withMessageTemplate("network.modification.temporaryLimitAdded.name")
                         .withUntypedValue(NAME, limit.getName())
                         .withUntypedValue(DURATION, limitDurationToReport)
                         .withUntypedValue(VALUE, limitValueToReport)
@@ -246,7 +247,8 @@ public abstract class AbstractBranchModification extends AbstractModification {
             } else if (limitToModify != null) {
                 if (limit.getModificationType() == TemporaryLimitModificationType.DELETED) {
                     temporaryLimitsReports.add(ReportNode.newRootReportNode()
-                            .withMessageTemplate("temporaryLimitDeleted" + limit.getName(), "            ${name} (${duration}) deleted")
+                            .withAllResourceBundlesFromClasspath()
+                            .withMessageTemplate("network.modification.temporaryLimitDeleted.name")
                             .withUntypedValue(NAME, limit.getName())
                             .withUntypedValue(DURATION, limitDurationToReport)
                             .withSeverity(TypedValue.INFO_SEVERITY)
@@ -254,7 +256,8 @@ public abstract class AbstractBranchModification extends AbstractModification {
                     continue;
                 } else if (Double.compare(limitToModify.getValue(), limitValue) != 0 && limit.getModificationType() != null) {
                     temporaryLimitsReports.add(ReportNode.newRootReportNode()
-                            .withMessageTemplate("temporaryLimitModified" + limit.getName(), "            ${name} (${duration}) : ${oldValue} -> ${value}")
+                            .withAllResourceBundlesFromClasspath()
+                            .withMessageTemplate("network.modification.temporaryLimitModified.name")
                             .withUntypedValue(NAME, limit.getName())
                             .withUntypedValue(DURATION, limitDurationToReport)
                             .withUntypedValue(VALUE, limitValueToReport)
@@ -289,7 +292,8 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
         if (!temporaryLimitsReports.isEmpty()) {
             temporaryLimitsReports.add(0, ReportNode.newRootReportNode()
-                    .withMessageTemplate("temporaryLimitsModification", "            Temporary current limits :")
+                    .withAllResourceBundlesFromClasspath()
+                    .withMessageTemplate("network.modification.temporaryLimitsModification")
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .build());
             limitsReports.addAll(temporaryLimitsReports);

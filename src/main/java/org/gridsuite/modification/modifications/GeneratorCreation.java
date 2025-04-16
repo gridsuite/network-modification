@@ -208,6 +208,7 @@ public class GeneratorCreation extends AbstractModification {
                 voltageReports.add(ModificationUtils.getInstance().buildCreationReport(generatorCreationInfos.getQPercent(), "Reactive percentage"));
             } catch (PowsyblException e) {
                 voltageReports.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("ReactivePercentageError", "cannot add Coordinated reactive extension on generator with id=${id} : ${message}")
                         .withUntypedValue("id", generatorCreationInfos.getEquipmentId())
                         .withUntypedValue("message", e.getMessage())
@@ -266,7 +267,8 @@ public class GeneratorCreation extends AbstractModification {
                         "Droop"));
             } catch (PowsyblException e) {
                 activePowerRegulationReports.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("ActivePowerExtensionAddError", "cannot add active power extension on generator with id=${id} : ${message}")
+                        .withAllResourceBundlesFromClasspath()
+                        .withMessageTemplate("network.modification.activePowerExtensionAddError.generator")
                         .withUntypedValue("id", generatorCreationInfos.getEquipmentId())
                         .withUntypedValue("message", e.getMessage())
                         .withSeverity(TypedValue.ERROR_SEVERITY)
@@ -293,6 +295,7 @@ public class GeneratorCreation extends AbstractModification {
                 }
             } catch (PowsyblException e) {
                 shortCircuitReports.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("ShortCircuitExtensionAddError", "cannot add short-circuit extension on generator with id=${id} : ${message}")
                         .withUntypedValue("id", generatorCreationInfos.getEquipmentId())
                         .withUntypedValue("message", e.getMessage())
@@ -334,6 +337,7 @@ public class GeneratorCreation extends AbstractModification {
                 }
             } catch (PowsyblException e) {
                 startupReports.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("StartupExtensionAddError", "cannot add startup extension on generator with id=${id} : ${message}")
                         .withUntypedValue("id", generatorCreationInfos.getEquipmentId())
                         .withMessageTemplate("message", e.getMessage())

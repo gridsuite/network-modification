@@ -71,7 +71,7 @@ public class EquipmentAttributeModification extends AbstractModification {
             if (Boolean.TRUE.equals(aSwitch.isOpen() != (Boolean) attributeValue)) {
                 aSwitch.setOpen((Boolean) attributeValue);
                 reportNode.newReportNode()
-                    .withMessageTemplate("switchChanged", "${operation} switch '${id}' in voltage level ${voltageLevelId}")
+                    .withMessageTemplate("network.modification.switchChanged")
                     .withUntypedValue("id", aSwitch.getId())
                     .withUntypedValue("operation", Boolean.TRUE.equals(attributeValue) ? "Opening" : "Closing")
                     .withUntypedValue("voltageLevelId", aSwitch.getVoltageLevel().getId())
@@ -88,7 +88,7 @@ public class EquipmentAttributeModification extends AbstractModification {
         if (attributeName.equals("targetP")) {
             generator.setTargetP((Double) attributeValue);
             reportNode.newReportNode()
-                .withMessageTemplate("generatorChanged", "Generator with id=${id} targetP changed")
+                .withMessageTemplate("network.modification.generatorChanged")
                 .withUntypedValue("id", generator.getId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -102,7 +102,7 @@ public class EquipmentAttributeModification extends AbstractModification {
         if (attributeName.equals("operatingStatus")) {
             line.newExtension(OperatingStatusAdder.class).withStatus(OperatingStatus.Status.valueOf((String) attributeValue)).add();
             reportNode.newReportNode()
-                .withMessageTemplate("lineStatusChanged", "Branch with id=${id} status changed")
+                .withMessageTemplate("network.modification.lineStatusChanged")
                 .withUntypedValue("id", line.getId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();

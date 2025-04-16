@@ -177,6 +177,7 @@ public class StaticVarCompensatorCreation extends AbstractModification {
                         "Low voltage threshold"));
             } catch (PowsyblException e) {
                 standbyAutomatonReports.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("StandbyAutomatonExtensionAddError",
                                 "Cannot add standby automaton extension on ${message}")
                         .withUntypedValue("message", e.getMessage())

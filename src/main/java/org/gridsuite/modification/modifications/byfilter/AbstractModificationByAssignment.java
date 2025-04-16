@@ -143,44 +143,44 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
 
         if (filterUuidEquipmentsMap != null) {
             ReportNode subReporter = subReportNode.newReportNode()
-                .withMessageTemplate(REPORT_KEY_APPLIED_BY_FILTER_MODIFICATIONS, "${" + VALUE_KEY_MODIFICATION_TYPE_LABEL + "}s on ${" + VALUE_KEY_EQUIPMENT_TYPE + "} type")
-                .withUntypedValue(VALUE_KEY_MODIFICATION_TYPE_LABEL, StringUtils.capitalize(getModificationTypeLabel()))
-                .withUntypedValue(VALUE_KEY_EQUIPMENT_TYPE, getEquipmentType().name())
-                .add();
+                    .withMessageTemplate(REPORT_KEY_APPLIED_BY_FILTER_MODIFICATIONS, "${" + VALUE_KEY_MODIFICATION_TYPE_LABEL + "}s on ${" + VALUE_KEY_EQUIPMENT_TYPE + "} type")
+                    .withUntypedValue(VALUE_KEY_MODIFICATION_TYPE_LABEL, StringUtils.capitalize(getModificationTypeLabel()))
+                    .withUntypedValue(VALUE_KEY_EQUIPMENT_TYPE, getEquipmentType().name())
+                    .add();
             // perform modifications
             getAssignmentInfosList().forEach(abstractAssignmentInfos -> {
                 List<ReportNode> reports = new ArrayList<>();
                 ReportNode eachAssignmentReporter = subReporter.newReportNode()
-                    .withMessageTemplate(REPORT_KEY_APPLIED_ASSIGNMENT, "${" + VALUE_KEY_MODIFICATION_TYPE_LABEL + "} on filters : ${" + VALUE_KEY_FILTERS_EACH_ASSIGNMENT + "}")
-                    .withUntypedValue(VALUE_KEY_MODIFICATION_TYPE_LABEL, StringUtils.capitalize(getModificationTypeLabel()))
-                    .withUntypedValue(VALUE_KEY_FILTERS_EACH_ASSIGNMENT, abstractAssignmentInfos.getFilters().stream().map(FilterInfos::getName)
-                    .collect(Collectors.joining(", ")))
-                    .add();
+                        .withMessageTemplate(REPORT_KEY_APPLIED_ASSIGNMENT, "${" + VALUE_KEY_MODIFICATION_TYPE_LABEL + "} on filters : ${" + VALUE_KEY_FILTERS_EACH_ASSIGNMENT + "}")
+                        .withUntypedValue(VALUE_KEY_MODIFICATION_TYPE_LABEL, StringUtils.capitalize(getModificationTypeLabel()))
+                        .withUntypedValue(VALUE_KEY_FILTERS_EACH_ASSIGNMENT, abstractAssignmentInfos.getFilters().stream().map(FilterInfos::getName)
+                                .collect(Collectors.joining(", ")))
+                        .add();
                 abstractAssignmentInfos.getFilters().forEach(filterInfos -> applyOnFilterEquipments(network, filterUuidEquipmentsMap, reports, abstractAssignmentInfos, filterInfos));
                 reports.forEach(report -> insertReportNode(eachAssignmentReporter, report));
             });
             // reporting
             if (equipmentNotModifiedCount == 0 && equipmentNotFoundCount == 0) {
                 subReportNode.newReportNode()
-                    .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_ALL,
-                            "All equipments have been modified : ${" + VALUE_KEY_EQUIPMENT_COUNT + "} equipment(s)")
-                    .withUntypedValue(VALUE_KEY_EQUIPMENT_COUNT, equipmentCount)
-                    .withSeverity(TypedValue.INFO_SEVERITY)
-                    .add();
+                        .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_ALL,
+                                "All equipments have been modified : ${" + VALUE_KEY_EQUIPMENT_COUNT + "} equipment(s)")
+                        .withUntypedValue(VALUE_KEY_EQUIPMENT_COUNT, equipmentCount)
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .add();
 
             } else {
                 if (equipmentNotModifiedCount == equipmentCount) {
                     createReport(subReportNode, REPORT_KEY_BY_FILTER_MODIFICATION_NONE,
-                        "No equipment have been modified",
-                        Map.of(), TypedValue.ERROR_SEVERITY);
+                            "No equipment have been modified",
+                            Map.of(), TypedValue.ERROR_SEVERITY);
                 } else {
                     subReportNode.newReportNode()
-                        .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_SOME,
-                                "Some of the equipment have been modified : ${" + VALUE_KEY_NB_CHANGED + "} equipment(s) modified and ${" + VALUE_KEY_NB_UNCHANGED + "} equipment(s) not modified")
-                        .withUntypedValue(VALUE_KEY_NB_CHANGED, equipmentCount - equipmentNotModifiedCount)
-                        .withUntypedValue(VALUE_KEY_NB_UNCHANGED, equipmentNotModifiedCount + equipmentNotFoundCount)
-                        .withSeverity(TypedValue.WARN_SEVERITY)
-                        .add();
+                            .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_SOME,
+                                    "Some of the equipment have been modified : ${" + VALUE_KEY_NB_CHANGED + "} equipment(s) modified and ${" + VALUE_KEY_NB_UNCHANGED + "} equipment(s) not modified")
+                            .withUntypedValue(VALUE_KEY_NB_CHANGED, equipmentCount - equipmentNotModifiedCount)
+                            .withUntypedValue(VALUE_KEY_NB_UNCHANGED, equipmentNotModifiedCount + equipmentNotFoundCount)
+                            .withSeverity(TypedValue.WARN_SEVERITY)
+                            .add();
                 }
             }
         }
@@ -201,12 +201,13 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                     boolean isEditable = twoWindingsTransformer.getRatioTapChanger() != null;
                     if (!isEditable) {
                         equipmentsReport.add(ReportNode.newRootReportNode()
-                            .withMessageTemplate(REPORT_KEY_RATIO_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR + equipmentsReport.size(),
-                                    "        Cannot modify field ${" + VALUE_KEY_FIELD_NAME + "} of equipment ${" + VALUE_KEY_EQUIPMENT_NAME + "} : Ratio tab changer is null")
-                            .withUntypedValue(VALUE_KEY_FIELD_NAME, editedField.name())
-                            .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
-                            .withSeverity(TypedValue.TRACE_SEVERITY)
-                            .build());
+                                .withAllResourceBundlesFromClasspath()
+                                .withMessageTemplate(REPORT_KEY_RATIO_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR + equipmentsReport.size(),
+                                        "        Cannot modify field ${" + VALUE_KEY_FIELD_NAME + "} of equipment ${" + VALUE_KEY_EQUIPMENT_NAME + "} : Ratio tab changer is null")
+                                .withUntypedValue(VALUE_KEY_FIELD_NAME, editedField.name())
+                                .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
+                                .withSeverity(TypedValue.TRACE_SEVERITY)
+                                .build());
                     }
                     yield isEditable;
                 }
@@ -214,12 +215,13 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                     boolean isEditable = twoWindingsTransformer.getPhaseTapChanger() != null;
                     if (!isEditable) {
                         equipmentsReport.add(ReportNode.newRootReportNode()
-                            .withMessageTemplate(REPORT_KEY_PHASE_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR + equipmentsReport.size(),
-                                    "        Cannot modify field ${" + VALUE_KEY_FIELD_NAME + "} of equipment ${" + VALUE_KEY_EQUIPMENT_NAME + "} : Phase tab changer is null")
-                            .withUntypedValue(VALUE_KEY_FIELD_NAME, editedField.name())
-                            .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
-                            .withSeverity(TypedValue.TRACE_SEVERITY)
-                            .build());
+                                .withAllResourceBundlesFromClasspath()
+                                .withMessageTemplate(REPORT_KEY_PHASE_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR + equipmentsReport.size(),
+                                        "        Cannot modify field ${" + VALUE_KEY_FIELD_NAME + "} of equipment ${" + VALUE_KEY_EQUIPMENT_NAME + "} : Phase tab changer is null")
+                                .withUntypedValue(VALUE_KEY_FIELD_NAME, editedField.name())
+                                .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
+                                .withSeverity(TypedValue.TRACE_SEVERITY)
+                                .build());
                     }
                     yield isEditable;
                 }
@@ -233,56 +235,62 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                                          FilterInfos filterInfos, FilterEquipments filterEquipments, List<String> notEditableEquipments) {
         if (notEditableEquipments.size() == filterEquipments.getIdentifiableAttributes().size()) {
             reports.add(ReportNode.newRootReportNode()
-                .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_FAILED,
-                        "No equipment(s) have been modified on filter ${" + VALUE_KEY_FILTER_NAME + "}")
-                .withUntypedValue(VALUE_KEY_FILTER_NAME, filterInfos.getName())
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                    .withAllResourceBundlesFromClasspath()
+                    .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_FAILED,
+                            "No equipment(s) have been modified on filter ${" + VALUE_KEY_FILTER_NAME + "}")
+                    .withUntypedValue(VALUE_KEY_FILTER_NAME, filterInfos.getName())
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build());
         } else {
             reports.add(ReportNode.newRootReportNode()
-                .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_SUCCESS,
-                        "Successful application of ${" + VALUE_KEY_MODIFICATION_TYPE_LABEL + "} on filter ${" + VALUE_KEY_FILTER_NAME + "}")
-                .withUntypedValue(VALUE_KEY_MODIFICATION_TYPE_LABEL, getModificationTypeLabel())
-                .withUntypedValue(VALUE_KEY_FILTER_NAME, filterInfos.getName())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                    .withAllResourceBundlesFromClasspath()
+                    .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_SUCCESS,
+                            "Successful application of ${" + VALUE_KEY_MODIFICATION_TYPE_LABEL + "} on filter ${" + VALUE_KEY_FILTER_NAME + "}")
+                    .withUntypedValue(VALUE_KEY_MODIFICATION_TYPE_LABEL, getModificationTypeLabel())
+                    .withUntypedValue(VALUE_KEY_FILTER_NAME, filterInfos.getName())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .build());
 
             reports.add(ReportNode.newRootReportNode()
-                .withMessageTemplate(REPORT_KEY_NUMBER_OF_VALID_EQUIPMENT, "      Number of equipment modified : ${" + VALUE_KEY_NB_CHANGED + "}")
-                .withUntypedValue(VALUE_KEY_NB_CHANGED, filterEquipments.getIdentifiableAttributes().size() - notEditableEquipments.size())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                    .withAllResourceBundlesFromClasspath()
+                    .withMessageTemplate(REPORT_KEY_NUMBER_OF_VALID_EQUIPMENT, "      Number of equipment modified : ${" + VALUE_KEY_NB_CHANGED + "}")
+                    .withUntypedValue(VALUE_KEY_NB_CHANGED, filterEquipments.getIdentifiableAttributes().size() - notEditableEquipments.size())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .build());
 
             if (!CollectionUtils.isEmpty(notEditableEquipments)) {
                 reports.add(ReportNode.newRootReportNode()
-                    .withMessageTemplate(REPORT_KEY_NOT_EDITED_EQUIPMENTS_FILTER,
-                            "       ${" + VALUE_KEY_NB_UNCHANGED + "} equipment(s) were not modified")
-                    .withUntypedValue(VALUE_KEY_NB_UNCHANGED, notEditableEquipments.size())
-                    .withSeverity(TypedValue.WARN_SEVERITY)
-                    .build());
+                        .withAllResourceBundlesFromClasspath()
+                        .withMessageTemplate(REPORT_KEY_NOT_EDITED_EQUIPMENTS_FILTER,
+                                "       ${" + VALUE_KEY_NB_UNCHANGED + "} equipment(s) were not modified")
+                        .withUntypedValue(VALUE_KEY_NB_UNCHANGED, notEditableEquipments.size())
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .build());
             }
         }
 
         reports.add(ReportNode.newRootReportNode()
-            .withMessageTemplate(REPORT_KEY_EDITED_FIELD_FILTER, "      Edited field : ${" + VALUE_KEY_FIELD_NAME + "}")
-            .withUntypedValue(VALUE_KEY_FIELD_NAME, getEditedFieldLabel(abstractAssignmentInfos))
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .build());
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate(REPORT_KEY_EDITED_FIELD_FILTER, "      Edited field : ${" + VALUE_KEY_FIELD_NAME + "}")
+                .withUntypedValue(VALUE_KEY_FIELD_NAME, getEditedFieldLabel(abstractAssignmentInfos))
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
 
         if (!CollectionUtils.isEmpty(filterEquipments.getNotFoundEquipments())) {
             String equipmentIds = String.join(", ", filterEquipments.getNotFoundEquipments());
             reports.add(ReportNode.newRootReportNode()
-                .withMessageTemplate(REPORT_KEY_FILTER_EQUIPMENTS_NOT_FOUND, "      Equipment not found : ${" + VALUE_KEY_EQUIPMENT_IDS + "}")
-                .withUntypedValue(VALUE_KEY_EQUIPMENT_IDS, equipmentIds)
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                    .withAllResourceBundlesFromClasspath()
+                    .withMessageTemplate(REPORT_KEY_FILTER_EQUIPMENTS_NOT_FOUND, "      Equipment not found : ${" + VALUE_KEY_EQUIPMENT_IDS + "}")
+                    .withUntypedValue(VALUE_KEY_EQUIPMENT_IDS, equipmentIds)
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build());
         }
     }
 
     private void applyModification(Identifiable<?> equipment,
-                                     AbstractAssignmentInfos abstractAssignmentInfos,
-                                     List<ReportNode> reports,
-                                     List<String> notEditableEquipments) {
+                                   AbstractAssignmentInfos abstractAssignmentInfos,
+                                   List<ReportNode> reports,
+                                   List<String> notEditableEquipments) {
 
         // check pre-conditions
         if (!preCheckValue(equipment, abstractAssignmentInfos, reports, notEditableEquipments)) {
@@ -294,49 +302,52 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
             final String oldValue = getOldValue(equipment, abstractAssignmentInfos);
             final String newValue = applyValue(equipment, abstractAssignmentInfos);
             reports.add(ReportNode.newRootReportNode()
-                .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_REPORT,
-                    "        ${" + VALUE_KEY_EQUIPMENT_TYPE + "} id : ${" + VALUE_KEY_EQUIPMENT_NAME +
-                    "}, ${" + VALUE_KEY_FIELD_NAME + "} : ${" + VALUE_KEY_OLD_VALUE + "} → ${" + VALUE_KEY_NEW_VALUE + "}")
-                .withUntypedValue(VALUE_KEY_EQUIPMENT_TYPE, equipment.getType().name())
-                .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
-                .withUntypedValue(VALUE_KEY_FIELD_NAME, getEditedFieldLabel(abstractAssignmentInfos))
-                .withUntypedValue(VALUE_KEY_OLD_VALUE, oldValue == null ? NO_VALUE : oldValue)
-                .withUntypedValue(VALUE_KEY_NEW_VALUE, newValue)
-                .withSeverity(TypedValue.TRACE_SEVERITY)
-                .build());
+                    .withAllResourceBundlesFromClasspath()
+                    .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_REPORT,
+                            "        ${" + VALUE_KEY_EQUIPMENT_TYPE + "} id : ${" + VALUE_KEY_EQUIPMENT_NAME +
+                                    "}, ${" + VALUE_KEY_FIELD_NAME + "} : ${" + VALUE_KEY_OLD_VALUE + "} → ${" + VALUE_KEY_NEW_VALUE + "}")
+                    .withUntypedValue(VALUE_KEY_EQUIPMENT_TYPE, equipment.getType().name())
+                    .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
+                    .withUntypedValue(VALUE_KEY_FIELD_NAME, getEditedFieldLabel(abstractAssignmentInfos))
+                    .withUntypedValue(VALUE_KEY_OLD_VALUE, oldValue == null ? NO_VALUE : oldValue)
+                    .withUntypedValue(VALUE_KEY_NEW_VALUE, newValue)
+                    .withSeverity(TypedValue.TRACE_SEVERITY)
+                    .build());
         } catch (Exception e) {
             notEditableEquipments.add(equipment.getId());
             equipmentNotModifiedCount += 1;
             reports.add(ReportNode.newRootReportNode()
-                .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_REPORT_EXCEPTION,
-                        "        Cannot modify equipment ${" + VALUE_KEY_EQUIPMENT_NAME + "} : ${" + VALUE_KEY_ERROR_MESSAGE + "}")
-                .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
-                .withUntypedValue(VALUE_KEY_ERROR_MESSAGE, e.getMessage())
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                    .withAllResourceBundlesFromClasspath()
+                    .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_REPORT_EXCEPTION,
+                            "        Cannot modify equipment ${" + VALUE_KEY_EQUIPMENT_NAME + "} : ${" + VALUE_KEY_ERROR_MESSAGE + "}")
+                    .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
+                    .withUntypedValue(VALUE_KEY_ERROR_MESSAGE, e.getMessage())
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build());
         }
     }
 
     private Map<UUID, String> getFilters() {
         return getAssignmentInfosList().stream()
-            .flatMap(v -> v.getFilters().stream())
-            .filter(distinctByKey(FilterInfos::getId))
-            .collect(Collectors.toMap(FilterInfos::getId, FilterInfos::getName));
+                .flatMap(v -> v.getFilters().stream())
+                .filter(distinctByKey(FilterInfos::getId))
+                .collect(Collectors.toMap(FilterInfos::getId, FilterInfos::getName));
     }
 
     private void applyOnFilterEquipments(Network network,
-                                        Map<UUID, FilterEquipments> filterUuidEquipmentsMap,
-                                        List<ReportNode> reports,
-                                        AbstractAssignmentInfos abstractAssignmentInfos,
-                                        FilterInfos filterInfos) {
+                                         Map<UUID, FilterEquipments> filterUuidEquipmentsMap,
+                                         List<ReportNode> reports,
+                                         AbstractAssignmentInfos abstractAssignmentInfos,
+                                         FilterInfos filterInfos) {
         FilterEquipments filterEquipments = filterUuidEquipmentsMap.get(filterInfos.getId());
 
         if (CollectionUtils.isEmpty(filterEquipments.getIdentifiableAttributes())) {
             reports.add(ReportNode.newRootReportNode()
-                .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_NOT_FOUND, "No equipments were found for filter ${" + VALUE_KEY_FILTER_NAME + "}")
-                .withUntypedValue(VALUE_KEY_FILTER_NAME, filterInfos.getName())
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                    .withAllResourceBundlesFromClasspath()
+                    .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_NOT_FOUND, "No equipments were found for filter ${" + VALUE_KEY_FILTER_NAME + "}")
+                    .withUntypedValue(VALUE_KEY_FILTER_NAME, filterInfos.getName())
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build());
         } else {
             equipmentCount += filterEquipments.getIdentifiableAttributes().size();
             if (!CollectionUtils.isEmpty(filterEquipments.getNotFoundEquipments())) {
@@ -345,17 +356,17 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
             List<String> notEditableEquipments = new ArrayList<>();
             List<ReportNode> equipmentsReport = new ArrayList<>();
             filterEquipments.getIdentifiableAttributes()
-                .stream()
-                .map(attributes -> network.getIdentifiable(attributes.getId()))
-                .filter(equipment -> {
-                    boolean isEditableEquipment = isEquipmentEditable(equipment, abstractAssignmentInfos, equipmentsReport);
-                    if (!isEditableEquipment) {
-                        notEditableEquipments.add(equipment.getId());
-                        equipmentNotModifiedCount += 1;
-                    }
-                    return isEditableEquipment;
-                })
-                .forEach(equipment -> applyModification(equipment, abstractAssignmentInfos, equipmentsReport, notEditableEquipments));
+                    .stream()
+                    .map(attributes -> network.getIdentifiable(attributes.getId()))
+                    .filter(equipment -> {
+                        boolean isEditableEquipment = isEquipmentEditable(equipment, abstractAssignmentInfos, equipmentsReport);
+                        if (!isEditableEquipment) {
+                            notEditableEquipments.add(equipment.getId());
+                            equipmentNotModifiedCount += 1;
+                        }
+                        return isEditableEquipment;
+                    })
+                    .forEach(equipment -> applyModification(equipment, abstractAssignmentInfos, equipmentsReport, notEditableEquipments));
 
             createAssignmentReports(reports, abstractAssignmentInfos, filterInfos, filterEquipments, notEditableEquipments);
 

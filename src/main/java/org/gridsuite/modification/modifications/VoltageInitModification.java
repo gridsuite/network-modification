@@ -95,6 +95,7 @@ public class VoltageInitModification extends AbstractModification {
             }
             if (bus == null) {
                 reports.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("busNotFound", "Bus with id=${id} not found")
                         .withUntypedValue("id", m.getBusId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
@@ -102,6 +103,7 @@ public class VoltageInitModification extends AbstractModification {
             } else if (m.getV() != null || m.getAngle() != null) {
                 modificationsCount++;
                 reports.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("busModification", "Bus with id=${id} modified :")
                         .withUntypedValue("id", m.getBusId())
                         .withSeverity(TypedValue.TRACE_SEVERITY)
@@ -140,6 +142,7 @@ public class VoltageInitModification extends AbstractModification {
             final Generator generator = network.getGenerator(m.getGeneratorId());
             if (generator == null) {
                 reports.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("generatorNotFound", "Generator with id=${id} not found")
                         .withUntypedValue("id", m.getGeneratorId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
@@ -147,6 +150,7 @@ public class VoltageInitModification extends AbstractModification {
             } else if (m.getTargetV() != null || m.getTargetQ() != null) {
                 modificationsCount++;
                 reports.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("generatorModification", "Generator with id=${id} modified :")
                         .withUntypedValue("id", m.getGeneratorId())
                         .withSeverity(TypedValue.TRACE_SEVERITY)
@@ -185,12 +189,14 @@ public class VoltageInitModification extends AbstractModification {
                 final ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer(t.getTransformerId());
                 if (threeWindingsTransformer == null) {
                     reports3WT.add(ReportNode.newRootReportNode()
+                            .withAllResourceBundlesFromClasspath()
                             .withMessageTemplate("3WindingsTransformerNotFound", "3 windings transformer with id=${id} not found")
                             .withUntypedValue("id", t.getTransformerId())
                             .withSeverity(TypedValue.WARN_SEVERITY)
                             .build());
                 } else if (threeWindingsTransformer.getLeg(t.getLegSide()).getRatioTapChanger() == null) {
                     reports3WT.add(ReportNode.newRootReportNode()
+                            .withAllResourceBundlesFromClasspath()
                             .withMessageTemplate("3WindingsTransformerRatioTapChangerNotFound", "3 windings transformer with id=${id} : Ratio tap changer for leg ${leg} not found")
                             .withUntypedValue("id", t.getTransformerId())
                             .withUntypedValue("leg", t.getLegSide().name())
@@ -199,6 +205,7 @@ public class VoltageInitModification extends AbstractModification {
                 } else if (t.getRatioTapChangerPosition() != null || t.getRatioTapChangerTargetV() != null) {
                     modificationsCount++;
                     reports3WT.add(ReportNode.newRootReportNode()
+                            .withAllResourceBundlesFromClasspath()
                             .withMessageTemplate("3WindingsTransformerModification", "3 windings transformer with id=${id} modified :")
                             .withUntypedValue("id", t.getTransformerId())
                             .withSeverity(TypedValue.TRACE_SEVERITY)
@@ -218,12 +225,14 @@ public class VoltageInitModification extends AbstractModification {
                 final TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(t.getTransformerId());
                 if (twoWindingsTransformer == null) {
                     reports2WT.add(ReportNode.newRootReportNode()
+                            .withAllResourceBundlesFromClasspath()
                             .withMessageTemplate("2WindingsTransformerNotFound", "2 windings transformer with id=${id} not found")
                             .withUntypedValue("id", t.getTransformerId())
                             .withSeverity(TypedValue.WARN_SEVERITY)
                             .build());
                 } else if (twoWindingsTransformer.getRatioTapChanger() == null) {
                     reports2WT.add(ReportNode.newRootReportNode()
+                            .withAllResourceBundlesFromClasspath()
                             .withMessageTemplate("2WindingsTransformerRatioTapChangerNotFound", "2 windings transformer with id=${id} : Ratio tap changer not found")
                             .withUntypedValue("id", t.getTransformerId())
                             .withSeverity(TypedValue.WARN_SEVERITY)
@@ -231,6 +240,7 @@ public class VoltageInitModification extends AbstractModification {
                 } else if (t.getRatioTapChangerPosition() != null || t.getRatioTapChangerTargetV() != null) {
                     modificationsCount++;
                     reports2WT.add(ReportNode.newRootReportNode()
+                            .withAllResourceBundlesFromClasspath()
                             .withMessageTemplate("2WindingsTransformerModification", "2 windings transformer with id=${id} modified :")
                             .withUntypedValue("id", t.getTransformerId())
                             .withSeverity(TypedValue.TRACE_SEVERITY)
@@ -272,6 +282,7 @@ public class VoltageInitModification extends AbstractModification {
             final StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator(s.getStaticVarCompensatorId());
             if (staticVarCompensator == null) {
                 reports.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("staticVarCompensatorNotFound", "Static var compensator with id=${id} not found")
                         .withUntypedValue("id", s.getStaticVarCompensatorId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
@@ -279,6 +290,7 @@ public class VoltageInitModification extends AbstractModification {
             } else if (s.getVoltageSetpoint() != null || s.getReactivePowerSetpoint() != null) {
                 modificationsCount++;
                 reports.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("staticVarCompensatorModification", "Static var compensator with id=${id} modified :")
                         .withUntypedValue("id", s.getStaticVarCompensatorId())
                         .withSeverity(TypedValue.TRACE_SEVERITY)
@@ -315,6 +327,7 @@ public class VoltageInitModification extends AbstractModification {
             final VscConverterStation vscConverterStation = network.getVscConverterStation(v.getVscConverterStationId());
             if (vscConverterStation == null) {
                 reports.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("vscConverterStationNotFound", "Vsc converter station with id=${id} not found")
                         .withUntypedValue("id", v.getVscConverterStationId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
@@ -322,6 +335,7 @@ public class VoltageInitModification extends AbstractModification {
             } else if (v.getVoltageSetpoint() != null || v.getReactivePowerSetpoint() != null) {
                 modificationsCount++;
                 reports.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("vscConverterStationModification", "Vsc converter station with id=${id} modified :")
                         .withUntypedValue("id", v.getVscConverterStationId())
                         .withSeverity(TypedValue.TRACE_SEVERITY)
@@ -358,6 +372,7 @@ public class VoltageInitModification extends AbstractModification {
             final ShuntCompensator shuntCompensator = network.getShuntCompensator(m.getShuntCompensatorId());
             if (shuntCompensator == null) {
                 reports.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("shuntCompensatorNotFound", "Shunt compensator with id=${id} not found")
                         .withUntypedValue("id", m.getShuntCompensatorId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
@@ -369,6 +384,7 @@ public class VoltageInitModification extends AbstractModification {
                 if (shuntCompensatorTerminal.isConnected()) {  // shunt compensator is connected
                     if (m.getSectionCount() == null) {
                         reportsShunt.add(ReportNode.newRootReportNode()
+                                .withAllResourceBundlesFromClasspath()
                                 .withMessageTemplate("shuntCompensatorSectionCountUndefined", "\tSection count value is undefined")
                                 .withSeverity(TypedValue.WARN_SEVERITY)
                                 .build());
@@ -376,6 +392,7 @@ public class VoltageInitModification extends AbstractModification {
                         if (m.getSectionCount() == 0) {
                             shuntCompensatorTerminal.disconnect();
                             reportsShunt.add(ReportNode.newRootReportNode()
+                                    .withAllResourceBundlesFromClasspath()
                                     .withMessageTemplate("shuntCompensatorDisconnected", "\tShunt compensator disconnected")
                                     .withSeverity(TypedValue.TRACE_SEVERITY)
                                     .build());
@@ -388,6 +405,7 @@ public class VoltageInitModification extends AbstractModification {
                 } else {  // shunt compensator is disconnected
                     if (m.getConnect() == null) {
                         reportsShunt.add(ReportNode.newRootReportNode()
+                                .withAllResourceBundlesFromClasspath()
                                 .withMessageTemplate("shuntCompensatorConnectUndefined", "\tConnect value is undefined")
                                 .withSeverity(TypedValue.WARN_SEVERITY)
                                 .build());
@@ -395,6 +413,7 @@ public class VoltageInitModification extends AbstractModification {
                         if (Boolean.TRUE.equals(m.getConnect())) {
                             shuntCompensatorTerminal.connect();
                             reportsShunt.add(ReportNode.newRootReportNode()
+                                    .withAllResourceBundlesFromClasspath()
                                     .withMessageTemplate("shuntCompensatorReconnected", "\tShunt compensator reconnected")
                                     .withSeverity(TypedValue.TRACE_SEVERITY)
                                     .build());
@@ -413,6 +432,7 @@ public class VoltageInitModification extends AbstractModification {
                 if (!reportsShunt.isEmpty()) {
                     modificationsCount++;
                     reports.add(ReportNode.newRootReportNode()
+                            .withAllResourceBundlesFromClasspath()
                             .withMessageTemplate("shuntCompensatorModification", "Shunt compensator with id=${id} modified :")
                             .withUntypedValue("id", m.getShuntCompensatorId())
                             .withSeverity(TypedValue.TRACE_SEVERITY)

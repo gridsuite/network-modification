@@ -97,7 +97,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         // network with 2 synchronous components, no battery, 2 hvdc lines between them and no forcedOutageRate and plannedOutageRate for the generators
         setNetwork(Network.read("testGenerationDispatch.xiidm", getClass().getResourceAsStream("/testGenerationDispatch.xiidm")));
 
-        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode().withMessageTemplate("", "").build());
+        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles("i18n.reports")
+                .withMessageTemplate("test").build());
 
         modification.toModification().apply(getNetwork(), report);
         assertNetworkAfterCreationWithStandardLossCoefficient();
@@ -117,7 +119,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         assertFalse(getNetwork().getBattery(BATTERY3_ID).getTerminal().isConnected());
         final double batteryTotalTargetP = getNetwork().getBattery(BATTERY1_ID).getTargetP() + getNetwork().getBattery(BATTERY2_ID).getTargetP();
 
-        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode().withMessageTemplate("", "").build());
+        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles("i18n.reports")
+                .withMessageTemplate("test").build());
         modification.toModification().apply(getNetwork(), report);
         assertLogReportsForDefaultNetwork(batteryTotalTargetP, report);
     }
@@ -136,7 +140,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         getNetwork().getBattery(BATTERY3_ID).getTerminal().connect();
         final double batteryTotalTargetP = getNetwork().getBattery(BATTERY1_ID).getTargetP() + getNetwork().getBattery(BATTERY2_ID).getTargetP() + getNetwork().getBattery(BATTERY3_ID).getTargetP();
 
-        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode().withMessageTemplate("", "").build());
+        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles("i18n.reports")
+                .withMessageTemplate("test").build());
         modification.toModification().apply(getNetwork(), report);
         assertLogReportsForDefaultNetwork(batteryTotalTargetP, report);
     }
@@ -147,7 +153,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
 
         setNetwork(Network.read("testGenerationDispatchWithMultipleEnergySource.xiidm", getClass().getResourceAsStream("/testGenerationDispatchWithMultipleEnergySource.xiidm")));
 
-        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode().withMessageTemplate("", "").build());
+        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles("i18n.reports")
+                .withMessageTemplate("test").build());
         modification.toModification().apply(getNetwork(), report);
 
         int synchronousComponentNum = getNetwork().getGenerator(GH1_ID).getTerminal().getBusView().getBus().getSynchronousComponent().getNum();
@@ -168,7 +176,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         // network with 2 synchronous components, 2 hvdc lines between them and no forcedOutageRate and plannedOutageRate for the generators
         setNetwork(Network.read("testGenerationDispatch.xiidm", getClass().getResourceAsStream("/testGenerationDispatch.xiidm")));
 
-        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode().withMessageTemplate("", "").build());
+        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles("i18n.reports")
+                .withMessageTemplate("test").build());
         modification.toModification().apply(getNetwork(), report);
 
         assertEquals(100., getNetwork().getGenerator(GH1_ID).getTargetP(), 0.001);
@@ -207,7 +217,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         // network with unique synchronous component, 2 internal hvdc lines and no forcedOutageRate and plannedOutageRate for the generators
         setNetwork(Network.read("testGenerationDispatchInternalHvdc.xiidm", getClass().getResourceAsStream("/testGenerationDispatchInternalHvdc.xiidm")));
 
-        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode().withMessageTemplate("", "").build());
+        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles("i18n.reports")
+                .withMessageTemplate("test").build());
         modification.toModification().apply(getNetwork(), report);
 
         assertEquals(100., getNetwork().getGenerator(GH1_ID).getTargetP(), 0.001);
@@ -251,7 +263,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         when(filterService.exportFilters(List.of(FILTER_ID_1, FILTER_ID_2, FILTER_ID_3), getNetwork())).thenReturn(filters.stream());
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
         modif.initApplicationContext(filterService);
-        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode().withMessageTemplate("", "").build());
+        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles("i18n.reports")
+                .withMessageTemplate("test").build());
         modif.apply(getNetwork(), report);
 
         assertEquals(74.82, getNetwork().getGenerator(GH1_ID).getTargetP(), 0.001);
@@ -311,7 +325,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
 
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
         modif.initApplicationContext(filterService);
-        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode().withMessageTemplate("", "").build());
+        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles("i18n.reports")
+                .withMessageTemplate("test").build());
         modif.apply(getNetwork(), report);
 
         assertEquals(74.82, getNetwork().getGenerator(GH1_ID).getTargetP(), 0.001);
@@ -399,7 +415,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
 
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
         modif.initApplicationContext(filterService);
-        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode().withMessageTemplate("", "").build());
+        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles("i18n.reports")
+                .withMessageTemplate("test").build());
         modif.apply(getNetwork(), report);
 
         assertEquals(74.82, getNetwork().getGenerator(GH1_ID).getTargetP(), 0.001);
@@ -545,7 +563,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
 
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
         modif.initApplicationContext(filterService);
-        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode().withMessageTemplate("", "").build());
+        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles("i18n.reports")
+                .withMessageTemplate("test").build());
         modif.apply(getNetwork(), report);
 
         // check logs
