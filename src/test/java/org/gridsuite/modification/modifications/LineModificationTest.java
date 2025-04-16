@@ -28,10 +28,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
@@ -144,11 +141,39 @@ class LineModificationTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void checkModification() {
+        Network network = getNetwork();
         LineModificationInfos lineModificationInfos = (LineModificationInfos) buildModification();
         lineModificationInfos.setEquipmentId("lineNotFound");
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lineModificationInfos.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(LINE_NOT_FOUND, "Line lineNotFound does not exist in network").getMessage(),
+        LineModification lineModification = (LineModification) lineModificationInfos.toModification();
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lineModification.check(network));
+        assertEquals(new NetworkModificationException(LINE_NOT_FOUND, "Line 'lineNotFound' : does not exist in network").getMessage(),
                 exception.getMessage());
+        LineModificationInfos lineModificationInfos1 = LineModificationInfos.builder()
+            .equipmentId("line1")
+            .r(new AttributeModification<>(-1d, OperationType.SET))
+            .build();
+        LineModification lineModification1 = (LineModification) lineModificationInfos1.toModification();
+        String message = assertThrows(NetworkModificationException.class,
+            () -> lineModification1.check(network)).getMessage();
+        assertEquals("MODIFY_LINE_ERROR : Line 'line1' : can not have a negative value for Resistance R", message);
+
+        LineModificationInfos lineModificationInfos2 = LineModificationInfos.builder()
+            .equipmentId("line1")
+            .g1(new AttributeModification<>(-2d, OperationType.SET))
+            .build();
+        LineModification lineModification2 = (LineModification) lineModificationInfos2.toModification();
+        message = assertThrows(NetworkModificationException.class,
+            () -> lineModification2.check(network)).getMessage();
+        assertEquals("MODIFY_LINE_ERROR : Line 'line1' : can not have a negative value for Conductance on side 1 G1", message);
+
+        LineModificationInfos lineModificationInfos3 = LineModificationInfos.builder()
+            .equipmentId("line1")
+            .g2(new AttributeModification<>(-100d, OperationType.SET))
+            .build();
+        LineModification lineModification3 = (LineModification) lineModificationInfos3.toModification();
+        message = assertThrows(NetworkModificationException.class,
+            () -> lineModification3.check(network)).getMessage();
+        assertEquals("MODIFY_LINE_ERROR : Line 'line1' : can not have a negative value for Conductance on side 2 G2", message);
     }
 
     @Override
@@ -159,16 +184,16 @@ class LineModificationTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void testDisconnection() throws Exception {
+    void testDisconnection() {
         changeLineConnectionState(getNetwork().getLine("line1"), false);
     }
 
     @Test
-    void testConnection() throws Exception {
+    void testConnection() {
         changeLineConnectionState(getNetwork().getLine("line1"), true);
     }
 
-    private void changeLineConnectionState(Line existingEquipment, boolean expectedState) throws Exception {
+    private void changeLineConnectionState(Line existingEquipment, boolean expectedState) {
         LineModificationInfos modificationInfos = (LineModificationInfos) buildModification();
         modificationInfos.setTerminal1Connected(new AttributeModification<>(expectedState, OperationType.SET));
         modificationInfos.setTerminal2Connected(new AttributeModification<>(expectedState, OperationType.SET));

@@ -694,8 +694,8 @@ public final class ModificationUtils {
                                                          ReportNode connectivityReports) {
         List<ReportNode> reports = new ArrayList<>();
         processConnectivityPosition(connectablePosition, connectablePositionAdder, modificationInfos, branch.getNetwork(), reports);
-        modifyConnection(modificationInfos.getTerminal1Connected(), branch, branch.getTerminal1(), reports);
-        modifyConnection(modificationInfos.getTerminal2Connected(), branch, branch.getTerminal2(), reports);
+        modifyConnection(modificationInfos.getTerminal1Connected(), branch, branch.getTerminal1(), reports, ThreeSides.ONE);
+        modifyConnection(modificationInfos.getTerminal2Connected(), branch, branch.getTerminal2(), reports, ThreeSides.TWO);
 
         return reportModifications(connectivityReports, reports, "ConnectivityModified", CONNECTIVITY);
     }
@@ -956,6 +956,10 @@ public final class ModificationUtils {
     }
 
     private void modifyConnection(AttributeModification<Boolean> terminalConnected, Identifiable<?> equipment, Terminal terminal, List<ReportNode> reports) {
+        modifyConnection(terminalConnected, equipment, terminal, reports, null);
+    }
+
+    private void modifyConnection(AttributeModification<Boolean> terminalConnected, Identifiable<?> equipment, Terminal terminal, List<ReportNode> reports, ThreeSides side) {
         if (terminalConnected == null || equipment == null) {
             return;
         }
@@ -963,20 +967,26 @@ public final class ModificationUtils {
         boolean isConnected = terminal.isConnected();
         if (isConnected && Boolean.FALSE.equals(terminalConnected.getValue())) {
             terminal.disconnect();
-            validateConnectionChange(!terminal.isConnected(), equipment, "disconnect", reports);
+            validateConnectionChange(!terminal.isConnected(), equipment, "disconnect", reports, side);
         } else if (!isConnected && Boolean.TRUE.equals(terminalConnected.getValue())) {
             terminal.connect();
-            validateConnectionChange(terminal.isConnected(), equipment, "connect", reports);
+            validateConnectionChange(terminal.isConnected(), equipment, "connect", reports, side);
         }
     }
 
-    private void validateConnectionChange(boolean success, Identifiable<?> equipment, String action, List<ReportNode> reports) {
+    private void validateConnectionChange(boolean success, Identifiable<?> equipment, String action, List<ReportNode> reports, ThreeSides side) {
         if (!success) {
             throw new NetworkModificationException(equipment instanceof Branch<?> ? BRANCH_MODIFICATION_ERROR : INJECTION_MODIFICATION_ERROR,
                     String.format("Could not %s equipment '%s'", action, equipment.getId()));
         }
+        String equipmentMessage = "Equipment with id=${id} %sed";
+        String reportKey = "equipment" + capitalize(action);
+        if (side != null) {
+            equipmentMessage += String.format(" on side %d", side.getNum());
+            reportKey += String.format("side%d", side.getNum());
+        }
         reports.add(ReportNode.newRootReportNode()
-                .withMessageTemplate("equipment" + capitalize(action), String.format("Equipment with id=${id} %sed", action))
+                .withMessageTemplate(reportKey, String.format(equipmentMessage, action))
                 .withUntypedValue("id", equipment.getId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
@@ -1695,6 +1705,18 @@ public final class ModificationUtils {
                         .build());
             }
             ModificationUtils.getInstance().reportModifications(subReporter, connectivityReports, "ConnectivityCreated", CONNECTIVITY);
+        }
+    }
+
+    public static void checkIsNotNegativeValue(String errorMessage, Double valueToCheck, NetworkModificationException.Type exceptionType, String valueName) throws NetworkModificationException {
+        if (valueToCheck != null && valueToCheck < 0) {
+            throw new NetworkModificationException(exceptionType, errorMessage + "can not have a negative value for " + valueName);
+        }
+    }
+
+    public static void checkIsPercentage(String errorMessage, Float valueToCheck, NetworkModificationException.Type exceptionType, String valueName) throws NetworkModificationException {
+        if (valueToCheck != null && (valueToCheck < 0 || valueToCheck > 100)) {
+            throw new NetworkModificationException(exceptionType, errorMessage + "must have " + valueName + " between 0 and 100");
         }
     }
 }

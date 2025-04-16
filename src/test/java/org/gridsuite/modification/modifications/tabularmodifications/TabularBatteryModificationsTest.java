@@ -60,5 +60,6 @@ class TabularBatteryModificationsTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void checkModification() {
+        // TODO
     }
 }

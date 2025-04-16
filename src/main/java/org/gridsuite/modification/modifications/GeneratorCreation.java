@@ -44,6 +44,7 @@ public class GeneratorCreation extends AbstractModification {
         if (network.getGenerator(modificationInfos.getEquipmentId()) != null) {
             throw new NetworkModificationException(GENERATOR_ALREADY_EXISTS, modificationInfos.getEquipmentId());
         }
+        String errorMessage = "Generator '" + modificationInfos.getEquipmentId() + "' : ";
 
         // check connectivity
         ModificationUtils.getInstance().controlConnectivity(network, modificationInfos.getVoltageLevelId(),
@@ -64,6 +65,10 @@ public class GeneratorCreation extends AbstractModification {
 
         ModificationUtils.getInstance().checkActivePowerControl(modificationInfos.getParticipate(),
             modificationInfos.getDroop(), CREATE_GENERATOR_ERROR, String.format(ERROR_MESSAGE, modificationInfos.getEquipmentId()));
+
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getTargetV(), CREATE_GENERATOR_ERROR, "Target Voltage");
+        checkIsPercentage(errorMessage, modificationInfos.getDroop(), CREATE_GENERATOR_ERROR, "Droop");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedS(), CREATE_GENERATOR_ERROR, "Rated apparent power");
     }
 
     @Override

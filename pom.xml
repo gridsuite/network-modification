@@ -13,13 +13,13 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent</artifactId>
-        <version>21</version>
+        <version>22</version>
         <relativePath/>
     </parent>
 
     <groupId>org.gridsuite</groupId>
     <artifactId>gridsuite-network-modification</artifactId>
-    <version>0.10.0-SNAPSHOT</version>
+    <version>0.13.0-SNAPSHOT</version>
 
     <packaging>jar</packaging>
     <name>Network modification library</name>
@@ -43,6 +43,8 @@
 
     <properties>
         <gridsuite-dependencies.version>37.0.0</gridsuite-dependencies.version>
+        <sonar.organization>gridsuite</sonar.organization>
+        <sonar.projectKey>org.gridsuite:network-modification</sonar.projectKey>
     </properties>
 
     <build>
