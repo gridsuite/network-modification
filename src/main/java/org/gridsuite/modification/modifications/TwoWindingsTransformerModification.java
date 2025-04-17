@@ -433,7 +433,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         ReportNode regulatingReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
             isModification ? phaseTapChanger::setRegulating : phaseTapChangerAdder::setRegulating,
             isModification ? phaseTapChanger::isRegulating : () -> null,
-            regulatingModification, "Regulating", 1);
+            regulatingModification, "Regulation", 1);
         if (regulationReports != null && regulatingReportNode != null) {
             regulationReports.add(regulatingReportNode);
         }
@@ -515,8 +515,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
             AttributeModification<RatioTapChanger.RegulationMode> regulationModeModification = AttributeModification.toAttributeModification(regulationMode, OperationType.SET);
             ReportNode regulationModeReport = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
                 isModification ? ratioTapChanger::setRegulationMode : ratioTapChangerAdder::setRegulationMode,
-                isModification ? ratioTapChanger::getRegulationMode : () -> null,
-                regulationModeModification, "Voltage regulation mode set to " + regulationMode, 1);
+                isModification ? ratioTapChanger::getRegulationMode : () -> null, regulationModeModification, "Regulation mode : " + regulationMode, 2);
             if (regulationModeReport != null) {
                 regulationReports.add(regulationModeReport);
             }
@@ -524,7 +523,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 isModification ? ratioTapChanger::setRegulating
                     : ratioTapChangerAdder::setRegulating,
                 isModification ? ratioTapChanger::isRegulating : () -> null,
-                ratioTapChangerInfos.getRegulating(), Boolean.TRUE.equals(isRegulating) ? "Voltage regulation" : "Fixed ratio", 1);
+                ratioTapChangerInfos.getRegulating(), Boolean.TRUE.equals(isRegulating) ? "Regulation" : "Fixed ratio", 2);
             if (voltageRegulationReport != null) {
                 regulationReports.add(voltageRegulationReport);
             }
