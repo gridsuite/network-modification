@@ -514,7 +514,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         ReportNode regulationModeReport = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
             isModification ? ratioTapChanger::setRegulationMode : ratioTapChangerAdder::setRegulationMode,
             isModification ? ratioTapChanger::getRegulationMode : () -> null,
-            regulationModeModification, "Regulation mode set to " + regulationMode, 2);
+            regulationModeModification, "Regulation mode : " + regulationMode, 2);
         if (regulationModeReport != null) {
             regulationReports.add(regulationModeReport);
         }

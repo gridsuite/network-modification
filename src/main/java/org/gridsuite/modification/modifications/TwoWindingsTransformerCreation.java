@@ -138,7 +138,7 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
 
     private void addPhaseTapChangersToTwoWindingsTransformer(Network network, TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, TwoWindingsTransformer twt, ReportNode subReportNode) {
         List<ReportNode> regulatedTerminalReports = new ArrayList<>();
-        List<ReportNode> regulatingReports = new ArrayList<>();
+        List<ReportNode> regulationReports = new ArrayList<>();
         List<ReportNode> tapsReports = new ArrayList<>();
 
         PhaseTapChangerCreationInfos phaseTapChangerInfos = twoWindingsTransformerCreationInfos.getPhaseTapChanger();
@@ -147,11 +147,11 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         if (phaseTapChangerInfos.isRegulating()) {
             phaseTapChangerAdder.setRegulationValue(phaseTapChangerInfos.getRegulationValue())
                     .setTargetDeadband(targetDeadband);
-            regulatingReports.add(getInstance().buildCreationReport(
+            regulationReports.add(getInstance().buildCreationReport(
                     phaseTapChangerInfos.getRegulationMode(), "Regulation Mode"));
-            regulatingReports.add(getInstance().buildCreationReport(
+            regulationReports.add(getInstance().buildCreationReport(
                     phaseTapChangerInfos.getRegulationValue(), "Regulation Value"));
-            regulatingReports.add(getInstance().buildCreationReport(
+            regulationReports.add(getInstance().buildCreationReport(
                     targetDeadband, "Target Deadband"));
         }
         Terminal terminal = getInstance().getTerminalFromIdentifiable(network,
@@ -192,8 +192,8 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
             if (!regulatedTerminalReports.isEmpty()) {
                 getInstance().reportModifications(ratioTapChangerReporter, regulatedTerminalReports, "RegulatedTerminalCreated", "Regulated terminal");
             }
-            if (!regulatingReports.isEmpty()) {
-                getInstance().reportModifications(ratioTapChangerReporter, regulatingReports, "RegulatingCreated", "Regulating");
+            if (!regulationReports.isEmpty()) {
+                getInstance().reportModifications(ratioTapChangerReporter, regulationReports, "RegulatingCreated", "Regulation");
             }
             if (!tapsReports.isEmpty()) {
                 getInstance().reportModifications(ratioTapChangerReporter, tapsReports, "TapsCreated", "Taps");
@@ -203,7 +203,7 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
 
     private void addRatioTapChangersToTwoWindingsTransformer(Network network, TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos, TwoWindingsTransformer twt, ReportNode subReportNode) {
         List<ReportNode> regulatedTerminalReports = new ArrayList<>();
-        List<ReportNode> regulatingReports = new ArrayList<>();
+        List<ReportNode> regulationReports = new ArrayList<>();
         List<ReportNode> tapsReports = new ArrayList<>();
         RatioTapChangerCreationInfos ratioTapChangerInfos = twoWindingsTransformerCreationInfos.getRatioTapChanger();
         RatioTapChangerAdder ratioTapChangerAdder = twt.newRatioTapChanger();
@@ -231,9 +231,9 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
                 .setLoadTapChangingCapabilities(ratioTapChangerInfos.isLoadTapChangingCapabilities());
 
         if (ratioTapChangerInfos.isRegulating()) {
-            regulatingReports.add(getInstance().buildCreationReport(
-                    targetV, "targetV"));
-            regulatingReports.add(getInstance().buildCreationReport(
+            regulationReports.add(getInstance().buildCreationReport(
+                    targetV, "Target voltage"));
+            regulationReports.add(getInstance().buildCreationReport(
                     targetDeadband, "Target Deadband"));
         }
 
@@ -257,8 +257,8 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
             if (!regulatedTerminalReports.isEmpty()) {
                 getInstance().reportModifications(ratioTapChangerReporter, regulatedTerminalReports, "RegulatedTerminalCreated", "Regulated terminal");
             }
-            if (!regulatingReports.isEmpty()) {
-                getInstance().reportModifications(ratioTapChangerReporter, regulatingReports, "RegulatingCreated", "Regulating");
+            if (!regulationReports.isEmpty()) {
+                getInstance().reportModifications(ratioTapChangerReporter, regulationReports, "RegulationCreated", "Regulation");
             }
             if (!tapsReports.isEmpty()) {
                 getInstance().reportModifications(ratioTapChangerReporter, tapsReports, "TapsCreated", "Taps");
