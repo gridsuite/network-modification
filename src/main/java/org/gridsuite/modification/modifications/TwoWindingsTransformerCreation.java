@@ -10,6 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.collections4.CollectionUtils;
+import org.gridsuite.filter.utils.expertfilter.RatioRegulationModeType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -231,6 +232,8 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
                 .setLoadTapChangingCapabilities(ratioTapChangerInfos.isLoadTapChangingCapabilities());
 
         if (ratioTapChangerInfos.isRegulating()) {
+            regulationReports.add(getInstance().buildCreationReport(
+                    RatioRegulationModeType.VOLTAGE_REGULATION.name(), "Regulation Mode"));
             regulationReports.add(getInstance().buildCreationReport(
                     targetV, "Target voltage"));
             regulationReports.add(getInstance().buildCreationReport(
