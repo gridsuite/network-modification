@@ -141,9 +141,9 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         double targetDeadband = phaseTapChangerInfos.getTargetDeadband() != null ? phaseTapChangerInfos.getTargetDeadband() : 0.;
         if (phaseTapChangerInfos.isRegulating()) {
             phaseTapChangerAdder.setRegulationValue(phaseTapChangerInfos.getRegulationValue()).setTargetDeadband(targetDeadband);
-            regulationReports.add(getInstance().buildCreationReport(phaseTapChangerInfos.getRegulationMode(), "Regulation Mode"));
+            regulationReports.add(getInstance().buildCreationReport(phaseTapChangerInfos.getRegulationMode(), "Regulation mode"));
             regulationReports.add(getInstance().buildCreationReport(phaseTapChangerInfos.getRegulationValue(), "Regulation value"));
-            regulationReports.add(getInstance().buildCreationReport(targetDeadband, "Target Deadband"));
+            regulationReports.add(getInstance().buildCreationReport(targetDeadband, "Target deadband"));
         }
         Terminal terminal = getInstance().getTerminalFromIdentifiable(network,
                 phaseTapChangerInfos.getRegulatingTerminalId(),
@@ -206,9 +206,9 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         ratioTapChangerAdder.setRegulating(ratioTapChangerInfos.isRegulating()).setLoadTapChangingCapabilities(ratioTapChangerInfos.isLoadTapChangingCapabilities());
 
         if (ratioTapChangerInfos.isRegulating()) {
-            regulationReports.add(getInstance().buildCreationReport(RatioRegulationModeType.VOLTAGE_REGULATION.name(), "Regulation Mode"));
+            regulationReports.add(getInstance().buildCreationReport(RatioRegulationModeType.VOLTAGE_REGULATION.name(), "Regulation mode"));
             regulationReports.add(getInstance().buildCreationReport(targetV, "Target voltage"));
-            regulationReports.add(getInstance().buildCreationReport(targetDeadband, "Target Deadband"));
+            regulationReports.add(getInstance().buildCreationReport(targetDeadband, "Target deadband"));
         }
 
         ratioTapChangerAdder.setLowTapPosition(ratioTapChangerInfos.getLowTapPosition()).setTapPosition(ratioTapChangerInfos.getTapPosition());
