@@ -767,38 +767,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
             "trf3", 1, ConnectablePosition.Direction.TOP,
             "trf3", 2, ConnectablePosition.Direction.TOP);
 
-        TwoWindingsTransformerModificationInfos ratioTapChangerCreation = TwoWindingsTransformerModificationInfos.builder()
-            .stashed(false)
-            .equipmentId(twtId)
-            .ratioTapChanger(RatioTapChangerModificationInfos.builder()
-                .enabled(new AttributeModification<>(true, OperationType.SET))
-                .lowTapPosition(new AttributeModification<>(0, OperationType.SET))
-                .tapPosition(new AttributeModification<>(1, OperationType.SET))
-                .regulatingTerminalId(new AttributeModification<>("v3load", OperationType.SET))
-                .regulatingTerminalType(new AttributeModification<>("LOAD", OperationType.SET))
-                .regulatingTerminalVlId(new AttributeModification<>("v3", OperationType.SET))
-                .regulating(new AttributeModification<>(false, OperationType.SET))
-                .targetDeadband(new AttributeModification<>(10.0, OperationType.SET))
-                .regulationType(new AttributeModification<>(VoltageRegulationType.LOCAL, OperationType.SET))
-                .steps(List.of(TapChangerStepCreationInfos.builder()
-                        .index(0)
-                        .r(0)
-                        .g(0)
-                        .b(0)
-                        .x(0)
-                        .rho(1)
-                        .build(),
-                    TapChangerStepCreationInfos.builder()
-                        .index(1)
-                        .r(0)
-                        .g(0)
-                        .b(0)
-                        .x(0)
-                        .rho(1)
-                        .build()
-                ))
-                .build())
-            .build();
+        TwoWindingsTransformerModificationInfos ratioTapChangerCreation = createRatioTapChangerInfos(twtId);
 
         ratioTapChangerCreation.toModification().apply(getNetwork());
         RatioTapChanger ratioTapChanger = twt3.getRatioTapChanger();
@@ -827,7 +796,75 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
             "trf3", 1, ConnectablePosition.Direction.TOP,
             "trf3", 2, ConnectablePosition.Direction.TOP);
 
-        TwoWindingsTransformerModificationInfos ratioTapChangerCreation = TwoWindingsTransformerModificationInfos.builder()
+        TwoWindingsTransformerModificationInfos ratioTapChangerCreation = createRatioTapChangerInfos(twtId);
+        ratioTapChangerCreation.toModification().apply(getNetwork());
+        RatioTapChanger ratioTapChanger = twt3.getRatioTapChanger();
+
+        // when creating the ratioTapChanger in a modification the targetDeadband is set to 0
+        assertEquals(0.0, ratioTapChanger.getTargetDeadband());
+
+        // hard set to NaN
+        ratioTapChanger.setTargetDeadband(Double.NaN);
+        assertTrue(Double.isNaN(ratioTapChanger.getTargetDeadband()));
+
+        // set regulation without target deadband it will set target deadband to 0
+        TwoWindingsTransformerModificationInfos ratioTapChangerModification = TwoWindingsTransformerModificationInfos.builder()
+            .stashed(false)
+            .equipmentId(twtId)
+            .ratioTapChanger(RatioTapChangerModificationInfos.builder()
+                .regulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.SET))
+                .regulating(new AttributeModification<>(true, OperationType.SET))
+                .build())
+            .build();
+        ratioTapChangerModification.toModification().apply(getNetwork());
+
+        assertEquals(0.0, ratioTapChanger.getTargetDeadband());
+    }
+
+    @Test
+    void testProcessRatioTapChangerRegulationModification() {
+        String twtId = "trf3";
+        TwoWindingsTransformer twt3 = createTwoWindingsTransformer(getNetwork().getSubstation("s1"), "trf3", "trf3", 2.0, 14.745, 0.0, 3.2E-5, 400.0, 225.0,
+            41, 151, getNetwork().getVoltageLevel("v1").getId(), getNetwork().getVoltageLevel("v2").getId(),
+            "trf3", 1, ConnectablePosition.Direction.TOP,
+            "trf3", 2, ConnectablePosition.Direction.TOP);
+
+        TwoWindingsTransformerModificationInfos ratioTapChangerCreation = createRatioTapChangerInfos(twtId);
+        ratioTapChangerCreation.toModification().apply(getNetwork());
+        RatioTapChanger ratioTapChanger = twt3.getRatioTapChanger();
+
+        assertFalse(ratioTapChanger.isRegulating());
+        assertEquals(RatioTapChanger.RegulationMode.REACTIVE_POWER, ratioTapChanger.getRegulationMode());
+
+        TwoWindingsTransformerModificationInfos ratioTapChangerModification = TwoWindingsTransformerModificationInfos.builder()
+            .stashed(false)
+            .equipmentId(twtId)
+            .ratioTapChanger(RatioTapChangerModificationInfos.builder()
+                .regulating(new AttributeModification<>(true, OperationType.SET))
+                .build())
+            .build();
+        ratioTapChangerModification.toModification().apply(getNetwork());
+
+        assertTrue(ratioTapChanger.isRegulating());
+        assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
+        assertTrue(Double.isNaN(ratioTapChanger.getTargetV()));
+
+        // applying another modification on others attributes does not change regulation
+        ratioTapChangerModification = TwoWindingsTransformerModificationInfos.builder()
+            .stashed(false)
+            .equipmentId(twtId)
+            .ratioTapChanger(RatioTapChangerModificationInfos.builder()
+                .targetV(new AttributeModification<>(120.0, OperationType.SET))
+                .build())
+            .build();
+        ratioTapChangerModification.toModification().apply(getNetwork());
+        assertTrue(ratioTapChanger.isRegulating());
+        assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
+        assertEquals(120.0, ratioTapChanger.getTargetV());
+    }
+
+    private TwoWindingsTransformerModificationInfos createRatioTapChangerInfos(String twtId) {
+        return TwoWindingsTransformerModificationInfos.builder()
             .stashed(false)
             .equipmentId(twtId)
             .ratioTapChanger(RatioTapChangerModificationInfos.builder()
@@ -858,28 +895,6 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 ))
                 .build())
             .build();
-        ratioTapChangerCreation.toModification().apply(getNetwork());
-        RatioTapChanger ratioTapChanger = twt3.getRatioTapChanger();
-
-        // when creating the ratioTapChanger in a modification the targetDeadband is set to 0
-        assertEquals(0.0, ratioTapChanger.getTargetDeadband());
-
-        // hard set to NaN
-        ratioTapChanger.setTargetDeadband(Double.NaN);
-        assertTrue(Double.isNaN(ratioTapChanger.getTargetDeadband()));
-
-        // set regulation without target deadband it will set target deadband to 0
-        TwoWindingsTransformerModificationInfos ratioTapChangerModification = TwoWindingsTransformerModificationInfos.builder()
-            .stashed(false)
-            .equipmentId(twtId)
-            .ratioTapChanger(RatioTapChangerModificationInfos.builder()
-                .regulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.SET))
-                .regulating(new AttributeModification<>(true, OperationType.SET))
-                .build())
-            .build();
-        ratioTapChangerModification.toModification().apply(getNetwork());
-
-        assertEquals(0.0, ratioTapChanger.getTargetDeadband());
     }
 }
 
