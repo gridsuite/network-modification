@@ -32,7 +32,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
     private static final String RATIO_TAP_CHANGER_SUBREPORTER_DEFAULT_MESSAGE = "Ratio tap changer";
     private static final String PHASE_TAP_CHANGER_SUBREPORTER_DEFAULT_MESSAGE = "Phase tap changer";
     public static final String MAGNETIZING_CONDUCTANCE_FIELD_NAME = "Magnetizing conductance";
-    private static final String TARGET_DEADBAND = "Target deadband";
+    private static final String TARGET_DEADBAND = "Target Deadband";
 
     public TwoWindingsTransformerModification(TwoWindingsTransformerModificationInfos modificationInfos) {
         super(modificationInfos);
@@ -424,7 +424,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         ReportNode regulationReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
             isModification ? phaseTapChanger::setRegulationMode : phaseTapChangerAdder::setRegulationMode,
             isModification ? phaseTapChanger::getRegulationMode : () -> null,
-            regulationModeModification, "Regulation mode", 1);
+            regulationModeModification, "Regulation Mode", 1);
         if (regulationReports != null && regulationReportNode != null) {
             regulationReports.add(regulationReportNode);
         }

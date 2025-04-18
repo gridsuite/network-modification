@@ -142,7 +142,7 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         if (phaseTapChangerInfos.isRegulating()) {
             phaseTapChangerAdder.setRegulationValue(phaseTapChangerInfos.getRegulationValue()).setTargetDeadband(targetDeadband);
             regulationReports.add(getInstance().buildCreationReport(phaseTapChangerInfos.getRegulationMode(), "Regulation Mode"));
-            regulationReports.add(getInstance().buildCreationReport(phaseTapChangerInfos.getRegulationValue(), "Regulation Value"));
+            regulationReports.add(getInstance().buildCreationReport(phaseTapChangerInfos.getRegulationValue(), "Regulation value"));
             regulationReports.add(getInstance().buildCreationReport(targetDeadband, "Target Deadband"));
         }
         Terminal terminal = getInstance().getTerminalFromIdentifiable(network,
@@ -159,8 +159,9 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
                 .setRegulationMode(phaseTapChangerInfos.getRegulationMode())
                 .setLowTapPosition(phaseTapChangerInfos.getLowTapPosition())
                 .setTapPosition(phaseTapChangerInfos.getTapPosition());
-        tapsReports.add(getInstance().buildCreationReport(phaseTapChangerInfos.getLowTapPosition(), "Low Tap Position"));
-        tapsReports.add(getInstance().buildCreationReport(phaseTapChangerInfos.getTapPosition(), "Tap Position"));
+        tapsReports.add(getInstance().buildCreationReport(phaseTapChangerInfos.getLowTapPosition(), "Low tap position"));
+        tapsReports.add(getInstance().buildCreationReport(phaseTapChangerInfos.getTapPosition(), "Tap position"));
+        tapsReports.add(getInstance().buildCreationReport(phaseTapChangerInfos.getSteps().size() - 1, "High tap position"));
 
         if (phaseTapChangerInfos.getSteps() != null) {
             for (TapChangerStepCreationInfos step : phaseTapChangerInfos.getSteps()) {
@@ -211,8 +212,9 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         }
 
         ratioTapChangerAdder.setLowTapPosition(ratioTapChangerInfos.getLowTapPosition()).setTapPosition(ratioTapChangerInfos.getTapPosition());
-        tapsReports.add(getInstance().buildCreationReport(ratioTapChangerInfos.getLowTapPosition(), "Low Tap Position"));
-        tapsReports.add(getInstance().buildCreationReport(ratioTapChangerInfos.getTapPosition(), "Tap Position"));
+        tapsReports.add(getInstance().buildCreationReport(ratioTapChangerInfos.getLowTapPosition(), "Low tap position"));
+        tapsReports.add(getInstance().buildCreationReport(ratioTapChangerInfos.getTapPosition(), "Tap position"));
+        tapsReports.add(getInstance().buildCreationReport(ratioTapChangerInfos.getSteps().size() - 1, "High tap position"));
 
         if (ratioTapChangerInfos.getSteps() != null) {
             for (TapChangerStepCreationInfos step : ratioTapChangerInfos.getSteps()) {
