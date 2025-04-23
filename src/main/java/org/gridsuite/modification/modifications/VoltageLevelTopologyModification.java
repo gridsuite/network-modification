@@ -15,9 +15,9 @@ import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentAttributeModificationInfos;
 import org.gridsuite.modification.dto.VoltageLevelTopologyModificationInfos;
-import org.gridsuite.modification.utils.ModificationUtils;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.EQUIPMENT_NOT_FOUND;
+import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR;
+import static org.gridsuite.modification.NetworkModificationException.Type.VOLTAGE_LEVEL_NOT_FOUND;
 
 /**
  * @author REHILI Ghazwa <ghazwarhili@gmail.com>
@@ -32,19 +32,20 @@ public class VoltageLevelTopologyModification extends AbstractModification {
 
     @Override
     public void check(Network network) throws NetworkModificationException {
+        // Check the voltage level exists in the network
+        VoltageLevel voltageLevel = network.getVoltageLevel(modificationInfos.getEquipmentId());
+        if (voltageLevel == null) {
+            throw new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, modificationInfos.getEquipmentId());
+        }
         if (!modificationInfos.getEquipmentAttributeModification().isEmpty()) {
-            // Check the voltage level exists in the network
-            VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getEquipmentId());
-            if (voltageLevel == null) {
-                throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, modificationInfos.getEquipmentId());
-            }
-
             // Check each equipment attribute modification
             for (EquipmentAttributeModificationInfos equipmentModInfo : modificationInfos.getEquipmentAttributeModification()) {
                 // Use the check method from EquipmentAttributeModification
                 EquipmentAttributeModification equipmentMod = new EquipmentAttributeModification(equipmentModInfo);
                 equipmentMod.check(network);
             }
+        } else {
+            throw new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR, "Missing required switches to modify the voltage level topology");
         }
     }
 
