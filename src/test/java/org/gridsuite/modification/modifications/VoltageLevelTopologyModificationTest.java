@@ -113,7 +113,8 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
 
         VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationInfos);
         applyModification(voltageLevelTopologyModification);
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(getNetwork()));
+        Network network = getNetwork();
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(network));
 
         assertEquals(VOLTAGE_LEVEL_NOT_FOUND, exception.getType());
     }
@@ -127,8 +128,8 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
                 .build();
 
         VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationInfos);
-
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(getNetwork()));
+        Network network = getNetwork();
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(network));
 
         assertEquals(MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR, exception.getType());
         assertTrue(exception.getMessage().contains("Missing required switches"));
@@ -136,12 +137,12 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
 
     private void testCheckWithEquipmentAttributeNotFound() {
         List<EquipmentAttributeModificationInfos> equipmentAttributeModifications = new ArrayList<>(
-                Arrays.asList(EquipmentAttributeModificationInfos.builder()
-                                .equipmentId("v1d1NotFound")
-                                .equipmentAttributeName("open")
-                                .equipmentAttributeValue(false)
-                                .equipmentType(IdentifiableType.SWITCH)
-                                .build()
+                Collections.singletonList(EquipmentAttributeModificationInfos.builder()
+                        .equipmentId("v1d1NotFound")
+                        .equipmentAttributeName("open")
+                        .equipmentAttributeValue(false)
+                        .equipmentType(IdentifiableType.SWITCH)
+                        .build()
                 )
         );
 
@@ -151,15 +152,15 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
                 .build();
 
         VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationInfos);
-
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(getNetwork()));
+        Network network = getNetwork();
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(network));
 
         assertEquals(EQUIPMENT_NOT_FOUND, exception.getType());
     }
 
     private void testCheckLogMessages() {
         List<EquipmentAttributeModificationInfos> equipmentAttributeModifications = new ArrayList<>(
-                Arrays.asList(EquipmentAttributeModificationInfos.builder()
+                Collections.singletonList(EquipmentAttributeModificationInfos.builder()
                         .equipmentId("v1d1")
                         .equipmentAttributeName("open")
                         .equipmentAttributeValue(false)
