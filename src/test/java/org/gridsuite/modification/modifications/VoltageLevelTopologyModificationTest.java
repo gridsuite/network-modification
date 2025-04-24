@@ -7,6 +7,7 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
@@ -14,13 +15,13 @@ import com.powsybl.iidm.network.VoltageLevel;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentAttributeModificationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.VoltageLevelModificationInfos;
 import org.gridsuite.modification.dto.VoltageLevelTopologyModificationInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
 
 import java.util.*;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -93,8 +94,8 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
         assertFalse(switch4.isOpen());
     }
 
-    private void applyModification(VoltageLevelModificationInfos infos) {
-        infos.toModification().apply(getNetwork());
+    private void applyModification(VoltageLevelTopologyModification infos) {
+        infos.apply(getNetwork());
     }
 
     @Override
@@ -111,7 +112,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
                 .build();
 
         VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationInfos);
-
+        applyModification(voltageLevelTopologyModification);
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(getNetwork()));
 
         assertEquals(VOLTAGE_LEVEL_NOT_FOUND, exception.getType());
@@ -156,10 +157,33 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
         assertEquals(EQUIPMENT_NOT_FOUND, exception.getType());
     }
 
+    private void testCheckLogMessages() {
+        List<EquipmentAttributeModificationInfos> equipmentAttributeModifications = new ArrayList<>(
+                Arrays.asList(EquipmentAttributeModificationInfos.builder()
+                        .equipmentId("v1d1")
+                        .equipmentAttributeName("open")
+                        .equipmentAttributeValue(false)
+                        .equipmentType(IdentifiableType.SWITCH)
+                        .build()
+                )
+        );
+
+        VoltageLevelTopologyModificationInfos modificationInfos = VoltageLevelTopologyModificationInfos.builder()
+                .equipmentId("v1")
+                .equipmentAttributeModification(equipmentAttributeModifications)
+                .build();
+
+        ReportNode report = modificationInfos.createSubReportNode(ReportNode.newRootReportNode().withMessageTemplate("", "").build());
+        assertEquals("Voltage Level topology modification v1", report.getMessage());
+        modificationInfos.toModification().apply(getNetwork(), report);
+        assertLogMessage("Voltage level 'v1' topology has been modified", "voltageLevelTopologyModified", report);
+    }
+
     @Override
     protected void checkModification() {
         testCheckWithVoltageLevelNotFound();
         testCheckWithEquipmentAttributeNotFound();
         testCheckWithEmptyEquipmentAttributeModifications();
+        testCheckLogMessages();
     }
 }

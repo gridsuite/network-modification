@@ -33,7 +33,7 @@ import java.util.List;
 @ModificationErrorTypeName("MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR")
 public class VoltageLevelTopologyModificationInfos extends EquipmentModificationInfos {
 
-    @Schema(description = "switches modification infos")
+    @Schema(description = "Switch attribute modification")
     private List<EquipmentAttributeModificationInfos> equipmentAttributeModification;
 
     @Override
@@ -44,7 +44,7 @@ public class VoltageLevelTopologyModificationInfos extends EquipmentModification
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(getType().name(), "VoltageLevel topology modification ${voltageLevelId}")
+                .withMessageTemplate(getType().name(), "Voltage Level topology modification ${voltageLevelId}")
                 .withUntypedValue("voltageLevelId", getEquipmentId())
                 .add();
     }

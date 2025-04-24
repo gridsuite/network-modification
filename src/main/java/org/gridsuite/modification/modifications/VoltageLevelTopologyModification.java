@@ -32,15 +32,12 @@ public class VoltageLevelTopologyModification extends AbstractModification {
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        // Check the voltage level exists in the network
         VoltageLevel voltageLevel = network.getVoltageLevel(modificationInfos.getEquipmentId());
         if (voltageLevel == null) {
             throw new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, modificationInfos.getEquipmentId());
         }
         if (!modificationInfos.getEquipmentAttributeModification().isEmpty()) {
-            // Check each equipment attribute modification
             for (EquipmentAttributeModificationInfos equipmentModInfo : modificationInfos.getEquipmentAttributeModification()) {
-                // Use the check method from EquipmentAttributeModification
                 EquipmentAttributeModification equipmentMod = new EquipmentAttributeModification(equipmentModInfo);
                 equipmentMod.check(network);
             }
@@ -58,7 +55,7 @@ public class VoltageLevelTopologyModification extends AbstractModification {
         subReportNode.newReportNode()
                 .withMessageTemplate("voltageLevelTopologyModified", "Voltage level '${id}' topology has been modified")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
-                .withSeverity(TypedValue.INFO_SEVERITY)
+                .withSeverity(TypedValue.DEBUG_SEVERITY)
                 .add();
     }
 
