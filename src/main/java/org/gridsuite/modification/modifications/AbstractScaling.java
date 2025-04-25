@@ -61,15 +61,12 @@ public abstract class AbstractScaling extends AbstractModification {
 
                 if (CollectionUtils.isEmpty(identifiableAttributes)) {
                     String filterNames = variation.getFilters().stream().map(FilterInfos::getName).collect(Collectors.joining(", "));
-                    createReport(subReportNode,
-                            "allFiltersWrong",
-                            "All of the following variation's filters have equipments with wrong id : ${filterNames}",
-                            Map.of("filterNames", filterNames), TypedValue.WARN_SEVERITY);
+                    createReport(subReportNode, "network.modification.allFiltersWrong.variation", Map.of("filterNames", filterNames), TypedValue.WARN_SEVERITY);
                 } else {
                     applyVariation(network, subReportNode, identifiableAttributes, variation);
                 }
             });
-            createReport(subReportNode, "scalingCreated", "new scaling created", Map.of(), TypedValue.INFO_SEVERITY);
+            createReport(subReportNode, "network.modification.scalingCreated", Map.of(), TypedValue.INFO_SEVERITY);
         }
     }
 
@@ -104,7 +101,7 @@ public abstract class AbstractScaling extends AbstractModification {
                 .mapToDouble(IdentifiableAttributes::getDistributionKey)
                 .sum();
         if (distributionKeys == 0) {
-            createReport(subReportNode, "distributionKeysNotFound", "This mode is available only for equipment with distribution key", Map.of(), TypedValue.WARN_SEVERITY);
+            createReport(subReportNode, "network.modification.distributionKeysNotFound", Map.of(), TypedValue.WARN_SEVERITY);
             return null;
         }
         return distributionKeys;

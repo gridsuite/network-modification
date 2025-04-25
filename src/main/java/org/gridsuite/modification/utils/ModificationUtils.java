@@ -503,9 +503,9 @@ public final class ModificationUtils {
         }
     }
 
-    public static void createReport(ReportNode reportNode, String reporterKey, String defaultMessage, Map<String, Object> values, TypedValue errorSeverity) {
+    public static void createReport(ReportNode reportNode, String reporterKey, Map<String, Object> values, TypedValue errorSeverity) {
         ReportNodeAdder adder = reportNode.newReportNode()
-                .withMessageTemplate(reporterKey, defaultMessage)
+                .withMessageTemplate(reporterKey)
                 .withSeverity(errorSeverity);
 
         for (Map.Entry<String, Object> valueEntry : values.entrySet()) {
@@ -1605,8 +1605,7 @@ public final class ModificationUtils {
                 .allMatch(filterEquipments -> CollectionUtils.isEmpty(filterEquipments.getIdentifiableAttributes()));
 
         if (noValidEquipmentId) {
-            String errorMsg = "${errorType}: There is no valid equipment ID among the provided filter(s)";
-            createReport(subReportNode, "invalidFilters", errorMsg, Map.of("errorType", errorType), TypedValue.ERROR_SEVERITY);
+            createReport(subReportNode, "network.modification.invalidFilters", Map.of("errorType", errorType), TypedValue.ERROR_SEVERITY);
             return false;
         }
 
@@ -1616,10 +1615,7 @@ public final class ModificationUtils {
     public static Set<IdentifiableAttributes> getIdentifiableAttributes(Map<UUID, FilterEquipments> exportFilters, List<FilterInfos> filterInfos, ReportNode subReportNode) {
         filterInfos.stream()
                 .filter(f -> !exportFilters.containsKey(f.getId()))
-                .forEach(f -> createReport(subReportNode,
-                        "filterNotFound",
-                        "Cannot find the following filter: ${name}",
-                        Map.of("name", f.getName()), TypedValue.WARN_SEVERITY));
+                .forEach(f -> createReport(subReportNode, "network.modification.filterNotFound", Map.of("name", f.getName()), TypedValue.WARN_SEVERITY));
 
         return filterInfos
                 .stream()
@@ -1646,8 +1642,7 @@ public final class ModificationUtils {
                     FilterEquipments filterEquipments = f.getValue();
                     var equipmentIds = String.join(", ", filterEquipments.getNotFoundEquipments());
                     createReport(subReportNode,
-                            "filterEquipmentsNotFound_" + filterEquipments.getFilterName(),
-                            "Cannot find the following equipments ${equipmentIds} in filter ${filters}",
+                            "network.modification.filterEquipmentsNotFound.inFilter",
                             Map.of("equipmentIds", equipmentIds, "filters", filters.get(filterEquipments.getFilterId())), TypedValue.WARN_SEVERITY);
                 });
     }

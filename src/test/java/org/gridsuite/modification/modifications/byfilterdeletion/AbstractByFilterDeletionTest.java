@@ -96,7 +96,7 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
         byFilterDeletion.apply(getNetwork(), report);
 
         assertLogMessage("Cannot find the following equipments " + EQUIPMENT_WRONG_ID_1 + " in filter filter1",
-            "filterEquipmentsNotFound_filter1", report);
+            "network.modification.filterEquipmentsNotFound.inFilter", report);
     }
 
     @Test
@@ -124,7 +124,7 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
                 .withMessageTemplate("test").build());
         byFilterDeletion.apply(getNetwork(), report);
         assertLogMessage(byFilterDeletionInfos.getErrorType().name() + ": There is no valid equipment ID among the provided filter(s)",
-            "invalidFilters", report);
+            "network.modification.invalidFilters", report);
     }
 
     @Override

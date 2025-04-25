@@ -72,8 +72,7 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
             notEditableEquipments.add(equipment.getId());
             reports.add(ReportNode.newRootReportNode()
                     .withAllResourceBundlesFromClasspath()
-                    .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_ERROR, "        Cannot modify equipment ${" +
-                                      VALUE_KEY_EQUIPMENT_NAME + "} : At least one of the value or referenced field is null")
+                    .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_NULL)
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
                     .withSeverity(TypedValue.TRACE_SEVERITY)
                     .build());
@@ -85,8 +84,7 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
             notEditableEquipments.add(equipment.getId());
             reports.add(ReportNode.newRootReportNode()
                     .withAllResourceBundlesFromClasspath()
-                    .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_ERROR, "        Cannot modify equipment ${" +
-                                      VALUE_KEY_EQUIPMENT_NAME + "} : The value or referenced field of the second operand in the division operator is zero")
+                    .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO)
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
                     .withSeverity(TypedValue.TRACE_SEVERITY)
                     .build());

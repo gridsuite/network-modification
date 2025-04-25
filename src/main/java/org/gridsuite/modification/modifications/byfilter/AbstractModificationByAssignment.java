@@ -52,23 +52,24 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     public static final String VALUE_KEY_MODIFICATION_TYPE_LABEL = "modificationTypeLabel";
     public static final String VALUE_KEY_FILTERS_EACH_ASSIGNMENT = "filtersEachAssignment";
     public static final String VALUE_KEY_ERROR_MESSAGE = "errorMessage";
-    public static final String REPORT_KEY_RATIO_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR = "ratioTapChangerEquipmentModifiedError";
-    public static final String REPORT_KEY_PHASE_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR = "phaseTapChangerEquipmentModifiedError";
-    public static final String REPORT_KEY_EQUIPMENT_MODIFIED_ERROR = "equipmentModifiedError";
-    public static final String REPORT_KEY_BY_FILTER_MODIFICATION_SOME = "byFilterModificationSome";
-    public static final String REPORT_KEY_BY_FILTER_MODIFICATION_FAILED = "byFilterModificationFailed";
-    public static final String REPORT_KEY_BY_FILTER_MODIFICATION_SUCCESS = "byFilterModificationSuccess";
-    public static final String REPORT_KEY_NUMBER_OF_VALID_EQUIPMENT = "numberOfValidEquipment";
-    public static final String REPORT_KEY_NOT_EDITED_EQUIPMENTS_FILTER = "notEditedEquipmentsFilter";
-    public static final String REPORT_KEY_EDITED_FIELD_FILTER = "editedFieldFilter";
-    public static final String REPORT_KEY_FILTER_EQUIPMENTS_NOT_FOUND = "filterEquipmentsNotFound";
-    public static final String REPORT_KEY_EQUIPMENT_MODIFIED_REPORT = "equipmentModifiedReport";
-    public static final String REPORT_KEY_EQUIPMENT_MODIFIED_REPORT_EXCEPTION = "equipmentModifiedReportException";
-    public static final String REPORT_KEY_APPLIED_BY_FILTER_MODIFICATIONS = "appliedByFilterModifications";
-    public static final String REPORT_KEY_APPLIED_ASSIGNMENT = "appliedAssignment";
-    public static final String REPORT_KEY_BY_FILTER_MODIFICATION_ALL = "byFilterModificationAll";
-    public static final String REPORT_KEY_BY_FILTER_MODIFICATION_NONE = "byFilterModificationNone";
-    public static final String REPORT_KEY_BY_FILTER_MODIFICATION_NOT_FOUND = "byFilterModificationNotFound";
+    public static final String REPORT_KEY_RATIO_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR = "network.modification.ratioTapChangerEquipmentModifiedError";
+    public static final String REPORT_KEY_PHASE_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR = "network.modification.phaseTapChangerEquipmentModifiedError";
+    public static final String REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO = "network.modification.equipmentModifiedError.zero";
+    public static final String REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_NULL = "network.modification.equipmentModifiedError.null";
+    public static final String REPORT_KEY_BY_FILTER_MODIFICATION_SOME = "network.modification.byFilterModificationSome";
+    public static final String REPORT_KEY_BY_FILTER_MODIFICATION_FAILED = "network.modification.byFilterModificationFailed";
+    public static final String REPORT_KEY_BY_FILTER_MODIFICATION_SUCCESS = "network.modification.byFilterModificationSuccess";
+    public static final String REPORT_KEY_NUMBER_OF_VALID_EQUIPMENT = "network.modification.numberOfValidEquipment";
+    public static final String REPORT_KEY_NOT_EDITED_EQUIPMENTS_FILTER = "network.modification.notEditedEquipmentsFilter";
+    public static final String REPORT_KEY_EDITED_FIELD_FILTER = "network.modification.editedFieldFilter";
+    public static final String REPORT_KEY_FILTER_EQUIPMENTS_NOT_FOUND = "network.modification.filterEquipmentsNotFound";
+    public static final String REPORT_KEY_EQUIPMENT_MODIFIED_REPORT = "network.modification.equipmentModifiedReport";
+    public static final String REPORT_KEY_EQUIPMENT_MODIFIED_REPORT_EXCEPTION = "network.modification.equipmentModifiedReportException";
+    public static final String REPORT_KEY_APPLIED_BY_FILTER_MODIFICATIONS = "network.modification.appliedByFilterModifications";
+    public static final String REPORT_KEY_APPLIED_ASSIGNMENT = "network.modification.appliedAssignment";
+    public static final String REPORT_KEY_BY_FILTER_MODIFICATION_ALL = "network.modification.byFilterModificationAll";
+    public static final String REPORT_KEY_BY_FILTER_MODIFICATION_NONE = "network.modification.byFilterModificationNone";
+    public static final String REPORT_KEY_BY_FILTER_MODIFICATION_NOT_FOUND = "network.modification.byFilterModificationNotFound";
 
     protected IFilterService filterService;
     protected int equipmentNotModifiedCount;
@@ -143,7 +144,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
 
         if (filterUuidEquipmentsMap != null) {
             ReportNode subReporter = subReportNode.newReportNode()
-                    .withMessageTemplate(REPORT_KEY_APPLIED_BY_FILTER_MODIFICATIONS, "${" + VALUE_KEY_MODIFICATION_TYPE_LABEL + "}s on ${" + VALUE_KEY_EQUIPMENT_TYPE + "} type")
+                    .withMessageTemplate(REPORT_KEY_APPLIED_BY_FILTER_MODIFICATIONS)
                     .withUntypedValue(VALUE_KEY_MODIFICATION_TYPE_LABEL, StringUtils.capitalize(getModificationTypeLabel()))
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_TYPE, getEquipmentType().name())
                     .add();
@@ -151,7 +152,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
             getAssignmentInfosList().forEach(abstractAssignmentInfos -> {
                 List<ReportNode> reports = new ArrayList<>();
                 ReportNode eachAssignmentReporter = subReporter.newReportNode()
-                        .withMessageTemplate(REPORT_KEY_APPLIED_ASSIGNMENT, "${" + VALUE_KEY_MODIFICATION_TYPE_LABEL + "} on filters : ${" + VALUE_KEY_FILTERS_EACH_ASSIGNMENT + "}")
+                        .withMessageTemplate(REPORT_KEY_APPLIED_ASSIGNMENT)
                         .withUntypedValue(VALUE_KEY_MODIFICATION_TYPE_LABEL, StringUtils.capitalize(getModificationTypeLabel()))
                         .withUntypedValue(VALUE_KEY_FILTERS_EACH_ASSIGNMENT, abstractAssignmentInfos.getFilters().stream().map(FilterInfos::getName)
                                 .collect(Collectors.joining(", ")))
@@ -162,21 +163,17 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
             // reporting
             if (equipmentNotModifiedCount == 0 && equipmentNotFoundCount == 0) {
                 subReportNode.newReportNode()
-                        .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_ALL,
-                                "All equipments have been modified : ${" + VALUE_KEY_EQUIPMENT_COUNT + "} equipment(s)")
+                        .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_ALL)
                         .withUntypedValue(VALUE_KEY_EQUIPMENT_COUNT, equipmentCount)
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add();
 
             } else {
                 if (equipmentNotModifiedCount == equipmentCount) {
-                    createReport(subReportNode, REPORT_KEY_BY_FILTER_MODIFICATION_NONE,
-                            "No equipment have been modified",
-                            Map.of(), TypedValue.ERROR_SEVERITY);
+                    createReport(subReportNode, REPORT_KEY_BY_FILTER_MODIFICATION_NONE, Map.of(), TypedValue.ERROR_SEVERITY);
                 } else {
                     subReportNode.newReportNode()
-                            .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_SOME,
-                                    "Some of the equipment have been modified : ${" + VALUE_KEY_NB_CHANGED + "} equipment(s) modified and ${" + VALUE_KEY_NB_UNCHANGED + "} equipment(s) not modified")
+                            .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_SOME)
                             .withUntypedValue(VALUE_KEY_NB_CHANGED, equipmentCount - equipmentNotModifiedCount)
                             .withUntypedValue(VALUE_KEY_NB_UNCHANGED, equipmentNotModifiedCount + equipmentNotFoundCount)
                             .withSeverity(TypedValue.WARN_SEVERITY)
@@ -202,8 +199,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                     if (!isEditable) {
                         equipmentsReport.add(ReportNode.newRootReportNode()
                                 .withAllResourceBundlesFromClasspath()
-                                .withMessageTemplate(REPORT_KEY_RATIO_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR + equipmentsReport.size(),
-                                        "        Cannot modify field ${" + VALUE_KEY_FIELD_NAME + "} of equipment ${" + VALUE_KEY_EQUIPMENT_NAME + "} : Ratio tab changer is null")
+                                .withMessageTemplate(REPORT_KEY_RATIO_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR)
                                 .withUntypedValue(VALUE_KEY_FIELD_NAME, editedField.name())
                                 .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
                                 .withSeverity(TypedValue.TRACE_SEVERITY)
@@ -216,8 +212,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                     if (!isEditable) {
                         equipmentsReport.add(ReportNode.newRootReportNode()
                                 .withAllResourceBundlesFromClasspath()
-                                .withMessageTemplate(REPORT_KEY_PHASE_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR + equipmentsReport.size(),
-                                        "        Cannot modify field ${" + VALUE_KEY_FIELD_NAME + "} of equipment ${" + VALUE_KEY_EQUIPMENT_NAME + "} : Phase tab changer is null")
+                                .withMessageTemplate(REPORT_KEY_PHASE_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR)
                                 .withUntypedValue(VALUE_KEY_FIELD_NAME, editedField.name())
                                 .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
                                 .withSeverity(TypedValue.TRACE_SEVERITY)
@@ -236,16 +231,14 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
         if (notEditableEquipments.size() == filterEquipments.getIdentifiableAttributes().size()) {
             reports.add(ReportNode.newRootReportNode()
                     .withAllResourceBundlesFromClasspath()
-                    .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_FAILED,
-                            "No equipment(s) have been modified on filter ${" + VALUE_KEY_FILTER_NAME + "}")
+                    .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_FAILED)
                     .withUntypedValue(VALUE_KEY_FILTER_NAME, filterInfos.getName())
                     .withSeverity(TypedValue.WARN_SEVERITY)
                     .build());
         } else {
             reports.add(ReportNode.newRootReportNode()
                     .withAllResourceBundlesFromClasspath()
-                    .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_SUCCESS,
-                            "Successful application of ${" + VALUE_KEY_MODIFICATION_TYPE_LABEL + "} on filter ${" + VALUE_KEY_FILTER_NAME + "}")
+                    .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_SUCCESS)
                     .withUntypedValue(VALUE_KEY_MODIFICATION_TYPE_LABEL, getModificationTypeLabel())
                     .withUntypedValue(VALUE_KEY_FILTER_NAME, filterInfos.getName())
                     .withSeverity(TypedValue.INFO_SEVERITY)
@@ -253,7 +246,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
 
             reports.add(ReportNode.newRootReportNode()
                     .withAllResourceBundlesFromClasspath()
-                    .withMessageTemplate(REPORT_KEY_NUMBER_OF_VALID_EQUIPMENT, "      Number of equipment modified : ${" + VALUE_KEY_NB_CHANGED + "}")
+                    .withMessageTemplate(REPORT_KEY_NUMBER_OF_VALID_EQUIPMENT)
                     .withUntypedValue(VALUE_KEY_NB_CHANGED, filterEquipments.getIdentifiableAttributes().size() - notEditableEquipments.size())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .build());
@@ -261,8 +254,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
             if (!CollectionUtils.isEmpty(notEditableEquipments)) {
                 reports.add(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate(REPORT_KEY_NOT_EDITED_EQUIPMENTS_FILTER,
-                                "       ${" + VALUE_KEY_NB_UNCHANGED + "} equipment(s) were not modified")
+                        .withMessageTemplate(REPORT_KEY_NOT_EDITED_EQUIPMENTS_FILTER)
                         .withUntypedValue(VALUE_KEY_NB_UNCHANGED, notEditableEquipments.size())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .build());
@@ -271,7 +263,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
 
         reports.add(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
-                .withMessageTemplate(REPORT_KEY_EDITED_FIELD_FILTER, "      Edited field : ${" + VALUE_KEY_FIELD_NAME + "}")
+                .withMessageTemplate(REPORT_KEY_EDITED_FIELD_FILTER)
                 .withUntypedValue(VALUE_KEY_FIELD_NAME, getEditedFieldLabel(abstractAssignmentInfos))
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
@@ -280,7 +272,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
             String equipmentIds = String.join(", ", filterEquipments.getNotFoundEquipments());
             reports.add(ReportNode.newRootReportNode()
                     .withAllResourceBundlesFromClasspath()
-                    .withMessageTemplate(REPORT_KEY_FILTER_EQUIPMENTS_NOT_FOUND, "      Equipment not found : ${" + VALUE_KEY_EQUIPMENT_IDS + "}")
+                    .withMessageTemplate(REPORT_KEY_FILTER_EQUIPMENTS_NOT_FOUND)
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_IDS, equipmentIds)
                     .withSeverity(TypedValue.WARN_SEVERITY)
                     .build());
@@ -303,9 +295,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
             final String newValue = applyValue(equipment, abstractAssignmentInfos);
             reports.add(ReportNode.newRootReportNode()
                     .withAllResourceBundlesFromClasspath()
-                    .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_REPORT,
-                            "        ${" + VALUE_KEY_EQUIPMENT_TYPE + "} id : ${" + VALUE_KEY_EQUIPMENT_NAME +
-                                    "}, ${" + VALUE_KEY_FIELD_NAME + "} : ${" + VALUE_KEY_OLD_VALUE + "} → ${" + VALUE_KEY_NEW_VALUE + "}")
+                    .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_REPORT)
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_TYPE, equipment.getType().name())
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
                     .withUntypedValue(VALUE_KEY_FIELD_NAME, getEditedFieldLabel(abstractAssignmentInfos))
@@ -318,8 +308,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
             equipmentNotModifiedCount += 1;
             reports.add(ReportNode.newRootReportNode()
                     .withAllResourceBundlesFromClasspath()
-                    .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_REPORT_EXCEPTION,
-                            "        Cannot modify equipment ${" + VALUE_KEY_EQUIPMENT_NAME + "} : ${" + VALUE_KEY_ERROR_MESSAGE + "}")
+                    .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_REPORT_EXCEPTION)
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
                     .withUntypedValue(VALUE_KEY_ERROR_MESSAGE, e.getMessage())
                     .withSeverity(TypedValue.WARN_SEVERITY)
@@ -344,7 +333,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
         if (CollectionUtils.isEmpty(filterEquipments.getIdentifiableAttributes())) {
             reports.add(ReportNode.newRootReportNode()
                     .withAllResourceBundlesFromClasspath()
-                    .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_NOT_FOUND, "No equipments were found for filter ${" + VALUE_KEY_FILTER_NAME + "}")
+                    .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_NOT_FOUND)
                     .withUntypedValue(VALUE_KEY_FILTER_NAME, filterInfos.getName())
                     .withSeverity(TypedValue.WARN_SEVERITY)
                     .build());

@@ -75,13 +75,10 @@ public class ByFilterDeletion extends AbstractModification {
 
             if (CollectionUtils.isEmpty(identifiableAttributes)) {
                 String filterNames = modificationInfos.getFilters().stream().map(FilterInfos::getName).collect(Collectors.joining(", "));
-                createReport(subReportNode,
-                        "allFiltersWrong",
-                        "All of the following filters have equipments with wrong id : ${filterNames}",
-                        Map.of("filterNames", filterNames), TypedValue.WARN_SEVERITY);
+                createReport(subReportNode, "network.modification.allFiltersWrong", Map.of("filterNames", filterNames), TypedValue.WARN_SEVERITY);
             } else {
                 subReportNode.newReportNode()
-                        .withMessageTemplate("equipmentByFilterDeleted", "${nbEquipments} equipments of type=${type} will be removed")
+                        .withMessageTemplate("network.modification.equipmentByFilterDeleted")
                         .withUntypedValue("nbEquipments", (long) identifiableAttributes.size())
                         .withUntypedValue("type", modificationInfos.getEquipmentType().name())
                         .withSeverity(TypedValue.INFO_SEVERITY)

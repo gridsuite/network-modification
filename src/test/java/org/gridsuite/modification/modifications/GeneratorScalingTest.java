@@ -173,7 +173,7 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                 .withMessageTemplate("test").build());
         generatorScaling.apply(getNetwork(), report);
         assertLogMessage(generatorScalingInfo.getErrorType().name() + ": There is no valid equipment ID among the provided filter(s)",
-                "invalidFilters", report);
+                "network.modification.invalidFilters", report);
     }
 
     @Test
