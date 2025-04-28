@@ -67,7 +67,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
         return VoltageLevelTopologyModificationInfos.builder()
                 .stashed(false)
                 .equipmentId("v1")
-                .equipmentAttributeModification(equipmentAttributeModificationInfos)
+                .equipmentAttributeModificationList(equipmentAttributeModificationInfos)
                 .build();
     }
 
@@ -108,7 +108,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
     private void testCheckWithVoltageLevelNotFound() {
         VoltageLevelTopologyModificationInfos modificationInfos = VoltageLevelTopologyModificationInfos.builder()
                 .equipmentId("v1NotFound")
-                .equipmentAttributeModification(List.of())
+                .equipmentAttributeModificationList(List.of())
                 .build();
 
         VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationInfos);
@@ -124,7 +124,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
 
         VoltageLevelTopologyModificationInfos modificationInfos = VoltageLevelTopologyModificationInfos.builder()
                 .equipmentId("v1")
-                .equipmentAttributeModification(emptyEquipmentAttributeModifications)
+                .equipmentAttributeModificationList(emptyEquipmentAttributeModifications)
                 .build();
 
         VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationInfos);
@@ -148,7 +148,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
 
         VoltageLevelTopologyModificationInfos modificationInfos = VoltageLevelTopologyModificationInfos.builder()
                 .equipmentId("v1")
-                .equipmentAttributeModification(equipmentAttributeModifications)
+                .equipmentAttributeModificationList(equipmentAttributeModifications)
                 .build();
 
         VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationInfos);
@@ -171,7 +171,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
 
         VoltageLevelTopologyModificationInfos modificationInfos = VoltageLevelTopologyModificationInfos.builder()
                 .equipmentId("v1")
-                .equipmentAttributeModification(equipmentAttributeModifications)
+                .equipmentAttributeModificationList(equipmentAttributeModifications)
                 .build();
 
         ReportNode report = modificationInfos.createSubReportNode(ReportNode.newRootReportNode().withMessageTemplate("", "").build());

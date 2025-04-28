@@ -36,10 +36,10 @@ public class VoltageLevelTopologyModification extends AbstractModification {
         if (voltageLevel == null) {
             throw new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, modificationInfos.getEquipmentId());
         }
-        if (!modificationInfos.getEquipmentAttributeModification().isEmpty()) {
-            for (EquipmentAttributeModificationInfos equipmentModInfo : modificationInfos.getEquipmentAttributeModification()) {
-                EquipmentAttributeModification equipmentMod = new EquipmentAttributeModification(equipmentModInfo);
-                equipmentMod.check(network);
+        if (!modificationInfos.getEquipmentAttributeModificationList().isEmpty()) {
+            for (EquipmentAttributeModificationInfos equipmentAttributeModificationInfos : modificationInfos.getEquipmentAttributeModificationList()) {
+                EquipmentAttributeModification equipmentAttributeModification = new EquipmentAttributeModification(equipmentAttributeModificationInfos);
+                equipmentAttributeModification.check(network);
             }
         } else {
             throw new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR, "Missing required switches to modify the voltage level topology");
@@ -48,9 +48,9 @@ public class VoltageLevelTopologyModification extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        for (EquipmentAttributeModificationInfos equipmentModInfo : modificationInfos.getEquipmentAttributeModification()) {
-            EquipmentAttributeModification equipmentMod = new EquipmentAttributeModification(equipmentModInfo);
-            equipmentMod.apply(network, subReportNode);
+        for (EquipmentAttributeModificationInfos equipmentAttributeModificationInfos : modificationInfos.getEquipmentAttributeModificationList()) {
+            EquipmentAttributeModification equipmentAttributeModification = new EquipmentAttributeModification(equipmentAttributeModificationInfos);
+            equipmentAttributeModification.apply(network, subReportNode);
         }
         subReportNode.newReportNode()
                 .withMessageTemplate("voltageLevelTopologyModified", "Voltage level '${id}' topology has been modified")

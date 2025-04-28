@@ -33,8 +33,8 @@ import java.util.List;
 @ModificationErrorTypeName("MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR")
 public class VoltageLevelTopologyModificationInfos extends EquipmentModificationInfos {
 
-    @Schema(description = "Switch attribute modification")
-    private List<EquipmentAttributeModificationInfos> equipmentAttributeModification;
+    @Schema(description = "Switch attribute modification list")
+    private List<EquipmentAttributeModificationInfos> equipmentAttributeModificationList;
 
     @Override
     public AbstractModification toModification() {
