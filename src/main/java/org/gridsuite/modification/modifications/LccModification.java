@@ -5,17 +5,17 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 import org.gridsuite.modification.dto.LccConverterStationModificationInfos;
 import org.gridsuite.modification.dto.LccModificationInfos;
+import org.gridsuite.modification.dto.LccShuntCompensatorModificationinfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
 
-import static org.gridsuite.modification.modifications.LccCreation.FILTERS;
 import static org.gridsuite.modification.modifications.LccCreation.LCC_CHARACTERISTICS;
 
 public class LccModification extends AbstractModification {
@@ -120,6 +120,11 @@ public class LccModification extends AbstractModification {
         // Characteristic
         List<ReportNode> characteristicReports = new ArrayList<>();
 
+        if (converterStationModificationInfos.getEquipmentName() != null && converterStationModificationInfos.getEquipmentName().getValue() != null) {
+            characteristicReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setName,
+                () -> converterStation.getOptionalName().orElse(NO_VALUE), converterStationModificationInfos.getEquipmentName(), "EquipmentName"));
+        }
+
         if (converterStationModificationInfos.getLossFactor() != null && converterStationModificationInfos.getLossFactor().getValue() != null) {
             characteristicReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setLossFactor,
                 converterStation::getLossFactor, converterStationModificationInfos.getLossFactor(), "LossFactor"));
@@ -134,20 +139,19 @@ public class LccModification extends AbstractModification {
             ModificationUtils.getInstance().reportModifications(converterStationReportNode,
                 characteristicReports, "Characteristics", "Characteristics");
         }
+    }
 
-        List<ReportNode> shuntCompensatorsOnSide = Optional.ofNullable(converterStationModificationInfos.getShuntCompensatorsOnSide())
-            .orElse(List.of())
-            .stream()
-            .flatMap(shuntCompensatorOnSide -> Stream.of(
-                ModificationUtils.getInstance().buildCreationReport(shuntCompensatorOnSide.getId(), "Shunt Compensator ID"),
-                ModificationUtils.getInstance().buildCreationReport(shuntCompensatorOnSide.getName(), "Shunt Compensator Name"),
-                ModificationUtils.getInstance().buildCreationReport(shuntCompensatorOnSide.getMaxQAtNominalV(), "Q max at nominal voltage"),
-                ModificationUtils.getInstance().buildCreationReport(shuntCompensatorOnSide.getConnectedToHvdc(), "Connected To Hvdc")
-            ))
-            .toList();
+    private void modifyShuntCompensatorOnSide(VoltageLevel voltageLevel, ReportNode subReportNode,
+                                              @Nullable List<LccShuntCompensatorModificationinfos> shuntCompensatorOnSide) {
 
-        ModificationUtils.getInstance().reportModifications(converterStationReportNode, shuntCompensatorsOnSide, "converterStationFilters", FILTERS);
+/*        List<ReportNode> reportNodes = new ArrayList<>();
+        Iterable<ShuntCompensator> shuntCompensators = voltageLevel.getShuntCompensatorStream();
+        voltageLevel.
+        Optional.ofNullable(shuntCompensatorOnSide).ifPresent(shuntCompensatorInfo ->
+            // modify existing shunt compensator
 
+            // Add new Shunt compensator
+        );*/
     }
 
 }

@@ -7,13 +7,23 @@
 
 package org.gridsuite.modification.dto;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-@Builder
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    property = "type"
+)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = LccShuntCompensatorModificationinfos.class, name = "LCC_SHUNT_MODIFICATION")
+})
+
+@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
