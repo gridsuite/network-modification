@@ -40,9 +40,9 @@ import static org.gridsuite.modification.NetworkModificationException.Type.GENER
  */
 public class GenerationDispatch extends AbstractModification {
     private static final String SYNCHRONOUS_COMPONENT = "SC";
-    private static final String POWER_TO_DISPATCH = "PowerToDispatch";
-    private static final String STACKING = "Stacking";
-    private static final String RESULT = "Result";
+    private static final String POWER_TO_DISPATCH = "network.modification.PowerToDispatch";
+    private static final String STACKING = "network.modification.Stacking";
+    private static final String RESULT = "network.modification.Result";
     private static final String GENERATOR = "generator";
     private static final String SUBSTATION = "substation";
     private static final String REGION_CVG = "regionCvg";
@@ -496,7 +496,7 @@ public class GenerationDispatch extends AbstractModification {
                     .add();
 
             ReportNode powerToDispatchReportNode = componentReportNode.newReportNode()
-                    .withMessageTemplate(POWER_TO_DISPATCH, POWER_TO_DISPATCH)
+                    .withMessageTemplate(POWER_TO_DISPATCH)
                     .add();
 
             // log disconnected generators attached to this synchronous component
@@ -546,7 +546,7 @@ public class GenerationDispatch extends AbstractModification {
                 }).toList();
 
                 ReportNode stackingReportNode = componentReportNode.newReportNode()
-                        .withMessageTemplate(STACKING, STACKING)
+                        .withMessageTemplate(STACKING)
                         .add();
 
                 GeneratorTargetPListener listener = new GeneratorTargetPListener(stackingReportNode, Integer.toString(componentNum));
@@ -560,7 +560,7 @@ public class GenerationDispatch extends AbstractModification {
             }
 
             ReportNode resultReporter = componentReportNode.newReportNode()
-                    .withMessageTemplate(RESULT, RESULT)
+                    .withMessageTemplate(RESULT)
                     .add();
 
             if (Math.abs(totalAmountSupplyToBeDispatched - realized) < EPSILON) {

@@ -32,7 +32,7 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
 public class GeneratorCreation extends AbstractModification {
 
     private final GeneratorCreationInfos modificationInfos;
-    private static final String LIMITS = "Limits";
+    private static final String LIMITS = "network.modification.Limits";
     private static final String ACTIVE_LIMITS = "Active limits";
 
     public GeneratorCreation(GeneratorCreationInfos modificationInfos) {
@@ -169,7 +169,7 @@ public class GeneratorCreation extends AbstractModification {
         addExtensionsToGenerator(generatorCreationInfos, generator, voltageLevel, subReportNode);
 
         subReportNode.newReportNode()
-                .withMessageTemplate("generatorCreated", "New generator with id=${id} created")
+                .withMessageTemplate("network.modification.generatorCreated")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -209,7 +209,7 @@ public class GeneratorCreation extends AbstractModification {
             } catch (PowsyblException e) {
                 voltageReports.add(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("ReactivePercentageError", "cannot add Coordinated reactive extension on generator with id=${id} : ${message}")
+                        .withMessageTemplate("network.modification.ReactivePercentageError")
                         .withUntypedValue("id", generatorCreationInfos.getEquipmentId())
                         .withUntypedValue("message", e.getMessage())
                         .withSeverity(TypedValue.ERROR_SEVERITY)
@@ -237,7 +237,7 @@ public class GeneratorCreation extends AbstractModification {
     }
 
     private ReportNode reportGeneratorActiveLimits(GeneratorCreationInfos generatorCreationInfos, ReportNode subReportNode) {
-        ReportNode subReportNodeLimits = subReportNode.newReportNode().withMessageTemplate(LIMITS, LIMITS).add();
+        ReportNode subReportNodeLimits = subReportNode.newReportNode().withMessageTemplate(LIMITS).add();
         List<ReportNode> limitsReports = new ArrayList<>();
         limitsReports.add(ModificationUtils.getInstance().buildCreationReport(
             generatorCreationInfos.getMinP(), "Min active power"));
@@ -296,7 +296,7 @@ public class GeneratorCreation extends AbstractModification {
             } catch (PowsyblException e) {
                 shortCircuitReports.add(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("ShortCircuitExtensionAddError", "cannot add short-circuit extension on generator with id=${id} : ${message}")
+                        .withMessageTemplate("network.modification.ShortCircuitExtensionAddError")
                         .withUntypedValue("id", generatorCreationInfos.getEquipmentId())
                         .withUntypedValue("message", e.getMessage())
                         .withSeverity(TypedValue.ERROR_SEVERITY)
@@ -338,9 +338,9 @@ public class GeneratorCreation extends AbstractModification {
             } catch (PowsyblException e) {
                 startupReports.add(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("StartupExtensionAddError", "cannot add startup extension on generator with id=${id} : ${message}")
+                        .withMessageTemplate("network.modification.StartupExtensionAddError")
                         .withUntypedValue("id", generatorCreationInfos.getEquipmentId())
-                        .withMessageTemplate("message", e.getMessage())
+                        .withUntypedValue("message", e.getMessage())
                         .withSeverity(TypedValue.ERROR_SEVERITY)
                         .build());
             }

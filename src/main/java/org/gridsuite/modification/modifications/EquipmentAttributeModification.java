@@ -114,24 +114,21 @@ public class EquipmentAttributeModification extends AbstractModification {
     // TODO remove only for switch
     private void changeTwoWindingsTransformerAttribute(TwoWindingsTransformer transformer, String attributeName, Object attributeValue, ReportNode reportNode) {
         String reportKey;
-        String reportDefaultMessage;
 
         switch (attributeName) {
             case "ratioTapChanger.tapPosition":
                 transformer.getOptionalRatioTapChanger().ifPresent(r -> r.setTapPosition((Integer) attributeValue));
-                reportKey = "ratioTapPositionChanged";
-                reportDefaultMessage = "2WT with id=${id} ratio tap changer position changed";
+                reportKey = "network.modification.ratioTapPositionChanged";
                 break;
             case "phaseTapChanger.tapPosition":
-                reportKey = "phaseTapPositionChanged";
-                reportDefaultMessage = "2WT with id=${id} phase tap changer position changed";
+                reportKey = "network.modification.phaseTapPositionChanged";
                 break;
             default:
                 throw NetworkModificationException.createEquipementAttributeNotEditable(transformer.getType(), attributeName);
         }
 
         reportNode.newReportNode()
-            .withMessageTemplate(reportKey, reportDefaultMessage)
+            .withMessageTemplate(reportKey)
             .withUntypedValue("id", transformer.getId())
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
@@ -140,45 +137,38 @@ public class EquipmentAttributeModification extends AbstractModification {
     // TODO remove only for switch
     private void changeThreeWindingsTransformerAttribute(ThreeWindingsTransformer transformer, String attributeName, Object attributeValue, ReportNode reportNode) {
         String reportKey;
-        String reportDefaultMessage;
 
         switch (attributeName) {
             case "ratioTapChanger1.tapPosition":
                 transformer.getLeg1().getOptionalRatioTapChanger().ifPresent(r -> r.setTapPosition((Integer) attributeValue));
-                reportKey = "ratioTapChanger1.tapPosition";
-                reportDefaultMessage = "3WT with id=${id} ratio tap changer 1 position changed";
+                reportKey = "network.modification.ratioTapChanger1.tapPosition";
                 break;
             case "ratioTapChanger2.tapPosition":
                 transformer.getLeg2().getOptionalRatioTapChanger().ifPresent(r -> r.setTapPosition((Integer) attributeValue));
-                reportKey = "ratioTapChanger2.tapPosition";
-                reportDefaultMessage = "3WT with id=${id} ratio tap changer 2 position changed";
+                reportKey = "network.modification.ratioTapChanger2.tapPosition";
                 break;
             case "ratioTapChanger3.tapPosition":
                 transformer.getLeg3().getOptionalRatioTapChanger().ifPresent(r -> r.setTapPosition((Integer) attributeValue));
-                reportKey = "ratioTapChanger3.tapPosition";
-                reportDefaultMessage = "3WT with id=${id} ratio tap changer 3 position changed";
+                reportKey = "network.modification.ratioTapChanger3.tapPosition";
                 break;
             case "phaseTapChanger1.tapPosition":
                 transformer.getLeg1().getOptionalPhaseTapChanger().ifPresent(p -> p.setTapPosition((Integer) attributeValue));
-                reportKey = "phaseTapChanger1.tapPosition";
-                reportDefaultMessage = "3WT with id=${id} phase tap changer 1 position changed";
+                reportKey = "network.modification.phaseTapChanger1.tapPosition";
                 break;
             case "phaseTapChanger2.tapPosition":
                 transformer.getLeg2().getOptionalPhaseTapChanger().ifPresent(p -> p.setTapPosition((Integer) attributeValue));
-                reportKey = "phaseTapChanger2.tapPosition";
-                reportDefaultMessage = "3WT with id=${id} phase tap changer 2 position changed";
+                reportKey = "network.modification.phaseTapChanger2.tapPosition";
                 break;
             case "phaseTapChanger3.tapPosition":
                 transformer.getLeg3().getOptionalPhaseTapChanger().ifPresent(p -> p.setTapPosition((Integer) attributeValue));
-                reportKey = "phaseTapChanger3.tapPosition";
-                reportDefaultMessage = "3WT with id=${id} phase tap changer 3 position changed";
+                reportKey = "network.modification.phaseTapChanger3.tapPosition";
                 break;
             default:
                 throw NetworkModificationException.createEquipementAttributeNotEditable(transformer.getType(), attributeName);
         }
 
         reportNode.newReportNode()
-            .withMessageTemplate(reportKey, reportDefaultMessage)
+            .withMessageTemplate(reportKey)
             .withUntypedValue("id", transformer.getId())
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
