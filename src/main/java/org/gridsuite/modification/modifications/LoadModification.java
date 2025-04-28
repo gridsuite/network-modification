@@ -54,7 +54,7 @@ public class LoadModification extends AbstractInjectionModification {
     private void modifyLoad(Load load, ReportNode subReportNode) {
         LoadModificationInfos loadModificationInfos = (LoadModificationInfos) modificationInfos;
         subReportNode.newReportNode()
-            .withMessageTemplate("loadModification", "Load with id=${id} modified :")
+            .withMessageTemplate("network.modification.loadModification")
             .withUntypedValue("id", loadModificationInfos.getEquipmentId())
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();

@@ -66,7 +66,7 @@ public class ShuntCompensatorCreation extends AbstractModification {
         } else {
             createShuntInBusBreaker(voltageLevel, modificationInfos);
             subReportNode.newReportNode()
-                    .withMessageTemplate("shuntCompensatorCreated", "New shunt compensator with id=${id} created")
+                    .withMessageTemplate("network.modification.shuntCompensatorCreated")
                     .withUntypedValue("id", modificationInfos.getEquipmentId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();

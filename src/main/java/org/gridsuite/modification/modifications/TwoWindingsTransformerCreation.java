@@ -77,7 +77,7 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
             twoWindingsTransformer.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroup1());
             subReportNode.newReportNode()
-                    .withMessageTemplate("limit set selected on side 1", "limit set selected on side 1 : ${selectedOperationalLimitsGroup1}")
+                    .withMessageTemplate("network.modification.limitSetSelectedOnSide1")
                     .withUntypedValue("selectedOperationalLimitsGroup1", modificationInfos.getSelectedOperationalLimitsGroup1())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
@@ -85,7 +85,7 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         if (modificationInfos.getSelectedOperationalLimitsGroup2() != null) {
             twoWindingsTransformer.setSelectedOperationalLimitsGroup2(modificationInfos.getSelectedOperationalLimitsGroup2());
             subReportNode.newReportNode()
-                    .withMessageTemplate("limit set selected on side 2", "limit set selected on side 2 : ${selectedOperationalLimitsGroup2}")
+                    .withMessageTemplate("network.modification.limitSetSelectedOnSide2")
                     .withUntypedValue("selectedOperationalLimitsGroup2", modificationInfos.getSelectedOperationalLimitsGroup2())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
@@ -234,7 +234,7 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         var twt = createTwoWindingsTransformerAdder(voltageLevel1, voltageLevel2, twoWindingsTransformerCreationInfos, withSwitch1, withSwitch2).add();
         addTapChangersToTwoWindingsTransformer(network, twoWindingsTransformerCreationInfos, twt);
         subReportNode.newReportNode()
-                .withMessageTemplate("twoWindingsTransformerCreated", "New two windings transformer with id=${id} created")
+                .withMessageTemplate("network.modification.twoWindingsTransformerCreated")
                 .withUntypedValue("id", twoWindingsTransformerCreationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();

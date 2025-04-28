@@ -75,7 +75,7 @@ public class LineModification extends AbstractBranchModification {
     @Override
     protected void modifyCharacteristics(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode) {
         Line line = (Line) branch;
-        ReportNode characteristicsReporter = subReportNode.newReportNode().withMessageTemplate("characteristics", "Characteristics").add();
+        ReportNode characteristicsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.characteristics").add();
         modifyR(line, branchModificationInfos.getR(), characteristicsReporter);
         modifyX(line, branchModificationInfos.getX(), characteristicsReporter);
 
@@ -89,7 +89,7 @@ public class LineModification extends AbstractBranchModification {
                                             ReportNode characteristicsReportNode) {
         if (lineModificationInfos.getG1() != null && lineModificationInfos.getG1().getValue() != null
             || lineModificationInfos.getB1() != null && lineModificationInfos.getB1().getValue() != null) {
-            ReportNode side1ReportNode = characteristicsReportNode.newReportNode().withMessageTemplate("side1Characteristics", "Side 1").add();
+            ReportNode side1ReportNode = characteristicsReportNode.newReportNode().withMessageTemplate("network.modification.side1Characteristics").add();
             modifyG1(line, lineModificationInfos.getG1(), side1ReportNode);
             modifyB1(line, lineModificationInfos.getB1(), side1ReportNode);
         }
@@ -99,7 +99,7 @@ public class LineModification extends AbstractBranchModification {
                                             ReportNode characteristicsReportNode) {
         if (lineModificationInfos.getG2() != null && lineModificationInfos.getG2().getValue() != null
             || lineModificationInfos.getB2() != null && lineModificationInfos.getB2().getValue() != null) {
-            ReportNode side2Reporter = characteristicsReportNode.newReportNode().withMessageTemplate("side2Characteristics", "Side 2").add();
+            ReportNode side2Reporter = characteristicsReportNode.newReportNode().withMessageTemplate("network.modification.side2Characteristics").add();
             modifyG2(line, lineModificationInfos.getG2(), side2Reporter);
             modifyB2(line, lineModificationInfos.getB2(), side2Reporter);
         }

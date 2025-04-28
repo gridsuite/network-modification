@@ -171,7 +171,7 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
                 .withMessageTemplate("test").build());
         compensatorCreationInfos1.toModification().apply(getNetwork(), report);
         assertLogMessage("Cannot add standby automaton extension on Static var compensator 'idStaticVarCompensator1': b0 is invalid",
-                "StandbyAutomatonExtensionAddError", report);
+                "network.modification.StandbyAutomatonExtensionAddError", report);
         StaticVarCompensatorCreationInfos compensatorCreationInfos2 = (StaticVarCompensatorCreationInfos) buildModification();
         compensatorCreationInfos2.setEquipmentId("idStaticVarCompensator2");
         compensatorCreationInfos2.setStandbyAutomatonOn(true);

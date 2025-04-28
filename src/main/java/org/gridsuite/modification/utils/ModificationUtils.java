@@ -49,7 +49,7 @@ public final class ModificationUtils {
     public static final String BUS_BAR_SECTION_ID = "busbarSectionId";
 
     public static final String DOES_NOT_EXIST_IN_NETWORK = " does not exist in network";
-    public static final String EQUIPMENT_DISCONNECTED = "equipmentDisconnected";
+    public static final String EQUIPMENT_DISCONNECTED = "network.modification.equipmentDisconnected";
     public static final String NO_VALUE = "No value";
     public static final String LIMITS = "Limits";
     public static final String REACTIVE_LIMITS = "Reactive limits";
@@ -327,7 +327,7 @@ public final class ModificationUtils {
         Identifiable<?> busOrBbs2 = network.getIdentifiable(busbarSectionId2);
         if (busOrBbs1 == null) {
             subReportNode.newReportNode()
-                    .withMessageTemplate("notFoundBurOrBusbarSection", "Bus or busbar section ID ${busbarSectionId} not found. Coupler was not created.")
+                    .withMessageTemplate("network.modification.notFoundBurOrBusbarSection")
                     .withUntypedValue(BUS_BAR_SECTION_ID, busbarSectionId1)
                     .withSeverity(TypedValue.ERROR_SEVERITY)
                     .add();
@@ -335,7 +335,7 @@ public final class ModificationUtils {
         }
         if (busOrBbs2 == null) {
             subReportNode.newReportNode()
-                    .withMessageTemplate("notFoundBurOrBusbarSection", "Bus or busbar section ID ${busbarSectionId} not found. Coupler was not created.")
+                    .withMessageTemplate("network.modification.notFoundBurOrBusbarSection")
                     .withUntypedValue(BUS_BAR_SECTION_ID, busbarSectionId2)
                     .withSeverity(TypedValue.ERROR_SEVERITY)
                     .add();
@@ -353,7 +353,7 @@ public final class ModificationUtils {
                 .add();
 
         subReportNode.newReportNode()
-                .withMessageTemplate("substationCreated", "New substation with id=${id} created")
+                .withMessageTemplate("network.modification.substationCreated")
                 .withUntypedValue("id", substationCreationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -433,7 +433,7 @@ public final class ModificationUtils {
         });
 
         subReportNode.newReportNode()
-                .withMessageTemplate("voltageLevelCreated", "New voltage level with id=${id} created")
+                .withMessageTemplate("network.modification.voltageLevelCreated")
                 .withUntypedValue("id", voltageLevelCreationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -670,7 +670,7 @@ public final class ModificationUtils {
         if (!modificationInfos.isTerminalConnected()) {
             injection.getTerminal().disconnect();
             subReportNode.newReportNode()
-                    .withMessageTemplate(EQUIPMENT_DISCONNECTED, "Equipment with id=${id} disconnected")
+                    .withMessageTemplate(EQUIPMENT_DISCONNECTED)
                     .withUntypedValue("id", modificationInfos.getEquipmentId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
@@ -1699,7 +1699,7 @@ public final class ModificationUtils {
             if (!injectionCreationInfos.isTerminalConnected()) {
                 connectivityReports.add(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate(EQUIPMENT_DISCONNECTED, "    Equipment with id=${id} disconnected")
+                        .withMessageTemplate(EQUIPMENT_DISCONNECTED)
                         .withUntypedValue("id", injectionCreationInfos.getEquipmentId())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .build());

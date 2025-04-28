@@ -39,8 +39,8 @@ public class LccCreation extends AbstractModification {
 
     public static final String LCC_SETPOINTS = "LccSetPoints";
 
-    public static final String EQUIPMENT_CONNECTED_TO_HVDC = "equipmentConnectedToHvdc";
-    public static final String EQUIPMENT_NOT_CONNECTED_TO_HVDC = "equipmentNotConnectedToHvdc";
+    public static final String EQUIPMENT_CONNECTED_TO_HVDC = "network.modification.equipmentConnectedToHvdc";
+    public static final String EQUIPMENT_NOT_CONNECTED_TO_HVDC = "network.modification.equipmentNotConnectedToHvdc";
 
     private final LccCreationInfos modificationInfos;
 
@@ -94,7 +94,7 @@ public class LccCreation extends AbstractModification {
                 .add();
 
         subReportNode.newReportNode()
-                .withMessageTemplate("lccCreated", "New lcc with id=${id} created")
+                .withMessageTemplate("network.modification.lccCreated")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -146,14 +146,14 @@ public class LccCreation extends AbstractModification {
         if (Boolean.TRUE.equals(connectedToHvdc)) {
             injection.getTerminal().connect();
             subReportNode.newReportNode()
-                    .withMessageTemplate(EQUIPMENT_CONNECTED_TO_HVDC, "Equipment with id=${id} is connected to Hvdc")
+                    .withMessageTemplate(EQUIPMENT_CONNECTED_TO_HVDC)
                     .withUntypedValue("id", injection.getId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
         } else {
             injection.getTerminal().disconnect();
             subReportNode.newReportNode()
-                    .withMessageTemplate(EQUIPMENT_NOT_CONNECTED_TO_HVDC, "Equipment with id=${id} is not connected to Hvdc")
+                    .withMessageTemplate(EQUIPMENT_NOT_CONNECTED_TO_HVDC)
                     .withUntypedValue("id", injection.getId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
@@ -248,7 +248,7 @@ public class LccCreation extends AbstractModification {
     private void addReportConverterStationLcc(LccConverterStationCreationInfos lccConverterStationCreationInfos,
                                               String logFieldName, ReportNode subReporter) {
         ReportNode reportConverterStationNode = subReporter.newReportNode()
-                .withMessageTemplate("converterStationCreated", "${fieldName} with id=${id} created")
+                .withMessageTemplate("network.modification.converterStationCreated")
                 .withUntypedValue("fieldName", logFieldName)
                 .withUntypedValue("id", lccConverterStationCreationInfos.getEquipmentId()).add();
 

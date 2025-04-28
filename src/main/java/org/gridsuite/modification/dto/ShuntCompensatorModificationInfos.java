@@ -57,7 +57,7 @@ public class ShuntCompensatorModificationInfos extends InjectionModificationInfo
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.shuntCompensatorModification")
+                .withMessageTemplate("network.modification.shuntCompensatorModification.modification")
                 .withUntypedValue("shuntCompensatorId", this.getEquipmentId())
                 .add();
     }

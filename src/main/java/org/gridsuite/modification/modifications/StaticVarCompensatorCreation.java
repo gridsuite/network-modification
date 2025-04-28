@@ -78,7 +78,7 @@ public class StaticVarCompensatorCreation extends AbstractModification {
         StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator(modificationInfos.getEquipmentId());
         PropertiesUtils.applyProperties(staticVarCompensator, subReportNode, modificationInfos.getProperties(), "StaticVarCompensatorProperties");
         subReportNode.newReportNode()
-                .withMessageTemplate("staticVarCompensatorCreated", "New static var compensator with id=${id} created")
+                .withMessageTemplate("network.modification.staticVarCompensatorCreated")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -178,8 +178,7 @@ public class StaticVarCompensatorCreation extends AbstractModification {
             } catch (PowsyblException e) {
                 standbyAutomatonReports.add(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("StandbyAutomatonExtensionAddError",
-                                "Cannot add standby automaton extension on ${message}")
+                        .withMessageTemplate("network.modification.StandbyAutomatonExtensionAddError")
                         .withUntypedValue("message", e.getMessage())
                         .withSeverity(TypedValue.ERROR_SEVERITY)
                         .build());

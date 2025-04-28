@@ -92,7 +92,7 @@ public class LineCreation extends AbstractModification {
         if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
             line.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroup1());
             subReportNode.newReportNode()
-                    .withMessageTemplate("limit set selected on side 1", "limit set selected on side 1 : ${selectedOperationalLimitsGroup1}")
+                    .withMessageTemplate("network.modification.limitSetSelectedOnSide1")
                     .withUntypedValue("selectedOperationalLimitsGroup1", modificationInfos.getSelectedOperationalLimitsGroup1())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
@@ -100,7 +100,7 @@ public class LineCreation extends AbstractModification {
         if (modificationInfos.getSelectedOperationalLimitsGroup2() != null) {
             line.setSelectedOperationalLimitsGroup2(modificationInfos.getSelectedOperationalLimitsGroup2());
             subReportNode.newReportNode()
-                    .withMessageTemplate("limit set selected on side 2", "limit set selected on side 2 : ${selectedOperationalLimitsGroup2}")
+                    .withMessageTemplate("network.modification.limitSetSelectedOnSide2")
                     .withUntypedValue("selectedOperationalLimitsGroup2", modificationInfos.getSelectedOperationalLimitsGroup2())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
@@ -117,7 +117,7 @@ public class LineCreation extends AbstractModification {
         ModificationUtils.getInstance().createLineAdder(network, voltageLevel1, voltageLevel2, lineCreationInfos, withSwitch1, withSwitch2).add();
 
         subReportNode.newReportNode()
-                .withMessageTemplate("lineCreated", "New line with id=${id} created")
+                .withMessageTemplate("network.modification.lineCreated")
                 .withUntypedValue("id", lineCreationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();

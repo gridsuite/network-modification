@@ -43,7 +43,7 @@ public class SubstationModification extends AbstractModification {
 
         // modify the substation in the network
         subReportNode.newReportNode()
-                .withMessageTemplate("substationModification", "Substation with id=${id} modified :")
+                .withMessageTemplate("network.modification.substationModification")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
