@@ -131,7 +131,7 @@ public class VscCreation extends AbstractModification {
         reportHvdcLineInfos(subReportNode);
 
         subReportNode.newReportNode()
-                .withMessageTemplate("vscCreated", "New vsc with id=${id} created")
+                .withMessageTemplate("network.modification.vscCreated")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -188,7 +188,7 @@ public class VscCreation extends AbstractModification {
                                                        ReportNode subReportNode,
                                                        String logFieldName) {
         ReportNode converterStationReporter = subReportNode.newReportNode()
-            .withMessageTemplate("converterStationCreated", "${fieldName} with id=${id} created")
+            .withMessageTemplate("network.modification.converterStationCreated")
             .withUntypedValue("fieldName", logFieldName)
             .withUntypedValue("id", converterStationCreationInfos.getEquipmentId())
             .add();
@@ -271,7 +271,7 @@ public class VscCreation extends AbstractModification {
     }
 
     private void reportConverterStationSetPoints(ConverterStationCreationInfos converterStationCreationInfos, ReportNode subReportNode) {
-        ReportNode setPointReporter = subReportNode.newReportNode().withMessageTemplate("converterStationSetPoint", SETPOINTS).add();
+        ReportNode setPointReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.converterStationSetPoint").add();
 
         if (converterStationCreationInfos.getReactivePowerSetpoint() != null) {
             ModificationUtils.getInstance().reportElementaryCreation(setPointReporter,

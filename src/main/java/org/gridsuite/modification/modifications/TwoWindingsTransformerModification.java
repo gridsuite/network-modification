@@ -108,7 +108,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
     @Override
     protected void modifyCharacteristics(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode) {
         TwoWindingsTransformer twoWindingsTransformer = (TwoWindingsTransformer) branch;
-        ReportNode characteristicsReporter = subReportNode.newReportNode().withMessageTemplate("characteristics", "Characteristics").add();
+        ReportNode characteristicsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.characteristics").add();
 
         // Branch specific fields
         modifyR(twoWindingsTransformer, branchModificationInfos.getR(), characteristicsReporter);
@@ -230,7 +230,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
             return;
         }
         if (estimSubReportNode == null) {
-            estimSubReportNode = subReportNode.newReportNode().withMessageTemplate("StateEstimationData", "State estimation").add();
+            estimSubReportNode = subReportNode.newReportNode().withMessageTemplate("network.modification.StateEstimationData").add();
         }
         TwoWindingsTransformerToBeEstimated toBeEstimated = twt.getExtension(TwoWindingsTransformerToBeEstimated.class);
         if (toBeEstimated == null) {
@@ -255,7 +255,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         if (twt.hasRatioTapChanger() && twoWindingsTransformerModificationInfos.getRatioTapChanger().getEnabled() != null && Boolean.FALSE.equals(twoWindingsTransformerModificationInfos.getRatioTapChanger().getEnabled().getValue())) {
             twt.getRatioTapChanger().remove();
             subReportNode.newReportNode()
-                .withMessageTemplate("RatioTapChangerRemoved", "The ratio tap changer has been removed")
+                .withMessageTemplate("network.modification.RatioTapChangerRemoved")
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
         } else if (ratioTapChangerModified(twoWindingsTransformerModificationInfos.getRatioTapChanger())) {
@@ -265,7 +265,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         if (twt.hasPhaseTapChanger() && twoWindingsTransformerModificationInfos.getPhaseTapChanger().getEnabled() != null && Boolean.FALSE.equals(twoWindingsTransformerModificationInfos.getPhaseTapChanger().getEnabled().getValue())) {
             twt.getPhaseTapChanger().remove();
             subReportNode.newReportNode()
-                .withMessageTemplate("PhaseTapChangerRemoved", "The phase tap changer has been removed")
+                .withMessageTemplate("network.modification.PhaseTapChangerRemoved")
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
         } else if (phaseTapChangerModified(twoWindingsTransformerModificationInfos.getPhaseTapChanger())) {
@@ -624,7 +624,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         if (tapChangerStepsReports != null) {
             tapChangerStepsReports.add(ReportNode.newRootReportNode()
                     .withAllResourceBundlesFromClasspath()
-                    .withMessageTemplate("tapChangerStepsModification", "            Taps were replaced by new ones below")
+                    .withMessageTemplate("network.modification.tapChangerStepsModification")
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .build());
         }
@@ -715,7 +715,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
             if (tapChangerReports != null) {
                 tapChangerReports.add(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("tapsModification", "        Taps")
+                        .withMessageTemplate("network.modification.tapsModification")
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .build());
             }

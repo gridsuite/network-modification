@@ -28,18 +28,12 @@ import java.util.List;
 public class VoltageInitModification extends AbstractModification {
     private final VoltageInitModificationInfos voltageInitModificationInfos;
 
-    private static final String GENERATORS_KEY = "GeneratorsModifications";
-    private static final String GENERATORS_NAME = "Generators";
-    private static final String TWO_WINDINGS_TRANSFORMERS_KEY = "2WindingsTransformersModifications";
-    private static final String TWO_WINDINGS_TRANSFORMERS_NAME = "2 windings transformers";
-    private static final String THREE_WINDINGS_TRANSFORMERS_KEY = "3WindingsTransformersModifications";
-    private static final String THREE_WINDINGS_TRANSFORMERS_NAME = "3 windings transformers";
-    private static final String STATIC_VAR_COMPENSATORS_KEY = "StaticVarCompensatorsModifications";
-    private static final String STATIC_VAR_COMPENSATORS_NAME = "Static var compensators";
-    private static final String VSC_CONVERTER_STATIONS_KEY = "VscConverterStationsModifications";
-    private static final String VSC_CONVERTER_STATIONS_NAME = "Vsc converter stations";
-    private static final String SHUNT_COMPENSATORS_KEY = "ShuntCompensatorsModifications";
-    private static final String SHUNT_COMPENSATORS_NAME = "Shunt compensators";
+    private static final String GENERATORS_KEY = "network.modification.GeneratorsModifications";
+    private static final String TWO_WINDINGS_TRANSFORMERS_KEY = "network.modification.2WindingsTransformersModifications";
+    private static final String THREE_WINDINGS_TRANSFORMERS_KEY = "network.modification.3WindingsTransformersModifications";
+    private static final String STATIC_VAR_COMPENSATORS_KEY = "network.modification.StaticVarCompensatorsModifications";
+    private static final String VSC_CONVERTER_STATIONS_KEY = "network.modification.VscConverterStationsModifications";
+    private static final String SHUNT_COMPENSATORS_KEY = "network.modification.ShuntCompensatorsModifications";
 
     private static final String VOLTAGE_SET_POINT = "Voltage set point";
     private static final String VOLTAGE_MAGNITUDE = "Voltage magnitude";
@@ -96,7 +90,7 @@ public class VoltageInitModification extends AbstractModification {
             if (bus == null) {
                 reports.add(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("busNotFound", "Bus with id=${id} not found")
+                        .withMessageTemplate("network.modification.busNotFound")
                         .withUntypedValue("id", m.getBusId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .build());
@@ -104,7 +98,7 @@ public class VoltageInitModification extends AbstractModification {
                 modificationsCount++;
                 reports.add(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("busModification", "Bus with id=${id} modified :")
+                        .withMessageTemplate("network.modification.busModification")
                         .withUntypedValue("id", m.getBusId())
                         .withSeverity(TypedValue.TRACE_SEVERITY)
                         .build());
@@ -123,12 +117,12 @@ public class VoltageInitModification extends AbstractModification {
             }
         }
         if (!reports.isEmpty()) {
-            ReportNode busesReporter = subReportNode.newReportNode().withMessageTemplate("BusesModifications", "Buses").add();
+            ReportNode busesReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.BusesModifications").add();
             reports.forEach(report -> insertReportNode(busesReporter, report));
         }
         if (modificationsCount > 0) {
             subReportNode.newReportNode()
-                    .withMessageTemplate("busModificationsResume", "${count} bus(es) have been modified.")
+                    .withMessageTemplate("network.modification.busModificationsResume")
                     .withUntypedValue(COUNT, modificationsCount)
                     .withTypedValue(ReportConstants.SEVERITY_KEY, TypedValue.INFO_SEVERITY.toString(), TypedValue.SEVERITY)
                     .add();
@@ -143,7 +137,7 @@ public class VoltageInitModification extends AbstractModification {
             if (generator == null) {
                 reports.add(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("generatorNotFound", "Generator with id=${id} not found")
+                        .withMessageTemplate("network.modification.generatorNotFound")
                         .withUntypedValue("id", m.getGeneratorId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .build());
@@ -151,7 +145,7 @@ public class VoltageInitModification extends AbstractModification {
                 modificationsCount++;
                 reports.add(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("generatorModification", "Generator with id=${id} modified :")
+                        .withMessageTemplate("network.modification.generatorModification")
                         .withUntypedValue("id", m.getGeneratorId())
                         .withSeverity(TypedValue.TRACE_SEVERITY)
                         .build());
@@ -168,12 +162,12 @@ public class VoltageInitModification extends AbstractModification {
             }
         }
         if (!reports.isEmpty()) {
-            ReportNode generatorsReportNode = subReportNode.newReportNode().withMessageTemplate(GENERATORS_KEY, GENERATORS_NAME).add();
+            ReportNode generatorsReportNode = subReportNode.newReportNode().withMessageTemplate(GENERATORS_KEY).add();
             reports.forEach(report -> insertReportNode(generatorsReportNode, report));
         }
         if (modificationsCount > 0) {
             subReportNode.newReportNode()
-                    .withMessageTemplate("generatorModificationsResume", "${count} generator(s) have been modified.")
+                    .withMessageTemplate("network.modification.generatorModificationsResume")
                     .withUntypedValue(COUNT, modificationsCount)
                     .withTypedValue(ReportConstants.SEVERITY_KEY, TypedValue.INFO_SEVERITY.toString(), TypedValue.SEVERITY)
                     .add();
@@ -190,14 +184,14 @@ public class VoltageInitModification extends AbstractModification {
                 if (threeWindingsTransformer == null) {
                     reports3WT.add(ReportNode.newRootReportNode()
                             .withAllResourceBundlesFromClasspath()
-                            .withMessageTemplate("3WindingsTransformerNotFound", "3 windings transformer with id=${id} not found")
+                            .withMessageTemplate("network.modification.3WindingsTransformerNotFound")
                             .withUntypedValue("id", t.getTransformerId())
                             .withSeverity(TypedValue.WARN_SEVERITY)
                             .build());
                 } else if (threeWindingsTransformer.getLeg(t.getLegSide()).getRatioTapChanger() == null) {
                     reports3WT.add(ReportNode.newRootReportNode()
                             .withAllResourceBundlesFromClasspath()
-                            .withMessageTemplate("3WindingsTransformerRatioTapChangerNotFound", "3 windings transformer with id=${id} : Ratio tap changer for leg ${leg} not found")
+                            .withMessageTemplate("network.modification.3WindingsTransformerRatioTapChangerNotFound")
                             .withUntypedValue("id", t.getTransformerId())
                             .withUntypedValue("leg", t.getLegSide().name())
                             .withSeverity(TypedValue.WARN_SEVERITY)
@@ -206,7 +200,7 @@ public class VoltageInitModification extends AbstractModification {
                     modificationsCount++;
                     reports3WT.add(ReportNode.newRootReportNode()
                             .withAllResourceBundlesFromClasspath()
-                            .withMessageTemplate("3WindingsTransformerModification", "3 windings transformer with id=${id} modified :")
+                            .withMessageTemplate("network.modification.3WindingsTransformerModification")
                             .withUntypedValue("id", t.getTransformerId())
                             .withSeverity(TypedValue.TRACE_SEVERITY)
                             .build());
@@ -226,14 +220,14 @@ public class VoltageInitModification extends AbstractModification {
                 if (twoWindingsTransformer == null) {
                     reports2WT.add(ReportNode.newRootReportNode()
                             .withAllResourceBundlesFromClasspath()
-                            .withMessageTemplate("2WindingsTransformerNotFound", "2 windings transformer with id=${id} not found")
+                            .withMessageTemplate("network.modification.2WindingsTransformerNotFound")
                             .withUntypedValue("id", t.getTransformerId())
                             .withSeverity(TypedValue.WARN_SEVERITY)
                             .build());
                 } else if (twoWindingsTransformer.getRatioTapChanger() == null) {
                     reports2WT.add(ReportNode.newRootReportNode()
                             .withAllResourceBundlesFromClasspath()
-                            .withMessageTemplate("2WindingsTransformerRatioTapChangerNotFound", "2 windings transformer with id=${id} : Ratio tap changer not found")
+                            .withMessageTemplate("network.modification.2WindingsTransformerRatioTapChangerNotFound")
                             .withUntypedValue("id", t.getTransformerId())
                             .withSeverity(TypedValue.WARN_SEVERITY)
                             .build());
@@ -241,7 +235,7 @@ public class VoltageInitModification extends AbstractModification {
                     modificationsCount++;
                     reports2WT.add(ReportNode.newRootReportNode()
                             .withAllResourceBundlesFromClasspath()
-                            .withMessageTemplate("2WindingsTransformerModification", "2 windings transformer with id=${id} modified :")
+                            .withMessageTemplate("network.modification.2WindingsTransformerModification")
                             .withUntypedValue("id", t.getTransformerId())
                             .withSeverity(TypedValue.TRACE_SEVERITY)
                             .build());
@@ -259,16 +253,16 @@ public class VoltageInitModification extends AbstractModification {
             }
         }
         if (!reports2WT.isEmpty()) {
-            ReportNode twoWindingsTransformerReportNode = subReportNode.newReportNode().withMessageTemplate(TWO_WINDINGS_TRANSFORMERS_KEY, TWO_WINDINGS_TRANSFORMERS_NAME).add();
+            ReportNode twoWindingsTransformerReportNode = subReportNode.newReportNode().withMessageTemplate(TWO_WINDINGS_TRANSFORMERS_KEY).add();
             reports2WT.forEach(report -> insertReportNode(twoWindingsTransformerReportNode, report));
         }
         if (!reports3WT.isEmpty()) {
-            ReportNode threeWindingsTransformerReporter = subReportNode.newReportNode().withMessageTemplate(THREE_WINDINGS_TRANSFORMERS_KEY, THREE_WINDINGS_TRANSFORMERS_NAME).add();
+            ReportNode threeWindingsTransformerReporter = subReportNode.newReportNode().withMessageTemplate(THREE_WINDINGS_TRANSFORMERS_KEY).add();
             reports3WT.forEach(report -> insertReportNode(threeWindingsTransformerReporter, report));
         }
         if (modificationsCount > 0) {
             subReportNode.newReportNode()
-                    .withMessageTemplate("windingsTransformerModificationsResume", "${count} transformer(s) have been modified.")
+                    .withMessageTemplate("network.modification.windingsTransformerModificationsResume")
                     .withUntypedValue(COUNT, modificationsCount)
                     .withTypedValue(ReportConstants.SEVERITY_KEY, TypedValue.INFO_SEVERITY.toString(), TypedValue.SEVERITY)
                     .add();
@@ -283,7 +277,7 @@ public class VoltageInitModification extends AbstractModification {
             if (staticVarCompensator == null) {
                 reports.add(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("staticVarCompensatorNotFound", "Static var compensator with id=${id} not found")
+                        .withMessageTemplate("network.modification.staticVarCompensatorNotFound")
                         .withUntypedValue("id", s.getStaticVarCompensatorId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .build());
@@ -291,7 +285,7 @@ public class VoltageInitModification extends AbstractModification {
                 modificationsCount++;
                 reports.add(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("staticVarCompensatorModification", "Static var compensator with id=${id} modified :")
+                        .withMessageTemplate("network.modification.staticVarCompensatorModification")
                         .withUntypedValue("id", s.getStaticVarCompensatorId())
                         .withSeverity(TypedValue.TRACE_SEVERITY)
                         .build());
@@ -308,12 +302,12 @@ public class VoltageInitModification extends AbstractModification {
             }
         }
         if (!reports.isEmpty()) {
-            ReportNode staticVarsReportNode = subReportNode.newReportNode().withMessageTemplate(STATIC_VAR_COMPENSATORS_KEY, STATIC_VAR_COMPENSATORS_NAME).add();
+            ReportNode staticVarsReportNode = subReportNode.newReportNode().withMessageTemplate(STATIC_VAR_COMPENSATORS_KEY).add();
             reports.forEach(report -> insertReportNode(staticVarsReportNode, report));
         }
         if (modificationsCount > 0) {
             subReportNode.newReportNode()
-                    .withMessageTemplate("svcModificationsResume", "${count} static var compensator(s) have been modified.")
+                    .withMessageTemplate("network.modification.svcModificationsResume")
                     .withUntypedValue(COUNT, modificationsCount)
                     .withTypedValue(ReportConstants.SEVERITY_KEY, TypedValue.INFO_SEVERITY.toString(), TypedValue.SEVERITY)
                     .add();
@@ -328,7 +322,7 @@ public class VoltageInitModification extends AbstractModification {
             if (vscConverterStation == null) {
                 reports.add(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("vscConverterStationNotFound", "Vsc converter station with id=${id} not found")
+                        .withMessageTemplate("network.modification.vscConverterStationNotFound")
                         .withUntypedValue("id", v.getVscConverterStationId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .build());
@@ -336,7 +330,7 @@ public class VoltageInitModification extends AbstractModification {
                 modificationsCount++;
                 reports.add(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("vscConverterStationModification", "Vsc converter station with id=${id} modified :")
+                        .withMessageTemplate("network.modification.vscConverterStationModification")
                         .withUntypedValue("id", v.getVscConverterStationId())
                         .withSeverity(TypedValue.TRACE_SEVERITY)
                         .build());
@@ -353,12 +347,12 @@ public class VoltageInitModification extends AbstractModification {
             }
         }
         if (!reports.isEmpty()) {
-            ReportNode vscConverterStationsReporter = subReportNode.newReportNode().withMessageTemplate(VSC_CONVERTER_STATIONS_KEY, VSC_CONVERTER_STATIONS_NAME).add();
+            ReportNode vscConverterStationsReporter = subReportNode.newReportNode().withMessageTemplate(VSC_CONVERTER_STATIONS_KEY).add();
             reports.forEach(report -> insertReportNode(vscConverterStationsReporter, report));
         }
         if (modificationsCount > 0) {
             subReportNode.newReportNode()
-                    .withMessageTemplate("vscModificationsResume", "${count} vsc converter station(s) have been modified.")
+                    .withMessageTemplate("network.modification.vscModificationsResume")
                     .withUntypedValue(COUNT, modificationsCount)
                     .withTypedValue(ReportConstants.SEVERITY_KEY, TypedValue.INFO_SEVERITY.toString(), TypedValue.SEVERITY)
                     .add();
@@ -373,7 +367,7 @@ public class VoltageInitModification extends AbstractModification {
             if (shuntCompensator == null) {
                 reports.add(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("shuntCompensatorNotFound", "Shunt compensator with id=${id} not found")
+                        .withMessageTemplate("network.modification.shuntCompensatorNotFound")
                         .withUntypedValue("id", m.getShuntCompensatorId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .build());
@@ -385,7 +379,7 @@ public class VoltageInitModification extends AbstractModification {
                     if (m.getSectionCount() == null) {
                         reportsShunt.add(ReportNode.newRootReportNode()
                                 .withAllResourceBundlesFromClasspath()
-                                .withMessageTemplate("shuntCompensatorSectionCountUndefined", "\tSection count value is undefined")
+                                .withMessageTemplate("network.modification.shuntCompensatorSectionCountUndefined")
                                 .withSeverity(TypedValue.WARN_SEVERITY)
                                 .build());
                     } else {
@@ -393,7 +387,7 @@ public class VoltageInitModification extends AbstractModification {
                             shuntCompensatorTerminal.disconnect();
                             reportsShunt.add(ReportNode.newRootReportNode()
                                     .withAllResourceBundlesFromClasspath()
-                                    .withMessageTemplate("shuntCompensatorDisconnected", "\tShunt compensator disconnected")
+                                    .withMessageTemplate("network.modification.shuntCompensatorDisconnected")
                                     .withSeverity(TypedValue.TRACE_SEVERITY)
                                     .build());
                         }
@@ -406,7 +400,7 @@ public class VoltageInitModification extends AbstractModification {
                     if (m.getConnect() == null) {
                         reportsShunt.add(ReportNode.newRootReportNode()
                                 .withAllResourceBundlesFromClasspath()
-                                .withMessageTemplate("shuntCompensatorConnectUndefined", "\tConnect value is undefined")
+                                .withMessageTemplate("network.modification.shuntCompensatorConnectUndefined")
                                 .withSeverity(TypedValue.WARN_SEVERITY)
                                 .build());
                     } else {
@@ -414,7 +408,7 @@ public class VoltageInitModification extends AbstractModification {
                             shuntCompensatorTerminal.connect();
                             reportsShunt.add(ReportNode.newRootReportNode()
                                     .withAllResourceBundlesFromClasspath()
-                                    .withMessageTemplate("shuntCompensatorReconnected", "\tShunt compensator reconnected")
+                                    .withMessageTemplate("network.modification.shuntCompensatorReconnected")
                                     .withSeverity(TypedValue.TRACE_SEVERITY)
                                     .build());
                         }
@@ -433,7 +427,7 @@ public class VoltageInitModification extends AbstractModification {
                     modificationsCount++;
                     reports.add(ReportNode.newRootReportNode()
                             .withAllResourceBundlesFromClasspath()
-                            .withMessageTemplate("shuntCompensatorModification", "Shunt compensator with id=${id} modified :")
+                            .withMessageTemplate("network.modification.shuntCompensatorModification")
                             .withUntypedValue("id", m.getShuntCompensatorId())
                             .withSeverity(TypedValue.TRACE_SEVERITY)
                             .build());
@@ -442,12 +436,12 @@ public class VoltageInitModification extends AbstractModification {
             }
         }
         if (!reports.isEmpty()) {
-            ReportNode shuntCompensatorsReporter = subReportNode.newReportNode().withMessageTemplate(SHUNT_COMPENSATORS_KEY, SHUNT_COMPENSATORS_NAME).add();
+            ReportNode shuntCompensatorsReporter = subReportNode.newReportNode().withMessageTemplate(SHUNT_COMPENSATORS_KEY).add();
             reports.forEach(report -> insertReportNode(shuntCompensatorsReporter, report));
         }
         if (modificationsCount > 0) {
             subReportNode.newReportNode()
-                    .withMessageTemplate("shuntCompensatorModificationsResume", "${count} shunt compensator(s) have been modified.")
+                    .withMessageTemplate("network.modification.shuntCompensatorModificationsResume")
                     .withUntypedValue(COUNT, modificationsCount)
                     .withTypedValue(ReportConstants.SEVERITY_KEY, TypedValue.INFO_SEVERITY.toString(), TypedValue.SEVERITY)
                     .add();

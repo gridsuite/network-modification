@@ -134,7 +134,7 @@ public class VscModification extends AbstractModification {
 
     private void modifyVsc(@Nonnull Network network, @Nonnull HvdcLine hvdcLine, VscModificationInfos modificationInfos, ReportNode subReportNode) {
         subReportNode.newReportNode()
-                .withMessageTemplate("VscModification", "Vsc with id=${id} modified :")
+                .withMessageTemplate("network.modification.VscModification")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -315,7 +315,7 @@ public class VscModification extends AbstractModification {
         }
 
         ReportNode converterStationReportNode = subReportNode.newReportNode()
-            .withMessageTemplate("Converter Station", "Converter station ${id} modified")
+            .withMessageTemplate("network.modification.ConverterStation")
             .withUntypedValue("id", converterStation.getId())
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
