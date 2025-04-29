@@ -56,6 +56,6 @@ public class VoltageInitModificationInfos extends ModificationInfos {
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate(ModificationType.VOLTAGE_INIT_MODIFICATION.name(), "Voltage init modification").add();
+        return reportNode.newReportNode().withMessageTemplate("network.modification.voltageInitModification").add();
     }
 }

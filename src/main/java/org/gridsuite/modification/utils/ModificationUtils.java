@@ -1002,7 +1002,7 @@ public final class ModificationUtils {
         if (!modificationInfos.isConnected1()) {
             branch.getTerminal1().disconnect();
             subReportNode.newReportNode()
-                    .withMessageTemplate("terminal1Disconnected", "Equipment with id=${id} disconnected on side 1")
+                    .withMessageTemplate("network.modification.terminal1Disconnected")
                     .withUntypedValue("id", modificationInfos.getEquipmentId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
@@ -1010,7 +1010,7 @@ public final class ModificationUtils {
         if (!modificationInfos.isConnected2()) {
             branch.getTerminal2().disconnect();
             subReportNode.newReportNode()
-                    .withMessageTemplate("terminal2Disconnected", "Equipment with id=${id} disconnected on side 2")
+                    .withMessageTemplate("network.modification.terminal2Disconnected")
                     .withUntypedValue("id", modificationInfos.getEquipmentId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();

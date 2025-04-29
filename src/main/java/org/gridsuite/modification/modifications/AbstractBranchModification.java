@@ -46,9 +46,9 @@ public abstract class AbstractBranchModification extends AbstractModification {
         this.modificationInfos = modificationInfos;
     }
 
-    protected void modifyBranch(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode, String reporterKey, String reporterDefaultMessage) {
+    protected void modifyBranch(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode, String reporterKey) {
         subReportNode.newReportNode()
-                .withMessageTemplate(reporterKey, reporterDefaultMessage)
+                .withMessageTemplate(reporterKey)
                 .withUntypedValue("id", branchModificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();

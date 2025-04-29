@@ -48,6 +48,6 @@ public class ModificationByAssignmentInfos extends ModificationInfos {
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate(ModificationType.MODIFICATION_BY_ASSIGNMENT.name(), "Modification by filter").add();
+        return reportNode.newReportNode().withMessageTemplate("network.modification.modificationByAssignment").add();
     }
 }
