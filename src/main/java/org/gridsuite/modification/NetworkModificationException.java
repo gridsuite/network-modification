@@ -123,7 +123,8 @@ public class NetworkModificationException extends PowsyblException {
         HVDC_LINE_NOT_FOUND(HttpStatus.NOT_FOUND),
         COMPOSITE_MODIFICATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),
         WRONG_HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL(HttpStatus.BAD_REQUEST),
-        UNSUPPORTED_HYBRID_HVDC(HttpStatus.INTERNAL_SERVER_ERROR);
+        UNSUPPORTED_HYBRID_HVDC(HttpStatus.INTERNAL_SERVER_ERROR),
+        MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR(HttpStatus.INTERNAL_SERVER_ERROR);
 
         public final HttpStatus status;
         private final String message;
