@@ -548,7 +548,7 @@ public final class ModificationUtils {
     public ReportNode createEnabledDisabledReport(String key, boolean enabled) {
         return ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
-                .withMessageTemplate(key, "    ${status}")
+                .withMessageTemplate(key)
                 .withUntypedValue("status", enabled ? "Enabled" : "Disabled")
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build();

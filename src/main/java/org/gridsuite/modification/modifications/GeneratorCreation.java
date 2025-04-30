@@ -189,7 +189,7 @@ public class GeneratorCreation extends AbstractModification {
     private void createGeneratorVoltageRegulation(GeneratorCreationInfos generatorCreationInfos, Generator generator, VoltageLevel voltageLevel, ReportNode subReportNode) {
         List<ReportNode> voltageReports = new ArrayList<>();
         voltageReports.add(ModificationUtils.getInstance()
-                .createEnabledDisabledReport("VoltageRegulationOn", modificationInfos.isVoltageRegulationOn()));
+                .createEnabledDisabledReport("network.modification.VoltageRegulationOn", modificationInfos.isVoltageRegulationOn()));
         voltageReports.add(ModificationUtils.getInstance().buildCreationReport(generatorCreationInfos.getTargetV(), "Voltage"));
         if (generatorCreationInfos.getRegulatingTerminalVlId() != null && generatorCreationInfos.getRegulatingTerminalId() != null &&
                 generatorCreationInfos.getRegulatingTerminalType() != null) {

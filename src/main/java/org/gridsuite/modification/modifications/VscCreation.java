@@ -173,7 +173,7 @@ public class VscCreation extends AbstractModification {
 
         List<ReportNode> angleDroopActivePowerControlReports = new ArrayList<>();
         angleDroopActivePowerControlReports.add(ModificationUtils.getInstance()
-                .createEnabledDisabledReport("angleDroopActivePowerControl", modificationInfos.getAngleDroopActivePowerControl()));
+                .createEnabledDisabledReport("network.modification.angleDroopActivePowerControl", modificationInfos.getAngleDroopActivePowerControl()));
         if (modificationInfos.getP0() != null) {
             angleDroopActivePowerControlReports.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getP0(), "P0"));
         }
@@ -280,7 +280,7 @@ public class VscCreation extends AbstractModification {
         }
 
         List<ReportNode> setPointsVoltageReports = new ArrayList<>();
-        setPointsVoltageReports.add(ModificationUtils.getInstance().createEnabledDisabledReport("voltageRegulationOn",
+        setPointsVoltageReports.add(ModificationUtils.getInstance().createEnabledDisabledReport("network.modification.voltageRegulationOn",
                 converterStationCreationInfos.getVoltageRegulationOn()));
         if (converterStationCreationInfos.getVoltageSetpoint() != null) {
             setPointsVoltageReports.add(ModificationUtils.getInstance().buildCreationReport(converterStationCreationInfos.getReactivePowerSetpoint(), "Voltage"));
