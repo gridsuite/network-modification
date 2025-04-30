@@ -8,7 +8,7 @@ import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.LccConverterStationModificationInfos;
 import org.gridsuite.modification.dto.LccModificationInfos;
-import org.gridsuite.modification.dto.LccShuntCompensatorModificationinfos;
+import org.gridsuite.modification.dto.LccShuntCompensatorModificationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.OperationType;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -45,7 +45,7 @@ public class LccModificationTest extends AbstractInjectionModificationTest {
 
     private static LccConverterStationModificationInfos buildLccConverterStationModificationInfos1() {
 
-        LccShuntCompensatorModificationinfos filter1 = LccShuntCompensatorModificationinfos.builder()
+        LccShuntCompensatorModificationInfos filter1 = LccShuntCompensatorModificationInfos.builder()
             .id("ShuntStation1Id1")
             .name("ShuntStation1Name1")
             .maxQAtNominalV(0.1)
@@ -53,7 +53,7 @@ public class LccModificationTest extends AbstractInjectionModificationTest {
             .deletionMark(false)
             .build();
 
-        LccShuntCompensatorModificationinfos filter2 = LccShuntCompensatorModificationinfos.builder()
+        LccShuntCompensatorModificationInfos filter2 = LccShuntCompensatorModificationInfos.builder()
             .id("ShuntStation1Id2")
             .name("ShuntStation1Name2")
             .maxQAtNominalV(0.1)

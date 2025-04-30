@@ -20,7 +20,8 @@ import lombok.experimental.SuperBuilder;
     property = "type"
 )
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = LccShuntCompensatorModificationinfos.class, name = "LCC_SHUNT_MODIFICATION")
+    @JsonSubTypes.Type(value = LccShuntCompensatorInfos.class, name = "LCC_SHUNT_CREATION"),
+    @JsonSubTypes.Type(value = LccShuntCompensatorModificationInfos.class, name = "LCC_SHUNT_MODIFICATION")
 })
 
 @SuperBuilder

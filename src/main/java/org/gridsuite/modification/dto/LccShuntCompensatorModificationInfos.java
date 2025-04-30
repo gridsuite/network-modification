@@ -10,10 +10,10 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor
 
-public class LccShuntCompensatorModificationinfos extends LccShuntCompensatorInfos {
+public class LccShuntCompensatorModificationInfos extends LccShuntCompensatorInfos {
     private boolean deletionMark = false;
 
-    public LccShuntCompensatorModificationinfos(String id, String name, Double maxQAtNominalV, Boolean connectedToHvdc, Boolean deletionMark) {
+    public LccShuntCompensatorModificationInfos(String id, String name, Double maxQAtNominalV, Boolean connectedToHvdc, Boolean deletionMark) {
         super(id, name, maxQAtNominalV, connectedToHvdc);
         this.deletionMark = deletionMark;
     }

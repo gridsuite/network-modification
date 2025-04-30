@@ -34,7 +34,7 @@ public class LccConverterStationModificationInfos extends InjectionModificationI
 
     @Schema(description = "LCC HVDC Converter Station Shunt Compensator")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<LccShuntCompensatorModificationinfos> shuntCompensatorsOnSide;
+    private List<LccShuntCompensatorModificationInfos> shuntCompensatorsOnSide;
 
     public boolean hasModifications() {
         return lossFactor != null || powerFactor != null || !CollectionUtils.isEmpty(shuntCompensatorsOnSide);
