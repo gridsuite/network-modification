@@ -123,7 +123,7 @@ public class LineModification extends AbstractBranchModification {
         if (modifX != null && modifX.getValue() != null) {
             if (reportNode != null) {
                 insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(line.getX(),
-                    modifX.getValue(), "Series reactance", 1));
+                    modifX.getValue(), "Series reactance"));
             }
             line.setX(modifX.getValue());
         }
@@ -133,7 +133,7 @@ public class LineModification extends AbstractBranchModification {
         if (modifR != null && modifR.getValue() != null) {
             if (reportNode != null) {
                 insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(line.getR(),
-                    modifR.getValue(), "Series resistance", 1));
+                    modifR.getValue(), "Series resistance"));
             }
             line.setR(modifR.getValue());
         }
@@ -144,8 +144,7 @@ public class LineModification extends AbstractBranchModification {
             if (reportNode != null) {
                 ReportNode gReportNode = ModificationUtils.getInstance().buildModificationReport(line.getG1(),
                     modifG1.getValue(),
-                    MAGNETIZING_CONDUCTANCE_MESSAGE,
-                    2);
+                    MAGNETIZING_CONDUCTANCE_MESSAGE);
                 insertReportNode(reportNode, gReportNode);
             }
             line.setG1(modifG1.getValue());
@@ -157,8 +156,7 @@ public class LineModification extends AbstractBranchModification {
             if (reportNode != null) {
                 ReportNode gReportNode = ModificationUtils.getInstance().buildModificationReport(line.getG2(),
                     modifG2.getValue(),
-                    MAGNETIZING_CONDUCTANCE_MESSAGE,
-                    2);
+                    MAGNETIZING_CONDUCTANCE_MESSAGE);
                 insertReportNode(reportNode, gReportNode);
             }
             line.setG2(modifG2.getValue());
@@ -169,7 +167,7 @@ public class LineModification extends AbstractBranchModification {
         if (modifB1 != null && modifB1.getValue() != null) {
             if (reportNode != null) {
                 insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(line.getB1(),
-                    modifB1.getValue(), MAGNETIZING_SUSCEPTANCE_MESSAGE, 2));
+                    modifB1.getValue(), MAGNETIZING_SUSCEPTANCE_MESSAGE));
             }
             line.setB1(modifB1.getValue());
         }
@@ -179,7 +177,7 @@ public class LineModification extends AbstractBranchModification {
         if (modifB2 != null && modifB2.getValue() != null) {
             if (reportNode != null) {
                 insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(line.getB2(),
-                    modifB2.getValue(), MAGNETIZING_SUSCEPTANCE_MESSAGE, 2));
+                    modifB2.getValue(), MAGNETIZING_SUSCEPTANCE_MESSAGE));
             }
             line.setB2(modifB2.getValue());
         }

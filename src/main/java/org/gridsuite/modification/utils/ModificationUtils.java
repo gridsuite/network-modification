@@ -533,18 +533,6 @@ public final class ModificationUtils {
         return null;
     }
 
-    public <T> ReportNode applyElementaryModificationsAndReturnReport(Consumer<T> setter, Supplier<T> getter,
-                                                                                AttributeModification<T> modification, String fieldName, int indentationLevel) {
-        if (modification != null) {
-            T oldValue = getter.get();
-            T newValue = modification.applyModification(oldValue);
-            setter.accept(newValue);
-
-            return buildModificationReport(oldValue, newValue, fieldName, indentationLevel);
-        }
-        return null;
-    }
-
     public ReportNode createEnabledDisabledReport(String key, boolean enabled) {
         return ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
@@ -590,26 +578,22 @@ public final class ModificationUtils {
         T oldValue = getter.get();
         T newValue = modification.applyModification(oldValue);
         setter.accept(newValue);
-        return buildModificationReport(oldValue, newValue, fieldName, 1, TypedValue.INFO_SEVERITY);
+        return buildModificationReport(oldValue, newValue, fieldName, TypedValue.INFO_SEVERITY);
     }
 
     public <T> ReportNode buildModificationReport(T oldValue, T newValue, String fieldName) {
-        return buildModificationReport(oldValue, newValue, fieldName, 1, TypedValue.INFO_SEVERITY);
+        return buildModificationReport(oldValue, newValue, fieldName, TypedValue.INFO_SEVERITY);
     }
 
-    public <T> ReportNode buildModificationReport(T oldValue, T newValue, String fieldName, int indentationLevel) {
-        return buildModificationReport(oldValue, newValue, fieldName, indentationLevel, TypedValue.INFO_SEVERITY);
-    }
-
-    public static <T> ReportNode buildModificationReport(T oldValue, T newValue, String fieldName, int indentationLevel, TypedValue severity) {
+    public static <T> ReportNode buildModificationReport(T oldValue, T newValue, String fieldName, TypedValue severity) {
         final String oldValueString = (oldValue == null || oldValue instanceof Double oldDouble && Double.isNaN(oldDouble))
                 ? NO_VALUE : oldValue.toString();
         final String newValueString = (newValue == null || newValue instanceof Double newDouble && Double.isNaN(newDouble))
                 ? NO_VALUE : newValue.toString();
-        final String indentation = "\t".repeat(indentationLevel);
         return ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
-                .withMessageTemplate("modification-indent" + indentationLevel, indentation + "${fieldName} : ${oldValue} → ${newValue}")
+                .withMessageTemplate("network.modification.fieldModification")
+                .withUntypedValue("arrow", "→") // Workaround to use non-ISO-8859-1 characters in the internationalization file
                 .withUntypedValue("fieldName", fieldName)
                 .withUntypedValue("oldValue", oldValueString)
                 .withUntypedValue("newValue", newValueString)

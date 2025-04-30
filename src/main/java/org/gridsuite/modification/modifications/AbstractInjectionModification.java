@@ -70,22 +70,22 @@ public abstract class AbstractInjectionModification extends AbstractModification
             if (value != null) {
                 double oldValue = measurement.getValue();
                 measurement.setValue(value);
-                reports.add(ModificationUtils.buildModificationReport(oldValue, value, measurementType + VALUE, 1, TypedValue.INFO_SEVERITY));
+                reports.add(ModificationUtils.buildModificationReport(oldValue, value, measurementType + VALUE, TypedValue.INFO_SEVERITY));
             }
             if (validity != null) {
                 boolean oldValidity = measurement.isValid();
                 measurement.setValid(validity);
-                reports.add(ModificationUtils.buildModificationReport(oldValidity, validity, measurementType + VALIDITY, 1, TypedValue.INFO_SEVERITY));
+                reports.add(ModificationUtils.buildModificationReport(oldValidity, validity, measurementType + VALIDITY, TypedValue.INFO_SEVERITY));
             }
         } else {
             var measurementAdder = measurements.newMeasurement().setId(UUID.randomUUID().toString()).setType(type);
             if (value != null) {
                 measurementAdder.setValue(value);
-                reports.add(ModificationUtils.buildModificationReport(null, value, measurementType + VALUE, 1, TypedValue.INFO_SEVERITY));
+                reports.add(ModificationUtils.buildModificationReport(null, value, measurementType + VALUE, TypedValue.INFO_SEVERITY));
             }
             if (validity != null) {
                 measurementAdder.setValid(validity);
-                reports.add(ModificationUtils.buildModificationReport(null, validity, measurementType + VALIDITY, 1, TypedValue.INFO_SEVERITY));
+                reports.add(ModificationUtils.buildModificationReport(null, validity, measurementType + VALIDITY, TypedValue.INFO_SEVERITY));
             }
             measurementAdder.add();
         }

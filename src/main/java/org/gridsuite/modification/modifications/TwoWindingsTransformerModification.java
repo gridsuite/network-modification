@@ -143,7 +143,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         if (modifRatedU2 != null && modifRatedU2.getValue() != null) {
             if (reportNode != null) {
                 insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(transformer.getRatedU2(),
-                        modifRatedU2.getValue(), "Rated Voltage (Side 2)", 1));
+                        modifRatedU2.getValue(), "Rated Voltage (Side 2)"));
             }
             transformer.setRatedU2(modifRatedU2.getValue());
         }
@@ -153,7 +153,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         if (modifRatedU1 != null && modifRatedU1.getValue() != null) {
             if (reportNode != null) {
                 insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(transformer.getRatedU1(),
-                        modifRatedU1.getValue(), "Rated Voltage (Side 1)", 1));
+                        modifRatedU1.getValue(), "Rated Voltage (Side 1)"));
             }
             transformer.setRatedU1(modifRatedU1.getValue());
         }
@@ -163,7 +163,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         if (modifRatedS != null && modifRatedS.getValue() != null) {
             if (reportNode != null) {
                 insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(transformer.getRatedS(),
-                                modifRatedS.getValue(), "Rated nominal power", 1));
+                                modifRatedS.getValue(), "Rated nominal power"));
             }
             transformer.setRatedS(modifRatedS.getValue());
         }
@@ -176,7 +176,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 double oldMagnetizingSusceptanceToReport = transformer.getB() * Math.pow(10, 6);
                 double newMagnetizingSusceptanceToReport = modifB.getValue() * Math.pow(10, 6);
                 insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(oldMagnetizingSusceptanceToReport,
-                                newMagnetizingSusceptanceToReport, "Magnetizing susceptance", 1));
+                                newMagnetizingSusceptanceToReport, "Magnetizing susceptance"));
             }
             transformer.setB(modifB.getValue());
         }
@@ -191,8 +191,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 ReportNode gReportNode = ModificationUtils.getInstance().buildModificationReport(
                         oldMagnetizingConductanceToReport,
                         newMagnetizingConductanceToReport,
-                        MAGNETIZING_CONDUCTANCE_FIELD_NAME,
-                        1);
+                        MAGNETIZING_CONDUCTANCE_FIELD_NAME);
                 insertReportNode(reportNode, gReportNode);
             }
             transformer.setG(modifG.getValue());
@@ -203,7 +202,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         if (modifX != null && modifX.getValue() != null) {
             if (reportNode != null) {
                 insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(twt.getX(),
-                        modifX.getValue(), "Series reactance", 1));
+                        modifX.getValue(), "Series reactance"));
             }
             twt.setX(modifX.getValue());
         }
@@ -213,7 +212,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         if (modifR != null && modifR.getValue() != null) {
             if (reportNode != null) {
                 insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(twt.getR(),
-                        modifR.getValue(), "Series resistance", 1));
+                        modifR.getValue(), "Series resistance"));
             }
             twt.setR(modifR.getValue());
         }
@@ -241,12 +240,12 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         if (rtcToBeEstim != null) {
             boolean oldValue = toBeEstimated.shouldEstimateRatioTapChanger();
             toBeEstimated.shouldEstimateRatioTapChanger(rtcToBeEstim);
-            reports.add(ModificationUtils.buildModificationReport(oldValue, rtcToBeEstim, "Ratio tap changer to be estimated", 1, TypedValue.INFO_SEVERITY));
+            reports.add(ModificationUtils.buildModificationReport(oldValue, rtcToBeEstim, "Ratio tap changer to be estimated", TypedValue.INFO_SEVERITY));
         }
         if (ptcToBeEstim != null) {
             boolean oldValue = toBeEstimated.shouldEstimatePhaseTapChanger();
             toBeEstimated.shouldEstimatePhaseTapChanger(ptcToBeEstim);
-            reports.add(ModificationUtils.buildModificationReport(oldValue, ptcToBeEstim, "Phase tap changer to be estimated", 1, TypedValue.INFO_SEVERITY));
+            reports.add(ModificationUtils.buildModificationReport(oldValue, ptcToBeEstim, "Phase tap changer to be estimated", TypedValue.INFO_SEVERITY));
         }
         ModificationUtils.getInstance().reportModifications(estimSubReportNode, reports, "twtToBeEstimated", "    Estimate tap position");
     }
@@ -406,7 +405,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         ReportNode regulationValueReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
             isModification ? phaseTapChanger::setRegulationValue : phaseTapChangerAdder::setRegulationValue,
             isModification ? phaseTapChanger::getRegulationValue : () -> null,
-            regulationValueModification, fieldName, 1);
+            regulationValueModification, fieldName);
         if (regulationReports != null && regulationValueReportNode != null) {
             regulationReports.add(regulationValueReportNode);
         }
@@ -414,7 +413,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         ReportNode targetDeadbandReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
             isModification ? phaseTapChanger::setTargetDeadband : phaseTapChangerAdder::setTargetDeadband,
             isModification ? phaseTapChanger::getTargetDeadband : () -> null,
-            targetDeadbandModification, TARGET_DEADBAND, 1);
+            targetDeadbandModification, TARGET_DEADBAND);
         if (regulationReports != null && targetDeadbandReportNode != null) {
             regulationReports.add(targetDeadbandReportNode);
         }
@@ -423,7 +422,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         ReportNode regulationReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
             isModification ? phaseTapChanger::setRegulationMode : phaseTapChangerAdder::setRegulationMode,
             isModification ? phaseTapChanger::getRegulationMode : () -> null,
-            regulationModeModification, "Regulation mode", 1);
+            regulationModeModification, "Regulation mode");
         if (regulationReports != null && regulationReportNode != null) {
             regulationReports.add(regulationReportNode);
         }
@@ -432,7 +431,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         ReportNode regulatingReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
             isModification ? phaseTapChanger::setRegulating : phaseTapChangerAdder::setRegulating,
             isModification ? phaseTapChanger::isRegulating : () -> null,
-            regulatingModification, "Phase tap regulating", 1);
+            regulatingModification, "Phase tap regulating");
         if (regulationReports != null && regulatingReportNode != null) {
             regulationReports.add(regulatingReportNode);
         }
@@ -452,7 +451,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 isModification ? ratioTapChanger::setLoadTapChangingCapabilities
                         : ratioTapChangerAdder::setLoadTapChangingCapabilities,
                 isModification ? ratioTapChanger::hasLoadTapChangingCapabilities : () -> null,
-                ratioTapChangerInfos.getLoadTapChangingCapabilities(), "Load tap changing capabilities", 1);
+                ratioTapChangerInfos.getLoadTapChangingCapabilities(), "Load tap changing capabilities");
         if (tapChangingReport != null) {
             ratioTapChangerReports.add(tapChangingReport);
         }
@@ -501,7 +500,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 isModification ? ratioTapChanger::setTargetDeadband
                     : ratioTapChangerAdder::setTargetDeadband,
                 isModification ? ratioTapChanger::getTargetDeadband : () -> null,
-                AttributeModification.toAttributeModification(0d, OperationType.SET), TARGET_DEADBAND, 2);
+                AttributeModification.toAttributeModification(0d, OperationType.SET), TARGET_DEADBAND);
             ratioTapChangerReports.add(targetDeadbandReportNode);
         }
 
@@ -510,7 +509,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         ReportNode regulationModeReport = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
             isModification ? ratioTapChanger::setRegulationMode : ratioTapChangerAdder::setRegulationMode,
             isModification ? ratioTapChanger::getRegulationMode : () -> null,
-            regulationModeModification, "Voltage regulation mode set to " + regulationMode, 1);
+            regulationModeModification, "Voltage regulation mode set to " + regulationMode);
         if (regulationModeReport != null) {
             ratioTapChangerReports.add(regulationModeReport);
         }
@@ -519,7 +518,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 isModification ? ratioTapChanger::setRegulating
                     : ratioTapChangerAdder::setRegulating,
                 isModification ? ratioTapChanger::isRegulating : () -> null,
-                ratioTapChangerInfos.getRegulating(), Boolean.TRUE.equals(regulatingValue) ? "Voltage regulation" : "Fixed ratio", 1);
+                ratioTapChangerInfos.getRegulating(), Boolean.TRUE.equals(regulatingValue) ? "Voltage regulation" : "Fixed ratio");
             if (voltageRegulationReport != null) {
                 ratioTapChangerReports.add(voltageRegulationReport);
             }
@@ -544,13 +543,13 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 isModification ? ratioTapChanger::setTargetV
                         : ratioTapChangerAdder::setTargetV,
                 isModification ? ratioTapChanger::getTargetV : () -> null,
-                targetV, "Target voltage", 2);
+                targetV, "Target voltage");
 
         ReportNode targetDeadbandReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
                 isModification ? ratioTapChanger::setTargetDeadband
                         : ratioTapChangerAdder::setTargetDeadband,
                 isModification ? ratioTapChanger::getTargetDeadband : () -> null,
-                targetDeadband, TARGET_DEADBAND, 2);
+                targetDeadband, TARGET_DEADBAND);
 
         if (voltageRegulationReports != null) {
             if (targetVoltageReportNode != null) {
@@ -602,11 +601,11 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
             regulationReports
                     .add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel,
                             tapChangerModificationInfos.getRegulatingTerminalVlId().getValue(),
-                            "Voltage level", 2));
+                            "Voltage level"));
             regulationReports.add(ModificationUtils.getInstance().buildModificationReport(oldEquipment,
                     tapChangerModificationInfos.getRegulatingTerminalType().getValue() + ":"
                             + tapChangerModificationInfos.getRegulatingTerminalId().getValue(),
-                    "Equipment", 2));
+                    "Equipment"));
         }
     }
 
@@ -693,13 +692,13 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 isModification ? tapChanger::setLowTapPosition
                         : tapChangerAdder::setLowTapPosition,
                 isModification ? tapChanger::getLowTapPosition : () -> null,
-                modifyLowTapPosition, "Low tap position", 2);
+                modifyLowTapPosition, "Low tap position");
 
         ReportNode tapPositionReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
                 isModification ? tapChanger::setTapPosition
                         : tapChangerAdder::setTapPosition,
                 isModification ? tapChanger::getTapPosition : () -> null,
-                modifyTapPosition, "Tap position", 2);
+                modifyTapPosition, "Tap position");
 
         if (tapChangerReports != null) {
             if (lowTapPositionReportNode != null) {
