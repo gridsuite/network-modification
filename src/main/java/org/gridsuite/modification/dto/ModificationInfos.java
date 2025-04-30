@@ -14,16 +14,15 @@ import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
+import org.gridsuite.modification.modifications.AbstractModification;
 
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.modifications.AbstractModification;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -78,6 +77,7 @@ import org.gridsuite.modification.modifications.AbstractModification;
     @JsonSubTypes.Type(value = CompositeModificationInfos.class),
     @JsonSubTypes.Type(value = LccModificationInfos.class),
     @JsonSubTypes.Type(value = LccConverterStationModificationInfos.class)
+    @JsonSubTypes.Type(value = VoltageLevelTopologyModificationInfos.class),
 })
 @SuperBuilder
 @NoArgsConstructor
