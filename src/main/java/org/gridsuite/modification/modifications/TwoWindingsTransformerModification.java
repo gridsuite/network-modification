@@ -282,11 +282,12 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         PhaseTapChangerModificationInfos phaseTapChangerInfos = twoWindingsTransformerModificationInfos
                 .getPhaseTapChanger();
         List<ReportNode> regulationReports = new ArrayList<>();
+        List<ReportNode> regulatedTerminalReports = new ArrayList<>();
 
         processPhaseTapRegulation(phaseTapChanger, phaseTapChangerAdder, isModification, phaseTapChangerInfos.getRegulationMode(),
             phaseTapChangerInfos.getRegulationValue(), phaseTapChangerInfos.getTargetDeadband(), regulationReports);
 
-        processRegulatingTerminal(phaseTapChangerInfos, phaseTapChanger, phaseTapChangerAdder, regulationReports,
+        processRegulatingTerminal(phaseTapChangerInfos, phaseTapChanger, phaseTapChangerAdder, regulatedTerminalReports,
                 network,
                 twt, isModification);
 
@@ -456,11 +457,12 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
             ratioTapChangerReports.add(tapChangingReport);
         }
 
-        List<ReportNode> voltageRegulationReports = new ArrayList<>();
-        processRatioVoltageRegulation(ratioTapChangerInfos, twt, ratioTapChanger, ratioTapChangerAdder, voltageRegulationReports, network,
+        List<ReportNode> regulationReports = new ArrayList<>();
+        List<ReportNode> regulatedTerminalReports = new ArrayList<>();
+        processRatioVoltageRegulation(ratioTapChangerInfos, twt, ratioTapChanger, ratioTapChangerAdder, regulationReports, regulatedTerminalReports, network,
                 isModification);
         // regulating must be set after target value, regulating mode and regulating terminal are set
-        processRegulating(ratioTapChangerInfos, ratioTapChanger, ratioTapChangerAdder, ratioTapChangerReports, isModification);
+        processRegulating(ratioTapChangerInfos, ratioTapChanger, ratioTapChangerAdder, regulationReports, isModification);
 
         List<ReportNode> positionsAndStepsReports = new ArrayList<>();
         processTapChangerPositionsAndSteps(ratioTapChanger, ratioTapChangerAdder, isModification, ratioTapChangerInfos.getLowTapPosition(), ratioTapChangerInfos.getTapPosition(), ratioTapChangerInfos.getSteps(), positionsAndStepsReports
@@ -470,7 +472,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
             ratioTapChangerAdder.add();
         }
 
-        if (!ratioTapChangerReports.isEmpty() || !voltageRegulationReports.isEmpty()
+        if (!ratioTapChangerReports.isEmpty() || !regulationReports.isEmpty() || !regulatedTerminalReports.isEmpty()
                 || !positionsAndStepsReports.isEmpty()) {
             ReportNode ratioTapChangerReporter = ModificationUtils.getInstance().reportModifications(subReporter,
                     ratioTapChangerReports, TapChangerType.RATIO.name(), RATIO_TAP_CHANGER_SUBREPORTER_DEFAULT_MESSAGE);
@@ -479,17 +481,18 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                         .withMessageTemplate(TapChangerType.RATIO.name(), RATIO_TAP_CHANGER_SUBREPORTER_DEFAULT_MESSAGE)
                         .add();
             }
-            ModificationUtils.getInstance().reportModifications(ratioTapChangerReporter, voltageRegulationReports,
-                    "ratioTapChangerVoltageRegulationModification", "    Voltage regulation");
+            ModificationUtils.getInstance().reportModifications(ratioTapChangerReporter, regulationReports,
+                    "ratioTapChangerRegulationModification", "    Regulation");
+            ModificationUtils.getInstance().reportModifications(ratioTapChangerReporter, regulatedTerminalReports,
+                    "ratioTapChangerTerminalRegulatedModification", "    Regulated Terminal");
             ModificationUtils.getInstance().reportModifications(ratioTapChangerReporter, positionsAndStepsReports,
-                    "ratioTapChangerPositionsAndStepsModification", "    Tap Changer");
+                    "ratioTapChangerPositionsAndStepsModification", "    Taps");
         }
     }
 
     private void processRegulating(RatioTapChangerModificationInfos ratioTapChangerInfos,
             RatioTapChanger ratioTapChanger, RatioTapChangerAdder ratioTapChangerAdder,
-            List<ReportNode> ratioTapChangerReports, boolean isModification) {
-        Boolean regulatingValue = ratioTapChangerInfos.getRegulating() != null ? ratioTapChangerInfos.getRegulating().getValue() : null;
+            List<ReportNode> regulationReports, boolean isModification) {
         // if regulating and targetDeadband is null then it is set by default to 0
         Double targetDeadBandInfo = ratioTapChangerInfos.getTargetDeadband() != null ? ratioTapChangerInfos.getTargetDeadband().getValue() : null;
         boolean targetDeadBandIsNull = isModification && Double.isNaN(ratioTapChanger.getTargetDeadband()) && targetDeadBandInfo == null ||
@@ -501,26 +504,27 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                     : ratioTapChangerAdder::setTargetDeadband,
                 isModification ? ratioTapChanger::getTargetDeadband : () -> null,
                 AttributeModification.toAttributeModification(0d, OperationType.SET), TARGET_DEADBAND);
-            ratioTapChangerReports.add(targetDeadbandReportNode);
+            regulationReports.add(targetDeadbandReportNode);
         }
-
-        RatioTapChanger.RegulationMode regulationMode = Boolean.TRUE.equals(regulatingValue) ? RatioTapChanger.RegulationMode.VOLTAGE : RatioTapChanger.RegulationMode.REACTIVE_POWER;
-        AttributeModification<RatioTapChanger.RegulationMode> regulationModeModification = AttributeModification.toAttributeModification(regulationMode, OperationType.SET);
-        ReportNode regulationModeReport = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
-            isModification ? ratioTapChanger::setRegulationMode : ratioTapChangerAdder::setRegulationMode,
-            isModification ? ratioTapChanger::getRegulationMode : () -> null,
-            regulationModeModification, "Voltage regulation mode set to " + regulationMode);
-        if (regulationModeReport != null) {
-            ratioTapChangerReports.add(regulationModeReport);
-        }
-        if (regulationModeReport != null) {
+        Boolean isRegulating = ratioTapChangerInfos.getRegulating() != null ? ratioTapChangerInfos.getRegulating().getValue() : null;
+        RatioTapChanger.RegulationMode regulationMode;
+        // need to set regulation mode before setting regulating
+        if (isRegulating != null) {
+            regulationMode = isRegulating ? RatioTapChanger.RegulationMode.VOLTAGE : RatioTapChanger.RegulationMode.REACTIVE_POWER;
+            AttributeModification<RatioTapChanger.RegulationMode> regulationModeModification = AttributeModification.toAttributeModification(regulationMode, OperationType.SET);
+            ReportNode regulationModeReport = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
+                isModification ? ratioTapChanger::setRegulationMode : ratioTapChangerAdder::setRegulationMode,
+                isModification ? ratioTapChanger::getRegulationMode : () -> null, regulationModeModification, "Regulation mode : " + regulationMode);
+            if (regulationModeReport != null) {
+                regulationReports.add(regulationModeReport);
+            }
             ReportNode voltageRegulationReport = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
                 isModification ? ratioTapChanger::setRegulating
                     : ratioTapChangerAdder::setRegulating,
                 isModification ? ratioTapChanger::isRegulating : () -> null,
-                ratioTapChangerInfos.getRegulating(), Boolean.TRUE.equals(regulatingValue) ? "Voltage regulation" : "Fixed ratio");
+                ratioTapChangerInfos.getRegulating(), isRegulating ? "Regulation" : "Fixed ratio");
             if (voltageRegulationReport != null) {
-                ratioTapChangerReports.add(voltageRegulationReport);
+                regulationReports.add(voltageRegulationReport);
             }
         }
     }
@@ -529,16 +533,18 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
             TwoWindingsTransformer twt,
             RatioTapChanger ratioTapChanger,
             RatioTapChangerAdder ratioTapChangerAdder,
-            List<ReportNode> voltageRegulationReports,
+            List<ReportNode> regulationReports,
+            List<ReportNode> regulatedTerminalReports,
             Network network,
             boolean isModification) {
-        modifyTargets(ratioTapChanger, ratioTapChangerAdder, isModification, ratioTapChangerInfos.getTargetV(), ratioTapChangerInfos.getTargetDeadband(), voltageRegulationReports);
+        modifyTargets(ratioTapChanger, ratioTapChangerAdder, isModification, ratioTapChangerInfos.getTargetV(), ratioTapChangerInfos.getTargetDeadband(), regulationReports);
 
-        processRegulatingTerminal(ratioTapChangerInfos, ratioTapChanger, ratioTapChangerAdder, voltageRegulationReports,
+        processRegulatingTerminal(ratioTapChangerInfos, ratioTapChanger, ratioTapChangerAdder, regulatedTerminalReports,
                     network, twt, isModification);
     }
 
-    public static void modifyTargets(RatioTapChanger ratioTapChanger, RatioTapChangerAdder ratioTapChangerAdder, boolean isModification, AttributeModification<Double> targetV, AttributeModification<Double> targetDeadband, List<ReportNode> voltageRegulationReports) {
+    public static void modifyTargets(RatioTapChanger ratioTapChanger, RatioTapChangerAdder ratioTapChangerAdder, boolean isModification, AttributeModification<Double> targetV,
+                                     AttributeModification<Double> targetDeadband, List<ReportNode> regulationReports) {
         ReportNode targetVoltageReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
                 isModification ? ratioTapChanger::setTargetV
                         : ratioTapChangerAdder::setTargetV,
@@ -551,12 +557,12 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 isModification ? ratioTapChanger::getTargetDeadband : () -> null,
                 targetDeadband, TARGET_DEADBAND);
 
-        if (voltageRegulationReports != null) {
+        if (regulationReports != null) {
             if (targetVoltageReportNode != null) {
-                voltageRegulationReports.add(targetVoltageReportNode);
+                regulationReports.add(targetVoltageReportNode);
             }
             if (targetDeadbandReportNode != null) {
-                voltageRegulationReports.add(targetDeadbandReportNode);
+                regulationReports.add(targetDeadbandReportNode);
             }
         }
     }
@@ -564,7 +570,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
     private void processRegulatingTerminal(TapChangerModificationInfos tapChangerModificationInfos,
             TapChanger<?, ?, ?, ?> tapChanger,
             TapChangerAdder<?, ?, ?, ?, ?, ?> tapChangerAdder,
-            List<ReportNode> regulationReports,
+            List<ReportNode> regulatedTerminalReports,
             Network network,
             TwoWindingsTransformer twt,
             boolean isModification) {
@@ -598,12 +604,12 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
             } else {
                 tapChangerAdder.setRegulationTerminal(terminal);
             }
-            regulationReports
+            regulatedTerminalReports
                     .add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel,
                             tapChangerModificationInfos.getRegulatingTerminalVlId().getValue(),
                             "Voltage level"));
-            regulationReports.add(ModificationUtils.getInstance().buildModificationReport(oldEquipment,
-                    tapChangerModificationInfos.getRegulatingTerminalType().getValue() + ":"
+            regulatedTerminalReports.add(ModificationUtils.getInstance().buildModificationReport(oldEquipment,
+                    tapChangerModificationInfos.getRegulatingTerminalType().getValue() + " : "
                             + tapChangerModificationInfos.getRegulatingTerminalId().getValue(),
                     "Equipment"));
         }
@@ -711,13 +717,6 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
 
         // Add steps
         if (modifySteps != null) {
-            if (tapChangerReports != null) {
-                tapChangerReports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("network.modification.tapsModification")
-                        .withSeverity(TypedValue.INFO_SEVERITY)
-                        .build());
-            }
             processTapchangerSteps(tapChangerReports,
                     tapChangerAdder, isModification ? tapChanger.stepsReplacer() : null, isModification, modifySteps);
         }

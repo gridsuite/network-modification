@@ -15,13 +15,13 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.network.store.iidm.impl.MinMaxReactiveLimitsImpl;
-
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.BusbarSectionFinderTraverser;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -31,8 +31,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
-import javax.annotation.Nullable;
 
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
@@ -844,7 +842,7 @@ public final class ModificationUtils {
         return null;
     }
 
-    private String getConnectionFieldName(FeederSide feederSide, String baseFieldName) {
+    static String getConnectionFieldName(FeederSide feederSide, String baseFieldName) {
         return switch (feederSide) {
             case INJECTION_SINGLE_SIDE -> baseFieldName;
             case BRANCH_SIDE_ONE -> baseFieldName + " 1";
@@ -874,15 +872,15 @@ public final class ModificationUtils {
                 InjectionModificationInfos::getConnectionName);
     }
 
-    private String getConnectionNameField(FeederSide feederSide) {
+    private static String getConnectionNameField(FeederSide feederSide) {
         return getConnectionFieldName(feederSide, CONNECTION_NAME_FIELD_NAME);
     }
 
-    private String getConnectionDirectionField(FeederSide feederSide) {
+    private static String getConnectionDirectionField(FeederSide feederSide) {
         return getConnectionFieldName(feederSide, CONNECTION_DIRECTION_FIELD_NAME);
     }
 
-    private String getConnectionPositionField(FeederSide feederSide) {
+    private static String getConnectionPositionField(FeederSide feederSide) {
         return getConnectionFieldName(feederSide, CONNECTION_POSITION_FIELD_NAME);
     }
 
@@ -966,12 +964,14 @@ public final class ModificationUtils {
                     String.format("Could not %s equipment '%s'", action, equipment.getId()));
         }
         String equipmentMessage = "Equipment with id=${id} %sed";
+        String reportKey = "equipment" + capitalize(action);
         if (side != null) {
-            equipmentMessage += String.format(" on side %s", side);
+            equipmentMessage += String.format(" on side %d", side.getNum());
+            reportKey += String.format("side%d", side.getNum());
         }
         reports.add(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
-                .withMessageTemplate("equipment" + capitalize(action), String.format(equipmentMessage, action))
+                .withMessageTemplate(reportKey, String.format(equipmentMessage, action))
                 .withUntypedValue("id", equipment.getId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
@@ -1029,9 +1029,10 @@ public final class ModificationUtils {
      * @param opLimitGroups added current limits
      * @param branch branch to which limits are going to be added
      * @param side which side of the branch receives the limits
+     * @param limitsReporter reporter limits on side
      */
-    public void setCurrentLimitsOnASide(List<OperationalLimitsGroupInfos> opLimitGroups, Branch<?> branch, TwoSides side, ReportNode subReportNode) {
-        List<ReportNode> reportNodes = new ArrayList<>();
+    public void setCurrentLimitsOnASide(List<OperationalLimitsGroupInfos> opLimitGroups, Branch<?> branch, TwoSides side, ReportNode limitsReporter) {
+        List<ReportNode> limitSetsOnSideReportNodes = new ArrayList<>();
         for (OperationalLimitsGroupInfos opLimitsGroup : opLimitGroups) {
             boolean hasPermanent = opLimitsGroup.getCurrentLimits().getPermanentLimit() != null;
             boolean hasTemporary = !CollectionUtils.isEmpty(opLimitsGroup.getCurrentLimits().getTemporaryLimits());
@@ -1045,7 +1046,7 @@ public final class ModificationUtils {
                     ? branch.newOperationalLimitsGroup1(opLimitsGroup.getId())
                     : branch.newOperationalLimitsGroup2(opLimitsGroup.getId());
             if (opLimitsGroup.getId() != null) {
-                reportNodes.add(ReportNode.newRootReportNode()
+                limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("network.modification.limitSetAdded")
                         .withUntypedValue("name", opLimitsGroup.getId())
@@ -1070,10 +1071,9 @@ public final class ModificationUtils {
             }
             limitsAdder.add();
         }
-        if (!reportNodes.isEmpty()) {
-            String sideStr = side == ONE ? "side one" : "side two";
-            ModificationUtils.getInstance().reportModifications(subReportNode, reportNodes,
-                    "LimitSets" + sideStr, "Limit sets on side " + sideStr
+        if (!limitSetsOnSideReportNodes.isEmpty()) {
+            ModificationUtils.getInstance().reportModifications(limitsReporter, limitSetsOnSideReportNodes,
+                    "LimitsSetsOnSide" + side.getNum(), "Limit Sets Side " + side.getNum()
             );
         }
     }
@@ -1659,37 +1659,114 @@ public final class ModificationUtils {
         algo.apply(network, true, subReportNode);
     }
 
+    public static void createBranchInNodeBreaker(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, BranchCreationInfos branchCreationInfos,
+                                                    Network network, BranchAdder<?, ?> branchAdder, ReportNode subReportNode) {
+        var position1 = ModificationUtils.getInstance().getPosition(branchCreationInfos.getConnectionPosition1(), branchCreationInfos.getBusOrBusbarSectionId1(), network, voltageLevel1);
+        var position2 = ModificationUtils.getInstance().getPosition(branchCreationInfos.getConnectionPosition2(), branchCreationInfos.getBusOrBusbarSectionId2(), network, voltageLevel2);
+
+        CreateBranchFeederBays algo = new CreateBranchFeederBaysBuilder()
+                .withBusOrBusbarSectionId1(branchCreationInfos.getBusOrBusbarSectionId1())
+                .withBusOrBusbarSectionId2(branchCreationInfos.getBusOrBusbarSectionId2())
+                .withFeederName1(branchCreationInfos.getConnectionName1() != null ? branchCreationInfos.getConnectionName1() : branchCreationInfos.getEquipmentId())
+                .withFeederName2(branchCreationInfos.getConnectionName2() != null ? branchCreationInfos.getConnectionName2() : branchCreationInfos.getEquipmentId())
+                .withDirection1(branchCreationInfos.getConnectionDirection1())
+                .withDirection2(branchCreationInfos.getConnectionDirection2())
+                .withPositionOrder1(position1)
+                .withPositionOrder2(position2)
+                .withBranchAdder(branchAdder).build();
+        algo.apply(network, true, subReportNode);
+    }
+
     public static void reportInjectionCreationConnectivity(InjectionCreationInfos injectionCreationInfos, ReportNode subReporter) {
         if (Objects.isNull(injectionCreationInfos.getVoltageLevelId()) || Objects.isNull(injectionCreationInfos.getBusOrBusbarSectionId())) {
             return;
         }
 
-        if (injectionCreationInfos.getConnectionName() != null ||
-                injectionCreationInfos.getConnectionDirection() != null ||
-                injectionCreationInfos.getConnectionPosition() != null) {
-            List<ReportNode> connectivityReports = new ArrayList<>();
-            if (injectionCreationInfos.getConnectionName() != null) {
-                connectivityReports.add(ModificationUtils.getInstance()
-                        .buildCreationReport(injectionCreationInfos.getConnectionName(), CONNECTION_NAME_FIELD_NAME));
+        List<ReportNode> connectivityReports = buildConnectivityReports(
+                injectionCreationInfos.getConnectionName(),
+                injectionCreationInfos.getConnectionDirection(),
+                injectionCreationInfos.getConnectionPosition(),
+                injectionCreationInfos.isTerminalConnected(),
+                injectionCreationInfos.getEquipmentId(),
+                FeederSide.INJECTION_SINGLE_SIDE
+        );
+
+        if (!connectivityReports.isEmpty()) {
+            ModificationUtils.getInstance().reportModifications(subReporter, connectivityReports, "ConnectivityCreated", CONNECTIVITY);
+        }
+    }
+
+    public static void reportBranchCreationConnectivity(BranchCreationInfos branchCreationInfos, ReportNode subReporter) {
+        List<ReportNode> connectivityReports = new ArrayList<>();
+
+        if (Objects.isNull(branchCreationInfos.getVoltageLevelId1()) || Objects.isNull(branchCreationInfos.getBusOrBusbarSectionId1())) {
+            return;
+        }
+        connectivityReports.addAll(buildConnectivityReports(
+                branchCreationInfos.getConnectionName1(),
+                branchCreationInfos.getConnectionDirection1(),
+                branchCreationInfos.getConnectionPosition1(),
+                branchCreationInfos.isConnected1(),
+                branchCreationInfos.getEquipmentId(),
+                FeederSide.BRANCH_SIDE_ONE
+        ));
+
+        if (Objects.isNull(branchCreationInfos.getVoltageLevelId2()) || Objects.isNull(branchCreationInfos.getBusOrBusbarSectionId2())) {
+            return;
+        }
+        if (!Objects.isNull(branchCreationInfos.getVoltageLevelId2()) && !Objects.isNull(branchCreationInfos.getBusOrBusbarSectionId2())) {
+            connectivityReports.addAll(buildConnectivityReports(
+                    branchCreationInfos.getConnectionName2(),
+                    branchCreationInfos.getConnectionDirection2(),
+                    branchCreationInfos.getConnectionPosition2(),
+                    branchCreationInfos.isConnected2(),
+                    branchCreationInfos.getEquipmentId(),
+                    FeederSide.BRANCH_SIDE_TWO
+            ));
+        }
+
+        if (!connectivityReports.isEmpty()) {
+            ModificationUtils.getInstance().reportModifications(subReporter, connectivityReports, "ConnectivityCreated", CONNECTIVITY);
+        }
+    }
+
+    private static List<ReportNode> buildConnectivityReports(
+            String connectionName,
+            ConnectablePosition.Direction connectionDirection,
+            Integer connectionPosition,
+            boolean isConnected,
+            String equipmentId,
+            FeederSide side) {
+
+        List<ReportNode> reports = new ArrayList<>();
+
+        if (connectionName != null || connectionDirection != null || connectionPosition != null) {
+            if (connectionName != null) {
+                reports.add(ModificationUtils.getInstance()
+                        .buildCreationReport(connectionName, getConnectionNameField(side)));
             }
-            if (injectionCreationInfos.getConnectionDirection() != null) {
-                connectivityReports.add(ModificationUtils.getInstance()
-                        .buildCreationReport(injectionCreationInfos.getConnectionDirection(), CONNECTION_DIRECTION_FIELD_NAME));
+
+            if (connectionDirection != null) {
+                reports.add(ModificationUtils.getInstance()
+                        .buildCreationReport(connectionDirection, getConnectionDirectionField(side)));
             }
-            if (injectionCreationInfos.getConnectionPosition() != null) {
-                connectivityReports.add(ModificationUtils.getInstance()
-                        .buildCreationReport(injectionCreationInfos.getConnectionPosition(), CONNECTION_POSITION_FIELD_NAME));
+
+            if (connectionPosition != null) {
+                reports.add(ModificationUtils.getInstance()
+                        .buildCreationReport(connectionPosition, getConnectionPositionField(side)));
             }
-            if (!injectionCreationInfos.isTerminalConnected()) {
-                connectivityReports.add(ReportNode.newRootReportNode()
+
+            if (!isConnected) {
+                reports.add(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate(EQUIPMENT_DISCONNECTED)
-                        .withUntypedValue("id", injectionCreationInfos.getEquipmentId())
+                        .withUntypedValue("id", equipmentId)
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .build());
             }
-            ModificationUtils.getInstance().reportModifications(subReporter, connectivityReports, "ConnectivityCreated", CONNECTIVITY);
         }
+
+        return reports;
     }
 
     public static void checkIsNotNegativeValue(String errorMessage, Double valueToCheck, NetworkModificationException.Type exceptionType, String valueName) throws NetworkModificationException {
