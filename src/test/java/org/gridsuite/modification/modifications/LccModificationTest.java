@@ -1,5 +1,8 @@
 package org.gridsuite.modification.modifications;
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.Network;
@@ -12,6 +15,7 @@ import org.gridsuite.modification.dto.LccShuntCompensatorModificationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.OperationType;
 import org.gridsuite.modification.utils.NetworkCreation;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.UUID;
@@ -103,6 +107,41 @@ public class LccModificationTest extends AbstractInjectionModificationTest {
         assertNotNull(lccConverterStation1);
         assertEquals(40.f, lccConverterStation1.getLossFactor(), 0);
         assertEquals(1.f, lccConverterStation1.getPowerFactor(), 0);
+        assertEquals("v1", lccConverterStation1.getTerminal().getVoltageLevel().getId());
+    }
+
+    @Test
+    void testModificationWithNullValues() throws Exception {
+        var networkUuid = UUID.randomUUID();
+        Network networkWithoutExt = NetworkCreation.create(networkUuid, true);
+        LccModificationInfos modificationInfos = (LccModificationInfos) buildModification();
+        modificationInfos.setEquipmentName(null);
+        modificationInfos.setNominalV(null);
+        modificationInfos.setR(null);
+        modificationInfos.setMaxP(null);
+        modificationInfos.setConvertersMode(null);
+        modificationInfos.setActivePowerSetpoint(null);
+        modificationInfos.setConverterStation1(null);
+        modificationInfos.setConverterStation2(null);
+        LccModification lccModification = new LccModification(modificationInfos);
+        ReportNode subReporter = ReportNode.NO_OP;
+        ComputationManager computationManager = new LocalComputationManager();
+        assertDoesNotThrow(() -> lccModification.check(networkWithoutExt));
+        lccModification.apply(networkWithoutExt, true, computationManager, subReporter);
+
+        assertEquals(1, getNetwork().getVoltageLevel("v1").getLccConverterStationStream()
+            .filter(converterStation -> converterStation.getId().equals("v1lcc")).count());
+        HvdcLine hvdcLine = getNetwork().getHvdcLine("hvdcLine");
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, hvdcLine.getConvertersMode());
+        assertEquals(225., hvdcLine.getNominalV(), 0);
+        assertEquals(1., hvdcLine.getR(), 0);
+        assertEquals(100., hvdcLine.getMaxP(), 0);
+        assertEquals(500., hvdcLine.getActivePowerSetpoint(), 0);
+
+        LccConverterStation lccConverterStation1 = (LccConverterStation) hvdcLine.getConverterStation1();
+        assertNotNull(lccConverterStation1);
+        assertEquals(0.f, lccConverterStation1.getLossFactor(), 0);
+        assertEquals(0.f, lccConverterStation1.getPowerFactor(), 0);
         assertEquals("v1", lccConverterStation1.getTerminal().getVoltageLevel().getId());
     }
 
