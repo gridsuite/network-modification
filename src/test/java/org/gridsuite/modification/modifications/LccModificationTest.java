@@ -16,7 +16,6 @@ import org.gridsuite.modification.dto.OperationType;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
