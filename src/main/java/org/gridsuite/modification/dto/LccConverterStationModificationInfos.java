@@ -37,6 +37,6 @@ public class LccConverterStationModificationInfos extends InjectionModificationI
     private List<LccShuntCompensatorModificationInfos> shuntCompensatorsOnSide;
 
     public boolean hasModifications() {
-        return lossFactor != null || powerFactor != null || !CollectionUtils.isEmpty(shuntCompensatorsOnSide);
+        return getEquipmentName() != null || lossFactor != null || powerFactor != null || !CollectionUtils.isEmpty(shuntCompensatorsOnSide);
     }
 }

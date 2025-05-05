@@ -92,6 +92,16 @@ public class LccModificationTest extends AbstractInjectionModificationTest {
             .build();
     }
 
+    private static LccConverterStationModificationInfos buildLccConverterStationModificationInfos1WithNullInfos() {
+        return LccConverterStationModificationInfos.builder()
+            .equipmentId("v1lcc")
+            .equipmentName(null)
+            .lossFactor(null)
+            .powerFactor(null)
+            .shuntCompensatorsOnSide(null)
+            .build();
+    }
+
     @Override
     protected void assertAfterNetworkModificationApplication() {
         assertNotNull(getNetwork().getHvdcLine("hvdcLine"));
@@ -143,6 +153,31 @@ public class LccModificationTest extends AbstractInjectionModificationTest {
         assertEquals(0.f, lccConverterStation1.getLossFactor(), 0);
         assertEquals(0.f, lccConverterStation1.getPowerFactor(), 0);
         assertEquals("v1", lccConverterStation1.getTerminal().getVoltageLevel().getId());
+    }
+
+    @Test
+    void testModificationWithNullValuesInConverterStation() throws Exception {
+        var networkUuid = UUID.randomUUID();
+        Network networkWithoutExt = NetworkCreation.create(networkUuid, true);
+        LccModificationInfos modificationInfos = (LccModificationInfos) buildModification();
+        LccConverterStationModificationInfos converterStationModificationInfos = buildLccConverterStationModificationInfos1WithNullInfos();
+        modificationInfos.setConverterStation1(converterStationModificationInfos);
+        LccModification lccModification = new LccModification(modificationInfos);
+        ReportNode subReporter = ReportNode.NO_OP;
+        ComputationManager computationManager = new LocalComputationManager();
+        assertDoesNotThrow(() -> lccModification.check(networkWithoutExt));
+        lccModification.apply(networkWithoutExt, true, computationManager, subReporter);
+
+        assertEquals(1, getNetwork().getVoltageLevel("v1").getLccConverterStationStream()
+            .filter(converterStation -> converterStation.getId().equals("v1lcc")).count());
+        HvdcLine hvdcLine = getNetwork().getHvdcLine("hvdcLine");
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, hvdcLine.getConvertersMode());
+
+        LccConverterStation lccConverterStation1 = (LccConverterStation) hvdcLine.getConverterStation1();
+        assertNotNull(lccConverterStation1);
+        assertEquals("v1lcc", lccConverterStation1.getOptionalName().orElse(""));
+        assertEquals(0.f, lccConverterStation1.getLossFactor(), 0);
+        assertEquals(0.f, lccConverterStation1.getPowerFactor(), 0);
     }
 
     @Override
