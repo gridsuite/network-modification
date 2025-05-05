@@ -127,17 +127,17 @@ public class LccModification extends AbstractModification {
         // Characteristic
         List<ReportNode> characteristicReports = new ArrayList<>();
 
-        if (converterStationModificationInfos.getEquipmentName() != null && converterStationModificationInfos.getEquipmentName().getValue() != null) {
+        if (converterStationModificationInfos.getEquipmentName() != null) {
             characteristicReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setName,
                 () -> converterStation.getOptionalName().orElse(NO_VALUE), converterStationModificationInfos.getEquipmentName(), "EquipmentName"));
         }
 
-        if (converterStationModificationInfos.getLossFactor() != null && converterStationModificationInfos.getLossFactor().getValue() != null) {
+        if (converterStationModificationInfos.getLossFactor() != null) {
             characteristicReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setLossFactor,
                 converterStation::getLossFactor, converterStationModificationInfos.getLossFactor(), "LossFactor"));
         }
 
-        if (converterStationModificationInfos.getPowerFactor() != null && converterStationModificationInfos.getPowerFactor().getValue() != null) {
+        if (converterStationModificationInfos.getPowerFactor() != null) {
             characteristicReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setPowerFactor,
                 converterStation::getPowerFactor, converterStationModificationInfos.getPowerFactor(), "PowerFactor"));
         }
@@ -155,10 +155,6 @@ public class LccModification extends AbstractModification {
 
         List<LccShuntCompensatorModificationInfos> shuntCompensatorOnSide = converterStationInfos.getShuntCompensatorsOnSide();
         LccConverterStation converterStation = network.getLccConverterStation(converterStationInfos.getEquipmentId());
-
-        if (converterStation == null) {
-            return;
-        }
 
         Optional.ofNullable(shuntCompensatorOnSide).ifPresent(shuntCompensators ->
             shuntCompensators.forEach(infos -> {
