@@ -49,9 +49,9 @@ public final class ModificationUtils {
     public static final String DOES_NOT_EXIST_IN_NETWORK = " does not exist in network";
     public static final String EQUIPMENT_DISCONNECTED = "network.modification.equipmentDisconnected";
     public static final String NO_VALUE = "No value";
-    public static final String LIMITS = "Limits";
-    public static final String REACTIVE_LIMITS = "Reactive limits";
-    private static final String SETPOINTS = "Setpoints";
+    public static final String LIMITS = "network.modification.Limits";
+    public static final String REACTIVE_LIMITS = "network.modification.ReactiveLimits";
+    private static final String SETPOINTS = "network.modification.Setpoints";
     private static final String MIN_REACTIVE_POWER_FIELDNAME = "Minimum reactive power";
     private static final String MAX_REACTIVE_POWER_FIELDNAME = "Maximum reactive power";
     public static final String CONNECTION_NAME_FIELD_NAME = "Connection name";
@@ -1127,10 +1127,10 @@ public final class ModificationUtils {
         ReportNode subReporterLimits2 = subReportNodeLimits;
         if (!reports.isEmpty()) {
             if (subReportNodeLimits == null) {
-                subReporterLimits2 = subReportNode.newReportNode().withMessageTemplate(LIMITS, LIMITS).add();
+                subReporterLimits2 = subReportNode.newReportNode().withMessageTemplate(LIMITS).add();
             }
             if (subReporterLimits2 != null) {
-                subReportNodeReactiveLimits = subReporterLimits2.newReportNode().withMessageTemplate(REACTIVE_LIMITS, REACTIVE_LIMITS).add();
+                subReportNodeReactiveLimits = subReporterLimits2.newReportNode().withMessageTemplate(REACTIVE_LIMITS).add();
             }
         }
         reportModifications(subReportNodeReactiveLimits, reports, "network.modification.curveReactiveLimitsModified");
@@ -1230,10 +1230,10 @@ public final class ModificationUtils {
         ReportNode subReportNodeReactiveLimits = null;
         ReportNode subReportNodeLimits2 = subReportNodeLimits;
         if (subReportNodeLimits == null && !reports.isEmpty()) {
-            subReportNodeLimits2 = subReportNode.newReportNode().withMessageTemplate(LIMITS, LIMITS).add();
+            subReportNodeLimits2 = subReportNode.newReportNode().withMessageTemplate(LIMITS).add();
         }
         if (subReportNodeLimits2 != null && !reports.isEmpty()) {
-            subReportNodeReactiveLimits = subReportNodeLimits2.newReportNode().withMessageTemplate(REACTIVE_LIMITS, REACTIVE_LIMITS).add();
+            subReportNodeReactiveLimits = subReportNodeLimits2.newReportNode().withMessageTemplate(REACTIVE_LIMITS).add();
         }
         reportModifications(subReportNodeReactiveLimits, reports, "network.modification.minMaxReactiveLimitsModified");
     }
@@ -1303,7 +1303,7 @@ public final class ModificationUtils {
         if (subReportNode != null) {
             ReportNode subReportNodeSetpoints2 = subReporterSetpoints;
             if (subReporterSetpoints == null && !reports.isEmpty()) {
-                subReportNodeSetpoints2 = subReportNode.newReportNode().withMessageTemplate(SETPOINTS, SETPOINTS).add();
+                subReportNodeSetpoints2 = subReportNode.newReportNode().withMessageTemplate(SETPOINTS).add();
             }
             reportModifications(subReportNodeSetpoints2, reports, "network.modification.activePowerControlModified");
             return subReportNodeSetpoints2;
@@ -1536,7 +1536,7 @@ public final class ModificationUtils {
                     batteryCreationInfos.getMaxQ(),
                     MAX_REACTIVE_POWER_FIELDNAME));
 
-            ReportNode subReporterReactiveLimits = subReportNode.newReportNode().withMessageTemplate(REACTIVE_LIMITS, REACTIVE_LIMITS).add();
+            ReportNode subReporterReactiveLimits = subReportNode.newReportNode().withMessageTemplate(REACTIVE_LIMITS).add();
 
             ModificationUtils.getInstance().reportModifications(subReporterReactiveLimits, minMaxReactiveLimitsReports, "network.modification.minMaxReactiveLimitsCreated");
         }
@@ -1562,7 +1562,7 @@ public final class ModificationUtils {
                     createReactiveCapabilityCurvePoint(adder, newPoint, pointsReports, fieldSuffix);
                 });
         adder.add();
-        ReportNode subReporterReactiveLimits = subReportNode.newReportNode().withMessageTemplate(REACTIVE_LIMITS, REACTIVE_LIMITS).add();
+        ReportNode subReporterReactiveLimits = subReportNode.newReportNode().withMessageTemplate(REACTIVE_LIMITS).add();
         ModificationUtils.getInstance().reportModifications(subReporterReactiveLimits, pointsReports, "network.modification.curveReactiveLimitsCreated");
     }
 
