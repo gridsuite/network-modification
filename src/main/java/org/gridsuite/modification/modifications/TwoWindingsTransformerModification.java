@@ -646,8 +646,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
 
     private static void processPhaseTapChangerStep(List<ReportNode> tapChangerStepsReports, PhaseTapChangerAdder tapChangerAdder, PhaseTapChangerStepsReplacer tapChangerStepReplacer, boolean isModification, TapChangerStepCreationInfos step) {
         if (tapChangerStepsReports != null) {
-            addStepAttributeReport(tapChangerStepsReports, "newStepAlpha" + step.getAlpha(),
-                    "                Shift angle : ${alpha}", "alpha", String.valueOf(step.getAlpha()));
+            addStepAttributeReport(tapChangerStepsReports, "network.modification.newStepAlpha", String.valueOf(step.getAlpha()));
         }
         if (isModification) {
             tapChangerStepReplacer.beginStep().setR(step.getR()).setX(step.getX()).setG(step.getG())
@@ -669,18 +668,12 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
     }
 
     private static void addStepAttributeReports(List<ReportNode> tapChangerStepsReports, TapChangerStepCreationInfos step) {
-        addStepAttributeReport(tapChangerStepsReports, "newStepIndex" + step.getIndex(),
-                "            Tap (${index})", "index", String.valueOf(step.getIndex()));
-        addStepAttributeReport(tapChangerStepsReports, "newStepResistance" + step.getR(),
-                "                Δ resistance : ${r}", "r", String.valueOf(step.getR()));
-        addStepAttributeReport(tapChangerStepsReports, "newStepReactance" + step.getX(),
-                "                Δ reactance : ${x}", "x", String.valueOf(step.getX()));
-        addStepAttributeReport(tapChangerStepsReports, "newStepConductance" + step.getG(),
-                "                Δ conductance : ${g}", "g", String.valueOf(step.getG()));
-        addStepAttributeReport(tapChangerStepsReports, "newStepSusceptance" + step.getB(),
-                "                Δ susceptance : ${b}", "b", String.valueOf(step.getB()));
-        addStepAttributeReport(tapChangerStepsReports, "newStepRatio" + step.getRho(),
-                "                Ratio : ${rho}", "rho", String.valueOf(step.getRho()));
+        addStepAttributeReport(tapChangerStepsReports, "network.modification.newStepIndex", String.valueOf(step.getIndex()));
+        addStepAttributeReport(tapChangerStepsReports, "network.modification.newStepResistance", String.valueOf(step.getR()));
+        addStepAttributeReport(tapChangerStepsReports, "network.modification.newStepReactance", String.valueOf(step.getX()));
+        addStepAttributeReport(tapChangerStepsReports, "network.modification.newStepConductance", String.valueOf(step.getG()));
+        addStepAttributeReport(tapChangerStepsReports, "network.modification.newStepSusceptance", String.valueOf(step.getB()));
+        addStepAttributeReport(tapChangerStepsReports, "network.modification.newStepRatio", String.valueOf(step.getRho()));
     }
 
     public static void processTapChangerPositionsAndSteps(TapChanger<?, ?, ?, ?> tapChanger,
@@ -718,12 +711,12 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         }
     }
 
-    private static void addStepAttributeReport(List<ReportNode> tapChangerStepsReports, String key, String defaultMessage,
-            String valueKey, String value) {
+    private static void addStepAttributeReport(List<ReportNode> tapChangerStepsReports, String key, String value) {
         tapChangerStepsReports.add(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
-                .withMessageTemplate(key, defaultMessage)
-                .withUntypedValue(valueKey, value)
+                .withMessageTemplate(key)
+                .withUntypedValue("value", value)
+                .withUntypedValue("delta", "Δ") // Workaround to use non-ISO-8859-1 characters in the internationalization file
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
