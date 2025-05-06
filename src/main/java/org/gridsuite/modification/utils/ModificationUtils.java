@@ -1080,7 +1080,7 @@ public final class ModificationUtils {
         String newValueString = value == null ? NO_VALUE : value.toString();
         return ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
-                .withMessageTemplate("Creation" + fieldName, "    ${fieldName} : ${value}")
+                .withMessageTemplate("network.modification.creation.fieldName")
                 .withUntypedValue("fieldName", fieldName)
                 .withUntypedValue("value", newValueString)
                 .withSeverity(TypedValue.INFO_SEVERITY)
