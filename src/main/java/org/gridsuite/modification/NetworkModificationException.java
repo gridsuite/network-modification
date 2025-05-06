@@ -113,6 +113,7 @@ public class NetworkModificationException extends PowsyblException {
         CREATE_VSC_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),
         MODIFY_VSC_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),
         CREATE_LCC_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),
+        MODIFY_LCC_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),
         HVDC_LINE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST),
         VSC_CONVERTER_STATION_NOT_FOUND(HttpStatus.NOT_FOUND),
         LCC_CONVERTER_STATION_NOT_FOUND(HttpStatus.NOT_FOUND),

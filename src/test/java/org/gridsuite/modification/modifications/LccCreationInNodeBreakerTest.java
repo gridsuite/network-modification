@@ -15,6 +15,7 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.LccConverterStationCreationInfos;
 import org.gridsuite.modification.dto.LccCreationInfos;
+import org.gridsuite.modification.dto.LccShuntCompensatorInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
 
@@ -81,14 +82,14 @@ class LccCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
     }
 
     private static LccConverterStationCreationInfos buildConverterStation1WithShuntCompensatorsOnSide() {
-        var filter1 = LccConverterStationCreationInfos.ShuntCompensatorInfos.builder()
+        var filter1 = LccShuntCompensatorInfos.builder()
                 .id("ShuntStation1Id1")
                 .name("ShuntStation1Name1")
                 .maxQAtNominalV(0.1)
                 .connectedToHvdc(true)
                 .build();
 
-        var filter2 = LccConverterStationCreationInfos.ShuntCompensatorInfos.builder()
+        var filter2 = LccShuntCompensatorInfos.builder()
                 .id("ShuntStation1Id2")
                 .name("ShuntStation1Name2")
                 .maxQAtNominalV(0.1)
