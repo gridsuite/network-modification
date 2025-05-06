@@ -20,7 +20,6 @@ import org.gridsuite.modification.dto.LccShuntCompensatorInfos;
 import org.gridsuite.modification.dto.LccShuntCompensatorModificationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.OperationType;
-import org.gridsuite.modification.dto.ShuntCompensatorModificationInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
@@ -56,7 +55,7 @@ public class LccModificationTest extends AbstractInjectionModificationTest {
 
     private static LccConverterStationModificationInfos buildLccConverterStationModificationInfos1() {
 
-        LccShuntCompensatorModificationInfos filter1 = new LccShuntCompensatorModificationInfos ("ShuntStation1Id1",
+        LccShuntCompensatorModificationInfos filter1 = new LccShuntCompensatorModificationInfos("ShuntStation1Id1",
             "ShuntStation1Name1", 0.1, true, false);
 
         LccShuntCompensatorModificationInfos filter2 = new LccShuntCompensatorModificationInfos("ShuntStation1Id2",
@@ -92,8 +91,8 @@ public class LccModificationTest extends AbstractInjectionModificationTest {
     }
 
     public LccConverterStationCreationInfos buildLccConverterStationCreationInfos1() {
-        LccShuntCompensatorInfos filter1 = new LccShuntCompensatorInfos ("shuntId1", "shuntName1", 110.0, true);
-        LccShuntCompensatorInfos filter2 = new LccShuntCompensatorInfos ("shuntId2", "shuntName2", 100.0, false);
+        LccShuntCompensatorInfos filter1 = new LccShuntCompensatorInfos("shuntId1", "shuntName1", 110.0, true);
+        LccShuntCompensatorInfos filter2 = new LccShuntCompensatorInfos("shuntId2", "shuntName2", 100.0, false);
 
         return LccConverterStationCreationInfos.builder()
             .equipmentId("stationId1")
@@ -119,8 +118,8 @@ public class LccModificationTest extends AbstractInjectionModificationTest {
     }
 
     public LccConverterStationCreationInfos buildLccConverterStationCreationInfos2() {
-        LccShuntCompensatorInfos filter1 = new LccShuntCompensatorInfos ("shunt2Id1", "shunt2Name1", 90.0, true);
-        LccShuntCompensatorInfos filter2 = new LccShuntCompensatorInfos ("shunt2Id2", "shunt2Name2", 100.0, false);
+        LccShuntCompensatorInfos filter1 = new LccShuntCompensatorInfos("shunt2Id1", "shunt2Name1", 90.0, true);
+        LccShuntCompensatorInfos filter2 = new LccShuntCompensatorInfos("shunt2Id2", "shunt2Name2", 100.0, false);
 
         return LccConverterStationCreationInfos.builder()
             .equipmentId("stationId2")
@@ -219,7 +218,7 @@ public class LccModificationTest extends AbstractInjectionModificationTest {
     }
 
     @Test
-    void testModificationWithShuntCompensatorsOnSide()  {
+    void testModificationWithShuntCompensatorsOnSide() {
         var networkUuid = UUID.randomUUID();
         Network networkWithoutExt = NetworkCreation.createWithLcc(networkUuid);
         buildAndApplyLccCreationWithShuntCompensator(networkWithoutExt);
