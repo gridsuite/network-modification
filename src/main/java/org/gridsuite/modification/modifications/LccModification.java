@@ -142,10 +142,9 @@ public class LccModification extends AbstractModification {
                 converterStation::getPowerFactor, converterStationModificationInfos.getPowerFactor(), "PowerFactor"));
         }
 
-        if (!characteristicReports.isEmpty()) {
-            ModificationUtils.getInstance().reportModifications(converterStationReportNode,
-                characteristicReports, "Characteristics", "Characteristics");
-        }
+        ModificationUtils.getInstance().reportModifications(converterStationReportNode, characteristicReports,
+            "Characteristics", "Characteristics");
+
         modifyShuntCompensatorOnSide(network, converterStation.getTerminal().getVoltageLevel(),
             converterStationModificationInfos, subReportNode);
     }
@@ -154,7 +153,6 @@ public class LccModification extends AbstractModification {
                                               @Nonnull LccConverterStationModificationInfos converterStationInfos, ReportNode reportNode) {
 
         List<LccShuntCompensatorModificationInfos> shuntCompensatorOnSide = converterStationInfos.getShuntCompensatorsOnSide();
-        LccConverterStation converterStation = network.getLccConverterStation(converterStationInfos.getEquipmentId());
 
         Optional.ofNullable(shuntCompensatorOnSide).ifPresent(shuntCompensators ->
             shuntCompensators.forEach(infos -> {

@@ -6,13 +6,21 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
+import org.gridsuite.modification.dto.LccConverterStationCreationInfos;
 import org.gridsuite.modification.dto.LccConverterStationModificationInfos;
+import org.gridsuite.modification.dto.LccCreationInfos;
 import org.gridsuite.modification.dto.LccModificationInfos;
+import org.gridsuite.modification.dto.LccShuntCompensatorInfos;
 import org.gridsuite.modification.dto.LccShuntCompensatorModificationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.OperationType;
+import org.gridsuite.modification.dto.ShuntCompensatorModificationInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +35,7 @@ public class LccModificationTest extends AbstractInjectionModificationTest {
 
     @Override
     protected Network createNetwork(UUID networkUuid) {
-        return NetworkCreation.create(networkUuid, true);
+        return NetworkCreation.createWithLcc(networkUuid);
     }
 
     @Override
@@ -48,21 +56,11 @@ public class LccModificationTest extends AbstractInjectionModificationTest {
 
     private static LccConverterStationModificationInfos buildLccConverterStationModificationInfos1() {
 
-        LccShuntCompensatorModificationInfos filter1 = LccShuntCompensatorModificationInfos.builder()
-            .id("ShuntStation1Id1")
-            .name("ShuntStation1Name1")
-            .maxQAtNominalV(0.1)
-            .connectedToHvdc(true)
-            .deletionMark(false)
-            .build();
+        LccShuntCompensatorModificationInfos filter1 = new LccShuntCompensatorModificationInfos ("ShuntStation1Id1",
+            "ShuntStation1Name1", 0.1, true, false);
 
-        LccShuntCompensatorModificationInfos filter2 = LccShuntCompensatorModificationInfos.builder()
-            .id("ShuntStation1Id2")
-            .name("ShuntStation1Name2")
-            .maxQAtNominalV(0.1)
-            .connectedToHvdc(false)
-            .deletionMark(false)
-            .build();
+        LccShuntCompensatorModificationInfos filter2 = new LccShuntCompensatorModificationInfos("ShuntStation1Id2",
+            "ShuntStation1Name2", 0.1, false, false);
 
         return LccConverterStationModificationInfos.builder()
             .equipmentId("v1lcc")
@@ -83,14 +81,77 @@ public class LccModificationTest extends AbstractInjectionModificationTest {
             .build();
     }
 
-    private static LccConverterStationModificationInfos buildLccConverterStationModificationInfos1WithNullInfos() {
+    private LccConverterStationModificationInfos buildLccConverterStationModificationInfos2WithNullInfos() {
         return LccConverterStationModificationInfos.builder()
-            .equipmentId("v1lcc")
-            .equipmentName(new AttributeModification<>("newV1lcc", OperationType.SET))
+            .equipmentId("v2lcc")
+            .equipmentName(new AttributeModification<>("newV2lcc", OperationType.SET))
             .lossFactor(null)
             .powerFactor(null)
             .shuntCompensatorsOnSide(List.of())
             .build();
+    }
+
+    public LccConverterStationCreationInfos buildLccConverterStationCreationInfos1() {
+        LccShuntCompensatorInfos filter1 = new LccShuntCompensatorInfos ("shuntId1", "shuntName1", 110.0, true);
+        LccShuntCompensatorInfos filter2 = new LccShuntCompensatorInfos ("shuntId2", "shuntName2", 100.0, false);
+
+        return LccConverterStationCreationInfos.builder()
+            .equipmentId("stationId1")
+            .equipmentName("stationName1")
+            .lossFactor(40F)
+            .powerFactor(1F)
+            .voltageLevelId("v1")
+            .busOrBusbarSectionId("1.1")
+            .connectionName("top")
+            .connectionDirection(ConnectablePosition.Direction.TOP)
+            .shuntCompensatorsOnSide(List.of(filter1, filter2))
+            .build();
+    }
+
+    public LccConverterStationModificationInfos buildLccConverterStationModificationInfosWithShunts(List<LccShuntCompensatorModificationInfos> shuntInfos) {
+        return LccConverterStationModificationInfos.builder()
+            .equipmentId("stationId1")
+            .equipmentName(null)
+            .lossFactor(null)
+            .powerFactor(null)
+            .shuntCompensatorsOnSide(shuntInfos)
+            .build();
+    }
+
+    public LccConverterStationCreationInfos buildLccConverterStationCreationInfos2() {
+        LccShuntCompensatorInfos filter1 = new LccShuntCompensatorInfos ("shunt2Id1", "shunt2Name1", 90.0, true);
+        LccShuntCompensatorInfos filter2 = new LccShuntCompensatorInfos ("shunt2Id2", "shunt2Name2", 100.0, false);
+
+        return LccConverterStationCreationInfos.builder()
+            .equipmentId("stationId2")
+            .equipmentName("stationName2")
+            .lossFactor(40F)
+            .powerFactor(1F)
+            .voltageLevelId("v2")
+            .busOrBusbarSectionId("1A")
+            .connectionName("bottom")
+            .connectionDirection(ConnectablePosition.Direction.BOTTOM)
+            .shuntCompensatorsOnSide(List.of(filter1, filter2))
+            .build();
+    }
+
+    private void buildAndApplyLccCreationWithShuntCompensator(Network network) {
+        LccCreationInfos creationInfos = LccCreationInfos.builder()
+            .stashed(false)
+            .equipmentId("lcc1")
+            .equipmentName("lcc1Name")
+            .nominalV(39.)
+            .r(4.)
+            .maxP(56.)
+            .convertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
+            .activePowerSetpoint(5.)
+            .converterStation1(buildLccConverterStationCreationInfos1())
+            .converterStation2(buildLccConverterStationCreationInfos2())
+            .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+            .build();
+
+        LccCreation lccCreation = new LccCreation(creationInfos);
+        lccCreation.apply(network);
     }
 
     @Override
@@ -114,7 +175,7 @@ public class LccModificationTest extends AbstractInjectionModificationTest {
     @Test
     void testModificationWithNullValues() throws Exception {
         var networkUuid = UUID.randomUUID();
-        Network networkWithoutExt = NetworkCreation.create(networkUuid, true);
+        Network networkWithoutExt = NetworkCreation.createWithLcc(networkUuid);
         LccModificationInfos modificationInfos = (LccModificationInfos) buildModification();
         modificationInfos.setEquipmentName(null);
         modificationInfos.setNominalV(null);
@@ -124,7 +185,12 @@ public class LccModificationTest extends AbstractInjectionModificationTest {
         modificationInfos.setActivePowerSetpoint(null);
         modificationInfos.setConverterStation1(null);
         modificationInfos.setConverterStation2(null);
+
+        LccConverterStationModificationInfos converterStationModificationInfos = buildLccConverterStationModificationInfos2WithNullInfos();
+        modificationInfos.setConverterStation2(converterStationModificationInfos);
+
         LccModification lccModification = new LccModification(modificationInfos);
+        assertEquals("LCC_Modification", lccModification.getName());
         ReportNode subReporter = ReportNode.NO_OP;
         ComputationManager computationManager = new LocalComputationManager();
         assertDoesNotThrow(() -> lccModification.check(networkWithoutExt));
@@ -144,32 +210,48 @@ public class LccModificationTest extends AbstractInjectionModificationTest {
         assertEquals(0.f, lccConverterStation1.getLossFactor(), 0);
         assertEquals(0.f, lccConverterStation1.getPowerFactor(), 0);
         assertEquals("v1", lccConverterStation1.getTerminal().getVoltageLevel().getId());
+
+        LccConverterStation lccConverterStation2 = (LccConverterStation) hvdcLine.getConverterStation2();
+        assertNotNull(lccConverterStation2);
+        assertEquals("v1lcc", lccConverterStation1.getOptionalName().orElse(""));
+        assertEquals(0.f, lccConverterStation2.getLossFactor(), 0);
+        assertEquals(0.f, lccConverterStation2.getPowerFactor(), 0);
     }
 
     @Test
-    void testModificationWithNullValuesInConverterStation() throws Exception {
+    void testModificationWithShuntCompensatorsOnSide()  {
         var networkUuid = UUID.randomUUID();
-        Network networkWithoutExt = NetworkCreation.create(networkUuid, true);
+        Network networkWithoutExt = NetworkCreation.createWithLcc(networkUuid);
+        buildAndApplyLccCreationWithShuntCompensator(networkWithoutExt);
+
         LccModificationInfos modificationInfos = (LccModificationInfos) buildModification();
-        LccConverterStationModificationInfos converterStationModificationInfos = buildLccConverterStationModificationInfos1WithNullInfos();
+
+        LccShuntCompensatorModificationInfos shuntInfos = new LccShuntCompensatorModificationInfos("shuntId1",
+            "newName", 50.0, false, false);
+        LccShuntCompensatorModificationInfos shuntInfos2 = new LccShuntCompensatorModificationInfos("shuntId2",
+            null, null, null, true);
+
+        // does not exist : will do nothing
+        LccShuntCompensatorModificationInfos shuntInfos3 = new LccShuntCompensatorModificationInfos("shuntId3",
+            "newName2", 60.0, null, false);
+
+        LccConverterStationModificationInfos converterStationModificationInfos =
+            buildLccConverterStationModificationInfosWithShunts(List.of(shuntInfos, shuntInfos2, shuntInfos3));
+
         modificationInfos.setConverterStation1(converterStationModificationInfos);
         LccModification lccModification = new LccModification(modificationInfos);
-        ReportNode subReporter = ReportNode.NO_OP;
-        ComputationManager computationManager = new LocalComputationManager();
-        assertDoesNotThrow(() -> lccModification.check(networkWithoutExt));
+        lccModification.apply(networkWithoutExt);
 
-        lccModification.apply(networkWithoutExt, true, computationManager, subReporter);
+        ShuntCompensator shuntCompensator1 = networkWithoutExt.getShuntCompensator("shuntId1");
+        assertNotNull(shuntCompensator1);
+        assertEquals("newName", shuntCompensator1.getOptionalName().orElse(""));
 
-        assertEquals(1, getNetwork().getVoltageLevel("v1").getLccConverterStationStream()
-            .filter(converterStation -> converterStation.getId().equals("v1lcc")).count());
-        HvdcLine hvdcLine = networkWithoutExt.getHvdcLine("hvdcLine");
-        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, hvdcLine.getConvertersMode());
+        VoltageLevel v1 = networkWithoutExt.getVoltageLevel("v1");
+        assertEquals(50.0, shuntCompensator1.getModel(ShuntCompensatorLinearModel.class).getBPerSection() * Math.pow(v1.getNominalV(), 2));
 
-        LccConverterStation lccConverterStation1 = (LccConverterStation) hvdcLine.getConverterStation1();
-        assertNotNull(lccConverterStation1);
-        assertEquals("newV1lcc", lccConverterStation1.getOptionalName().orElse(""));
-        assertEquals(0.f, lccConverterStation1.getLossFactor(), 0);
-        assertEquals(0.f, lccConverterStation1.getPowerFactor(), 0);
+        //check if shuntCompensator was deleted from network
+        ShuntCompensator shuntCompensator2 = networkWithoutExt.getShuntCompensator("shuntId2");
+        assertNull(shuntCompensator2);
     }
 
     @Override
