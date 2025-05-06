@@ -28,7 +28,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class LccModificationTest extends AbstractInjectionModificationTest {
+class LccModificationTest extends AbstractInjectionModificationTest {
     private static final String PROPERTY_NAME = "property-name";
     private static final String PROPERTY_VALUE = "property-value";
 
@@ -255,6 +255,6 @@ public class LccModificationTest extends AbstractInjectionModificationTest {
 
     @Override
     protected void checkModification() {
-
+        // Nothing special to check
     }
 }

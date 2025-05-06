@@ -19,11 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.gridsuite.modification.modifications.LccCreation.*;
-
 public class LccModification extends AbstractModification {
 
     public static final String NO_VALUE = "No value";
+    public static final String LCC_CHARACTERISTICS = "lccCharacteristics";
+    public static final String EQUIPMENT_CONNECTED_TO_HVDC = "equipmentConnectedToHvdc";
+    public static final String EQUIPMENT_NOT_CONNECTED_TO_HVDC = "equipmentNotConnectedToHvdc";
 
     private final LccModificationInfos modificationInfos;
 
