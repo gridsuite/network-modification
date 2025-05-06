@@ -93,7 +93,6 @@ public class LccModification extends AbstractModification {
     }
 
     private void modifyLcc(@Nonnull Network network, @Nonnull HvdcLine hvdcLine, LccModificationInfos modificationInfos, ReportNode subReportNode) {
-        modificationInfos.createSubReportNode(subReportNode);
 
         // Modify characteristics
         modifyCharacteristics(hvdcLine, modificationInfos, subReportNode);
