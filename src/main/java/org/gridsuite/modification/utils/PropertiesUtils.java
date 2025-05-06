@@ -15,7 +15,6 @@ import java.util.*;
 import javax.annotation.Nullable;
 
 public final class PropertiesUtils {
-    public static final String PROPERTIES = "Properties";
 
     private PropertiesUtils() {
         // Should not be instantiated
@@ -30,8 +29,7 @@ public final class PropertiesUtils {
             )
         );
         if (!reportNodes.isEmpty()) {
-            ModificationUtils.getInstance().reportModifications(subReportNode, reportNodes,
-                propertiesLabelKey, PROPERTIES);
+            ModificationUtils.getInstance().reportModifications(subReportNode, reportNodes, propertiesLabelKey);
         }
     }
 

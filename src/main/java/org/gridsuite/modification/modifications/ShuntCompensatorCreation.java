@@ -74,7 +74,7 @@ public class ShuntCompensatorCreation extends AbstractModification {
         ModificationUtils.getInstance().disconnectCreatedInjection(modificationInfos, network.getShuntCompensator(modificationInfos.getEquipmentId()), subReportNode);
         // properties
         ShuntCompensator shuntCompensator = network.getShuntCompensator(modificationInfos.getEquipmentId());
-        PropertiesUtils.applyProperties(shuntCompensator, subReportNode, modificationInfos.getProperties(), "ShuntCompensatorProperties");
+        PropertiesUtils.applyProperties(shuntCompensator, subReportNode, modificationInfos.getProperties(), "network.modification.ShuntCompensatorProperties");
     }
 
     @Override

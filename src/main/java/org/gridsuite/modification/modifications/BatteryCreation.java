@@ -30,8 +30,6 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
 public class BatteryCreation extends AbstractModification {
 
     private final BatteryCreationInfos modificationInfos;
-    private static final String LIMITS = "Limits";
-    private static final String ACTIVE_LIMITS = "Active limits";
 
     public BatteryCreation(BatteryCreationInfos modificationInfos) {
         this.modificationInfos = modificationInfos;
@@ -74,7 +72,7 @@ public class BatteryCreation extends AbstractModification {
         }
         // properties
         Battery battery = network.getBattery(modificationInfos.getEquipmentId());
-        PropertiesUtils.applyProperties(battery, subReportNode, modificationInfos.getProperties(), "BatteryProperties");
+        PropertiesUtils.applyProperties(battery, subReportNode, modificationInfos.getProperties(), "network.modification.BatteryProperties");
     }
 
     @Override
@@ -143,7 +141,7 @@ public class BatteryCreation extends AbstractModification {
             setPointReports.add(ModificationUtils.getInstance()
                 .buildCreationReport(batteryCreationInfos.getTargetQ(), "Reactive power"));
         }
-        return ModificationUtils.getInstance().reportModifications(subReportNode, setPointReports, "SetPointCreated", "Setpoints");
+        return ModificationUtils.getInstance().reportModifications(subReportNode, setPointReports, "network.modification.SetPointCreated");
     }
 
     private ReportNode reportBatteryActiveLimits(BatteryCreationInfos batteryCreationInfos, ReportNode subReportNode) {
@@ -153,7 +151,7 @@ public class BatteryCreation extends AbstractModification {
             batteryCreationInfos.getMinP(), "Min active power"));
         limitsReports.add(ModificationUtils.getInstance().buildCreationReport(
             batteryCreationInfos.getMaxP(), "Max active power"));
-        ModificationUtils.getInstance().reportModifications(subReportNodeLimits, limitsReports, "ActiveLimitsCreated", ACTIVE_LIMITS);
+        ModificationUtils.getInstance().reportModifications(subReportNodeLimits, limitsReports, "network.modification.ActiveLimitsCreated");
         return subReportNodeLimits;
     }
 
@@ -180,7 +178,7 @@ public class BatteryCreation extends AbstractModification {
                         .withSeverity(TypedValue.ERROR_SEVERITY)
                         .build());
             }
-            ModificationUtils.getInstance().reportModifications(subReporter, activePowerRegulationReports, "ActivePowerRegulationCreated", "Active power regulation");
+            ModificationUtils.getInstance().reportModifications(subReporter, activePowerRegulationReports, "network.modification.ActivePowerRegulationCreated");
         }
     }
 }

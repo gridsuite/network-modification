@@ -34,9 +34,6 @@ public class BatteryModification extends AbstractModification {
 
     private final BatteryModificationInfos modificationInfos;
 
-    private static final String LIMITS = "Limits";
-    private static final String ACTIVE_LIMITS = "Active limits";
-    private static final String SETPOINTS = "Setpoints";
     public static final String ERROR_MESSAGE = "Battery '%s' : ";
 
     public BatteryModification(BatteryModificationInfos modificationInfos) {
@@ -100,7 +97,7 @@ public class BatteryModification extends AbstractModification {
                 modificationInfos.getParticipate(), modificationInfos.getDroop(),
                 battery, subReportNode);
         modifyBatteryConnectivityAttributes(modificationInfos, battery, subReportNode);
-        PropertiesUtils.applyProperties(battery, subReportNode, modificationInfos.getProperties(), "BatteryProperties");
+        PropertiesUtils.applyProperties(battery, subReportNode, modificationInfos.getProperties(), "network.modification.BatteryProperties");
     }
 
     public static void modifyBatterySetpointsAttributes(AttributeModification<Double> targetP,
@@ -113,7 +110,7 @@ public class BatteryModification extends AbstractModification {
         ReportNode reportReactivePower = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(battery::setTargetQ, battery::getTargetQ, targetQ, "Reactive power");
         ReportNode subReporterSetpoints = null;
         if (subReportNode != null && (reportActivePower != null || reportReactivePower != null)) {
-            subReporterSetpoints = subReportNode.newReportNode().withMessageTemplate("network.modification.setpoints").add();
+            subReporterSetpoints = subReportNode.newReportNode().withMessageTemplate("network.modification.Setpoints").add();
             if (reportActivePower != null) {
                 insertReportNode(subReporterSetpoints, reportActivePower);
             }

@@ -77,10 +77,8 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
         if (!side1LimitsReports.isEmpty() || !side2LimitsReports.isEmpty()) {
             ReportNode limitsReportNode = subReportNode.newReportNode().withMessageTemplate("network.modification.limits").add();
-            ModificationUtils.getInstance().reportModifications(limitsReportNode, side1LimitsReports, "side1LimitsModification",
-                    "    Side 1");
-            ModificationUtils.getInstance().reportModifications(limitsReportNode, side2LimitsReports, "side2LimitsModification",
-                    "    Side 2");
+            ModificationUtils.getInstance().reportModifications(limitsReportNode, side1LimitsReports, "network.modification.side1LimitsModification");
+            ModificationUtils.getInstance().reportModifications(limitsReportNode, side2LimitsReports, "network.modification.side2LimitsModification");
         }
 
         updateConnections(branch, branchModificationInfos);
@@ -118,10 +116,10 @@ public abstract class AbstractBranchModification extends AbstractModification {
             estimSubReportNode = subReportNode.newReportNode().withMessageTemplate("network.modification.stateEstimationData").add();
         }
         if (!side1Reports.isEmpty()) {
-            ModificationUtils.getInstance().reportModifications(estimSubReportNode, side1Reports, "measurementsSide1", "    Side 1");
+            ModificationUtils.getInstance().reportModifications(estimSubReportNode, side1Reports, "network.modification.measurementsSide1");
         }
         if (!side2Reports.isEmpty()) {
-            ModificationUtils.getInstance().reportModifications(estimSubReportNode, side2Reports, "measurementsSide2", "    Side 2");
+            ModificationUtils.getInstance().reportModifications(estimSubReportNode, side2Reports, "network.modification.measurementsSide2");
         }
         return estimSubReportNode;
     }

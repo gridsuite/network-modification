@@ -34,11 +34,6 @@ import static org.gridsuite.modification.utils.ModificationUtils.reportInjection
  */
 
 public class LccCreation extends AbstractModification {
-    public static final String LCC_CHARACTERISTICS = "lccCharacteristics";
-    public static final String FILTERS = "Filters";
-
-    public static final String LCC_SETPOINTS = "LccSetPoints";
-
     public static final String EQUIPMENT_CONNECTED_TO_HVDC = "network.modification.equipmentConnectedToHvdc";
     public static final String EQUIPMENT_NOT_CONNECTED_TO_HVDC = "network.modification.equipmentNotConnectedToHvdc";
 
@@ -237,12 +232,12 @@ public class LccCreation extends AbstractModification {
         characteristicsReport.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getNominalV(), "DC nominal voltage"));
         characteristicsReport.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getR(), "DC resistance"));
         characteristicsReport.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getMaxP(), "Pmax"));
-        ModificationUtils.getInstance().reportModifications(subReportNode, characteristicsReport, LCC_CHARACTERISTICS, CHARACTERISTICS);
+        ModificationUtils.getInstance().reportModifications(subReportNode, characteristicsReport, "network.modification.lccCharacteristics");
         List<ReportNode> setPointsReports = new ArrayList<>();
         setPointsReports.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getConvertersMode(), "Converters mode"));
         setPointsReports.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getActivePowerSetpoint(), "Active power"));
-        ModificationUtils.getInstance().reportModifications(subReportNode, setPointsReports, LCC_SETPOINTS, SETPOINTS);
-        PropertiesUtils.applyProperties(hvdcLine, subReportNode, modificationInfos.getProperties(), "LCC_Properties");
+        ModificationUtils.getInstance().reportModifications(subReportNode, setPointsReports, "network.modification.LccSetPoints");
+        PropertiesUtils.applyProperties(hvdcLine, subReportNode, modificationInfos.getProperties(), "network.modification.LCC_Properties");
     }
 
     private void addReportConverterStationLcc(LccConverterStationCreationInfos lccConverterStationCreationInfos,
@@ -265,9 +260,9 @@ public class LccCreation extends AbstractModification {
                 ))
                 .toList();
 
-        ModificationUtils.getInstance().reportModifications(reportConverterStationNode, characteristicsReport, "converterStationCharacteristics", CHARACTERISTICS);
+        ModificationUtils.getInstance().reportModifications(reportConverterStationNode, characteristicsReport, "network.modification.converterStationCharacteristics");
         reportInjectionCreationConnectivity(lccConverterStationCreationInfos, reportConverterStationNode);
-        ModificationUtils.getInstance().reportModifications(reportConverterStationNode, shuntCompensatorsOnSide, "converterStationFilters", FILTERS);
+        ModificationUtils.getInstance().reportModifications(reportConverterStationNode, shuntCompensatorsOnSide, "network.modification.converterStationFilters");
 
     }
 }

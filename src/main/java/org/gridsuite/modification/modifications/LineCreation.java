@@ -91,7 +91,7 @@ public class LineCreation extends AbstractModification {
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
         }
-        PropertiesUtils.applyProperties(line, subReportNode, modificationInfos.getProperties(), "LineProperties");
+        PropertiesUtils.applyProperties(line, subReportNode, modificationInfos.getProperties(), "network.modification.LineProperties");
     }
 
     @Override

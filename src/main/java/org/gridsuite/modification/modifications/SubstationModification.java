@@ -51,7 +51,7 @@ public class SubstationModification extends AbstractModification {
         ModificationUtils.getInstance().applyElementaryModifications(station::setName, () -> station.getOptionalName().orElse("No value"), modificationInfos.getEquipmentName(), subReportNode, "Name");
         ModificationUtils.getInstance().applyElementaryModifications(station::setCountry, station::getNullableCountry, modificationInfos.getCountry(), subReportNode, "Country");
         // properties
-        PropertiesUtils.applyProperties(station, subReportNode, modificationInfos.getProperties(), "SubstationProperties");
+        PropertiesUtils.applyProperties(station, subReportNode, modificationInfos.getProperties(), "network.modification.SubstationProperties");
     }
 
     @Override

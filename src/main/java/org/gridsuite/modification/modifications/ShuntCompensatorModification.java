@@ -81,7 +81,7 @@ public class ShuntCompensatorModification extends AbstractModification {
             applyModificationOnLinearModel(subReportNode, shuntCompensator, voltageLevel);
         }
         modifyShuntCompensatorConnectivityAttributes(modificationInfos, shuntCompensator, subReportNode);
-        PropertiesUtils.applyProperties(shuntCompensator, subReportNode, modificationInfos.getProperties(), "ShuntCompensatorProperties");
+        PropertiesUtils.applyProperties(shuntCompensator, subReportNode, modificationInfos.getProperties(), "network.modification.ShuntCompensatorProperties");
     }
 
     @Override

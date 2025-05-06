@@ -114,7 +114,7 @@ public class GeneratorModification extends AbstractModification {
         modifyGeneratorShortCircuitAttributes(modificationInfos.getDirectTransX(), modificationInfos.getStepUpTransformerX(), generator, subReportNode);
         modifyGeneratorStartUpAttributes(modificationInfos, generator, subReportNode);
         modifyGeneratorConnectivityAttributes(modificationInfos, generator, subReportNode);
-        PropertiesUtils.applyProperties(generator, subReportNode, modificationInfos.getProperties(), "GeneratorProperties");
+        PropertiesUtils.applyProperties(generator, subReportNode, modificationInfos.getProperties(), "network.modification.GeneratorProperties");
     }
 
     public static void modifyGeneratorShortCircuitAttributes(AttributeModification<Double> directTransX,
@@ -161,7 +161,7 @@ public class GeneratorModification extends AbstractModification {
                     "Transformer reactance"));
         }
         if (subReportNode != null) {
-            ModificationUtils.getInstance().reportModifications(subReportNode, reports, "shortCircuitAttributesModified", "Short-circuit");
+            ModificationUtils.getInstance().reportModifications(subReportNode, reports, "network.modification.shortCircuitAttributesModified");
         }
     }
 
@@ -270,7 +270,7 @@ public class GeneratorModification extends AbstractModification {
                 forcedOutageRateUpdated) {
             generatorStartupAdder.add();
             if (subReportNode != null) {
-                ModificationUtils.getInstance().reportModifications(subReportNode, reports, "startUpAttributesModified", "Start up");
+                ModificationUtils.getInstance().reportModifications(subReportNode, reports, "network.modification.startUpAttributesModified");
             }
         }
     }
@@ -441,7 +441,7 @@ public class GeneratorModification extends AbstractModification {
                             .withMessageTemplate(SETPOINTS)
                             .add();
         }
-        ModificationUtils.getInstance().reportModifications(subReportNodeSetpoints2, voltageRegulationReports, "voltageRegulationModified", "Voltage regulation");
+        ModificationUtils.getInstance().reportModifications(subReportNodeSetpoints2, voltageRegulationReports, "network.modification.voltageRegulationModified");
         return subReportNodeSetpoints2;
     }
 

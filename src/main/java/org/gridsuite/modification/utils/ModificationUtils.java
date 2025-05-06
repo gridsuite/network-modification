@@ -54,7 +54,6 @@ public final class ModificationUtils {
     private static final String SETPOINTS = "Setpoints";
     private static final String MIN_REACTIVE_POWER_FIELDNAME = "Minimum reactive power";
     private static final String MAX_REACTIVE_POWER_FIELDNAME = "Maximum reactive power";
-    private static final String CONNECTIVITY = "Connectivity";
     public static final String CONNECTION_NAME_FIELD_NAME = "Connection name";
     public static final String CONNECTION_DIRECTION_FIELD_NAME = "Connection direction";
     public static final String CONNECTION_POSITION_FIELD_NAME = "Connection position";
@@ -376,7 +375,7 @@ public final class ModificationUtils {
             substationId = substationCreation.getEquipmentId();
             createSubstation(substationCreation, subReportNode, network);
             substation = network.getSubstation(substationId);
-            PropertiesUtils.applyProperties(substation, subReportNode, substationCreation.getProperties(), "SubstationProperties");
+            PropertiesUtils.applyProperties(substation, subReportNode, substationCreation.getProperties(), "network.modification.SubstationProperties");
         } else {
             substation = network.getSubstation(substationId);
         }
@@ -540,12 +539,12 @@ public final class ModificationUtils {
                 .build();
     }
 
-    public ReportNode reportModifications(ReportNode reportNode, List<ReportNode> reports, String subReportNodeKey, String subReportNodeMessage) {
+    public ReportNode reportModifications(ReportNode reportNode, List<ReportNode> reports, String subReportNodeKey) {
         List<ReportNode> validReports = reports.stream().filter(Objects::nonNull).toList();
         ReportNode subReportNode = null;
         if (!validReports.isEmpty() && reportNode != null) {
             // new child report node
-            subReportNode = reportNode.newReportNode().withMessageTemplate(subReportNodeKey, subReportNodeMessage).add();
+            subReportNode = reportNode.newReportNode().withMessageTemplate(subReportNodeKey).add();
             for (ReportNode report : validReports) {
                 ReportNodeAdder reportNodeAdder = subReportNode.newReportNode().withMessageTemplate(report.getMessageKey(), report.getMessageTemplate()).withSeverity(TypedValue.INFO_SEVERITY);
                 for (Map.Entry<String, TypedValue> valueEntry : report.getValues().entrySet()) {
@@ -668,7 +667,7 @@ public final class ModificationUtils {
         processConnectivityPosition(connectablePosition, connectablePositionAdder, modificationInfos, injection.getNetwork(), reports);
         modifyConnection(modificationInfos.getTerminalConnected(), injection, injection.getTerminal(), reports);
 
-        return reportModifications(connectivityReports, reports, "ConnectivityModified", CONNECTIVITY);
+        return reportModifications(connectivityReports, reports, "network.modification.ConnectivityModified");
     }
 
     public ReportNode modifyBranchConnectivityAttributes(ConnectablePosition<?> connectablePosition,
@@ -681,7 +680,7 @@ public final class ModificationUtils {
         modifyConnection(modificationInfos.getTerminal1Connected(), branch, branch.getTerminal1(), reports, ThreeSides.ONE);
         modifyConnection(modificationInfos.getTerminal2Connected(), branch, branch.getTerminal2(), reports, ThreeSides.TWO);
 
-        return reportModifications(connectivityReports, reports, "ConnectivityModified", CONNECTIVITY);
+        return reportModifications(connectivityReports, reports, "network.modification.ConnectivityModified");
     }
 
     private void processConnectivityPosition(ConnectablePosition<?> connectablePosition,
@@ -1073,8 +1072,7 @@ public final class ModificationUtils {
         }
         if (!limitSetsOnSideReportNodes.isEmpty()) {
             ModificationUtils.getInstance().reportModifications(limitsReporter, limitSetsOnSideReportNodes,
-                    "LimitsSetsOnSide" + side.getNum(), "Limit Sets Side " + side.getNum()
-            );
+                    "network.modification.LimitsSetsOnSide" + side.getNum());
         }
     }
 
@@ -1135,7 +1133,7 @@ public final class ModificationUtils {
                 subReportNodeReactiveLimits = subReporterLimits2.newReportNode().withMessageTemplate(REACTIVE_LIMITS, REACTIVE_LIMITS).add();
             }
         }
-        reportModifications(subReportNodeReactiveLimits, reports, "curveReactiveLimitsModified", "By diagram");
+        reportModifications(subReportNodeReactiveLimits, reports, "network.modification.curveReactiveLimitsModified");
     }
 
     public void createReactiveCapabilityCurvePoint(ReactiveCapabilityCurveAdder adder,
@@ -1237,7 +1235,7 @@ public final class ModificationUtils {
         if (subReportNodeLimits2 != null && !reports.isEmpty()) {
             subReportNodeReactiveLimits = subReportNodeLimits2.newReportNode().withMessageTemplate(REACTIVE_LIMITS, REACTIVE_LIMITS).add();
         }
-        reportModifications(subReportNodeReactiveLimits, reports, "minMaxReactiveLimitsModified", "By range");
+        reportModifications(subReportNodeReactiveLimits, reports, "network.modification.minMaxReactiveLimitsModified");
     }
 
     private void modifyExistingActivePowerControl(ActivePowerControl<?> activePowerControl,
@@ -1307,7 +1305,7 @@ public final class ModificationUtils {
             if (subReporterSetpoints == null && !reports.isEmpty()) {
                 subReportNodeSetpoints2 = subReportNode.newReportNode().withMessageTemplate(SETPOINTS, SETPOINTS).add();
             }
-            reportModifications(subReportNodeSetpoints2, reports, "activePowerControlModified", "Active power control");
+            reportModifications(subReportNodeSetpoints2, reports, "network.modification.activePowerControlModified");
             return subReportNodeSetpoints2;
         }
         return null;
@@ -1540,7 +1538,7 @@ public final class ModificationUtils {
 
             ReportNode subReporterReactiveLimits = subReportNode.newReportNode().withMessageTemplate(REACTIVE_LIMITS, REACTIVE_LIMITS).add();
 
-            ModificationUtils.getInstance().reportModifications(subReporterReactiveLimits, minMaxReactiveLimitsReports, "minMaxReactiveLimitsCreated", "By range");
+            ModificationUtils.getInstance().reportModifications(subReporterReactiveLimits, minMaxReactiveLimitsReports, "network.modification.minMaxReactiveLimitsCreated");
         }
     }
 
@@ -1565,7 +1563,7 @@ public final class ModificationUtils {
                 });
         adder.add();
         ReportNode subReporterReactiveLimits = subReportNode.newReportNode().withMessageTemplate(REACTIVE_LIMITS, REACTIVE_LIMITS).add();
-        ModificationUtils.getInstance().reportModifications(subReporterReactiveLimits, pointsReports, "curveReactiveLimitsCreated", "By diagram");
+        ModificationUtils.getInstance().reportModifications(subReporterReactiveLimits, pointsReports, "network.modification.curveReactiveLimitsCreated");
     }
 
     private void createReactiveCapabilityCurvePoint(ReactiveCapabilityCurveAdder adder,
@@ -1692,7 +1690,7 @@ public final class ModificationUtils {
         );
 
         if (!connectivityReports.isEmpty()) {
-            ModificationUtils.getInstance().reportModifications(subReporter, connectivityReports, "ConnectivityCreated", CONNECTIVITY);
+            ModificationUtils.getInstance().reportModifications(subReporter, connectivityReports, "network.modification.ConnectivityCreated");
         }
     }
 
@@ -1726,7 +1724,7 @@ public final class ModificationUtils {
         }
 
         if (!connectivityReports.isEmpty()) {
-            ModificationUtils.getInstance().reportModifications(subReporter, connectivityReports, "ConnectivityCreated", CONNECTIVITY);
+            ModificationUtils.getInstance().reportModifications(subReporter, connectivityReports, "network.modification.ConnectivityCreated");
         }
     }
 

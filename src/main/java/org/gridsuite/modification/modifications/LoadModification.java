@@ -67,7 +67,7 @@ public class LoadModification extends AbstractInjectionModification {
         // measurements
         updateMeasurements(load, loadModificationInfos, subReportNode);
         // properties
-        PropertiesUtils.applyProperties(load, subReportNode, loadModificationInfos.getProperties(), "LoadProperties");
+        PropertiesUtils.applyProperties(load, subReportNode, loadModificationInfos.getProperties(), "network.modification.LoadProperties");
     }
 
     public static void modifyQ0(Load load, AttributeModification<Double> q0, ReportNode subReportNode) {
