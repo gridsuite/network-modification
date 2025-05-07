@@ -111,26 +111,26 @@ public class TabularModification extends AbstractModification {
         var shuntCompensator = network.getShuntCompensator(shuntCompensatorModificationInfos.getEquipmentId());
         if (shuntCompensator.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
             subReportNode.newReportNode()
-                    .withMessageTemplate(shuntCompensator.getId(), "Tabular modification: It is currently not possible to modify non-linear shunt compensator with id ${id}")
+                    .withMessageTemplate("network.modification.shuntCompensator.tabular.modifyImpossible")
                     .withUntypedValue("id", shuntCompensator.getId())
                     .withSeverity(TypedValue.ERROR_SEVERITY)
                     .add();
         } else if (shuntCompensatorModificationInfos.getMaxSusceptance() != null) {
             if (shuntCompensatorModificationInfos.getShuntCompensatorType() != null && shuntCompensatorModificationInfos.getMaxQAtNominalV() != null) {
                 subReportNode.newReportNode()
-                        .withMessageTemplate(shuntCompensator.getId(), "Tabular modification: Input for maximum susceptance has been ignored since it is not possible to simultaneously update type, maximum reactive power and maximum susceptance for shunt compensator with id ${id}")
+                        .withMessageTemplate("network.modification.shuntCompensator.tabular.maxSusceptanceIgnored.1")
                         .withUntypedValue("id", shuntCompensator.getId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
             } else if (shuntCompensatorModificationInfos.getShuntCompensatorType() != null) {
                 subReportNode.newReportNode()
-                        .withMessageTemplate(shuntCompensator.getId(), "Tabular modification: Input for maximum susceptance has been ignored since it is not possible to simultaneously update type and maximum susceptance for shunt compensator with id ${id}")
+                        .withMessageTemplate("network.modification.shuntCompensator.tabular.maxSusceptanceIgnored.2")
                         .withUntypedValue("id", shuntCompensator.getId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
             } else if (shuntCompensatorModificationInfos.getMaxQAtNominalV() != null) {
                 subReportNode.newReportNode()
-                        .withMessageTemplate(shuntCompensator.getId(), "Tabular modification: Input for maximum susceptance has been ignored since it is not possible to simultaneously update maximum reactive power and maximum susceptance for shunt compensator with id ${id}")
+                        .withMessageTemplate("network.modification.shuntCompensator.tabular.maxSusceptanceIgnored.3")
                         .withUntypedValue("id", shuntCompensator.getId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
