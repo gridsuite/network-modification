@@ -142,7 +142,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .withResourceBundles("i18n.reports")
                 .withMessageTemplate("test").build());
         creationInfos.toModification().apply(getNetwork(), reportNode);
-        assertLogMessage("Tabular creation: 2 generators have been created", "tabularGENERATOR_CREATION", reportNode);
+        assertLogMessage("Tabular creation: 2 generators have been created", "network.modification.tabular.creation", reportNode);
     }
 
     @Test
@@ -190,7 +190,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .withResourceBundles("i18n.reports")
                 .withMessageTemplate("test").build());
         creationInfos.toModification().apply(getNetwork(), reportNode);
-        assertLogMessage("Tabular creation: No generators have been created", "tabularGENERATOR_CREATIONError", reportNode);
+        assertLogMessage("Tabular creation: No generators have been created", "network.modification.tabular.creation.error", reportNode);
     }
 
     @Override

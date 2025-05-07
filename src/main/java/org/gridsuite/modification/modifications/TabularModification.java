@@ -53,7 +53,7 @@ public class TabularModification extends AbstractModification {
             } catch (PowsyblException e) {
                 applicationFailuresCount++;
                 subReportNode.newReportNode()
-                        .withMessageTemplate(modifInfos.getType().name() + applicationFailuresCount, "${message}")
+                        .withMessageTemplate("network.modification.tabular.modification.exception")
                         .withUntypedValue("message", e.getMessage())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
@@ -74,13 +74,13 @@ public class TabularModification extends AbstractModification {
 
         if (modificationInfos.getModifications().size() == applicationFailuresCount) {
             subReportNode.newReportNode()
-                    .withMessageTemplate("network.modification.tabular.error")
+                    .withMessageTemplate("network.modification.tabular.modification.error")
                     .withUntypedValue("defaultMessage", defaultMessage)
                     .withSeverity(TypedValue.ERROR_SEVERITY)
                     .add();
         } else if (applicationFailuresCount > 0) {
             subReportNode.newReportNode()
-                    .withMessageTemplate("network.modification.tabular.warning")
+                    .withMessageTemplate("network.modification.tabular.modification.warning")
                     .withUntypedValue("modificationsCount", modificationInfos.getModifications().size() - applicationFailuresCount)
                     .withUntypedValue("failuresCount", applicationFailuresCount)
                     .withUntypedValue("defaultMessage", defaultMessage)
@@ -88,7 +88,7 @@ public class TabularModification extends AbstractModification {
                     .add();
         } else {
             subReportNode.newReportNode()
-                    .withMessageTemplate("network.modification.tabular")
+                    .withMessageTemplate("network.modification.tabular.modification")
                     .withUntypedValue("modificationsCount", modificationInfos.getModifications().size())
                     .withUntypedValue("defaultMessage", defaultMessage)
                     .withSeverity(TypedValue.INFO_SEVERITY)

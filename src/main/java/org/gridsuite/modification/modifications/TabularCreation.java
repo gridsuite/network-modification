@@ -50,7 +50,7 @@ public class TabularCreation extends AbstractModification {
             } catch (PowsyblException e) {
                 applicationFailuresCount++;
                 subReportNode.newReportNode()
-                        .withMessageTemplate(creatInfos.getType().name() + applicationFailuresCount, "${message}")
+                        .withMessageTemplate("network.modification.tabular.creation.exception")
                         .withUntypedValue("message", e.getMessage())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
@@ -64,13 +64,13 @@ public class TabularCreation extends AbstractModification {
 
         if (creationInfos.getCreations().size() == applicationFailuresCount) {
             subReportNode.newReportNode()
-                    .withMessageTemplate(TABULAR_CREATION_REPORT_KEY_PREFIX + creationInfos.getCreationType().name() + "Error", "Tabular creation: No ${defaultMessage}")
+                    .withMessageTemplate("network.modification.tabular.creation.error")
                     .withUntypedValue("defaultMessage", defaultMessage)
                     .withSeverity(TypedValue.ERROR_SEVERITY)
                     .add();
         } else if (applicationFailuresCount > 0) {
             subReportNode.newReportNode()
-                    .withMessageTemplate(TABULAR_CREATION_REPORT_KEY_PREFIX + creationInfos.getCreationType().name() + "Warning", "Tabular creation: ${creationsCount} ${defaultMessage} and ${failuresCount} have not been created")
+                    .withMessageTemplate("network.modification.tabular.creation.warning")
                     .withUntypedValue("creationsCount", creationInfos.getCreations().size() - applicationFailuresCount)
                     .withUntypedValue("failuresCount", applicationFailuresCount)
                     .withUntypedValue("defaultMessage", defaultMessage)
@@ -78,7 +78,7 @@ public class TabularCreation extends AbstractModification {
                     .add();
         } else {
             subReportNode.newReportNode()
-                    .withMessageTemplate(TABULAR_CREATION_REPORT_KEY_PREFIX + creationInfos.getCreationType().name(), "Tabular creation: ${creationsCount} ${defaultMessage}")
+                    .withMessageTemplate("network.modification.tabular.creation")
                     .withUntypedValue("creationsCount", creationInfos.getCreations().size())
                     .withUntypedValue("defaultMessage", defaultMessage)
                     .withSeverity(TypedValue.INFO_SEVERITY)
