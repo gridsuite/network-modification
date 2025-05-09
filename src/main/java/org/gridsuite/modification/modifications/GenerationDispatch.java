@@ -481,7 +481,8 @@ public class GenerationDispatch extends AbstractModification {
             int componentNum = component.getNum();
 
             ReportNode componentReportNode = subReportNode.newReportNode()
-                    .withMessageTemplate("Network CC0 " + SYNCHRONOUS_COMPONENT + componentNum, "Network CC0 " + SYNCHRONOUS_COMPONENT + componentNum)
+                    .withMessageTemplate("network.modification.NetworkCC0.SYNCHRONOUS_COMPONENT")
+                    .withUntypedValue("componentNum", componentNum)
                     .add();
 
             ReportNode powerToDispatchReportNode = componentReportNode.newReportNode()
