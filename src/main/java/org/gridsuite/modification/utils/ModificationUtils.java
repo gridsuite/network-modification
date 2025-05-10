@@ -543,7 +543,7 @@ public final class ModificationUtils {
             // new child report node
             subReportNode = reportNode.newReportNode().withMessageTemplate(subReportNodeKey).add();
             for (ReportNode report : validReports) {
-                ReportNodeAdder reportNodeAdder = subReportNode.newReportNode().withMessageTemplate(report.getMessageKey(), report.getMessageTemplate()).withSeverity(TypedValue.INFO_SEVERITY);
+                ReportNodeAdder reportNodeAdder = subReportNode.newReportNode().withMessageTemplate(report.getMessageKey()).withSeverity(TypedValue.INFO_SEVERITY);
                 for (Map.Entry<String, TypedValue> valueEntry : report.getValues().entrySet()) {
                     reportNodeAdder.withUntypedValue(valueEntry.getKey(), valueEntry.getValue().toString());
                 }
@@ -1628,7 +1628,7 @@ public final class ModificationUtils {
     }
 
     public static void insertReportNode(ReportNode parent, ReportNode child) {
-        ReportNodeAdder adder = parent.newReportNode().withMessageTemplate(child.getMessageKey(), child.getMessageTemplate());
+        ReportNodeAdder adder = parent.newReportNode().withMessageTemplate(child.getMessageKey());
         for (Map.Entry<String, TypedValue> valueEntry : child.getValues().entrySet()) {
             adder.withUntypedValue(valueEntry.getKey(), valueEntry.getValue().toString());
         }
