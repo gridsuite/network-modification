@@ -960,7 +960,7 @@ public final class ModificationUtils {
                     String.format("Could not %s equipment '%s'", action, equipment.getId()));
         }
 
-        String reportKey = "network.modification.equipment" + capitalize(action) + (side != null ? "side" + side.getNum() : "");
+        String reportKey = "network.modification.equipment" + capitalize(action) + (side != null ? ".side" : "");
         ReportNodeBuilder builder = ReportNode.newRootReportNode()
             .withAllResourceBundlesFromClasspath()
             .withMessageTemplate(reportKey)
