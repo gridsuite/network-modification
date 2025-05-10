@@ -6,10 +6,7 @@
  */
 package org.gridsuite.modification.utils;
 
-import com.powsybl.commons.report.ReportConstants;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.ReportNodeAdder;
-import com.powsybl.commons.report.TypedValue;
+import com.powsybl.commons.report.*;
 import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
@@ -962,18 +959,19 @@ public final class ModificationUtils {
             throw new NetworkModificationException(equipment instanceof Branch<?> ? BRANCH_MODIFICATION_ERROR : INJECTION_MODIFICATION_ERROR,
                     String.format("Could not %s equipment '%s'", action, equipment.getId()));
         }
-        String equipmentMessage = "Equipment with id=${id} %sed";
-        String reportKey = "equipment" + capitalize(action);
+
+        String reportKey = "network.modification.equipment" + capitalize(action) + (side != null ? "side" + side.getNum() : "");
+        ReportNodeBuilder builder = ReportNode.newRootReportNode()
+            .withAllResourceBundlesFromClasspath()
+            .withMessageTemplate(reportKey)
+            .withUntypedValue("id", equipment.getId())
+            .withSeverity(TypedValue.INFO_SEVERITY);
+
         if (side != null) {
-            equipmentMessage += String.format(" on side %d", side.getNum());
-            reportKey += String.format("side%d", side.getNum());
+            builder.withUntypedValue("side", side.getNum());
         }
-        reports.add(ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
-                .withMessageTemplate(reportKey, String.format(equipmentMessage, action))
-                .withUntypedValue("id", equipment.getId())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+
+        reports.add(builder.build());
     }
 
     private String capitalize(String input) {
