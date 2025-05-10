@@ -57,7 +57,7 @@ public class GenerationDispatchInfos extends ModificationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(getType().name(), "Generation dispatch")
+                .withMessageTemplate("network.modification.generationDispatch")
                 .add();
     }
 }

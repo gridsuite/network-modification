@@ -41,7 +41,7 @@ public class GroovyScriptInfos extends ModificationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(getType().name(), "Apply groovy script")
+                .withMessageTemplate("network.modification.groovyScript")
                 .add();
     }
 }

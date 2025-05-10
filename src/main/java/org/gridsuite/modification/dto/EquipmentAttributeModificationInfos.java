@@ -59,9 +59,9 @@ public class EquipmentAttributeModificationInfos extends EquipmentModificationIn
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(getType().name(), "${EquipmentType} '${EquipmentId}' change")
-                .withTypedValue("EquipmentType", equipmentType.name(), TypedValue.UNTYPED)
-                .withTypedValue("EquipmentId", getEquipmentId(), TypedValue.UNTYPED)
+                .withMessageTemplate("network.modification.equipmentAttributeModification")
+                .withTypedValue("EquipmentType", equipmentType.name(), TypedValue.UNTYPED_TYPE)
+                .withTypedValue("EquipmentId", getEquipmentId(), TypedValue.UNTYPED_TYPE)
                 .add();
     }
 

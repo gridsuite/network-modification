@@ -88,7 +88,7 @@ public class VoltageLevelCreationInfos extends EquipmentCreationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(getType().name(), "VoltageLevel creation ${voltageLevelId}")
+                .withMessageTemplate("network.modification.voltageLevel.creation")
                 .withUntypedValue("voltageLevelId", getEquipmentId())
                 .add();
     }

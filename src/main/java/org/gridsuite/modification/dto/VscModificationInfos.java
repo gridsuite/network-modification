@@ -67,7 +67,7 @@ public class VscModificationInfos extends BasicEquipmentModificationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(getType().name(), "Vsc modification ${vscId}")
+                .withMessageTemplate("network.modification.vsc.modification")
                 .withUntypedValue("vscId", getEquipmentId())
                 .add();
     }

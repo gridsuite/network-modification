@@ -94,7 +94,7 @@ public class VoltageLevelModification extends AbstractModification {
         VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getEquipmentId());
 
         subReportNode.newReportNode()
-                .withMessageTemplate("voltageLevelModification", "Voltage level with id=${id} modified :")
+                .withMessageTemplate("network.modification.voltageLevelModification")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -105,7 +105,7 @@ public class VoltageLevelModification extends AbstractModification {
         modifyHighVoltageLimit(voltageLevel, modificationInfos.getHighVoltageLimit(), subReportNode);
 
         modifyVoltageLevelShortCircuit(modificationInfos.getIpMin(), modificationInfos.getIpMax(), subReportNode, voltageLevel);
-        PropertiesUtils.applyProperties(voltageLevel, subReportNode, modificationInfos.getProperties(), "VlProperties");
+        PropertiesUtils.applyProperties(voltageLevel, subReportNode, modificationInfos.getProperties(), "network.modification.VlProperties");
     }
 
     @Override

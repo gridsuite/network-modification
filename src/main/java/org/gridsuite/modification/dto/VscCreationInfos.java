@@ -78,7 +78,7 @@ public class VscCreationInfos extends EquipmentCreationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(getType().name(), "Vsc creation ${vscId}")
+                .withMessageTemplate("network.modification.vsc.creation")
                 .withUntypedValue("vscId", getEquipmentId())
                 .add();
     }

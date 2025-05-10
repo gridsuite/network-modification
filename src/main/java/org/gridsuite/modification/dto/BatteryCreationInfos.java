@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.BatteryCreation;
@@ -72,6 +71,6 @@ public class BatteryCreationInfos extends InjectionCreationInfos implements Reac
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate(ModificationType.BATTERY_CREATION.name(), "Battery creation ${batteryId}").withUntypedValue("batteryId", this.getEquipmentId()).add();
+        return reportNode.newReportNode().withMessageTemplate("network.modification.batteryCreation").withUntypedValue("batteryId", this.getEquipmentId()).add();
     }
 }

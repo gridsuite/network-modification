@@ -48,7 +48,7 @@ public class EquipmentDeletionInfos extends EquipmentModificationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(getType().name(), "Equipment deletion ${equipmentId}")
+                .withMessageTemplate("network.modification.equipmentDeletion")
                 .withUntypedValue("equipmentId", this.getEquipmentId())
                 .add();
     }

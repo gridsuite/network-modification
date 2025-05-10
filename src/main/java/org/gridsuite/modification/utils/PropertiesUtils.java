@@ -15,7 +15,6 @@ import java.util.*;
 import javax.annotation.Nullable;
 
 public final class PropertiesUtils {
-    public static final String PROPERTIES = "Properties";
 
     private PropertiesUtils() {
         // Should not be instantiated
@@ -30,13 +29,12 @@ public final class PropertiesUtils {
             )
         );
         if (!reportNodes.isEmpty()) {
-            ModificationUtils.getInstance().reportModifications(subReportNode, reportNodes,
-                propertiesLabelKey, PROPERTIES);
+            ModificationUtils.getInstance().reportModifications(subReportNode, reportNodes, propertiesLabelKey);
         }
     }
 
     private static ReportNode applyProperty(Identifiable<?> identifiable, FreePropertyInfos prop) {
-        ReportNodeBuilder builder = ReportNode.newRootReportNode();
+        ReportNodeBuilder builder = ReportNode.newRootReportNode().withAllResourceBundlesFromClasspath();
         if (prop.isDeletionMark()) {
             if (identifiable.removeProperty(prop.getName())) {
                 reportPropertyDeletion(builder, prop);
@@ -56,14 +54,14 @@ public final class PropertiesUtils {
     }
 
     private static void reportPropertyCreation(ReportNodeAdderOrBuilder<?> adderOrBuilder, FreePropertyInfos prop) {
-        adderOrBuilder.withMessageTemplate("propertyAdded", "    Property ${name} added with value ${value}")
+        adderOrBuilder.withMessageTemplate("network.modification.propertyAdded")
             .withUntypedValue("name", prop.getName())
             .withUntypedValue("value", prop.getValue())
             .withSeverity(TypedValue.INFO_SEVERITY);
     }
 
     private static void reportPropertyModification(ReportNodeAdderOrBuilder<?> adderOrBuilder, FreePropertyInfos prop) {
-        adderOrBuilder.withMessageTemplate("propertyChanged", "    Property ${name} changed : ${from} -> ${to}")
+        adderOrBuilder.withMessageTemplate("network.modification.propertyChanged")
             .withUntypedValue("name", prop.getName())
             .withUntypedValue("to", prop.getValue())
             .withUntypedValue("from", prop.getPreviousValue() == null ? "null" : prop.getPreviousValue())
@@ -71,7 +69,7 @@ public final class PropertiesUtils {
     }
 
     private static void reportPropertyDeletion(ReportNodeAdderOrBuilder<?> adderOrBuilder, FreePropertyInfos prop) {
-        adderOrBuilder.withMessageTemplate("propertyDeleted", "    Property ${name} deleted")
+        adderOrBuilder.withMessageTemplate("network.modification.propertyDeleted")
             .withUntypedValue("name", prop.getName())
             .withSeverity(TypedValue.INFO_SEVERITY);
     }

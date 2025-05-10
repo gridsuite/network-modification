@@ -54,7 +54,7 @@ public class LoadModification extends AbstractInjectionModification {
     private void modifyLoad(Load load, ReportNode subReportNode) {
         LoadModificationInfos loadModificationInfos = (LoadModificationInfos) modificationInfos;
         subReportNode.newReportNode()
-            .withMessageTemplate("loadModification", "Load with id=${id} modified :")
+            .withMessageTemplate("network.modification.loadModification")
             .withUntypedValue("id", loadModificationInfos.getEquipmentId())
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
@@ -67,7 +67,7 @@ public class LoadModification extends AbstractInjectionModification {
         // measurements
         updateMeasurements(load, loadModificationInfos, subReportNode);
         // properties
-        PropertiesUtils.applyProperties(load, subReportNode, loadModificationInfos.getProperties(), "LoadProperties");
+        PropertiesUtils.applyProperties(load, subReportNode, loadModificationInfos.getProperties(), "network.modification.LoadProperties");
     }
 
     public static void modifyQ0(Load load, AttributeModification<Double> q0, ReportNode subReportNode) {

@@ -52,7 +52,7 @@ public class DeleteVoltageLevelOnLineInfos extends ModificationInfos {
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate(getType().name(), "Delete voltage level on line").add();
+        return reportNode.newReportNode().withMessageTemplate("network.modification.deleteVoltageLevelOnLine").add();
     }
 
     @Override

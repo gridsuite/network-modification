@@ -44,7 +44,7 @@ public class VoltageLevelTopologyModificationInfos extends EquipmentModification
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(getType().name(), "Voltage Level topology modification ${voltageLevelId}")
+                .withMessageTemplate("network.modification.VOLTAGE_LEVEL_TOPOLOGY_MODIFICATION")
                 .withUntypedValue("voltageLevelId", getEquipmentId())
                 .add();
     }

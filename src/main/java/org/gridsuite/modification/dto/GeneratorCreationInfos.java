@@ -119,7 +119,7 @@ public class GeneratorCreationInfos extends InjectionCreationInfos implements Re
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(getType().name(), "Generator creation ${generatorId}")
+                .withMessageTemplate("network.modification.generator.creation")
                 .withUntypedValue("generatorId", this.getEquipmentId())
                 .add();
     }

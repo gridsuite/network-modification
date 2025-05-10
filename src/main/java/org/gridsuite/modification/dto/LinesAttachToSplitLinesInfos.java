@@ -66,7 +66,7 @@ public class LinesAttachToSplitLinesInfos extends ModificationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(getType().name(), "Lines attach to split lines")
+                .withMessageTemplate("network.modification.linesAttachToSplitLines")
                 .add();
     }
 

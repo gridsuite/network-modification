@@ -48,7 +48,7 @@ public class LoadModificationInfos extends InjectionModificationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(getType().name(), "Load modification ${loadId}")
+                .withMessageTemplate("network.modification.load.modification")
                 .withUntypedValue("loadId", getEquipmentId())
                 .add();
     }

@@ -16,7 +16,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.StaticVarCompensatorCreation;
@@ -98,7 +97,6 @@ public class StaticVarCompensatorCreationInfos extends InjectionCreationInfos {
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate(ModificationType.STATIC_VAR_COMPENSATOR_CREATION.name(),
-                "Static var compensator creation ${id}").withUntypedValue("id", this.getEquipmentId()).add();
+        return reportNode.newReportNode().withMessageTemplate("network.modification.staticVarCompensatorCreation").withUntypedValue("id", this.getEquipmentId()).add();
     }
 }

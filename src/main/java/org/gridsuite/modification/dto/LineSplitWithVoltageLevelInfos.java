@@ -67,7 +67,7 @@ public class LineSplitWithVoltageLevelInfos extends ModificationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(getType().name(), "Line split with voltage level")
+                .withMessageTemplate("network.modification.lineSplitWithVoltageLevel")
                 .add();
     }
 

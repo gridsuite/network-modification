@@ -39,7 +39,7 @@ public class OperatingStatusModification extends AbstractModification {
     private final OperatingStatusModificationInfos modificationInfos;
     private static final Logger LOGGER = LoggerFactory.getLogger(OperatingStatusModification.class);
 
-    private static final String APPLIED = "Applied";
+    private static final String EQUIPMENT_TYPE = "equipmentType";
 
     public OperatingStatusModification(OperatingStatusModificationInfos modificationInfos) {
         this.modificationInfos = modificationInfos;
@@ -88,8 +88,8 @@ public class OperatingStatusModification extends AbstractModification {
             throw new NetworkModificationException(OPERATING_STATUS_MODIFICATION_ERROR, "Unable to disconnect all equipment ends");
         }
         subReportNode.newReportNode()
-                .withMessageTemplate("lockout" + equipmentType + APPLIED, "${equipmentType} ${id} (id) : lockout applied")
-                .withUntypedValue("equipmentType", equipmentType)
+                .withMessageTemplate("network.modification.lockout.equipment.Applied")
+                .withUntypedValue(EQUIPMENT_TYPE, equipmentType)
                 .withUntypedValue("id", equipment.getId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -111,8 +111,8 @@ public class OperatingStatusModification extends AbstractModification {
         terminalsToDisconnect.forEach(Terminal::disconnect);
 
         subReportNode.newReportNode()
-                .withMessageTemplate("trip" + equipmentType + APPLIED, "${equipmentType} ${id} (id) : trip applied")
-                .withUntypedValue("equipmentType", equipmentType)
+                .withMessageTemplate("network.modification.trip.equipment.Applied")
+                .withUntypedValue(EQUIPMENT_TYPE, equipmentType)
                 .withUntypedValue("id", equipment.getId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -138,8 +138,8 @@ public class OperatingStatusModification extends AbstractModification {
         }
 
         subReportNode.newReportNode()
-                .withMessageTemplate("switchOn" + equipmentType + APPLIED, "${equipmentType} ${id} (id) : switch on applied")
-                .withUntypedValue("equipmentType", equipmentType)
+                .withMessageTemplate("network.modification.switchOn.equipment.Applied")
+                .withUntypedValue(EQUIPMENT_TYPE, equipmentType)
                 .withUntypedValue("id", equipment.getId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -158,8 +158,8 @@ public class OperatingStatusModification extends AbstractModification {
         }
 
         subReportNode.newReportNode()
-                .withMessageTemplate("energise" + equipmentType + "EndApplied", "${equipmentType} ${id} (id) : energise the side ${side} applied")
-                .withUntypedValue("equipmentType", equipmentType)
+                .withMessageTemplate("network.modification.energise.equipment.EndApplied")
+                .withUntypedValue(EQUIPMENT_TYPE, equipmentType)
                 .withUntypedValue("id", equipment.getId())
                 .withUntypedValue("side", side.name())
                 .withSeverity(TypedValue.INFO_SEVERITY)

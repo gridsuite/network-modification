@@ -57,7 +57,7 @@ public class EquipmentDeletion extends AbstractModification {
             rs.apply(network, true, subReportNode);
         }
         subReportNode.newReportNode()
-                .withMessageTemplate("equipmentDeleted", "equipment of type=${type} and id=${id} deleted")
+                .withMessageTemplate("network.modification.equipmentDeleted")
                 .withUntypedValue("type", modificationInfos.getEquipmentType().name())
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
@@ -80,7 +80,7 @@ public class EquipmentDeletion extends AbstractModification {
                         // isConnectedToHvdc means: selected to be removed (can be changed by the Front)
                         if (mcsInfo.isConnectedToHvdc() && network.getShuntCompensator(mcsInfo.getId()) == null) {
                             subReportNode.newReportNode()
-                                    .withMessageTemplate("shuntCompensatorNotDeleted", "Shunt compensator with id=${id} not found in the network")
+                                    .withMessageTemplate("network.modification.shuntCompensatorNotDeleted")
                                     .withUntypedValue("id", mcsInfo.getId())
                                     .withSeverity(TypedValue.WARN_SEVERITY)
                                     .add();

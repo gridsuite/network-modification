@@ -143,7 +143,7 @@ public class LoadScaling extends AbstractScaling {
 
     private void reportScaling(ReportNode subReportNode, VariationMode variationMode, double askedValue, double actualValue) {
         subReportNode.newReportNode()
-                .withMessageTemplate("scalingApplied", "Successfully scaling variation in ${variationMode} mode with variation value asked is ${askedValue} and variation done is ${actualValue}")
+                .withMessageTemplate("network.modification.scalingApplied")
                 .withUntypedValue("variationMode", variationMode.name())
                 .withUntypedValue("askedValue", askedValue)
                 .withUntypedValue("actualValue", actualValue)

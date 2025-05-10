@@ -39,7 +39,7 @@ public class LoadScalingInfos extends ScalingInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(getType().name(), "Load Scaling")
+                .withMessageTemplate("network.modification.loadScaling")
                 .add();
     }
 }

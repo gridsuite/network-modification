@@ -62,7 +62,7 @@ public class LccCreationInfos extends EquipmentCreationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(getType().name(), "Lcc creation ${lccId}")
+                .withMessageTemplate("network.modification.lcc.creation")
                 .withUntypedValue("lccId", getEquipmentId())
                 .add();
     }

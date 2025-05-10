@@ -39,7 +39,7 @@ public class GeneratorScalingInfos extends ScalingInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(getType().name(), "Generator scaling")
+                .withMessageTemplate("network.modification.generatorScaling")
                 .add();
     }
 }

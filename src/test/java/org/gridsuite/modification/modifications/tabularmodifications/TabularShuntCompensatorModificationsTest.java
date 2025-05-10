@@ -102,7 +102,8 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
         when(shuntCompensator.getModelType()).thenReturn(ShuntCompensatorModelType.LINEAR);
         when(shuntCompensator.getId()).thenReturn("id");
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplate("test", "test")
+                .withResourceBundles("i18n.reports")
+                .withMessageTemplate("test")
                 .build();
 
         tabularModification.checkShuntCompensatorModification(network, shuntModification, reportNode);
@@ -137,7 +138,8 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
         when(shuntCompensator.getId()).thenReturn("id");
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplate("test", "test")
+                .withResourceBundles("i18n.reports")
+                .withMessageTemplate("test")
                 .build();
         tabularModification.checkShuntCompensatorModification(network, shuntModification, reportNode);
 
@@ -165,7 +167,8 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
         when(shuntCompensator.getModelType()).thenReturn(ShuntCompensatorModelType.LINEAR);
         when(shuntCompensator.getId()).thenReturn("id");
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withMessageTemplate("test", "test")
+                .withResourceBundles("i18n.reports")
+                .withMessageTemplate("test")
                 .build();
 
         tabularModification.checkShuntCompensatorModification(network, shuntModification, reportNode);

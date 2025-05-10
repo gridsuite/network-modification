@@ -169,7 +169,7 @@ public class GeneratorScaling extends AbstractScaling {
         double asked = getAsked(scalingVariationInfos, sum);
         double done = scalable.scale(network, asked, scalingParameters);
         subReportNode.newReportNode()
-                .withMessageTemplate("scalingApplied", "Successfully scaling variation in ${variationMode} mode with variation value asked is ${askedValue} and variation done is ${actualValue}")
+                .withMessageTemplate("network.modification.scalingApplied")
                 .withUntypedValue("variationMode", scalingVariationInfos.getVariationMode().name())
                 .withUntypedValue("askedValue", asked)
                 .withUntypedValue("actualValue", done)

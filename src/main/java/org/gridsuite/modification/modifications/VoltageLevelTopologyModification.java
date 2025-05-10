@@ -53,7 +53,7 @@ public class VoltageLevelTopologyModification extends AbstractModification {
             equipmentAttributeModification.apply(network, subReportNode);
         }
         subReportNode.newReportNode()
-                .withMessageTemplate("voltageLevelTopologyModified", "Voltage level '${id}' topology has been modified")
+                .withMessageTemplate("network.modification.voltageLevelTopologyModified")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.DEBUG_SEVERITY)
                 .add();

@@ -23,8 +23,6 @@ import static org.gridsuite.modification.NetworkModificationException.Type.*;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
 public class TwoWindingsTransformerCreation extends AbstractModification {
-    private static final String PHASE_TAP_CHANGER = "Phase Tap Changer";
-    private static final String RATIO_TAP_CHANGER = "Ratio Tap Changer";
     private final TwoWindingsTransformerCreationInfos modificationInfos;
 
     public TwoWindingsTransformerCreation(TwoWindingsTransformerCreationInfos modificationInfos) {
@@ -63,10 +61,9 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
             // Create 2wt in bus/mixed breaker
             create2WTInOtherBreaker(network, voltageLevel1, voltageLevel2, modificationInfos, true, true, subReportNode);
         }
-
         getInstance().disconnectBranch(modificationInfos, network.getTwoWindingsTransformer(modificationInfos.getEquipmentId()), subReportNode);
         subReportNode.newReportNode()
-                .withMessageTemplate("twoWindingsTransformerCreated", "New two windings transformer with id=${id} created")
+                .withMessageTemplate("network.modification.twoWindingsTransformerCreated")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -169,15 +166,15 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
             }
 
             phaseTapChangerAdder.add();
-            ReportNode ratioTapChangerReporter = subReportNode.newReportNode().withMessageTemplate("PhaseTapChangerCreated", PHASE_TAP_CHANGER).add();
+            ReportNode ratioTapChangerReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.PhaseTapChangerCreated").add();
             if (!regulationReports.isEmpty()) {
-                getInstance().reportModifications(ratioTapChangerReporter, regulationReports, "RegulatingCreated", "Regulation");
+                getInstance().reportModifications(ratioTapChangerReporter, regulationReports, "network.modification.RegulatingCreated");
             }
             if (!regulatedTerminalReports.isEmpty()) {
-                getInstance().reportModifications(ratioTapChangerReporter, regulatedTerminalReports, "RegulatedTerminalCreated", "Regulated terminal");
+                getInstance().reportModifications(ratioTapChangerReporter, regulatedTerminalReports, "network.modification.RegulatedTerminalCreated");
             }
             if (!tapsReports.isEmpty()) {
-                getInstance().reportModifications(ratioTapChangerReporter, tapsReports, "TapsCreated", "Taps");
+                getInstance().reportModifications(ratioTapChangerReporter, tapsReports, "network.modification.TapsCreated");
             }
         }
     }
@@ -221,15 +218,15 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
                 ratioTapChangerAdder.beginStep().setR(step.getR()).setX(step.getX()).setG(step.getG()).setB(step.getB()).setRho(step.getRho()).endStep();
             }
             ratioTapChangerAdder.add();
-            ReportNode ratioTapChangerReporter = subReportNode.newReportNode().withMessageTemplate("RatioTapChangerCreated", RATIO_TAP_CHANGER).add();
+            ReportNode ratioTapChangerReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.RatioTapChangerCreated").add();
             if (!regulationReports.isEmpty()) {
-                getInstance().reportModifications(ratioTapChangerReporter, regulationReports, "RegulationCreated", "Regulation");
+                getInstance().reportModifications(ratioTapChangerReporter, regulationReports, "network.modification.RegulationCreated");
             }
             if (!regulatedTerminalReports.isEmpty()) {
-                getInstance().reportModifications(ratioTapChangerReporter, regulatedTerminalReports, "RegulatedTerminalCreated", "Regulated terminal");
+                getInstance().reportModifications(ratioTapChangerReporter, regulatedTerminalReports, "network.modification.RegulatedTerminalCreated");
             }
             if (!tapsReports.isEmpty()) {
-                getInstance().reportModifications(ratioTapChangerReporter, tapsReports, "TapsCreated", "Taps");
+                getInstance().reportModifications(ratioTapChangerReporter, tapsReports, "network.modification.TapsCreated");
             }
         }
     }
@@ -246,18 +243,14 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         if (selectedGroup != null) {
             if (side == TwoSides.ONE) {
                 transformer.setSelectedOperationalLimitsGroup1(selectedGroup);
-                limitsReporter.newReportNode().withMessageTemplate(
-                        "limit set selected on side 1",
-                                "limit set selected on side 1 : ${selectedOperationalLimitsGroup1}")
+                limitsReporter.newReportNode().withMessageTemplate("network.modification.limitSetSelectedOnSide1")
                         .withUntypedValue("selectedOperationalLimitsGroup1", modificationInfos.getSelectedOperationalLimitsGroup1())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add();
             }
             if (side == TwoSides.TWO) {
                 transformer.setSelectedOperationalLimitsGroup2(selectedGroup);
-                limitsReporter.newReportNode().withMessageTemplate(
-                        "limit set selected on side 2",
-                                "limit set selected on side 2 : ${selectedOperationalLimitsGroup2}")
+                limitsReporter.newReportNode().withMessageTemplate("network.modification.limitSetSelectedOnSide2")
                         .withUntypedValue("selectedOperationalLimitsGroup2", modificationInfos.getSelectedOperationalLimitsGroup2())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add();
@@ -273,10 +266,10 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         reportBranchCreationConnectivity(modificationInfos, subReportNode);
 
         // properties
-        PropertiesUtils.applyProperties(twoWindingsTransformer, subReportNode, modificationInfos.getProperties(), "TwoWindingsTransformerProperties");
+        PropertiesUtils.applyProperties(twoWindingsTransformer, subReportNode, modificationInfos.getProperties(), "network.modification.TwoWindingsTransformerProperties");
 
         // Set permanent and temporary current limits
-        ReportNode limitsReporter = subReportNode.newReportNode().withMessageTemplate("LimitsCreated", LIMITS).add();
+        ReportNode limitsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.limitsCreated").add();
         setCurrentLimitsForSide(modificationInfos.getOperationalLimitsGroups1(), modificationInfos.getSelectedOperationalLimitsGroup1(), twoWindingsTransformer, TwoSides.ONE, limitsReporter);
         setCurrentLimitsForSide(modificationInfos.getOperationalLimitsGroups2(), modificationInfos.getSelectedOperationalLimitsGroup2(), twoWindingsTransformer, TwoSides.TWO, limitsReporter);
 
