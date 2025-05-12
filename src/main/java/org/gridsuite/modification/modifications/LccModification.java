@@ -130,77 +130,81 @@ public class LccModification extends AbstractModification {
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
 
-        // Characteristic
-        List<ReportNode> characteristicReports = new ArrayList<>();
+        // Characteristics
+        List<ReportNode> characteristicsReports = new ArrayList<>();
 
         if (converterStationModificationInfos.getEquipmentName() != null) {
-            characteristicReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setName,
+            characteristicsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setName,
                 () -> converterStation.getOptionalName().orElse(NO_VALUE), converterStationModificationInfos.getEquipmentName(), "Equipment name"));
         }
 
         if (converterStationModificationInfos.getLossFactor() != null) {
             ModificationUtils.checkIsPercentage(errorMessage, converterStationModificationInfos.getLossFactor().getValue(), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Loss factor");
-            characteristicReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setLossFactor,
+            characteristicsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setLossFactor,
                 converterStation::getLossFactor, converterStationModificationInfos.getLossFactor(), "Loss factor"));
         }
 
         if (converterStationModificationInfos.getPowerFactor() != null) {
             ModificationUtils.checkIsInInterval(errorMessage, converterStationModificationInfos.getPowerFactor().getValue(), new Pair<>(0.f, 1.f), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Power factor");
-            characteristicReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setPowerFactor,
+            characteristicsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setPowerFactor,
                 converterStation::getPowerFactor, converterStationModificationInfos.getPowerFactor(), "Power factor"));
         }
 
-        ModificationUtils.getInstance().reportModifications(converterStationReportNode, characteristicReports,
-            "Characteristics", "Characteristics");
+        ModificationUtils.getInstance().reportModifications(converterStationReportNode, characteristicsReports,
+            CHARACTERISTICS, CHARACTERISTICS);
 
-        modifyShuntCompensatorOnSide(network, converterStation.getTerminal().getVoltageLevel(),
+        modifyShuntCompensatorsOnSide(network, converterStation.getTerminal().getVoltageLevel(),
             converterStationModificationInfos, subReportNode);
     }
 
-    private void modifyShuntCompensatorOnSide(Network network, VoltageLevel voltageLevel,
+    private void modifyShuntCompensatorsOnSide(Network network, VoltageLevel voltageLevel,
                                               @Nonnull LccConverterStationModificationInfos converterStationInfos, ReportNode reportNode) {
 
-        List<LccShuntCompensatorModificationInfos> shuntCompensatorOnSide = converterStationInfos.getShuntCompensatorsOnSide();
+        List<LccShuntCompensatorModificationInfos> shuntCompensatorsOnSide = converterStationInfos.getShuntCompensatorsOnSide();
 
-        Optional.ofNullable(shuntCompensatorOnSide).ifPresent(shuntCompensators ->
+        Optional.ofNullable(shuntCompensatorsOnSide).ifPresent(shuntCompensators ->
             shuntCompensators.forEach(infos -> {
                 ShuntCompensator shuntCompensator = network.getShuntCompensator(infos.getId());
-                if (shuntCompensator == null) {
-                    return;
-                }
-
-                if (infos.isDeletionMark()) {
-                    shuntCompensator.remove();
-                    return;
-                }
-
-                if (infos.getName() != null) {
-                    shuntCompensator.setName(infos.getName());
-                }
-
-                if (infos.getConnectedToHvdc() != null) {
-                    if (Boolean.TRUE.equals(infos.getConnectedToHvdc())) {
-                        shuntCompensator.getTerminal().connect();
-                        reportNode.newReportNode()
-                            .withMessageTemplate(EQUIPMENT_CONNECTED_TO_HVDC, "Equipment with id=${id} is connected to Hvdc")
-                            .withUntypedValue("id", shuntCompensator.getId())
-                            .withSeverity(TypedValue.INFO_SEVERITY)
-                            .add();
-                    } else {
-                        shuntCompensator.getTerminal().disconnect();
-                        reportNode.newReportNode()
-                            .withMessageTemplate(EQUIPMENT_NOT_CONNECTED_TO_HVDC, "Equipment with id=${id} is disconnected from Hvdc")
-                            .withUntypedValue("id", shuntCompensator.getId())
-                            .withSeverity(TypedValue.INFO_SEVERITY)
-                            .add();
-                    }
-                }
-
-                if (infos.getMaxQAtNominalV() != null) {
-                    ShuntCompensatorLinearModel model = shuntCompensator.getModel(ShuntCompensatorLinearModel.class);
-                    model.setBPerSection((infos.getMaxQAtNominalV()) / Math.pow(voltageLevel.getNominalV(), 2));
-                }
+                modifyShuntCompensator(voltageLevel, reportNode, infos, shuntCompensator);
             }));
+    }
+
+    private static void modifyShuntCompensator(VoltageLevel voltageLevel, ReportNode reportNode, LccShuntCompensatorModificationInfos infos, ShuntCompensator shuntCompensator) {
+        if (shuntCompensator == null) {
+            return;
+        }
+
+        if (infos.isDeletionMark()) {
+            shuntCompensator.remove();
+            return;
+        }
+
+        if (infos.getName() != null) {
+            shuntCompensator.setName(infos.getName());
+        }
+
+        if (infos.getConnectedToHvdc() != null) {
+            if (Boolean.TRUE.equals(infos.getConnectedToHvdc())) {
+                shuntCompensator.getTerminal().connect();
+                reportNode.newReportNode()
+                    .withMessageTemplate(EQUIPMENT_CONNECTED_TO_HVDC, "Equipment with id=${id} is connected to Hvdc")
+                    .withUntypedValue("id", shuntCompensator.getId())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
+            } else {
+                shuntCompensator.getTerminal().disconnect();
+                reportNode.newReportNode()
+                    .withMessageTemplate(EQUIPMENT_NOT_CONNECTED_TO_HVDC, "Equipment with id=${id} is disconnected from Hvdc")
+                    .withUntypedValue("id", shuntCompensator.getId())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
+            }
+        }
+
+        if (infos.getMaxQAtNominalV() != null) {
+            ShuntCompensatorLinearModel model = shuntCompensator.getModel(ShuntCompensatorLinearModel.class);
+            model.setBPerSection((infos.getMaxQAtNominalV()) / Math.pow(voltageLevel.getNominalV(), 2));
+        }
     }
 
 }
