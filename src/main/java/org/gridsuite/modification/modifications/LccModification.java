@@ -113,10 +113,8 @@ public class LccModification extends AbstractModification {
         if (modificationInfos.getConverterStation1() != null) {
             modifyConverterStation(network, modificationInfos.getConverterStation1(), subReportNode);
         }
-
         if (modificationInfos.getConverterStation2() != null) {
             modifyConverterStation(network, modificationInfos.getConverterStation2(), subReportNode);
-
         }
 
     }
