@@ -28,9 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.gridsuite.modification.utils.ModificationUtils.NO_VALUE;
+
 public class LccModification extends AbstractModification {
 
-    public static final String NO_VALUE = "No value";
     public static final String LCC_CHARACTERISTICS = "lccCharacteristics";
     public static final String EQUIPMENT_CONNECTED_TO_HVDC = "equipmentConnectedToHvdc";
     public static final String EQUIPMENT_NOT_CONNECTED_TO_HVDC = "equipmentNotConnectedToHvdc";
@@ -106,7 +107,6 @@ public class LccModification extends AbstractModification {
 
     private void modifyLcc(@Nonnull Network network, @Nonnull HvdcLine hvdcLine, LccModificationInfos modificationInfos, ReportNode subReportNode) {
 
-        // Modify characteristics
         modifyCharacteristics(hvdcLine, modificationInfos, subReportNode);
 
         // stations
