@@ -8,6 +8,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.VoltageLevel;
+import org.apache.commons.math3.util.Pair;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LccConverterStationModificationInfos;
 import org.gridsuite.modification.dto.LccModificationInfos;
 import org.gridsuite.modification.dto.LccShuntCompensatorModificationInfos;
@@ -45,6 +47,7 @@ public class LccModification extends AbstractModification {
 
     private static void modifyCharacteristics(HvdcLine hvdcLine, LccModificationInfos modificationInfos, ReportNode subReportNode) {
         List<ReportNode> characteristicsReportsContainer = new ArrayList<>();
+        String errorMessage = "Lcc '" + modificationInfos.getEquipmentId() + "' : ";
 
         //Name
         if (modificationInfos.getEquipmentName() != null) {
@@ -55,12 +58,14 @@ public class LccModification extends AbstractModification {
 
         // Nominal Voltage
         if (modificationInfos.getNominalV() != null) {
+            ModificationUtils.checkIsNotNegativeValue(errorMessage, modificationInfos.getNominalV().getValue(), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Nominal voltage");
             characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setNominalV,
                 hvdcLine::getNominalV, modificationInfos.getNominalV(), "DC nominal voltage"));
         }
 
         // DC resistance
         if (modificationInfos.getR() != null) {
+            ModificationUtils.checkIsNotNegativeValue(errorMessage, modificationInfos.getR().getValue(), NetworkModificationException.Type.MODIFY_LCC_ERROR, "DC resistance");
             characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setR,
                 hvdcLine::getR, modificationInfos.getR(), "DC resistance"));
         }
@@ -113,6 +118,7 @@ public class LccModification extends AbstractModification {
                                         @Nonnull LccConverterStationModificationInfos converterStationModificationInfos,
                                         ReportNode subReportNode) {
 
+        String errorMessage = "Lcc converter station '" + converterStationModificationInfos.getEquipmentId() + "' : ";
         LccConverterStation converterStation = network.getLccConverterStation(converterStationModificationInfos.getEquipmentId());
         if (!converterStationModificationInfos.hasModifications() || converterStation == null) {
             return;
@@ -133,11 +139,13 @@ public class LccModification extends AbstractModification {
         }
 
         if (converterStationModificationInfos.getLossFactor() != null) {
+            ModificationUtils.checkIsPercentage(errorMessage, converterStationModificationInfos.getLossFactor().getValue(), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Loss factor");
             characteristicReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setLossFactor,
                 converterStation::getLossFactor, converterStationModificationInfos.getLossFactor(), "LossFactor"));
         }
 
         if (converterStationModificationInfos.getPowerFactor() != null) {
+            ModificationUtils.checkIsInInterval(errorMessage, converterStationModificationInfos.getPowerFactor().getValue(), new Pair<>(0.f, 1.f), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Power factor");
             characteristicReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setPowerFactor,
                 converterStation::getPowerFactor, converterStationModificationInfos.getPowerFactor(), "PowerFactor"));
         }
