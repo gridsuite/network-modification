@@ -89,7 +89,7 @@ public class LccModification extends AbstractModification {
         }
 
         // Properties
-        PropertiesUtils.applyProperties(hvdcLine, subReportNode, modificationInfos.getProperties(), "HvdcLineProperties");
+        PropertiesUtils.applyProperties(hvdcLine, subReportNode, modificationInfos.getProperties(), "HvdcLine Properties");
 
         if (!characteristicsReportsContainer.isEmpty()) {
             ModificationUtils.getInstance().reportModifications(subReportNode, characteristicsReportsContainer, LCC_CHARACTERISTICS, CHARACTERISTICS);
@@ -135,19 +135,19 @@ public class LccModification extends AbstractModification {
 
         if (converterStationModificationInfos.getEquipmentName() != null) {
             characteristicReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setName,
-                () -> converterStation.getOptionalName().orElse(NO_VALUE), converterStationModificationInfos.getEquipmentName(), "EquipmentName"));
+                () -> converterStation.getOptionalName().orElse(NO_VALUE), converterStationModificationInfos.getEquipmentName(), "Equipment name"));
         }
 
         if (converterStationModificationInfos.getLossFactor() != null) {
             ModificationUtils.checkIsPercentage(errorMessage, converterStationModificationInfos.getLossFactor().getValue(), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Loss factor");
             characteristicReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setLossFactor,
-                converterStation::getLossFactor, converterStationModificationInfos.getLossFactor(), "LossFactor"));
+                converterStation::getLossFactor, converterStationModificationInfos.getLossFactor(), "Loss factor"));
         }
 
         if (converterStationModificationInfos.getPowerFactor() != null) {
             ModificationUtils.checkIsInInterval(errorMessage, converterStationModificationInfos.getPowerFactor().getValue(), new Pair<>(0.f, 1.f), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Power factor");
             characteristicReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setPowerFactor,
-                converterStation::getPowerFactor, converterStationModificationInfos.getPowerFactor(), "PowerFactor"));
+                converterStation::getPowerFactor, converterStationModificationInfos.getPowerFactor(), "Power factor"));
         }
 
         ModificationUtils.getInstance().reportModifications(converterStationReportNode, characteristicReports,
