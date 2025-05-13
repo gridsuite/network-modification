@@ -46,7 +46,7 @@ public final class ModificationUtils {
     public static final String DOES_NOT_EXIST_IN_NETWORK = " does not exist in network";
     public static final String EQUIPMENT_DISCONNECTED = "network.modification.equipmentDisconnected";
     public static final String NO_VALUE = "No value";
-    public static final String LIMITS = "network.modification.Limits";
+    public static final String LIMITS = "network.modification.limits";
     public static final String REACTIVE_LIMITS = "network.modification.ReactiveLimits";
     private static final String SETPOINTS = "network.modification.Setpoints";
     private static final String MIN_REACTIVE_POWER_FIELDNAME = "Minimum reactive power";

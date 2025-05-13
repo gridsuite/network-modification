@@ -235,7 +235,7 @@ public class GeneratorCreation extends AbstractModification {
     }
 
     private ReportNode reportGeneratorActiveLimits(GeneratorCreationInfos generatorCreationInfos, ReportNode subReportNode) {
-        ReportNode subReportNodeLimits = subReportNode.newReportNode().withMessageTemplate("network.modification.Limits").add();
+        ReportNode subReportNodeLimits = subReportNode.newReportNode().withMessageTemplate("network.modification.limits").add();
         List<ReportNode> limitsReports = new ArrayList<>();
         limitsReports.add(ModificationUtils.getInstance().buildCreationReport(
             generatorCreationInfos.getMinP(), "Min active power"));

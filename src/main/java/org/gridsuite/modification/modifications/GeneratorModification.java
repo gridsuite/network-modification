@@ -28,7 +28,7 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
  */
 public class GeneratorModification extends AbstractModification {
 
-    private static final String LIMITS = "network.modification.Limits";
+    private static final String LIMITS = "network.modification.limits";
     private static final String ACTIVE_LIMITS = "network.modification.ActiveLimits";
     private static final String SETPOINTS = "network.modification.Setpoints";
     public static final String ERROR_MESSAGE = "Generator '%s' : ";
