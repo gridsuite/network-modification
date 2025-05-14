@@ -56,8 +56,15 @@ public class OperatingStatusModificationInfos extends EquipmentModificationInfos
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
+        String messageKey = switch (action) {
+            case LOCKOUT -> "network.modification.OPERATING_STATUS_MODIFICATION_LOCKOUT";
+            case TRIP -> "network.modification.OPERATING_STATUS_MODIFICATION_TRIP";
+            case ENERGISE_END_ONE -> "network.modification.OPERATING_STATUS_MODIFICATION_ENERGISE_END_ONE";
+            case ENERGISE_END_TWO -> "network.modification.OPERATING_STATUS_MODIFICATION_ENERGISE_END_TWO";
+            case SWITCH_ON -> "network.modification.OPERATING_STATUS_MODIFICATION_SWITCH_ON";
+        };
         return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.OPERATING_STATUS_MODIFICATION" + "_" + action)
+                .withMessageTemplate(messageKey)
                 .withUntypedValue("equipmentId", this.getEquipmentId())
                 .add();
     }
