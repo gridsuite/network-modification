@@ -52,6 +52,8 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     public static final String VALUE_KEY_MODIFICATION_TYPE_LABEL = "modificationTypeLabel";
     public static final String VALUE_KEY_FILTERS_EACH_ASSIGNMENT = "filtersEachAssignment";
     public static final String VALUE_KEY_ERROR_MESSAGE = "errorMessage";
+    public static final String VALUE_KEY_ARROW_NAME = "arrow";
+    public static final String VALUE_KEY_ARROW_VALUE = "→";
     public static final String REPORT_KEY_RATIO_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR = "network.modification.ratioTapChangerEquipmentModifiedError";
     public static final String REPORT_KEY_PHASE_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR = "network.modification.phaseTapChangerEquipmentModifiedError";
     public static final String REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO = "network.modification.equipmentModifiedError.zero";
@@ -301,6 +303,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                     .withUntypedValue(VALUE_KEY_FIELD_NAME, getEditedFieldLabel(abstractAssignmentInfos))
                     .withUntypedValue(VALUE_KEY_OLD_VALUE, oldValue == null ? NO_VALUE : oldValue)
                     .withUntypedValue(VALUE_KEY_NEW_VALUE, newValue)
+                    .withUntypedValue(VALUE_KEY_ARROW_NAME, VALUE_KEY_ARROW_VALUE) // Workaround to use non-ISO-8859-1 characters in the internationalization file
                     .withSeverity(TypedValue.TRACE_SEVERITY)
                     .build());
         } catch (Exception e) {
