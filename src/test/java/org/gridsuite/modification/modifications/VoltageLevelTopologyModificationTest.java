@@ -175,7 +175,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
                 .build();
 
         ReportNode report = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles("i18n.reports")
+                .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
         assertEquals("Voltage Level topology modification v1", report.getMessage());
         modificationInfos.toModification().apply(getNetwork(), report);

@@ -214,7 +214,7 @@ class GeneratorCreationInNodeBreakerTest extends AbstractNetworkModificationTest
         generatorCreationInfos.setDirectTransX(Double.NaN);
 
         ReportNode report = generatorCreationInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles("i18n.reports")
+                .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
         generatorCreationInfos.toModification().apply(getNetwork(), report);
         assertLogMessage("cannot add short-circuit extension on generator with id=idGenerator1 : Undefined directTransX", "network.modification.ShortCircuitExtensionAddError", report);

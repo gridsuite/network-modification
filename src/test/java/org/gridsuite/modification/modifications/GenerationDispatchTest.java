@@ -98,8 +98,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         setNetwork(Network.read("testGenerationDispatch.xiidm", getClass().getResourceAsStream("/testGenerationDispatch.xiidm")));
 
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles("i18n.reports")
-                .withMessageTemplate("test").build());
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test")
+                .build());
 
         modification.toModification().apply(getNetwork(), report);
         assertNetworkAfterCreationWithStandardLossCoefficient();
@@ -120,7 +121,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         final double batteryTotalTargetP = getNetwork().getBattery(BATTERY1_ID).getTargetP() + getNetwork().getBattery(BATTERY2_ID).getTargetP();
 
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles("i18n.reports")
+                .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
         modification.toModification().apply(getNetwork(), report);
         assertLogReportsForDefaultNetwork(batteryTotalTargetP, report);
@@ -141,7 +142,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         final double batteryTotalTargetP = getNetwork().getBattery(BATTERY1_ID).getTargetP() + getNetwork().getBattery(BATTERY2_ID).getTargetP() + getNetwork().getBattery(BATTERY3_ID).getTargetP();
 
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles("i18n.reports")
+                .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
         modification.toModification().apply(getNetwork(), report);
         assertLogReportsForDefaultNetwork(batteryTotalTargetP, report);
@@ -154,7 +155,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         setNetwork(Network.read("testGenerationDispatchWithMultipleEnergySource.xiidm", getClass().getResourceAsStream("/testGenerationDispatchWithMultipleEnergySource.xiidm")));
 
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles("i18n.reports")
+                .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
         modification.toModification().apply(getNetwork(), report);
 
@@ -176,7 +177,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         setNetwork(Network.read("testGenerationDispatch.xiidm", getClass().getResourceAsStream("/testGenerationDispatch.xiidm")));
 
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles("i18n.reports")
+                .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
         modification.toModification().apply(getNetwork(), report);
 
@@ -217,7 +218,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         setNetwork(Network.read("testGenerationDispatchInternalHvdc.xiidm", getClass().getResourceAsStream("/testGenerationDispatchInternalHvdc.xiidm")));
 
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles("i18n.reports")
+                .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
         modification.toModification().apply(getNetwork(), report);
 
@@ -263,7 +264,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
         modif.initApplicationContext(filterService);
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles("i18n.reports")
+                .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
         modif.apply(getNetwork(), report);
 
@@ -325,7 +326,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
         modif.initApplicationContext(filterService);
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles("i18n.reports")
+                .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
         modif.apply(getNetwork(), report);
 
@@ -415,7 +416,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
         modif.initApplicationContext(filterService);
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles("i18n.reports")
+                .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
         modif.apply(getNetwork(), report);
 
@@ -563,7 +564,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
         modif.initApplicationContext(filterService);
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles("i18n.reports")
+                .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
         modif.apply(getNetwork(), report);
 

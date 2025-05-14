@@ -91,8 +91,9 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
         ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification();
         byFilterDeletion.initApplicationContext(filterService);
         ReportNode report = byFilterDeletionInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles("i18n.reports")
-                .withMessageTemplate("test").build());
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test")
+                .build());
         byFilterDeletion.apply(getNetwork(), report);
 
         assertLogMessage("Cannot find the following equipments " + EQUIPMENT_WRONG_ID_1 + " in filter filter1",
@@ -120,8 +121,9 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
         ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification();
         byFilterDeletion.initApplicationContext(filterService);
         ReportNode report = byFilterDeletionInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles("i18n.reports")
-                .withMessageTemplate("test").build());
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test")
+                .build());
         byFilterDeletion.apply(getNetwork(), report);
         assertLogMessage(byFilterDeletionInfos.getErrorType().name() + ": There is no valid equipment ID among the provided filter(s)",
             "network.modification.invalidFilters", report);
