@@ -13,7 +13,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VoltageInitModification;
@@ -56,6 +55,6 @@ public class VoltageInitModificationInfos extends ModificationInfos {
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate(ModificationType.VOLTAGE_INIT_MODIFICATION.name(), "Voltage init modification").add();
+        return reportNode.newReportNode().withMessageTemplate("network.modification.voltageInitModification").add();
     }
 }

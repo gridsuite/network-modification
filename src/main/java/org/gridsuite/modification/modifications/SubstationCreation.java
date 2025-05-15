@@ -20,7 +20,7 @@ public class SubstationCreation extends AbstractModification {
         ModificationUtils.getInstance().createSubstation(modificationInfos, subReportNode, network);
         Substation substation = network.getSubstation(modificationInfos.getEquipmentId());
         // properties
-        PropertiesUtils.applyProperties(substation, subReportNode, modificationInfos.getProperties(), "SubstationProperties");
+        PropertiesUtils.applyProperties(substation, subReportNode, modificationInfos.getProperties(), "network.modification.SubstationProperties");
     }
 
     @Override

@@ -67,15 +67,15 @@ public class LineModification extends AbstractBranchModification {
     }
 
     private void modifyLine(Line line, BranchModificationInfos lineModificationInfos, ReportNode subReportNode) {
-        modifyBranch(line, lineModificationInfos, subReportNode, "lineModification", "Line with id=${id} modified :");
+        modifyBranch(line, lineModificationInfos, subReportNode, "network.modification.lineModification");
         updateMeasurements(line, lineModificationInfos, subReportNode);
-        PropertiesUtils.applyProperties(line, subReportNode, modificationInfos.getProperties(), "LineProperties");
+        PropertiesUtils.applyProperties(line, subReportNode, modificationInfos.getProperties(), "network.modification.LineProperties");
     }
 
     @Override
     protected void modifyCharacteristics(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode) {
         Line line = (Line) branch;
-        ReportNode characteristicsReporter = subReportNode.newReportNode().withMessageTemplate("characteristics", "Characteristics").add();
+        ReportNode characteristicsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.characteristics").add();
         modifyR(line, branchModificationInfos.getR(), characteristicsReporter);
         modifyX(line, branchModificationInfos.getX(), characteristicsReporter);
 
@@ -89,7 +89,7 @@ public class LineModification extends AbstractBranchModification {
                                             ReportNode characteristicsReportNode) {
         if (lineModificationInfos.getG1() != null && lineModificationInfos.getG1().getValue() != null
             || lineModificationInfos.getB1() != null && lineModificationInfos.getB1().getValue() != null) {
-            ReportNode side1ReportNode = characteristicsReportNode.newReportNode().withMessageTemplate("side1Characteristics", "Side 1").add();
+            ReportNode side1ReportNode = characteristicsReportNode.newReportNode().withMessageTemplate("network.modification.side1Characteristics").add();
             modifyG1(line, lineModificationInfos.getG1(), side1ReportNode);
             modifyB1(line, lineModificationInfos.getB1(), side1ReportNode);
         }
@@ -99,7 +99,7 @@ public class LineModification extends AbstractBranchModification {
                                             ReportNode characteristicsReportNode) {
         if (lineModificationInfos.getG2() != null && lineModificationInfos.getG2().getValue() != null
             || lineModificationInfos.getB2() != null && lineModificationInfos.getB2().getValue() != null) {
-            ReportNode side2Reporter = characteristicsReportNode.newReportNode().withMessageTemplate("side2Characteristics", "Side 2").add();
+            ReportNode side2Reporter = characteristicsReportNode.newReportNode().withMessageTemplate("network.modification.side2Characteristics").add();
             modifyG2(line, lineModificationInfos.getG2(), side2Reporter);
             modifyB2(line, lineModificationInfos.getB2(), side2Reporter);
         }
@@ -123,7 +123,7 @@ public class LineModification extends AbstractBranchModification {
         if (modifX != null && modifX.getValue() != null) {
             if (reportNode != null) {
                 insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(line.getX(),
-                    modifX.getValue(), "Series reactance", 1));
+                    modifX.getValue(), "Series reactance"));
             }
             line.setX(modifX.getValue());
         }
@@ -133,7 +133,7 @@ public class LineModification extends AbstractBranchModification {
         if (modifR != null && modifR.getValue() != null) {
             if (reportNode != null) {
                 insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(line.getR(),
-                    modifR.getValue(), "Series resistance", 1));
+                    modifR.getValue(), "Series resistance"));
             }
             line.setR(modifR.getValue());
         }
@@ -144,8 +144,7 @@ public class LineModification extends AbstractBranchModification {
             if (reportNode != null) {
                 ReportNode gReportNode = ModificationUtils.getInstance().buildModificationReport(line.getG1(),
                     modifG1.getValue(),
-                    MAGNETIZING_CONDUCTANCE_MESSAGE,
-                    2);
+                    MAGNETIZING_CONDUCTANCE_MESSAGE);
                 insertReportNode(reportNode, gReportNode);
             }
             line.setG1(modifG1.getValue());
@@ -157,8 +156,7 @@ public class LineModification extends AbstractBranchModification {
             if (reportNode != null) {
                 ReportNode gReportNode = ModificationUtils.getInstance().buildModificationReport(line.getG2(),
                     modifG2.getValue(),
-                    MAGNETIZING_CONDUCTANCE_MESSAGE,
-                    2);
+                    MAGNETIZING_CONDUCTANCE_MESSAGE);
                 insertReportNode(reportNode, gReportNode);
             }
             line.setG2(modifG2.getValue());
@@ -169,7 +167,7 @@ public class LineModification extends AbstractBranchModification {
         if (modifB1 != null && modifB1.getValue() != null) {
             if (reportNode != null) {
                 insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(line.getB1(),
-                    modifB1.getValue(), MAGNETIZING_SUSCEPTANCE_MESSAGE, 2));
+                    modifB1.getValue(), MAGNETIZING_SUSCEPTANCE_MESSAGE));
             }
             line.setB1(modifB1.getValue());
         }
@@ -179,7 +177,7 @@ public class LineModification extends AbstractBranchModification {
         if (modifB2 != null && modifB2.getValue() != null) {
             if (reportNode != null) {
                 insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(line.getB2(),
-                    modifB2.getValue(), MAGNETIZING_SUSCEPTANCE_MESSAGE, 2));
+                    modifB2.getValue(), MAGNETIZING_SUSCEPTANCE_MESSAGE));
             }
             line.setB2(modifB2.getValue());
         }

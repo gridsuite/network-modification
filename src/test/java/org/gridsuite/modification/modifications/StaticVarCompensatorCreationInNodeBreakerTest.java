@@ -166,10 +166,12 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
         compensatorCreationInfos1.setLowVoltageThreshold(250.0);
         compensatorCreationInfos1.setHighVoltageThreshold(300.0);
         compensatorCreationInfos1.setQ0(Double.NaN);
-        ReportNode report = compensatorCreationInfos1.createSubReportNode(ReportNode.newRootReportNode().withMessageTemplate("", "").build());
+        ReportNode report = compensatorCreationInfos1.createSubReportNode(ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test").build());
         compensatorCreationInfos1.toModification().apply(getNetwork(), report);
         assertLogMessage("Cannot add standby automaton extension on Static var compensator 'idStaticVarCompensator1': b0 is invalid",
-                "StandbyAutomatonExtensionAddError", report);
+                "network.modification.StandbyAutomatonExtensionAddError", report);
         StaticVarCompensatorCreationInfos compensatorCreationInfos2 = (StaticVarCompensatorCreationInfos) buildModification();
         compensatorCreationInfos2.setEquipmentId("idStaticVarCompensator2");
         compensatorCreationInfos2.setStandbyAutomatonOn(true);

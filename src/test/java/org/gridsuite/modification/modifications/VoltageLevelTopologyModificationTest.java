@@ -174,10 +174,12 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
                 .equipmentAttributeModificationList(equipmentAttributeModifications)
                 .build();
 
-        ReportNode report = modificationInfos.createSubReportNode(ReportNode.newRootReportNode().withMessageTemplate("", "").build());
+        ReportNode report = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test").build());
         assertEquals("Voltage Level topology modification v1", report.getMessage());
         modificationInfos.toModification().apply(getNetwork(), report);
-        assertLogMessage("Voltage level 'v1' topology has been modified", "voltageLevelTopologyModified", report);
+        assertLogMessage("Voltage level 'v1' topology has been modified", "network.modification.voltageLevelTopologyModified", report);
     }
 
     @Override

@@ -73,7 +73,7 @@ public class LineAttachToVoltageLevelInfos extends ModificationInfos {
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate(getType().name(), "Line attach to voltage level").add();
+        return reportNode.newReportNode().withMessageTemplate("network.modification.lineAttachToVoltageLevel").add();
     }
 
     @Override

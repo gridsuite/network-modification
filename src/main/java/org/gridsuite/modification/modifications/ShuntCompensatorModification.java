@@ -70,7 +70,7 @@ public class ShuntCompensatorModification extends AbstractModification {
         VoltageLevel voltageLevel = shuntCompensator.getTerminal().getVoltageLevel();
 
         subReportNode.newReportNode()
-                .withMessageTemplate("shuntCompensatorModification", "Shunt Compensator with id=${id} modified :")
+                .withMessageTemplate("network.modification.shuntCompensatorModification.withId")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -81,7 +81,7 @@ public class ShuntCompensatorModification extends AbstractModification {
             applyModificationOnLinearModel(subReportNode, shuntCompensator, voltageLevel);
         }
         modifyShuntCompensatorConnectivityAttributes(modificationInfos, shuntCompensator, subReportNode);
-        PropertiesUtils.applyProperties(shuntCompensator, subReportNode, modificationInfos.getProperties(), "ShuntCompensatorProperties");
+        PropertiesUtils.applyProperties(shuntCompensator, subReportNode, modificationInfos.getProperties(), "network.modification.ShuntCompensatorProperties");
     }
 
     @Override

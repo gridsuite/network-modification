@@ -47,7 +47,7 @@ public class LoadCreation extends AbstractModification {
         } else {
             createLoadInBusBreaker(voltageLevel, modificationInfos);
             subReporter.newReportNode()
-                .withMessageTemplate("loadCreated", "New load with id=${id} created")
+                .withMessageTemplate("network.modification.loadCreated")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -57,7 +57,7 @@ public class LoadCreation extends AbstractModification {
 
         // properties
         Load load = network.getLoad(modificationInfos.getEquipmentId());
-        PropertiesUtils.applyProperties(load, subReporter, modificationInfos.getProperties(), "LoadProperties");
+        PropertiesUtils.applyProperties(load, subReporter, modificationInfos.getProperties(), "network.modification.LoadProperties");
     }
 
     @Override

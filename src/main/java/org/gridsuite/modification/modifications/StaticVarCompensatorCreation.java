@@ -76,9 +76,9 @@ public class StaticVarCompensatorCreation extends AbstractModification {
         ModificationUtils.getInstance().disconnectCreatedInjection(modificationInfos, network.getStaticVarCompensator(modificationInfos.getEquipmentId()), subReportNode);
         // properties
         StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator(modificationInfos.getEquipmentId());
-        PropertiesUtils.applyProperties(staticVarCompensator, subReportNode, modificationInfos.getProperties(), "StaticVarCompensatorProperties");
+        PropertiesUtils.applyProperties(staticVarCompensator, subReportNode, modificationInfos.getProperties(), "network.modification.StaticVarCompensatorProperties");
         subReportNode.newReportNode()
-                .withMessageTemplate("staticVarCompensatorCreated", "New static var compensator with id=${id} created")
+                .withMessageTemplate("network.modification.staticVarCompensatorCreated")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -177,14 +177,14 @@ public class StaticVarCompensatorCreation extends AbstractModification {
                         "Low voltage threshold"));
             } catch (PowsyblException e) {
                 standbyAutomatonReports.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("StandbyAutomatonExtensionAddError",
-                                "Cannot add standby automaton extension on ${message}")
+                        .withAllResourceBundlesFromClasspath()
+                        .withMessageTemplate("network.modification.StandbyAutomatonExtensionAddError")
                         .withUntypedValue("message", e.getMessage())
                         .withSeverity(TypedValue.ERROR_SEVERITY)
                         .build());
             }
             ModificationUtils.getInstance().reportModifications(subReportNode, standbyAutomatonReports,
-                    "StandbyAutomatonCreated", "Standby automaton");
+                    "network.modification.StandbyAutomatonCreated");
         }
     }
 
@@ -249,7 +249,7 @@ public class StaticVarCompensatorCreation extends AbstractModification {
                 updateCompensatorRegulatingTerminal(staticVarCompensatorCreationInfos, staticVarCompensator, terminal, voltageReports);
             }
         }
-        ModificationUtils.getInstance().reportModifications(subReportNode, voltageReports, "LimitsAndSetpointsCreated", "Limits and Setpoints");
+        ModificationUtils.getInstance().reportModifications(subReportNode, voltageReports, "network.modification.LimitsAndSetpointsCreated");
     }
 
     private void updateCompensatorRegulatingTerminal(StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos, StaticVarCompensator staticVarCompensator,

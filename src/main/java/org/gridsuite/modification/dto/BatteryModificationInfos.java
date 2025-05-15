@@ -70,6 +70,9 @@ public class BatteryModificationInfos extends InjectionModificationInfos {
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate(getType().name(), "Battery modification ${batteryId}").withUntypedValue("batteryId", this.getEquipmentId()).add();
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.battery.modification")
+                .withUntypedValue("batteryId", this.getEquipmentId())
+                .add();
     }
 }

@@ -32,8 +32,6 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
 public class GeneratorCreation extends AbstractModification {
 
     private final GeneratorCreationInfos modificationInfos;
-    private static final String LIMITS = "Limits";
-    private static final String ACTIVE_LIMITS = "Active limits";
 
     public GeneratorCreation(GeneratorCreationInfos modificationInfos) {
         this.modificationInfos = modificationInfos;
@@ -85,7 +83,7 @@ public class GeneratorCreation extends AbstractModification {
         }
         // apply the properties
         Generator generator = network.getGenerator(modificationInfos.getEquipmentId());
-        PropertiesUtils.applyProperties(generator, subReportNode, modificationInfos.getProperties(), "GeneratorProperties");
+        PropertiesUtils.applyProperties(generator, subReportNode, modificationInfos.getProperties(), "network.modification.GeneratorProperties");
     }
 
     @Override
@@ -169,7 +167,7 @@ public class GeneratorCreation extends AbstractModification {
         addExtensionsToGenerator(generatorCreationInfos, generator, voltageLevel, subReportNode);
 
         subReportNode.newReportNode()
-                .withMessageTemplate("generatorCreated", "New generator with id=${id} created")
+                .withMessageTemplate("network.modification.generatorCreated")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -183,13 +181,13 @@ public class GeneratorCreation extends AbstractModification {
             setPointReports.add(ModificationUtils.getInstance()
                 .buildCreationReport(generatorCreationInfos.getTargetQ(), "Reactive power"));
         }
-        return ModificationUtils.getInstance().reportModifications(subReportNode, setPointReports, "SetPointCreated", "Setpoints");
+        return ModificationUtils.getInstance().reportModifications(subReportNode, setPointReports, "network.modification.SetPointCreated");
     }
 
     private void createGeneratorVoltageRegulation(GeneratorCreationInfos generatorCreationInfos, Generator generator, VoltageLevel voltageLevel, ReportNode subReportNode) {
         List<ReportNode> voltageReports = new ArrayList<>();
         voltageReports.add(ModificationUtils.getInstance()
-                .createEnabledDisabledReport("VoltageRegulationOn", modificationInfos.isVoltageRegulationOn()));
+                .createEnabledDisabledReport("network.modification.VoltageRegulationOn", modificationInfos.isVoltageRegulationOn()));
         voltageReports.add(ModificationUtils.getInstance().buildCreationReport(generatorCreationInfos.getTargetV(), "Voltage"));
         if (generatorCreationInfos.getRegulatingTerminalVlId() != null && generatorCreationInfos.getRegulatingTerminalId() != null &&
                 generatorCreationInfos.getRegulatingTerminalType() != null) {
@@ -208,14 +206,15 @@ public class GeneratorCreation extends AbstractModification {
                 voltageReports.add(ModificationUtils.getInstance().buildCreationReport(generatorCreationInfos.getQPercent(), "Reactive percentage"));
             } catch (PowsyblException e) {
                 voltageReports.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("ReactivePercentageError", "cannot add Coordinated reactive extension on generator with id=${id} : ${message}")
+                        .withAllResourceBundlesFromClasspath()
+                        .withMessageTemplate("network.modification.ReactivePercentageError")
                         .withUntypedValue("id", generatorCreationInfos.getEquipmentId())
                         .withUntypedValue("message", e.getMessage())
                         .withSeverity(TypedValue.ERROR_SEVERITY)
                         .build());
             }
         }
-        ModificationUtils.getInstance().reportModifications(subReportNode, voltageReports, "VoltageRegulationCreated", "Voltage regulation");
+        ModificationUtils.getInstance().reportModifications(subReportNode, voltageReports, "network.modification.VoltageRegulationCreated");
 
     }
 
@@ -236,7 +235,7 @@ public class GeneratorCreation extends AbstractModification {
     }
 
     private ReportNode reportGeneratorActiveLimits(GeneratorCreationInfos generatorCreationInfos, ReportNode subReportNode) {
-        ReportNode subReportNodeLimits = subReportNode.newReportNode().withMessageTemplate(LIMITS, LIMITS).add();
+        ReportNode subReportNodeLimits = subReportNode.newReportNode().withMessageTemplate("network.modification.limits").add();
         List<ReportNode> limitsReports = new ArrayList<>();
         limitsReports.add(ModificationUtils.getInstance().buildCreationReport(
             generatorCreationInfos.getMinP(), "Min active power"));
@@ -246,7 +245,7 @@ public class GeneratorCreation extends AbstractModification {
             limitsReports.add(ModificationUtils.getInstance().buildCreationReport(
                 generatorCreationInfos.getRatedS(), "Rated nominal power"));
         }
-        ModificationUtils.getInstance().reportModifications(subReportNodeLimits, limitsReports, "ActiveLimitsCreated", ACTIVE_LIMITS);
+        ModificationUtils.getInstance().reportModifications(subReportNodeLimits, limitsReports, "network.modification.ActiveLimitsCreated");
         return subReportNodeLimits;
     }
 
@@ -266,14 +265,15 @@ public class GeneratorCreation extends AbstractModification {
                         "Droop"));
             } catch (PowsyblException e) {
                 activePowerRegulationReports.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("ActivePowerExtensionAddError", "cannot add active power extension on generator with id=${id} : ${message}")
+                        .withAllResourceBundlesFromClasspath()
+                        .withMessageTemplate("network.modification.activePowerExtensionAddError.generator")
                         .withUntypedValue("id", generatorCreationInfos.getEquipmentId())
                         .withUntypedValue("message", e.getMessage())
                         .withSeverity(TypedValue.ERROR_SEVERITY)
                         .build());
 
             }
-            ModificationUtils.getInstance().reportModifications(subReportNode, activePowerRegulationReports, "ActivePowerRegulationCreated", "Active power regulation");
+            ModificationUtils.getInstance().reportModifications(subReportNode, activePowerRegulationReports, "network.modification.ActivePowerRegulationCreated");
         }
     }
 
@@ -293,13 +293,14 @@ public class GeneratorCreation extends AbstractModification {
                 }
             } catch (PowsyblException e) {
                 shortCircuitReports.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("ShortCircuitExtensionAddError", "cannot add short-circuit extension on generator with id=${id} : ${message}")
+                        .withAllResourceBundlesFromClasspath()
+                        .withMessageTemplate("network.modification.ShortCircuitExtensionAddError")
                         .withUntypedValue("id", generatorCreationInfos.getEquipmentId())
                         .withUntypedValue("message", e.getMessage())
                         .withSeverity(TypedValue.ERROR_SEVERITY)
                         .build());
             }
-            ModificationUtils.getInstance().reportModifications(subReportNode, shortCircuitReports, "shortCircuitCreated", "Short-circuit");
+            ModificationUtils.getInstance().reportModifications(subReportNode, shortCircuitReports, "network.modification.shortCircuitCreated");
         }
     }
 
@@ -334,13 +335,14 @@ public class GeneratorCreation extends AbstractModification {
                 }
             } catch (PowsyblException e) {
                 startupReports.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("StartupExtensionAddError", "cannot add startup extension on generator with id=${id} : ${message}")
+                        .withAllResourceBundlesFromClasspath()
+                        .withMessageTemplate("network.modification.StartupExtensionAddError")
                         .withUntypedValue("id", generatorCreationInfos.getEquipmentId())
-                        .withMessageTemplate("message", e.getMessage())
+                        .withUntypedValue("message", e.getMessage())
                         .withSeverity(TypedValue.ERROR_SEVERITY)
                         .build());
             }
-            ModificationUtils.getInstance().reportModifications(subReportNode, startupReports, "startUpAttributesCreated", "Start up");
+            ModificationUtils.getInstance().reportModifications(subReportNode, startupReports, "network.modification.startUpAttributesCreated");
         }
     }
 }

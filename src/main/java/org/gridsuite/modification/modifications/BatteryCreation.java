@@ -30,8 +30,6 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
 public class BatteryCreation extends AbstractModification {
 
     private final BatteryCreationInfos modificationInfos;
-    private static final String LIMITS = "Limits";
-    private static final String ACTIVE_LIMITS = "Active limits";
 
     public BatteryCreation(BatteryCreationInfos modificationInfos) {
         this.modificationInfos = modificationInfos;
@@ -74,7 +72,7 @@ public class BatteryCreation extends AbstractModification {
         }
         // properties
         Battery battery = network.getBattery(modificationInfos.getEquipmentId());
-        PropertiesUtils.applyProperties(battery, subReportNode, modificationInfos.getProperties(), "BatteryProperties");
+        PropertiesUtils.applyProperties(battery, subReportNode, modificationInfos.getProperties(), "network.modification.BatteryProperties");
     }
 
     @Override
@@ -118,7 +116,7 @@ public class BatteryCreation extends AbstractModification {
         addExtensionsToBattery(batteryCreationInfos, battery, subReportNode);
 
         subReportNode.newReportNode()
-                .withMessageTemplate("batteryCreated", "New battery with id=${id} created")
+                .withMessageTemplate("network.modification.batteryCreated")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -143,17 +141,17 @@ public class BatteryCreation extends AbstractModification {
             setPointReports.add(ModificationUtils.getInstance()
                 .buildCreationReport(batteryCreationInfos.getTargetQ(), "Reactive power"));
         }
-        return ModificationUtils.getInstance().reportModifications(subReportNode, setPointReports, "SetPointCreated", "Setpoints");
+        return ModificationUtils.getInstance().reportModifications(subReportNode, setPointReports, "network.modification.SetPointCreated");
     }
 
     private ReportNode reportBatteryActiveLimits(BatteryCreationInfos batteryCreationInfos, ReportNode subReportNode) {
-        ReportNode subReportNodeLimits = subReportNode.newReportNode().withMessageTemplate(LIMITS, LIMITS).add();
+        ReportNode subReportNodeLimits = subReportNode.newReportNode().withMessageTemplate("network.modification.limits").add();
         List<ReportNode> limitsReports = new ArrayList<>();
         limitsReports.add(ModificationUtils.getInstance().buildCreationReport(
             batteryCreationInfos.getMinP(), "Min active power"));
         limitsReports.add(ModificationUtils.getInstance().buildCreationReport(
             batteryCreationInfos.getMaxP(), "Max active power"));
-        ModificationUtils.getInstance().reportModifications(subReportNodeLimits, limitsReports, "ActiveLimitsCreated", ACTIVE_LIMITS);
+        ModificationUtils.getInstance().reportModifications(subReportNodeLimits, limitsReports, "network.modification.ActiveLimitsCreated");
         return subReportNodeLimits;
     }
 
@@ -173,13 +171,14 @@ public class BatteryCreation extends AbstractModification {
                         "Droop"));
             } catch (PowsyblException e) {
                 activePowerRegulationReports.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("ActivePowerExtensionAddError", "cannot add active power extension on battery with id=${id} : ${message}")
+                        .withAllResourceBundlesFromClasspath()
+                        .withMessageTemplate("network.modification.activePowerExtensionAddError.battery")
                         .withUntypedValue("id", batteryCreationInfos.getEquipmentId())
                         .withUntypedValue("message", e.getMessage())
                         .withSeverity(TypedValue.ERROR_SEVERITY)
                         .build());
             }
-            ModificationUtils.getInstance().reportModifications(subReporter, activePowerRegulationReports, "ActivePowerRegulationCreated", "Active power regulation");
+            ModificationUtils.getInstance().reportModifications(subReporter, activePowerRegulationReports, "network.modification.ActivePowerRegulationCreated");
         }
     }
 }
