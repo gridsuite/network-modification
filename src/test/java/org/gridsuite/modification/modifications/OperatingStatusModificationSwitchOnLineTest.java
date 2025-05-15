@@ -69,7 +69,7 @@ class OperatingStatusModificationSwitchOnLineTest extends AbstractNetworkModific
     }
 
     @Test
-    void testCreateSubReportNode() throws Exception {
+    void testCreateSubReportNode() {
         ReportNode reportNode = ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test")

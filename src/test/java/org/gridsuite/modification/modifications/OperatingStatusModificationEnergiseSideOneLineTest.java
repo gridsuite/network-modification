@@ -87,7 +87,7 @@ class OperatingStatusModificationEnergiseSideOneLineTest extends AbstractNetwork
     }
 
     @Test
-    void testCreateSubReportNode() throws Exception {
+    void testCreateSubReportNode() {
         ReportNode reportNode = ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test")

@@ -24,8 +24,6 @@ public class TabularCreation extends AbstractModification {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TabularCreation.class);
 
-    private static final String TABULAR_CREATION_REPORT_KEY_PREFIX = "tabular";
-
     private final TabularCreationInfos creationInfos;
 
     public TabularCreation(TabularCreationInfos creationInfos) {

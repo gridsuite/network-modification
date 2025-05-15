@@ -39,7 +39,6 @@ import static org.gridsuite.modification.NetworkModificationException.Type.GENER
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class GenerationDispatch extends AbstractModification {
-    private static final String SYNCHRONOUS_COMPONENT = "SC";
     private static final String POWER_TO_DISPATCH = "network.modification.PowerToDispatch";
     private static final String STACKING = "network.modification.Stacking";
     private static final String RESULT = "network.modification.Result";
