@@ -20,9 +20,6 @@ import com.powsybl.iidm.network.Network;
  */
 public abstract class AbstractModification extends AbstractNetworkModification {
 
-    public static final String CHARACTERISTICS = "Characteristics";
-    public static final String SETPOINTS = "Setpoints";
-
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         apply(network, reportNode);

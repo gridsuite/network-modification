@@ -54,7 +54,7 @@ public class VoltageLevelModificationInfos extends BasicEquipmentModificationInf
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(getType().name(), "VoltageLevel modification ${voltageLevelId}")
+                .withMessageTemplate("network.modification.voltageLevel.modification")
                 .withUntypedValue("voltageLevelId", getEquipmentId())
                 .add();
     }

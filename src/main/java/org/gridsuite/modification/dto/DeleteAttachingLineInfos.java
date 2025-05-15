@@ -58,7 +58,7 @@ public class DeleteAttachingLineInfos extends ModificationInfos {
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate(getType().name(), "Delete attaching line").add();
+        return reportNode.newReportNode().withMessageTemplate("network.modification.deleteAttachingLine").add();
     }
 
     @Override

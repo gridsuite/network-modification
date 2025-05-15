@@ -6,10 +6,7 @@
  */
 package org.gridsuite.modification.utils;
 
-import com.powsybl.commons.report.ReportConstants;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.ReportNodeAdder;
-import com.powsybl.commons.report.TypedValue;
+import com.powsybl.commons.report.*;
 import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
@@ -47,14 +44,13 @@ public final class ModificationUtils {
     public static final String BUS_BAR_SECTION_ID = "busbarSectionId";
 
     public static final String DOES_NOT_EXIST_IN_NETWORK = " does not exist in network";
-    public static final String EQUIPMENT_DISCONNECTED = "equipmentDisconnected";
+    public static final String EQUIPMENT_DISCONNECTED = "network.modification.equipmentDisconnected";
     public static final String NO_VALUE = "No value";
-    public static final String LIMITS = "Limits";
-    public static final String REACTIVE_LIMITS = "Reactive limits";
-    private static final String SETPOINTS = "Setpoints";
+    public static final String LIMITS = "network.modification.limits";
+    public static final String REACTIVE_LIMITS = "network.modification.ReactiveLimits";
+    private static final String SETPOINTS = "network.modification.Setpoints";
     private static final String MIN_REACTIVE_POWER_FIELDNAME = "Minimum reactive power";
     private static final String MAX_REACTIVE_POWER_FIELDNAME = "Maximum reactive power";
-    private static final String CONNECTIVITY = "Connectivity";
     public static final String CONNECTION_NAME_FIELD_NAME = "Connection name";
     public static final String CONNECTION_DIRECTION_FIELD_NAME = "Connection direction";
     public static final String CONNECTION_POSITION_FIELD_NAME = "Connection position";
@@ -325,7 +321,7 @@ public final class ModificationUtils {
         Identifiable<?> busOrBbs2 = network.getIdentifiable(busbarSectionId2);
         if (busOrBbs1 == null) {
             subReportNode.newReportNode()
-                    .withMessageTemplate("notFoundBurOrBusbarSection", "Bus or busbar section ID ${busbarSectionId} not found. Coupler was not created.")
+                    .withMessageTemplate("network.modification.notFoundBurOrBusbarSection")
                     .withUntypedValue(BUS_BAR_SECTION_ID, busbarSectionId1)
                     .withSeverity(TypedValue.ERROR_SEVERITY)
                     .add();
@@ -333,7 +329,7 @@ public final class ModificationUtils {
         }
         if (busOrBbs2 == null) {
             subReportNode.newReportNode()
-                    .withMessageTemplate("notFoundBurOrBusbarSection", "Bus or busbar section ID ${busbarSectionId} not found. Coupler was not created.")
+                    .withMessageTemplate("network.modification.notFoundBurOrBusbarSection")
                     .withUntypedValue(BUS_BAR_SECTION_ID, busbarSectionId2)
                     .withSeverity(TypedValue.ERROR_SEVERITY)
                     .add();
@@ -351,7 +347,7 @@ public final class ModificationUtils {
                 .add();
 
         subReportNode.newReportNode()
-                .withMessageTemplate("substationCreated", "New substation with id=${id} created")
+                .withMessageTemplate("network.modification.substationCreated")
                 .withUntypedValue("id", substationCreationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -376,7 +372,7 @@ public final class ModificationUtils {
             substationId = substationCreation.getEquipmentId();
             createSubstation(substationCreation, subReportNode, network);
             substation = network.getSubstation(substationId);
-            PropertiesUtils.applyProperties(substation, subReportNode, substationCreation.getProperties(), "SubstationProperties");
+            PropertiesUtils.applyProperties(substation, subReportNode, substationCreation.getProperties(), "network.modification.SubstationProperties");
         } else {
             substation = network.getSubstation(substationId);
         }
@@ -431,7 +427,7 @@ public final class ModificationUtils {
         });
 
         subReportNode.newReportNode()
-                .withMessageTemplate("voltageLevelCreated", "New voltage level with id=${id} created")
+                .withMessageTemplate("network.modification.voltageLevelCreated")
                 .withUntypedValue("id", voltageLevelCreationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
@@ -501,9 +497,9 @@ public final class ModificationUtils {
         }
     }
 
-    public static void createReport(ReportNode reportNode, String reporterKey, String defaultMessage, Map<String, Object> values, TypedValue errorSeverity) {
+    public static void createReport(ReportNode reportNode, String reporterKey, Map<String, Object> values, TypedValue errorSeverity) {
         ReportNodeAdder adder = reportNode.newReportNode()
-                .withMessageTemplate(reporterKey, defaultMessage)
+                .withMessageTemplate(reporterKey)
                 .withSeverity(errorSeverity);
 
         for (Map.Entry<String, Object> valueEntry : values.entrySet()) {
@@ -531,34 +527,23 @@ public final class ModificationUtils {
         return null;
     }
 
-    public <T> ReportNode applyElementaryModificationsAndReturnReport(Consumer<T> setter, Supplier<T> getter,
-                                                                                AttributeModification<T> modification, String fieldName, int indentationLevel) {
-        if (modification != null) {
-            T oldValue = getter.get();
-            T newValue = modification.applyModification(oldValue);
-            setter.accept(newValue);
-
-            return buildModificationReport(oldValue, newValue, fieldName, indentationLevel);
-        }
-        return null;
-    }
-
     public ReportNode createEnabledDisabledReport(String key, boolean enabled) {
         return ReportNode.newRootReportNode()
-                .withMessageTemplate(key, "    ${status}")
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate(key)
                 .withUntypedValue("status", enabled ? "Enabled" : "Disabled")
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build();
     }
 
-    public ReportNode reportModifications(ReportNode reportNode, List<ReportNode> reports, String subReportNodeKey, String subReportNodeMessage) {
+    public ReportNode reportModifications(ReportNode reportNode, List<ReportNode> reports, String subReportNodeKey) {
         List<ReportNode> validReports = reports.stream().filter(Objects::nonNull).toList();
         ReportNode subReportNode = null;
         if (!validReports.isEmpty() && reportNode != null) {
             // new child report node
-            subReportNode = reportNode.newReportNode().withMessageTemplate(subReportNodeKey, subReportNodeMessage).add();
+            subReportNode = reportNode.newReportNode().withMessageTemplate(subReportNodeKey).add();
             for (ReportNode report : validReports) {
-                ReportNodeAdder reportNodeAdder = subReportNode.newReportNode().withMessageTemplate(report.getMessageKey(), report.getMessageTemplate()).withSeverity(TypedValue.INFO_SEVERITY);
+                ReportNodeAdder reportNodeAdder = subReportNode.newReportNode().withMessageTemplate(report.getMessageKey()).withSeverity(TypedValue.INFO_SEVERITY);
                 for (Map.Entry<String, TypedValue> valueEntry : report.getValues().entrySet()) {
                     reportNodeAdder.withUntypedValue(valueEntry.getKey(), valueEntry.getValue().toString());
                 }
@@ -587,25 +572,22 @@ public final class ModificationUtils {
         T oldValue = getter.get();
         T newValue = modification.applyModification(oldValue);
         setter.accept(newValue);
-        return buildModificationReport(oldValue, newValue, fieldName, 1, TypedValue.INFO_SEVERITY);
+        return buildModificationReport(oldValue, newValue, fieldName, TypedValue.INFO_SEVERITY);
     }
 
     public <T> ReportNode buildModificationReport(T oldValue, T newValue, String fieldName) {
-        return buildModificationReport(oldValue, newValue, fieldName, 1, TypedValue.INFO_SEVERITY);
+        return buildModificationReport(oldValue, newValue, fieldName, TypedValue.INFO_SEVERITY);
     }
 
-    public <T> ReportNode buildModificationReport(T oldValue, T newValue, String fieldName, int indentationLevel) {
-        return buildModificationReport(oldValue, newValue, fieldName, indentationLevel, TypedValue.INFO_SEVERITY);
-    }
-
-    public static <T> ReportNode buildModificationReport(T oldValue, T newValue, String fieldName, int indentationLevel, TypedValue severity) {
+    public static <T> ReportNode buildModificationReport(T oldValue, T newValue, String fieldName, TypedValue severity) {
         final String oldValueString = (oldValue == null || oldValue instanceof Double oldDouble && Double.isNaN(oldDouble))
                 ? NO_VALUE : oldValue.toString();
         final String newValueString = (newValue == null || newValue instanceof Double newDouble && Double.isNaN(newDouble))
                 ? NO_VALUE : newValue.toString();
-        final String indentation = "\t".repeat(indentationLevel);
         return ReportNode.newRootReportNode()
-                .withMessageTemplate("modification-indent" + indentationLevel, indentation + "${fieldName} : ${oldValue} → ${newValue}")
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("network.modification.fieldModification")
+                .withUntypedValue("arrow", "→") // Workaround to use non-ISO-8859-1 characters in the internationalization file
                 .withUntypedValue("fieldName", fieldName)
                 .withUntypedValue("oldValue", oldValueString)
                 .withUntypedValue("newValue", newValueString)
@@ -666,7 +648,7 @@ public final class ModificationUtils {
         if (!modificationInfos.isTerminalConnected()) {
             injection.getTerminal().disconnect();
             subReportNode.newReportNode()
-                    .withMessageTemplate(EQUIPMENT_DISCONNECTED, "Equipment with id=${id} disconnected")
+                    .withMessageTemplate(EQUIPMENT_DISCONNECTED)
                     .withUntypedValue("id", modificationInfos.getEquipmentId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
@@ -682,7 +664,7 @@ public final class ModificationUtils {
         processConnectivityPosition(connectablePosition, connectablePositionAdder, modificationInfos, injection.getNetwork(), reports);
         modifyConnection(modificationInfos.getTerminalConnected(), injection, injection.getTerminal(), reports);
 
-        return reportModifications(connectivityReports, reports, "ConnectivityModified", CONNECTIVITY);
+        return reportModifications(connectivityReports, reports, "network.modification.ConnectivityModified");
     }
 
     public ReportNode modifyBranchConnectivityAttributes(ConnectablePosition<?> connectablePosition,
@@ -695,7 +677,7 @@ public final class ModificationUtils {
         modifyConnection(modificationInfos.getTerminal1Connected(), branch, branch.getTerminal1(), reports, ThreeSides.ONE);
         modifyConnection(modificationInfos.getTerminal2Connected(), branch, branch.getTerminal2(), reports, ThreeSides.TWO);
 
-        return reportModifications(connectivityReports, reports, "ConnectivityModified", CONNECTIVITY);
+        return reportModifications(connectivityReports, reports, "network.modification.ConnectivityModified");
     }
 
     private void processConnectivityPosition(ConnectablePosition<?> connectablePosition,
@@ -977,17 +959,19 @@ public final class ModificationUtils {
             throw new NetworkModificationException(equipment instanceof Branch<?> ? BRANCH_MODIFICATION_ERROR : INJECTION_MODIFICATION_ERROR,
                     String.format("Could not %s equipment '%s'", action, equipment.getId()));
         }
-        String equipmentMessage = "Equipment with id=${id} %sed";
-        String reportKey = "equipment" + capitalize(action);
+
+        String reportKey = "network.modification.equipment" + capitalize(action) + (side != null ? ".side" : "");
+        ReportNodeBuilder builder = ReportNode.newRootReportNode()
+            .withAllResourceBundlesFromClasspath()
+            .withMessageTemplate(reportKey)
+            .withUntypedValue("id", equipment.getId())
+            .withSeverity(TypedValue.INFO_SEVERITY);
+
         if (side != null) {
-            equipmentMessage += String.format(" on side %d", side.getNum());
-            reportKey += String.format("side%d", side.getNum());
+            builder.withUntypedValue("side", side.getNum());
         }
-        reports.add(ReportNode.newRootReportNode()
-                .withMessageTemplate(reportKey, String.format(equipmentMessage, action))
-                .withUntypedValue("id", equipment.getId())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+
+        reports.add(builder.build());
     }
 
     private String capitalize(String input) {
@@ -999,7 +983,7 @@ public final class ModificationUtils {
         if (!modificationInfos.isConnected1()) {
             branch.getTerminal1().disconnect();
             subReportNode.newReportNode()
-                    .withMessageTemplate("terminal1Disconnected", "Equipment with id=${id} disconnected on side 1")
+                    .withMessageTemplate("network.modification.terminal1Disconnected")
                     .withUntypedValue("id", modificationInfos.getEquipmentId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
@@ -1007,7 +991,7 @@ public final class ModificationUtils {
         if (!modificationInfos.isConnected2()) {
             branch.getTerminal2().disconnect();
             subReportNode.newReportNode()
-                    .withMessageTemplate("terminal2Disconnected", "Equipment with id=${id} disconnected on side 2")
+                    .withMessageTemplate("network.modification.terminal2Disconnected")
                     .withUntypedValue("id", modificationInfos.getEquipmentId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
@@ -1059,7 +1043,9 @@ public final class ModificationUtils {
                     ? branch.newOperationalLimitsGroup1(opLimitsGroup.getId())
                     : branch.newOperationalLimitsGroup2(opLimitsGroup.getId());
             if (opLimitsGroup.getId() != null) {
-                limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode().withMessageTemplate("limitSetAdded", "     ${name} added")
+                limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
+                        .withMessageTemplate("network.modification.limitSetAdded")
                         .withUntypedValue("name", opLimitsGroup.getId())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .build());
@@ -1084,15 +1070,15 @@ public final class ModificationUtils {
         }
         if (!limitSetsOnSideReportNodes.isEmpty()) {
             ModificationUtils.getInstance().reportModifications(limitsReporter, limitSetsOnSideReportNodes,
-                    "LimitsSetsOnSide" + side.getNum(), "Limit Sets Side " + side.getNum()
-            );
+                    "network.modification.LimitsSetsOnSide" + side.getNum());
         }
     }
 
     public <T> ReportNode buildCreationReport(T value, String fieldName) {
         String newValueString = value == null ? NO_VALUE : value.toString();
         return ReportNode.newRootReportNode()
-                .withMessageTemplate("Creation" + fieldName, "    ${fieldName} : ${value}")
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("network.modification.creation.fieldName")
                 .withUntypedValue("fieldName", fieldName)
                 .withUntypedValue("value", newValueString)
                 .withSeverity(TypedValue.INFO_SEVERITY)
@@ -1139,13 +1125,13 @@ public final class ModificationUtils {
         ReportNode subReporterLimits2 = subReportNodeLimits;
         if (!reports.isEmpty()) {
             if (subReportNodeLimits == null) {
-                subReporterLimits2 = subReportNode.newReportNode().withMessageTemplate(LIMITS, LIMITS).add();
+                subReporterLimits2 = subReportNode.newReportNode().withMessageTemplate(LIMITS).add();
             }
             if (subReporterLimits2 != null) {
-                subReportNodeReactiveLimits = subReporterLimits2.newReportNode().withMessageTemplate(REACTIVE_LIMITS, REACTIVE_LIMITS).add();
+                subReportNodeReactiveLimits = subReporterLimits2.newReportNode().withMessageTemplate(REACTIVE_LIMITS).add();
             }
         }
-        reportModifications(subReportNodeReactiveLimits, reports, "curveReactiveLimitsModified", "By diagram");
+        reportModifications(subReportNodeReactiveLimits, reports, "network.modification.curveReactiveLimitsModified");
     }
 
     public void createReactiveCapabilityCurvePoint(ReactiveCapabilityCurveAdder adder,
@@ -1242,12 +1228,12 @@ public final class ModificationUtils {
         ReportNode subReportNodeReactiveLimits = null;
         ReportNode subReportNodeLimits2 = subReportNodeLimits;
         if (subReportNodeLimits == null && !reports.isEmpty()) {
-            subReportNodeLimits2 = subReportNode.newReportNode().withMessageTemplate(LIMITS, LIMITS).add();
+            subReportNodeLimits2 = subReportNode.newReportNode().withMessageTemplate(LIMITS).add();
         }
         if (subReportNodeLimits2 != null && !reports.isEmpty()) {
-            subReportNodeReactiveLimits = subReportNodeLimits2.newReportNode().withMessageTemplate(REACTIVE_LIMITS, REACTIVE_LIMITS).add();
+            subReportNodeReactiveLimits = subReportNodeLimits2.newReportNode().withMessageTemplate(REACTIVE_LIMITS).add();
         }
-        reportModifications(subReportNodeReactiveLimits, reports, "minMaxReactiveLimitsModified", "By range");
+        reportModifications(subReportNodeReactiveLimits, reports, "network.modification.minMaxReactiveLimitsModified");
     }
 
     private void modifyExistingActivePowerControl(ActivePowerControl<?> activePowerControl,
@@ -1315,9 +1301,9 @@ public final class ModificationUtils {
         if (subReportNode != null) {
             ReportNode subReportNodeSetpoints2 = subReporterSetpoints;
             if (subReporterSetpoints == null && !reports.isEmpty()) {
-                subReportNodeSetpoints2 = subReportNode.newReportNode().withMessageTemplate(SETPOINTS, SETPOINTS).add();
+                subReportNodeSetpoints2 = subReportNode.newReportNode().withMessageTemplate(SETPOINTS).add();
             }
-            reportModifications(subReportNodeSetpoints2, reports, "activePowerControlModified", "Active power control");
+            reportModifications(subReportNodeSetpoints2, reports, "network.modification.activePowerControlModified");
             return subReportNodeSetpoints2;
         }
         return null;
@@ -1548,9 +1534,9 @@ public final class ModificationUtils {
                     batteryCreationInfos.getMaxQ(),
                     MAX_REACTIVE_POWER_FIELDNAME));
 
-            ReportNode subReporterReactiveLimits = subReportNode.newReportNode().withMessageTemplate(REACTIVE_LIMITS, REACTIVE_LIMITS).add();
+            ReportNode subReporterReactiveLimits = subReportNode.newReportNode().withMessageTemplate(REACTIVE_LIMITS).add();
 
-            ModificationUtils.getInstance().reportModifications(subReporterReactiveLimits, minMaxReactiveLimitsReports, "minMaxReactiveLimitsCreated", "By range");
+            ModificationUtils.getInstance().reportModifications(subReporterReactiveLimits, minMaxReactiveLimitsReports, "network.modification.minMaxReactiveLimitsCreated");
         }
     }
 
@@ -1574,8 +1560,8 @@ public final class ModificationUtils {
                     createReactiveCapabilityCurvePoint(adder, newPoint, pointsReports, fieldSuffix);
                 });
         adder.add();
-        ReportNode subReporterReactiveLimits = subReportNode.newReportNode().withMessageTemplate(REACTIVE_LIMITS, REACTIVE_LIMITS).add();
-        ModificationUtils.getInstance().reportModifications(subReporterReactiveLimits, pointsReports, "curveReactiveLimitsCreated", "By diagram");
+        ReportNode subReporterReactiveLimits = subReportNode.newReportNode().withMessageTemplate(REACTIVE_LIMITS).add();
+        ModificationUtils.getInstance().reportModifications(subReporterReactiveLimits, pointsReports, "network.modification.curveReactiveLimitsCreated");
     }
 
     private void createReactiveCapabilityCurvePoint(ReactiveCapabilityCurveAdder adder,
@@ -1599,8 +1585,7 @@ public final class ModificationUtils {
                 .allMatch(filterEquipments -> CollectionUtils.isEmpty(filterEquipments.getIdentifiableAttributes()));
 
         if (noValidEquipmentId) {
-            String errorMsg = "${errorType}: There is no valid equipment ID among the provided filter(s)";
-            createReport(subReportNode, "invalidFilters", errorMsg, Map.of("errorType", errorType), TypedValue.ERROR_SEVERITY);
+            createReport(subReportNode, "network.modification.invalidFilters", Map.of("errorType", errorType), TypedValue.ERROR_SEVERITY);
             return false;
         }
 
@@ -1610,10 +1595,7 @@ public final class ModificationUtils {
     public static Set<IdentifiableAttributes> getIdentifiableAttributes(Map<UUID, FilterEquipments> exportFilters, List<FilterInfos> filterInfos, ReportNode subReportNode) {
         filterInfos.stream()
                 .filter(f -> !exportFilters.containsKey(f.getId()))
-                .forEach(f -> createReport(subReportNode,
-                        "filterNotFound",
-                        "Cannot find the following filter: ${name}",
-                        Map.of("name", f.getName()), TypedValue.WARN_SEVERITY));
+                .forEach(f -> createReport(subReportNode, "network.modification.filterNotFound", Map.of("name", f.getName()), TypedValue.WARN_SEVERITY));
 
         return filterInfos
                 .stream()
@@ -1640,14 +1622,13 @@ public final class ModificationUtils {
                     FilterEquipments filterEquipments = f.getValue();
                     var equipmentIds = String.join(", ", filterEquipments.getNotFoundEquipments());
                     createReport(subReportNode,
-                            "filterEquipmentsNotFound_" + filterEquipments.getFilterName(),
-                            "Cannot find the following equipments ${equipmentIds} in filter ${filters}",
+                            "network.modification.filterEquipmentsNotFound.inFilter",
                             Map.of("equipmentIds", equipmentIds, "filters", filters.get(filterEquipments.getFilterId())), TypedValue.WARN_SEVERITY);
                 });
     }
 
     public static void insertReportNode(ReportNode parent, ReportNode child) {
-        ReportNodeAdder adder = parent.newReportNode().withMessageTemplate(child.getMessageKey(), child.getMessageTemplate());
+        ReportNodeAdder adder = parent.newReportNode().withMessageTemplate(child.getMessageKey());
         for (Map.Entry<String, TypedValue> valueEntry : child.getValues().entrySet()) {
             adder.withUntypedValue(valueEntry.getKey(), valueEntry.getValue().toString());
         }
@@ -1707,7 +1688,7 @@ public final class ModificationUtils {
         );
 
         if (!connectivityReports.isEmpty()) {
-            ModificationUtils.getInstance().reportModifications(subReporter, connectivityReports, "ConnectivityCreated", CONNECTIVITY);
+            ModificationUtils.getInstance().reportModifications(subReporter, connectivityReports, "network.modification.ConnectivityCreated");
         }
     }
 
@@ -1741,7 +1722,7 @@ public final class ModificationUtils {
         }
 
         if (!connectivityReports.isEmpty()) {
-            ModificationUtils.getInstance().reportModifications(subReporter, connectivityReports, "ConnectivityCreated", CONNECTIVITY);
+            ModificationUtils.getInstance().reportModifications(subReporter, connectivityReports, "network.modification.ConnectivityCreated");
         }
     }
 
@@ -1773,7 +1754,8 @@ public final class ModificationUtils {
 
             if (!isConnected) {
                 reports.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate(EQUIPMENT_DISCONNECTED, "Equipment with id=${id} disconnected")
+                        .withAllResourceBundlesFromClasspath()
+                        .withMessageTemplate(EQUIPMENT_DISCONNECTED)
                         .withUntypedValue("id", equipmentId)
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .build());

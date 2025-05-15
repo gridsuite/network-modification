@@ -46,7 +46,7 @@ public class GroovyScript extends AbstractModification {
         shell.evaluate(modificationInfos.getScript());
 
         subReportNode.newReportNode()
-            .withMessageTemplate("groovyScriptApplied", "Groovy script applied")
+            .withMessageTemplate("network.modification.groovyScriptApplied")
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
     }

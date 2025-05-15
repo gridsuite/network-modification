@@ -50,7 +50,7 @@ public class TabularModificationInfos extends ModificationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(ModificationType.TABULAR_CREATION.name(), "Tabular modification")
+                .withMessageTemplate("network.modification.tabularModification")
                 .add();
     }
 

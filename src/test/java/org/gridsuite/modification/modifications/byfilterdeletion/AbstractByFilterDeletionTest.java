@@ -90,11 +90,14 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
 
         ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification();
         byFilterDeletion.initApplicationContext(filterService);
-        ReportNode report = byFilterDeletionInfos.createSubReportNode(ReportNode.newRootReportNode().withMessageTemplate("", "").build());
+        ReportNode report = byFilterDeletionInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test")
+                .build());
         byFilterDeletion.apply(getNetwork(), report);
 
         assertLogMessage("Cannot find the following equipments " + EQUIPMENT_WRONG_ID_1 + " in filter filter1",
-            "filterEquipmentsNotFound_filter1", report);
+            "network.modification.filterEquipmentsNotFound.inFilter", report);
     }
 
     @Test
@@ -117,10 +120,13 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
 
         ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification();
         byFilterDeletion.initApplicationContext(filterService);
-        ReportNode report = byFilterDeletionInfos.createSubReportNode(ReportNode.newRootReportNode().withMessageTemplate("", "").build());
+        ReportNode report = byFilterDeletionInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test")
+                .build());
         byFilterDeletion.apply(getNetwork(), report);
         assertLogMessage(byFilterDeletionInfos.getErrorType().name() + ": There is no valid equipment ID among the provided filter(s)",
-            "invalidFilters", report);
+            "network.modification.invalidFilters", report);
     }
 
     @Override

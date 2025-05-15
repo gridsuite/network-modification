@@ -7,6 +7,7 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 
@@ -15,12 +16,14 @@ import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.OperatingStatusModificationInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.gridsuite.modification.utils.TestUtils;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.UUID;
 
 import static com.powsybl.iidm.network.extensions.OperatingStatus.Status.FORCED_OUTAGE;
 import static com.powsybl.iidm.network.extensions.OperatingStatus.Status.PLANNED_OUTAGE;
+import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -69,5 +72,18 @@ class OperatingStatusModificationTripLineTest extends AbstractNetworkModificatio
         modification.setEquipmentId("NotFoundEquipmentId");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> modification.toModification().check(getNetwork()));
         assertEquals("EQUIPMENT_NOT_FOUND : NotFoundEquipmentId", exception.getMessage());
+    }
+
+    @Test
+    void testCreateSubReportNode() {
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test")
+                .build();
+
+        OperatingStatusModificationInfos modification = (OperatingStatusModificationInfos) buildModification();
+
+        modification.createSubReportNode(reportNode);
+        assertLogMessage("Trip " + TARGET_LINE_ID, "network.modification.OPERATING_STATUS_MODIFICATION_TRIP", reportNode);
     }
 }

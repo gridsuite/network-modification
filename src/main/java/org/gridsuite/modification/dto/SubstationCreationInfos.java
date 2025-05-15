@@ -45,7 +45,7 @@ public class SubstationCreationInfos extends EquipmentCreationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate(getType().name(), "Substation creation ${substationId}")
+                .withMessageTemplate("network.modification.substation.creation")
                 .withUntypedValue("substationId", this.getEquipmentId())
                 .add();
     }
