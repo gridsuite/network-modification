@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.apache.commons.math3.util.Pair;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LccConverterStationModificationInfos;
 import org.gridsuite.modification.dto.LccModificationInfos;
@@ -158,8 +159,14 @@ public class LccModification extends AbstractModification {
         ModificationUtils.getInstance().reportModifications(converterStationReportNode, characteristicsReports,
             CHARACTERISTICS, CHARACTERISTICS);
 
-        modifyShuntCompensatorsOnSide(network, converterStation.getTerminal().getVoltageLevel(),
-            converterStationModificationInfos, subReportNode);
+        if (!converterStationModificationInfos.getShuntCompensatorsOnSide().isEmpty()) {
+            ReportNode shuntCompensatorReportNode = converterStationReportNode.newReportNode()
+                .withMessageTemplate("Shunt Compensators List", "Shunt Compensators List")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+            modifyShuntCompensatorsOnSide(network, converterStation.getTerminal().getVoltageLevel(),
+                converterStationModificationInfos, shuntCompensatorReportNode);
+        }
     }
 
     private void modifyShuntCompensatorsOnSide(Network network, VoltageLevel voltageLevel,
@@ -170,45 +177,65 @@ public class LccModification extends AbstractModification {
         Optional.ofNullable(shuntCompensatorsOnSide).ifPresent(shuntCompensators ->
             shuntCompensators.forEach(infos -> {
                 ShuntCompensator shuntCompensator = network.getShuntCompensator(infos.getId());
-                modifyShuntCompensator(voltageLevel, reportNode, infos, shuntCompensator);
+                List<ReportNode> shuntCompensatorReportNodes = new ArrayList<>();
+                modifyShuntCompensator(voltageLevel, shuntCompensatorReportNodes, infos, shuntCompensator);
+                ModificationUtils.getInstance().reportModifications(reportNode, shuntCompensatorReportNodes,
+                    "Shunt Compensator" + infos.getId() + "'", "Shunt Compensator '" + infos.getId() + "'");
             }));
     }
 
-    private static void modifyShuntCompensator(VoltageLevel voltageLevel, ReportNode reportNode, LccShuntCompensatorModificationInfos infos, ShuntCompensator shuntCompensator) {
+    private static void modifyShuntCompensator(VoltageLevel voltageLevel, List<ReportNode> nodes, LccShuntCompensatorModificationInfos infos, ShuntCompensator shuntCompensator) {
+
         if (shuntCompensator == null) {
+            nodes.add(ReportNode.newRootReportNode()
+                .withMessageTemplate(ModificationType.SHUNT_COMPENSATOR_MODIFICATION.name(), "Shunt compensator '${id}' not found")
+                .withUntypedValue("id", infos.getId())
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
             return;
         }
 
         if (infos.isDeletionMark()) {
             shuntCompensator.remove();
+            nodes.add(ReportNode.newRootReportNode()
+                .withMessageTemplate(ModificationType.SHUNT_COMPENSATOR_MODIFICATION.name(), "Shunt compensator '${id}' removed")
+                .withUntypedValue("id", infos.getId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
             return;
         }
 
-        if (infos.getName() != null) {
+        if (infos.getName() != null && !infos.getName().equals(shuntCompensator.getOptionalName().orElse(NO_VALUE))) {
+            nodes.add(ModificationUtils.getInstance().buildModificationReport(shuntCompensator.getOptionalName().orElse(NO_VALUE), infos.getName(), "Name"));
             shuntCompensator.setName(infos.getName());
         }
 
         if (infos.getConnectedToHvdc() != null) {
             if (Boolean.TRUE.equals(infos.getConnectedToHvdc())) {
                 shuntCompensator.getTerminal().connect();
-                reportNode.newReportNode()
-                    .withMessageTemplate(EQUIPMENT_CONNECTED_TO_HVDC, "Equipment with id=${id} is connected to Hvdc")
+                nodes.add(ReportNode.newRootReportNode()
+                    .withMessageTemplate(EQUIPMENT_CONNECTED_TO_HVDC, "\t" + "Equipment with id=${id} is connected to Hvdc")
                     .withUntypedValue("id", shuntCompensator.getId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
-                    .add();
+                    .build());
             } else {
                 shuntCompensator.getTerminal().disconnect();
-                reportNode.newReportNode()
-                    .withMessageTemplate(EQUIPMENT_NOT_CONNECTED_TO_HVDC, "Equipment with id=${id} is disconnected from Hvdc")
+                nodes.add(ReportNode.newRootReportNode()
+                    .withMessageTemplate(EQUIPMENT_NOT_CONNECTED_TO_HVDC, "\t" + "Equipment with id=${id} is disconnected from Hvdc")
                     .withUntypedValue("id", shuntCompensator.getId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
-                    .add();
+                    .build());
             }
         }
 
         if (infos.getMaxQAtNominalV() != null) {
             ShuntCompensatorLinearModel model = shuntCompensator.getModel(ShuntCompensatorLinearModel.class);
-            model.setBPerSection((infos.getMaxQAtNominalV()) / Math.pow(voltageLevel.getNominalV(), 2));
+            double newValue = (infos.getMaxQAtNominalV()) / Math.pow(voltageLevel.getNominalV(), 2);
+            double oldValue = model.getBPerSection();
+            if (newValue != oldValue) {
+                nodes.add(ModificationUtils.getInstance().buildModificationReport(oldValue, newValue, "B Per Section"));
+                model.setBPerSection(newValue);
+            }
         }
     }
 
