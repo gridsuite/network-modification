@@ -7,15 +7,19 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.OperatingStatusModificationInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
+import org.junit.jupiter.api.Test;
+
 import java.util.Map;
 import java.util.UUID;
 
+import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -79,5 +83,18 @@ class OperatingStatusModificationEnergiseSideTwoLineTest extends AbstractNetwork
         assertEquals("vl2", createdValues.get("energizedVoltageLevelId"));
         assertEquals("ENERGISE_END_TWO", createdValues.get("action"));
         assertEquals("line2", createdValues.get("equipmentId"));
+    }
+
+    @Test
+    void testCreateSubReportNode() throws Exception {
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test")
+                .build();
+
+        OperatingStatusModificationInfos modification = (OperatingStatusModificationInfos) buildModification();
+
+        modification.createSubReportNode(reportNode);
+        assertLogMessage("Energise " + TARGET_LINE_ID, "network.modification.OPERATING_STATUS_MODIFICATION_ENERGISE_END_TWO", reportNode);
     }
 }
