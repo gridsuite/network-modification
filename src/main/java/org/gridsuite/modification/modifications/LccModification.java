@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.apache.commons.math3.util.Pair;
-import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LccConverterStationModificationInfos;
 import org.gridsuite.modification.dto.LccModificationInfos;
@@ -32,10 +31,6 @@ import java.util.Optional;
 import static org.gridsuite.modification.utils.ModificationUtils.NO_VALUE;
 
 public class LccModification extends AbstractModification {
-
-    public static final String LCC_CHARACTERISTICS = "lccCharacteristics";
-    public static final String EQUIPMENT_CONNECTED_TO_HVDC = "equipmentConnectedToHvdc";
-    public static final String EQUIPMENT_NOT_CONNECTED_TO_HVDC = "equipmentNotConnectedToHvdc";
 
     private final LccModificationInfos modificationInfos;
 
@@ -98,10 +93,10 @@ public class LccModification extends AbstractModification {
         }
 
         // Properties
-        PropertiesUtils.applyProperties(hvdcLine, subReportNode, modificationInfos.getProperties(), "HvdcLine Properties");
+        PropertiesUtils.applyProperties(hvdcLine, subReportNode, modificationInfos.getProperties(), "network.modification.LCC_Properties");
 
         if (!characteristicsReportsContainer.isEmpty()) {
-            ModificationUtils.getInstance().reportModifications(subReportNode, characteristicsReportsContainer, LCC_CHARACTERISTICS);
+            ModificationUtils.getInstance().reportModifications(subReportNode, characteristicsReportsContainer, "network.modification.lccCharacteristics");
         }
 
     }
@@ -131,7 +126,7 @@ public class LccModification extends AbstractModification {
         }
 
         ReportNode converterStationReportNode = subReportNode.newReportNode()
-            .withMessageTemplate("Converter Station", "Converter station ${id} modified")
+            .withMessageTemplate("network.modification.lcc.converterStation.modification")
             .withUntypedValue("id", converterStationModificationInfos.getEquipmentId())
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
@@ -161,7 +156,7 @@ public class LccModification extends AbstractModification {
 
         if (!converterStationModificationInfos.getShuntCompensatorsOnSide().isEmpty()) {
             ReportNode shuntCompensatorReportNode = converterStationReportNode.newReportNode()
-                .withMessageTemplate("Shunt Compensators List", "Shunt Compensators List")
+                .withMessageTemplate("network.modification.lcc.shuntCompensators.modification")
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
             modifyShuntCompensatorsOnSide(network, converterStation.getTerminal().getVoltageLevel(),
@@ -188,7 +183,8 @@ public class LccModification extends AbstractModification {
 
         if (shuntCompensator == null) {
             nodes.add(ReportNode.newRootReportNode()
-                .withMessageTemplate(ModificationType.SHUNT_COMPENSATOR_MODIFICATION.name(), "Shunt compensator '${id}' not found")
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("network.modification.lcc.shuntCompensator.notFound")
                 .withUntypedValue("id", infos.getId())
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
@@ -198,7 +194,8 @@ public class LccModification extends AbstractModification {
         if (infos.isDeletionMark()) {
             shuntCompensator.remove();
             nodes.add(ReportNode.newRootReportNode()
-                .withMessageTemplate(ModificationType.SHUNT_COMPENSATOR_MODIFICATION.name(), "Shunt compensator '${id}' removed")
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("network.modification.lcc.shuntCompensator.removed")
                 .withUntypedValue("id", infos.getId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
@@ -214,14 +211,16 @@ public class LccModification extends AbstractModification {
             if (Boolean.TRUE.equals(infos.getConnectedToHvdc())) {
                 shuntCompensator.getTerminal().connect();
                 nodes.add(ReportNode.newRootReportNode()
-                    .withMessageTemplate(EQUIPMENT_CONNECTED_TO_HVDC, "\t" + "Equipment with id=${id} is connected to Hvdc")
+                    .withAllResourceBundlesFromClasspath()
+                    .withMessageTemplate("network.modification.lcc.shuntCompensator.connected")
                     .withUntypedValue("id", shuntCompensator.getId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .build());
             } else {
                 shuntCompensator.getTerminal().disconnect();
                 nodes.add(ReportNode.newRootReportNode()
-                    .withMessageTemplate(EQUIPMENT_NOT_CONNECTED_TO_HVDC, "\t" + "Equipment with id=${id} is disconnected from Hvdc")
+                    .withAllResourceBundlesFromClasspath()
+                    .withMessageTemplate("network.modification.lcc.shuntCompensator.disconnected")
                     .withUntypedValue("id", shuntCompensator.getId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .build());
