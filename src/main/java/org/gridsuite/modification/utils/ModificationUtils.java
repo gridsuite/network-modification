@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.network.store.iidm.impl.MinMaxReactiveLimitsImpl;
+import org.apache.commons.math3.util.Pair;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
@@ -1774,6 +1775,12 @@ public final class ModificationUtils {
     public static void checkIsPercentage(String errorMessage, Float valueToCheck, NetworkModificationException.Type exceptionType, String valueName) throws NetworkModificationException {
         if (valueToCheck != null && (valueToCheck < 0 || valueToCheck > 100)) {
             throw new NetworkModificationException(exceptionType, errorMessage + "must have " + valueName + " between 0 and 100");
+        }
+    }
+
+    public static void checkIsInInterval(String errorMessage, Float valueToCheck, Pair<Float, Float> interval, NetworkModificationException.Type exceptionType, String valueName) throws NetworkModificationException {
+        if (valueToCheck != null && (valueToCheck < interval.getFirst() || valueToCheck > interval.getSecond())) {
+            throw new NetworkModificationException(exceptionType, errorMessage + "must have " + valueName + "  " + interval.getFirst() + " and " + interval.getSecond());
         }
     }
 }
