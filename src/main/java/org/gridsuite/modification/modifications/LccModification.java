@@ -101,7 +101,7 @@ public class LccModification extends AbstractModification {
         PropertiesUtils.applyProperties(hvdcLine, subReportNode, modificationInfos.getProperties(), "HvdcLine Properties");
 
         if (!characteristicsReportsContainer.isEmpty()) {
-            ModificationUtils.getInstance().reportModifications(subReportNode, characteristicsReportsContainer, LCC_CHARACTERISTICS, CHARACTERISTICS);
+            ModificationUtils.getInstance().reportModifications(subReportNode, characteristicsReportsContainer, LCC_CHARACTERISTICS);
         }
 
     }
@@ -157,7 +157,7 @@ public class LccModification extends AbstractModification {
         }
 
         ModificationUtils.getInstance().reportModifications(converterStationReportNode, characteristicsReports,
-            CHARACTERISTICS, CHARACTERISTICS);
+            "Converter station '" + modificationInfos.getEquipmentId() + "'");
 
         if (!converterStationModificationInfos.getShuntCompensatorsOnSide().isEmpty()) {
             ReportNode shuntCompensatorReportNode = converterStationReportNode.newReportNode()
@@ -180,7 +180,7 @@ public class LccModification extends AbstractModification {
                 List<ReportNode> shuntCompensatorReportNodes = new ArrayList<>();
                 modifyShuntCompensator(voltageLevel, shuntCompensatorReportNodes, infos, shuntCompensator);
                 ModificationUtils.getInstance().reportModifications(reportNode, shuntCompensatorReportNodes,
-                    "Shunt Compensator" + infos.getId() + "'", "Shunt Compensator '" + infos.getId() + "'");
+                    "Shunt Compensator" + infos.getId() + "'");
             }));
     }
 
