@@ -96,7 +96,7 @@ public class LccModification extends AbstractModification {
         PropertiesUtils.applyProperties(hvdcLine, subReportNode, modificationInfos.getProperties(), "network.modification.LCC_Properties");
 
         if (!characteristicsReportsContainer.isEmpty()) {
-            ModificationUtils.getInstance().reportModifications(subReportNode, characteristicsReportsContainer, "network.modification.lccCharacteristics");
+            ModificationUtils.getInstance().reportModifications(subReportNode, characteristicsReportsContainer, "network.modification.Characteristics");
         }
 
     }
@@ -126,7 +126,7 @@ public class LccModification extends AbstractModification {
         }
 
         ReportNode converterStationReportNode = subReportNode.newReportNode()
-            .withMessageTemplate("network.modification.lcc.converterStation.modification")
+            .withMessageTemplate("network.modification.ConverterStation")
             .withUntypedValue("id", converterStationModificationInfos.getEquipmentId())
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
@@ -152,11 +152,11 @@ public class LccModification extends AbstractModification {
         }
 
         ModificationUtils.getInstance().reportModifications(converterStationReportNode, characteristicsReports,
-            "Converter station '" + modificationInfos.getEquipmentId() + "'");
+                "network.modification.Characteristics");
 
         if (!converterStationModificationInfos.getShuntCompensatorsOnSide().isEmpty()) {
             ReportNode shuntCompensatorReportNode = converterStationReportNode.newReportNode()
-                .withMessageTemplate("network.modification.lcc.shuntCompensators.modification")
+                .withMessageTemplate("network.modification.ShuntCompensatorsModifications")
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
             modifyShuntCompensatorsOnSide(network, converterStation.getTerminal().getVoltageLevel(),
@@ -175,7 +175,7 @@ public class LccModification extends AbstractModification {
                 List<ReportNode> shuntCompensatorReportNodes = new ArrayList<>();
                 modifyShuntCompensator(voltageLevel, shuntCompensatorReportNodes, infos, shuntCompensator);
                 ModificationUtils.getInstance().reportModifications(reportNode, shuntCompensatorReportNodes,
-                    "Shunt Compensator" + infos.getId() + "'");
+                        "network.modification.lcc.shuntCompensator.modification");
             }));
     }
 
