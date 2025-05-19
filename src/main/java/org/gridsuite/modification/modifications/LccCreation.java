@@ -95,8 +95,8 @@ public class LccCreation extends AbstractModification {
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
         reportHvdcLineInfos(hvdcLine, subReportNode);
-        addReportConverterStationLcc(modificationInfos.getConverterStation1(), "Lcc Converter station 1", subReportNode);
-        addReportConverterStationLcc(modificationInfos.getConverterStation2(), "Lcc Converter station 2", subReportNode);
+        addReportConverterStationLcc(modificationInfos.getConverterStation1(), "1", subReportNode);
+        addReportConverterStationLcc(modificationInfos.getConverterStation2(), "2", subReportNode);
     }
 
     @Override
@@ -244,7 +244,7 @@ public class LccCreation extends AbstractModification {
     private void addReportConverterStationLcc(LccConverterStationCreationInfos lccConverterStationCreationInfos,
                                               String logFieldName, ReportNode subReporter) {
         ReportNode reportConverterStationNode = subReporter.newReportNode()
-                .withMessageTemplate("network.modification.converterStationCreated")
+                .withMessageTemplate("network.modification.lccConverterStationCreated")
                 .withUntypedValue("fieldName", logFieldName)
                 .withUntypedValue("id", lccConverterStationCreationInfos.getEquipmentId()).add();
 

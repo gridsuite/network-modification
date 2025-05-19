@@ -95,9 +95,9 @@ public class VscCreation extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        VscConverterStation converterStation1 = createConverterStation(network, modificationInfos.getConverterStation1(), subReportNode, "Converter station 1");
+        VscConverterStation converterStation1 = createConverterStation(network, modificationInfos.getConverterStation1(), subReportNode, "1");
 
-        VscConverterStation converterStation2 = createConverterStation(network, modificationInfos.getConverterStation2(), subReportNode, "Converter station 2");
+        VscConverterStation converterStation2 = createConverterStation(network, modificationInfos.getConverterStation2(), subReportNode, "2");
 
         HvdcLine hvdcLine = network.newHvdcLine()
                 .setId(modificationInfos.getEquipmentId())
@@ -188,7 +188,7 @@ public class VscCreation extends AbstractModification {
                                                        ReportNode subReportNode,
                                                        String logFieldName) {
         ReportNode converterStationReporter = subReportNode.newReportNode()
-            .withMessageTemplate("network.modification.converterStationCreated")
+            .withMessageTemplate("network.modification.vscConverterStationCreated")
             .withUntypedValue("fieldName", logFieldName)
             .withUntypedValue("id", converterStationCreationInfos.getEquipmentId())
             .add();
