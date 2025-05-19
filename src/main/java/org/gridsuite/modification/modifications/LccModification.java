@@ -10,7 +10,7 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.math3.util.Pair;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LccConverterStationModificationInfos;
 import org.gridsuite.modification.dto.LccModificationInfos;
@@ -144,7 +144,7 @@ public class LccModification extends AbstractModification {
         }
 
         if (converterStationModificationInfos.getPowerFactor() != null) {
-            ModificationUtils.checkIsInInterval(errorMessage, converterStationModificationInfos.getPowerFactor().getValue(), Pair.of(0.f, 1.f), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Power factor");
+            ModificationUtils.checkIsInInterval(errorMessage, converterStationModificationInfos.getPowerFactor().getValue(), new Pair<>(0.f, 1.f), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Power factor");
             characteristicsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setPowerFactor,
                 converterStation::getPowerFactor, converterStationModificationInfos.getPowerFactor(), "Power factor"));
         }

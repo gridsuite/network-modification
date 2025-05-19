@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.network.store.iidm.impl.MinMaxReactiveLimitsImpl;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.math3.util.Pair;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
@@ -1787,8 +1787,8 @@ public final class ModificationUtils {
     }
 
     public static void checkIsInInterval(String errorMessage, Float valueToCheck, Pair<Float, Float> interval, NetworkModificationException.Type exceptionType, String valueName) throws NetworkModificationException {
-        if (valueToCheck != null && (valueToCheck < interval.getLeft() || valueToCheck > interval.getRight())) {
-            throw new NetworkModificationException(exceptionType, errorMessage + "must have " + valueName + "  " + interval.getLeft() + " and " + interval.getRight());
+        if (valueToCheck != null && (valueToCheck < interval.getFirst() || valueToCheck > interval.getSecond())) {
+            throw new NetworkModificationException(exceptionType, errorMessage + "must have " + valueName + "  " + interval.getFirst() + " and " + interval.getSecond());
         }
     }
 }
