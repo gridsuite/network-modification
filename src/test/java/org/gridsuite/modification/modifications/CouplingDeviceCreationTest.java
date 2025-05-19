@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
@@ -16,9 +17,11 @@ import org.gridsuite.modification.utils.NetworkWithTeePoint;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
 import java.util.UUID;
 
 import static org.gridsuite.modification.utils.NetworkUtil.createBusBarSection;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -54,6 +57,15 @@ class CouplingDeviceCreationTest extends AbstractNetworkModificationTest {
         Assertions.assertEquals("v1", switch1.getVoltageLevel().getId());
         Assertions.assertFalse(switch1.isOpen());
         Assertions.assertTrue(switch1.isRetained());
+    }
+
+    @Override
+    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
+        assertEquals("COUPLING_DEVICE_CREATION", modificationInfos.getMessageType());
+        Map<String, String> updatedValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+        assertEquals("bbs1", updatedValues.get("busOrBbsId1"));
+        assertEquals("bbs5", updatedValues.get("busOrBbsId2"));
+        assertEquals("test", updatedValues.get("switchPrefixId"));
     }
 
     @Test
