@@ -76,6 +76,10 @@ class CouplingDeviceCreationTest extends AbstractNetworkModificationTest {
             .busOrBbsId2("bbs2")
             .switchPrefixId("test")
             .build();
+        Map<String, String> updatedValues = couplingDeviceCreationInfos.getMapMessageValues();
+        assertEquals("bbs1", updatedValues.get("busOrBbsId1"));
+        assertEquals("bbs2", updatedValues.get("busOrBbsId2"));
+        assertEquals("test", updatedValues.get("switchPrefixId"));
         Network network = getNetwork();
         AbstractModification modification = couplingDeviceCreationInfos.toModification();
         String message = Assertions.assertThrows(PowsyblException.class, () -> modification.apply(network)).getMessage();
