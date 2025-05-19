@@ -9,13 +9,8 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
-import com.powsybl.iidm.network.VoltageLevel;
-import org.apache.commons.math3.util.Pair;
+import com.powsybl.iidm.network.*;
+import org.apache.commons.lang3.tuple.Pair;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LccConverterStationModificationInfos;
 import org.gridsuite.modification.dto.LccModificationInfos;
@@ -26,6 +21,7 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.gridsuite.modification.utils.ModificationUtils.NO_VALUE;
@@ -92,9 +88,6 @@ public class LccModification extends AbstractModification {
                 hvdcLine::getActivePowerSetpoint, modificationInfos.getActivePowerSetpoint(), "Active Power Set Point"));
         }
 
-        // Properties
-        PropertiesUtils.applyProperties(hvdcLine, subReportNode, modificationInfos.getProperties(), "network.modification.LCC_Properties");
-
         if (!characteristicsReportsContainer.isEmpty()) {
             ModificationUtils.getInstance().reportModifications(subReportNode, characteristicsReportsContainer, "network.modification.Characteristics");
         }
@@ -105,18 +98,22 @@ public class LccModification extends AbstractModification {
 
         modifyCharacteristics(hvdcLine, modificationInfos, subReportNode);
 
+        // Properties
+        PropertiesUtils.applyProperties(hvdcLine, subReportNode, modificationInfos.getProperties(), "network.modification.LCC_Properties");
+
         // stations
         if (modificationInfos.getConverterStation1() != null) {
-            modifyConverterStation(network, modificationInfos.getConverterStation1(), subReportNode);
+            modifyConverterStation(network, modificationInfos.getConverterStation1(), "1", subReportNode);
         }
         if (modificationInfos.getConverterStation2() != null) {
-            modifyConverterStation(network, modificationInfos.getConverterStation2(), subReportNode);
+            modifyConverterStation(network, modificationInfos.getConverterStation2(), "2", subReportNode);
         }
 
     }
 
     private void modifyConverterStation(@Nonnull Network network,
                                         @Nonnull LccConverterStationModificationInfos converterStationModificationInfos,
+                                        String logFieldName,
                                         ReportNode subReportNode) {
 
         String errorMessage = "Lcc converter station '" + converterStationModificationInfos.getEquipmentId() + "' : ";
@@ -126,7 +123,8 @@ public class LccModification extends AbstractModification {
         }
 
         ReportNode converterStationReportNode = subReportNode.newReportNode()
-            .withMessageTemplate("network.modification.ConverterStation")
+            .withMessageTemplate("network.modification.lccConverterStationModified")
+            .withUntypedValue("fieldName", logFieldName)
             .withUntypedValue("id", converterStationModificationInfos.getEquipmentId())
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
@@ -146,7 +144,7 @@ public class LccModification extends AbstractModification {
         }
 
         if (converterStationModificationInfos.getPowerFactor() != null) {
-            ModificationUtils.checkIsInInterval(errorMessage, converterStationModificationInfos.getPowerFactor().getValue(), new Pair<>(0.f, 1.f), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Power factor");
+            ModificationUtils.checkIsInInterval(errorMessage, converterStationModificationInfos.getPowerFactor().getValue(), Pair.of(0.f, 1.f), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Power factor");
             characteristicsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setPowerFactor,
                 converterStation::getPowerFactor, converterStationModificationInfos.getPowerFactor(), "Power factor"));
         }
@@ -156,7 +154,7 @@ public class LccModification extends AbstractModification {
 
         if (!converterStationModificationInfos.getShuntCompensatorsOnSide().isEmpty()) {
             ReportNode shuntCompensatorReportNode = converterStationReportNode.newReportNode()
-                .withMessageTemplate("network.modification.ShuntCompensatorsModifications")
+                .withMessageTemplate("network.modification.converterStationFilters")
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
             modifyShuntCompensatorsOnSide(network, converterStation.getTerminal().getVoltageLevel(),
@@ -175,7 +173,7 @@ public class LccModification extends AbstractModification {
                 List<ReportNode> shuntCompensatorReportNodes = new ArrayList<>();
                 modifyShuntCompensator(voltageLevel, shuntCompensatorReportNodes, infos, shuntCompensator);
                 ModificationUtils.getInstance().reportModifications(reportNode, shuntCompensatorReportNodes,
-                        "network.modification.lcc.shuntCompensator.modification");
+                        "network.modification.lcc.shuntCompensator.modification", Map.of("id", infos.getId()));
             }));
     }
 

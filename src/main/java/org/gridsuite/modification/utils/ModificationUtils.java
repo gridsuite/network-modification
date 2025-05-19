@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.math.graph.TraversalType;
 import com.powsybl.network.store.iidm.impl.MinMaxReactiveLimitsImpl;
-import org.apache.commons.math3.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
@@ -538,11 +538,19 @@ public final class ModificationUtils {
     }
 
     public ReportNode reportModifications(ReportNode reportNode, List<ReportNode> reports, String subReportNodeKey) {
+        return reportModifications(reportNode, reports, subReportNodeKey, Map.of());
+    }
+
+    public ReportNode reportModifications(ReportNode reportNode, List<ReportNode> reports, String subReportNodeKey, Map<String, Object> subReportNodeKeyArgs) {
         List<ReportNode> validReports = reports.stream().filter(Objects::nonNull).toList();
         ReportNode subReportNode = null;
         if (!validReports.isEmpty() && reportNode != null) {
             // new child report node
-            subReportNode = reportNode.newReportNode().withMessageTemplate(subReportNodeKey).add();
+            ReportNodeAdder subReportNodeAdder = reportNode.newReportNode().withMessageTemplate(subReportNodeKey);
+            for (Map.Entry<String, Object> keyArg : subReportNodeKeyArgs.entrySet()) {
+                subReportNodeAdder.withUntypedValue(keyArg.getKey(), keyArg.getValue().toString());
+            }
+            subReportNode = subReportNodeAdder.add();
             for (ReportNode report : validReports) {
                 ReportNodeAdder reportNodeAdder = subReportNode.newReportNode().withMessageTemplate(report.getMessageKey()).withSeverity(TypedValue.INFO_SEVERITY);
                 for (Map.Entry<String, TypedValue> valueEntry : report.getValues().entrySet()) {
@@ -1779,8 +1787,8 @@ public final class ModificationUtils {
     }
 
     public static void checkIsInInterval(String errorMessage, Float valueToCheck, Pair<Float, Float> interval, NetworkModificationException.Type exceptionType, String valueName) throws NetworkModificationException {
-        if (valueToCheck != null && (valueToCheck < interval.getFirst() || valueToCheck > interval.getSecond())) {
-            throw new NetworkModificationException(exceptionType, errorMessage + "must have " + valueName + "  " + interval.getFirst() + " and " + interval.getSecond());
+        if (valueToCheck != null && (valueToCheck < interval.getLeft() || valueToCheck > interval.getRight())) {
+            throw new NetworkModificationException(exceptionType, errorMessage + "must have " + valueName + "  " + interval.getLeft() + " and " + interval.getRight());
         }
     }
 }

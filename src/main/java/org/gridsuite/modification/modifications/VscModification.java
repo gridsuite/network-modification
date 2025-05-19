@@ -164,8 +164,8 @@ public class VscModification extends AbstractModification {
         operatorActivePowerLimit(hvdcLine, modificationInfos, subReportNode);
 
         // stations
-        modifyConverterStation(ModificationUtils.getInstance().getVscConverterStation(network, hvdcLine.getConverterStation1().getId()), modificationInfos.getConverterStation1(), subReportNode);
-        modifyConverterStation(ModificationUtils.getInstance().getVscConverterStation(network, hvdcLine.getConverterStation2().getId()), modificationInfos.getConverterStation2(), subReportNode);
+        modifyConverterStation(ModificationUtils.getInstance().getVscConverterStation(network, hvdcLine.getConverterStation1().getId()), modificationInfos.getConverterStation1(), subReportNode, "1");
+        modifyConverterStation(ModificationUtils.getInstance().getVscConverterStation(network, hvdcLine.getConverterStation2().getId()), modificationInfos.getConverterStation2(), subReportNode, "2");
 
         PropertiesUtils.applyProperties(hvdcLine, subReportNode, modificationInfos.getProperties(), "network.modification.VscProperties");
     }
@@ -309,13 +309,14 @@ public class VscModification extends AbstractModification {
         return reports;
     }
 
-    private void modifyConverterStation(VscConverterStation converterStation, ConverterStationModificationInfos converterStationModificationInfos, ReportNode subReportNode) {
+    private void modifyConverterStation(VscConverterStation converterStation, ConverterStationModificationInfos converterStationModificationInfos, ReportNode subReportNode, String logFieldName) {
         if (converterStationModificationInfos == null || !isConverterStationModified(converterStationModificationInfos)) {
             return;
         }
 
         ReportNode converterStationReportNode = subReportNode.newReportNode()
-            .withMessageTemplate("network.modification.ConverterStation")
+            .withMessageTemplate("network.modification.vscConverterStationModified")
+            .withUntypedValue("fieldName", logFieldName)
             .withUntypedValue("id", converterStation.getId())
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
