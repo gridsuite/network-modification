@@ -538,11 +538,19 @@ public final class ModificationUtils {
     }
 
     public ReportNode reportModifications(ReportNode reportNode, List<ReportNode> reports, String subReportNodeKey) {
+        return reportModifications(reportNode, reports, subReportNodeKey, Map.of());
+    }
+
+    public ReportNode reportModifications(ReportNode reportNode, List<ReportNode> reports, String subReportNodeKey, Map<String, Object> subReportNodeKeyArgs) {
         List<ReportNode> validReports = reports.stream().filter(Objects::nonNull).toList();
         ReportNode subReportNode = null;
         if (!validReports.isEmpty() && reportNode != null) {
             // new child report node
-            subReportNode = reportNode.newReportNode().withMessageTemplate(subReportNodeKey).add();
+            ReportNodeAdder subReportNodeAdder = reportNode.newReportNode().withMessageTemplate(subReportNodeKey);
+            for (Map.Entry<String, Object> keyArg : subReportNodeKeyArgs.entrySet()) {
+                subReportNodeAdder.withUntypedValue(keyArg.getKey(), keyArg.getValue().toString());
+            }
+            subReportNode = subReportNodeAdder.add();
             for (ReportNode report : validReports) {
                 ReportNodeAdder reportNodeAdder = subReportNode.newReportNode().withMessageTemplate(report.getMessageKey()).withSeverity(TypedValue.INFO_SEVERITY);
                 for (Map.Entry<String, TypedValue> valueEntry : report.getValues().entrySet()) {
