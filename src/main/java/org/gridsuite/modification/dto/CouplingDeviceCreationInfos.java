@@ -33,6 +33,8 @@ import java.util.Map;
 @JsonTypeName("COUPLING_DEVICE_CREATION")
 @ModificationErrorTypeName("CREATE_COUPLING_DEVICE_ERROR")
 public class CouplingDeviceCreationInfos extends ModificationInfos {
+    @Schema(description = "VoltageLevelId")
+    private String voltageLevelId;
     @Schema(description = "BusOrBbsId1")
     private String busOrBbsId1;
     @Schema(description = "BusOrBbsId2")
@@ -53,6 +55,7 @@ public class CouplingDeviceCreationInfos extends ModificationInfos {
     @Override
     public Map<String, String> getMapMessageValues() {
         Map<String, String> mapMessageValues = new HashMap<>();
+        mapMessageValues.put("voltageLevelId", getVoltageLevelId());
         mapMessageValues.put("busOrBbsId1", getBusOrBbsId1());
         mapMessageValues.put("busOrBbsId2", getBusOrBbsId2());
         mapMessageValues.put("switchPrefixId", getSwitchPrefixId());

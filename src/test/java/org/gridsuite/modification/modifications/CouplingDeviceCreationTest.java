@@ -43,6 +43,7 @@ class CouplingDeviceCreationTest extends AbstractNetworkModificationTest {
     protected ModificationInfos buildModification() {
         return CouplingDeviceCreationInfos.builder()
             .stashed(false)
+            .voltageLevelId("v1")
             .busOrBbsId1("bbs1")
             .busOrBbsId2("bbs5")
             .switchPrefixId("test")
@@ -63,6 +64,7 @@ class CouplingDeviceCreationTest extends AbstractNetworkModificationTest {
     protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
         assertEquals("COUPLING_DEVICE_CREATION", modificationInfos.getMessageType());
         Map<String, String> updatedValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+        assertEquals("v1", updatedValues.get("voltageLevelId"));
         assertEquals("bbs1", updatedValues.get("busOrBbsId1"));
         assertEquals("bbs5", updatedValues.get("busOrBbsId2"));
         assertEquals("test", updatedValues.get("switchPrefixId"));
@@ -72,11 +74,13 @@ class CouplingDeviceCreationTest extends AbstractNetworkModificationTest {
     void testCouplingDeviceCreationFail() {
         CouplingDeviceCreationInfos couplingDeviceCreationInfos = CouplingDeviceCreationInfos.builder()
             .stashed(false)
+            .voltageLevelId("v1")
             .busOrBbsId1("bbs1")
             .busOrBbsId2("bbs2")
             .switchPrefixId("test")
             .build();
         Map<String, String> updatedValues = couplingDeviceCreationInfos.getMapMessageValues();
+        assertEquals("v1", updatedValues.get("voltageLevelId"));
         assertEquals("bbs1", updatedValues.get("busOrBbsId1"));
         assertEquals("bbs2", updatedValues.get("busOrBbsId2"));
         assertEquals("test", updatedValues.get("switchPrefixId"));
