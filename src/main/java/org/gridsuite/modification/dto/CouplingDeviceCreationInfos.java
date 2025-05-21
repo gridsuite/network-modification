@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.CouplingDeviceCreation;
 
@@ -28,8 +29,9 @@ import java.util.Map;
 @Getter
 @Setter
 @ToString(callSuper = true)
-@Schema(description = "CouplingDeviceCreation")
+@Schema(description = "CouplingDevice creation")
 @JsonTypeName("COUPLING_DEVICE_CREATION")
+@ModificationErrorTypeName("CREATE_COUPLING_DEVICE_ERROR")
 public class CouplingDeviceCreationInfos extends ModificationInfos {
     @Schema(description = "BusOrBbsId1")
     private String busOrBbsId1;

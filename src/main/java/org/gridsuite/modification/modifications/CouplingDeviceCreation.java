@@ -10,6 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.CreateCouplingDevice;
 import com.powsybl.iidm.modification.topology.CreateCouplingDeviceBuilder;
 import com.powsybl.iidm.network.Network;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.CouplingDeviceCreationInfos;
 
 /**
@@ -36,6 +37,6 @@ public class CouplingDeviceCreation extends AbstractModification {
 
     @Override
     public String getName() {
-        return "CouplingDeviceCreation";
+        return ModificationType.COUPLING_DEVICE_CREATION.toString();
     }
 }
