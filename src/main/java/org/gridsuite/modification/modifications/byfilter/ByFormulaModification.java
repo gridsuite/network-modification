@@ -74,7 +74,7 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
                     .withAllResourceBundlesFromClasspath()
                     .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_NULL)
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
-                    .withSeverity(TypedValue.TRACE_SEVERITY)
+                    .withSeverity(TypedValue.DETAIL_SEVERITY)
                     .build());
             return false;
         }
@@ -86,7 +86,7 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
                     .withAllResourceBundlesFromClasspath()
                     .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO)
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
-                    .withSeverity(TypedValue.TRACE_SEVERITY)
+                    .withSeverity(TypedValue.DETAIL_SEVERITY)
                     .build());
             return false;
         }
