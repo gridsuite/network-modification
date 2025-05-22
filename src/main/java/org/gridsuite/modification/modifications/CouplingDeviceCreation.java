@@ -24,13 +24,16 @@ public class CouplingDeviceCreation extends AbstractModification {
         this.creationInfos = creationInfos;
     }
 
+    /**
+     * @param network
+     * @param subReportNode
+     */
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         CreateCouplingDeviceBuilder builder = new CreateCouplingDeviceBuilder();
         CreateCouplingDevice createCouplingDevice = builder
             .withBusOrBusbarSectionId1(creationInfos.getBusOrBbsId1())
             .withBusOrBusbarSectionId2(creationInfos.getBusOrBbsId2())
-            .withSwitchPrefixId(creationInfos.getSwitchPrefixId())
             .build();
         createCouplingDevice.apply(network, true, subReportNode);
     }

@@ -29,18 +29,19 @@ import java.util.Map;
 @Getter
 @Setter
 @ToString(callSuper = true)
-@Schema(description = "CouplingDevice creation")
+@Schema(description = "Coupling device creation")
 @JsonTypeName("COUPLING_DEVICE_CREATION")
 @ModificationErrorTypeName("CREATE_COUPLING_DEVICE_ERROR")
 public class CouplingDeviceCreationInfos extends ModificationInfos {
+
     @Schema(description = "VoltageLevelId")
     private String voltageLevelId;
+
     @Schema(description = "BusOrBbsId1")
     private String busOrBbsId1;
+
     @Schema(description = "BusOrBbsId2")
     private String busOrBbsId2;
-    @Schema(description = "SwitchPrefixId")
-    private String switchPrefixId;
 
     @Override
     public AbstractModification toModification() {
@@ -56,9 +57,6 @@ public class CouplingDeviceCreationInfos extends ModificationInfos {
     public Map<String, String> getMapMessageValues() {
         Map<String, String> mapMessageValues = new HashMap<>();
         mapMessageValues.put("voltageLevelId", getVoltageLevelId());
-        mapMessageValues.put("busOrBbsId1", getBusOrBbsId1());
-        mapMessageValues.put("busOrBbsId2", getBusOrBbsId2());
-        mapMessageValues.put("switchPrefixId", getSwitchPrefixId());
         return mapMessageValues;
     }
 }

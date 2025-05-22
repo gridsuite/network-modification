@@ -46,13 +46,12 @@ class CouplingDeviceCreationTest extends AbstractNetworkModificationTest {
             .voltageLevelId("v1")
             .busOrBbsId1("bbs1")
             .busOrBbsId2("bbs5")
-            .switchPrefixId("test")
             .build();
     }
 
     @Override
     protected void assertAfterNetworkModificationApplication() {
-        Switch switch1 = getNetwork().getSwitch("test_BREAKER");
+        Switch switch1 = getNetwork().getSwitch("v1_BREAKER");
         Assertions.assertNotNull(switch1);
         Assertions.assertEquals(SwitchKind.BREAKER, switch1.getKind());
         Assertions.assertEquals("v1", switch1.getVoltageLevel().getId());
@@ -67,7 +66,6 @@ class CouplingDeviceCreationTest extends AbstractNetworkModificationTest {
         assertEquals("v1", updatedValues.get("voltageLevelId"));
         assertEquals("bbs1", updatedValues.get("busOrBbsId1"));
         assertEquals("bbs5", updatedValues.get("busOrBbsId2"));
-        assertEquals("test", updatedValues.get("switchPrefixId"));
     }
 
     @Test
@@ -77,13 +75,11 @@ class CouplingDeviceCreationTest extends AbstractNetworkModificationTest {
             .voltageLevelId("v1")
             .busOrBbsId1("bbs1")
             .busOrBbsId2("bbs2")
-            .switchPrefixId("test")
             .build();
         Map<String, String> updatedValues = couplingDeviceCreationInfos.getMapMessageValues();
         assertEquals("v1", updatedValues.get("voltageLevelId"));
         assertEquals("bbs1", updatedValues.get("busOrBbsId1"));
         assertEquals("bbs2", updatedValues.get("busOrBbsId2"));
-        assertEquals("test", updatedValues.get("switchPrefixId"));
         Network network = getNetwork();
         AbstractModification modification = couplingDeviceCreationInfos.toModification();
         String message = Assertions.assertThrows(PowsyblException.class, () -> modification.apply(network)).getMessage();
