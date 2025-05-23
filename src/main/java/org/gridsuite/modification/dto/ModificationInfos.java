@@ -78,7 +78,7 @@ import java.util.concurrent.atomic.AtomicReference;
     @JsonSubTypes.Type(value = LccModificationInfos.class),
     @JsonSubTypes.Type(value = LccConverterStationModificationInfos.class),
     @JsonSubTypes.Type(value = VoltageLevelTopologyModificationInfos.class),
-    @JsonSubTypes.Type(value = AddCouplingDeviceInfos.class),
+    @JsonSubTypes.Type(value = CreateCouplingDeviceInfos.class),
 })
 @SuperBuilder
 @NoArgsConstructor

@@ -7,20 +7,19 @@
 package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.modification.topology.CreateCouplingDevice;
 import com.powsybl.iidm.modification.topology.CreateCouplingDeviceBuilder;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.AddCouplingDeviceInfos;
+import org.gridsuite.modification.dto.CreateCouplingDeviceInfos;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class AddCouplingDevice extends AbstractModification {
+public class CreateCouplingDevice extends AbstractModification {
 
-    private final AddCouplingDeviceInfos creationInfos;
+    private final CreateCouplingDeviceInfos creationInfos;
 
-    public AddCouplingDevice(AddCouplingDeviceInfos creationInfos) {
+    public CreateCouplingDevice(CreateCouplingDeviceInfos creationInfos) {
         this.creationInfos = creationInfos;
     }
 
@@ -31,7 +30,7 @@ public class AddCouplingDevice extends AbstractModification {
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         CreateCouplingDeviceBuilder builder = new CreateCouplingDeviceBuilder();
-        CreateCouplingDevice createCouplingDevice = builder
+        com.powsybl.iidm.modification.topology.CreateCouplingDevice createCouplingDevice = builder
             .withBusOrBusbarSectionId1(creationInfos.getBusOrBbsId1())
             .withBusOrBusbarSectionId2(creationInfos.getBusOrBbsId2())
             .build();
@@ -40,6 +39,6 @@ public class AddCouplingDevice extends AbstractModification {
 
     @Override
     public String getName() {
-        return ModificationType.ADD_COUPLING_DEVICE.toString();
+        return ModificationType.CREATE_COUPLING_DEVICE.toString();
     }
 }
