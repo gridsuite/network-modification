@@ -40,6 +40,6 @@ public class AddCouplingDevice extends AbstractModification {
 
     @Override
     public String getName() {
-        return ModificationType.COUPLING_DEVICE_CREATION.toString();
+        return ModificationType.ADD_COUPLING_DEVICE.toString();
     }
 }

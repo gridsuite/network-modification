@@ -58,7 +58,7 @@ public enum ModificationType {
     LCC_CREATION(PreloadingStrategy.NONE),
     LCC_MODIFICATION(PreloadingStrategy.NONE),
     VOLTAGE_LEVEL_TOPOLOGY_MODIFICATION(PreloadingStrategy.NONE),
-    COUPLING_DEVICE_CREATION(PreloadingStrategy.NONE);
+    ADD_COUPLING_DEVICE(PreloadingStrategy.NONE);
 
     private final PreloadingStrategy strategy;
 

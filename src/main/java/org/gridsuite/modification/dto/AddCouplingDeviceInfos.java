@@ -30,8 +30,8 @@ import java.util.Map;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Coupling device creation")
-@JsonTypeName("COUPLING_DEVICE_CREATION")
-@ModificationErrorTypeName("CREATE_COUPLING_DEVICE_ERROR")
+@JsonTypeName("ADD_COUPLING_DEVICE")
+@ModificationErrorTypeName("ADD_COUPLING_DEVICE_ERROR")
 public class AddCouplingDeviceInfos extends ModificationInfos {
 
     @Schema(description = "VoltageLevelId")
