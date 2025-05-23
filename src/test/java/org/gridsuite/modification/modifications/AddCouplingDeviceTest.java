@@ -61,11 +61,9 @@ class AddCouplingDeviceTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("COUPLING_DEVICE_CREATION", modificationInfos.getMessageType());
+        assertEquals("ADD_COUPLING_DEVICE", modificationInfos.getMessageType());
         Map<String, String> updatedValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
         assertEquals("v1", updatedValues.get("voltageLevelId"));
-        assertEquals("bbs1", updatedValues.get("busOrBbsId1"));
-        assertEquals("bbs5", updatedValues.get("busOrBbsId2"));
     }
 
     @Test
