@@ -16,7 +16,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.CouplingDeviceCreation;
+import org.gridsuite.modification.modifications.AddCouplingDevice;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +32,7 @@ import java.util.Map;
 @Schema(description = "Coupling device creation")
 @JsonTypeName("COUPLING_DEVICE_CREATION")
 @ModificationErrorTypeName("CREATE_COUPLING_DEVICE_ERROR")
-public class CouplingDeviceCreationInfos extends ModificationInfos {
+public class AddCouplingDeviceInfos extends ModificationInfos {
 
     @Schema(description = "VoltageLevelId")
     private String voltageLevelId;
@@ -45,7 +45,7 @@ public class CouplingDeviceCreationInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new CouplingDeviceCreation(this);
+        return new AddCouplingDevice(this);
     }
 
     @Override

@@ -11,7 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
-import org.gridsuite.modification.dto.CouplingDeviceCreationInfos;
+import org.gridsuite.modification.dto.AddCouplingDeviceInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
 import org.junit.jupiter.api.Assertions;
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-class CouplingDeviceCreationTest extends AbstractNetworkModificationTest {
+class AddCouplingDeviceTest extends AbstractNetworkModificationTest {
     @Override
     public void checkModification() {
         // test
@@ -41,7 +41,7 @@ class CouplingDeviceCreationTest extends AbstractNetworkModificationTest {
 
     @Override
     protected ModificationInfos buildModification() {
-        return CouplingDeviceCreationInfos.builder()
+        return AddCouplingDeviceInfos.builder()
             .stashed(false)
             .voltageLevelId("v1")
             .busOrBbsId1("bbs1")
@@ -69,17 +69,17 @@ class CouplingDeviceCreationTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void testCouplingDeviceCreationFail() {
-        CouplingDeviceCreationInfos couplingDeviceCreationInfos = CouplingDeviceCreationInfos.builder()
+    void testAddCouplingDeviceFail() {
+        AddCouplingDeviceInfos addCouplingDeviceInfos = AddCouplingDeviceInfos.builder()
             .stashed(false)
             .voltageLevelId("v1")
             .busOrBbsId1("bbs1")
             .busOrBbsId2("bbs2")
             .build();
-        Map<String, String> updatedValues = couplingDeviceCreationInfos.getMapMessageValues();
+        Map<String, String> updatedValues = addCouplingDeviceInfos.getMapMessageValues();
         assertEquals("v1", updatedValues.get("voltageLevelId"));
         Network network = getNetwork();
-        AbstractModification modification = couplingDeviceCreationInfos.toModification();
+        AbstractModification modification = addCouplingDeviceInfos.toModification();
         String message = Assertions.assertThrows(PowsyblException.class, () -> modification.apply(network)).getMessage();
         Assertions.assertEquals("bbs1 and bbs2 are in two different voltage levels.", message);
     }
