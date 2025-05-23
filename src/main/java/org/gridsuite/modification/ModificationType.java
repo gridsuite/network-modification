@@ -16,6 +16,7 @@ public enum ModificationType {
     EQUIPMENT_ATTRIBUTE_MODIFICATION(PreloadingStrategy.NONE),
     LOAD_CREATION(PreloadingStrategy.NONE),
     LOAD_MODIFICATION(PreloadingStrategy.NONE),
+    BALANCES_ADJUSTMENT_MODIFICATION(PreloadingStrategy.ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW),
     BATTERY_CREATION(PreloadingStrategy.NONE),
     BATTERY_MODIFICATION(PreloadingStrategy.NONE),
     GENERATOR_CREATION(PreloadingStrategy.NONE),
