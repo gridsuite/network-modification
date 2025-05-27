@@ -9,6 +9,7 @@ package org.gridsuite.modification.dto;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.loadflow.LoadFlowParameters;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -34,6 +35,7 @@ public class BalancesAdjustmentModificationInfos extends ModificationInfos {
     public static final int DEFAULT_MAX_NUMBER_ITERATIONS = 5;
     public static final double DEFAULT_THRESHOLD_NET_POSITION = 1;
     public static final List<Country> DEFAULT_COUNTRIES_TO_BALANCE = Collections.emptyList();
+    public static final LoadFlowParameters.BalanceType DEFAULT_BALANCE_TYPE = LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD;
 
     List<BalancesAdjustmentAreaInfos> areas;
 
@@ -45,6 +47,9 @@ public class BalancesAdjustmentModificationInfos extends ModificationInfos {
 
     @Builder.Default
     private List<Country> countriesToBalance = DEFAULT_COUNTRIES_TO_BALANCE;
+
+    @Builder.Default
+    private LoadFlowParameters.BalanceType balanceType = DEFAULT_BALANCE_TYPE;
 
     @Override
     public AbstractModification toModification() {

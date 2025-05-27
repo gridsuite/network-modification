@@ -20,7 +20,6 @@ import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import org.gridsuite.modification.dto.ShiftEquipmentType;
 import org.gridsuite.modification.dto.ShiftType;
@@ -75,7 +74,7 @@ public class BalancesAdjustmentModification extends AbstractModification {
         parameters.setMismatchMode(BalanceComputationParameters.MismatchMode.MAX);
         parameters.getScalingParameters().setPriority(ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED);
         parameters.getLoadFlowParameters().setCountriesToBalance(new HashSet<>(balancesAdjustmentModificationInfos.getCountriesToBalance()));
-        parameters.getLoadFlowParameters().setBalanceType(LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD);
+        parameters.getLoadFlowParameters().setBalanceType(balancesAdjustmentModificationInfos.getBalanceType());
         parameters.getLoadFlowParameters().getExtension(OpenLoadFlowParameters.class).setSlackDistributionFailureBehavior(OpenLoadFlowParameters.SlackDistributionFailureBehavior.FAIL);
 
         balanceComputation

@@ -8,6 +8,7 @@
 package org.gridsuite.modification.dto;
 
 import com.powsybl.iidm.network.Country;
+import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -31,6 +32,7 @@ class BalancesAdjustmentModificationInfosTest {
         assertEquals(BalancesAdjustmentModificationInfos.DEFAULT_MAX_NUMBER_ITERATIONS, infos.getMaxNumberIterations());
         assertEquals(BalancesAdjustmentModificationInfos.DEFAULT_THRESHOLD_NET_POSITION, infos.getThresholdNetPosition());
         assertEquals(BalancesAdjustmentModificationInfos.DEFAULT_COUNTRIES_TO_BALANCE, infos.getCountriesToBalance());
+        assertEquals(BalancesAdjustmentModificationInfos.DEFAULT_BALANCE_TYPE, infos.getBalanceType());
         assertEquals(1, infos.getAreas().size());
 
         BalancesAdjustmentAreaInfos areaInfos = infos.getAreas().get(0);
@@ -55,11 +57,13 @@ class BalancesAdjustmentModificationInfosTest {
             .maxNumberIterations(10)
             .thresholdNetPosition(250d)
             .countriesToBalance(List.of(Country.FR, Country.DE))
+            .balanceType(LoadFlowParameters.BalanceType.PROPORTIONAL_TO_GENERATION_P)
             .build();
 
         assertEquals(10, infos.getMaxNumberIterations());
         assertEquals(250d, infos.getThresholdNetPosition(), 0.001);
         assertEquals(List.of(Country.FR, Country.DE), infos.getCountriesToBalance());
+        assertEquals(LoadFlowParameters.BalanceType.PROPORTIONAL_TO_GENERATION_P, infos.getBalanceType());
         assertEquals(1, infos.getAreas().size());
 
         BalancesAdjustmentAreaInfos areaInfos = infos.getAreas().get(0);
