@@ -529,7 +529,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void testGenerationDispatchWithSubstationsHierarchyAndFixedSupply() throws Exception {
+    void testGenerationDispatchWithSubstationsHierarchyAndFixedSupply() {
         // Prepare modification parameters
         GenerationDispatchInfos modification = buildModification();
         modification.setLossCoefficient(10.);
