@@ -15,6 +15,8 @@ import org.gridsuite.modification.dto.TabularCreationInfos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.MessageFormat;
+
 import static org.gridsuite.modification.NetworkModificationException.Type.TABULAR_CREATION_ERROR;
 
 /**
@@ -56,7 +58,8 @@ public class TabularCreation extends AbstractModification {
             }
         }
         String defaultMessage = switch (creationInfos.getCreationType()) {
-            case GENERATOR_CREATION -> "generators";
+            case GENERATOR_CREATION ->  (creationInfos.getCreations().size() > 1 ? "generators" : "generator");
+            case SHUNT_COMPENSATOR_CREATION -> (creationInfos.getCreations().size() > 1 ? "shunt compensators": "shunt compensator") ;
             default -> "equipments of unknown type";
         } + " have been created";
 
