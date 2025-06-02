@@ -15,8 +15,6 @@ import org.gridsuite.modification.dto.TabularCreationInfos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.MessageFormat;
-
 import static org.gridsuite.modification.NetworkModificationException.Type.TABULAR_CREATION_ERROR;
 
 /**
