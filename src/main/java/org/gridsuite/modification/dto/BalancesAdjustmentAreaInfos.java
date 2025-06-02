@@ -17,6 +17,9 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
+/**
+ * @author Joris Mancini <joris.mancini_externe at rte-france.com>
+ */
 @SuperBuilder
 @NoArgsConstructor
 @Getter
