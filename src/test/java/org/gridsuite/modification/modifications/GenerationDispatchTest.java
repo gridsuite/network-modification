@@ -529,6 +529,73 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
     }
 
     @Test
+    void testGenerationDispatchWithSubstationsHierarchyAndFixedSupply() {
+        // Prepare modification parameters
+        GenerationDispatchInfos modification = buildModification();
+        modification.setLossCoefficient(10.);
+        modification.setDefaultOutageRate(20.);
+        modification.setGeneratorsWithFixedSupply(List.of(
+                        GeneratorsFilterInfos.builder().id(FILTER_ID_1).name("fixedGroups").build()));
+        modification.setSubstationsGeneratorsOrdering(List.of(
+                        SubstationsGeneratorsOrderingInfos.builder().substationIds(List.of("S5", "S4", "S54", "S15", "S74")).build(),
+                        SubstationsGeneratorsOrderingInfos.builder().substationIds(List.of("S27")).build(),
+                        SubstationsGeneratorsOrderingInfos.builder().substationIds(List.of("S113", "S74")).build()));
+
+        // Load the test network
+        setNetwork(Network.read("ieee118cdf_testDemGroupe_avecPimposee.xiidm",
+                getClass().getResourceAsStream("/ieee118cdf_testDemGroupe_avecPimposee.xiidm")));
+
+        List<FilterEquipments> filtersForFixedSupply = List.of(
+                new FilterEquipments(
+                        FILTER_ID_1,
+                        List.of(
+                                getIdentifiableAttributes("B19-G"),
+                                getIdentifiableAttributes("B54-G")
+                        ),
+                        List.of()
+                )
+        );
+        when(filterService.exportFilters(List.of(FILTER_ID_1), getNetwork())).thenReturn(filtersForFixedSupply.stream());
+
+        GenerationDispatch modif = (GenerationDispatch) modification.toModification();
+        modif.initApplicationContext(filterService);
+
+        modif.apply(getNetwork());
+
+        // Check expected target active power values
+        Map<String, Double> expectedTargetPs = Map.ofEntries(
+                Map.entry("B19-G", 27.0),
+                Map.entry("B54-G", 27.0),
+                Map.entry("B24-G", 264.0),
+                Map.entry("B25-G", 264.0),
+                Map.entry("B40-G", 264.0),
+                Map.entry("B42-G", 264.0),
+                Map.entry("B46-G", 264.0),
+                Map.entry("B49-G", 264.0),
+                Map.entry("B15-G", 264.0),
+                Map.entry("B27-G", 264.0),
+                Map.entry("B113-G", 264.0),
+                Map.entry("B4-G", 264.0),
+                Map.entry("B74-G", 264.0),
+                Map.entry("Group3", 264.0),
+                Map.entry("B8-G", 264.0),
+                Map.entry("B62-G", 264.0),
+                Map.entry("Group2", 264.0),
+                Map.entry("Group1", 20.8)
+        );
+
+        // Assert each expected targetP
+        expectedTargetPs.forEach((genId, expectedValue) ->
+                assertEquals(expectedValue, getNetwork().getGenerator(genId).getTargetP(), 0.01,
+                        "Unexpected targetP for " + genId));
+
+        // Assert all other generators have targetP = 0
+        getNetwork().getGeneratorStream()
+                .filter(g -> !expectedTargetPs.containsKey(g.getId()))
+                .forEach(g -> assertEquals(0.0, g.getTargetP(), 0.001, "Expected 0 targetP for " + g.getId()));
+    }
+
+    @Test
     void testGenerationDispatchErrorCheck() {
         final Network network = Network.read("testGenerationDispatch.xiidm", getClass().getResourceAsStream("/testGenerationDispatch.xiidm"));
         setNetwork(network);
