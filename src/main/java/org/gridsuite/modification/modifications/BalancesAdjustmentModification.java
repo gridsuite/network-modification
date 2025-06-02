@@ -73,6 +73,7 @@ public class BalancesAdjustmentModification extends AbstractModification {
         parameters.setThresholdNetPosition(balancesAdjustmentModificationInfos.getThresholdNetPosition());
         parameters.setMismatchMode(BalanceComputationParameters.MismatchMode.MAX);
         parameters.getScalingParameters().setPriority(ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED);
+        parameters.setWithLoadFlow(balancesAdjustmentModificationInfos.isWithLoadFlow());
         parameters.getLoadFlowParameters().setCountriesToBalance(new HashSet<>(balancesAdjustmentModificationInfos.getCountriesToBalance()));
         parameters.getLoadFlowParameters().setBalanceType(balancesAdjustmentModificationInfos.getBalanceType());
         parameters.getLoadFlowParameters().getExtension(OpenLoadFlowParameters.class).setSlackDistributionFailureBehavior(OpenLoadFlowParameters.SlackDistributionFailureBehavior.FAIL);
