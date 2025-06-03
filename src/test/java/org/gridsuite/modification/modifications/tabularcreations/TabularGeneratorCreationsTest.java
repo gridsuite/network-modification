@@ -8,12 +8,12 @@ package org.gridsuite.modification.modifications.tabularcreations;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.GeneratorCreationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
 import org.gridsuite.modification.dto.TabularCreationInfos;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -55,7 +55,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .energySource(EnergySource.NUCLEAR).minP(0).maxP(500)
                 .targetP(300).targetQ(400D).voltageRegulationOn(false)
                 .plannedActivePowerSetPoint(200D).forcedOutageRate(3D)
-                .minQ(7D).participate(false)
+                .minQ(7D).maxQ(100.).participate(false)
                 .stepUpTransformerX(45D)
                 .reactiveCapabilityCurve(false).reactiveCapabilityCurvePoints(List.of())
                 .build(),
@@ -75,7 +75,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .participate(false)
                 .directTransX(5D)
                 .regulatingTerminalId("v5load").regulatingTerminalType("LOAD").regulatingTerminalVlId("v5").qPercent(75D)
-                .reactiveCapabilityCurve(false).reactiveCapabilityCurvePoints(List.of())
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().p(1.).minQ(2.).maxQ(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(9.).minQ(10.).maxQ(11.).build()))
                 .build(),
             GeneratorCreationInfos.builder()
                 .equipmentId("id5").voltageLevelId("v5").busOrBusbarSectionId("1A1")
@@ -85,11 +85,19 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .reactiveCapabilityCurve(false).reactiveCapabilityCurvePoints(List.of())
                 .build(),
             GeneratorCreationInfos.builder()
-                .equipmentId("v5generator").voltageLevelId("v5").busOrBusbarSectionId("1A1")
+                .equipmentId("id6").voltageLevelId("v5").busOrBusbarSectionId("1A1")
                 .connectionName("v5generator").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .energySource(EnergySource.WIND).minP(0).maxP(200)
                 .targetP(150).voltageRegulationOn(true).targetV(375D)
-                .reactiveCapabilityCurve(false).reactiveCapabilityCurvePoints(List.of())
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().p(1.).minQ(2.).maxQ(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(9.).minQ(10.).maxQ(11.).build()))
+                .build(),
+            GeneratorCreationInfos.builder()
+                .equipmentId("id7").voltageLevelId("v6").busOrBusbarSectionId("1B1")
+                .connectionName("v6generator").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false)
+                .energySource(EnergySource.HYDRO).minP(0).maxP(200)
+                .targetP(150).voltageRegulationOn(true).targetV(375D)
+                .minQ(1.).maxQ(100.)
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().p(1.).minQ(2.).maxQ(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(9.).minQ(10.).maxQ(11.).build()))
                 .build()
         );
         return TabularCreationInfos.builder()
@@ -106,6 +114,16 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
         assertNotNull(getNetwork().getGenerator("id3"));
         assertNotNull(getNetwork().getGenerator("id4"));
         assertNotNull(getNetwork().getGenerator("id5"));
+        assertNotNull(getNetwork().getGenerator("id6"));
+
+        // If reactiveCapabilityCurve is enabled while minQ and maxQ are set, reactiveCapabilityCurvePoints takes the priority
+        Generator id7 = getNetwork().getGenerator("id7");
+        assertEquals(ReactiveLimitsKind.CURVE, id7.getReactiveLimits().getKind());
+
+        // If reactiveCapabilityCurve isn't enabled, minQ and maxQ are set
+        Generator id2 = getNetwork().getGenerator("id2");
+        assertEquals(ReactiveLimitsKind.MIN_MAX, id2.getReactiveLimits().getKind());
+
     }
 
     @Test
@@ -180,6 +198,13 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .directTransX(5D).stepUpTransformerX(45D)
                 .regulatingTerminalId("v2load").regulatingTerminalType("LOAD").regulatingTerminalVlId("v2").qPercent(35D)
                 .reactiveCapabilityCurve(false)
+                .build(),
+            GeneratorCreationInfos.builder()
+                .equipmentId("v5generator").voltageLevelId("v5").busOrBusbarSectionId("1A1")
+                .connectionName("v5generator").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
+                .energySource(EnergySource.WIND).minP(0).maxP(200)
+                .targetP(150).voltageRegulationOn(true).targetV(375D)
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(null)
                 .build()
         );
         ModificationInfos creationInfos = TabularCreationInfos.builder()

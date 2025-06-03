@@ -1456,11 +1456,11 @@ public final class ModificationUtils {
             IntStream.range(0, points.size())
                     .forEach(i -> {
                         ReactiveCapabilityCurvePointsInfos newPoint = points.get(i);
-                        if (Double.isNaN(newPoint.getP())) {
+                        if (newPoint.getP() == null || Double.isNaN(newPoint.getP())) {
                             throw makeEquipmentException(errorType, equipmentId, equipmentName, "P is not set in a reactive capability curve limits point");
-                        } else if (Double.isNaN(newPoint.getMinQ())) {
+                        } else if (newPoint.getMinQ() == null || Double.isNaN(newPoint.getMinQ())) {
                             throw makeEquipmentException(errorType, equipmentId, equipmentName, "min Q is not set in a reactive capability curve limits point");
-                        } else if (Double.isNaN(newPoint.getMaxQ())) {
+                        } else if (newPoint.getMaxQ() == null || Double.isNaN(newPoint.getMaxQ())) {
                             throw makeEquipmentException(errorType, equipmentId, equipmentName, "max Q is not set in a reactive capability curve limits point");
                         }
                     });
