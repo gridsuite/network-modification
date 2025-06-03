@@ -29,12 +29,10 @@ public class CreateCouplingDevice extends AbstractModification {
      */
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        CreateCouplingDeviceBuilder builder = new CreateCouplingDeviceBuilder();
-        com.powsybl.iidm.modification.topology.CreateCouplingDevice createCouplingDevice = builder
+        new CreateCouplingDeviceBuilder()
             .withBusOrBusbarSectionId1(createCouplingDeviceInfos.getCouplingDeviceInfos().getBusbarSectionId1())
             .withBusOrBusbarSectionId2(createCouplingDeviceInfos.getCouplingDeviceInfos().getBusbarSectionId2())
-            .build();
-        createCouplingDevice.apply(network, true, subReportNode);
+            .build().apply(network, true, subReportNode);
     }
 
     @Override
