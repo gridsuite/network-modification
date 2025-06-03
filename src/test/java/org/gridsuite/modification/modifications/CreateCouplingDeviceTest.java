@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
+import org.gridsuite.modification.dto.CouplingDeviceInfos;
 import org.gridsuite.modification.dto.CreateCouplingDeviceInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
@@ -44,8 +45,10 @@ class CreateCouplingDeviceTest extends AbstractNetworkModificationTest {
         return CreateCouplingDeviceInfos.builder()
             .stashed(false)
             .voltageLevelId("v1")
-            .busOrBbsId1("bbs1")
-            .busOrBbsId2("bbs5")
+            .couplingDeviceInfos(CouplingDeviceInfos.builder()
+                .busbarSectionId1("bbs1")
+                .busbarSectionId2("bbs5")
+                .build())
             .build();
     }
 
@@ -71,8 +74,10 @@ class CreateCouplingDeviceTest extends AbstractNetworkModificationTest {
         CreateCouplingDeviceInfos createCouplingDeviceInfos = CreateCouplingDeviceInfos.builder()
             .stashed(false)
             .voltageLevelId("v1")
-            .busOrBbsId1("bbs1")
-            .busOrBbsId2("bbs2")
+            .couplingDeviceInfos(CouplingDeviceInfos.builder()
+                .busbarSectionId1("bbs1")
+                .busbarSectionId2("bbs2")
+                .build())
             .build();
         Map<String, String> updatedValues = createCouplingDeviceInfos.getMapMessageValues();
         assertEquals("v1", updatedValues.get("voltageLevelId"));

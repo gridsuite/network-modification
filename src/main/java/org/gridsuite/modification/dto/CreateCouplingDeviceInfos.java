@@ -37,11 +37,8 @@ public class CreateCouplingDeviceInfos extends ModificationInfos {
     @Schema(description = "VoltageLevelId")
     private String voltageLevelId;
 
-    @Schema(description = "BusOrBbsId1")
-    private String busOrBbsId1;
-
-    @Schema(description = "BusOrBbsId2")
-    private String busOrBbsId2;
+    @Schema(description = "Coupling device information")
+    private CouplingDeviceInfos couplingDeviceInfos;
 
     @Override
     public AbstractModification toModification() {
