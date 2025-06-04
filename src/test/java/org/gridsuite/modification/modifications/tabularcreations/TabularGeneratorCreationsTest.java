@@ -200,11 +200,25 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .reactiveCapabilityCurve(false)
                 .build(),
             GeneratorCreationInfos.builder()
-                .equipmentId("v5generator").voltageLevelId("v5").busOrBusbarSectionId("1A1")
+                .equipmentId("id4").voltageLevelId("v5").busOrBusbarSectionId("1A1")
                 .connectionName("v5generator").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .energySource(EnergySource.WIND).minP(0).maxP(200)
                 .targetP(150).voltageRegulationOn(true).targetV(375D)
-                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(null)
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().maxQ(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().maxQ(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().maxQ(3.).build()))
+                .build(),
+            GeneratorCreationInfos.builder()
+                .equipmentId("id5").voltageLevelId("v5").busOrBusbarSectionId("1A1")
+                .connectionName("v5generator").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
+                .energySource(EnergySource.WIND).minP(0).maxP(200)
+                .targetP(150).voltageRegulationOn(true).targetV(375D)
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().p(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(3.).build()))
+                .build(),
+            GeneratorCreationInfos.builder()
+                .equipmentId("id6").voltageLevelId("v5").busOrBusbarSectionId("1A1")
+                .connectionName("v5generator").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
+                .energySource(EnergySource.WIND).minP(0).maxP(200)
+                .targetP(150).voltageRegulationOn(true).targetV(375D)
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().minQ(1.).p(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().minQ(1.).p(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().minQ(1.).p(3.).build()))
                 .build()
         );
         ModificationInfos creationInfos = TabularCreationInfos.builder()
