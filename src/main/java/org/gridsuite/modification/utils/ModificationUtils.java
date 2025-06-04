@@ -1432,6 +1432,26 @@ public final class ModificationUtils {
                 equipmentName + " '" + equipmentId + "' : " + msgSuffix);
     }
 
+    private void checkReactiveCapabilityCurvePoints(List<ReactiveCapabilityCurvePointsInfos> points,
+                                                    NetworkModificationException.Type errorType,
+                                                    String equipmentId,
+                                                    String equipmentName) {
+        if (points.size() < 2) {
+            throw makeEquipmentException(errorType, equipmentId, equipmentName, "a reactive capability curve should have at least two points");
+        }
+        IntStream.range(0, points.size())
+                .forEach(i -> {
+                    ReactiveCapabilityCurvePointsInfos newPoint = points.get(i);
+                    if (newPoint.getP() == null || Double.isNaN(newPoint.getP())) {
+                        throw makeEquipmentException(errorType, equipmentId, equipmentName, "P is not set in a reactive capability curve limits point");
+                    } else if (newPoint.getMinQ() == null || Double.isNaN(newPoint.getMinQ())) {
+                        throw makeEquipmentException(errorType, equipmentId, equipmentName, "min Q is not set in a reactive capability curve limits point");
+                    } else if (newPoint.getMaxQ() == null || Double.isNaN(newPoint.getMaxQ())) {
+                        throw makeEquipmentException(errorType, equipmentId, equipmentName, "max Q is not set in a reactive capability curve limits point");
+                    }
+                });
+    }
+
     public void checkReactiveLimitsCreation(ReactiveLimitsHolderInfos modificationInfos,
                                             NetworkModificationException.Type errorType,
                                             String equipmentId,
@@ -1450,20 +1470,7 @@ public final class ModificationUtils {
         // check reactive capability curve limits
         List<ReactiveCapabilityCurvePointsInfos> points = modificationInfos.getReactiveCapabilityCurvePoints();
         if (!org.apache.commons.collections4.CollectionUtils.isEmpty(points)) {
-            if (points.size() < 2) {
-                throw makeEquipmentException(errorType, equipmentId, equipmentName, "a reactive capability curve should have at least two points");
-            }
-            IntStream.range(0, points.size())
-                    .forEach(i -> {
-                        ReactiveCapabilityCurvePointsInfos newPoint = points.get(i);
-                        if (newPoint.getP() == null || Double.isNaN(newPoint.getP())) {
-                            throw makeEquipmentException(errorType, equipmentId, equipmentName, "P is not set in a reactive capability curve limits point");
-                        } else if (newPoint.getMinQ() == null || Double.isNaN(newPoint.getMinQ())) {
-                            throw makeEquipmentException(errorType, equipmentId, equipmentName, "min Q is not set in a reactive capability curve limits point");
-                        } else if (newPoint.getMaxQ() == null || Double.isNaN(newPoint.getMaxQ())) {
-                            throw makeEquipmentException(errorType, equipmentId, equipmentName, "max Q is not set in a reactive capability curve limits point");
-                        }
-                    });
+            checkReactiveCapabilityCurvePoints(points, errorType, equipmentId, equipmentName);
         }
     }
 
