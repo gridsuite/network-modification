@@ -129,7 +129,8 @@ public class NetworkModificationException extends PowsyblException {
         WRONG_HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL(HttpStatus.BAD_REQUEST),
         UNSUPPORTED_HYBRID_HVDC(HttpStatus.INTERNAL_SERVER_ERROR),
         MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),
-        CREATE_COUPLING_DEVICE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR);
+        CREATE_COUPLING_DEVICE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),
+        CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR(HttpStatus.INTERNAL_SERVER_ERROR);
 
         public final HttpStatus status;
         private final String message;
