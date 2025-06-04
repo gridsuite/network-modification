@@ -47,7 +47,9 @@ public class CreateCouplingDeviceInfos extends ModificationInfos {
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.createCouplingDevice").add();
+        return reportNode.newReportNode().withMessageTemplate("network.modification.createCouplingDevice")
+            .withUntypedValue("voltageLevelId", getVoltageLevelId())
+            .add();
     }
 
     @Override
