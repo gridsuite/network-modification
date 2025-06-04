@@ -32,7 +32,7 @@ public class CreateCouplingDevice extends AbstractModification {
         new CreateCouplingDeviceBuilder()
             .withBusOrBusbarSectionId1(createCouplingDeviceInfos.getCouplingDeviceInfos().getBusbarSectionId1())
             .withBusOrBusbarSectionId2(createCouplingDeviceInfos.getCouplingDeviceInfos().getBusbarSectionId2())
-            .build().apply(network, true, subReportNode);
+            .build().apply(network, false, subReportNode);
     }
 
     @Override

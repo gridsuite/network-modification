@@ -7,7 +7,7 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
@@ -83,8 +83,13 @@ class CreateCouplingDeviceTest extends AbstractNetworkModificationTest {
         assertEquals("v1", updatedValues.get("voltageLevelId"));
         Network network = getNetwork();
         AbstractModification modification = createCouplingDeviceInfos.toModification();
-        String message = Assertions.assertThrows(PowsyblException.class, () -> modification.apply(network)).getMessage();
-        Assertions.assertEquals("bbs1 and bbs2 are in two different voltage levels.", message);
+        ReportNode report = ReportNode.newRootReportNode()
+            .withAllResourceBundlesFromClasspath()
+            .withMessageTemplate("test")
+            .build();
+        Assertions.assertDoesNotThrow(() -> modification.apply(network, report));
+        Assertions.assertEquals(1, report.getChildren().size());
+        Assertions.assertEquals("core.iidm.modification.unexpectedDifferentVoltageLevels", report.getChildren().getFirst().getMessageKey());
     }
 
 }
