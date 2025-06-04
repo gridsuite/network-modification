@@ -43,7 +43,9 @@ public class CreateVoltageLevelTopologyInfos extends ModificationInfos {
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.createVoltageLevelTopology").add();
+        return reportNode.newReportNode().withMessageTemplate("network.modification.createVoltageLevelTopology")
+            .withUntypedValue("voltageLevelId", getVoltageLevelId())
+            .add();
     }
 
     @Override
