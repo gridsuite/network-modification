@@ -16,6 +16,7 @@ public enum ModificationType {
     EQUIPMENT_ATTRIBUTE_MODIFICATION(PreloadingStrategy.NONE),
     LOAD_CREATION(PreloadingStrategy.NONE),
     LOAD_MODIFICATION(PreloadingStrategy.NONE),
+    BALANCES_ADJUSTMENT_MODIFICATION(PreloadingStrategy.ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW),
     BATTERY_CREATION(PreloadingStrategy.NONE),
     BATTERY_MODIFICATION(PreloadingStrategy.NONE),
     GENERATOR_CREATION(PreloadingStrategy.NONE),
@@ -57,7 +58,8 @@ public enum ModificationType {
     LCC_CONVERTER_STATION_MODIFICATION(PreloadingStrategy.NONE),
     LCC_CREATION(PreloadingStrategy.NONE),
     LCC_MODIFICATION(PreloadingStrategy.NONE),
-    VOLTAGE_LEVEL_TOPOLOGY_MODIFICATION(PreloadingStrategy.NONE);
+    VOLTAGE_LEVEL_TOPOLOGY_MODIFICATION(PreloadingStrategy.NONE),
+    CREATE_COUPLING_DEVICE(PreloadingStrategy.NONE);
 
     private final PreloadingStrategy strategy;
 
