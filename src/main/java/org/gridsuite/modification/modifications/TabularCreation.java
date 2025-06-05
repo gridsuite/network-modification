@@ -58,6 +58,8 @@ public class TabularCreation extends AbstractModification {
         String defaultMessage = switch (creationInfos.getCreationType()) {
             case GENERATOR_CREATION -> creationInfos.getCreations().size() > 1 ? "generators" : "generator";
             case LOAD_CREATION -> creationInfos.getCreations().size() > 1 ? "loads" : "load";
+            case SHUNT_COMPENSATOR_CREATION ->
+                    creationInfos.getCreations().size() > 1 ? "shunt compensators" : "shunt compensator";
             default -> "equipments of unknown type";
         } + " have been created";
 
