@@ -52,20 +52,22 @@ public class BalancesAdjustmentModification extends AbstractModification {
                       boolean throwException,
                       ComputationManager computationManager,
                       ReportNode reportNode) {
+        final boolean isStatic = !balancesAdjustmentModificationInfos.isWithLoadFlow();
+
         List<BalanceComputationArea> areas = balancesAdjustmentModificationInfos
             .getAreas()
             .stream()
             .map(areaInfos ->
                 new BalanceComputationArea(
                     areaInfos.getName(),
-                    new CountryAreaFactory(areaInfos.getCountries().toArray(Country[]::new)),
+                    new CountryAreaFactory(isStatic, areaInfos.getCountries().toArray(Country[]::new)),
                     createScalable(areaInfos, network, reportNode),
                     areaInfos.getNetPosition()
                 )
             )
             .toList();
 
-        BalanceComputation balanceComputation = new BalanceComputationFactoryImpl()
+        BalanceComputation balanceComputation = new BalanceComputationFactoryImpl(isStatic)
             .create(areas, LoadFlow.find(), computationManager);
 
         BalanceComputationParameters parameters = BalanceComputationParameters.load();
@@ -73,7 +75,6 @@ public class BalancesAdjustmentModification extends AbstractModification {
         parameters.setThresholdNetPosition(balancesAdjustmentModificationInfos.getThresholdNetPosition());
         parameters.setMismatchMode(BalanceComputationParameters.MismatchMode.MAX);
         parameters.getScalingParameters().setPriority(ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED);
-        parameters.setWithLoadFlow(balancesAdjustmentModificationInfos.isWithLoadFlow());
         parameters.getLoadFlowParameters().setCountriesToBalance(new HashSet<>(balancesAdjustmentModificationInfos.getCountriesToBalance()));
         parameters.getLoadFlowParameters().setBalanceType(balancesAdjustmentModificationInfos.getBalanceType());
         parameters.getLoadFlowParameters().getExtension(OpenLoadFlowParameters.class).setSlackDistributionFailureBehavior(OpenLoadFlowParameters.SlackDistributionFailureBehavior.FAIL);

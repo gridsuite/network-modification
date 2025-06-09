@@ -36,7 +36,7 @@ public class BalancesAdjustmentModificationInfos extends ModificationInfos {
     public static final double DEFAULT_THRESHOLD_NET_POSITION = 1;
     public static final List<Country> DEFAULT_COUNTRIES_TO_BALANCE = Collections.emptyList();
     public static final LoadFlowParameters.BalanceType DEFAULT_BALANCE_TYPE = LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD;
-    public static final boolean DEFAULT_WITH_LOAD_FLOW = false;
+    public static final boolean DEFAULT_WITH_LOAD_FLOW = true;
 
     List<BalancesAdjustmentAreaInfos> areas;
 
