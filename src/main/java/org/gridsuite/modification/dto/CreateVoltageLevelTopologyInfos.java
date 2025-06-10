@@ -32,7 +32,7 @@ import java.util.Map;
 @JsonTypeName("CREATE_VOLTAGE_LEVEL_TOPOLOGY")
 public class CreateVoltageLevelTopologyInfos extends ModificationInfos {
 
-    @Schema(description = "VoltageLevelId")
+    @Schema(description = "voltageLevelId")
     private String voltageLevelId;
 
     @Schema(description = "alignedBusesOrBusbarCount")
