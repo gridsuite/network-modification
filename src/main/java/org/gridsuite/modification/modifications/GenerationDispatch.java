@@ -240,7 +240,7 @@ public class GenerationDispatch extends AbstractModification {
                             substation.getVoltageLevelStream().forEach(v ->
                                 v.getGeneratorStream().filter(g -> {
                                     Double generatorCost = getGeneratorMarginalCost(g);
-                                    return generatorCost != null && generatorCost.equals(mCost);
+                                    return generatorCost != null && generatorCost.equals(mCost) && !generatorsWithFixedSupply.contains(g.getId());
                                 }).forEach(g -> mapGeneratorsBySubstationsList.get(i.get()).add(g.getId())));
                         }
                     });
