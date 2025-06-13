@@ -37,6 +37,7 @@ public class BalancesAdjustmentModificationInfos extends ModificationInfos {
     public static final List<Country> DEFAULT_COUNTRIES_TO_BALANCE = Collections.emptyList();
     public static final LoadFlowParameters.BalanceType DEFAULT_BALANCE_TYPE = LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD;
     public static final boolean DEFAULT_WITH_LOAD_FLOW = true;
+    public static final boolean DEFAULT_SUBTRACT_LOAD_FLOW_BALANCING = false;
 
     List<BalancesAdjustmentAreaInfos> areas;
 
@@ -54,6 +55,9 @@ public class BalancesAdjustmentModificationInfos extends ModificationInfos {
 
     @Builder.Default
     private boolean withLoadFlow = DEFAULT_WITH_LOAD_FLOW;
+
+    @Builder.Default
+    private boolean subtractLoadFlowBalancing = DEFAULT_SUBTRACT_LOAD_FLOW_BALANCING;
 
     @Override
     public AbstractModification toModification() {
