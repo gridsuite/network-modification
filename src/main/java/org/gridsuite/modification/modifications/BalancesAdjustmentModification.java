@@ -6,10 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.powsybl.balances_adjustment.balance_computation.BalanceComputation;
-import com.powsybl.balances_adjustment.balance_computation.BalanceComputationArea;
-import com.powsybl.balances_adjustment.balance_computation.BalanceComputationFactoryImpl;
-import com.powsybl.balances_adjustment.balance_computation.BalanceComputationParameters;
+import com.powsybl.balances_adjustment.balance_computation.*;
 import com.powsybl.balances_adjustment.util.CountryAreaFactory;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
@@ -74,6 +71,7 @@ public class BalancesAdjustmentModification extends AbstractModification {
         parameters.setMaxNumberIterations(balancesAdjustmentModificationInfos.getMaxNumberIterations());
         parameters.setThresholdNetPosition(balancesAdjustmentModificationInfos.getThresholdNetPosition());
         parameters.setMismatchMode(BalanceComputationParameters.MismatchMode.MAX);
+        parameters.setSubtractLoadFlowBalancing(balancesAdjustmentModificationInfos.isSubtractLoadFlowBalancing());
         parameters.getScalingParameters().setPriority(ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED);
         parameters.getLoadFlowParameters().setCountriesToBalance(new HashSet<>(balancesAdjustmentModificationInfos.getCountriesToBalance()));
         parameters.getLoadFlowParameters().setBalanceType(balancesAdjustmentModificationInfos.getBalanceType());
