@@ -8,13 +8,12 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.modification.topology.MoveFeederBayBuilder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.CreateVoltageLevelTopologyInfos;
+import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -47,6 +46,18 @@ public class CreateVoltageLevelTopology extends AbstractModification {
             .withLowBusOrBusbarIndex(lowBusOrBusbarIndex)
             .withSwitchKinds(switchKinds)
             .build().apply(network, true, subReportNode);
+        String voltageLevelId = voltageLevel.getId();
+        voltageLevel.getConnectableStream().filter(connectable -> connectable.getType() != IdentifiableType.BUSBAR_SECTION).forEach(conn -> {
+            Terminal terminalConnectedToVl = (Terminal) conn.getTerminals().stream()
+                .filter(terminal -> ((Terminal) terminal).getVoltageLevel().getId().equals(voltageLevelId))
+                .findFirst().get();
+            String busbarSectionId = ModificationUtils.getInstance().getBusOrBusbarSection(terminalConnectedToVl);
+            new MoveFeederBayBuilder().withConnectableId(conn.getId())
+                .withTargetVoltageLevelId(voltageLevelId)
+                .withTerminal(terminalConnectedToVl)
+                .withTargetBusOrBusBarSectionId(busbarSectionId)
+                .build().apply(network, false, ReportNode.NO_OP);
+        });
     }
 
     private int findLowBusOrBusbarIndex(VoltageLevel voltageLevel) {
