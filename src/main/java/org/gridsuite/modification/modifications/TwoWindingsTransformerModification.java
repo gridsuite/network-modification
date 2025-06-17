@@ -683,12 +683,20 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                                                    AttributeModification<Integer> modifyTapPosition,
                                                    List<TapChangerStepCreationInfos> modifySteps,
                                                    List<ReportNode> tapChangerReports) {
-        ReportNode lowTapPositionReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
-                isModification ? tapChanger::setLowTapPosition
-                        : tapChangerAdder::setLowTapPosition,
-                isModification ? tapChanger::getLowTapPosition : () -> null,
-                modifyLowTapPosition, "Low tap position");
 
+        // Add steps (it can change the max position)
+        if (modifySteps != null) {
+            processTapchangerSteps(tapChangerReports,
+                tapChangerAdder, isModification ? tapChanger.stepsReplacer() : null, isModification, modifySteps);
+        }
+
+        ReportNode lowTapPositionReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
+            isModification ? tapChanger::setLowTapPosition
+                : tapChangerAdder::setLowTapPosition,
+            isModification ? tapChanger::getLowTapPosition : () -> null,
+            modifyLowTapPosition, "Low tap position");
+
+        // must be done after setting the low position and the steps
         ReportNode tapPositionReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
                 isModification ? tapChanger::setTapPosition
                         : tapChangerAdder::setTapPosition,
@@ -702,12 +710,6 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
             if (tapPositionReportNode != null) {
                 tapChangerReports.add(tapPositionReportNode);
             }
-        }
-
-        // Add steps
-        if (modifySteps != null) {
-            processTapchangerSteps(tapChangerReports,
-                    tapChangerAdder, isModification ? tapChanger.stepsReplacer() : null, isModification, modifySteps);
         }
     }
 
