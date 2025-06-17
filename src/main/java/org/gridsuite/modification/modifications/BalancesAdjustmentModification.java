@@ -11,6 +11,7 @@ import com.powsybl.balances_adjustment.balance_computation.BalanceComputationAre
 import com.powsybl.balances_adjustment.balance_computation.BalanceComputationFactoryImpl;
 import com.powsybl.balances_adjustment.balance_computation.BalanceComputationParameters;
 import com.powsybl.balances_adjustment.util.CountryAreaFactory;
+import com.powsybl.balances_adjustment.util.Reports;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
@@ -25,6 +26,8 @@ import org.gridsuite.modification.dto.ShiftEquipmentType;
 import org.gridsuite.modification.dto.ShiftType;
 import org.gridsuite.modification.dto.BalancesAdjustmentAreaInfos;
 import org.gridsuite.modification.dto.BalancesAdjustmentModificationInfos;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +38,8 @@ import java.util.stream.Stream;
  * @author Joris Mancini <joris.mancini_externe at rte-france.com>
  */
 public class BalancesAdjustmentModification extends AbstractModification {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BalancesAdjustmentModification.class);
+
     private final BalancesAdjustmentModificationInfos balancesAdjustmentModificationInfos;
 
     public BalancesAdjustmentModification(BalancesAdjustmentModificationInfos balancesAdjustmentModificationInfos) {
@@ -52,36 +57,45 @@ public class BalancesAdjustmentModification extends AbstractModification {
                       boolean throwException,
                       ComputationManager computationManager,
                       ReportNode reportNode) {
-        final boolean isStatic = !balancesAdjustmentModificationInfos.isWithLoadFlow();
-
-        List<BalanceComputationArea> areas = balancesAdjustmentModificationInfos
-            .getAreas()
-            .stream()
-            .map(areaInfos ->
-                new BalanceComputationArea(
-                    areaInfos.getName(),
-                    new CountryAreaFactory(isStatic, areaInfos.getCountries().toArray(Country[]::new)),
-                    createScalable(areaInfos, network, reportNode),
-                    areaInfos.getNetPosition()
-                )
-            )
-            .toList();
-
-        BalanceComputation balanceComputation = new BalanceComputationFactoryImpl(isStatic)
-            .create(areas, LoadFlow.find(), computationManager);
-
         BalanceComputationParameters parameters = BalanceComputationParameters.load();
-        parameters.setMaxNumberIterations(balancesAdjustmentModificationInfos.getMaxNumberIterations());
-        parameters.setThresholdNetPosition(balancesAdjustmentModificationInfos.getThresholdNetPosition());
-        parameters.setMismatchMode(BalanceComputationParameters.MismatchMode.MAX);
         parameters.getScalingParameters().setPriority(ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED);
-        parameters.getLoadFlowParameters().setCountriesToBalance(new HashSet<>(balancesAdjustmentModificationInfos.getCountriesToBalance()));
-        parameters.getLoadFlowParameters().setBalanceType(balancesAdjustmentModificationInfos.getBalanceType());
-        parameters.getLoadFlowParameters().getExtension(OpenLoadFlowParameters.class).setSlackDistributionFailureBehavior(OpenLoadFlowParameters.SlackDistributionFailureBehavior.FAIL);
 
-        balanceComputation
-            .run(network, network.getVariantManager().getWorkingVariantId(), parameters, reportNode)
-            .join();
+        if (balancesAdjustmentModificationInfos.isWithLoadFlow()) {
+            parameters.setMaxNumberIterations(balancesAdjustmentModificationInfos.getMaxNumberIterations());
+            parameters.setThresholdNetPosition(balancesAdjustmentModificationInfos.getThresholdNetPosition());
+            parameters.setMismatchMode(BalanceComputationParameters.MismatchMode.MAX);
+            parameters.getLoadFlowParameters().setCountriesToBalance(new HashSet<>(balancesAdjustmentModificationInfos.getCountriesToBalance()));
+            parameters.getLoadFlowParameters().setBalanceType(balancesAdjustmentModificationInfos.getBalanceType());
+            parameters.getLoadFlowParameters().getExtension(OpenLoadFlowParameters.class).setSlackDistributionFailureBehavior(OpenLoadFlowParameters.SlackDistributionFailureBehavior.FAIL);
+
+            List<BalanceComputationArea> areas = balancesAdjustmentModificationInfos
+                .getAreas()
+                .stream()
+                .map(areaInfos ->
+                    new BalanceComputationArea(
+                        areaInfos.getName(),
+                        new CountryAreaFactory(areaInfos.getCountries().toArray(Country[]::new)),
+                        createScalable(areaInfos, network, reportNode),
+                        areaInfos.getNetPosition()
+                    )
+                )
+                .toList();
+
+            BalanceComputation balanceComputation = new BalanceComputationFactoryImpl()
+                .create(areas, LoadFlow.find(), computationManager);
+            balanceComputation
+                .run(network, network.getVariantManager().getWorkingVariantId(), parameters, reportNode)
+                .join();
+        } else {
+            balancesAdjustmentModificationInfos.getAreas().forEach(area -> {
+                CountryArea countryArea = new CountryArea(network, area.getCountries());
+                double offset = area.getNetPosition() - countryArea.getNetPosition();
+                Scalable scalable = createScalable(area, network, reportNode);
+                double done = scalable.scale(network, offset, parameters.getScalingParameters());
+                Reports.reportScaling(reportNode, area.getName(), offset, done);
+                LOGGER.info("Scaling for area {}: offset={}, done={}", area.getName(), offset, done);
+            });
+        }
     }
 
     private Scalable createScalable(BalancesAdjustmentAreaInfos balancesAdjustmentAreaInfos, Network network, ReportNode reportNode) {
