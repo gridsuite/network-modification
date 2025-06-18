@@ -15,9 +15,9 @@ import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.CreateVoltageLevelTopologyInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -33,19 +33,16 @@ public class CreateVoltageLevelTopology extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        List<SwitchKind> switchKinds = new ArrayList<>();
         VoltageLevel voltageLevel = network.getVoltageLevel(createVoltageLevelTopologyInfos.getVoltageLevelId());
-        for (int i = 0; i < createVoltageLevelTopologyInfos.getSectionCount() - 1; i++) {
-            switchKinds.add(SwitchKind.BREAKER);
-        }
         int lowBusOrBusbarIndex = findLowBusOrBusbarIndex(voltageLevel);
         new com.powsybl.iidm.modification.topology.CreateVoltageLevelTopologyBuilder()
             .withVoltageLevelId(createVoltageLevelTopologyInfos.getVoltageLevelId())
             .withSectionCount(createVoltageLevelTopologyInfos.getSectionCount())
-            .withAlignedBusesOrBusbarCount(createVoltageLevelTopologyInfos.getAlignedBusesOrBusbarCount())
+            .withAlignedBusesOrBusbarCount(1)
             .withLowBusOrBusbarIndex(lowBusOrBusbarIndex)
-            .withSwitchKinds(switchKinds)
+            .withSwitchKinds(createVoltageLevelTopologyInfos.getSwitchKinds())
             .build().apply(network, true, subReportNode);
+        // add switch with the new bar
         String voltageLevelId = voltageLevel.getId();
         voltageLevel.getConnectableStream().filter(connectable -> connectable.getType() != IdentifiableType.BUSBAR_SECTION).forEach(conn -> {
             Terminal terminalConnectedToVl = (Terminal) conn.getTerminals().stream()
@@ -65,13 +62,14 @@ public class CreateVoltageLevelTopology extends AbstractModification {
             .getBusbarSectionStream().toList();
         List<BusbarSectionPosition> busbarExtensions = busbarSections.stream()
             .map(busbarSection -> (BusbarSectionPosition) busbarSection.getExtension(BusbarSectionPosition.class))
+            .filter(Objects::nonNull)
             .toList();
         if (!busbarSections.isEmpty() && busbarExtensions.isEmpty()) {
             throw new PowsyblException("busbar section position extension are not available, can not create a new busbar section");
         }
         Optional<BusbarSectionPosition> maxBusBarSectionPosition = busbarExtensions.stream()
             .max(Comparator.comparingInt(BusbarSectionPosition::getBusbarIndex));
-        return maxBusBarSectionPosition.map(busbarSectionPosition ->  busbarSectionPosition.getBusbarIndex() + 1).orElse(1);
+        return maxBusBarSectionPosition.map(busbarSectionPosition -> busbarSectionPosition.getBusbarIndex() + 1).orElse(1);
     }
 
     @Override

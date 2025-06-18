@@ -9,6 +9,7 @@ package org.gridsuite.modification.modifications;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.SwitchKind;
 import org.gridsuite.modification.dto.CreateVoltageLevelTopologyInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
@@ -40,7 +41,7 @@ class CreateVoltageLevelTopologyTest extends AbstractNetworkModificationTest {
             .stashed(false)
             .voltageLevelId("v1")
             .sectionCount(3)
-            .alignedBusesOrBusbarCount(1)
+            .switchKinds(List.of(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR))
             .build();
     }
 
@@ -51,7 +52,8 @@ class CreateVoltageLevelTopologyTest extends AbstractNetworkModificationTest {
         Assertions.assertEquals(7, busBarIds.size());
         Assertions.assertTrue(busBarIds.containsAll(List.of("v1_1_1", "v1_1_2", "v1_1_3", "bbs1", "bbs2", "bbs3", "bbs4")));
         assertTrue(getNetwork().getSwitchStream().map(Switch::getId).collect(Collectors.toSet())
-            .containsAll(Set.of("v1_DISCONNECTOR_0_6", "v1_BREAKER_1_1", "v1_DISCONNECTOR_7_1", "v1_DISCONNECTOR_1_8", "v1_BREAKER_1_2", "v1_DISCONNECTOR_9_2")));
+            .containsAll(Set.of("l11_DISCONNECTOR_13_0", "v1_DISCONNECTOR_10_7", "ld1_BREAKER", "ld1_DISCONNECTOR_11_0",
+                "v1_DISCONNECTOR_6_9", "v1_DISCONNECTOR_7_8", "v1_BREAKER_1_1", "l11_BREAKER")));
     }
 
     @Override

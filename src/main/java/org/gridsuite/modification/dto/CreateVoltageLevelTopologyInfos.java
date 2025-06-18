@@ -8,6 +8,7 @@ package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.SwitchKind;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,7 @@ import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.CreateVoltageLevelTopology;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,8 +37,8 @@ public class CreateVoltageLevelTopologyInfos extends ModificationInfos {
     @Schema(description = "voltageLevelId")
     private String voltageLevelId;
 
-    @Schema(description = "alignedBusesOrBusbarCount")
-    private Integer alignedBusesOrBusbarCount;
+    @Schema(description = "switchKinds")
+    private List<SwitchKind> switchKinds;
 
     @Schema(description = "sectionCount")
     private Integer sectionCount;
