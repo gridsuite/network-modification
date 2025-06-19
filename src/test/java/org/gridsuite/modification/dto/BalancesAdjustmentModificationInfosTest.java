@@ -33,6 +33,7 @@ class BalancesAdjustmentModificationInfosTest {
         assertEquals(BalancesAdjustmentModificationInfos.DEFAULT_THRESHOLD_NET_POSITION, infos.getThresholdNetPosition());
         assertEquals(BalancesAdjustmentModificationInfos.DEFAULT_COUNTRIES_TO_BALANCE, infos.getCountriesToBalance());
         assertEquals(BalancesAdjustmentModificationInfos.DEFAULT_BALANCE_TYPE, infos.getBalanceType());
+        assertEquals(BalancesAdjustmentModificationInfos.DEFAULT_WITH_LOAD_FLOW, infos.isWithLoadFlow());
         assertEquals(1, infos.getAreas().size());
 
         BalancesAdjustmentAreaInfos areaInfos = infos.getAreas().get(0);
@@ -58,12 +59,14 @@ class BalancesAdjustmentModificationInfosTest {
             .thresholdNetPosition(250d)
             .countriesToBalance(List.of(Country.FR, Country.DE))
             .balanceType(LoadFlowParameters.BalanceType.PROPORTIONAL_TO_GENERATION_P)
+            .withLoadFlow(true)
             .build();
 
         assertEquals(10, infos.getMaxNumberIterations());
         assertEquals(250d, infos.getThresholdNetPosition(), 0.001);
         assertEquals(List.of(Country.FR, Country.DE), infos.getCountriesToBalance());
         assertEquals(LoadFlowParameters.BalanceType.PROPORTIONAL_TO_GENERATION_P, infos.getBalanceType());
+        assertTrue(infos.isWithLoadFlow());
         assertEquals(1, infos.getAreas().size());
 
         BalancesAdjustmentAreaInfos areaInfos = infos.getAreas().get(0);
