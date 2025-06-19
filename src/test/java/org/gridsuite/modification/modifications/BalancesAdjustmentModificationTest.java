@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 /**
@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
 class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest {
     private static final double PRECISION = 1d;
     private static final UUID LOADFLOW_PARAMETERS_UUID = UUID.randomUUID();
+    private static final UUID INVALID_LOADFLOW_PARAMETERS_UUID = UUID.randomUUID();
 
     @Mock
     private ILoadFlowService loadFlowService;
@@ -159,5 +160,66 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
         assertEquals(40d, getNetwork().getLoad("LD4").getTerminal().getP(), PRECISION);
         assertEquals(201d, getNetwork().getLoad("LD5").getTerminal().getP(), PRECISION);
         assertEquals(0d, getNetwork().getLoad("LD6").getTerminal().getP(), PRECISION);
+    }
+
+    @Test
+    void testLoadFlowParametersNotFound() {
+        var infos = BalancesAdjustmentModificationInfos.builder()
+                .areas(List.of(
+                        BalancesAdjustmentAreaInfos.builder()
+                                .name("FR")
+                                .countries(List.of(Country.FR))
+                                .netPosition(-45d)
+                                .shiftType(ShiftType.PROPORTIONAL)
+                                .shiftEquipmentType(ShiftEquipmentType.GENERATOR)
+                                .build()
+                ))
+                .withLoadFlow(true)
+                .loadFlowParametersId(INVALID_LOADFLOW_PARAMETERS_UUID)
+                .build();
+
+        when(loadFlowService.getLoadFlowParametersInfos(INVALID_LOADFLOW_PARAMETERS_UUID))
+                .thenReturn(null);
+
+        BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
+        modification.initApplicationContext(loadFlowService);
+
+        Network network = getNetwork();
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> modification.apply(network, false));
+        assertTrue(exception.getMessage().contains("Load flow parameters with id"));
+        assertTrue(exception.getMessage().contains("not found"));
+    }
+
+    @Test
+    void testLoadFlowProviderNotSpecified() {
+        var infos = BalancesAdjustmentModificationInfos.builder()
+                .areas(List.of(
+                        BalancesAdjustmentAreaInfos.builder()
+                                .name("FR")
+                                .countries(List.of(Country.FR))
+                                .netPosition(-45d)
+                                .shiftType(ShiftType.PROPORTIONAL)
+                                .shiftEquipmentType(ShiftEquipmentType.GENERATOR)
+                                .build()
+                ))
+                .withLoadFlow(true)
+                .loadFlowParametersId(LOADFLOW_PARAMETERS_UUID)
+                .build();
+
+        when(loadFlowService.getLoadFlowParametersInfos(LOADFLOW_PARAMETERS_UUID))
+                .thenReturn(LoadFlowParametersInfos.builder()
+                        .provider(null) // No provider specified
+                        .commonParameters(LoadFlowParameters.load())
+                        .specificParametersPerProvider(Map.of())
+                        .build());
+
+        BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
+        modification.initApplicationContext(loadFlowService);
+
+        Network network = getNetwork();
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> modification.apply(network, false));
+        assertTrue(exception.getMessage().contains("Load flow provider must be specified"));
     }
 }
