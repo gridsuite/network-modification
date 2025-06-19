@@ -7,6 +7,7 @@
 package org.gridsuite.modification.modifications;
 
 import org.gridsuite.modification.IFilterService;
+import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
 
 import com.powsybl.commons.report.ReportNode;
@@ -30,6 +31,10 @@ public abstract class AbstractModification extends AbstractNetworkModification {
     }
 
     public void initApplicationContext(IFilterService filterService) {
+        // To add some specific information
+    }
+
+    public void initApplicationContext(ILoadFlowService loadFlowService) {
         // To add some specific information
     }
 }

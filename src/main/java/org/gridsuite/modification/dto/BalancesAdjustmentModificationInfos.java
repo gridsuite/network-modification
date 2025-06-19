@@ -19,6 +19,7 @@ import org.gridsuite.modification.modifications.BalancesAdjustmentModification;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Joris Mancini <joris.mancini_externe at rte-france.com>
@@ -54,6 +55,8 @@ public class BalancesAdjustmentModificationInfos extends ModificationInfos {
 
     @Builder.Default
     private boolean withLoadFlow = DEFAULT_WITH_LOAD_FLOW;
+
+    private UUID loadFlowParametersId;
 
     @Override
     public AbstractModification toModification() {
