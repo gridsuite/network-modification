@@ -691,10 +691,10 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         }
 
         ReportNode lowTapPositionReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
-            isModification ? tapChanger::setLowTapPosition
-                : tapChangerAdder::setLowTapPosition,
-            isModification ? tapChanger::getLowTapPosition : () -> null,
-            modifyLowTapPosition, "Low tap position");
+                isModification ? tapChanger::setLowTapPosition
+                        : tapChangerAdder::setLowTapPosition,
+                isModification ? tapChanger::getLowTapPosition : () -> null,
+                modifyLowTapPosition, "Low tap position");
 
         // must be done after setting the low position and the steps
         ReportNode tapPositionReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
