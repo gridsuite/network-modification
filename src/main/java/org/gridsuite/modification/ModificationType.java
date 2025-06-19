@@ -13,7 +13,7 @@ import com.powsybl.network.store.client.PreloadingStrategy;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public enum ModificationType {
-    EQUIPMENT_ATTRIBUTE_MODIFICATION(PreloadingStrategy.NONE),
+    EQUIPMENT_ATTRIBUTE_MODIFICATION(PreloadingStrategy.COLLECTION),
     LOAD_CREATION(PreloadingStrategy.NONE),
     LOAD_MODIFICATION(PreloadingStrategy.NONE),
     BALANCES_ADJUSTMENT_MODIFICATION(PreloadingStrategy.ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW),
