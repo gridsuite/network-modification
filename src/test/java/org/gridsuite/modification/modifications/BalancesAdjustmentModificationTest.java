@@ -139,7 +139,9 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
                 .thenReturn(LoadFlowParametersInfos.builder()
                         .provider("OpenLoadFlow")
                         .commonParameters(LoadFlowParameters.load())
-                        .specificParametersPerProvider(Map.of())
+                        .specificParametersPerProvider(Map.of("OpenLoadFlow", Map.of(
+                                "key1", "value1"
+                        )))
                         .build());
         BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
         modification.initApplicationContext(loadFlowService);
