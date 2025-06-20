@@ -34,6 +34,11 @@ public class CreateVoltageLevelTopology extends AbstractModification {
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         VoltageLevel voltageLevel = network.getVoltageLevel(createVoltageLevelTopologyInfos.getVoltageLevelId());
+        createVoltageLevelBusBarSection(network, subReportNode, voltageLevel);
+        moveConnectableToAddSwitchesOnTheNewBar(network, voltageLevel);
+    }
+
+    private void createVoltageLevelBusBarSection(Network network, ReportNode subReportNode, VoltageLevel voltageLevel) {
         int lowBusOrBusbarIndex = findLowBusOrBusbarIndex(voltageLevel);
         new com.powsybl.iidm.modification.topology.CreateVoltageLevelTopologyBuilder()
             .withVoltageLevelId(createVoltageLevelTopologyInfos.getVoltageLevelId())
@@ -42,18 +47,22 @@ public class CreateVoltageLevelTopology extends AbstractModification {
             .withLowBusOrBusbarIndex(lowBusOrBusbarIndex)
             .withSwitchKinds(createVoltageLevelTopologyInfos.getSwitchKinds())
             .build().apply(network, true, subReportNode);
-        // add switch with the new bar
+    }
+
+    private void moveConnectableToAddSwitchesOnTheNewBar(Network network, VoltageLevel voltageLevel) {
         String voltageLevelId = voltageLevel.getId();
         voltageLevel.getConnectableStream().filter(connectable -> connectable.getType() != IdentifiableType.BUSBAR_SECTION).forEach(conn -> {
-            Terminal terminalConnectedToVl = (Terminal) conn.getTerminals().stream()
+            Optional<Terminal> terminalConnectedToVl = conn.getTerminals().stream()
                 .filter(terminal -> ((Terminal) terminal).getVoltageLevel().getId().equals(voltageLevelId))
-                .findFirst().get();
-            String busbarSectionId = ModificationUtils.getInstance().getBusOrBusbarSection(terminalConnectedToVl);
-            new MoveFeederBayBuilder().withConnectableId(conn.getId())
-                .withTargetVoltageLevelId(voltageLevelId)
-                .withTerminal(terminalConnectedToVl)
-                .withTargetBusOrBusBarSectionId(busbarSectionId)
-                .build().apply(network, false, ReportNode.NO_OP);
+                .findFirst();
+            if (terminalConnectedToVl.isPresent()) {
+                String busbarSectionId = ModificationUtils.getInstance().getBusOrBusbarSection(terminalConnectedToVl.get());
+                new MoveFeederBayBuilder().withConnectableId(conn.getId())
+                    .withTargetVoltageLevelId(voltageLevelId)
+                    .withTerminal(terminalConnectedToVl.get())
+                    .withTargetBusOrBusBarSectionId(busbarSectionId)
+                    .build().apply(network, false, ReportNode.NO_OP);
+            }
         });
     }
 
