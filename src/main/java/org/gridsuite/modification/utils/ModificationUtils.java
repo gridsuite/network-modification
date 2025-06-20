@@ -1798,5 +1798,22 @@ public final class ModificationUtils {
             throw new NetworkModificationException(exceptionType, errorMessage + "must have " + valueName + "  " + interval.getFirst() + " and " + interval.getSecond());
         }
     }
+
+    public static void changeOperatingStatusBranches(Network network) {
+        List<Branch> branches = network.getBranchStream().filter(branch -> branch.getExtension(OperatingStatus.class) != null).toList();
+        for (Branch branchline : branches) {
+            System.out.println("Changing operating status branch " + branchline + " to " + OperatingStatus.class);
+            //code here
+            OperatingStatus<?> operatingStatus = (OperatingStatus<?>) branchline.getExtension(OperatingStatus.class);
+            if (operatingStatus.getStatus() != OperatingStatus.Status.IN_OPERATION) {
+                Bus bus1 = branchline.getTerminal1().getBusView().getBus();
+                Bus bus2 = branchline.getTerminal2().getBusView().getBus();
+
+                if (bus1 != null && bus1.isInMainConnectedComponent() && bus2 != null && bus2.isInMainConnectedComponent()) {
+                    operatingStatus.setStatus(OperatingStatus.Status.IN_OPERATION);
+                }
+            }
+        }
+    }
 }
 

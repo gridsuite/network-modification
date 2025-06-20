@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentAttributeModificationInfos;
+import org.gridsuite.modification.utils.ModificationUtils;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.EQUIPMENT_NOT_FOUND;
 import static org.gridsuite.modification.NetworkModificationException.Type.WRONG_EQUIPMENT_TYPE;
@@ -42,8 +43,11 @@ public class EquipmentAttributeModification extends AbstractModification {
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         Identifiable<?> identifiable = network.getIdentifiable(modificationInfos.getEquipmentId());
-        if (identifiable instanceof Switch) {
-            changeSwitchAttribute((Switch) identifiable, modificationInfos.getEquipmentAttributeName(), modificationInfos.getEquipmentAttributeValue(), subReportNode);
+        if (identifiable instanceof Switch aSwitch) {
+            changeSwitchAttribute(aSwitch, modificationInfos.getEquipmentAttributeName(), modificationInfos.getEquipmentAttributeValue(), subReportNode);
+            if (!aSwitch.isOpen()) {
+                ModificationUtils.changeOperatingStatusBranches(network);
+            }
         } else if (identifiable instanceof Injection) {
             if (identifiable instanceof Generator) {
                 changeGeneratorAttribute((Generator) identifiable, modificationInfos.getEquipmentAttributeName(), modificationInfos.getEquipmentAttributeValue(), subReportNode);
