@@ -12,6 +12,7 @@ import com.powsybl.iidm.modification.topology.MoveFeederBayBuilder;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.CreateVoltageLevelTopologyInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 
@@ -19,6 +20,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -29,6 +32,23 @@ public class CreateVoltageLevelTopology extends AbstractModification {
 
     public CreateVoltageLevelTopology(CreateVoltageLevelTopologyInfos createVoltageLevelTopology) {
         this.createVoltageLevelTopologyInfos = createVoltageLevelTopology;
+    }
+
+    @Override
+    public void check(Network network) {
+        if (createVoltageLevelTopologyInfos == null
+            || createVoltageLevelTopologyInfos.getVoltageLevelId() == null
+            || createVoltageLevelTopologyInfos.getSwitchKinds() == null
+            || createVoltageLevelTopologyInfos.getSectionCount() == null) {
+            throw new NetworkModificationException(CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR, "Missing required attributes to modify the equipment");
+        }
+        if (createVoltageLevelTopologyInfos.getSectionCount() != createVoltageLevelTopologyInfos.getSwitchKinds().size() + 1) {
+            throw new NetworkModificationException(CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR, "The switch kinds list size must be the section count minus one");
+        }
+        if (network.getVoltageLevel(createVoltageLevelTopologyInfos.getVoltageLevelId()) == null) {
+            throw new NetworkModificationException(CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR, "voltage level " +
+                createVoltageLevelTopologyInfos.getVoltageLevelId() + " is not found");
+        }
     }
 
     @Override
