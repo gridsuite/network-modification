@@ -515,10 +515,10 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         changeConnectionState(getNetwork().getTwoWindingsTransformer("trf2"), TwoSides.ONE, true, true, null);
         changeConnectionState(getNetwork().getTwoWindingsTransformer("trf2"), TwoSides.ONE, true, false, null);
         changeConnectionState(getNetwork().getTwoWindingsTransformer("trf2"), TwoSides.TWO, true, true, null);
-        changeConnectionState(getNetwork().getTwoWindingsTransformer("trf2"), TwoSides.TWO, true, false, "BRANCH_MODIFICATION_ERROR : Could not disconnect equipment 'trf2'");
+        changeConnectionState(getNetwork().getTwoWindingsTransformer("trf2"), TwoSides.TWO, true, false, "BRANCH_MODIFICATION_ERROR : Could not disconnect equipment 'trf2' on side 2");
     }
 
-    private void changeConnectionState(TwoWindingsTransformer existingEquipment, TwoSides side, boolean actualState, boolean expectedState, String errorMessage) throws Exception {
+    private void changeConnectionState(TwoWindingsTransformer existingEquipment, TwoSides side, boolean actualState, boolean expectedState, String errorMessage) {
         Terminal terminal = existingEquipment.getTerminal(side);
         assertThat(terminal.isConnected()).isEqualTo(actualState);
 
