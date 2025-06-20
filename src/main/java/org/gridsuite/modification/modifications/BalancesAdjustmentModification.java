@@ -12,6 +12,9 @@ import com.powsybl.balances_adjustment.balance_computation.BalanceComputationFac
 import com.powsybl.balances_adjustment.balance_computation.BalanceComputationParameters;
 import com.powsybl.balances_adjustment.util.CountryAreaFactory;
 import com.powsybl.balances_adjustment.util.Reports;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
@@ -21,16 +24,17 @@ import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.LoadFlowProvider;
 import com.powsybl.openloadflow.OpenLoadFlowParameters;
-import org.gridsuite.modification.dto.ShiftEquipmentType;
-import org.gridsuite.modification.dto.ShiftType;
-import org.gridsuite.modification.dto.BalancesAdjustmentAreaInfos;
-import org.gridsuite.modification.dto.BalancesAdjustmentModificationInfos;
+import org.gridsuite.modification.ILoadFlowService;
+import org.gridsuite.modification.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,13 +46,41 @@ public class BalancesAdjustmentModification extends AbstractModification {
 
     private final BalancesAdjustmentModificationInfos balancesAdjustmentModificationInfos;
 
+    protected ILoadFlowService loadFlowService;
+
     public BalancesAdjustmentModification(BalancesAdjustmentModificationInfos balancesAdjustmentModificationInfos) {
         this.balancesAdjustmentModificationInfos = balancesAdjustmentModificationInfos;
     }
 
     @Override
+    public void initApplicationContext(ILoadFlowService loadFlowService) {
+        this.loadFlowService = loadFlowService;
+    }
+
+    @Override
     public String getName() {
         return "BalancesAdjustmentModification";
+    }
+
+    public LoadFlowParameters buildLoadFlowParameters(LoadFlowParametersInfos loadFlowParametersInfos) {
+        LoadFlowParameters params = loadFlowParametersInfos.getCommonParameters();
+
+        if (loadFlowParametersInfos.getSpecificParametersPerProvider() == null || loadFlowParametersInfos.getSpecificParametersPerProvider().isEmpty()) {
+            return params;
+        }
+        String provider = loadFlowParametersInfos.getProvider();
+        Map<String, String> specificParameters = loadFlowParametersInfos.getSpecificParametersPerProvider().get(provider);
+        LoadFlowProvider loadFlowProvider = LoadFlowProvider.findAll().stream()
+                .filter(p -> p.getName().equals(provider))
+                .findFirst()
+                .orElseThrow(() -> new PowsyblException("LoadFlow provider " + provider + " not found"));
+
+        Extension<LoadFlowParameters> specificParametersExtension = loadFlowProvider.loadSpecificParameters(PlatformConfig.defaultConfig())
+                .orElseThrow(() -> new PowsyblException("Cannot add specific loadflow parameters with provider " + provider));
+        params.addExtension((Class) specificParametersExtension.getClass(), specificParametersExtension);
+        loadFlowProvider.updateSpecificParameters(specificParametersExtension, specificParameters);
+
+        return params;
     }
 
     @Override
@@ -61,6 +93,17 @@ public class BalancesAdjustmentModification extends AbstractModification {
         parameters.getScalingParameters().setPriority(ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED);
 
         if (balancesAdjustmentModificationInfos.isWithLoadFlow()) {
+            LoadFlowParametersInfos loadFlowParametersInfos = loadFlowService.getLoadFlowParametersInfos(balancesAdjustmentModificationInfos.getLoadFlowParametersId());
+            if (loadFlowParametersInfos == null) {
+                throw new IllegalArgumentException("Load flow parameters with id " + balancesAdjustmentModificationInfos.getLoadFlowParametersId() + " not found");
+            }
+            if (loadFlowParametersInfos.getProvider() == null) {
+                throw new IllegalArgumentException("Load flow provider must be specified in load flow parameters with id " + balancesAdjustmentModificationInfos.getLoadFlowParametersId());
+            }
+            if (loadFlowParametersInfos.getProvider().equals("OpenLoadFlow")) {
+                LoadFlowParameters loadFlowParameters = buildLoadFlowParameters(loadFlowParametersInfos);
+                parameters.setLoadFlowParameters(loadFlowParameters);
+            }
             parameters.setMaxNumberIterations(balancesAdjustmentModificationInfos.getMaxNumberIterations());
             parameters.setThresholdNetPosition(balancesAdjustmentModificationInfos.getThresholdNetPosition());
             parameters.setMismatchMode(BalanceComputationParameters.MismatchMode.MAX);
