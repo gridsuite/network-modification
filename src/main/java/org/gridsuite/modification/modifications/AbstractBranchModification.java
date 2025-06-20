@@ -162,6 +162,12 @@ public abstract class AbstractBranchModification extends AbstractModification {
     private void updateConnections(Branch<?> branch, BranchModificationInfos branchModificationInfos) {
         List<TwoSides> errorSides = new ArrayList<>();
         List<String> errorTypes = new ArrayList<>();
+
+        boolean terminalModifiedToConnected = branchModificationInfos.getTerminal1Connected() != null
+            && branchModificationInfos.getTerminal1Connected().getValue()
+            || branchModificationInfos.getTerminal2Connected() != null
+            && branchModificationInfos.getTerminal2Connected().getValue();
+
         if (branchModificationInfos.getTerminal1Connected() != null && !updateConnection(branch, TwoSides.ONE, modificationInfos.getTerminal1Connected().getValue())) {
             errorSides.add(TwoSides.ONE);
             errorTypes.add(Boolean.TRUE.equals(modificationInfos.getTerminal1Connected().getValue()) ? "connect" : "disconnect");
@@ -176,6 +182,10 @@ public abstract class AbstractBranchModification extends AbstractModification {
                     errorTypes.stream().distinct().collect(Collectors.joining("/")),
                     branch.getId(),
                     errorSides.stream().map(Enum::toString).collect(Collectors.joining("/"))));
+        }
+
+        if (terminalModifiedToConnected) {
+            ModificationUtils.changeOperatingStatusBranches(branch.getNetwork());
         }
     }
 
