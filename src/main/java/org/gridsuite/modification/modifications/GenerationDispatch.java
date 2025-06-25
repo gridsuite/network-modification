@@ -111,7 +111,7 @@ public class GenerationDispatch extends AbstractModification {
         // Report details for each generator without a predefined setpoint
         generatorsWithoutSetpointList.forEach(generator ->
                 report(reportNode, "network.modification.MissingPredefinedActivePowerSetpointForGenerator",
-                        Map.of("generatorId", generator.getId()), TypedValue.TRACE_SEVERITY));
+                        Map.of("generatorId", generator.getId()), TypedValue.DETAIL_SEVERITY));
         return totalAmountFixedSupply;
     }
 
@@ -183,7 +183,7 @@ public class GenerationDispatch extends AbstractModification {
         generators.stream()
             .filter(generator -> getGeneratorMarginalCost(generator) == null)
             .forEach(g -> report(reportNode, "network.modification.MissingMarginalCostForGenerator",
-                    Map.of(GENERATOR, g.getId()), TypedValue.TRACE_SEVERITY)
+                    Map.of(GENERATOR, g.getId()), TypedValue.DETAIL_SEVERITY)
             );
 
         // build map of generators by marginal cost
@@ -304,7 +304,7 @@ public class GenerationDispatch extends AbstractModification {
             report(reportNode, "network.modification.TotalGeneratorSetTargetP",
                     Map.of("nbUpdatedGenerator", updatedGenerators.size(), IS_PLURAL, updatedGenerators.size() > 1 ? "s" : ""), TypedValue.INFO_SEVERITY);
             updatedGenerators.forEach(g -> report(reportNode, "network.modification.GeneratorSetTargetP",
-                    Map.of(GENERATOR, g.getId(), "newValue", round(g.getTargetP())), TypedValue.TRACE_SEVERITY));
+                    Map.of(GENERATOR, g.getId(), "newValue", round(g.getTargetP())), TypedValue.DETAIL_SEVERITY));
 
             // report unchanged generators
             int nbUnchangedGenerators = adjustableGenerators.size() - updatedGenerators.size();
@@ -316,7 +316,7 @@ public class GenerationDispatch extends AbstractModification {
                 adjustableGenerators.stream()
                         .filter(g -> !updatedGeneratorsIds.contains(g.getId()))
                         .forEach(g -> report(reportNode, "network.modification.GeneratorUnchangedTargetP",
-                                Map.of(GENERATOR, g.getId()), TypedValue.TRACE_SEVERITY));
+                                Map.of(GENERATOR, g.getId()), TypedValue.DETAIL_SEVERITY));
             }
             // report the max marginal cost used
             Double maxUsedMarginalCost = updatedGenerators.stream()
@@ -378,7 +378,7 @@ public class GenerationDispatch extends AbstractModification {
                 Map.of("nbNotFoundGen", notFoundGenerators.size(), "filterName", filterName),
                 TypedValue.WARN_SEVERITY);
             f.getNotFoundEquipments().forEach(e -> report(subReportNode, "network.modification.generatorNotFound." + generatorsType,
-                Map.of("notFoundGeneratorId", e, "filterName", filterName), TypedValue.TRACE_SEVERITY));
+                Map.of("notFoundGeneratorId", e, "filterName", filterName), TypedValue.DETAIL_SEVERITY));
         });
 
         // return existing generators
@@ -445,7 +445,7 @@ public class GenerationDispatch extends AbstractModification {
                     TypedValue.INFO_SEVERITY);
             componentDisconnectedGenerators.forEach(g ->
                 report(reportNode, "network.modification.DisconnectedGenerator",
-                        Map.of(GENERATOR, g.getId()), TypedValue.TRACE_SEVERITY)
+                        Map.of(GENERATOR, g.getId()), TypedValue.DETAIL_SEVERITY)
             );
         }
     }
