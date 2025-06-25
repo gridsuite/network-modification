@@ -7,11 +7,13 @@
 
 package org.gridsuite.modification.modifications;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -145,7 +147,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
                         )))
                         .build());
         BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
-        modification.initApplicationContext(loadFlowService);
+        modification.initApplicationContext(null, loadFlowService);
         modification.apply(getNetwork(), false);
 
         assertEquals(-58d, getNetwork().getGenerator("GH1").getTerminal().getP(), PRECISION);
@@ -182,13 +184,23 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
                 .thenReturn(null);
 
         BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
-        modification.initApplicationContext(loadFlowService);
+        modification.initApplicationContext(null, loadFlowService);
 
         Network network = getNetwork();
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> modification.apply(network, false));
-        assertTrue(exception.getMessage().contains("Load flow parameters with id"));
-        assertTrue(exception.getMessage().contains("not found"));
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test")
+                .build();
+
+        // Should not throw exception but use default parameters and complete successfully
+        assertDoesNotThrow(() -> modification.apply(network, false, reportNode));
+
+        // Verify that the appropriate report message was generated
+        TestUtils.assertLogMessage(
+                "Using default load flow parameters: Load flow parameters with id " + INVALID_LOADFLOW_PARAMETERS_UUID + " not found",
+                "network.modification.balancesAdjustment.usingDefaultLoadFlowParameters",
+                reportNode
+        );
     }
 
     @Test
@@ -215,11 +227,58 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
                         .build());
 
         BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
-        modification.initApplicationContext(loadFlowService);
+        modification.initApplicationContext(null, loadFlowService);
 
         Network network = getNetwork();
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> modification.apply(network, false));
-        assertTrue(exception.getMessage().contains("Load flow provider must be specified"));
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test")
+                .build();
+
+        // Should not throw exception but use default parameters and complete successfully
+        assertDoesNotThrow(() -> modification.apply(network, false, reportNode));
+
+        // Verify that the appropriate report message was generated
+        TestUtils.assertLogMessageWithoutRank(
+                "Using default load flow parameters: Load flow provider is null in parameters with id " + LOADFLOW_PARAMETERS_UUID,
+                "network.modification.balancesAdjustment.usingDefaultLoadFlowParameters",
+                reportNode
+        );
+    }
+
+    @Test
+    void testLoadFlowParametersIdNull() {
+        var infos = BalancesAdjustmentModificationInfos.builder()
+                .areas(List.of(
+                        BalancesAdjustmentAreaInfos.builder()
+                                .name("FR")
+                                .countries(List.of(Country.FR))
+                                .netPosition(-45d)
+                                .shiftType(ShiftType.PROPORTIONAL)
+                                .shiftEquipmentType(ShiftEquipmentType.GENERATOR)
+                                .build()
+                ))
+                .withLoadFlow(true)
+                .loadFlowParametersId(null)
+                .build();
+
+        BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
+        modification.initApplicationContext(null, loadFlowService);
+
+        Network network = getNetwork();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test")
+                .build();
+
+        // Should not throw exception but use default parameters and complete successfully
+        assertDoesNotThrow(() -> modification.apply(network, false, reportNode));
+
+        // Verify that the appropriate report message was generated
+        TestUtils.assertLogMessageWithoutRank(
+                "Using default load flow parameters: Load flow parameters ID is null",
+                "network.modification.balancesAdjustment.usingDefaultLoadFlowParameters",
+                reportNode
+        );
     }
 }

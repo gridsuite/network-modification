@@ -30,11 +30,7 @@ public abstract class AbstractModification extends AbstractNetworkModification {
         // To perform input data check before hypothesis apply. Nothing to check here
     }
 
-    public void initApplicationContext(IFilterService filterService) {
-        // To add some specific information
-    }
-
-    public void initApplicationContext(ILoadFlowService loadFlowService) {
+    public void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService) {
         // To add some specific information
     }
 }
