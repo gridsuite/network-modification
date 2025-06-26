@@ -41,7 +41,7 @@ public class TabularCreation extends AbstractModification {
     public void apply(Network network, ReportNode subReportNode) {
         int applicationFailuresCount = 0;
         for (var creatInfos : creationInfos.getCreations()) {
-            ReportNode creatNode = subReportNode.newReportNode()
+            ReportNode creatReportNode = subReportNode.newReportNode()
                     .withMessageTemplate("network.modification.tabular.creation.equipmentId")
                     .withUntypedValue("equipmentId", ((EquipmentCreationInfos) creatInfos).getEquipmentId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
@@ -49,15 +49,15 @@ public class TabularCreation extends AbstractModification {
             try {
                 AbstractModification modification = creatInfos.toModification();
                 modification.check(network);
-                modification.apply(network, creatNode);
+                modification.apply(network, creatReportNode);
             } catch (Exception e) {
                 applicationFailuresCount++;
-                ReportNode errorNode = creatNode.newReportNode()
+                ReportNode errorReportNode = creatReportNode.newReportNode()
                         .withMessageTemplate("network.modification.tabular.creation.error.equipmentId")
                         .withUntypedValue("equipmentId", ((EquipmentCreationInfos) creatInfos).getEquipmentId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
-                errorNode.newReportNode()
+                errorReportNode.newReportNode()
                         .withMessageTemplate("network.modification.tabular.creation.exception")
                         .withUntypedValue("message", e.getMessage())
                         .withSeverity(TypedValue.WARN_SEVERITY)
