@@ -65,7 +65,7 @@ public class TabularCreation extends AbstractModification {
                 LOGGER.warn(e.getMessage());
             }
         }
-        String defaultMessage = TabularCreationInfos.getDefaultMessage(creationInfos) + " have been created";
+        String defaultMessage = creationInfos.getDefaultMessage() + " have been created";
         if (creationInfos.getCreations().size() == applicationFailuresCount) {
             subReportNode.newReportNode()
                     .withMessageTemplate("network.modification.tabular.creation.error")
