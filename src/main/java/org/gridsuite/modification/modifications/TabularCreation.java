@@ -53,8 +53,7 @@ public class TabularCreation extends AbstractModification {
             } catch (Exception e) {
                 applicationFailuresCount++;
                 ReportNode errorReportNode = creatReportNode.newReportNode()
-                        .withMessageTemplate("network.modification.tabular.creation.error.equipmentId")
-                        .withUntypedValue("equipmentId", ((EquipmentCreationInfos) creatInfos).getEquipmentId())
+                        .withMessageTemplate("network.modification.tabular.creation.error.equipmentError")
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
                 errorReportNode.newReportNode()
