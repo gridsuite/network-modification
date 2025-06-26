@@ -57,6 +57,9 @@ public final class ModificationUtils {
     public static final String CONNECTION_POSITION_FIELD_NAME = "Connection position";
     public static final String NOT_EXIST_IN_NETWORK = " does not exist in network";
 
+    private static final String COULD_NOT_ACTION_EQUIPMENT = "Could not %s equipment '%s'";
+    private static final String COULD_NOT_ACTION_EQUIPMENT_ON_SIDE = COULD_NOT_ACTION_EQUIPMENT + " on side %s";
+
     public enum FeederSide {
         INJECTION_SINGLE_SIDE,
         BRANCH_SIDE_ONE,
@@ -965,8 +968,10 @@ public final class ModificationUtils {
 
     private void validateConnectionChange(boolean success, Identifiable<?> equipment, String action, List<ReportNode> reports, ThreeSides side) {
         if (!success) {
-            throw new NetworkModificationException(equipment instanceof Branch<?> ? BRANCH_MODIFICATION_ERROR : INJECTION_MODIFICATION_ERROR,
-                    String.format("Could not %s equipment '%s'", action, equipment.getId()));
+            throw new NetworkModificationException(
+                    equipment instanceof Branch<?> ? BRANCH_MODIFICATION_ERROR : INJECTION_MODIFICATION_ERROR,
+                    side == null ? String.format(COULD_NOT_ACTION_EQUIPMENT, action, equipment.getId())
+                            : String.format(COULD_NOT_ACTION_EQUIPMENT_ON_SIDE, action, equipment.getId(), side.getNum()));
         }
 
         String reportKey = "network.modification.equipment" + capitalize(action) + (side != null ? ".side" : "");

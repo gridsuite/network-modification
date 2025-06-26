@@ -203,4 +203,14 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         Map<String, String> updatedValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
         assertEquals("v3Battery", updatedValues.get("equipmentId"));
     }
+
+    @Test
+    void testConnectionError() {
+        getNetwork().getSwitch("v3dBattery").setOpen(true);
+        BatteryModificationInfos batteryModificationInfos = new BatteryModificationInfos();
+        batteryModificationInfos.setEquipmentId("v3Battery");
+        batteryModificationInfos.setTerminalConnected(new AttributeModification<>(true, OperationType.SET));
+        String message = assertThrows(NetworkModificationException.class, () -> batteryModificationInfos.toModification().apply(getNetwork())).getMessage();
+        assertEquals("INJECTION_MODIFICATION_ERROR : Could not connect equipment 'v3Battery'", message);
+    }
 }
