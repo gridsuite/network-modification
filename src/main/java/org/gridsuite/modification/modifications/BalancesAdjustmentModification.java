@@ -12,9 +12,6 @@ import com.powsybl.balances_adjustment.balance_computation.BalanceComputationFac
 import com.powsybl.balances_adjustment.balance_computation.BalanceComputationParameters;
 import com.powsybl.balances_adjustment.util.CountryAreaFactory;
 import com.powsybl.balances_adjustment.util.Reports;
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
@@ -25,7 +22,6 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.LoadFlowProvider;
 import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
@@ -35,9 +31,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.gridsuite.modification.utils.LoadFlowParametersUtils.mapLoadFlowPrameters;
 
 /**
  * @author Joris Mancini <joris.mancini_externe at rte-france.com>
@@ -63,30 +60,7 @@ public class BalancesAdjustmentModification extends AbstractModification {
         return "BalancesAdjustmentModification";
     }
 
-    private static LoadFlowParameters buildLoadFlowParameters(LoadFlowParametersInfos loadFlowParametersInfos) {
-        LoadFlowParameters params = loadFlowParametersInfos.getCommonParameters();
-
-        if (loadFlowParametersInfos.getSpecificParametersPerProvider() == null ||
-                loadFlowParametersInfos.getSpecificParametersPerProvider().isEmpty()) {
-            return params;
-        }
-
-        String provider = loadFlowParametersInfos.getProvider();
-        Map<String, String> specificParameters = loadFlowParametersInfos.getSpecificParametersPerProvider().get(provider);
-        LoadFlowProvider loadFlowProvider = LoadFlowProvider.findAll().stream()
-                .filter(p -> p.getName().equals(provider))
-                .findFirst()
-                .orElseThrow(() -> new PowsyblException("LoadFlow provider " + provider + " not found"));
-
-        Extension<LoadFlowParameters> specificParametersExtension = loadFlowProvider.loadSpecificParameters(PlatformConfig.defaultConfig())
-                .orElseThrow(() -> new PowsyblException("Cannot add specific loadflow parameters with provider " + provider));
-        params.addExtension((Class) specificParametersExtension.getClass(), specificParametersExtension);
-        loadFlowProvider.updateSpecificParameters(specificParametersExtension, specificParameters);
-
-        return params;
-    }
-
-    private BalanceComputationParameters prepareBalanceComputationParameters(ReportNode reportNode) {
+    private BalanceComputationParameters createBalanceComputationParameters(ReportNode reportNode) {
         BalanceComputationParameters parameters = BalanceComputationParameters.load();
         parameters.getScalingParameters().setPriority(ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED);
 
@@ -99,11 +73,11 @@ public class BalancesAdjustmentModification extends AbstractModification {
         if (loadFlowParametersInfos != null &&
                 loadFlowParametersInfos.getProvider().equals("OpenLoadFlow")) {
 
-            LoadFlowParameters loadFlowParameters = buildLoadFlowParameters(loadFlowParametersInfos);
+            LoadFlowParameters loadFlowParameters = mapLoadFlowPrameters(loadFlowParametersInfos);
             parameters.setLoadFlowParameters(loadFlowParameters);
         }
 
-        configureLoadFlowParameters(parameters);
+        overrideBalanceComputationParameters(parameters);
         return parameters;
     }
 
@@ -142,7 +116,7 @@ public class BalancesAdjustmentModification extends AbstractModification {
         LOGGER.info("Using default load flow parameters: {}", reason);
     }
 
-    private void configureLoadFlowParameters(BalanceComputationParameters parameters) {
+    private void overrideBalanceComputationParameters(BalanceComputationParameters parameters) {
         parameters.setMaxNumberIterations(balancesAdjustmentModificationInfos.getMaxNumberIterations());
         parameters.setThresholdNetPosition(balancesAdjustmentModificationInfos.getThresholdNetPosition());
         parameters.setMismatchMode(BalanceComputationParameters.MismatchMode.MAX);
@@ -163,7 +137,7 @@ public class BalancesAdjustmentModification extends AbstractModification {
                       ComputationManager computationManager,
                       ReportNode reportNode) {
 
-        BalanceComputationParameters parameters = prepareBalanceComputationParameters(reportNode);
+        BalanceComputationParameters parameters = createBalanceComputationParameters(reportNode);
 
         if (balancesAdjustmentModificationInfos.isWithLoadFlow()) {
             applyWithLoadFlow(network, computationManager, reportNode, parameters);
