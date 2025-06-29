@@ -143,6 +143,7 @@ class TabularBatteryCreationsTest extends AbstractNetworkModificationTest {
                 .withMessageTemplate("test").build());
         creationInfos.toModification().apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: 1 battery have been created", "network.modification.tabular.creation", reportNode);
+        assertLogMessage("Creation of id1", "network.modification.tabular.creation.equipmentId", reportNode);
     }
 
     @Test
@@ -203,6 +204,7 @@ class TabularBatteryCreationsTest extends AbstractNetworkModificationTest {
                 .withMessageTemplate("test").build());
         creationInfos.toModification().apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: No batteries have been created", "network.modification.tabular.creation.error", reportNode);
+        assertLogMessage("Creation errors", "network.modification.tabular.creation.error.equipmentError", reportNode);
     }
 
     @Override

@@ -6,11 +6,11 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.dto.EquipmentCreationInfos;
 import org.gridsuite.modification.dto.TabularCreationInfos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,13 +41,22 @@ public class TabularCreation extends AbstractModification {
     public void apply(Network network, ReportNode subReportNode) {
         int applicationFailuresCount = 0;
         for (var creatInfos : creationInfos.getCreations()) {
+            ReportNode creatReportNode = subReportNode.newReportNode()
+                    .withMessageTemplate("network.modification.tabular.creation.equipmentId")
+                    .withUntypedValue("equipmentId", ((EquipmentCreationInfos) creatInfos).getEquipmentId())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
             try {
                 AbstractModification modification = creatInfos.toModification();
                 modification.check(network);
-                modification.apply(network);
-            } catch (PowsyblException e) {
+                modification.apply(network, creatReportNode);
+            } catch (Exception e) {
                 applicationFailuresCount++;
-                subReportNode.newReportNode()
+                ReportNode errorReportNode = creatReportNode.newReportNode()
+                        .withMessageTemplate("network.modification.tabular.creation.error.equipmentError")
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .add();
+                errorReportNode.newReportNode()
                         .withMessageTemplate("network.modification.tabular.creation.exception")
                         .withUntypedValue("message", e.getMessage())
                         .withSeverity(TypedValue.WARN_SEVERITY)
@@ -55,15 +64,7 @@ public class TabularCreation extends AbstractModification {
                 LOGGER.warn(e.getMessage());
             }
         }
-        String defaultMessage = switch (creationInfos.getCreationType()) {
-            case GENERATOR_CREATION -> creationInfos.getCreations().size() > 1 ? "generators" : "generator";
-            case LOAD_CREATION -> creationInfos.getCreations().size() > 1 ? "loads" : "load";
-            case SHUNT_COMPENSATOR_CREATION ->
-                    creationInfos.getCreations().size() > 1 ? "shunt compensators" : "shunt compensator";
-            case BATTERY_CREATION -> creationInfos.getCreations().size() > 1 ? "batteries" : "battery";
-            default -> "equipments of unknown type";
-        } + " have been created";
-
+        String defaultMessage = creationInfos.formatEquipmentTypeName() + " have been created";
         if (creationInfos.getCreations().size() == applicationFailuresCount) {
             subReportNode.newReportNode()
                     .withMessageTemplate("network.modification.tabular.creation.error")
