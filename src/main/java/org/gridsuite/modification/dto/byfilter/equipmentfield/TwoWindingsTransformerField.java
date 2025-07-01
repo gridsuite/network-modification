@@ -134,6 +134,7 @@ public enum TwoWindingsTransformerField {
             case PHASE_TARGET_DEADBAND -> processPhaseTapRegulation(
                 phaseTapChanger, null, true, null, null, attributeModification, null
             );
+            default -> throw new IllegalArgumentException(String.format("field %s is not a double modification", field));
         }
     }
 
@@ -156,6 +157,7 @@ public enum TwoWindingsTransformerField {
                         .toList(), 2);
                 modifySelectedOperationalLimitsGroup(transformer, attributeModification, TwoSides.TWO, null);
             }
+            default -> throw new IllegalArgumentException(String.format("field %s is not a string modification", field));
         }
     }
 }
