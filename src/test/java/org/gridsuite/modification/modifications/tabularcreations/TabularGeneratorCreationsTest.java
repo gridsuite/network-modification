@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
+import static org.gridsuite.modification.utils.TestUtils.assertLogNthMessage;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -161,6 +162,8 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .withMessageTemplate("test").build());
         creationInfos.toModification().apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: 2 generators have been created", "network.modification.tabular.creation", reportNode);
+        assertLogMessage("Creation of id1", "network.modification.tabular.creation.equipmentId", reportNode);
+        assertLogNthMessage("Creation of id2", "network.modification.tabular.creation.equipmentId", reportNode, 2);
     }
 
     @Test
@@ -230,6 +233,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .withMessageTemplate("test").build());
         creationInfos.toModification().apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: No generators have been created", "network.modification.tabular.creation.error", reportNode);
+        assertLogMessage("Creation errors", "network.modification.tabular.creation.error.equipmentError", reportNode);
     }
 
     @Override
