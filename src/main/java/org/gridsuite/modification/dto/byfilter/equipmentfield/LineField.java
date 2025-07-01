@@ -72,6 +72,7 @@ public enum LineField {
             }
             case B1 -> modifyB1(line, attributeModification, null);
             case B2 -> modifyB2(line, attributeModification, null);
+            default -> throw new IllegalArgumentException(String.format("field %s is not a double modification", field));
         }
     }
 
@@ -94,6 +95,7 @@ public enum LineField {
                         .toList(), 2);
                 modifySelectedOperationalLimitsGroup(line, attributeModification, TwoSides.TWO, null);
             }
+            default -> throw new IllegalArgumentException(String.format("field %s is not a string modification", field));
         }
     }
 }
