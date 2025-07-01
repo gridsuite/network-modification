@@ -78,9 +78,9 @@ public final class NetworkUtil {
     }
 
     public static void createLine(Network network, String id, String name, String voltageLevel1, String voltageLevel2, int node1, int node2,
-                                   double r, double x, double g1, double g2, double b1, double b2,
-                                   String feederName1, int feederOrder1, ConnectablePosition.Direction direction1,
-                                   String feederName2, int feederOrder2, ConnectablePosition.Direction direction2) {
+                                    double r, double x, double g1, double g2, double b1, double b2,
+                                    String feederName1, int feederOrder1, ConnectablePosition.Direction direction1,
+                                    String feederName2, int feederOrder2, ConnectablePosition.Direction direction2) {
         var l = network.newLine()
             .setId(id)
             .setName(name)
@@ -96,6 +96,8 @@ public final class NetworkUtil {
             .setNode2(node2)
             .add();
 
+        addLimits(l);
+
         l.newExtension(ConnectablePositionAdder.class)
                 .newFeeder1()
                 .withName(feederName1)
@@ -106,6 +108,17 @@ public final class NetworkUtil {
                 .withOrder(feederOrder2)
                 .withDirection(direction2).add()
                 .add();
+    }
+
+    private static void addLimits(Branch<?> branch) {
+        branch.newOperationalLimitsGroup1("group0");
+        branch.newOperationalLimitsGroup1("group1");
+        branch.newOperationalLimitsGroup1("group2");
+        branch.setSelectedOperationalLimitsGroup1("group0");
+        branch.newOperationalLimitsGroup2("group0");
+        branch.newOperationalLimitsGroup2("group1");
+        branch.newOperationalLimitsGroup2("group2");
+        branch.setSelectedOperationalLimitsGroup2("group0");
     }
 
     public static void createLineWithoutConnectivity(Network network, String id, String name, String voltageLevel1, String voltageLevel2, int node1, int node2,
@@ -227,6 +240,8 @@ public final class NetworkUtil {
             .withOrder(feederOrder2)
             .withDirection(direction2).add()
             .add();
+
+        addLimits(t);
 
         return t;
     }

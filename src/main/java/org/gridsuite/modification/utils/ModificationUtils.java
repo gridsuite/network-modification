@@ -1803,5 +1803,12 @@ public final class ModificationUtils {
             throw new NetworkModificationException(exceptionType, errorMessage + "must have " + valueName + "  " + interval.getFirst() + " and " + interval.getSecond());
         }
     }
+
+    public static void checkLimitsGroupExist(String errorMessage, String limitsGroupIdToSet, NetworkModificationException.Type exceptionType, List<String> existingOperationalLimitsGroupIds, int side) throws NetworkModificationException {
+        if (!existingOperationalLimitsGroupIds.contains(limitsGroupIdToSet)) {
+            throw new NetworkModificationException(exceptionType, errorMessage +
+                String.format("missing limit set %s applicable on side %d : equipment ignored", limitsGroupIdToSet, side));
+        }
+    }
 }
 
