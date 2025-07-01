@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.modification.IFilterService;
+import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.FilterInfos;
@@ -118,7 +119,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     }
 
     @Override
-    public void initApplicationContext(IFilterService filterService) {
+    public void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService) {
         this.filterService = filterService;
     }
 

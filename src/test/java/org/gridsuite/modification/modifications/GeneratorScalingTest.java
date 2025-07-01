@@ -107,7 +107,7 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
         GeneratorScalingInfos modificationInfo = (GeneratorScalingInfos) buildModification();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(getTestFilters());
         GeneratorScaling generatorScaling = (GeneratorScaling) modificationInfo.toModification();
-        generatorScaling.initApplicationContext(filterService);
+        generatorScaling.initApplicationContext(filterService, null);
         generatorScaling.apply(getNetwork());
         assertAfterNetworkModificationApplication();
     }
@@ -139,7 +139,7 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                 .build();
 
         GeneratorScaling generatorScaling = (GeneratorScaling) modificationToCreate.toModification();
-        generatorScaling.initApplicationContext(filterService);
+        generatorScaling.initApplicationContext(filterService, null);
         generatorScaling.apply(getNetwork());
 
         assertEquals(200, getNetwork().getGenerator(GENERATOR_ID_2).getTargetP(), 0.01D);
@@ -167,7 +167,7 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                 .build();
 
         GeneratorScaling generatorScaling = (GeneratorScaling) generatorScalingInfo.toModification();
-        generatorScaling.initApplicationContext(filterService);
+        generatorScaling.initApplicationContext(filterService, null);
         ReportNode report = generatorScalingInfo.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
@@ -212,7 +212,7 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                 .build();
 
         GeneratorScaling generatorScaling = (GeneratorScaling) generatorScalingInfo.toModification();
-        generatorScaling.initApplicationContext(filterService);
+        generatorScaling.initApplicationContext(filterService, null);
         generatorScaling.apply(getNetwork());
 
         assertEquals(600, getNetwork().getGenerator(GENERATOR_ID_9).getTargetP(), 0.01D);
@@ -357,7 +357,7 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                 .build();
 
         GeneratorScaling generatorScaling = (GeneratorScaling) generatorScalingInfo.toModification();
-        generatorScaling.initApplicationContext(filterService);
+        generatorScaling.initApplicationContext(filterService, null);
         generatorScaling.apply(getNetwork());
 
         // If we sum the targetP for all expected modified generators, we should have the requested variation value

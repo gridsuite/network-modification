@@ -19,6 +19,7 @@ import org.gridsuite.modification.modifications.BalancesAdjustmentModification;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Joris Mancini <joris.mancini_externe at rte-france.com>
@@ -37,6 +38,7 @@ public class BalancesAdjustmentModificationInfos extends ModificationInfos {
     public static final List<Country> DEFAULT_COUNTRIES_TO_BALANCE = Collections.emptyList();
     public static final LoadFlowParameters.BalanceType DEFAULT_BALANCE_TYPE = LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD;
     public static final boolean DEFAULT_WITH_LOAD_FLOW = true;
+    public static final boolean DEFAULT_WITH_RATIO_TAP_CHANGERS = false;
 
     List<BalancesAdjustmentAreaInfos> areas;
 
@@ -54,6 +56,11 @@ public class BalancesAdjustmentModificationInfos extends ModificationInfos {
 
     @Builder.Default
     private boolean withLoadFlow = DEFAULT_WITH_LOAD_FLOW;
+
+    private UUID loadFlowParametersId;
+
+    @Builder.Default
+    private boolean withRatioTapChangers = DEFAULT_WITH_RATIO_TAP_CHANGERS;
 
     @Override
     public AbstractModification toModification() {

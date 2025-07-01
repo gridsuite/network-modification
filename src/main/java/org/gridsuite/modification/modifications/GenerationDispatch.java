@@ -17,6 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import org.gridsuite.modification.IFilterService;
+import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -336,7 +337,7 @@ public class GenerationDispatch extends AbstractModification {
     }
 
     @Override
-    public void initApplicationContext(IFilterService filterService) {
+    public void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService) {
         this.filterService = filterService;
     }
 

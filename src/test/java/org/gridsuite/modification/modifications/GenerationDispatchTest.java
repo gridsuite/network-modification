@@ -262,7 +262,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
 
         when(filterService.exportFilters(List.of(FILTER_ID_1, FILTER_ID_2, FILTER_ID_3), getNetwork())).thenReturn(filters.stream());
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
-        modif.initApplicationContext(filterService);
+        modif.initApplicationContext(filterService, null);
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
@@ -324,7 +324,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         when(filterService.exportFilters(List.of(FILTER_ID_1, FILTER_ID_4), getNetwork())).thenReturn(filtersForFixedSupply.stream());
 
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
-        modif.initApplicationContext(filterService);
+        modif.initApplicationContext(filterService, null);
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
@@ -414,7 +414,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         when(filterService.exportFilters(List.of(FILTER_ID_6), getNetwork())).thenReturn(getGeneratorsFrequencyReserveFilter6().stream());
 
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
-        modif.initApplicationContext(filterService);
+        modif.initApplicationContext(filterService, null);
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
@@ -558,7 +558,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         when(filterService.exportFilters(List.of(FILTER_ID_1), getNetwork())).thenReturn(filtersForFixedSupply.stream());
 
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
-        modif.initApplicationContext(filterService);
+        modif.initApplicationContext(filterService, null);
 
         modif.apply(getNetwork());
 
@@ -629,7 +629,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         when(filterService.exportFilters(List.of(FILTER_ID_6), getNetwork())).thenReturn(getGeneratorsFrequencyReserveFilter6().stream());
 
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
-        modif.initApplicationContext(filterService);
+        modif.initApplicationContext(filterService, null);
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
