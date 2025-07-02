@@ -6,12 +6,12 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.dto.EquipmentModificationInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorModificationInfos;
 import org.gridsuite.modification.dto.TabularModificationInfos;
 import org.slf4j.Logger;
@@ -43,16 +43,25 @@ public class TabularModification extends AbstractModification {
     public void apply(Network network, ReportNode subReportNode) {
         int applicationFailuresCount = 0;
         for (var modifInfos : modificationInfos.getModifications()) {
+            ReportNode modifReportNode = subReportNode.newReportNode()
+                    .withMessageTemplate("network.modification.tabular.modification.equipmentId")
+                    .withUntypedValue("equipmentId", ((EquipmentModificationInfos) modifInfos).getEquipmentId())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
             try {
                 AbstractModification modification = modifInfos.toModification();
                 modification.check(network);
                 if (modifInfos instanceof ShuntCompensatorModificationInfos shuntModification) {
-                    checkShuntCompensatorModification(network, shuntModification, subReportNode);
+                    checkShuntCompensatorModification(network, shuntModification, modifReportNode);
                 }
-                modification.apply(network);
-            } catch (PowsyblException e) {
+                modification.apply(network, modifReportNode);
+            } catch (Exception e) {
                 applicationFailuresCount++;
-                subReportNode.newReportNode()
+                ReportNode errorReportNode = modifReportNode.newReportNode()
+                        .withMessageTemplate("network.modification.tabular.modification.error.equipmentError")
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .add();
+                errorReportNode.newReportNode()
                         .withMessageTemplate("network.modification.tabular.modification.exception")
                         .withUntypedValue("message", e.getMessage())
                         .withSeverity(TypedValue.WARN_SEVERITY)
@@ -60,18 +69,7 @@ public class TabularModification extends AbstractModification {
                 LOGGER.warn(e.getMessage());
             }
         }
-        String defaultMessage = switch (modificationInfos.getModificationType()) {
-            case GENERATOR_MODIFICATION -> "generators";
-            case LOAD_MODIFICATION -> "loads";
-            case TWO_WINDINGS_TRANSFORMER_MODIFICATION -> "two windings transformers";
-            case BATTERY_MODIFICATION -> "batteries";
-            case VOLTAGE_LEVEL_MODIFICATION -> "voltage levels";
-            case SHUNT_COMPENSATOR_MODIFICATION -> "shunt compensators";
-            case LINE_MODIFICATION -> "lines";
-            case SUBSTATION_MODIFICATION -> "substations";
-            default -> "equipments of unknown type";
-        } + " have been modified";
-
+        String defaultMessage = modificationInfos.formatEquipmentTypeName() + " have been modified";
         if (modificationInfos.getModifications().size() == applicationFailuresCount) {
             subReportNode.newReportNode()
                     .withMessageTemplate("network.modification.tabular.modification.error")

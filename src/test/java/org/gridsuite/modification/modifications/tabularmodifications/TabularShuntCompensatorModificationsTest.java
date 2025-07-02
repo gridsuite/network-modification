@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.gridsuite.modification.utils.TestUtils.assertLogMessageWithoutRank;
+import static org.gridsuite.modification.utils.TestUtils.assertLogNthMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -66,12 +68,30 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
                 .build();
     }
 
+    @Test
+    @Override
+    public void testApply() {
+        ModificationInfos modificationInfos = buildModification();
+        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test").build());
+        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        assertAfterNetworkModificationApplication(reportNode);
+    }
+
     @Override
     protected void assertAfterNetworkModificationApplication() {
         assertEquals(100, getNetwork().getShuntCompensator("v2shunt").getMaximumSectionCount());
         assertEquals(10, getNetwork().getShuntCompensator("v2shunt").getSectionCount());
         assertEquals(200, getNetwork().getShuntCompensator("v5shunt").getMaximumSectionCount());
         assertEquals(20, getNetwork().getShuntCompensator("v5shunt").getSectionCount());
+    }
+
+    private void assertAfterNetworkModificationApplication(ReportNode reportNode) {
+        assertAfterNetworkModificationApplication();
+        assertLogNthMessage("Modification of v2shunt", "network.modification.tabular.modification.equipmentId", reportNode, 1);
+        assertLogNthMessage("Modification of v5shunt", "network.modification.tabular.modification.equipmentId", reportNode, 2);
+        assertLogMessageWithoutRank("Tabular modification: 2 shunt compensators have been modified", "network.modification.tabular.modification", reportNode);
     }
 
     @Override
