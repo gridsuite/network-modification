@@ -21,11 +21,11 @@ import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openloadflow.OpenLoadFlowParameters;
-import org.gridsuite.modification.dto.ShiftEquipmentType;
-import org.gridsuite.modification.dto.ShiftType;
-import org.gridsuite.modification.dto.BalancesAdjustmentAreaInfos;
-import org.gridsuite.modification.dto.BalancesAdjustmentModificationInfos;
+import org.gridsuite.modification.IFilterService;
+import org.gridsuite.modification.ILoadFlowService;
+import org.gridsuite.modification.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +33,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.gridsuite.modification.utils.LoadFlowParametersUtils.mapLoadFlowPrameters;
 
 /**
  * @author Joris Mancini <joris.mancini_externe at rte-france.com>
@@ -42,13 +44,90 @@ public class BalancesAdjustmentModification extends AbstractModification {
 
     private final BalancesAdjustmentModificationInfos balancesAdjustmentModificationInfos;
 
+    protected ILoadFlowService loadFlowService;
+
     public BalancesAdjustmentModification(BalancesAdjustmentModificationInfos balancesAdjustmentModificationInfos) {
         this.balancesAdjustmentModificationInfos = balancesAdjustmentModificationInfos;
     }
 
     @Override
+    public void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService) {
+        this.loadFlowService = loadFlowService;
+    }
+
+    @Override
     public String getName() {
         return "BalancesAdjustmentModification";
+    }
+
+    private BalanceComputationParameters createBalanceComputationParameters(ReportNode reportNode) {
+        BalanceComputationParameters parameters = BalanceComputationParameters.load();
+        parameters.getScalingParameters().setPriority(ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED);
+
+        if (!balancesAdjustmentModificationInfos.isWithLoadFlow()) {
+            return parameters;
+        }
+
+        LoadFlowParametersInfos loadFlowParametersInfos = getLoadFlowParametersInfos(reportNode);
+
+        if (loadFlowParametersInfos != null &&
+                loadFlowParametersInfos.getProvider().equals("OpenLoadFlow")) {
+
+            LoadFlowParameters loadFlowParameters = mapLoadFlowPrameters(loadFlowParametersInfos);
+            parameters.setLoadFlowParameters(loadFlowParameters);
+        }
+
+        overrideBalanceComputationParameters(parameters);
+        return parameters;
+    }
+
+    private LoadFlowParametersInfos getLoadFlowParametersInfos(ReportNode reportNode) {
+        if (balancesAdjustmentModificationInfos.getLoadFlowParametersId() == null) {
+            reportUsingDefaultParameters(reportNode, "Load flow parameters ID is null");
+            return null;
+        }
+
+        LoadFlowParametersInfos loadFlowParametersInfos = loadFlowService.getLoadFlowParametersInfos(
+                balancesAdjustmentModificationInfos.getLoadFlowParametersId()
+        );
+
+        if (loadFlowParametersInfos == null) {
+            reportUsingDefaultParameters(reportNode,
+                    "Load flow parameters with id " + balancesAdjustmentModificationInfos.getLoadFlowParametersId() + " not found");
+            return null;
+        }
+
+        if (loadFlowParametersInfos.getProvider() == null) {
+            reportUsingDefaultParameters(reportNode,
+                    "Load flow provider is null in parameters with id " + balancesAdjustmentModificationInfos.getLoadFlowParametersId());
+            return null;
+        }
+
+        return loadFlowParametersInfos;
+    }
+
+    private void reportUsingDefaultParameters(ReportNode reportNode, String reason) {
+        reportNode.newReportNode()
+                .withMessageTemplate("network.modification.balancesAdjustment.usingDefaultLoadFlowParameters")
+                .withUntypedValue("reason", reason)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+
+        LOGGER.info("Using default load flow parameters: {}", reason);
+    }
+
+    private void overrideBalanceComputationParameters(BalanceComputationParameters parameters) {
+        parameters.setMaxNumberIterations(balancesAdjustmentModificationInfos.getMaxNumberIterations());
+        parameters.setThresholdNetPosition(balancesAdjustmentModificationInfos.getThresholdNetPosition());
+        parameters.setMismatchMode(BalanceComputationParameters.MismatchMode.MAX);
+        parameters.getLoadFlowParameters().setCountriesToBalance(
+                new HashSet<>(balancesAdjustmentModificationInfos.getCountriesToBalance())
+        );
+        parameters.getLoadFlowParameters().setBalanceType(balancesAdjustmentModificationInfos.getBalanceType());
+        parameters.getLoadFlowParameters().setTransformerVoltageControlOn(balancesAdjustmentModificationInfos.isWithRatioTapChangers());
+
+        parameters.getLoadFlowParameters().getExtension(OpenLoadFlowParameters.class)
+                .setSlackDistributionFailureBehavior(OpenLoadFlowParameters.SlackDistributionFailureBehavior.FAIL);
     }
 
     @Override
@@ -57,45 +136,52 @@ public class BalancesAdjustmentModification extends AbstractModification {
                       boolean throwException,
                       ComputationManager computationManager,
                       ReportNode reportNode) {
-        BalanceComputationParameters parameters = BalanceComputationParameters.load();
-        parameters.getScalingParameters().setPriority(ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED);
+
+        BalanceComputationParameters parameters = createBalanceComputationParameters(reportNode);
 
         if (balancesAdjustmentModificationInfos.isWithLoadFlow()) {
-            parameters.setMaxNumberIterations(balancesAdjustmentModificationInfos.getMaxNumberIterations());
-            parameters.setThresholdNetPosition(balancesAdjustmentModificationInfos.getThresholdNetPosition());
-            parameters.setMismatchMode(BalanceComputationParameters.MismatchMode.MAX);
-            parameters.getLoadFlowParameters().setCountriesToBalance(new HashSet<>(balancesAdjustmentModificationInfos.getCountriesToBalance()));
-            parameters.getLoadFlowParameters().setBalanceType(balancesAdjustmentModificationInfos.getBalanceType());
-            parameters.getLoadFlowParameters().getExtension(OpenLoadFlowParameters.class).setSlackDistributionFailureBehavior(OpenLoadFlowParameters.SlackDistributionFailureBehavior.FAIL);
+            applyWithLoadFlow(network, computationManager, reportNode, parameters);
+        } else {
+            applyWithoutLoadFlow(network, reportNode, parameters);
+        }
+    }
 
-            List<BalanceComputationArea> areas = balancesAdjustmentModificationInfos
+    private void applyWithLoadFlow(Network network, ComputationManager computationManager,
+                                   ReportNode reportNode, BalanceComputationParameters parameters) {
+        List<BalanceComputationArea> areas = createBalanceComputationAreas(network, reportNode);
+
+        BalanceComputation balanceComputation = new BalanceComputationFactoryImpl()
+                .create(areas, LoadFlow.find(), computationManager);
+
+        balanceComputation
+                .run(network, network.getVariantManager().getWorkingVariantId(), parameters, reportNode)
+                .join();
+    }
+
+    private void applyWithoutLoadFlow(Network network, ReportNode reportNode, BalanceComputationParameters parameters) {
+        balancesAdjustmentModificationInfos.getAreas().forEach(area -> {
+            CountryArea countryArea = new CountryArea(network, area.getCountries());
+            double offset = area.getNetPosition() - countryArea.getNetPosition();
+            Scalable scalable = createScalable(area, network, reportNode);
+            double done = scalable.scale(network, offset, parameters.getScalingParameters());
+            Reports.reportScaling(reportNode, area.getName(), offset, done);
+            LOGGER.info("Scaling for area {}: offset={}, done={}", area.getName(), offset, done);
+        });
+    }
+
+    private List<BalanceComputationArea> createBalanceComputationAreas(Network network, ReportNode reportNode) {
+        return balancesAdjustmentModificationInfos
                 .getAreas()
                 .stream()
                 .map(areaInfos ->
-                    new BalanceComputationArea(
-                        areaInfos.getName(),
-                        new CountryAreaFactory(areaInfos.getCountries().toArray(Country[]::new)),
-                        createScalable(areaInfos, network, reportNode),
-                        areaInfos.getNetPosition()
-                    )
+                        new BalanceComputationArea(
+                                areaInfos.getName(),
+                                new CountryAreaFactory(areaInfos.getCountries().toArray(Country[]::new)),
+                                createScalable(areaInfos, network, reportNode),
+                                areaInfos.getNetPosition()
+                        )
                 )
                 .toList();
-
-            BalanceComputation balanceComputation = new BalanceComputationFactoryImpl()
-                .create(areas, LoadFlow.find(), computationManager);
-            balanceComputation
-                .run(network, network.getVariantManager().getWorkingVariantId(), parameters, reportNode)
-                .join();
-        } else {
-            balancesAdjustmentModificationInfos.getAreas().forEach(area -> {
-                CountryArea countryArea = new CountryArea(network, area.getCountries());
-                double offset = area.getNetPosition() - countryArea.getNetPosition();
-                Scalable scalable = createScalable(area, network, reportNode);
-                double done = scalable.scale(network, offset, parameters.getScalingParameters());
-                Reports.reportScaling(reportNode, area.getName(), offset, done);
-                LOGGER.info("Scaling for area {}: offset={}, done={}", area.getName(), offset, done);
-            });
-        }
     }
 
     private Scalable createScalable(BalancesAdjustmentAreaInfos balancesAdjustmentAreaInfos, Network network, ReportNode reportNode) {
