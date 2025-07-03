@@ -904,7 +904,7 @@ public final class ModificationUtils {
                 InjectionModificationInfos::getConnectionPosition);
     }
 
-    private String getBusOrBusbarSection(Terminal terminal) {
+    public String getBusOrBusbarSection(Terminal terminal) {
         String busOrBusbarSectionId;
         if (terminal.getVoltageLevel().getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
             if (terminal.isConnected()) {
