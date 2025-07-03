@@ -303,7 +303,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
                     .withUntypedValue(VALUE_KEY_FIELD_NAME, getEditedFieldLabel(abstractAssignmentInfos))
                     .withUntypedValue(VALUE_KEY_OLD_VALUE, oldValue == null ? NO_VALUE : oldValue)
-                    .withUntypedValue(VALUE_KEY_NEW_VALUE, newValue)
+                    .withUntypedValue(VALUE_KEY_NEW_VALUE, newValue == null ? NO_VALUE : newValue)
                     .withUntypedValue(VALUE_KEY_ARROW_NAME, VALUE_KEY_ARROW_VALUE) // Workaround to use non-ISO-8859-1 characters in the internationalization file
                     .withSeverity(TypedValue.DETAIL_SEVERITY)
                     .build());

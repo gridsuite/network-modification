@@ -16,16 +16,11 @@ import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.BranchModificationInfos;
-import org.gridsuite.modification.dto.CurrentLimitsModificationInfos;
-import org.gridsuite.modification.dto.CurrentTemporaryLimitModificationInfos;
-import org.gridsuite.modification.dto.TemporaryLimitModificationType;
+import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
+import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.BRANCH_MODIFICATION_ERROR;
@@ -313,5 +308,33 @@ public abstract class AbstractBranchModification extends AbstractModification {
         ConnectablePosition<?> connectablePosition = (ConnectablePosition<?>) branch.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<?> connectablePositionAdder = branch.newExtension(ConnectablePositionAdder.class);
         return ModificationUtils.getInstance().modifyBranchConnectivityAttributes(connectablePosition, connectablePositionAdder, branch, branchModificationInfos, subReportNode);
+    }
+
+    public static void modifySelectedOperationalLimitsGroup(Branch<?> branch, AttributeModification<String> modifOperationalLimitsGroup,
+                                                            TwoSides side, ReportNode reportNode) {
+        Objects.requireNonNull(side);
+        if (modifOperationalLimitsGroup != null) {
+            String value = modifOperationalLimitsGroup.getValue();
+            String previousSelectedLimitsGroup = null;
+            if (side == TwoSides.ONE) {
+                previousSelectedLimitsGroup = branch.getSelectedOperationalLimitsGroupId1().orElse(null);
+                if (!StringUtils.hasText(value)) {
+                    branch.cancelSelectedOperationalLimitsGroup1();
+                } else {
+                    branch.setSelectedOperationalLimitsGroup1(value);
+                }
+            } else if (side == TwoSides.TWO) {
+                previousSelectedLimitsGroup = branch.getSelectedOperationalLimitsGroupId2().orElse(null);
+                if (!StringUtils.hasText(value)) {
+                    branch.cancelSelectedOperationalLimitsGroup2();
+                } else {
+                    branch.setSelectedOperationalLimitsGroup2(value);
+                }
+            }
+            if (reportNode != null) {
+                insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(previousSelectedLimitsGroup,
+                    modifOperationalLimitsGroup.getValue(), "selected operational limits group side " + side.getNum()));
+            }
+        }
     }
 }
