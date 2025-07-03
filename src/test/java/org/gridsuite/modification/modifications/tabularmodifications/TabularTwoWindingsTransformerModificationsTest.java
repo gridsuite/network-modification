@@ -7,16 +7,20 @@
 package org.gridsuite.modification.modifications.tabularmodifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.utils.NetworkCreation;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.gridsuite.modification.utils.TestUtils.assertLogMessageWithoutRank;
+import static org.gridsuite.modification.utils.TestUtils.assertLogNthMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -49,10 +53,28 @@ class TabularTwoWindingsTransformerModificationsTest extends AbstractNetworkModi
                 .build();
     }
 
+    @Test
+    @Override
+    public void testApply() {
+        ModificationInfos modificationInfos = buildModification();
+        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test").build());
+        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        assertAfterNetworkModificationApplication(reportNode);
+    }
+
     @Override
     protected void assertAfterNetworkModificationApplication() {
         assertEquals(0.0, getNetwork().getTwoWindingsTransformer("trf1").getR(), 0.001);
         assertEquals(1.0, getNetwork().getTwoWindingsTransformer("trf2").getR(), 0.001);
+    }
+
+    private void assertAfterNetworkModificationApplication(ReportNode reportNode) {
+        assertAfterNetworkModificationApplication();
+        assertLogNthMessage("Modification of trf1", "network.modification.tabular.modification.equipmentId", reportNode, 1);
+        assertLogNthMessage("Modification of trf2", "network.modification.tabular.modification.equipmentId", reportNode, 2);
+        assertLogMessageWithoutRank("Tabular modification: 2 two windings transformers have been modified and 1 have not been modified", "network.modification.tabular.modification.warning", reportNode);
     }
 
     @Override

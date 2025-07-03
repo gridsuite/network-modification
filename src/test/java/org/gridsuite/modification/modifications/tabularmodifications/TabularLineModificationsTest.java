@@ -7,16 +7,20 @@
 package org.gridsuite.modification.modifications.tabularmodifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.utils.NetworkCreation;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.gridsuite.modification.utils.TestUtils.assertLogMessageWithoutRank;
+import static org.gridsuite.modification.utils.TestUtils.assertLogNthMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -45,12 +49,32 @@ class TabularLineModificationsTest extends AbstractNetworkModificationTest {
                 .build();
     }
 
+    @Test
+    @Override
+    public void testApply() {
+        ModificationInfos modificationInfos = buildModification();
+        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test").build());
+        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        assertAfterNetworkModificationApplication(reportNode);
+    }
+
     @Override
     protected void assertAfterNetworkModificationApplication() {
         assertEquals(10., getNetwork().getLine("line1").getR(), 0.001);
         assertEquals(20., getNetwork().getLine("line2").getX(), 0.001);
         assertEquals(30., getNetwork().getLine("line3").getG1(), 0.001);
         assertEquals(40., getNetwork().getLine("line3").getB1(), 0.001);
+    }
+
+    private void assertAfterNetworkModificationApplication(ReportNode reportNode) {
+        assertAfterNetworkModificationApplication();
+        assertLogNthMessage("Modification of line1", "network.modification.tabular.modification.equipmentId", reportNode, 1);
+        assertLogNthMessage("Modification of line2", "network.modification.tabular.modification.equipmentId", reportNode, 2);
+        assertLogNthMessage("Modification of line3", "network.modification.tabular.modification.equipmentId", reportNode, 3);
+        assertLogNthMessage("Modification of line3", "network.modification.tabular.modification.equipmentId", reportNode, 4);
+        assertLogMessageWithoutRank("Tabular modification: 4 lines have been modified and 1 have not been modified", "network.modification.tabular.modification.warning", reportNode);
     }
 
     @Override
