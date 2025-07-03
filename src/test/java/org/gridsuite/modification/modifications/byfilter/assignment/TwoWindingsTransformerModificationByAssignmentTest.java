@@ -15,8 +15,10 @@ import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.IntegerAssignmentInfos;
+import org.gridsuite.modification.dto.byfilter.assignment.StringAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.TwoWindingsTransformerField;
 import org.junit.jupiter.api.Test;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -290,6 +292,31 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
                 .editedField(TwoWindingsTransformerField.RATED_S.name())
                 .value(2.)
                 .build();
+
+        StringAssignmentInfos assignmentInfos16 = StringAssignmentInfos.builder()
+            .filters(List.of(filter1))
+            .editedField(TwoWindingsTransformerField.SELECTED_OPERATIONAL_LIMITS_GROUP_1.name())
+            .value("group1")
+            .build();
+
+        StringAssignmentInfos assignmentInfos17 = StringAssignmentInfos.builder()
+            .filters(List.of(filter2))
+            .editedField(TwoWindingsTransformerField.SELECTED_OPERATIONAL_LIMITS_GROUP_2.name())
+            .value("group2")
+            .build();
+
+        StringAssignmentInfos assignmentInfos18 = StringAssignmentInfos.builder()
+            .filters(List.of(filter3))
+            .editedField(TwoWindingsTransformerField.SELECTED_OPERATIONAL_LIMITS_GROUP_1.name())
+            .value(null)
+            .build();
+
+        StringAssignmentInfos assignmentInfos19 = StringAssignmentInfos.builder()
+            .filters(List.of(filter3))
+            .editedField(TwoWindingsTransformerField.SELECTED_OPERATIONAL_LIMITS_GROUP_2.name())
+            .value("")
+            .build();
+
         List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
         infosList.addAll(List.of(assignmentInfos1,
                 assignmentInfos2,
@@ -305,7 +332,11 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
                 assignmentInfos12,
                 assignmentInfos13,
                 assignmentInfos14,
-                assignmentInfos15));
+                assignmentInfos15,
+                assignmentInfos16,
+                assignmentInfos17,
+                assignmentInfos18,
+                assignmentInfos19));
 
         return infosList;
     }
@@ -336,6 +367,10 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         assertEquals(15, twt1.getRatedU1(), 0);
         assertEquals(0.5, twt1.getRatedU2(), 0);
         assertEquals(2, twt1.getRatedS(), 0);
+        assertTrue(twt1.getSelectedOperationalLimitsGroupId1().isPresent());
+        assertEquals("group1", twt1.getSelectedOperationalLimitsGroupId1().get());
+        assertTrue(twt1.getSelectedOperationalLimitsGroupId2().isPresent());
+        assertEquals("group2", twt1.getSelectedOperationalLimitsGroupId2().get());
 
         TwoWindingsTransformer twt2 = getNetwork().getTwoWindingsTransformer(TWT_ID_2);
         RatioTapChanger ratioTapChanger2 = twt2.getRatioTapChanger();
@@ -348,6 +383,10 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         assertEquals(2.5, twt2.getB(), 0);
         assertEquals(15, twt2.getRatedU1(), 0);
         assertEquals(2, twt2.getRatedS(), 0);
+        assertTrue(twt2.getSelectedOperationalLimitsGroupId1().isPresent());
+        assertEquals("group1", twt2.getSelectedOperationalLimitsGroupId1().get());
+        assertTrue(twt2.getSelectedOperationalLimitsGroupId2().isPresent());
+        assertEquals("group0", twt2.getSelectedOperationalLimitsGroupId2().get());
 
         TwoWindingsTransformer twt3 = getNetwork().getTwoWindingsTransformer(TWT_ID_3);
         RatioTapChanger ratioTapChanger3 = twt3.getRatioTapChanger();
@@ -359,6 +398,10 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         assertEquals(15, twt3.getRatedU1(), 0);
         assertEquals(0.5, twt3.getRatedU2(), 0);
         assertEquals(2, twt3.getRatedS(), 0);
+        assertTrue(twt3.getSelectedOperationalLimitsGroupId1().isPresent());
+        assertEquals("group0", twt3.getSelectedOperationalLimitsGroupId1().get());
+        assertTrue(twt3.getSelectedOperationalLimitsGroupId2().isPresent());
+        assertEquals("group2", twt3.getSelectedOperationalLimitsGroupId2().get());
 
         TwoWindingsTransformer twt4 = getNetwork().getTwoWindingsTransformer(TWT_ID_4);
         PhaseTapChanger phaseTapChanger4 = twt4.getPhaseTapChanger();
@@ -374,6 +417,8 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         assertEquals(25, twt4.getRatedU1(), 0);
         assertEquals(0.5, twt4.getRatedU2(), 0);
         assertEquals(15, twt4.getRatedS(), 0);
+        assertFalse(twt4.getSelectedOperationalLimitsGroupId1().isPresent());
+        assertFalse(twt4.getSelectedOperationalLimitsGroupId2().isPresent());
 
         TwoWindingsTransformer twt5 = getNetwork().getTwoWindingsTransformer(TWT_ID_5);
         PhaseTapChanger phaseTapChanger5 = twt5.getPhaseTapChanger();
@@ -383,6 +428,8 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         assertEquals(2, twt5.getR(), 0);
         assertEquals(2.5, twt5.getB(), 0);
         assertEquals(0.5, twt5.getRatedU2(), 0);
+        assertFalse(twt5.getSelectedOperationalLimitsGroupId1().isPresent());
+        assertFalse(twt5.getSelectedOperationalLimitsGroupId2().isPresent());
 
         TwoWindingsTransformer twt6 = getNetwork().getTwoWindingsTransformer(TWT_ID_6);
         PhaseTapChanger phaseTapChanger6 = twt6.getPhaseTapChanger();
