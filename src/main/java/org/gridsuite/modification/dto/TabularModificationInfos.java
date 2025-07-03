@@ -47,10 +47,25 @@ public class TabularModificationInfos extends ModificationInfos {
         return new TabularModification(this);
     }
 
+    public String formatEquipmentTypeName() {
+        return switch (getModificationType()) {
+            case GENERATOR_MODIFICATION -> getModifications().size() > 1 ? "generators" : "generator";
+            case LOAD_MODIFICATION -> getModifications().size() > 1 ? "loads" : "load";
+            case TWO_WINDINGS_TRANSFORMER_MODIFICATION -> getModifications().size() > 1 ? "two windings transformers" : "two windings transformer";
+            case BATTERY_MODIFICATION -> getModifications().size() > 1 ? "batteries" : "battery";
+            case VOLTAGE_LEVEL_MODIFICATION -> getModifications().size() > 1 ? "voltage levels" : "voltage level";
+            case SHUNT_COMPENSATOR_MODIFICATION -> getModifications().size() > 1 ? "shunt compensators" : "shunt compensator";
+            case LINE_MODIFICATION -> getModifications().size() > 1 ? "lines" : "line";
+            case SUBSTATION_MODIFICATION -> getModifications().size() > 1 ? "substations" : "substation";
+            default -> "equipments of unknown type";
+        };
+    }
+
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.tabularModification")
+                .withUntypedValue("modificationType", formatEquipmentTypeName())
                 .add();
     }
 

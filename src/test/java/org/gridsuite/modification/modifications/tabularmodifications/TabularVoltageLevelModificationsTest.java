@@ -7,16 +7,20 @@
 package org.gridsuite.modification.modifications.tabularmodifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.utils.NetworkCreation;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.gridsuite.modification.utils.TestUtils.assertLogMessageWithoutRank;
+import static org.gridsuite.modification.utils.TestUtils.assertLogNthMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -42,6 +46,17 @@ class TabularVoltageLevelModificationsTest extends AbstractNetworkModificationTe
                 .build();
     }
 
+    @Test
+    @Override
+    public void testApply() {
+        ModificationInfos modificationInfos = buildModification();
+        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test").build());
+        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        assertAfterNetworkModificationApplication(reportNode);
+    }
+
     @Override
     protected void assertAfterNetworkModificationApplication() {
         assertEquals(300., getNetwork().getVoltageLevel("v1").getNominalV(), 0.001);
@@ -50,6 +65,13 @@ class TabularVoltageLevelModificationsTest extends AbstractNetworkModificationTe
         assertEquals(300., getNetwork().getVoltageLevel("v2").getNominalV(), 0.001);
         assertEquals(299., getNetwork().getVoltageLevel("v2").getLowVoltageLimit(), 0.001);
         assertEquals(400., getNetwork().getVoltageLevel("v2").getHighVoltageLimit(), 0.001);
+    }
+
+    private void assertAfterNetworkModificationApplication(ReportNode reportNode) {
+        assertAfterNetworkModificationApplication();
+        assertLogNthMessage("Modification of v1", "network.modification.tabular.modification.equipmentId", reportNode, 1);
+        assertLogNthMessage("Modification of v2", "network.modification.tabular.modification.equipmentId", reportNode, 2);
+        assertLogMessageWithoutRank("Tabular modification: 2 voltage levels have been modified", "network.modification.tabular.modification", reportNode);
     }
 
     @Override

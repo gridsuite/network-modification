@@ -7,16 +7,20 @@
 package org.gridsuite.modification.modifications.tabularmodifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.utils.NetworkCreation;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.gridsuite.modification.utils.TestUtils.assertLogMessageWithoutRank;
+import static org.gridsuite.modification.utils.TestUtils.assertLogNthMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -43,11 +47,30 @@ class TabularLoadModificationsTest extends AbstractNetworkModificationTest {
                 .build();
     }
 
+    @Test
+    @Override
+    public void testApply() {
+        ModificationInfos modificationInfos = buildModification();
+        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test").build());
+        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        assertAfterNetworkModificationApplication(reportNode);
+    }
+
     @Override
     protected void assertAfterNetworkModificationApplication() {
         assertEquals(300., getNetwork().getLoad("v1load").getQ0(), 0.001);
         assertEquals(300., getNetwork().getLoad("v2load").getQ0(), 0.001);
         assertEquals(300., getNetwork().getLoad("v3load").getQ0(), 0.001);
+    }
+
+    private void assertAfterNetworkModificationApplication(ReportNode reportNode) {
+        assertAfterNetworkModificationApplication();
+        assertLogNthMessage("Modification of v1load", "network.modification.tabular.modification.equipmentId", reportNode, 1);
+        assertLogNthMessage("Modification of v2load", "network.modification.tabular.modification.equipmentId", reportNode, 2);
+        assertLogNthMessage("Modification of v3load", "network.modification.tabular.modification.equipmentId", reportNode, 3);
+        assertLogMessageWithoutRank("Tabular modification: 3 loads have been modified", "network.modification.tabular.modification", reportNode);
     }
 
     @Override
