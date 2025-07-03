@@ -9,7 +9,7 @@ package org.gridsuite.modification.dto.byfilter.equipmentfield;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.TwoSides;
-import jakarta.validation.constraints.NotNull;
+import groovyjarjarantlr4.v4.runtime.misc.NotNull;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -27,8 +27,8 @@ public enum LineField {
     G2,
     B1,
     B2,
-    OPERATIONAL_LIMITS_GROUP_1,
-    OPERATIONAL_LIMITS_GROUP_2;
+    SELECTED_OPERATIONAL_LIMITS_GROUP_1,
+    SELECTED_OPERATIONAL_LIMITS_GROUP_2;
 
     public static String getReferenceValue(Line line, String lineField) {
         LineField field = LineField.valueOf(lineField);
@@ -39,8 +39,8 @@ public enum LineField {
             case G2 -> String.valueOf(line.getG2());
             case B1 -> String.valueOf(line.getB1());
             case B2 -> String.valueOf(line.getB2());
-            case OPERATIONAL_LIMITS_GROUP_1 -> String.valueOf(line.getSelectedOperationalLimitsGroupId1().orElse(null));
-            case OPERATIONAL_LIMITS_GROUP_2 -> String.valueOf(line.getSelectedOperationalLimitsGroupId2().orElse(null));
+            case SELECTED_OPERATIONAL_LIMITS_GROUP_1 -> String.valueOf(line.getSelectedOperationalLimitsGroupId1().orElse(null));
+            case SELECTED_OPERATIONAL_LIMITS_GROUP_2 -> String.valueOf(line.getSelectedOperationalLimitsGroupId2().orElse(null));
         };
     }
 
@@ -49,7 +49,7 @@ public enum LineField {
         String errorMessage = String.format(ERROR_MESSAGE, line.getId());
         switch (field) {
             case R, X, G1, G2, B1, B2 -> setNewDoubleValue(line, field, newValue, errorMessage);
-            case OPERATIONAL_LIMITS_GROUP_1, OPERATIONAL_LIMITS_GROUP_2 -> setNewStringValue(line, field, newValue, errorMessage);
+            case SELECTED_OPERATIONAL_LIMITS_GROUP_1, SELECTED_OPERATIONAL_LIMITS_GROUP_2 -> setNewStringValue(line, field, newValue, errorMessage);
         }
     }
 
@@ -79,7 +79,7 @@ public enum LineField {
     private static void setNewStringValue(Line line, LineField field, String newValue, String errorMessage) {
         final AttributeModification<String> attributeModification = new AttributeModification<>(newValue, OperationType.SET);
         switch (field) {
-            case OPERATIONAL_LIMITS_GROUP_1 -> {
+            case SELECTED_OPERATIONAL_LIMITS_GROUP_1 -> {
                 ModificationUtils.checkLimitsGroupExist(errorMessage, newValue, MODIFY_LINE_ERROR,
                     line.getOperationalLimitsGroups1()
                     .stream()
@@ -87,7 +87,7 @@ public enum LineField {
                     .toList(), 1);
                 modifySelectedOperationalLimitsGroup(line, attributeModification, TwoSides.ONE, null);
             }
-            case OPERATIONAL_LIMITS_GROUP_2 -> {
+            case SELECTED_OPERATIONAL_LIMITS_GROUP_2 -> {
                 ModificationUtils.checkLimitsGroupExist(errorMessage, newValue, MODIFY_LINE_ERROR,
                     line.getOperationalLimitsGroups2()
                         .stream()

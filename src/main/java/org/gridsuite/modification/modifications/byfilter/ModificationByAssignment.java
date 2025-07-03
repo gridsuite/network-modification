@@ -88,7 +88,7 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
     protected String getNewValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos) {
         AssignmentInfos<?> assignmentInfos = (AssignmentInfos<?>) abstractAssignmentInfos;
         if (assignmentInfos.getValue() == null) {
-            throw new NetworkModificationException(MODIFICATION_BY_ASSIGNMENT_ERROR, "Missing a value in the assignment");
+            return null;
         }
         return assignmentInfos.getValue().toString();
     }

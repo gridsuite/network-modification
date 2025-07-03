@@ -312,15 +312,23 @@ public abstract class AbstractBranchModification extends AbstractModification {
     public static void modifySelectedOperationalLimitsGroup(Branch<?> branch, AttributeModification<String> modifOperationalLimitsGroup,
                                                             TwoSides side, ReportNode reportNode) {
         Objects.requireNonNull(side);
-        if (modifOperationalLimitsGroup != null && modifOperationalLimitsGroup.getValue() != null) {
-            String previousSelectedLimitsGroup = "";
+        if (modifOperationalLimitsGroup != null) {
+            String value = modifOperationalLimitsGroup.getValue();
+            String previousSelectedLimitsGroup = null;
             if (side == TwoSides.ONE) {
-                previousSelectedLimitsGroup = branch.getSelectedOperationalLimitsGroupId1().orElse("");
-                branch.setSelectedOperationalLimitsGroup1(modifOperationalLimitsGroup.getValue());
-
+                previousSelectedLimitsGroup = branch.getSelectedOperationalLimitsGroupId1().orElse(null);
+                if (value == null || value.isEmpty()) {
+                    branch.cancelSelectedOperationalLimitsGroup1();
+                } else {
+                    branch.setSelectedOperationalLimitsGroup1(value);
+                }
             } else if (side == TwoSides.TWO) {
-                previousSelectedLimitsGroup = branch.getSelectedOperationalLimitsGroupId2().orElse("");
-                branch.setSelectedOperationalLimitsGroup2(modifOperationalLimitsGroup.getValue());
+                previousSelectedLimitsGroup = branch.getSelectedOperationalLimitsGroupId2().orElse(null);
+                if (value == null || value.isEmpty()) {
+                    branch.cancelSelectedOperationalLimitsGroup2();
+                } else {
+                    branch.setSelectedOperationalLimitsGroup2(value);
+                }
             }
             if (reportNode != null) {
                 insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(previousSelectedLimitsGroup,
