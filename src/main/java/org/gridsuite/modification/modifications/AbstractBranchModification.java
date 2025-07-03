@@ -18,6 +18,7 @@ import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -317,14 +318,14 @@ public abstract class AbstractBranchModification extends AbstractModification {
             String previousSelectedLimitsGroup = null;
             if (side == TwoSides.ONE) {
                 previousSelectedLimitsGroup = branch.getSelectedOperationalLimitsGroupId1().orElse(null);
-                if (value == null || value.isEmpty()) {
+                if (!StringUtils.hasText(value)) {
                     branch.cancelSelectedOperationalLimitsGroup1();
                 } else {
                     branch.setSelectedOperationalLimitsGroup1(value);
                 }
             } else if (side == TwoSides.TWO) {
                 previousSelectedLimitsGroup = branch.getSelectedOperationalLimitsGroupId2().orElse(null);
-                if (value == null || value.isEmpty()) {
+                if (!StringUtils.hasText(value)) {
                     branch.cancelSelectedOperationalLimitsGroup2();
                 } else {
                     branch.setSelectedOperationalLimitsGroup2(value);
