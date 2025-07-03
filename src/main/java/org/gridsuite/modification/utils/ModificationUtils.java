@@ -1806,7 +1806,7 @@ public final class ModificationUtils {
     }
 
     public static void checkLimitsGroupExist(String errorMessage, String limitsGroupIdToSet, NetworkModificationException.Type exceptionType, List<String> existingOperationalLimitsGroupIds, int side) throws NetworkModificationException {
-        if (!StringUtils.hasText(limitsGroupIdToSet) && !existingOperationalLimitsGroupIds.contains(limitsGroupIdToSet)) {
+        if (StringUtils.hasText(limitsGroupIdToSet) && !existingOperationalLimitsGroupIds.contains(limitsGroupIdToSet)) {
             throw new NetworkModificationException(exceptionType, errorMessage +
                 String.format("missing limit set %s applicable on side %d : equipment ignored", limitsGroupIdToSet, side));
         }
