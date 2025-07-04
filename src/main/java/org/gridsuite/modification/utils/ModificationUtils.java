@@ -60,6 +60,8 @@ public final class ModificationUtils {
 
     private static final String COULD_NOT_ACTION_EQUIPMENT = "Could not %s equipment '%s'";
     private static final String COULD_NOT_ACTION_EQUIPMENT_ON_SIDE = COULD_NOT_ACTION_EQUIPMENT + " on side %s";
+    public static final String CONNECT = "connect";
+    public static final String DISCONNECT = "disconnect";
 
     public enum FeederSide {
         INJECTION_SINGLE_SIDE,
@@ -687,9 +689,36 @@ public final class ModificationUtils {
                                                          ReportNode connectivityReports) {
         List<ReportNode> reports = new ArrayList<>();
         processConnectivityPosition(connectablePosition, connectablePositionAdder, modificationInfos, branch.getNetwork(), reports);
-        modifyConnection(modificationInfos.getTerminal1Connected(), branch, branch.getTerminal1(), reports, ThreeSides.ONE);
-        modifyConnection(modificationInfos.getTerminal2Connected(), branch, branch.getTerminal2(), reports, ThreeSides.TWO);
-
+        // START
+        List<NetworkModificationException> exceptions = new ArrayList<>();
+        // Pair for Side and Pair for update and terminal
+        List<Pair<ThreeSides, Pair<AttributeModification<Boolean>, Terminal>>> sidePairs =
+                List.of(
+                        Pair.create(ThreeSides.ONE, Pair.create(modificationInfos.getTerminal1Connected(), branch.getTerminal1())),
+                        Pair.create(ThreeSides.TWO, Pair.create(modificationInfos.getTerminal2Connected(), branch.getTerminal2()))
+                );
+        // We want informations for the both sides, not only the first in error
+        for (Pair<ThreeSides, Pair<AttributeModification<Boolean>, Terminal>> side : sidePairs) {
+            try {
+                modifyConnection(side.getSecond().getFirst(), branch, side.getSecond().getSecond(), reports, side.getFirst());
+            } catch (NetworkModificationException nme) {
+                exceptions.add(nme);
+            }
+        }
+        // One exception to throw for one side
+        if (exceptions.size() == 1) {
+            throw exceptions.getFirst();
+        } else if (exceptions.size() > 1) { // One exception to throw for the two sides
+            List<Pair<String, String>> errorPairs = new ArrayList<>(); // Pair for Side and Action
+            errorPairs.add(Pair.create(String.valueOf(ThreeSides.ONE.getNum()), branch.getTerminal1().isConnected() ? DISCONNECT : CONNECT));
+            errorPairs.add(Pair.create(String.valueOf(ThreeSides.TWO.getNum()), branch.getTerminal2().isConnected() ? DISCONNECT : CONNECT));
+            throw new NetworkModificationException(exceptions.getFirst().getType(),
+                    String.format("Could not %s equipment '%s' on side %s",
+                            errorPairs.stream().map(Pair::getSecond).distinct().collect(Collectors.joining("/")),
+                            branch.getId(),
+                            errorPairs.stream().map(Pair::getFirst).collect(Collectors.joining(" & "))));
+        }
+        // END
         return reportModifications(connectivityReports, reports, "network.modification.ConnectivityModified");
     }
 
@@ -960,10 +989,10 @@ public final class ModificationUtils {
         boolean isConnected = terminal.isConnected();
         if (isConnected && Boolean.FALSE.equals(terminalConnected.getValue())) {
             terminal.disconnect();
-            validateConnectionChange(!terminal.isConnected(), equipment, "disconnect", reports, side);
+            validateConnectionChange(!terminal.isConnected(), equipment, DISCONNECT, reports, side);
         } else if (!isConnected && Boolean.TRUE.equals(terminalConnected.getValue())) {
             terminal.connect();
-            validateConnectionChange(terminal.isConnected(), equipment, "connect", reports, side);
+            validateConnectionChange(terminal.isConnected(), equipment, CONNECT, reports, side);
         }
     }
 
