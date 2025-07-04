@@ -31,8 +31,6 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
  */
 public abstract class AbstractBranchModification extends AbstractModification {
 
-    private static final String CONNECT = "connect";
-    private static final String DISCONNECT = "disconnect";
     private static final String DURATION = "duration";
     private static final String NAME = "name";
     private static final String VALUE = "value";
@@ -161,18 +159,18 @@ public abstract class AbstractBranchModification extends AbstractModification {
         List<String> errorTypes = new ArrayList<>();
         if (branchModificationInfos.getTerminal1Connected() != null && !updateConnection(branch, TwoSides.ONE, modificationInfos.getTerminal1Connected().getValue())) {
             errorSides.add(TwoSides.ONE);
-            errorTypes.add(Boolean.TRUE.equals(modificationInfos.getTerminal1Connected().getValue()) ? CONNECT : DISCONNECT);
+            errorTypes.add(Boolean.TRUE.equals(modificationInfos.getTerminal1Connected().getValue()) ? "connect" : "disconnect");
         }
         if (branchModificationInfos.getTerminal2Connected() != null && !updateConnection(branch, TwoSides.TWO, modificationInfos.getTerminal2Connected().getValue())) {
             errorSides.add(TwoSides.TWO);
-            errorTypes.add(Boolean.TRUE.equals(modificationInfos.getTerminal2Connected().getValue()) ? CONNECT : DISCONNECT);
+            errorTypes.add(Boolean.TRUE.equals(modificationInfos.getTerminal2Connected().getValue()) ? "connect" : "disconnect");
         }
         if (!errorSides.isEmpty()) {
             throw new NetworkModificationException(BRANCH_MODIFICATION_ERROR,
                 String.format("Could not %s equipment '%s' on side %s",
                     errorTypes.stream().distinct().collect(Collectors.joining("/")),
                     branch.getId(),
-                    errorSides.stream().map(item -> String.valueOf(item.getNum())).collect(Collectors.joining("/"))));
+                    errorSides.stream().map(Enum::toString).collect(Collectors.joining("/"))));
         }
     }
 
