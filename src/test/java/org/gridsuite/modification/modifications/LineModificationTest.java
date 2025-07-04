@@ -193,6 +193,24 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         changeLineConnectionState(getNetwork().getLine("line1"), true);
     }
 
+    @Test
+    void testConnectWhenNoSwitchesOpened() {
+        getNetwork().getSwitch("v3dl1").setOpen(true);
+        getNetwork().getSwitch("v3bl1").setOpen(true);
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> changeLineConnectionState(getNetwork().getLine("line1"), true));
+        assertEquals("BRANCH_MODIFICATION_ERROR : Could not connect equipment 'line1' on side 1", exception.getMessage());
+        getNetwork().getSwitch("v3dl1").setOpen(false);
+        getNetwork().getSwitch("v3bl1").setOpen(false);
+        getNetwork().getSwitch("v4dl1").setOpen(true);
+        getNetwork().getSwitch("v4bl1").setOpen(true);
+        exception = assertThrows(NetworkModificationException.class, () -> changeLineConnectionState(getNetwork().getLine("line1"), true));
+        assertEquals("BRANCH_MODIFICATION_ERROR : Could not connect equipment 'line1' on side 2", exception.getMessage());
+        getNetwork().getSwitch("v3dl1").setOpen(true);
+        getNetwork().getSwitch("v3bl1").setOpen(true);
+        exception = assertThrows(NetworkModificationException.class, () -> changeLineConnectionState(getNetwork().getLine("line1"), true));
+        assertEquals("BRANCH_MODIFICATION_ERROR : Could not connect equipment 'line1' on side 1 & 2", exception.getMessage());
+    }
+
     private void changeLineConnectionState(Line existingEquipment, boolean expectedState) {
         LineModificationInfos modificationInfos = (LineModificationInfos) buildModification();
         modificationInfos.setTerminal1Connected(new AttributeModification<>(expectedState, OperationType.SET));
