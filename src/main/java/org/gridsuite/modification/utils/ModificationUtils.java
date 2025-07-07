@@ -689,7 +689,7 @@ public final class ModificationUtils {
                                                          ReportNode connectivityReports) {
         List<ReportNode> reports = new ArrayList<>();
         processConnectivityPosition(connectablePosition, connectablePositionAdder, modificationInfos, branch.getNetwork(), reports);
-        // START
+
         List<NetworkModificationException> exceptions = new ArrayList<>();
         // Pair for Side and Pair for update and terminal
         List<Pair<ThreeSides, Pair<AttributeModification<Boolean>, Terminal>>> sidePairs =
@@ -705,10 +705,11 @@ public final class ModificationUtils {
                 exceptions.add(nme);
             }
         }
-        // One exception to throw for one side
         if (exceptions.size() == 1) {
+            // One exception to throw for one side
             throw exceptions.getFirst();
-        } else if (exceptions.size() > 1) { // One exception to throw for the two sides
+        } else if (exceptions.size() > 1) {
+            // One exception to throw for the two sides
             List<Pair<String, String>> errorPairs = new ArrayList<>(); // Pair for Side and Action
             errorPairs.add(Pair.create(String.valueOf(ThreeSides.ONE.getNum()), branch.getTerminal1().isConnected() ? DISCONNECT : CONNECT));
             errorPairs.add(Pair.create(String.valueOf(ThreeSides.TWO.getNum()), branch.getTerminal2().isConnected() ? DISCONNECT : CONNECT));
@@ -718,7 +719,7 @@ public final class ModificationUtils {
                             branch.getId(),
                             errorPairs.stream().map(Pair::getFirst).collect(Collectors.joining(" & "))));
         }
-        // END
+
         return reportModifications(connectivityReports, reports, "network.modification.ConnectivityModified");
     }
 
