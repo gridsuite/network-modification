@@ -60,4 +60,8 @@ public class TapChangerModificationInfos {
 
     @Schema(description = "steps")
     private List<TapChangerStepCreationInfos> steps;
+
+    @Schema(description = "hasLoadTapChangingCapabilities")
+    @JsonProperty("hasLoadTapChangingCapabilities")
+    private AttributeModification<Boolean> loadTapChangingCapabilities;
 }
