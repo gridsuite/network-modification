@@ -207,6 +207,7 @@ public class StaticVarCompensatorCreation extends AbstractModification {
                 .setVoltageSetpoint(staticVarCompensatorCreationInfos.getVoltageSetpoint())
                 .setReactivePowerSetpoint(staticVarCompensatorCreationInfos.getReactivePowerSetpoint())
                 .setRegulationMode(staticVarCompensatorCreationInfos.getRegulationMode())
+                .setRegulating(staticVarCompensatorCreationInfos.isRegulating())
                 .add();
 
         addExtensionsToStaticVarCompensator(staticVarCompensatorCreationInfos, staticVarCompensator, voltageLevel, subReportNode);
