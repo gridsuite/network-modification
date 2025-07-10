@@ -282,7 +282,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         List<ReportNode> regulatedTerminalReports = new ArrayList<>();
 
         processPhaseTapRegulation(phaseTapChanger, phaseTapChangerAdder, isModification, phaseTapChangerInfos.getRegulationMode(),
-            phaseTapChangerInfos.getRegulationValue(), phaseTapChangerInfos.getTargetDeadband(), regulationReports);
+            phaseTapChangerInfos.getRegulationValue(), phaseTapChangerInfos.getTargetDeadband(), phaseTapChangerInfos.getRegulating(), regulationReports);
 
         processRegulatingTerminal(phaseTapChangerInfos, phaseTapChanger, phaseTapChangerAdder, regulatedTerminalReports,
                 network,
@@ -314,76 +314,39 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                                                  AttributeModification<PhaseTapChanger.RegulationMode> regulationModeModification,
                                                  AttributeModification<Double> regulationValueModification,
                                                  AttributeModification<Double> targetDeadbandModification,
+                                                 AttributeModification<Boolean> regulatingModification,
                                                  List<ReportNode> regulationReports) throws NetworkModificationException {
-        AttributeModification<PhaseTapChanger.RegulationMode> finalRegulationModeModification = regulationModeModification;
+
+        // checks will be done in powsybl
         AttributeModification<Double> finalTargetDeadbandModification = targetDeadbandModification;
-        AttributeModification<Boolean> finalRegulatingModification = null;
-
-        // ---  Regulation Mode impacts on regulating => pre-processing regulating --- //
-        if (isModification) { // modifying an existing extension
-            // modification check
-            if (regulationModeModification != null) {
-                PhaseTapChanger.RegulationMode oldRegulationMode = phaseTapChanger.getRegulationMode();
-                PhaseTapChanger.RegulationMode newRegulationMode = regulationModeModification.getValue();
-                double oldTargetDeadBand = phaseTapChanger.getTargetDeadband();
-
-                if (oldRegulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP) {
-                    // if new regulation mode is FIXED_TAP set regulating to false
-                    if (newRegulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP) {
-                        finalRegulatingModification = AttributeModification.toAttributeModification(false, OperationType.SET);
-                    } else { // new regulation mode is CURRENT_LIMITER or ACTIVE_POWER_CONTROL
-                        // check required field
-                        if (regulationValueModification == null) {
-                            throw new NetworkModificationException(MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value is missing, phase tap changer can not regulate");
-                        }
-
-                        // set regulating to true
-                        finalRegulatingModification = AttributeModification.toAttributeModification(true, OperationType.SET);
-
-                        // set default value for deadband
-                        if (Double.isNaN(oldTargetDeadBand) && targetDeadbandModification == null) {
-                            finalTargetDeadbandModification = AttributeModification.toAttributeModification(0.0, OperationType.SET);
-                        }
-                    }
-                } else { // previous regulation mode is CURRENT_LIMITER or ACTIVE_POWER_CONTROL
-                    // if new regulation mode is FIXED_TAP we keep the old regulation mode and set regulating to false
-                    if (newRegulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP) {
-                        finalRegulatingModification = AttributeModification.toAttributeModification(false, OperationType.SET);
-                        finalRegulationModeModification = AttributeModification.toAttributeModification(oldRegulationMode, OperationType.SET);
-                    } else { // new regulation mode is CURRENT_LIMITER or ACTIVE_POWER_CONTROL
-                        // set regulating to true
-                        finalRegulatingModification = AttributeModification.toAttributeModification(true, OperationType.SET);
-                        // set default value for deadband
-                        if (Double.isNaN(oldTargetDeadBand) && targetDeadbandModification == null) {
-                            finalTargetDeadbandModification = AttributeModification.toAttributeModification(0.0, OperationType.SET);
-                        }
-                    }
+        if (regulatingModification != null && regulatingModification.getValue()) {
+            if (!isModification) {
+                // creation
+                if (targetDeadbandModification == null) {
+                    finalTargetDeadbandModification = new AttributeModification<>(0.0, OperationType.SET);
                 }
-            }
-        } else {
-            // creation check
-            if (regulationModeModification == null) {
-                throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation mode is missing when creating tap phase changer");
-            }
-
-            PhaseTapChanger.RegulationMode regulationMode = regulationModeModification.getValue();
-            if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP) {
-                finalRegulatingModification = AttributeModification.toAttributeModification(true, OperationType.SET);
                 if (regulationValueModification == null) {
-                    throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR,
-                        "Regulation value is missing when creating tap phase changer with regulation enabled (different from FIXED_TAP)");
+                    throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value is missing when creating tap phase changer with regulation enabled");
                 }
-                if (finalTargetDeadbandModification == null) {
-                    finalTargetDeadbandModification = AttributeModification.toAttributeModification(0.0, OperationType.SET);
+                if (regulationModeModification == null) {
+                    throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation mode is missing when creating tap phase changer with regulation enabled");
                 }
+
             } else {
-                finalRegulatingModification = AttributeModification.toAttributeModification(false, OperationType.SET);
+                if (targetDeadbandModification == null && Double.isNaN(phaseTapChanger.getTargetDeadband())) {
+                    finalTargetDeadbandModification = new AttributeModification<>(0.0, OperationType.SET);
+                }
+
+                if (regulationValueModification == null && Double.isNaN(phaseTapChanger.getRegulationValue())) {
+                    throw new NetworkModificationException(MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value is missing when modifying, phase tap changer can not regulate");
+                }
+                if (regulationModeModification == null && phaseTapChanger.getRegulationMode() == null) {
+                    throw new NetworkModificationException(MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation mode is missing when modifying, phase tap changer can not regulate");
+                }
             }
         }
-
-        //c--- apply changes after pre-processing of regulating --- //
         setPhaseTapChangerRegulationAttributes(phaseTapChanger, phaseTapChangerAdder, isModification,
-            finalRegulationModeModification, regulationValueModification, finalTargetDeadbandModification, finalRegulatingModification, regulationReports);
+            regulationModeModification, regulationValueModification, finalTargetDeadbandModification, regulatingModification, regulationReports);
 
     }
 

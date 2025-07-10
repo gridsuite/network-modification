@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,10 +23,6 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 @Schema(description = "RatioTapChanger attributes")
 public class RatioTapChangerCreationInfos extends TapChangerCreationInfos {
-
-    @Schema(description = "hasLoadTapChangingCapabilities")
-    @JsonProperty("hasLoadTapChangingCapabilities")
-    private boolean loadTapChangingCapabilities;
 
     @Schema(description = "targetV")
     private Double targetV;

@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.OFF;
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.*;
@@ -201,7 +200,9 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
         assertEquals("CREATE_STATIC_VAR_COMPENSATOR_ERROR : " +
                         "StaticVarCompensator 'idStaticVarCompensator2' : b0 must be within the range of minimum susceptance and maximum susceptance",
                 exception.getMessage());
-        compensatorCreationInfos2.setRegulationMode(OFF);
+        compensatorCreationInfos2.setB0(250.0);
+        compensatorCreationInfos2.setRegulating(false);
+        compensatorCreationInfos2.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
         compensatorCreationInfos2.setStandby(true);
 
         StaticVarCompensatorCreation staticVarCompensatorCreation11 = (StaticVarCompensatorCreation) compensatorCreationInfos2.toModification();

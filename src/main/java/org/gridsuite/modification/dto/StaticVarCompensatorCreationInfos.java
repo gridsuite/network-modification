@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.StaticVarCompensatorCreation;
@@ -65,6 +64,9 @@ public class StaticVarCompensatorCreationInfos extends InjectionCreationInfos {
 
     @Schema(description = "Regulating terminal voltage level id")
     private String regulatingTerminalVlId;
+
+    @Schema(description = "Regulating")
+    private boolean regulating;
 
     @Schema(description = "standby automaton on")
     private boolean standbyAutomatonOn;
