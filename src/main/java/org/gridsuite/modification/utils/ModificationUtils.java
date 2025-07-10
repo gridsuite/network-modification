@@ -1841,5 +1841,19 @@ public final class ModificationUtils {
                 String.format("missing limit set %s applicable on side %d : equipment ignored", limitsGroupIdToSet, side));
         }
     }
+
+    public static List<OperationalLimitsGroupInfos> getOperationalLimitsGroupsOnSide(List<OperationalLimitsGroupInfos> operationalLimitsGroupInfos,
+                                                                               OperationalLimitsGroupInfos.Applicability applicability) {
+        if (operationalLimitsGroupInfos == null || operationalLimitsGroupInfos.isEmpty()) {
+            return null;
+        }
+        List<OperationalLimitsGroupInfos> operationalLimitsGroupsOnSide = new ArrayList<>();
+        for (OperationalLimitsGroupInfos info : operationalLimitsGroupInfos) {
+            if (info.getApplicability() == applicability || info.getApplicability() == OperationalLimitsGroupInfos.Applicability.EQUIPMENT) {
+                operationalLimitsGroupsOnSide.add(info);
+            }
+        }
+        return operationalLimitsGroupsOnSide;
+    }
 }
 
