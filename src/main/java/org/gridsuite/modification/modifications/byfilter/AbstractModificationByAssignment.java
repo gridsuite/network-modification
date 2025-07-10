@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.modification.IFilterService;
+import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.FilterInfos;
@@ -118,7 +119,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     }
 
     @Override
-    public void initApplicationContext(IFilterService filterService) {
+    public void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService) {
         this.filterService = filterService;
     }
 
@@ -204,7 +205,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                                 .withMessageTemplate(REPORT_KEY_RATIO_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR)
                                 .withUntypedValue(VALUE_KEY_FIELD_NAME, editedField.name())
                                 .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
-                                .withSeverity(TypedValue.TRACE_SEVERITY)
+                                .withSeverity(TypedValue.DETAIL_SEVERITY)
                                 .build());
                     }
                     yield isEditable;
@@ -217,7 +218,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                                 .withMessageTemplate(REPORT_KEY_PHASE_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR)
                                 .withUntypedValue(VALUE_KEY_FIELD_NAME, editedField.name())
                                 .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
-                                .withSeverity(TypedValue.TRACE_SEVERITY)
+                                .withSeverity(TypedValue.DETAIL_SEVERITY)
                                 .build());
                     }
                     yield isEditable;
@@ -302,9 +303,9 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
                     .withUntypedValue(VALUE_KEY_FIELD_NAME, getEditedFieldLabel(abstractAssignmentInfos))
                     .withUntypedValue(VALUE_KEY_OLD_VALUE, oldValue == null ? NO_VALUE : oldValue)
-                    .withUntypedValue(VALUE_KEY_NEW_VALUE, newValue)
+                    .withUntypedValue(VALUE_KEY_NEW_VALUE, newValue == null ? NO_VALUE : newValue)
                     .withUntypedValue(VALUE_KEY_ARROW_NAME, VALUE_KEY_ARROW_VALUE) // Workaround to use non-ISO-8859-1 characters in the internationalization file
-                    .withSeverity(TypedValue.TRACE_SEVERITY)
+                    .withSeverity(TypedValue.DETAIL_SEVERITY)
                     .build());
         } catch (Exception e) {
             notEditableEquipments.add(equipment.getId());

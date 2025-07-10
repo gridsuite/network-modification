@@ -18,6 +18,7 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 
 import org.gridsuite.modification.IFilterService;
+import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ByFilterDeletionInfos;
 import org.gridsuite.modification.dto.FilterEquipments;
@@ -58,7 +59,7 @@ public class ByFilterDeletion extends AbstractModification {
     }
 
     @Override
-    public void initApplicationContext(IFilterService filterService) {
+    public void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService) {
         this.filterService = filterService;
     }
 

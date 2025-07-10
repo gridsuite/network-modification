@@ -16,6 +16,7 @@ import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.IntegerAssignmentInfos;
+import org.gridsuite.modification.dto.byfilter.assignment.StringAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.LineField;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +25,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.gridsuite.modification.utils.NetworkUtil.createLine;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -164,13 +165,41 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
                 .value(90)
                 .build();
 
+        StringAssignmentInfos assignmentInfos7 = StringAssignmentInfos.builder()
+            .filters(List.of(filter1))
+            .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_1.name())
+            .value("group1")
+            .build();
+
+        StringAssignmentInfos assignmentInfos8 = StringAssignmentInfos.builder()
+            .filters(List.of(filter2))
+            .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_2.name())
+            .value("group2")
+            .build();
+
+        StringAssignmentInfos assignmentInfos9 = StringAssignmentInfos.builder()
+            .filters(List.of(filter3))
+            .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_1.name())
+            .value(null)
+            .build();
+
+        StringAssignmentInfos assignmentInfos10 = StringAssignmentInfos.builder()
+            .filters(List.of(filter3))
+            .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_2.name())
+            .value("")
+            .build();
+
         List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
         infosList.addAll(List.of(assignmentInfos1,
                 assignmentInfos2,
                 assignmentInfos3,
                 assignmentInfos4,
                 assignmentInfos5,
-                assignmentInfos6));
+                assignmentInfos6,
+                assignmentInfos7,
+                assignmentInfos8,
+                assignmentInfos9,
+                assignmentInfos10));
 
         return infosList;
     }
@@ -194,6 +223,10 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
         assertEquals(0.0015, line1.getB2(), 0);
         assertEquals(35, line1.getG1(), 0);
         assertEquals(10, line1.getG2(), 0);
+        assertTrue(line1.getSelectedOperationalLimitsGroupId1().isPresent());
+        assertEquals("group1", line1.getSelectedOperationalLimitsGroupId1().get());
+        assertTrue(line1.getSelectedOperationalLimitsGroupId2().isPresent());
+        assertEquals("group2", line1.getSelectedOperationalLimitsGroupId2().get());
 
         Line line2 = getNetwork().getLine(LINE_ID_2);
         assertEquals(3, line2.getR(), 0);
@@ -202,6 +235,10 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
         assertEquals(0.0025, line2.getB2(), 0);
         assertEquals(5, line2.getG1(), 0);
         assertEquals(10, line2.getG2(), 0);
+        assertTrue(line2.getSelectedOperationalLimitsGroupId1().isPresent());
+        assertEquals("group1", line2.getSelectedOperationalLimitsGroupId1().get());
+        assertTrue(line2.getSelectedOperationalLimitsGroupId2().isPresent());
+        assertEquals("group0", line2.getSelectedOperationalLimitsGroupId2().get());
 
         Line line3 = getNetwork().getLine(LINE_ID_3);
         assertEquals(40, line3.getR(), 0);
@@ -210,6 +247,10 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
         assertEquals(0.0025, line3.getB2(), 0);
         assertEquals(35, line3.getG1(), 0);
         assertEquals(1, line3.getG2(), 0);
+        assertTrue(line3.getSelectedOperationalLimitsGroupId1().isPresent());
+        assertEquals("group0", line3.getSelectedOperationalLimitsGroupId1().get());
+        assertTrue(line3.getSelectedOperationalLimitsGroupId2().isPresent());
+        assertEquals("group2", line3.getSelectedOperationalLimitsGroupId2().get());
 
         Line line4 = getNetwork().getLine(LINE_ID_4);
         assertEquals(3, line4.getR(), 0);
@@ -218,6 +259,8 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
         assertEquals(90, line4.getB2(), 0);
         assertEquals(5, line4.getG1(), 0);
         assertEquals(1, line4.getG2(), 0);
+        assertFalse(line4.getSelectedOperationalLimitsGroupId1().isPresent());
+        assertFalse(line4.getSelectedOperationalLimitsGroupId2().isPresent());
 
         Line line5 = getNetwork().getLine(LINE_ID_5);
         assertEquals(3, line5.getR(), 0);
@@ -226,6 +269,8 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
         assertEquals(90, line5.getB2(), 0);
         assertEquals(5, line5.getG1(), 0);
         assertEquals(1, line5.getG2(), 0);
+        assertFalse(line5.getSelectedOperationalLimitsGroupId1().isPresent());
+        assertFalse(line5.getSelectedOperationalLimitsGroupId2().isPresent());
 
         Line line6 = getNetwork().getLine(LINE_ID_6);
         assertEquals(3, line6.getR(), 0);

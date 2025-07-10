@@ -31,6 +31,7 @@ import org.gridsuite.modification.dto.byfilter.DataType;
     @JsonSubTypes.Type(value = DoubleAssignmentInfos.class, name = "DOUBLE"),
     @JsonSubTypes.Type(value = IntegerAssignmentInfos.class, name = "INTEGER"),
     @JsonSubTypes.Type(value = PropertyAssignmentInfos.class, name = "PROPERTY"),
+    @JsonSubTypes.Type(value = StringAssignmentInfos.class, name = "STRING"),
 })
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuperBuilder

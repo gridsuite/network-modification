@@ -15,5 +15,6 @@ public enum DataType {
     BOOLEAN,
     INTEGER,
     DOUBLE,
-    PROPERTY
+    PROPERTY,
+    STRING
 }
