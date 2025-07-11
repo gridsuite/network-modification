@@ -13,6 +13,8 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
@@ -35,6 +37,12 @@ public class BranchModificationInfos extends BasicEquipmentModificationInfos {
 
     @Schema(description = "Current limits Side 2")
     private CurrentLimitsModificationInfos currentLimits2;
+
+    @Schema(description = "Operational limits group Side 1")
+    private List<OperationalLimitsGroupModificationInfos> operationalLimitsGroup1;
+
+    @Schema(description = "Operational limits group Side 2")
+    private List<OperationalLimitsGroupModificationInfos> operationalLimitsGroup2;
 
     @Schema(description = "Voltage level id modification 1")
     private AttributeModification<String> voltageLevelId1;
