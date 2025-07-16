@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.StaticVarCompensator;
@@ -66,7 +67,8 @@ public class StaticVarCompensatorCreationInfos extends InjectionCreationInfos {
     private String regulatingTerminalVlId;
 
     @Schema(description = "Regulating")
-    private boolean regulating;
+    @JsonProperty("isRegulating")
+    public boolean regulating;
 
     @Schema(description = "standby automaton on")
     private boolean standbyAutomatonOn;

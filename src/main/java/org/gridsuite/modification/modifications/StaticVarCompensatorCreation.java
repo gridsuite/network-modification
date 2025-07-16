@@ -113,7 +113,10 @@ public class StaticVarCompensatorCreation extends AbstractModification {
                 .setBmin(bMin)
                 .setVoltageSetpoint(nanIfNull(staticVarCompensatorCreationInfos.getVoltageSetpoint()))
                 .setReactivePowerSetpoint(nanIfNull(staticVarCompensatorCreationInfos.getReactivePowerSetpoint()))
-                .setRegulationMode(staticVarCompensatorCreationInfos.getRegulationMode());
+                .setRegulating(staticVarCompensatorCreationInfos.isRegulating());
+        if (staticVarCompensatorCreationInfos.isRegulating()) {
+            staticVarCompensatorCreationInfos.setRegulationMode(staticVarCompensatorCreationInfos.getRegulationMode());
+        }
 
         if (terminal != null) {
             staticVarCompensatorAdder.setRegulatingTerminal(terminal);
