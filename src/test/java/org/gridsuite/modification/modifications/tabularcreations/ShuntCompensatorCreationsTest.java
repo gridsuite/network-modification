@@ -170,8 +170,6 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
                 .maxSusceptance(20.0)
                 .build();
 
-
-
         var tabularCreationInfos = TabularCreationInfos
                 .builder()
                 .creationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
