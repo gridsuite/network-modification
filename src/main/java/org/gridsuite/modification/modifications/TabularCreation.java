@@ -11,6 +11,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentCreationInfos;
+import org.gridsuite.modification.dto.ShuntCompensatorCreationInfos;
 import org.gridsuite.modification.dto.TabularCreationInfos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,9 @@ public class TabularCreation extends AbstractModification {
             try {
                 AbstractModification modification = creatInfos.toModification();
                 modification.check(network);
+                if (creatInfos instanceof ShuntCompensatorCreationInfos shuntCreation) {
+                    checkShuntCompensatorCreation(shuntCreation, creatReportNode);
+                }
                 modification.apply(network, creatReportNode);
             } catch (Exception e) {
                 applicationFailuresCount++;
@@ -92,5 +96,32 @@ public class TabularCreation extends AbstractModification {
     @Override
     public String getName() {
         return "TabularCreation";
+    }
+
+    public static void checkShuntCompensatorCreation(
+            ShuntCompensatorCreationInfos creationInfos,
+            ReportNode subReportNode
+    ) {
+        if (creationInfos.getMaxSusceptance() != null) {
+            if (creationInfos.getShuntCompensatorType() != null && creationInfos.getMaxQAtNominalV() != null) {
+                subReportNode.newReportNode()
+                        .withMessageTemplate("network.modification.tabular.creation.shuntCompensator.maxSusceptanceIgnored.1")
+                        .withUntypedValue("id", creationInfos.getEquipmentId())
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .add();
+            } else if (creationInfos.getShuntCompensatorType() != null) {
+                subReportNode.newReportNode()
+                        .withMessageTemplate("network.modification.tabular.creation.shuntCompensator.maxSusceptanceIgnored.2")
+                        .withUntypedValue("id", creationInfos.getEquipmentId())
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .add();
+            } else if (creationInfos.getMaxQAtNominalV() != null) {
+                subReportNode.newReportNode()
+                        .withMessageTemplate("network.modification.tabular.creation.shuntCompensator.maxSusceptanceIgnored.3")
+                        .withUntypedValue("id", creationInfos.getEquipmentId())
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .add();
+            }
+        }
     }
 }
