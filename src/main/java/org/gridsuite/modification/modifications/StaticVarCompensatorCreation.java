@@ -115,7 +115,7 @@ public class StaticVarCompensatorCreation extends AbstractModification {
                 .setReactivePowerSetpoint(nanIfNull(staticVarCompensatorCreationInfos.getReactivePowerSetpoint()))
                 .setRegulating(staticVarCompensatorCreationInfos.isRegulating());
         if (staticVarCompensatorCreationInfos.isRegulating()) {
-            staticVarCompensatorCreationInfos.setRegulationMode(staticVarCompensatorCreationInfos.getRegulationMode());
+            staticVarCompensatorAdder.setRegulationMode(staticVarCompensatorCreationInfos.getRegulationMode());
         }
 
         if (terminal != null) {
