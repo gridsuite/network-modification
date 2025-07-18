@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.StaticVarCompensator;
@@ -15,7 +16,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.StaticVarCompensatorCreation;
@@ -65,6 +65,10 @@ public class StaticVarCompensatorCreationInfos extends InjectionCreationInfos {
 
     @Schema(description = "Regulating terminal voltage level id")
     private String regulatingTerminalVlId;
+
+    @Schema(description = "Regulating")
+    @JsonProperty("isRegulating")
+    public boolean regulating;
 
     @Schema(description = "standby automaton on")
     private boolean standbyAutomatonOn;
