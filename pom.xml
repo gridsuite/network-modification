@@ -43,7 +43,6 @@
 
     <properties>
         <powsybl-ws-dependencies.version>2.23.0-SNAPSHOT</powsybl-ws-dependencies.version>
-        <powsybl-network-store.version>1.28.0-SNAPSHOT</powsybl-network-store.version>
         <gridsuite-filter.version>1.6.0-SNAPSHOT</gridsuite-filter.version>
         <sonar.organization>gridsuite</sonar.organization>
         <sonar.projectKey>org.gridsuite:network-modification</sonar.projectKey>
@@ -74,21 +73,6 @@
                 <version>${powsybl-ws-dependencies.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-network-store-iidm-impl</artifactId>
-                <version>${powsybl-network-store.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-network-store-model</artifactId>
-                <version>${powsybl-network-store.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-network-store-client</artifactId>
-                <version>${powsybl-network-store.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
