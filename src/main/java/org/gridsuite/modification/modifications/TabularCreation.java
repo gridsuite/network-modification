@@ -98,7 +98,7 @@ public class TabularCreation extends AbstractModification {
         return "TabularCreation";
     }
 
-    public static void checkShuntCompensatorCreation(
+    private static void checkShuntCompensatorCreation(
             ShuntCompensatorCreationInfos creationInfos,
             ReportNode subReportNode
     ) {
