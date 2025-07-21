@@ -137,7 +137,8 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         PhaseTapChangerAdder phaseTapChangerAdder = twt.newPhaseTapChanger();
         double targetDeadband = phaseTapChangerInfos.getTargetDeadband() != null ? phaseTapChangerInfos.getTargetDeadband() : 0.;
         if (phaseTapChangerInfos.isRegulating()) {
-            phaseTapChangerAdder.setRegulationValue(phaseTapChangerInfos.getRegulationValue()).setTargetDeadband(targetDeadband);
+            phaseTapChangerAdder.setRegulationMode(phaseTapChangerInfos.getRegulationMode())
+                    .setRegulationValue(phaseTapChangerInfos.getRegulationValue()).setTargetDeadband(targetDeadband);
             regulationReports.add(getInstance().buildCreationReport(phaseTapChangerInfos.getRegulationMode(), "Regulation mode"));
             regulationReports.add(getInstance().buildCreationReport(phaseTapChangerInfos.getRegulationValue(), "Regulation value"));
             regulationReports.add(getInstance().buildCreationReport(targetDeadband, "Target deadband"));
@@ -153,7 +154,6 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         }
 
         phaseTapChangerAdder.setRegulating(phaseTapChangerInfos.isRegulating())
-                .setRegulationMode(phaseTapChangerInfos.getRegulationMode())
                 .setLowTapPosition(phaseTapChangerInfos.getLowTapPosition())
                 .setTapPosition(phaseTapChangerInfos.getTapPosition());
         tapsReports.add(getInstance().buildCreationReport(phaseTapChangerInfos.getLowTapPosition(), "Low tap position"));

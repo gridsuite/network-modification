@@ -113,7 +113,10 @@ public class StaticVarCompensatorCreation extends AbstractModification {
                 .setBmin(bMin)
                 .setVoltageSetpoint(nanIfNull(staticVarCompensatorCreationInfos.getVoltageSetpoint()))
                 .setReactivePowerSetpoint(nanIfNull(staticVarCompensatorCreationInfos.getReactivePowerSetpoint()))
-                .setRegulationMode(staticVarCompensatorCreationInfos.getRegulationMode());
+                .setRegulating(staticVarCompensatorCreationInfos.isRegulating());
+        if (staticVarCompensatorCreationInfos.isRegulating()) {
+            staticVarCompensatorAdder.setRegulationMode(staticVarCompensatorCreationInfos.getRegulationMode());
+        }
 
         if (terminal != null) {
             staticVarCompensatorAdder.setRegulatingTerminal(terminal);
@@ -197,7 +200,7 @@ public class StaticVarCompensatorCreation extends AbstractModification {
         double bMin = Objects.isNull(staticVarCompensatorCreationInfos.getMinSusceptance()) && Objects.nonNull(staticVarCompensatorCreationInfos.getMinQAtNominalV()) ?
                 (staticVarCompensatorCreationInfos.getMinQAtNominalV()) / Math.pow(voltageLevel.getNominalV(), 2) : staticVarCompensatorCreationInfos.getMinSusceptance();
         /* creating the static var compensator */
-        StaticVarCompensator staticVarCompensator = voltageLevel.newStaticVarCompensator()
+        StaticVarCompensatorAdder staticVarCompensatorAdder = voltageLevel.newStaticVarCompensator()
                 .setId(staticVarCompensatorCreationInfos.getEquipmentId())
                 .setName(staticVarCompensatorCreationInfos.getEquipmentName())
                 .setBus(bus.getId())
@@ -206,8 +209,11 @@ public class StaticVarCompensatorCreation extends AbstractModification {
                 .setBmin(bMin)
                 .setVoltageSetpoint(staticVarCompensatorCreationInfos.getVoltageSetpoint())
                 .setReactivePowerSetpoint(staticVarCompensatorCreationInfos.getReactivePowerSetpoint())
-                .setRegulationMode(staticVarCompensatorCreationInfos.getRegulationMode())
-                .add();
+                .setRegulating(staticVarCompensatorCreationInfos.isRegulating());
+        if (staticVarCompensatorCreationInfos.isRegulating()) {
+            staticVarCompensatorAdder.setRegulationMode(staticVarCompensatorCreationInfos.getRegulationMode());
+        }
+        StaticVarCompensator staticVarCompensator = staticVarCompensatorAdder.add();
 
         addExtensionsToStaticVarCompensator(staticVarCompensatorCreationInfos, staticVarCompensator, voltageLevel, subReportNode);
     }
