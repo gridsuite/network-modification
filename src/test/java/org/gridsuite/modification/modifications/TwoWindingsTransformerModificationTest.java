@@ -539,11 +539,11 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         PhaseTapChangerAdder adder = twt.newPhaseTapChanger();
         preparePhaseTapChangerAdder(adder);
         AttributeModification<Double> regulationValueModification = new AttributeModification<>(10.0, OperationType.SET);
+        AttributeModification<Boolean> regulatingModification = new AttributeModification<>(true, OperationType.SET);
         String message = assertThrows(NetworkModificationException.class, () -> processPhaseTapRegulation(null, adder, false,
-            null, regulationValueModification, null, new AttributeModification<>(true, OperationType.SET), regulationReports)).getMessage();
+            null, regulationValueModification, null, regulatingModification, regulationReports)).getMessage();
         assertEquals("CREATE_TWO_WINDINGS_TRANSFORMER_ERROR : Regulation mode is missing when creating tap phase changer with regulation enabled", message);
 
-        AttributeModification<Boolean> regulatingModification = new AttributeModification<>(true, OperationType.SET);
         AttributeModification<PhaseTapChanger.RegulationMode> regulationModeModification = new AttributeModification<>(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, OperationType.SET);
         String message2 = assertThrows(NetworkModificationException.class, () -> processPhaseTapRegulation(null, adder, false,
             regulationModeModification, null, null, regulatingModification, regulationReports)).getMessage();
