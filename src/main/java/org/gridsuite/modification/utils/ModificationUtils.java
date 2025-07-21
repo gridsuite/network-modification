@@ -1136,7 +1136,6 @@ public final class ModificationUtils {
 
     public String formatRegulationModeReport(PhaseTapChanger.RegulationMode regulationMode) {
         return switch (regulationMode) {
-            case FIXED_TAP -> "    Fixed tap";
             case CURRENT_LIMITER -> "    Current limiter";
             case ACTIVE_POWER_CONTROL -> "    Active power control";
         };
@@ -1527,7 +1526,7 @@ public final class ModificationUtils {
         }
 
         // check set points
-        if (Objects.requireNonNull(creationInfos.getRegulationMode()) == StaticVarCompensator.RegulationMode.VOLTAGE && creationInfos.getVoltageSetpoint() == null) {
+        if (creationInfos.getRegulationMode() == StaticVarCompensator.RegulationMode.VOLTAGE && creationInfos.getVoltageSetpoint() == null) {
             throw makeEquipmentException(creationInfos.getErrorType(), creationInfos.getEquipmentId(), equipmentName, "Voltage setpoint is not set");
         }
         if (creationInfos.getRegulationMode() == StaticVarCompensator.RegulationMode.REACTIVE_POWER && creationInfos.getReactivePowerSetpoint() == null) {
@@ -1537,7 +1536,7 @@ public final class ModificationUtils {
 
     public void checkStandbyAutomatonCreation(StaticVarCompensatorCreationInfos creationInfos) {
         String equipmentName = "StaticVarCompensator";
-        if (Boolean.TRUE.equals(creationInfos.isStandby()) && creationInfos.getRegulationMode() != StaticVarCompensator.RegulationMode.VOLTAGE) {
+        if (creationInfos.isStandby() && creationInfos.getRegulationMode() != StaticVarCompensator.RegulationMode.VOLTAGE && !creationInfos.isRegulating()) {
             throw makeEquipmentException(creationInfos.getErrorType(), creationInfos.getEquipmentId(), equipmentName, "Standby is only supported in Voltage Regulation mode");
         }
         if (Objects.nonNull(creationInfos.getB0()) && Objects.nonNull(creationInfos.getMinSusceptance()) && Objects.nonNull(creationInfos.getMaxSusceptance()) &&
