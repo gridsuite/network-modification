@@ -162,7 +162,7 @@ public class BalancesAdjustmentModification extends AbstractModification {
             double offset = area.getNetPosition() - countryArea.getNetPosition();
             Scalable scalable = createScalable(area, network, reportNode);
             double done = scalable.scale(network, offset, parameters.getScalingParameters());
-            Reports.reportScaling(reportNode, area.getName(), offset, done);
+            Reports.reportAreaScaling(reportNode, area.getName(), offset, done);
             LOGGER.info("Scaling for area {}: offset={}, done={}", area.getName(), offset, done);
         });
     }
