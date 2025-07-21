@@ -406,7 +406,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         TwoWindingsTransformer twt3 = createPhaseTapChanger();
         String twtId = "trf3";
 
-        // modification 1 :error
+        // modification 1 : settings
         TwoWindingsTransformerModificationInfos phaseTapChangerCreation = TwoWindingsTransformerModificationInfos.builder()
             .stashed(false)
             .equipmentId(twtId)
@@ -424,6 +424,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> twoWindingsTransformerModification.apply(network));
         assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Regulation value is missing when modifying, phase tap changer can not regulate", exception.getMessage());
 
+        // modification 2 : settings
         phaseTapChangerCreation.getPhaseTapChanger().setRegulationValue(new AttributeModification<>(10.0, OperationType.SET));
         phaseTapChangerCreation.getPhaseTapChanger().setRegulationMode(new AttributeModification<>(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, OperationType.SET));
 
@@ -431,7 +432,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
 
         PhaseTapChanger phaseTapChanger = twt3.getPhaseTapChanger();
 
-        // modification assert
+        // modification 2 assert
         assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
         assertEquals(0.0, phaseTapChanger.getTargetDeadband());
         assertEquals(10.0, phaseTapChanger.getRegulationValue());
@@ -446,7 +447,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
     }
 
     @Test
-    void testChangeConnectionStatus() throws Exception {
+    void testChangeConnectionStatus() {
         changeConnectionState(getNetwork().getTwoWindingsTransformer("trf1"), TwoSides.ONE, true, true, null);
         changeConnectionState(getNetwork().getTwoWindingsTransformer("trf1"), TwoSides.ONE, true, false, null);
         changeConnectionState(getNetwork().getTwoWindingsTransformer("trf1"), TwoSides.TWO, true, true, null);
@@ -537,13 +538,15 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         List<ReportNode> regulationReports = new ArrayList<>();
         PhaseTapChangerAdder adder = twt.newPhaseTapChanger();
         preparePhaseTapChangerAdder(adder);
+        AttributeModification<Double> regulationValueModification = new AttributeModification<>(10.0, OperationType.SET);
         String message = assertThrows(NetworkModificationException.class, () -> processPhaseTapRegulation(null, adder, false,
-            null, new AttributeModification<>(10.0, OperationType.SET), null, new AttributeModification<>(true, OperationType.SET), regulationReports)).getMessage();
+            null, regulationValueModification, null, new AttributeModification<>(true, OperationType.SET), regulationReports)).getMessage();
         assertEquals("CREATE_TWO_WINDINGS_TRANSFORMER_ERROR : Regulation mode is missing when creating tap phase changer with regulation enabled", message);
 
+        AttributeModification<Boolean> regulatingModification = new AttributeModification<>(true, OperationType.SET);
         AttributeModification<PhaseTapChanger.RegulationMode> regulationModeModification = new AttributeModification<>(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, OperationType.SET);
         String message2 = assertThrows(NetworkModificationException.class, () -> processPhaseTapRegulation(null, adder, false,
-            regulationModeModification, null, null, new AttributeModification<>(true, OperationType.SET), regulationReports)).getMessage();
+            regulationModeModification, null, null, regulatingModification, regulationReports)).getMessage();
         assertEquals("CREATE_TWO_WINDINGS_TRANSFORMER_ERROR : Regulation value is missing when creating tap phase changer with regulation enabled", message2);
         processPhaseTapRegulation(null, adder, false,
             new AttributeModification<>(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, OperationType.SET),
