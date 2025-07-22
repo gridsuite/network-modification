@@ -75,13 +75,13 @@ public abstract class AbstractBranchModification extends AbstractModification {
         List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos1 = branchModificationInfos.getOperationalLimitsGroup1();
         List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos2 = branchModificationInfos.getOperationalLimitsGroup2();
         if (operationalLimitsInfos1 != null) {
-            for(OperationalLimitsGroupModificationInfos operationalLimitsGroupModificationInfos : operationalLimitsInfos1) {
+            for (OperationalLimitsGroupModificationInfos operationalLimitsGroupModificationInfos : operationalLimitsInfos1) {
                 OperationalLimitsGroup operationalLimitsGroup1 = branch.getOperationalLimitsGroup1(operationalLimitsGroupModificationInfos.getId()).orElse(null);
                 modifyOperationalLimitsGroup1(branch, operationalLimitsGroupModificationInfos, operationalLimitsGroup1, side1LimitsReports);
             }
         }
         if (operationalLimitsInfos2 != null) {
-            for(OperationalLimitsGroupModificationInfos operationalLimitsGroupModificationInfos : operationalLimitsInfos2) {
+            for (OperationalLimitsGroupModificationInfos operationalLimitsGroupModificationInfos : operationalLimitsInfos2) {
                 OperationalLimitsGroup operationalLimitsGroup2 = branch.getOperationalLimitsGroup2(operationalLimitsGroupModificationInfos.getId()).orElse(null);
                 modififyOperationalLimitsGroup2(branch, operationalLimitsGroupModificationInfos, operationalLimitsGroup2, side2LimitsReports);
             }
@@ -211,7 +211,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
         if (OperationalLimitsGroupModificationType.MODIFIED.equals(operationalLimitsGroupInfos.getModificationType())) {
             operationalLimitsGroup.getCurrentLimits().ifPresent(currentLimits -> modifyCurrentLimits(operationalLimitsGroupInfos.getCurrentLimits(), operationalLimitsGroup.newCurrentLimits(), currentLimits, operationalLimitsGroupReports));
         } else if (OperationalLimitsGroupModificationType.ADDED.equals(operationalLimitsGroupInfos.getModificationType())) {
-            OperationalLimitsGroup newOperationalLimitsGroup  = branch.newOperationalLimitsGroup1(operationalLimitsGroupInfos.getId());
+            OperationalLimitsGroup newOperationalLimitsGroup = branch.newOperationalLimitsGroup1(operationalLimitsGroupInfos.getId());
             modifyCurrentLimits(operationalLimitsGroupInfos.getCurrentLimits(), newOperationalLimitsGroup.newCurrentLimits(), newOperationalLimitsGroup.getCurrentLimits().orElse(null), operationalLimitsGroupReports);
         } else if (OperationalLimitsGroupModificationType.REPLACE.equals(operationalLimitsGroupInfos.getModificationType())) {
             if (operationalLimitsGroup != null) {

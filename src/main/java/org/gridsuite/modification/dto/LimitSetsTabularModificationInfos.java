@@ -25,8 +25,7 @@ import org.gridsuite.modification.modifications.TabularModification;
 @Schema(description = "Limit sets tabular modification")
 @JsonTypeName("LIMIT_SETS_TABULAR_MODIFICATION")
 @ModificationErrorTypeName("LIMIT_SETS_TABULAR_MODIFICATION_ERROR")
-public class LimitSetsTabularModificationInfos extends TabularModificationInfos{
-
+public class LimitSetsTabularModificationInfos extends TabularModificationInfos {
     @Override
     public AbstractModification toModification() {
         return new TabularModification(this);
