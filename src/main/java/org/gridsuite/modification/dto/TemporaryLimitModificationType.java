@@ -13,4 +13,5 @@ public enum TemporaryLimitModificationType {
     ADDED,
     MODIFIED,
     DELETED,
+    REPLACED
 }
