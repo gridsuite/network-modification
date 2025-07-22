@@ -114,19 +114,19 @@ public class TabularModification extends AbstractModification {
         } else if (shuntCompensatorModificationInfos.getMaxSusceptance() != null) {
             if (shuntCompensatorModificationInfos.getShuntCompensatorType() != null && shuntCompensatorModificationInfos.getMaxQAtNominalV() != null) {
                 subReportNode.newReportNode()
-                        .withMessageTemplate("network.modification.tabular.shuntCompensator.maxSusceptanceIgnored.1")
+                        .withMessageTemplate("network.modification.tabular.modification.shuntCompensator.maxSusceptanceIgnored.1")
                         .withUntypedValue("id", shuntCompensator.getId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
             } else if (shuntCompensatorModificationInfos.getShuntCompensatorType() != null) {
                 subReportNode.newReportNode()
-                        .withMessageTemplate("network.modification.tabular.shuntCompensator.maxSusceptanceIgnored.2")
+                        .withMessageTemplate("network.modification.tabular.modification.shuntCompensator.maxSusceptanceIgnored.2")
                         .withUntypedValue("id", shuntCompensator.getId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
             } else if (shuntCompensatorModificationInfos.getMaxQAtNominalV() != null) {
                 subReportNode.newReportNode()
-                        .withMessageTemplate("network.modification.tabular.shuntCompensator.maxSusceptanceIgnored.3")
+                        .withMessageTemplate("network.modification.tabular.modification.shuntCompensator.maxSusceptanceIgnored.3")
                         .withUntypedValue("id", shuntCompensator.getId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
