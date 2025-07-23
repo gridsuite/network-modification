@@ -262,11 +262,12 @@ public abstract class AbstractBranchModification extends AbstractModification {
                                          CurrentLimits currentLimits, List<ReportNode> limitsReports) {
         // we create a mutable list of temporary limits to be able to remove the limits that are modified in current modification
         List<LoadingLimits.TemporaryLimit> branchTemporaryLimits = new ArrayList<>();
-        if (currentLimits != null && !TemporaryLimitModificationType.REPLACED.equals(operationalLimitsGroupModificationInfos.getTemporaryLimitsModificationType())) {
+        boolean areLimitsReplaced = operationalLimitsGroupModificationInfos != null && TemporaryLimitModificationType.REPLACED.equals(operationalLimitsGroupModificationInfos.getTemporaryLimitsModificationType());
+        if (currentLimits != null && !areLimitsReplaced) {
             branchTemporaryLimits.addAll(currentLimits.getTemporaryLimits());
         }
         List<ReportNode> temporaryLimitsReports = new ArrayList<>();
-        if (TemporaryLimitModificationType.REPLACED.equals(operationalLimitsGroupModificationInfos.getTemporaryLimitsModificationType())) {
+        if (operationalLimitsGroupModificationInfos != null && TemporaryLimitModificationType.REPLACED.equals(operationalLimitsGroupModificationInfos.getTemporaryLimitsModificationType())) {
             temporaryLimitsReports.add(ReportNode.newRootReportNode()
                     .withAllResourceBundlesFromClasspath()
                     .withMessageTemplate("network.modification.temporaryLimitsReplaced")
