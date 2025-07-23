@@ -21,6 +21,7 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.BRANCH_MODIFICATION_ERROR;
@@ -77,13 +78,13 @@ public abstract class AbstractBranchModification extends AbstractModification {
         if (operationalLimitsInfos1 != null) {
             for (OperationalLimitsGroupModificationInfos operationalLimitsGroupModificationInfos : operationalLimitsInfos1) {
                 OperationalLimitsGroup operationalLimitsGroup1 = branch.getOperationalLimitsGroup1(operationalLimitsGroupModificationInfos.getId()).orElse(null);
-                modifyOperationalLimitsGroup1(branch, operationalLimitsGroupModificationInfos, operationalLimitsGroup1, side1LimitsReports);
+                modifyOperationalLimitsGroup(branch::newOperationalLimitsGroup1, operationalLimitsGroupModificationInfos, operationalLimitsGroup1, side1LimitsReports);
             }
         }
         if (operationalLimitsInfos2 != null) {
             for (OperationalLimitsGroupModificationInfos operationalLimitsGroupModificationInfos : operationalLimitsInfos2) {
                 OperationalLimitsGroup operationalLimitsGroup2 = branch.getOperationalLimitsGroup2(operationalLimitsGroupModificationInfos.getId()).orElse(null);
-                modififyOperationalLimitsGroup2(branch, operationalLimitsGroupModificationInfos, operationalLimitsGroup2, side2LimitsReports);
+                modifyOperationalLimitsGroup(branch::newOperationalLimitsGroup2, operationalLimitsGroupModificationInfos, operationalLimitsGroup2, side2LimitsReports);
             }
         }
 
@@ -207,35 +208,17 @@ public abstract class AbstractBranchModification extends AbstractModification {
         return done;
     }
 
-    protected void modifyOperationalLimitsGroup1(Branch<?> branch, OperationalLimitsGroupModificationInfos operationalLimitsGroupInfos, OperationalLimitsGroup operationalLimitsGroup, List<ReportNode> operationalLimitsGroupReports) {
+    protected void modifyOperationalLimitsGroup(Function<String, OperationalLimitsGroup> groupFactory, OperationalLimitsGroupModificationInfos operationalLimitsGroupInfos, OperationalLimitsGroup operationalLimitsGroup, List<ReportNode> operationalLimitsGroupReports) {
         if (OperationalLimitsGroupModificationType.MODIFIED.equals(operationalLimitsGroupInfos.getModificationType())) {
-            operationalLimitsGroup.getCurrentLimits().ifPresent(currentLimits -> {
-                modifyCurrentLimits(operationalLimitsGroupInfos, operationalLimitsGroupInfos.getCurrentLimits(), operationalLimitsGroup.newCurrentLimits(), currentLimits, operationalLimitsGroupReports);
-            });
+            operationalLimitsGroup.getCurrentLimits().ifPresent(currentLimits -> modifyCurrentLimits(operationalLimitsGroupInfos, operationalLimitsGroupInfos.getCurrentLimits(), operationalLimitsGroup.newCurrentLimits(), currentLimits, operationalLimitsGroupReports));
         } else if (OperationalLimitsGroupModificationType.ADDED.equals(operationalLimitsGroupInfos.getModificationType())) {
-            OperationalLimitsGroup newOperationalLimitsGroup = branch.newOperationalLimitsGroup1(operationalLimitsGroupInfos.getId());
+            OperationalLimitsGroup newOperationalLimitsGroup = groupFactory.apply(operationalLimitsGroupInfos.getId());
             modifyCurrentLimits(operationalLimitsGroupInfos, operationalLimitsGroupInfos.getCurrentLimits(), newOperationalLimitsGroup.newCurrentLimits(), newOperationalLimitsGroup.getCurrentLimits().orElse(null), operationalLimitsGroupReports);
         } else if (OperationalLimitsGroupModificationType.REPLACED.equals(operationalLimitsGroupInfos.getModificationType())) {
             if (operationalLimitsGroup != null) {
                 operationalLimitsGroup.removeCurrentLimits();
             }
-            modifyCurrentLimits(operationalLimitsGroupInfos, operationalLimitsGroupInfos.getCurrentLimits(), branch.newOperationalLimitsGroup1(operationalLimitsGroupInfos.getId()).newCurrentLimits(), null, operationalLimitsGroupReports);
-        }
-    }
-
-    protected void modififyOperationalLimitsGroup2(Branch<?> branch, OperationalLimitsGroupModificationInfos operationalLimitsGroupInfos, OperationalLimitsGroup operationalLimitsGroup, List<ReportNode> operationalLimitsGroupReports) {
-        if (OperationalLimitsGroupModificationType.MODIFIED.equals(operationalLimitsGroupInfos.getModificationType())) {
-            operationalLimitsGroup.getCurrentLimits().ifPresent(currentLimits -> {
-                modifyCurrentLimits(operationalLimitsGroupInfos, operationalLimitsGroupInfos.getCurrentLimits(), operationalLimitsGroup.newCurrentLimits(), currentLimits, operationalLimitsGroupReports);
-            });
-        } else if (OperationalLimitsGroupModificationType.ADDED.equals(operationalLimitsGroupInfos.getModificationType())) {
-            OperationalLimitsGroup newOperationalLimitsGroup = branch.newOperationalLimitsGroup2(operationalLimitsGroupInfos.getId());
-            modifyCurrentLimits(operationalLimitsGroupInfos, operationalLimitsGroupInfos.getCurrentLimits(), newOperationalLimitsGroup.newCurrentLimits(), newOperationalLimitsGroup.getCurrentLimits().orElse(null), operationalLimitsGroupReports);
-        } else if (OperationalLimitsGroupModificationType.REPLACED.equals(operationalLimitsGroupInfos.getModificationType())) {
-            if (operationalLimitsGroup != null) {
-                operationalLimitsGroup.removeCurrentLimits();
-            }
-            modifyCurrentLimits(operationalLimitsGroupInfos, operationalLimitsGroupInfos.getCurrentLimits(), branch.newOperationalLimitsGroup2(operationalLimitsGroupInfos.getId()).newCurrentLimits(), null, operationalLimitsGroupReports);
+            modifyCurrentLimits(operationalLimitsGroupInfos, operationalLimitsGroupInfos.getCurrentLimits(), groupFactory.apply(operationalLimitsGroupInfos.getId()).newCurrentLimits(), null, operationalLimitsGroupReports);
         }
     }
 
