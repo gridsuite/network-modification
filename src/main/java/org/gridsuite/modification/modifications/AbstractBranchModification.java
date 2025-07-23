@@ -205,6 +205,9 @@ public abstract class AbstractBranchModification extends AbstractModification {
 
     protected void modifyOperationalLimitsGroup(OperationalLimitsGroupModificationInfos operationalLimitsGroupInfos, OperationalLimitsGroup operationalLimitsGroup, List<ReportNode> operationalLimitsGroupReports) {
         if (OperationalLimitsGroupModificationType.MODIFIED.equals(operationalLimitsGroupInfos.getModificationType())) {
+            if(operationalLimitsGroup == null) {
+                throw new PowsyblException("Cannot modify provided operational limit group which has not been found in given equipment");
+            }
             operationalLimitsGroup.getCurrentLimits().ifPresent(currentLimits -> modifyCurrentLimits(operationalLimitsGroupInfos, operationalLimitsGroupInfos.getCurrentLimits(), operationalLimitsGroup.newCurrentLimits(), currentLimits, operationalLimitsGroupReports));
         }
     }
