@@ -39,6 +39,7 @@ public class BalancesAdjustmentModificationInfos extends ModificationInfos {
     public static final LoadFlowParameters.BalanceType DEFAULT_BALANCE_TYPE = LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD;
     public static final boolean DEFAULT_WITH_LOAD_FLOW = true;
     public static final boolean DEFAULT_WITH_RATIO_TAP_CHANGERS = false;
+    public static final boolean DEFAULT_SUBTRACT_LOAD_FLOW_BALANCING = false;
 
     List<BalancesAdjustmentAreaInfos> areas;
 
@@ -61,6 +62,9 @@ public class BalancesAdjustmentModificationInfos extends ModificationInfos {
 
     @Builder.Default
     private boolean withRatioTapChangers = DEFAULT_WITH_RATIO_TAP_CHANGERS;
+
+    @Builder.Default
+    private boolean subtractLoadFlowBalancing = DEFAULT_SUBTRACT_LOAD_FLOW_BALANCING;
 
     @Override
     public AbstractModification toModification() {

@@ -35,6 +35,7 @@ class BalancesAdjustmentModificationInfosTest {
         assertEquals(BalancesAdjustmentModificationInfos.DEFAULT_BALANCE_TYPE, infos.getBalanceType());
         assertEquals(BalancesAdjustmentModificationInfos.DEFAULT_WITH_LOAD_FLOW, infos.isWithLoadFlow());
         assertEquals(BalancesAdjustmentModificationInfos.DEFAULT_WITH_RATIO_TAP_CHANGERS, infos.isWithRatioTapChangers());
+        assertEquals(BalancesAdjustmentModificationInfos.DEFAULT_SUBTRACT_LOAD_FLOW_BALANCING, infos.isSubtractLoadFlowBalancing());
         assertEquals(1, infos.getAreas().size());
 
         BalancesAdjustmentAreaInfos areaInfos = infos.getAreas().get(0);
@@ -62,6 +63,7 @@ class BalancesAdjustmentModificationInfosTest {
             .balanceType(LoadFlowParameters.BalanceType.PROPORTIONAL_TO_GENERATION_P)
             .withLoadFlow(true)
             .withRatioTapChangers(true)
+            .subtractLoadFlowBalancing(true)
             .build();
 
         assertEquals(10, infos.getMaxNumberIterations());
@@ -70,6 +72,7 @@ class BalancesAdjustmentModificationInfosTest {
         assertEquals(LoadFlowParameters.BalanceType.PROPORTIONAL_TO_GENERATION_P, infos.getBalanceType());
         assertTrue(infos.isWithLoadFlow());
         assertTrue(infos.isWithRatioTapChangers());
+        assertTrue(infos.isSubtractLoadFlowBalancing());
         assertEquals(1, infos.getAreas().size());
 
         BalancesAdjustmentAreaInfos areaInfos = infos.getAreas().get(0);
