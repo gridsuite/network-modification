@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.BUS_NOT_FOUND;
+import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE1;
+import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE2;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -51,13 +53,13 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
                 .busOrBusbarSectionId1("bus1")
                 .voltageLevelId2("v2")
                 .busOrBusbarSectionId2("bus2")
-                .operationalLimitsGroups1(
+                .operationalLimitsGroups(
                     List.of(
                         OperationalLimitsGroupInfos.builder()
                             .id("limiSet1")
                             .currentLimits(
                                 CurrentLimitsInfos.builder().permanentLimit(-1.0).build()
-                        ).build()
+                        ).applicability(SIDE1).build()
                     )
                 )
                 .selectedOperationalLimitsGroup1("limiSet1")
@@ -88,22 +90,18 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
             .b2(20.0)
             .voltageLevelId1("v1")
             .busOrBusbarSectionId1("bus1")
-            .operationalLimitsGroups1(
+            .operationalLimitsGroups(
                 List.of(
                     OperationalLimitsGroupInfos.builder()
                         .id("limitSet1")
                         .currentLimits(
                             CurrentLimitsInfos.builder().permanentLimit(5.).temporaryLimits(Collections.emptyList()).build()
-                        ).build()
-                )
-            )
-            .operationalLimitsGroups2(
-                List.of(
+                        ).applicability(SIDE1).build(),
                     OperationalLimitsGroupInfos.builder()
                         .id("limitSet2")
                         .currentLimits(
-                                CurrentLimitsInfos.builder().permanentLimit(5.).temporaryLimits(Collections.emptyList()).build()
-                    ).build()
+                            CurrentLimitsInfos.builder().permanentLimit(5.).temporaryLimits(Collections.emptyList()).build()
+                        ).applicability(SIDE2).build()
                 )
             )
             .selectedOperationalLimitsGroup1("limitSet1")
