@@ -78,13 +78,13 @@ public abstract class AbstractBranchModification extends AbstractModification {
         if (operationalLimitsInfos1 != null) {
             for (OperationalLimitsGroupModificationInfos operationalLimitsGroupModificationInfos : operationalLimitsInfos1) {
                 OperationalLimitsGroup operationalLimitsGroup1 = branch.getOperationalLimitsGroup1(operationalLimitsGroupModificationInfos.getId()).orElse(null);
-                modifyOperationalLimitsGroup(branch::newOperationalLimitsGroup1, operationalLimitsGroupModificationInfos, operationalLimitsGroup1, side1LimitsReports);
+                modifyOperationalLimitsGroup(operationalLimitsGroupModificationInfos, operationalLimitsGroup1, side1LimitsReports);
             }
         }
         if (operationalLimitsInfos2 != null) {
             for (OperationalLimitsGroupModificationInfos operationalLimitsGroupModificationInfos : operationalLimitsInfos2) {
                 OperationalLimitsGroup operationalLimitsGroup2 = branch.getOperationalLimitsGroup2(operationalLimitsGroupModificationInfos.getId()).orElse(null);
-                modifyOperationalLimitsGroup(branch::newOperationalLimitsGroup2, operationalLimitsGroupModificationInfos, operationalLimitsGroup2, side2LimitsReports);
+                modifyOperationalLimitsGroup(operationalLimitsGroupModificationInfos, operationalLimitsGroup2, side2LimitsReports);
             }
         }
 
@@ -208,7 +208,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
         return done;
     }
 
-    protected void modifyOperationalLimitsGroup(Function<String, OperationalLimitsGroup> groupFactory, OperationalLimitsGroupModificationInfos operationalLimitsGroupInfos, OperationalLimitsGroup operationalLimitsGroup, List<ReportNode> operationalLimitsGroupReports) {
+    protected void modifyOperationalLimitsGroup(OperationalLimitsGroupModificationInfos operationalLimitsGroupInfos, OperationalLimitsGroup operationalLimitsGroup, List<ReportNode> operationalLimitsGroupReports) {
         if (OperationalLimitsGroupModificationType.MODIFIED.equals(operationalLimitsGroupInfos.getModificationType())) {
             operationalLimitsGroup.getCurrentLimits().ifPresent(currentLimits -> modifyCurrentLimits(operationalLimitsGroupInfos, operationalLimitsGroupInfos.getCurrentLimits(), operationalLimitsGroup.newCurrentLimits(), currentLimits, operationalLimitsGroupReports));
         }
