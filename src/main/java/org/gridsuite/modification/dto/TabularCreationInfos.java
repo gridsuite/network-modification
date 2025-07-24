@@ -34,7 +34,7 @@ import java.util.Map;
 @Schema(description = "Tabular creation")
 @JsonTypeName("TABULAR_CREATION")
 @ModificationErrorTypeName("TABULAR_CREATION_ERROR")
-public class TabularCreationInfos extends ModificationInfos {
+public class TabularCreationInfos extends TabularBaseInfos {
 
     @Schema(description = "Creation type")
     @NonNull
@@ -53,8 +53,7 @@ public class TabularCreationInfos extends ModificationInfos {
         return switch (getCreationType()) {
             case GENERATOR_CREATION -> getCreations().size() > 1 ? "generators" : "generator";
             case LOAD_CREATION -> getCreations().size() > 1 ? "loads" : "load";
-            case SHUNT_COMPENSATOR_CREATION ->
-                    getCreations().size() > 1 ? "shunt compensators" : "shunt compensator";
+            case SHUNT_COMPENSATOR_CREATION -> getCreations().size() > 1 ? "shunt compensators" : "shunt compensator";
             case BATTERY_CREATION -> getCreations().size() > 1 ? "batteries" : "battery";
             default -> "equipments of unknown type";
         };

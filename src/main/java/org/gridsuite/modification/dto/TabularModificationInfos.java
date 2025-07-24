@@ -32,7 +32,7 @@ import java.util.Map;
 @Schema(description = "Tabular modification")
 @JsonTypeName("TABULAR_MODIFICATION")
 @ModificationErrorTypeName("TABULAR_MODIFICATION_ERROR")
-public class TabularModificationInfos extends ModificationInfos {
+public class TabularModificationInfos extends TabularBaseInfos {
 
     @Schema(description = "Modification type")
     @NonNull
