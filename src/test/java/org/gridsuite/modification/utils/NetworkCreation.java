@@ -196,6 +196,21 @@ public final class NetworkCreation {
             .endStep()
             .add();
 
+        t2.newOperationalLimitsGroup1("DEFAULT")
+                .newCurrentLimits()
+                .setPermanentLimit(100.)
+                .beginTemporaryLimit()
+                .setName("name32")
+                .setAcceptableDuration(32)
+                .setValue(15.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("name33")
+                .setAcceptableDuration(33)
+                .setValue(15.0)
+                .endTemporaryLimit()
+                .add();
+
         createSwitch(v1, "v1btrf1", "v1btrf1", SwitchKind.BREAKER, true, false, false, 4, 5);
         createSwitch(v1, "v1dtrf1", "v1dtrf1", SwitchKind.DISCONNECTOR, true, false, false, 5, 0);
         createSwitch(v2, "v2btrf1", "v2btrf1", SwitchKind.BREAKER, true, false, false, 14, 15);
@@ -283,6 +298,22 @@ public final class NetworkCreation {
         createSwitch(v3, "v3bl1", "v3bl1", SwitchKind.BREAKER, true, false, false, 7, 8);
         createSwitch(v4, "v4dl1", "v4dl1", SwitchKind.DISCONNECTOR, true, false, false, 0, 3);
         createSwitch(v4, "v4bl1", "v4bl1", SwitchKind.BREAKER, true, false, false, 3, 4);
+
+        Line l1 = network.getLine("line1");
+        l1.newOperationalLimitsGroup1("DEFAULT")
+                .newCurrentLimits()
+                .setPermanentLimit(100.)
+                .beginTemporaryLimit()
+                .setName("name32")
+                .setAcceptableDuration(32)
+                .setValue(15.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("name33")
+                .setAcceptableDuration(33)
+                .setValue(15.0)
+                .endTemporaryLimit()
+                .add();
 
         createLine(network, "line2", "line2", "v1", "v3", 31, 31, 10.0, 5.0, 3.5, 5.5, 4.5, 6.5, "cn1line2", 2, ConnectablePosition.Direction.TOP, "cn2line2", 2, ConnectablePosition.Direction.TOP);
         createSwitch(v1, "v1dl2", "v1dl2", SwitchKind.DISCONNECTOR, true, false, false, 0, 30);
