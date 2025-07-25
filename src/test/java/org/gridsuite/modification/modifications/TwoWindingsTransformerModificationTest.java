@@ -710,7 +710,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         ratioTapChangerCreation.toModification().apply(getNetwork());
         RatioTapChanger ratioTapChanger = twt3.getRatioTapChanger();
         assertFalse(ratioTapChanger.isRegulating());
-        assertEquals(RatioTapChanger.RegulationMode.REACTIVE_POWER, ratioTapChanger.getRegulationMode());
+        assertNull(ratioTapChanger.getRegulationMode());
 
         TwoWindingsTransformerModificationInfos ratioTapChangerModification = TwoWindingsTransformerModificationInfos.builder()
             .stashed(false)
@@ -778,7 +778,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         RatioTapChanger ratioTapChanger = twt3.getRatioTapChanger();
 
         assertFalse(ratioTapChanger.isRegulating());
-        assertEquals(RatioTapChanger.RegulationMode.REACTIVE_POWER, ratioTapChanger.getRegulationMode());
+        assertNull(ratioTapChanger.getRegulationMode());
 
         TwoWindingsTransformerModificationInfos ratioTapChangerModification = TwoWindingsTransformerModificationInfos.builder()
             .stashed(false)
