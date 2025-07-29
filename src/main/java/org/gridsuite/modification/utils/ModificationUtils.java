@@ -1844,7 +1844,7 @@ public final class ModificationUtils {
     public static List<OperationalLimitsGroupInfos> getOperationalLimitsGroupsOnSide(List<OperationalLimitsGroupInfos> operationalLimitsGroupInfos,
                                                                                OperationalLimitsGroupInfos.Applicability applicability) {
         if (operationalLimitsGroupInfos == null || operationalLimitsGroupInfos.isEmpty()) {
-            return null;
+            return List.of();
         }
         List<OperationalLimitsGroupInfos> operationalLimitsGroupsOnSide = new ArrayList<>();
         for (OperationalLimitsGroupInfos info : operationalLimitsGroupInfos) {

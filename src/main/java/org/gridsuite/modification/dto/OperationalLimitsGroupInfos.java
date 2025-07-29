@@ -30,7 +30,7 @@ public class OperationalLimitsGroupInfos {
     private Applicability applicability;
 
     public enum Applicability {
-        EQUIPMENT,
+        EQUIPMENT, // SIDE1 + SIDE2
         SIDE1,
         SIDE2,
     }
