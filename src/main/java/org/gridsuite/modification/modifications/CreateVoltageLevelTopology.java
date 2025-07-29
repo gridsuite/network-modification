@@ -90,8 +90,9 @@ public class CreateVoltageLevelTopology extends AbstractModification {
         List<BusbarSection> busbarSections = voltageLevel.getNodeBreakerView()
             .getBusbarSectionStream().toList();
         List<BusbarSectionPosition> busbarExtensions = busbarSections.stream()
-            .map(busbarSection -> (BusbarSectionPosition) busbarSection.getExtension(BusbarSectionPosition.class))
+            .map(busbarSection -> busbarSection.getExtension(BusbarSectionPosition.class))
             .filter(Objects::nonNull)
+            .map(BusbarSectionPosition.class::cast)
             .toList();
         if (!busbarSections.isEmpty() && busbarExtensions.isEmpty()) {
             throw new PowsyblException("busbar section position extension are not available, can not create a new busbar section");

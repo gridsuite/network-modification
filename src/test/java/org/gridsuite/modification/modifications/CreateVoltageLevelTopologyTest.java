@@ -28,20 +28,22 @@ class CreateVoltageLevelTopologyTest extends AbstractNetworkModificationTest {
     @Override
     public void checkModification() {
         CreateVoltageLevelTopologyInfos createVoltageLevelTopologyInfos = new CreateVoltageLevelTopologyInfos();
+        AbstractModification modification = createVoltageLevelTopologyInfos.toModification();
+        Network network = getNetwork();
         String message = assertThrows(NetworkModificationException.class,
-            () -> createVoltageLevelTopologyInfos.toModification().check(getNetwork())).getMessage();
+            () -> modification.check(network)).getMessage();
         assertEquals("CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR : Missing required attributes to modify the equipment", message);
 
         createVoltageLevelTopologyInfos.setVoltageLevelId("notFoundVoltageLevel");
         createVoltageLevelTopologyInfos.setSectionCount(3);
         createVoltageLevelTopologyInfos.setSwitchKinds(List.of(SwitchKind.DISCONNECTOR));
         message = assertThrows(NetworkModificationException.class,
-            () -> createVoltageLevelTopologyInfos.toModification().check(getNetwork())).getMessage();
+            () -> modification.check(network)).getMessage();
         assertEquals("CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR : The switch kinds list size must be the section count minus one", message);
 
         createVoltageLevelTopologyInfos.setSectionCount(2);
         message = assertThrows(NetworkModificationException.class,
-            () -> createVoltageLevelTopologyInfos.toModification().check(getNetwork())).getMessage();
+            () -> modification.check(network)).getMessage();
         assertEquals("CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR : " + "voltage level notFoundVoltageLevel is not found", message);
     }
 
