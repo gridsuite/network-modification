@@ -81,6 +81,7 @@ import java.util.concurrent.atomic.AtomicReference;
     @JsonSubTypes.Type(value = CreateCouplingDeviceInfos.class),
     @JsonSubTypes.Type(value = BalancesAdjustmentModificationInfos.class),
     @JsonSubTypes.Type(value = CreateVoltageLevelTopologyInfos.class),
+    @JsonSubTypes.Type(value = LimitSetsTabularModificationInfos.class),
 })
 @SuperBuilder
 @NoArgsConstructor
