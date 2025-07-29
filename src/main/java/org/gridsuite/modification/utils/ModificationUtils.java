@@ -1847,11 +1847,8 @@ public final class ModificationUtils {
             return List.of();
         }
         List<OperationalLimitsGroupInfos> operationalLimitsGroupsOnSide = new ArrayList<>();
-        for (OperationalLimitsGroupInfos info : operationalLimitsGroupInfos) {
-            if (info.getApplicability() == applicability || info.getApplicability() == OperationalLimitsGroupInfos.Applicability.EQUIPMENT) {
-                operationalLimitsGroupsOnSide.add(info);
-            }
-        }
+        operationalLimitsGroupsOnSide = operationalLimitsGroupInfos.stream().filter(info -> info.getApplicability() == applicability
+            || info.getApplicability() == OperationalLimitsGroupInfos.Applicability.EQUIPMENT).toList();
         return operationalLimitsGroupsOnSide;
     }
 }
