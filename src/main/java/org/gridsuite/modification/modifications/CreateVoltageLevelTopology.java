@@ -42,8 +42,8 @@ public class CreateVoltageLevelTopology extends AbstractModification {
             || createVoltageLevelTopologyInfos.getSectionCount() == null) {
             throw new NetworkModificationException(CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR, "Missing required attributes to modify the equipment");
         }
-        if (createVoltageLevelTopologyInfos.getSectionCount() != createVoltageLevelTopologyInfos.getSwitchKinds().size() + 1) {
-            throw new NetworkModificationException(CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR, "The switch kinds list size must be the section count minus one");
+        if (createVoltageLevelTopologyInfos.getSwitchKinds().size() != createVoltageLevelTopologyInfos.getSectionCount() - 1) {
+            throw new NetworkModificationException(CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR, "The switch kinds list must have a size equal to the section count minus one");
         }
         if (network.getVoltageLevel(createVoltageLevelTopologyInfos.getVoltageLevelId()) == null) {
             throw new NetworkModificationException(CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR, "voltage level " +

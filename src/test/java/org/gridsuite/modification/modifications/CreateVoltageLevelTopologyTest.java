@@ -39,7 +39,7 @@ class CreateVoltageLevelTopologyTest extends AbstractNetworkModificationTest {
         createVoltageLevelTopologyInfos.setSwitchKinds(List.of(SwitchKind.DISCONNECTOR));
         message = assertThrows(NetworkModificationException.class,
             () -> modification.check(network)).getMessage();
-        assertEquals("CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR : The switch kinds list size must be the section count minus one", message);
+        assertEquals("CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR : The switch kinds list must have a size equal to the section count minus one", message);
 
         createVoltageLevelTopologyInfos.setSectionCount(2);
         message = assertThrows(NetworkModificationException.class,
