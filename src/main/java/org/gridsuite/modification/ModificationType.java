@@ -60,6 +60,7 @@ public enum ModificationType {
     LCC_MODIFICATION(PreloadingStrategy.NONE),
     VOLTAGE_LEVEL_TOPOLOGY_MODIFICATION(PreloadingStrategy.NONE),
     CREATE_COUPLING_DEVICE(PreloadingStrategy.NONE),
+    CREATE_VOLTAGE_LEVEL_TOPOLOGY(PreloadingStrategy.NONE),
     LIMIT_SETS_TABULAR_MODIFICATION(PreloadingStrategy.COLLECTION);
 
     private final PreloadingStrategy strategy;
