@@ -25,4 +25,13 @@ public class OperationalLimitsGroupInfos {
 
     @Schema(description = "Current limits")
     private CurrentLimitsInfos currentLimits;
+
+    @Schema(description = "application side")
+    private Applicability applicability;
+
+    public enum Applicability {
+        EQUIPMENT, // SIDE1 + SIDE2
+        SIDE1,
+        SIDE2,
+    }
 }
