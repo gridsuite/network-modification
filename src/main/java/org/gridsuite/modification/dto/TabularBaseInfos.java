@@ -30,4 +30,7 @@ public class TabularBaseInfos extends ModificationInfos {
     @Schema(description = "additional properties")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<TabularPropertyInfos> properties;
+
+    @Schema(description = "csv file name")
+    private String csvFilename;
 }
