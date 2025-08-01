@@ -57,17 +57,6 @@ public abstract class AbstractBranchModification extends AbstractModification {
         List<ReportNode> side1LimitsReports = new ArrayList<>();
         List<ReportNode> side2LimitsReports = new ArrayList<>();
 
-        CurrentLimitsModificationInfos currentLimitsInfos1 = modificationInfos.getCurrentLimits1();
-        CurrentLimitsModificationInfos currentLimitsInfos2 = modificationInfos.getCurrentLimits2();
-        CurrentLimits currentLimits1 = branch.getCurrentLimits1().orElse(null);
-        if (currentLimitsInfos1 != null) {
-            modifyCurrentLimits(currentLimitsInfos1, branch.newCurrentLimits1(), currentLimits1, side1LimitsReports);
-        }
-        CurrentLimits currentLimits2 = branch.getCurrentLimits2().orElse(null);
-        if (currentLimitsInfos2 != null) {
-            modifyCurrentLimits(currentLimitsInfos2, branch.newCurrentLimits2(), currentLimits2, side2LimitsReports);
-        }
-
         List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos1 = branchModificationInfos.getOperationalLimitsGroup1();
         List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos2 = branchModificationInfos.getOperationalLimitsGroup2();
         if (operationalLimitsInfos1 != null) {

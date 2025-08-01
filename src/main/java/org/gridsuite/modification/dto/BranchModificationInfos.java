@@ -32,12 +32,6 @@ public class BranchModificationInfos extends BasicEquipmentModificationInfos {
     @Schema(description = "Series reactance")
     private AttributeModification<Double> x;
 
-    @Schema(description = "Current limits Side 1")
-    private CurrentLimitsModificationInfos currentLimits1;
-
-    @Schema(description = "Current limits Side 2")
-    private CurrentLimitsModificationInfos currentLimits2;
-
     @Schema(description = "Operational limits group Side 1")
     private List<OperationalLimitsGroupModificationInfos> operationalLimitsGroup1;
 
