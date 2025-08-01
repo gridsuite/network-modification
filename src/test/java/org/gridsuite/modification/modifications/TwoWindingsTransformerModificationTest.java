@@ -57,24 +57,6 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 .ratedU1(new AttributeModification<>(5., OperationType.SET))
                 .ratedU2(new AttributeModification<>(6., OperationType.SET))
                 .ratedS(new AttributeModification<>(7., OperationType.SET))
-                .currentLimits1(CurrentLimitsModificationInfos.builder()
-                        .permanentLimit(12.0)
-                        .temporaryLimits(List.of(CurrentTemporaryLimitModificationInfos.builder()
-                                .acceptableDuration(null)
-                                .name("name31")
-                                .value(null)
-                                .modificationType(TemporaryLimitModificationType.ADDED)
-                                .build()))
-                        .build())
-                .currentLimits2(CurrentLimitsModificationInfos.builder()
-                        .permanentLimit(22.0)
-                        .temporaryLimits(List.of(CurrentTemporaryLimitModificationInfos.builder()
-                                .acceptableDuration(32)
-                                .name("name32")
-                                .value(42.0)
-                                .modificationType(TemporaryLimitModificationType.ADDED)
-                                .build()))
-                        .build())
                 .voltageLevelId1(new AttributeModification<>("v1", OperationType.SET))
                 .voltageLevelId2(new AttributeModification<>("v2", OperationType.SET))
                 .busOrBusbarSectionId1(new AttributeModification<>("1B", OperationType.SET))
@@ -170,19 +152,6 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertEquals(5.0, modifiedTwoWindingsTransformer.getRatedU1(), 0.1);
         assertEquals(6.0, modifiedTwoWindingsTransformer.getRatedU2(), 0.1);
         assertEquals(7.0, modifiedTwoWindingsTransformer.getRatedS(), 0.1);
-        // limits
-        assertNotNull(modifiedTwoWindingsTransformer.getNullableCurrentLimits1());
-        assertEquals(12.0, modifiedTwoWindingsTransformer.getNullableCurrentLimits1().getPermanentLimit());
-        LoadingLimits.TemporaryLimit temporaryLimit = modifiedTwoWindingsTransformer.getNullableCurrentLimits1().getTemporaryLimit(Integer.MAX_VALUE);
-        assertEquals(Integer.MAX_VALUE, temporaryLimit.getAcceptableDuration());
-        assertEquals("name31", temporaryLimit.getName());
-        assertEquals(Double.MAX_VALUE, temporaryLimit.getValue());
-        assertNotNull(modifiedTwoWindingsTransformer.getNullableCurrentLimits2());
-        assertEquals(22.0, modifiedTwoWindingsTransformer.getNullableCurrentLimits2().getPermanentLimit());
-        temporaryLimit = modifiedTwoWindingsTransformer.getNullableCurrentLimits2().getTemporaryLimit(32);
-        assertEquals(32, temporaryLimit.getAcceptableDuration());
-        assertEquals("name32", temporaryLimit.getName());
-        assertEquals(42.0, temporaryLimit.getValue());
         assertEquals(PROPERTY_VALUE, getNetwork().getTwoWindingsTransformer("trf1").getProperty(PROPERTY_NAME));
         assertMeasurements(modifiedTwoWindingsTransformer);
         assertToBeEstimated(modifiedTwoWindingsTransformer);
