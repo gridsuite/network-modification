@@ -16,28 +16,34 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.VoltageLevelSectionsCreation;
+import org.gridsuite.modification.modifications.CreateVoltageLevelSection;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Etienne Lesot <etienne.lesot at rte-france.com>
+ * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
  */
 @SuperBuilder
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString(callSuper = true)
-@Schema(description = "Voltage Level Sections creation")
-@JsonTypeName("VOLTAGE_LEVEL_BUS_BAR_SECTIONS_CREATION")
-@ModificationErrorTypeName("VOLTAGE_LEVEL_BUS_BAR_SECTIONS_CREATION_ERROR")
-public class VoltageLevelSectionsCreationInfos extends EquipmentCreationInfos {
+@Schema(description = "Create Voltage Level Section")
+@JsonTypeName("CREATE_VOLTAGE_LEVEL_SECTION")
+@ModificationErrorTypeName("CREATE_VOLTAGE_LEVEL_SECTION_ERROR")
+public class CreateVoltageLevelSectionInfos extends ModificationInfos {
     @Schema(description = "VoltageLevelId")
     private String voltageLevelId;
 
-    @Schema(description = "After The Reference BusbarSection")
-    private boolean createTheBusbarSectionsAfterTheReferenceBusbarSection;
+    @Schema(description = "Busbar Count")
+    private int busbarCount;
+
+    @Schema(description = "Section Count")
+    private int sectionCount;
+
+    @Schema(description = "After The Reference BusbarSectionId")
+    private boolean isAfterBusbarSectionId;
 
     @Schema(description = "Left Switch Kind")
     private String leftSwitchKind;
@@ -46,14 +52,14 @@ public class VoltageLevelSectionsCreationInfos extends EquipmentCreationInfos {
     private String rightSwitchKind;
 
     @Schema(description = "All Busbars")
-    private boolean allBusbars;
+    private boolean isAllBusbars;
 
     @Schema(description = "Reference BusbarSectionId")
-    private String referenceBusbarSectionId;
+    private String busbarSectionId;
 
     @Override
     public AbstractModification toModification() {
-        return new VoltageLevelSectionsCreation(this);
+        return new CreateVoltageLevelSection(this);
     }
 
     @Override

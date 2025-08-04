@@ -133,7 +133,7 @@ public class NetworkModificationException extends PowsyblException {
         MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),
         CREATE_COUPLING_DEVICE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),
         CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),
-        VOLTAGE_LEVEL_BUS_BAR_SECTIONS_CREATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR);
+        CREATE_VOLTAGE_LEVEL_SECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR);
 
         public final HttpStatus status;
         private final String message;
