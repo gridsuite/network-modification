@@ -65,10 +65,10 @@ public class CreateVoltageLevelSection extends AbstractModification {
                 .withSwitchPrefixId(voltageLevel.getId())
                 .withBusbarSectionPrefixId(voltageLevel.getId())
                 .build();
-        modification.apply(network);
+        modification.apply(network, false, subReportNode);
 
         subReportNode.newReportNode()
-                .withMessageTemplate("network.modification.voltageLevel.sections.created")
+                .withMessageTemplate("network.modification.voltageLevel.section.created")
                 .withUntypedValue("voltageLevelId", modificationInfos.getVoltageLevelId())
                 .add();
     }
