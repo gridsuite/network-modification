@@ -57,6 +57,9 @@ public class CreateVoltageLevelSectionInfos extends ModificationInfos {
     @Schema(description = "Reference BusbarSectionId")
     private String busbarSectionId;
 
+    @Schema(description = "Switch Open")
+    private boolean isSwitchOpen;
+
     @Override
     public AbstractModification toModification() {
         return new CreateVoltageLevelSection(this);
