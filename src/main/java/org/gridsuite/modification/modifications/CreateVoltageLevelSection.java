@@ -8,6 +8,7 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.CreateVoltageLevelSections;
 import com.powsybl.iidm.modification.topology.CreateVoltageLevelSectionsBuilder;
 import com.powsybl.iidm.network.BusbarSection;
@@ -66,10 +67,12 @@ public class CreateVoltageLevelSection extends AbstractModification {
                 .withBusbarSectionPrefixId(voltageLevel.getId())
                 .build();
         modification.apply(network, true, subReportNode);
-
         subReportNode.newReportNode()
-                .withMessageTemplate("network.modification.voltageLevel.section.created")
-                .withUntypedValue("voltageLevelId", modificationInfos.getVoltageLevelId())
+                .withMessageTemplate("network.modification.voltageLevel.sectionCreation")
+                .withUntypedValue("busbarIndex", modificationInfos.getBusbarCount())
+                .withUntypedValue("newSectionIndex", modificationInfos.isAfterBusbarSectionId() ?
+                        modificationInfos.getSectionCount() + 1 : modificationInfos.getSectionCount() - 1)
+                .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
 
