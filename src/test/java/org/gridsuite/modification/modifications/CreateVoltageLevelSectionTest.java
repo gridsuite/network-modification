@@ -7,16 +7,19 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.CreateVoltageLevelSectionInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -88,8 +91,20 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
     @Override
     protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
         assertEquals("CREATE_VOLTAGE_LEVEL_SECTION", modificationInfos.getMessageType());
-        Map<String, String> updatedValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
-        });
+        Map<String, String> updatedValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
         assertEquals("v1", updatedValues.get("voltageLevelId"));
+    }
+
+    @Test
+    void testCreateSubReportNode() {
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test")
+                .build();
+
+        CreateVoltageLevelSectionInfos modification = (CreateVoltageLevelSectionInfos) buildModification();
+
+        modification.createSubReportNode(reportNode);
+        assertLogMessage("Adding busbar section on v1", "network.modification.voltageLevel.section.created", reportNode);
     }
 }
