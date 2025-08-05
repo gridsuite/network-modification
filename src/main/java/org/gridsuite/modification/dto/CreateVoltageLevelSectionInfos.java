@@ -68,7 +68,7 @@ public class CreateVoltageLevelSectionInfos extends ModificationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.voltageLevel.sections.creation")
+                .withMessageTemplate("network.modification.voltageLevel.section.created")
                 .withUntypedValue("voltageLevelId", getVoltageLevelId())
                 .add();
     }
