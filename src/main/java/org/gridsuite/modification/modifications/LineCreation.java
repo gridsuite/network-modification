@@ -57,14 +57,15 @@ public class LineCreation extends AbstractModification {
         VoltageLevel voltageLevel1 = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId1());
         VoltageLevel voltageLevel2 = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId2());
 
+        ReportNode characteristicsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.Characteristics").add();
         if (voltageLevel1.getTopologyKind() == TopologyKind.NODE_BREAKER &&
                 voltageLevel2.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             LineAdder lineAdder = ModificationUtils.getInstance().createLineAdder(network, voltageLevel1, voltageLevel2, modificationInfos, false, false);
-            createBranchInNodeBreaker(voltageLevel1, voltageLevel2, modificationInfos, network, lineAdder, subReportNode);
+            createBranchInNodeBreaker(voltageLevel1, voltageLevel2, modificationInfos, network, lineAdder, characteristicsReporter);
         } else {
-            addLine(network, voltageLevel1, voltageLevel2, modificationInfos, true, true, subReportNode);
+            addLine(network, voltageLevel1, voltageLevel2, modificationInfos, true, true, characteristicsReporter);
         }
-        ModificationUtils.getInstance().disconnectBranch(modificationInfos, network.getLine(modificationInfos.getEquipmentId()), subReportNode);
+        ModificationUtils.getInstance().disconnectBranch(modificationInfos, network.getLine(modificationInfos.getEquipmentId()), characteristicsReporter);
         Line line = network.getLine(modificationInfos.getEquipmentId());
 
         // Set permanent and temporary current limits
@@ -100,7 +101,7 @@ public class LineCreation extends AbstractModification {
             ModificationUtils.getInstance().reportModifications(limitsReporter, limitSetsOnSideReportNodes,
                 "network.modification.ActiveLimitSets");
         }
-        PropertiesUtils.applyProperties(line, subReportNode, modificationInfos.getProperties(), "network.modification.LineProperties");
+        PropertiesUtils.applyProperties(line, characteristicsReporter, modificationInfos.getProperties(), "network.modification.LineProperties");
     }
 
     @Override

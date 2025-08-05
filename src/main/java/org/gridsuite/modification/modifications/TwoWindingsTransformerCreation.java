@@ -266,11 +266,14 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
                                                         TwoWindingsTransformer twoWindingsTransformer,
                                                         TwoWindingsTransformerCreationInfos modificationInfos,
                                                         ReportNode subReportNode) {
+
+        ReportNode characteristicsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.Characteristics").add();
+
         // Connectivity
-        reportBranchCreationConnectivity(modificationInfos, subReportNode);
+        reportBranchCreationConnectivity(modificationInfos, characteristicsReporter);
 
         // properties
-        PropertiesUtils.applyProperties(twoWindingsTransformer, subReportNode, modificationInfos.getProperties(), "network.modification.TwoWindingsTransformerProperties");
+        PropertiesUtils.applyProperties(twoWindingsTransformer, characteristicsReporter, modificationInfos.getProperties(), "network.modification.TwoWindingsTransformerProperties");
 
         // Set permanent and temporary current limits
         ReportNode limitsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.limitsCreated").add();
@@ -285,6 +288,6 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
                 "network.modification.ActiveLimitSets");
         }
         // tap changer
-        addTapChangersToTwoWindingsTransformer(network, modificationInfos, twoWindingsTransformer, subReportNode);
+        addTapChangersToTwoWindingsTransformer(network, modificationInfos, twoWindingsTransformer, characteristicsReporter);
     }
 }
