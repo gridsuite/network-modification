@@ -74,6 +74,7 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
             .creationType(ModificationType.LOAD_CREATION)
             .creations(creations)
             .stashed(false)
+            .csvFilename("filename")
             .build();
     }
 
