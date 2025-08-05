@@ -17,6 +17,7 @@ import org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.powsybl.iidm.network.TwoSides.ONE;
@@ -67,30 +68,37 @@ public class LineCreation extends AbstractModification {
         Line line = network.getLine(modificationInfos.getEquipmentId());
 
         // Set permanent and temporary current limits
+        ReportNode limitsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.limitsCreated").add();
         List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE1);
         List<OperationalLimitsGroupInfos> opLimitsGroupSide2 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE2);
         if (!CollectionUtils.isEmpty(opLimitsGroupSide1)) {
-            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide1, line, ONE, subReportNode);
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide1, line, ONE, limitsReporter);
         }
         if (!CollectionUtils.isEmpty(opLimitsGroupSide2)) {
-            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide2, line, TWO, subReportNode);
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide2, line, TWO, limitsReporter);
         }
         // properties
+        List<ReportNode> limitSetsOnSideReportNodes = new ArrayList<>();
         if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
             line.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroup1());
-            subReportNode.newReportNode()
+            limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
                     .withMessageTemplate("network.modification.limitSetSelectedOnSide1")
                     .withUntypedValue("selectedOperationalLimitsGroup1", modificationInfos.getSelectedOperationalLimitsGroup1())
                     .withSeverity(TypedValue.INFO_SEVERITY)
-                    .add();
+                    .build());
         }
         if (modificationInfos.getSelectedOperationalLimitsGroup2() != null) {
             line.setSelectedOperationalLimitsGroup2(modificationInfos.getSelectedOperationalLimitsGroup2());
-            subReportNode.newReportNode()
+            limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
                     .withMessageTemplate("network.modification.limitSetSelectedOnSide2")
                     .withUntypedValue("selectedOperationalLimitsGroup2", modificationInfos.getSelectedOperationalLimitsGroup2())
                     .withSeverity(TypedValue.INFO_SEVERITY)
-                    .add();
+                    .build());
+        }
+
+        if (!limitSetsOnSideReportNodes.isEmpty()) {
+            ModificationUtils.getInstance().reportModifications(limitsReporter, limitSetsOnSideReportNodes,
+                "network.modification.ActiveLimitSets");
         }
         PropertiesUtils.applyProperties(line, subReportNode, modificationInfos.getProperties(), "network.modification.LineProperties");
     }
