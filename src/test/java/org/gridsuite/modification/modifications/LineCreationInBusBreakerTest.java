@@ -68,6 +68,14 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
         assertEquals("AC Line 'idLine2': permanent limit must be >= 0", exception.getMessage());
     }
 
+    @Test
+    void testApplySelectedLimitsGroupsNotExist() throws Exception {
+        ModificationInfos modification = buildModificationWithInvalidSelectedLimitGroups();
+        modification.toModification().apply(getNetwork());
+        assertEquals("", getNetwork().getLine("idLine1").getSelectedOperationalLimitsGroupId1().orElse(""));
+        assertEquals("", getNetwork().getLine("idLine1").getSelectedOperationalLimitsGroupId2().orElse(""));
+    }
+
     @Override
     protected Network createNetwork(UUID networkUuid) {
         return NetworkCreation.createBusBreaker(networkUuid);
@@ -75,6 +83,9 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
 
     @Override
     protected ModificationInfos buildModification() {
+        return buildModification("limitSet1", "limitSet2");
+    }
+    private ModificationInfos buildModification(String selectedLimitGroups1, String selectedLimitGroups2) {
         // create new line in voltage levels with node/breaker topology
         // between voltage level "v1" and busbar section "bus1" and
         //         voltage level "v2" and busbar section "bus2"
@@ -104,12 +115,16 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
                         ).applicability(SIDE2).build()
                 )
             )
-            .selectedOperationalLimitsGroup1("limitSet1")
-            .selectedOperationalLimitsGroup2("limitSet2")
+            .selectedOperationalLimitsGroup1(selectedLimitGroups1)
+            .selectedOperationalLimitsGroup2(selectedLimitGroups2)
             .voltageLevelId2("v2")
             .busOrBusbarSectionId2("bus2")
             .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
             .build();
+    }
+
+    private ModificationInfos buildModificationWithInvalidSelectedLimitGroups() {
+        return buildModification("invalid1", "invalid2");
     }
 
     @Override

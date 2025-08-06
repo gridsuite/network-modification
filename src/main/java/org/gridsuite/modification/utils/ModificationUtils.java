@@ -1851,8 +1851,8 @@ public final class ModificationUtils {
     }
 
     public static boolean hasLimitSet(List<OperationalLimitsGroupInfos> operationalLimitsGroupInfos, String limitSet) {
-        return operationalLimitsGroupInfos.stream().filter(
-            info -> info.getId().equals(limitSet)).findFirst().isPresent();
+        return operationalLimitsGroupInfos.stream().anyMatch(
+            info -> Objects.equals(info.getId(), limitSet));
     }
 }
 
