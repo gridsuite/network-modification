@@ -57,18 +57,19 @@ public abstract class AbstractBranchModification extends AbstractModification {
         List<ReportNode> side1LimitsReports = new ArrayList<>();
         List<ReportNode> side2LimitsReports = new ArrayList<>();
 
-        List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos1 = branchModificationInfos.getOperationalLimitsGroup1();
-        List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos2 = branchModificationInfos.getOperationalLimitsGroup2();
-        if (operationalLimitsInfos1 != null) {
-            for (OperationalLimitsGroupModificationInfos operationalLimitsGroupModificationInfos : operationalLimitsInfos1) {
-                OperationalLimitsGroup operationalLimitsGroup1 = branch.getOperationalLimitsGroup1(operationalLimitsGroupModificationInfos.getId()).orElse(null);
-                modifyOperationalLimitsGroup(operationalLimitsGroupModificationInfos, operationalLimitsGroup1, side1LimitsReports);
-            }
-        }
-        if (operationalLimitsInfos2 != null) {
-            for (OperationalLimitsGroupModificationInfos operationalLimitsGroupModificationInfos : operationalLimitsInfos2) {
-                OperationalLimitsGroup operationalLimitsGroup2 = branch.getOperationalLimitsGroup2(operationalLimitsGroupModificationInfos.getId()).orElse(null);
-                modifyOperationalLimitsGroup(operationalLimitsGroupModificationInfos, operationalLimitsGroup2, side2LimitsReports);
+        List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos = branchModificationInfos.getOperationalLimitsGroups();
+        if (operationalLimitsInfos != null) {
+            for (OperationalLimitsGroupModificationInfos operationalLimitsGroupModificationInfos : operationalLimitsInfos) {
+                if (operationalLimitsGroupModificationInfos.getApplicability() == OperationalLimitsGroupInfos.Applicability.SIDE1
+                    || operationalLimitsGroupModificationInfos.getApplicability() == OperationalLimitsGroupInfos.Applicability.EQUIPMENT) {
+                    OperationalLimitsGroup operationalLimitsGroup1 = branch.getOperationalLimitsGroup1(operationalLimitsGroupModificationInfos.getId()).orElse(null);
+                    modifyOperationalLimitsGroup(operationalLimitsGroupModificationInfos, operationalLimitsGroup1, side1LimitsReports);
+                }
+                if (operationalLimitsGroupModificationInfos.getApplicability() == OperationalLimitsGroupInfos.Applicability.SIDE2
+                        || operationalLimitsGroupModificationInfos.getApplicability() == OperationalLimitsGroupInfos.Applicability.EQUIPMENT) {
+                    OperationalLimitsGroup operationalLimitsGroup2 = branch.getOperationalLimitsGroup2(operationalLimitsGroupModificationInfos.getId()).orElse(null);
+                    modifyOperationalLimitsGroup(operationalLimitsGroupModificationInfos, operationalLimitsGroup2, side2LimitsReports);
+                }
             }
         }
 

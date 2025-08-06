@@ -32,11 +32,8 @@ public class BranchModificationInfos extends BasicEquipmentModificationInfos {
     @Schema(description = "Series reactance")
     private AttributeModification<Double> x;
 
-    @Schema(description = "Operational limits group Side 1")
-    private List<OperationalLimitsGroupModificationInfos> operationalLimitsGroup1;
-
-    @Schema(description = "Operational limits group Side 2")
-    private List<OperationalLimitsGroupModificationInfos> operationalLimitsGroup2;
+    @Schema(description = "Operational limit groups on side 1 and 2")
+    private List<OperationalLimitsGroupModificationInfos> operationalLimitsGroups;
 
     @Schema(description = "Voltage level id modification 1")
     private AttributeModification<String> voltageLevelId1;

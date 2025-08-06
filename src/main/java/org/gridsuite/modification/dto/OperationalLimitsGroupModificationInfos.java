@@ -36,6 +36,6 @@ public class OperationalLimitsGroupModificationInfos {
     @Schema(description = "temporary limits modification type")
     private TemporaryLimitModificationType temporaryLimitsModificationType;
 
-    @Schema(description = "operation group side")
-    private String side;
+    @Schema(description = "application side")
+    private OperationalLimitsGroupInfos.Applicability applicability;
 }

@@ -35,9 +35,11 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         return LimitSetsTabularModificationInfos.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1").operationalLimitsGroup1(List.of(OperationalLimitsGroupModificationInfos.builder()
+                        LineModificationInfos.builder().equipmentId("line1").operationalLimitsGroups(
+                                List.of(
+                                        OperationalLimitsGroupModificationInfos.builder()
                                         .id("DEFAULT")
-                                        .side("ONE")
+                                        .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
                                         .modificationType(OperationalLimitsGroupModificationType.MODIFIED)
                                         .temporaryLimitsModificationType(TemporaryLimitModificationType.REPLACED)
                                         .currentLimits(CurrentLimitsModificationInfos.builder()
@@ -49,11 +51,10 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                                 .value(10.)
                                                                 .build()
                                                 )).build())
-                                        .build()))
-                                .build(),
-                        LineModificationInfos.builder().equipmentId("line1").operationalLimitsGroup1(List.of(OperationalLimitsGroupModificationInfos.builder()
+                                        .build(),
+                                OperationalLimitsGroupModificationInfos.builder()
                                         .id("DEFAULT")
-                                        .side("ONE")
+                                        .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
                                         .modificationType(OperationalLimitsGroupModificationType.MODIFIED)
                                         .temporaryLimitsModificationType(TemporaryLimitModificationType.ADDED)
                                         .currentLimits(CurrentLimitsModificationInfos.builder()
