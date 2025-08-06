@@ -48,6 +48,8 @@ public abstract class AbstractBranchModification extends AbstractModification {
             branch.setName(branchModificationInfos.getEquipmentName().getValue());
         }
 
+        modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide1(modificationInfos, branch, subReportNode);
+        modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide2(modificationInfos, branch, subReportNode);
         modifyBranchConnectivityAttributes(branchModificationInfos, branch, subReportNode);
 
         if (characteristicsModified(branchModificationInfos)) {
@@ -351,6 +353,26 @@ public abstract class AbstractBranchModification extends AbstractModification {
         ConnectablePosition<?> connectablePosition = (ConnectablePosition<?>) branch.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<?> connectablePositionAdder = branch.newExtension(ConnectablePositionAdder.class);
         return ModificationUtils.getInstance().modifyBranchConnectivityAttributes(connectablePosition, connectablePositionAdder, branch, branchModificationInfos, subReportNode);
+    }
+
+    private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide1(BranchModificationInfos modificationInfos,
+                                                                           Branch<?> branch, ReportNode subReportNode) {
+        ModificationUtils.getInstance().modifyVoltageLevelBusOrBusBarSectionAttributes(
+                (Connectable<?>) branch, branch.getTerminal1(),
+                modificationInfos.getVoltageLevelId1(),
+                modificationInfos.getBusOrBusbarSectionId1(),
+                subReportNode
+        );
+    }
+
+    private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide2(BranchModificationInfos modificationInfos,
+                                                                           Branch<?> branch, ReportNode subReportNode) {
+        ModificationUtils.getInstance().modifyVoltageLevelBusOrBusBarSectionAttributes(
+                (Connectable<?>) branch, branch.getTerminal2(),
+                modificationInfos.getVoltageLevelId2(),
+                modificationInfos.getBusOrBusbarSectionId2(),
+                subReportNode
+        );
     }
 
     public static void modifySelectedOperationalLimitsGroup(Branch<?> branch, AttributeModification<String> modifOperationalLimitsGroup,

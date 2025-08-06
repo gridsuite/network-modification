@@ -1840,5 +1840,55 @@ public final class ModificationUtils {
                 String.format("missing limit set %s applicable on side %d : equipment ignored", limitsGroupIdToSet, side));
         }
     }
+
+    private boolean isNotModificationVoltageLevelBusOrBusBarInfos(AttributeModification<String> voltageLevelId,
+                                                                 AttributeModification<String> busOrBusbarSectionId) {
+        return voltageLevelId == null && busOrBusbarSectionId == null;
+    }
+
+    public void modifyVoltageLevelBusOrBusBarSectionAttributes(Connectable<?> connectable, Terminal terminal,
+                                                               AttributeModification<String> voltageLevelId,
+                                                               AttributeModification<String> busOrBusbarSectionId,
+                                                               ReportNode subReportNode) {
+        if (isNotModificationVoltageLevelBusOrBusBarInfos(voltageLevelId, busOrBusbarSectionId)) {
+            return;
+        }
+
+        Network network = connectable.getNetwork();
+
+        String finalVoltageLevelId = voltageLevelId.getValue() != null ?
+                voltageLevelId.getValue() :
+                network.getVoltageLevel(terminal.getVoltageLevel().getId()).getId();
+
+        String finalBusOrBusbarSectionId = busOrBusbarSectionId != null ?
+                busOrBusbarSectionId.getValue() :
+                ModificationUtils.getInstance().getBusOrBusbarSection(terminal);
+
+        new MoveFeederBayBuilder().withConnectableId(connectable.getId())
+                .withTargetVoltageLevelId(finalVoltageLevelId)
+                .withTerminal(terminal)
+                .withTargetBusOrBusBarSectionId(finalBusOrBusbarSectionId)
+                .build().apply(network, true, subReportNode);
+    }
+
+    public void checkVoltageLevelModification(Network network,
+                                               AttributeModification<String> voltageLevelId,
+                                               AttributeModification<String> busOrBusbarSectionId,
+                                               Terminal terminal) {
+        Terminal targetTerminal = Objects.requireNonNull(terminal);
+        if (checkAttributeModificationValue(voltageLevelId) && checkAttributeModificationValue(busOrBusbarSectionId)) {
+            ModificationUtils.getInstance().controlBus(ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId.getValue()), busOrBusbarSectionId.getValue());
+        } else if (!checkAttributeModificationValue(voltageLevelId) && checkAttributeModificationValue(busOrBusbarSectionId)) {
+            ModificationUtils.getInstance().controlBus(targetTerminal.getVoltageLevel(), busOrBusbarSectionId.getValue());
+        } else if (checkAttributeModificationValue(voltageLevelId) && !checkAttributeModificationValue(busOrBusbarSectionId)) {
+            ModificationUtils.getInstance().controlBus(ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId.getValue()),
+                    getBusbarSectionId(targetTerminal)
+            );
+        }
+    }
+
+    private boolean checkAttributeModificationValue(AttributeModification<String> attribute) {
+        return attribute != null && attribute.getValue() != null;
+    }
 }
 
