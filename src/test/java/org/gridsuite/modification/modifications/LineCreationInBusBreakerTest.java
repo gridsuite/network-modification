@@ -85,6 +85,7 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
     protected ModificationInfos buildModification() {
         return buildModification("limitSet1", "limitSet2");
     }
+
     private ModificationInfos buildModification(String selectedLimitGroups1, String selectedLimitGroups2) {
         // create new line in voltage levels with node/breaker topology
         // between voltage level "v1" and busbar section "bus1" and
