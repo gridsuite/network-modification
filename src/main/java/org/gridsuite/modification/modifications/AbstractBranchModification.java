@@ -11,15 +11,12 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BRANCH_MODIFICATION_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
 /**
@@ -90,8 +87,6 @@ public abstract class AbstractBranchModification extends AbstractModification {
             ModificationUtils.getInstance().reportModifications(limitsReportNode, side1LimitsReports, "network.modification.side1LimitsModification");
             ModificationUtils.getInstance().reportModifications(limitsReportNode, side2LimitsReports, "network.modification.side2LimitsModification");
         }
-
-        updateConnections(branch, branchModificationInfos);
     }
 
     public ReportNode updateMeasurements(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode) {
@@ -167,42 +162,6 @@ public abstract class AbstractBranchModification extends AbstractModification {
 
     private Measurement getExistingMeasurement(Measurements<?> measurements, Measurement.Type type, ThreeSides side) {
         return measurements.getMeasurements(type).stream().filter(m -> m.getSide() == side).findFirst().orElse(null);
-    }
-
-    private void updateConnections(Branch<?> branch, BranchModificationInfos branchModificationInfos) {
-        List<TwoSides> errorSides = new ArrayList<>();
-        List<String> errorTypes = new ArrayList<>();
-        if (branchModificationInfos.getTerminal1Connected() != null && !updateConnection(branch, TwoSides.ONE, modificationInfos.getTerminal1Connected().getValue())) {
-            errorSides.add(TwoSides.ONE);
-            errorTypes.add(Boolean.TRUE.equals(modificationInfos.getTerminal1Connected().getValue()) ? "connect" : "disconnect");
-        }
-        if (branchModificationInfos.getTerminal2Connected() != null && !updateConnection(branch, TwoSides.TWO, modificationInfos.getTerminal2Connected().getValue())) {
-            errorSides.add(TwoSides.TWO);
-            errorTypes.add(Boolean.TRUE.equals(modificationInfos.getTerminal2Connected().getValue()) ? "connect" : "disconnect");
-        }
-        if (!errorSides.isEmpty()) {
-            throw new NetworkModificationException(BRANCH_MODIFICATION_ERROR,
-                String.format("Could not %s equipment '%s' on side %s",
-                    errorTypes.stream().distinct().collect(Collectors.joining("/")),
-                    branch.getId(),
-                    errorSides.stream().map(Enum::toString).collect(Collectors.joining("/"))));
-        }
-    }
-
-    private boolean updateConnection(Branch<?> branch, TwoSides side, Boolean connectionChange) {
-        boolean done = true;
-        if (branch.getTerminal(side).isConnected() && Boolean.FALSE.equals(connectionChange)) {
-            branch.getTerminal(side).disconnect();
-            if (branch.getTerminal(side).isConnected()) {
-                done = false;
-            }
-        } else if (!branch.getTerminal(side).isConnected() && Boolean.TRUE.equals(connectionChange)) {
-            branch.getTerminal(side).connect();
-            if (!branch.getTerminal(side).isConnected()) {
-                done = false;
-            }
-        }
-        return done;
     }
 
     protected void modifyOperationalLimitsGroup(OperationalLimitsGroupModificationInfos operationalLimitsGroupInfos, OperationalLimitsGroup operationalLimitsGroup, List<ReportNode> operationalLimitsGroupReports) {
