@@ -283,7 +283,7 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
     }
 
     @Test
-    void testApplySelectedLimitsGroupsNotExist() throws Exception {
+    void testApplySelectedLimitsGroupsNotExist() {
         ModificationInfos modification = buildModificationWithInvalidSelectedLimitGroups();
         modification.toModification().apply(getNetwork());
         assertEquals("", getNetwork().getTwoWindingsTransformer("new2wt").getSelectedOperationalLimitsGroupId1().orElse(""));

@@ -69,7 +69,7 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void testApplySelectedLimitsGroupsNotExist() throws Exception {
+    void testApplySelectedLimitsGroupsNotExist() {
         ModificationInfos modification = buildModificationWithInvalidSelectedLimitGroups();
         modification.toModification().apply(getNetwork());
         assertEquals("", getNetwork().getLine("idLine1").getSelectedOperationalLimitsGroupId1().orElse(""));
