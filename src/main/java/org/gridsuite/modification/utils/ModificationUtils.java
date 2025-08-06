@@ -1849,5 +1849,10 @@ public final class ModificationUtils {
         return operationalLimitsGroupInfos.stream().filter(info -> info.getApplicability() == applicability
             || info.getApplicability() == OperationalLimitsGroupInfos.Applicability.EQUIPMENT).toList();
     }
+
+    public static boolean hasLimitSet(List<OperationalLimitsGroupInfos> operationalLimitsGroupInfos, String limitSet) {
+        return operationalLimitsGroupInfos.stream().filter(
+            info -> info.getId().equals(limitSet)).findFirst().isPresent();
+    }
 }
 

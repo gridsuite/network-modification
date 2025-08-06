@@ -245,6 +245,15 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
             getInstance().setCurrentLimitsOnASide(operationalLimitsGroups, transformer, side, limitsReporter);
         }
         if (selectedGroup != null) {
+            if (!ModificationUtils.hasLimitSet(operationalLimitsGroups, selectedGroup)) {
+                limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
+                    .withMessageTemplate("network.modification.limitSetAbsentOnSide" + side.getNum())
+                    .withUntypedValue("selectedOperationalLimitsGroup", selectedGroup)
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build());
+                return;
+            }
+
             if (side == TwoSides.ONE) {
                 transformer.setSelectedOperationalLimitsGroup1(selectedGroup);
                 limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode().withMessageTemplate("network.modification.limitSetSelectedOnSide1")

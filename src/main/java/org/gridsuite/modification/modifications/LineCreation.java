@@ -81,20 +81,36 @@ public class LineCreation extends AbstractModification {
         // properties
         List<ReportNode> limitSetsOnSideReportNodes = new ArrayList<>();
         if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
-            line.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroup1());
-            limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
+            if (!ModificationUtils.hasLimitSet(opLimitsGroupSide1, modificationInfos.getSelectedOperationalLimitsGroup1())) {
+                limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
+                    .withMessageTemplate("network.modification.limitSetAbsentOnSide1")
+                    .withUntypedValue("selectedOperationalLimitsGroup", modificationInfos.getSelectedOperationalLimitsGroup1())
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build());
+            } else {
+                line.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroup1());
+                limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
                     .withMessageTemplate("network.modification.limitSetSelectedOnSide1")
                     .withUntypedValue("selectedOperationalLimitsGroup1", modificationInfos.getSelectedOperationalLimitsGroup1())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .build());
+            }
         }
         if (modificationInfos.getSelectedOperationalLimitsGroup2() != null) {
-            line.setSelectedOperationalLimitsGroup2(modificationInfos.getSelectedOperationalLimitsGroup2());
-            limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
+            if (!ModificationUtils.hasLimitSet(opLimitsGroupSide2, modificationInfos.getSelectedOperationalLimitsGroup2())) {
+                limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
+                    .withMessageTemplate("network.modification.limitSetAbsentOnSide2")
+                    .withUntypedValue("selectedOperationalLimitsGroup", modificationInfos.getSelectedOperationalLimitsGroup2())
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build());
+            } else {
+                line.setSelectedOperationalLimitsGroup2(modificationInfos.getSelectedOperationalLimitsGroup2());
+                limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
                     .withMessageTemplate("network.modification.limitSetSelectedOnSide2")
                     .withUntypedValue("selectedOperationalLimitsGroup2", modificationInfos.getSelectedOperationalLimitsGroup2())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .build());
+            }
         }
 
         if (!limitSetsOnSideReportNodes.isEmpty()) {
