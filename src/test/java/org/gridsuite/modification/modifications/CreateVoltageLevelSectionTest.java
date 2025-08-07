@@ -51,10 +51,10 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
 
         assertEquals("CREATE_VOLTAGE_LEVEL_SECTION", modification.getName());
         String message = assertThrows(NetworkModificationException.class, () -> modification.check(network)).getMessage();
-        assertEquals("BUSBAR_SECTION_NOT_DEFINED", message);
+        assertEquals("BUSBAR_SECTION_NOT_FOUND", message);
 
         message = assertThrows(NetworkModificationException.class, () -> modification.check(network)).getMessage();
-        assertEquals("BUSBAR_SECTION_NOT_DEFINED", message);
+        assertEquals("BUSBAR_SECTION_NOT_FOUND", message);
 
         voltageLevelSectionInfos.setVoltageLevelId("notFoundVoltageLevel");
         voltageLevelSectionInfos.setBusbarSectionId("bbs1");
