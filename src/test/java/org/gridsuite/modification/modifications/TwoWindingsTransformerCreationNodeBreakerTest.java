@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE1;
+import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE2;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -36,6 +38,14 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
 
     @Override
     protected ModificationInfos buildModification() {
+        return buildModification(null, null);
+    }
+
+    private ModificationInfos buildModificationWithInvalidSelectedLimitGroups() {
+        return buildModification("invalid1", "invalid2");
+    }
+
+    protected ModificationInfos buildModification(String selectedLimitGroups1, String selectedLimitGroups2) {
         return TwoWindingsTransformerCreationInfos.builder()
                 .stashed(false)
                 .equipmentId("new2wt")
@@ -53,21 +63,17 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
                 .voltageLevelId2("v2")
                 .busOrBusbarSectionId2("1A")
                 .connected2(true)
-                .operationalLimitsGroups1(
+                .operationalLimitsGroups(
                     List.of(
                         OperationalLimitsGroupInfos.builder()
                             .currentLimits(
                                     CurrentLimitsInfos.builder().permanentLimit(3.).temporaryLimits(List.of(CurrentTemporaryLimitCreationInfos.builder().name("IT5").acceptableDuration(2147483647).value(671.).build())).build()
-                            ).build()
-                    )
-                )
-                .operationalLimitsGroups2(
-                    List.of(
+                            ).applicability(SIDE1).build(),
                         OperationalLimitsGroupInfos.builder()
                             .currentLimits(
                                 CurrentLimitsInfos.builder().permanentLimit(2.).temporaryLimits(List.of(CurrentTemporaryLimitCreationInfos.builder().name("IT10").acceptableDuration(683647).value(791.).build())).build()
-                            ).build()
-                        )
+                            ).applicability(SIDE2).build()
+                    )
                 )
                 .connectionName1("cn201")
                 .connectionDirection1(ConnectablePosition.Direction.TOP)
@@ -155,6 +161,8 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
                                         .build()
                         ))
                         .build())
+            .selectedOperationalLimitsGroup1(selectedLimitGroups1)
+            .selectedOperationalLimitsGroup1(selectedLimitGroups2)
                 .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
                 .build();
     }
@@ -233,7 +241,7 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
                 .build();
         testCreateTwoWindingsTransformerInNodeBreaker(twoWindingsTransformerCreationInfos2);
         assertEquals(
-            "TwoWindingsTransformerCreationInfos(super=BranchCreationInfos(super=EquipmentCreationInfos(super=EquipmentModificationInfos(super=ModificationInfos(uuid=null, type=TWO_WINDINGS_TRANSFORMER_CREATION, date=null, stashed=false, messageType=null, messageValues=null, activated=true), equipmentId=id2wt1WithRatioTapChanger2, properties=null), equipmentName=2wtName), r=400.0, x=300.0, voltageLevelId1=v1, voltageLevelId2=v4, busOrBusbarSectionId1=1.1, busOrBusbarSectionId2=1.A, operationalLimitsGroups1=null, operationalLimitsGroups2=null, selectedOperationalLimitsGroup1=null, selectedOperationalLimitsGroup2=null, connectionName1=null, connectionDirection1=TOP, connectionName2=null, connectionDirection2=TOP, connectionPosition1=null, connectionPosition2=null, connected1=true, connected2=true), g=100.0, b=200.0, ratedU1=1000.0, ratedU2=1010.0, ratedS=null, ratioTapChanger=RatioTapChangerCreationInfos(super=TapChangerCreationInfos(lowTapPosition=0, tapPosition=1, regulating=true, targetDeadband=null, regulatingTerminalId=v1load, regulatingTerminalType=LOAD, regulatingTerminalVlId=v1, steps=[TapChangerStepCreationInfos(index=0, rho=1.0, r=39.78473, x=39.784725, g=0.0, b=0.0, alpha=0.0), TapChangerStepCreationInfos(index=0, rho=1.0, r=39.78474, x=39.784726, g=0.0, b=0.0, alpha=0.0), TapChangerStepCreationInfos(index=0, rho=1.0, r=39.78475, x=39.784727, g=0.0, b=0.0, alpha=0.0)], loadTapChangingCapabilities=true), targetV=220.0), phaseTapChanger=null)",
+            "TwoWindingsTransformerCreationInfos(super=BranchCreationInfos(super=EquipmentCreationInfos(super=EquipmentModificationInfos(super=ModificationInfos(uuid=null, type=TWO_WINDINGS_TRANSFORMER_CREATION, date=null, stashed=false, messageType=null, messageValues=null, activated=true), equipmentId=id2wt1WithRatioTapChanger2, properties=null), equipmentName=2wtName), r=400.0, x=300.0, voltageLevelId1=v1, voltageLevelId2=v4, busOrBusbarSectionId1=1.1, busOrBusbarSectionId2=1.A, operationalLimitsGroups=null, selectedOperationalLimitsGroup1=null, selectedOperationalLimitsGroup2=null, connectionName1=null, connectionDirection1=TOP, connectionName2=null, connectionDirection2=TOP, connectionPosition1=null, connectionPosition2=null, connected1=true, connected2=true), g=100.0, b=200.0, ratedU1=1000.0, ratedU2=1010.0, ratedS=null, ratioTapChanger=RatioTapChangerCreationInfos(super=TapChangerCreationInfos(lowTapPosition=0, tapPosition=1, regulating=true, targetDeadband=null, regulatingTerminalId=v1load, regulatingTerminalType=LOAD, regulatingTerminalVlId=v1, steps=[TapChangerStepCreationInfos(index=0, rho=1.0, r=39.78473, x=39.784725, g=0.0, b=0.0, alpha=0.0), TapChangerStepCreationInfos(index=0, rho=1.0, r=39.78474, x=39.784726, g=0.0, b=0.0, alpha=0.0), TapChangerStepCreationInfos(index=0, rho=1.0, r=39.78475, x=39.784727, g=0.0, b=0.0, alpha=0.0)], loadTapChangingCapabilities=true), targetV=220.0), phaseTapChanger=null)",
             twoWindingsTransformerCreationInfos2.toString()
         );
 
@@ -272,6 +280,14 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
                 .build();
         testCreateTwoWindingsTransformerInNodeBreaker(twoWindingsTransformerCreationInfos3);
 
+    }
+
+    @Test
+    void testApplySelectedLimitsGroupsNotExist() {
+        ModificationInfos modification = buildModificationWithInvalidSelectedLimitGroups();
+        modification.toModification().apply(getNetwork());
+        assertEquals("", getNetwork().getTwoWindingsTransformer("new2wt").getSelectedOperationalLimitsGroupId1().orElse(""));
+        assertEquals("", getNetwork().getTwoWindingsTransformer("new2wt").getSelectedOperationalLimitsGroupId2().orElse(""));
     }
 
     @Test

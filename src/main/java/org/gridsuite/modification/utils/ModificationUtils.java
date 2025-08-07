@@ -1840,5 +1840,19 @@ public final class ModificationUtils {
                 String.format("missing limit set %s applicable on side %d : equipment ignored", limitsGroupIdToSet, side));
         }
     }
+
+    public static List<OperationalLimitsGroupInfos> getOperationalLimitsGroupsOnSide(List<OperationalLimitsGroupInfos> operationalLimitsGroupInfos,
+                                                                               OperationalLimitsGroupInfos.Applicability applicability) {
+        if (operationalLimitsGroupInfos == null || operationalLimitsGroupInfos.isEmpty()) {
+            return List.of();
+        }
+        return operationalLimitsGroupInfos.stream().filter(info -> info.getApplicability() == applicability
+            || info.getApplicability() == OperationalLimitsGroupInfos.Applicability.EQUIPMENT).toList();
+    }
+
+    public static boolean hasLimitSet(List<OperationalLimitsGroupInfos> operationalLimitsGroupInfos, String limitSet) {
+        return operationalLimitsGroupInfos.stream().anyMatch(
+            info -> Objects.equals(info.getId(), limitSet));
+    }
 }
 
