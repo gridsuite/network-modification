@@ -845,7 +845,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
     }
 
     @Test
-    void testMoveFeederBay() throws Exception {
+    void testMoveFeederBay() {
         TwoWindingsTransformerModificationInfos transformerModificationInfos = (TwoWindingsTransformerModificationInfos) buildModification();
         // Change busbar section only on terminal 2
         transformerModificationInfos.setBusOrBusbarSectionId2(new AttributeModification<>("1A", OperationType.SET));

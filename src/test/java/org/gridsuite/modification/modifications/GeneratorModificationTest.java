@@ -277,7 +277,7 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
     }
 
     @Test
-    void testMoveFeederBay() throws Exception {
+    void testMoveFeederBay() {
         GeneratorModificationInfos generatorModificationInfos = (GeneratorModificationInfos) buildModification();
         // Change only busbar section
         generatorModificationInfos.setBusOrBusbarSectionId(new AttributeModification<>("1A", OperationType.SET));
