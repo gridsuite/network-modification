@@ -44,12 +44,12 @@ public class CreateVoltageLevelSection extends AbstractModification {
             throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, modificationInfos.getBusbarSectionId());
         }
         if (bbs.getExtension(BusbarSectionPosition.class) == null) {
-            throw new PowsyblException("busbar section position extension are not available, can not create a new busbar section");
+            throw new PowsyblException("not available on these busbar section");
         }
         var busbarIndex = bbs.getExtension(BusbarSectionPosition.class).getBusbarIndex();
         var sectionIndex = bbs.getExtension(BusbarSectionPosition.class).getSectionIndex();
         if (busbarIndex != modificationInfos.getBusbarCount() || sectionIndex != modificationInfos.getSectionCount()) {
-            throw new NetworkModificationException(BUSBAR_SECTION_NOT_DEFINED);
+            throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND);
         }
     }
 
@@ -60,7 +60,7 @@ public class CreateVoltageLevelSection extends AbstractModification {
         CreateVoltageLevelSections modification = new CreateVoltageLevelSectionsBuilder()
                 .withReferenceBusbarSectionId(busbarSection.getId())
                 .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(modificationInfos.isAfterBusbarSectionId())
-                .withAllBusbars(modificationInfos.isAllBusbars())
+                .withAllBusbars(false)
                 .withLeftSwitchKind(modificationInfos.getLeftSwitchKind() != null ? SwitchKind.valueOf(modificationInfos.getLeftSwitchKind()) : null)
                 .withRightSwitchKind(modificationInfos.getRightSwitchKind() != null ? SwitchKind.valueOf(modificationInfos.getRightSwitchKind()) : null)
                 .withSwitchPrefixId(voltageLevel.getId())
