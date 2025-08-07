@@ -1857,7 +1857,9 @@ public final class ModificationUtils {
 
     private boolean isNotModificationVoltageLevelBusOrBusBarInfos(AttributeModification<String> voltageLevelId,
                                                                  AttributeModification<String> busOrBusbarSectionId) {
-        return voltageLevelId == null && busOrBusbarSectionId == null;
+        return Optional.ofNullable(voltageLevelId).isEmpty() && Optional.ofNullable(busOrBusbarSectionId).isEmpty()
+                || Optional.ofNullable(voltageLevelId).map(AttributeModification::getValue).isEmpty() &&
+                Optional.ofNullable(busOrBusbarSectionId).map(AttributeModification::getValue).isEmpty();
     }
 
     public void modifyVoltageLevelBusOrBusBarSectionAttributes(Connectable<?> connectable, Terminal terminal,
