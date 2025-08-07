@@ -1841,6 +1841,20 @@ public final class ModificationUtils {
         }
     }
 
+    public static List<OperationalLimitsGroupInfos> getOperationalLimitsGroupsOnSide(List<OperationalLimitsGroupInfos> operationalLimitsGroupInfos,
+                                                                               OperationalLimitsGroupInfos.Applicability applicability) {
+        if (operationalLimitsGroupInfos == null || operationalLimitsGroupInfos.isEmpty()) {
+            return List.of();
+        }
+        return operationalLimitsGroupInfos.stream().filter(info -> info.getApplicability() == applicability
+            || info.getApplicability() == OperationalLimitsGroupInfos.Applicability.EQUIPMENT).toList();
+    }
+
+    public static boolean hasLimitSet(List<OperationalLimitsGroupInfos> operationalLimitsGroupInfos, String limitSet) {
+        return operationalLimitsGroupInfos.stream().anyMatch(
+            info -> Objects.equals(info.getId(), limitSet));
+    }
+
     private boolean isNotModificationVoltageLevelBusOrBusBarInfos(AttributeModification<String> voltageLevelId,
                                                                  AttributeModification<String> busOrBusbarSectionId) {
         return voltageLevelId == null && busOrBusbarSectionId == null;

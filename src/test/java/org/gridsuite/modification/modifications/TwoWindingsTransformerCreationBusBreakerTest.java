@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.BUS_NOT_FOUND;
+import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -52,9 +53,9 @@ class TwoWindingsTransformerCreationBusBreakerTest extends AbstractNetworkModifi
                 .voltageLevelId2("v12")
                 .busOrBusbarSectionId2("bus12")
                 .connected2(true)
-                .operationalLimitsGroups1(
+                .operationalLimitsGroups(
                     List.of(
-                        OperationalLimitsGroupInfos.builder()
+                        builder()
                             .id("limitSet1")
                             .currentLimits(
                                     CurrentLimitsInfos.builder()
@@ -62,20 +63,16 @@ class TwoWindingsTransformerCreationBusBreakerTest extends AbstractNetworkModifi
                             .temporaryLimits(
                                     List.of(CurrentTemporaryLimitCreationInfos.builder().name("IT5").acceptableDuration(98647).value(45.).build())
                             ).build()
-                        ).build()
-                    )
-                )
-                .operationalLimitsGroups2(
-                    List.of(
-                        OperationalLimitsGroupInfos.builder()
+                        ).applicability(Applicability.SIDE1).build(),
+                        builder()
                             .id("limitSet2")
                             .currentLimits(
-                                    CurrentLimitsInfos.builder()
-                            .permanentLimit(2.)
-                            .temporaryLimits(
-                                    List.of(CurrentTemporaryLimitCreationInfos.builder().name("IT10").acceptableDuration(683647).value(791.).build())
-                            ).build())
-                        .build()
+                                CurrentLimitsInfos.builder()
+                                    .permanentLimit(2.)
+                                    .temporaryLimits(
+                                        List.of(CurrentTemporaryLimitCreationInfos.builder().name("IT10").acceptableDuration(683647).value(791.).build())
+                                    ).build()).applicability(Applicability.SIDE2)
+                            .build()
                     )
                 )
                 .selectedOperationalLimitsGroup1("limitSet1")
