@@ -48,6 +48,8 @@ public abstract class AbstractBranchModification extends AbstractModification {
             branch.setName(branchModificationInfos.getEquipmentName().getValue());
         }
 
+        modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide1(modificationInfos, branch, subReportNode);
+        modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide2(modificationInfos, branch, subReportNode);
         modifyBranchConnectivityAttributes(branchModificationInfos, branch, subReportNode);
 
         if (characteristicsModified(branchModificationInfos)) {
@@ -88,7 +90,6 @@ public abstract class AbstractBranchModification extends AbstractModification {
             ModificationUtils.getInstance().reportModifications(limitsReportNode, side1LimitsReports, "network.modification.side1LimitsModification");
             ModificationUtils.getInstance().reportModifications(limitsReportNode, side2LimitsReports, "network.modification.side2LimitsModification");
         }
-
         updateConnections(branch, branchModificationInfos);
     }
 
@@ -180,10 +181,10 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
         if (!errorSides.isEmpty()) {
             throw new NetworkModificationException(BRANCH_MODIFICATION_ERROR,
-                String.format("Could not %s equipment '%s' on side %s",
-                    errorTypes.stream().distinct().collect(Collectors.joining("/")),
-                    branch.getId(),
-                    errorSides.stream().map(Enum::toString).collect(Collectors.joining("/"))));
+                    String.format("Could not %s equipment '%s' on side %s",
+                            errorTypes.stream().distinct().collect(Collectors.joining("/")),
+                            branch.getId(),
+                            errorSides.stream().map(Enum::toString).collect(Collectors.joining("/"))));
         }
     }
 
@@ -351,6 +352,26 @@ public abstract class AbstractBranchModification extends AbstractModification {
         ConnectablePosition<?> connectablePosition = (ConnectablePosition<?>) branch.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<?> connectablePositionAdder = branch.newExtension(ConnectablePositionAdder.class);
         return ModificationUtils.getInstance().modifyBranchConnectivityAttributes(connectablePosition, connectablePositionAdder, branch, branchModificationInfos, subReportNode);
+    }
+
+    private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide1(BranchModificationInfos modificationInfos,
+                                                                           Branch<?> branch, ReportNode subReportNode) {
+        ModificationUtils.getInstance().modifyVoltageLevelBusOrBusBarSectionAttributes(
+                (Connectable<?>) branch, branch.getTerminal1(),
+                modificationInfos.getVoltageLevelId1(),
+                modificationInfos.getBusOrBusbarSectionId1(),
+                subReportNode
+        );
+    }
+
+    private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide2(BranchModificationInfos modificationInfos,
+                                                                           Branch<?> branch, ReportNode subReportNode) {
+        ModificationUtils.getInstance().modifyVoltageLevelBusOrBusBarSectionAttributes(
+                (Connectable<?>) branch, branch.getTerminal2(),
+                modificationInfos.getVoltageLevelId2(),
+                modificationInfos.getBusOrBusbarSectionId2(),
+                subReportNode
+        );
     }
 
     public static void modifySelectedOperationalLimitsGroup(Branch<?> branch, AttributeModification<String> modifOperationalLimitsGroup,

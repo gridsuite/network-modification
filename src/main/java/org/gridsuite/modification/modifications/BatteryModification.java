@@ -47,6 +47,8 @@ public class BatteryModification extends AbstractModification {
         }
         Battery battery = ModificationUtils.getInstance().getBattery(network, modificationInfos.getEquipmentId());
         String errorMessage = "Battery '" + modificationInfos.getEquipmentId() + "' : ";
+        ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId(),
+                modificationInfos.getBusOrBusbarSectionId(), battery.getTerminal());
         ModificationUtils.getInstance().checkReactiveLimit(battery, modificationInfos.getMinQ(), modificationInfos.getMaxQ(),
                 modificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_BATTERY_ERROR, errorMessage);
         checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(modificationInfos, battery, MODIFY_BATTERY_ERROR, errorMessage);
@@ -90,7 +92,7 @@ public class BatteryModification extends AbstractModification {
         if (modificationInfos.getEquipmentName() != null && modificationInfos.getEquipmentName().getValue() != null) {
             ModificationUtils.getInstance().applyElementaryModifications(battery::setName, () -> battery.getOptionalName().orElse("No value"), modificationInfos.getEquipmentName(), subReportNode, "Name");
         }
-
+        modifyBatteryVoltageLevelBusOrBusBarSectionAttributes(modificationInfos, battery, subReportNode);
         modifyBatteryLimitsAttributes(modificationInfos, battery, subReportNode);
         modifyBatterySetpointsAttributes(
                 modificationInfos.getTargetP(), modificationInfos.getTargetQ(),
@@ -119,6 +121,16 @@ public class BatteryModification extends AbstractModification {
             }
         }
         modifyBatteryActivePowerControlAttributes(participate, droop, battery, subReportNode, subReporterSetpoints);
+    }
+
+    private void modifyBatteryVoltageLevelBusOrBusBarSectionAttributes(BatteryModificationInfos modificationInfos,
+                                                                       Battery battery, ReportNode subReportNode) {
+        ModificationUtils.getInstance().modifyVoltageLevelBusOrBusBarSectionAttributes(
+                battery, battery.getTerminal(),
+                modificationInfos.getVoltageLevelId(),
+                modificationInfos.getBusOrBusbarSectionId(),
+                subReportNode
+        );
     }
 
     private void modifyBatteryLimitsAttributes(BatteryModificationInfos modificationInfos,
