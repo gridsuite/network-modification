@@ -38,6 +38,14 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
 
     @Override
     protected ModificationInfos buildModification() {
+        return buildModification(null, null);
+    }
+
+    private ModificationInfos buildModificationWithInvalidSelectedLimitGroups() {
+        return buildModification("invalid1", "invalid2");
+    }
+
+    protected ModificationInfos buildModification(String selectedLimitGroups1, String selectedLimitGroups2) {
         return TwoWindingsTransformerCreationInfos.builder()
                 .stashed(false)
                 .equipmentId("new2wt")
@@ -153,6 +161,8 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
                                         .build()
                         ))
                         .build())
+            .selectedOperationalLimitsGroup1(selectedLimitGroups1)
+            .selectedOperationalLimitsGroup1(selectedLimitGroups2)
                 .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
                 .build();
     }
@@ -270,6 +280,14 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
                 .build();
         testCreateTwoWindingsTransformerInNodeBreaker(twoWindingsTransformerCreationInfos3);
 
+    }
+
+    @Test
+    void testApplySelectedLimitsGroupsNotExist() {
+        ModificationInfos modification = buildModificationWithInvalidSelectedLimitGroups();
+        modification.toModification().apply(getNetwork());
+        assertEquals("", getNetwork().getTwoWindingsTransformer("new2wt").getSelectedOperationalLimitsGroupId1().orElse(""));
+        assertEquals("", getNetwork().getTwoWindingsTransformer("new2wt").getSelectedOperationalLimitsGroupId2().orElse(""));
     }
 
     @Test

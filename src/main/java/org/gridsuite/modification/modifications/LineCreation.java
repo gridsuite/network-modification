@@ -111,6 +111,7 @@ public class LineCreation extends AbstractModification {
                     .build());
             }
         }
+
         if (!limitSetsOnSideReportNodes.isEmpty()) {
             ModificationUtils.getInstance().reportModifications(limitsReporter, limitSetsOnSideReportNodes,
                 "network.modification.ActiveLimitSets");
