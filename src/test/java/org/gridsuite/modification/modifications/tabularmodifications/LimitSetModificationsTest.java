@@ -21,7 +21,6 @@ import java.util.UUID;
 
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessageWithoutRank;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Hugo Marcellin <hugo.marcelin at rte-france.com>
