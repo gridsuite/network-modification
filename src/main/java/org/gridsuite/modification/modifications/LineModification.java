@@ -42,6 +42,10 @@ public class LineModification extends AbstractBranchModification {
         if (line == null) {
             throw new NetworkModificationException(LINE_NOT_FOUND, errorMessage + "does not exist in network");
         }
+        ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId1(),
+                modificationInfos.getBusOrBusbarSectionId1(), line.getTerminal1());
+        ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId2(),
+                modificationInfos.getBusOrBusbarSectionId2(), line.getTerminal2());
         LineModificationInfos lineModificationInfos = (LineModificationInfos) modificationInfos;
         if (lineModificationInfos.getR() != null) {
             checkIsNotNegativeValue(errorMessage, lineModificationInfos.getR().getValue(), MODIFY_LINE_ERROR, "Resistance R");

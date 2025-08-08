@@ -46,7 +46,8 @@ public class ShuntCompensatorModification extends AbstractModification {
             throw new NetworkModificationException(SHUNT_COMPENSATOR_NOT_FOUND,
                     String.format("Shunt compensator %s does not exist in network", modificationInfos.getEquipmentId()));
         }
-
+        ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId(),
+                modificationInfos.getBusOrBusbarSectionId(), shuntCompensator.getTerminal());
         int maximumSectionCount = modificationInfos.getMaximumSectionCount() != null
                 ? modificationInfos.getMaximumSectionCount().getValue()
                 : shuntCompensator.getMaximumSectionCount();
@@ -80,6 +81,7 @@ public class ShuntCompensatorModification extends AbstractModification {
         if (shuntCompensator.getModelType() == ShuntCompensatorModelType.LINEAR) {
             applyModificationOnLinearModel(subReportNode, shuntCompensator, voltageLevel);
         }
+        modifyShuntCompensatorVoltageLevelBusOrBusBarSectionAttributes(modificationInfos, shuntCompensator, subReportNode);
         modifyShuntCompensatorConnectivityAttributes(modificationInfos, shuntCompensator, subReportNode);
         PropertiesUtils.applyProperties(shuntCompensator, subReportNode, modificationInfos.getProperties(), "network.modification.ShuntCompensatorProperties");
     }
@@ -228,6 +230,16 @@ public class ShuntCompensatorModification extends AbstractModification {
             double newSwitchedOnQAtNominalV = oldQAtNominalV * sectionCount;
             reports.add(ModificationUtils.getInstance().buildModificationReport(oldSwitchedOnQAtNominalV, newSwitchedOnQAtNominalV, SWITCHED_ON_Q_AT_NOMINALV_LOG_MESSAGE));
         }
+    }
+
+    private void modifyShuntCompensatorVoltageLevelBusOrBusBarSectionAttributes(ShuntCompensatorModificationInfos modificationInfos,
+                                                                                ShuntCompensator shuntCompensator, ReportNode subReportNode) {
+        ModificationUtils.getInstance().modifyVoltageLevelBusOrBusBarSectionAttributes(
+                shuntCompensator, shuntCompensator.getTerminal(),
+                modificationInfos.getVoltageLevelId(),
+                modificationInfos.getBusOrBusbarSectionId(),
+                subReportNode
+        );
     }
 
     private ReportNode modifyShuntCompensatorConnectivityAttributes(ShuntCompensatorModificationInfos modificationInfos,

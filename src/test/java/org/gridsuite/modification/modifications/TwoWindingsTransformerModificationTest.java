@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimated;
+import com.powsybl.math.graph.TraversalType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
@@ -60,8 +61,8 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 .ratedS(new AttributeModification<>(7., OperationType.SET))
                 .voltageLevelId1(new AttributeModification<>("v1", OperationType.SET))
                 .voltageLevelId2(new AttributeModification<>("v2", OperationType.SET))
-                .busOrBusbarSectionId1(new AttributeModification<>("1B", OperationType.SET))
-                .busOrBusbarSectionId2(new AttributeModification<>("2B", OperationType.SET))
+                .busOrBusbarSectionId1(new AttributeModification<>("1.1", OperationType.SET))
+                .busOrBusbarSectionId2(new AttributeModification<>("1B", OperationType.SET))
                 .connectionName1(new AttributeModification<>("trf1", OperationType.SET))
                 .connectionName2(new AttributeModification<>("trf1", OperationType.SET))
                 .connectionDirection1(new AttributeModification<>(ConnectablePosition.Direction.TOP, OperationType.SET))
@@ -823,6 +824,26 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 ))
                 .build())
             .build();
+    }
+
+    @Test
+    void testMoveFeederBay() {
+        TwoWindingsTransformerModificationInfos transformerModificationInfos = (TwoWindingsTransformerModificationInfos) buildModification();
+        // Change busbar section only on terminal 2
+        transformerModificationInfos.setBusOrBusbarSectionId2(new AttributeModification<>("1A", OperationType.SET));
+
+        transformerModificationInfos.toModification().apply(getNetwork());
+        TwoWindingsTransformer twoWindingsTransformer = getNetwork().getTwoWindingsTransformer("trf1");
+        Terminal terminal1 = twoWindingsTransformer.getTerminal1();
+        Terminal terminal2 = twoWindingsTransformer.getTerminal2();
+        assertEquals("v1", twoWindingsTransformer.getTerminal1().getVoltageLevel().getId());
+        assertEquals("v2", terminal2.getVoltageLevel().getId());
+        BusbarSectionFinderTraverser connectedBusbarSectionFinder1 = new BusbarSectionFinderTraverser(terminal1.isConnected());
+        terminal1.traverse(connectedBusbarSectionFinder1, TraversalType.BREADTH_FIRST);
+        assertEquals("1.1", connectedBusbarSectionFinder1.getFirstTraversedBbsId());
+        BusbarSectionFinderTraverser connectedBusbarSectionFinder2 = new BusbarSectionFinderTraverser(terminal2.isConnected());
+        terminal2.traverse(connectedBusbarSectionFinder2, TraversalType.BREADTH_FIRST);
+        assertEquals("1A", connectedBusbarSectionFinder2.getFirstTraversedBbsId());
     }
 }
 
