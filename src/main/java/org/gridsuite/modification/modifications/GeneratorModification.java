@@ -47,6 +47,8 @@ public class GeneratorModification extends AbstractModification {
         Generator generator = ModificationUtils.getInstance().getGenerator(network, modificationInfos.getEquipmentId());
         // check min max reactive limits
         String errorMessage = "Generator '" + modificationInfos.getEquipmentId() + "' : ";
+        ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId(),
+                modificationInfos.getBusOrBusbarSectionId(), generator.getTerminal());
         ModificationUtils.getInstance().checkReactiveLimit(generator, modificationInfos.getMinQ(), modificationInfos.getMaxQ(),
                 modificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_GENERATOR_ERROR, errorMessage);
         // check regulated terminal
@@ -108,12 +110,12 @@ public class GeneratorModification extends AbstractModification {
             ModificationUtils.getInstance().applyElementaryModifications(generator::setName, () -> generator.getOptionalName().orElse("No value"), modificationInfos.getEquipmentName(), subReportNode, "Name");
         }
         ModificationUtils.getInstance().applyElementaryModifications(generator::setEnergySource, generator::getEnergySource, modificationInfos.getEnergySource(), subReportNode, "Energy source");
-
+        modifyGeneratorVoltageLevelBusOrBusBarSectionAttributes(modificationInfos, generator, subReportNode);
+        modifyGeneratorConnectivityAttributes(modificationInfos, generator, subReportNode);
         modifyGeneratorLimitsAttributes(modificationInfos, generator, subReportNode);
         modifyGeneratorSetpointsAttributes(modificationInfos, generator, subReportNode);
         modifyGeneratorShortCircuitAttributes(modificationInfos.getDirectTransX(), modificationInfos.getStepUpTransformerX(), generator, subReportNode);
         modifyGeneratorStartUpAttributes(modificationInfos, generator, subReportNode);
-        modifyGeneratorConnectivityAttributes(modificationInfos, generator, subReportNode);
         PropertiesUtils.applyProperties(generator, subReportNode, modificationInfos.getProperties(), "network.modification.GeneratorProperties");
     }
 
@@ -498,6 +500,16 @@ public class GeneratorModification extends AbstractModification {
                 generator,
                 subReportNode);
         modifyGeneratorReactiveLimitsAttributes(modificationInfos, generator, subReportNode, subReportNodeLimits);
+    }
+
+    private void modifyGeneratorVoltageLevelBusOrBusBarSectionAttributes(GeneratorModificationInfos modificationInfos,
+                                                                       Generator generator, ReportNode subReportNode) {
+        ModificationUtils.getInstance().modifyVoltageLevelBusOrBusBarSectionAttributes(
+                generator, generator.getTerminal(),
+                modificationInfos.getVoltageLevelId(),
+                modificationInfos.getBusOrBusbarSectionId(),
+                subReportNode
+        );
     }
 
     private ReportNode modifyGeneratorConnectivityAttributes(GeneratorModificationInfos modificationInfos,
