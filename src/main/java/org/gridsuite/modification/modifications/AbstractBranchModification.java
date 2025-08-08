@@ -89,6 +89,8 @@ public abstract class AbstractBranchModification extends AbstractModification {
         if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
             String newSelectedOpLG1 = modificationInfos.getSelectedOperationalLimitsGroup1().getValue();
             // no need to control is there is no change or an unset (empty string) change
+            // TODO that test doesn't seems to be enough : maybe it doens't take into account the newly created opLG
+            // BUT modifyOperationalLimitsGroup doesn't seem to handle limits groups creation so maybe this is the only reason
             if (StringUtils.hasText(newSelectedOpLG1) && branch.getOperationalLimitsGroup1(newSelectedOpLG1).isEmpty()) {
                 side1LimitsReports.add(ReportNode.newRootReportNode()
                         .withMessageTemplate("network.modification.limitSetAbsentOnSide1")
@@ -234,12 +236,24 @@ public abstract class AbstractBranchModification extends AbstractModification {
         return done;
     }
 
-    protected void modifyOperationalLimitsGroup(OperationalLimitsGroupModificationInfos operationalLimitsGroupInfos, OperationalLimitsGroup operationalLimitsGroup, List<ReportNode> operationalLimitsGroupReports) {
+    protected void modifyOperationalLimitsGroup(
+            OperationalLimitsGroupModificationInfos operationalLimitsGroupInfos,
+            OperationalLimitsGroup operationalLimitsGroup,
+            List<ReportNode> operationalLimitsGroupReports) {
+        // TODO : pourquoi seulement OperationalLimitsGroupModificationType.MODIFIED ?? et la création de limits groups ?
         if (OperationalLimitsGroupModificationType.MODIFIED.equals(operationalLimitsGroupInfos.getModificationType())) {
             if (operationalLimitsGroup == null) {
                 throw new PowsyblException("Cannot modify provided operational limit group which has not been found in given equipment");
             }
-            operationalLimitsGroup.getCurrentLimits().ifPresent(currentLimits -> modifyCurrentLimits(operationalLimitsGroupInfos, operationalLimitsGroupInfos.getCurrentLimits(), operationalLimitsGroup.newCurrentLimits(), currentLimits, operationalLimitsGroupReports));
+            operationalLimitsGroup.getCurrentLimits().ifPresent(
+                    currentLimits -> modifyCurrentLimits(
+                            operationalLimitsGroupInfos,
+                            operationalLimitsGroupInfos.getCurrentLimits(),
+                            operationalLimitsGroup.newCurrentLimits(),
+                            currentLimits,
+                            operationalLimitsGroupReports
+                    )
+            );
         }
     }
 

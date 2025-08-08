@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.ADDED;
 import static org.gridsuite.modification.modifications.TwoWindingsTransformerModification.processPhaseTapRegulation;
 import static org.gridsuite.modification.utils.NetworkUtil.createTwoWindingsTransformer;
 import static org.junit.jupiter.api.Assertions.*;
@@ -133,6 +134,18 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                         ))
                     .build())
                 .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+                .operationalLimitsGroups(List.of(
+                        OperationalLimitsGroupModificationInfos.builder()
+                                .id("ETE")
+                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                .modificationType(ADDED)
+                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                        .permanentLimit(800.0)
+                                        .build()
+                                        )
+                                .build()))
+                .selectedOperationalLimitsGroup1(new AttributeModification<>("DEFAULT", OperationType.SET))
+                .selectedOperationalLimitsGroup2(new AttributeModification<>("DEFAULT", OperationType.SET))
                 .build();
     }
 
