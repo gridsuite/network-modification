@@ -280,11 +280,6 @@ public abstract class AbstractBranchModification extends AbstractModification {
                     throw new PowsyblException("2 temporary limits have the same duration " + limitAcceptableDuration);
                 }
 
-                if (limitToModify == null && limit.getModificationType() == TemporaryLimitModificationType.MODIFY) {
-                    throw new PowsyblException("No existing temporary limit found with acceptableDuration = "
-                            + limitAcceptableDuration + " matching is based on acceptableDuration if that helps");
-                }
-
                 //Additional check for limit sets tabular modifications
                 if (operationalLimitsGroupModificationInfos != null && TemporaryLimitModificationType.ADD.equals(operationalLimitsGroupModificationInfos.getTemporaryLimitsModificationType())) {
                     currentLimits.getTemporaryLimits().stream().filter(temporaryLimit -> temporaryLimit.getName().equals(limit.getName())).findFirst().ifPresent(temporaryLimit -> {
@@ -330,6 +325,9 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 } else {
                     limitValue = limitToModify.getValue();
                 }
+            } else if (limit.getModificationType() == TemporaryLimitModificationType.MODIFY) {
+                throw new PowsyblException("No existing temporary limit found with acceptableDuration = "
+                        + limitAcceptableDuration + " matching is based on acceptableDuration if that helps");
             } else {
                 continue;
             }
@@ -369,7 +367,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
     }
 
     protected abstract void modifyCharacteristics(Branch<?> branch, BranchModificationInfos branchModificationInfos,
-            ReportNode subReportNode);
+                                                  ReportNode subReportNode);
 
     private ReportNode modifyBranchConnectivityAttributes(BranchModificationInfos branchModificationInfos,
                                                           Branch<?> branch, ReportNode subReportNode) {
@@ -421,7 +419,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
             }
             if (reportNode != null) {
                 insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(previousSelectedLimitsGroup,
-                    modifOperationalLimitsGroup.getValue(), "selected operational limits group side " + side.getNum()));
+                        modifOperationalLimitsGroup.getValue(), "selected operational limits group side " + side.getNum()));
             }
         }
     }
