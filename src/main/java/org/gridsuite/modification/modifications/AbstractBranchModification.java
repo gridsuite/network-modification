@@ -32,6 +32,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
     private static final String NAME = "name";
     private static final String VALUE = "value";
     private static final String VALIDITY = "validity";
+    private static final String LIMIT_ACCEPTABLE_DURATION = "limitAcceptableDuration";
     protected final BranchModificationInfos modificationInfos;
 
     protected AbstractBranchModification(BranchModificationInfos modificationInfos) {
@@ -214,7 +215,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
     protected void modifyOperationalLimitsGroup(Function<String, OperationalLimitsGroup> groupFactory, OperationalLimitsGroupModificationInfos operationalLimitsGroupInfos, OperationalLimitsGroup operationalLimitsGroup, List<ReportNode> operationalLimitsGroupReports) {
         if (OperationalLimitsGroupModificationType.MODIFY.equals(operationalLimitsGroupInfos.getModificationType())) {
             if (operationalLimitsGroup == null) {
-                throw new PowsyblException("Cannot modify provided operational limit group which has not been found in given equipment");
+                throw new PowsyblException("Cannot modify operational limit group " + operationalLimitsGroupInfos.getId() + " which has not been found in equipment given side");
             }
             operationalLimitsGroup.getCurrentLimits().ifPresent(currentLimits -> modifyCurrentLimits(operationalLimitsGroupInfos, operationalLimitsGroupInfos.getCurrentLimits(), operationalLimitsGroup.newCurrentLimits(), currentLimits, operationalLimitsGroupReports));
         } else if (OperationalLimitsGroupModificationType.ADD.equals(operationalLimitsGroupInfos.getModificationType())) {
@@ -326,8 +327,13 @@ public abstract class AbstractBranchModification extends AbstractModification {
                     limitValue = limitToModify.getValue();
                 }
             } else if (limit.getModificationType() == TemporaryLimitModificationType.MODIFY) {
-                throw new PowsyblException("No existing temporary limit found with acceptableDuration = "
-                        + limitAcceptableDuration + " matching is based on acceptableDuration if that helps");
+                temporaryLimitsReports.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
+                        .withMessageTemplate("network.modification.temporaryLimitsNoMatch")
+                        .withUntypedValue(LIMIT_ACCEPTABLE_DURATION, limitAcceptableDuration)
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .build());
+                continue;
             } else {
                 continue;
             }

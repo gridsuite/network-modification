@@ -86,6 +86,23 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                 )).build())
                                         .build()))
                                 .build(),
+                        // Should generate an warning because there's no match for this temporary limit modification
+                        LineModificationInfos.builder().equipmentId("line1").operationalLimitsGroup1(List.of(OperationalLimitsGroupModificationInfos.builder()
+                                        .id("DEFAULT")
+                                        .side("ONE")
+                                        .modificationType(OperationalLimitsGroupModificationType.MODIFY)
+                                        .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY)
+                                        .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .temporaryLimits(List.of(
+                                                        CurrentTemporaryLimitModificationInfos.builder()
+                                                                .modificationType(TemporaryLimitModificationType.MODIFY)
+                                                                .name("test1")
+                                                                .acceptableDuration(3)
+                                                                .value(10.)
+                                                                .build()
+                                                )).build())
+                                        .build()))
+                                .build(),
                         //Should fail since provided operational limit group already exists on this side
                         LineModificationInfos.builder().equipmentId("line2").operationalLimitsGroup1(List.of(OperationalLimitsGroupModificationInfos.builder()
                                         .id("DEFAULT")
@@ -151,7 +168,7 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         assertAfterNetworkModificationApplication();
         assertLogMessageWithoutRank("Previous temporary limits were removed", "network.modification.temporaryLimitsReplaced", reportNode);
         assertLogMessageWithoutRank("Cannot add DEFAULT operational limit group, one with the given name already exists", "network.modification.tabular.modification.exception", reportNode);
-
+        assertLogMessageWithoutRank("No existing temporary limit found with acceptableDuration = 3 matching is based on acceptableDuration if that helps", "network.modification.temporaryLimitsNoMatch", reportNode);
     }
 
     @Override
