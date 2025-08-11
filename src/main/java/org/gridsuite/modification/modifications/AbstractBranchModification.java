@@ -369,7 +369,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
     }
 
     protected abstract void modifyCharacteristics(Branch<?> branch, BranchModificationInfos branchModificationInfos,
-                                                  ReportNode subReportNode);
+            ReportNode subReportNode);
 
     private ReportNode modifyBranchConnectivityAttributes(BranchModificationInfos branchModificationInfos,
                                                           Branch<?> branch, ReportNode subReportNode) {
@@ -421,7 +421,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
             }
             if (reportNode != null) {
                 insertReportNode(reportNode, ModificationUtils.getInstance().buildModificationReport(previousSelectedLimitsGroup,
-                        modifOperationalLimitsGroup.getValue(), "selected operational limits group side " + side.getNum()));
+                    modifOperationalLimitsGroup.getValue(), "selected operational limits group side " + side.getNum()));
             }
         }
     }
