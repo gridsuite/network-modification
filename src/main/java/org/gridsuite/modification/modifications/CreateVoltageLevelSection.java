@@ -45,14 +45,16 @@ public class CreateVoltageLevelSection extends AbstractModification {
         }
         var bbs = network.getBusbarSection(modificationInfos.getBusbarSectionId());
         if (bbs == null) {
-            throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, modificationInfos.getBusbarSectionId());
+            throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, modificationInfos.getBusbarSectionId() +
+                    " not found in voltage level " + voltageLevel.getId());
         }
         if (bbs.getExtension(BusbarSectionPosition.class) == null) {
             throw new PowsyblException("not available on these busbar section");
         }
         var busbarIndex = bbs.getExtension(BusbarSectionPosition.class).getBusbarIndex();
         if (busbarIndex != modificationInfos.getBusbarIndex()) {
-            throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND);
+            throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, modificationInfos.getBusbarIndex() +
+                    " is not the busbar index of the busbar section " + bbs.getId() + " in voltage level " + voltageLevel.getId());
         }
     }
 
