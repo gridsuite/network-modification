@@ -36,11 +36,8 @@ public class CreateVoltageLevelSectionInfos extends ModificationInfos {
     @Schema(description = "VoltageLevelId")
     private String voltageLevelId;
 
-    @Schema(description = "Busbar Count")
-    private int busbarCount;
-
-    @Schema(description = "Section Count")
-    private int sectionCount;
+    @Schema(description = "Busbar Index")
+    private int busbarIndex;
 
     @Schema(description = "After The Reference BusbarSectionId")
     private boolean isAfterBusbarSectionId;

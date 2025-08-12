@@ -33,8 +33,7 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
                 .stashed(false)
                 .voltageLevelId("v1")
                 .busbarSectionId("bbs1")
-                .busbarCount(1)
-                .sectionCount(1)
+                .busbarIndex(1)
                 .isAfterBusbarSectionId(true)
                 .leftSwitchKind("BREAKER")
                 .rightSwitchKind("DISCONNECTOR")
@@ -58,8 +57,7 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
 
         voltageLevelSectionInfos.setVoltageLevelId("notFoundVoltageLevel");
         voltageLevelSectionInfos.setBusbarSectionId("bbs1");
-        voltageLevelSectionInfos.setBusbarCount(1);
-        voltageLevelSectionInfos.setSectionCount(1);
+        voltageLevelSectionInfos.setBusbarIndex(1);
         message = assertThrows(NetworkModificationException.class,
                 () -> modification.check(network)).getMessage();
         assertEquals("CREATE_VOLTAGE_LEVEL_ERROR : Voltage level not found: notFoundVoltageLevel", message);
@@ -80,8 +78,8 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
     protected void assertAfterNetworkModificationApplication() {
         List<String> busBarIds = new ArrayList<>();
         getNetwork().getBusbarSections().forEach(busbarSection -> busBarIds.add(busbarSection.getId()));
-        assertTrue(busBarIds.size() > 4);
-        assertTrue(busBarIds.containsAll(List.of("bbs1", "bbs2", "bbs3", "bbs4")));
+        assertEquals(5, busBarIds.size());
+        assertTrue(busBarIds.containsAll(List.of("bbs1", "bbs2", "bbs3", "bbs4", "v1_0_1")));
         Set<String> switchIds = getNetwork().getSwitchStream()
                 .map(Switch::getId)
                 .collect(Collectors.toSet());
