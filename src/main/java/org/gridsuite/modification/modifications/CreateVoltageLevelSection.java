@@ -49,7 +49,7 @@ public class CreateVoltageLevelSection extends AbstractModification {
                     " not found in voltage level " + voltageLevel.getId());
         }
         if (bbs.getExtension(BusbarSectionPosition.class) == null) {
-            throw new PowsyblException("not available on these busbar section");
+            throw new PowsyblException(String.format("busbar section position extension are not available on this busbar section %s, can not create a new busbar section", modificationInfos.getBusbarSectionId()));
         }
         var busbarIndex = bbs.getExtension(BusbarSectionPosition.class).getBusbarIndex();
         if (busbarIndex != modificationInfos.getBusbarIndex()) {
