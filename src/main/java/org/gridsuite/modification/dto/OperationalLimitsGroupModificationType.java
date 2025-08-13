@@ -11,7 +11,7 @@ package org.gridsuite.modification.dto;
  */
 
 public enum OperationalLimitsGroupModificationType {
-    ADDED,
-    MODIFIED,
-    REPLACED,
+    ADD,
+    MODIFY,
+    REPLACE,
 }
