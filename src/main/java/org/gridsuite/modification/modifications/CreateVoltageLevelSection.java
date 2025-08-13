@@ -45,16 +45,22 @@ public class CreateVoltageLevelSection extends AbstractModification {
         }
         var bbs = network.getBusbarSection(modificationInfos.getBusbarSectionId());
         if (bbs == null) {
-            throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, modificationInfos.getBusbarSectionId() +
-                    " not found in voltage level " + voltageLevel.getId());
+            throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND,
+                 String.format("%s not found in voltage level %s",
+                     modificationInfos.getBusbarSectionId(),
+                     voltageLevel.getId()));
         }
         if (bbs.getExtension(BusbarSectionPosition.class) == null) {
-            throw new PowsyblException(String.format("busbar section position extension are not available on this busbar section %s, can not create a new busbar section", modificationInfos.getBusbarSectionId()));
+            throw new PowsyblException(String.format("busbar section position extension are not available on this busbar section %s, can not create a new busbar section",
+                modificationInfos.getBusbarSectionId()));
         }
         var busbarIndex = bbs.getExtension(BusbarSectionPosition.class).getBusbarIndex();
         if (busbarIndex != modificationInfos.getBusbarIndex()) {
-            throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, modificationInfos.getBusbarIndex() +
-                    " is not the busbar index of the busbar section " + bbs.getId() + " in voltage level " + voltageLevel.getId());
+            throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND,
+                String.format("%s is not the busbar index of the busbar section %s in voltage level %s",
+                    modificationInfos.getBusbarIndex(),
+                    bbs.getId(),
+                    voltageLevel.getId()));
         }
     }
 
