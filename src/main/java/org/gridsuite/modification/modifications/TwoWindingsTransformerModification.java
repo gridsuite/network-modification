@@ -11,6 +11,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimated;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimatedAdder;
+import org.apache.commons.lang3.BooleanUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -402,30 +403,61 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
     }
 
     private void processRatioTapChanger(Network network,
-            TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos,
-            TwoWindingsTransformer twt,
-            ReportNode subReporter,
-            boolean isModification) {
-        RatioTapChangerModificationInfos ratioTapChangerInfos = twoWindingsTransformerModificationInfos
-                .getRatioTapChanger();
+                                        TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos,
+                                        TwoWindingsTransformer twt,
+                                        ReportNode subReporter,
+                                        boolean isModification) {
+        RatioTapChangerModificationInfos ratioTapChangerInfos = twoWindingsTransformerModificationInfos.getRatioTapChanger();
         RatioTapChanger ratioTapChanger = isModification ? twt.getRatioTapChanger() : null;
         RatioTapChangerAdder ratioTapChangerAdder = isModification ? null : twt.newRatioTapChanger();
         List<ReportNode> ratioTapChangerReports = new ArrayList<>();
+        List<ReportNode> regulationReports = new ArrayList<>();
+        List<ReportNode> regulatedTerminalReports = new ArrayList<>();
+
+        // on modification, when setting explicitly loadTapChangingCapabilities to false on a regulating ratio tap changer,
+        // we now reset all the fields concerning the regulation, due to a new validation check that prevent a
+        // ratio tap changer to have this loadTapChangingCapabilities field equals to false when regulating
+        boolean regulationReset = false;
+        if (isModification && ratioTapChangerInfos.getLoadTapChangingCapabilities() != null &&
+            BooleanUtils.isFalse(ratioTapChangerInfos.getLoadTapChangingCapabilities().getValue()) &&
+            ratioTapChanger.isRegulating()) {
+            boolean oldRegulating = ratioTapChanger.isRegulating();
+            ratioTapChanger.setRegulating(false);
+            regulationReports.add(ModificationUtils.buildModificationReport(oldRegulating, false, "regulating", TypedValue.DETAIL_SEVERITY));
+
+            Terminal oldTerminal = ratioTapChanger.getRegulationTerminal();
+            ratioTapChanger.setRegulationTerminal(null);
+            if (oldTerminal != null) {
+                String oldEquipment = oldTerminal.getConnectable().getType().name() + ":" + oldTerminal.getConnectable().getId();
+                regulatedTerminalReports.add(ModificationUtils.buildModificationReport(oldTerminal.getVoltageLevel().getId(), null, "Voltage level", TypedValue.DETAIL_SEVERITY));
+                regulatedTerminalReports.add(ModificationUtils.buildModificationReport(oldEquipment, null, "Equipment", TypedValue.DETAIL_SEVERITY));
+            }
+
+            double oldTargetV = ratioTapChanger.getTargetV();
+            ratioTapChanger.setTargetV(Double.NaN);
+            regulationReports.add(ModificationUtils.buildModificationReport(oldTargetV, Double.NaN, "target voltage", TypedValue.DETAIL_SEVERITY));
+
+            double oldTargetDeadband = ratioTapChanger.getTargetDeadband();
+            ratioTapChanger.setTargetDeadband(Double.NaN);
+            regulationReports.add(ModificationUtils.buildModificationReport(oldTargetDeadband, Double.NaN, TARGET_DEADBAND, TypedValue.DETAIL_SEVERITY));
+
+            regulationReset = true;
+        }
+
         ReportNode tapChangingReport = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
-                isModification ? ratioTapChanger::setLoadTapChangingCapabilities
-                        : ratioTapChangerAdder::setLoadTapChangingCapabilities,
-                isModification ? ratioTapChanger::hasLoadTapChangingCapabilities : () -> null,
-                ratioTapChangerInfos.getLoadTapChangingCapabilities(), "Load tap changing capabilities");
+            isModification ? ratioTapChanger::setLoadTapChangingCapabilities
+                : ratioTapChangerAdder::setLoadTapChangingCapabilities,
+            isModification ? ratioTapChanger::hasLoadTapChangingCapabilities : () -> null,
+            ratioTapChangerInfos.getLoadTapChangingCapabilities(), "Load tap changing capabilities");
         if (tapChangingReport != null) {
             ratioTapChangerReports.add(tapChangingReport);
         }
 
-        List<ReportNode> regulationReports = new ArrayList<>();
-        List<ReportNode> regulatedTerminalReports = new ArrayList<>();
-        processRatioVoltageRegulation(ratioTapChangerInfos, twt, ratioTapChanger, ratioTapChangerAdder, regulationReports, regulatedTerminalReports, network,
-                isModification);
-        // regulating must be set after target value, regulating mode and regulating terminal are set
-        processRegulating(ratioTapChangerInfos, ratioTapChanger, ratioTapChangerAdder, regulationReports, isModification);
+        if (!regulationReset) {
+            processRatioVoltageRegulation(ratioTapChangerInfos, twt, ratioTapChanger, ratioTapChangerAdder, regulationReports, regulatedTerminalReports, network, isModification);
+            // regulating must be set after target value, regulating mode and regulating terminal are set
+            processRegulating(ratioTapChangerInfos, ratioTapChanger, ratioTapChangerAdder, regulationReports, isModification);
+        }
 
         List<ReportNode> positionsAndStepsReports = new ArrayList<>();
         processTapChangerPositionsAndSteps(ratioTapChanger, ratioTapChangerAdder, isModification, ratioTapChangerInfos.getLowTapPosition(), ratioTapChangerInfos.getTapPosition(), ratioTapChangerInfos.getSteps(), positionsAndStepsReports
@@ -436,20 +468,20 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         }
 
         if (!ratioTapChangerReports.isEmpty() || !regulationReports.isEmpty() || !regulatedTerminalReports.isEmpty()
-                || !positionsAndStepsReports.isEmpty()) {
+            || !positionsAndStepsReports.isEmpty()) {
             ReportNode ratioTapChangerReporter = ModificationUtils.getInstance().reportModifications(subReporter,
-                    ratioTapChangerReports, "network.modification.RATIO");
+                ratioTapChangerReports, "network.modification.RATIO");
             if (ratioTapChangerReporter == null) {
                 ratioTapChangerReporter = subReporter.newReportNode()
-                        .withMessageTemplate("network.modification.RATIO")
-                        .add();
+                    .withMessageTemplate("network.modification.RATIO")
+                    .add();
             }
             ModificationUtils.getInstance().reportModifications(ratioTapChangerReporter, regulationReports,
-                    "network.modification.ratioTapChangerRegulationModification");
+                "network.modification.ratioTapChangerRegulationModification");
             ModificationUtils.getInstance().reportModifications(ratioTapChangerReporter, regulatedTerminalReports,
-                    "network.modification.ratioTapChangerTerminalRegulatedModification");
+                "network.modification.ratioTapChangerTerminalRegulatedModification");
             ModificationUtils.getInstance().reportModifications(ratioTapChangerReporter, positionsAndStepsReports,
-                    "network.modification.ratioTapChangerPositionsAndStepsModification");
+                "network.modification.ratioTapChangerPositionsAndStepsModification");
         }
     }
 
