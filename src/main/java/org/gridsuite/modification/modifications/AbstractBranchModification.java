@@ -330,7 +330,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 // we remove the limit to modify from the list of temporary limits so we can get the list of temporary limits coming from previous modifications
                 branchTemporaryLimits.removeIf(temporaryLimit -> temporaryLimit.getAcceptableDuration() == limitAcceptableDuration);
             }
-            if ((limitToModify == null && limit.getModificationType() == TemporaryLimitModificationType.ADD) || limit.getModificationType() == TemporaryLimitModificationType.REPLACE) {
+            if (limitToModify == null && limit.getModificationType() == TemporaryLimitModificationType.ADD || limit.getModificationType() == TemporaryLimitModificationType.REPLACE) {
                 temporaryLimitsReports.add(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("network.modification.temporaryLimitAdded.name")
