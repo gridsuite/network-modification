@@ -417,7 +417,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         // on modification, when setting explicitly loadTapChangingCapabilities to false on a regulating ratio tap changer,
         // we now reset all the fields concerning the regulation, due to a new validation check that prevent a
         // ratio tap changer to have this loadTapChangingCapabilities field equals to false when regulating
-        boolean regulationResetted = false;
+        boolean regulationReset = false;
         if (isModification && ratioTapChangerInfos.getLoadTapChangingCapabilities() != null &&
             BooleanUtils.isFalse(ratioTapChangerInfos.getLoadTapChangingCapabilities().getValue()) &&
             ratioTapChanger.isRegulating()) {
@@ -441,7 +441,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
             ratioTapChanger.setTargetDeadband(Double.NaN);
             regulationReports.add(ModificationUtils.buildModificationReport(oldTargetDeadband, Double.NaN, TARGET_DEADBAND, TypedValue.DETAIL_SEVERITY));
 
-            regulationResetted = true;
+            regulationReset = true;
         }
 
         ReportNode tapChangingReport = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
@@ -453,7 +453,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
             ratioTapChangerReports.add(tapChangingReport);
         }
 
-        if (!regulationResetted) {
+        if (!regulationReset) {
             processRatioVoltageRegulation(ratioTapChangerInfos, twt, ratioTapChanger, ratioTapChangerAdder, regulationReports, regulatedTerminalReports, network, isModification);
             // regulating must be set after target value, regulating mode and regulating terminal are set
             processRegulating(ratioTapChangerInfos, ratioTapChanger, ratioTapChangerAdder, regulationReports, isModification);
