@@ -10,8 +10,8 @@ package org.gridsuite.modification.dto;
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
 public enum TemporaryLimitModificationType {
-    ADDED,
-    MODIFIED,
-    DELETED,
-    REPLACED
+    ADD,
+    MODIFY,
+    DELETE,
+    REPLACE
 }

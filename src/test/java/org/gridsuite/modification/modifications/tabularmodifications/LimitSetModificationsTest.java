@@ -8,6 +8,7 @@ package org.gridsuite.modification.modifications.tabularmodifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
@@ -40,12 +41,12 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                         OperationalLimitsGroupModificationInfos.builder()
                                         .id("DEFAULT")
                                         .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
-                                        .modificationType(OperationalLimitsGroupModificationType.MODIFIED)
+                                        .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                         .temporaryLimitsModificationType(TemporaryLimitModificationType.REPLACED)
                                         .currentLimits(CurrentLimitsModificationInfos.builder()
                                                 .temporaryLimits(List.of(
                                                         CurrentTemporaryLimitModificationInfos.builder()
-                                                                .modificationType(TemporaryLimitModificationType.REPLACED)
+                                                                .modificationType(TemporaryLimitModificationType.REPLACE)
                                                                 .name("test1")
                                                                 .acceptableDuration(2)
                                                                 .value(10.)
@@ -55,13 +56,76 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                 OperationalLimitsGroupModificationInfos.builder()
                                         .id("DEFAULT")
                                         .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
-                                        .modificationType(OperationalLimitsGroupModificationType.MODIFIED)
+                                        .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                         .temporaryLimitsModificationType(TemporaryLimitModificationType.ADDED)
                                         .currentLimits(CurrentLimitsModificationInfos.builder()
                                                 .temporaryLimits(List.of(
                                                         CurrentTemporaryLimitModificationInfos.builder()
-                                                                .modificationType(TemporaryLimitModificationType.ADDED)
+                                                                .modificationType(TemporaryLimitModificationType.ADD)
                                                                 .name("test2")
+                                                                .acceptableDuration(1)
+                                                                .value(10.)
+                                                                .build()
+                                                )).build())
+                                        .build()))
+                                .build(),
+                        LineModificationInfos.builder().equipmentId("line2").operationalLimitsGroup1(List.of(OperationalLimitsGroupModificationInfos.builder()
+                                        .id("DEFAULT")
+                                        .side("ONE")
+                                        .selectedOperationalLimitsGroupId("DEFAULT")
+                                        .modificationType(OperationalLimitsGroupModificationType.ADD)
+                                        .temporaryLimitsModificationType(TemporaryLimitModificationType.ADD)
+                                        .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .permanentLimit(99.)
+                                                .temporaryLimits(List.of(
+                                                        CurrentTemporaryLimitModificationInfos.builder()
+                                                                .modificationType(TemporaryLimitModificationType.ADD)
+                                                                .name("test1")
+                                                                .acceptableDuration(1)
+                                                                .value(10.)
+                                                                .build()
+                                                )).build())
+                                        .build()))
+                                .build(),
+                        // Should generate an warning because there's no match for this temporary limit modification
+                        LineModificationInfos.builder().equipmentId("line1").operationalLimitsGroup1(List.of(OperationalLimitsGroupModificationInfos.builder()
+                                        .id("DEFAULT")
+                                        .side("ONE")
+                                        .modificationType(OperationalLimitsGroupModificationType.MODIFY)
+                                        .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY)
+                                        .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .temporaryLimits(List.of(
+                                                        CurrentTemporaryLimitModificationInfos.builder()
+                                                                .modificationType(TemporaryLimitModificationType.MODIFY)
+                                                                .name("test1")
+                                                                .acceptableDuration(3)
+                                                                .value(10.)
+                                                                .build()
+                                                )).build())
+                                        .build()))
+                                .build(),
+                        //Should fail since provided operational limit group already exists on this side
+                        LineModificationInfos.builder().equipmentId("line2").operationalLimitsGroup1(List.of(OperationalLimitsGroupModificationInfos.builder()
+                                        .id("DEFAULT")
+                                        .side("ONE")
+                                        .selectedOperationalLimitsGroupId("DEFAULT")
+                                        .modificationType(OperationalLimitsGroupModificationType.ADD)
+                                        .temporaryLimitsModificationType(TemporaryLimitModificationType.ADD)
+                                        .build()))
+                                .build(),
+                        //group0 already exists in network for this equipment
+                        LineModificationInfos.builder().equipmentId("line2").operationalLimitsGroup2(List.of(OperationalLimitsGroupModificationInfos.builder()
+                                        .id("group0")
+                                        .side("TWO")
+                                        .selectedOperationalLimitsGroupId("group0")
+                                        .modificationType(OperationalLimitsGroupModificationType.REPLACE)
+                                        .temporaryLimitsModificationType(TemporaryLimitModificationType.ADD)
+                                        .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .permanentLimit(99.)
+                                                .temporaryLimits(List.of(
+                                                        CurrentTemporaryLimitModificationInfos.builder()
+                                                                .modificationType(TemporaryLimitModificationType.ADD)
+                                                                .name("test1")
                                                                 .acceptableDuration(1)
                                                                 .value(10.)
                                                                 .build()
@@ -89,11 +153,28 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         assertEquals("test2", line1CurrentLimits.getTemporaryLimit(1).getName());
         assertEquals("test1", line1CurrentLimits.getTemporaryLimit(2).getName());
 
+        Line line2 = getNetwork().getLine("line2");
+        CurrentLimits line2CurrentLimitsSide1 = line2.getOperationalLimitsGroup1("DEFAULT").orElse(null).getCurrentLimits().orElse(null);
+        assertEquals(1, line2CurrentLimitsSide1.getTemporaryLimits().size());
+        assertEquals("test1", line2CurrentLimitsSide1.getTemporaryLimit(1).getName());
+        assertEquals("DEFAULT", line2.getSelectedOperationalLimitsGroupId1().orElse(null));
+
+        CurrentLimits line2CurrentLimitsSide2 = line2.getOperationalLimitsGroup2("group0").orElse(null).getCurrentLimits().orElse(null);
+        assertEquals(1, line2CurrentLimitsSide2.getTemporaryLimits().size());
+        assertEquals("test1", line2CurrentLimitsSide2.getTemporaryLimit(1).getName());
+        assertEquals("group0", line2.getSelectedOperationalLimitsGroupId2().orElse(null));
     }
 
     private void assertAfterNetworkModificationApplication(ReportNode reportNode) {
         assertAfterNetworkModificationApplication();
+        assertLogMessageWithoutRank("Operational limits group named DEFAULT has been modified on side ONE", "network.modification.operationalLimitsGroupModified", reportNode);
         assertLogMessageWithoutRank("Previous temporary limits were removed", "network.modification.temporaryLimitsReplaced", reportNode);
+        assertLogMessageWithoutRank("Cannot add DEFAULT operational limit group, one with the given name already exists", "network.modification.tabular.modification.exception", reportNode);
+        assertLogMessageWithoutRank("No existing temporary limit found with acceptableDuration = 3 matching is based on acceptableDuration if that helps", "network.modification.temporaryLimitsNoMatch", reportNode);
+        assertLogMessageWithoutRank("Operational limits group named group0 is now active on side TWO", "network.modification.newSelectedOperationalLimitsGroup", reportNode);
+        assertLogMessageWithoutRank("Operational limits group named group0 has been replaced on side TWO", "network.modification.operationalLimitsGroupReplaced", reportNode);
+        assertLogMessageWithoutRank("New operational limits group added named DEFAULT on side ONE", "network.modification.operationalLimitsGroupAdded", reportNode);
+
     }
 
     @Override
