@@ -69,11 +69,13 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                 )).build())
                                         .build()))
                                 .build(),
-                        LineModificationInfos.builder().equipmentId("line2").operationalLimitsGroups(List.of(
+                        LineModificationInfos.builder()
+                                .equipmentId("line2")
+                                .selectedOperationalLimitsGroup1(new AttributeModification<>("DEFAULT", OperationType.SET))
+                                .operationalLimitsGroups(List.of(
                                 OperationalLimitsGroupModificationInfos.builder()
                                         .id("DEFAULT")
                                         .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
-                                        .selectedOperationalLimitsGroupId("DEFAULT")
                                         .modificationType(OperationalLimitsGroupModificationType.ADD)
                                         .temporaryLimitsModificationType(TemporaryLimitModificationType.ADD)
                                         .currentLimits(CurrentLimitsModificationInfos.builder()
@@ -106,19 +108,23 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                         .build()))
                                 .build(),
                         //Should fail since provided operational limit group already exists on this side
-                        LineModificationInfos.builder().equipmentId("line2").operationalLimitsGroups(List.of(OperationalLimitsGroupModificationInfos.builder()
+                        LineModificationInfos.builder()
+                                .equipmentId("line2")
+                                .selectedOperationalLimitsGroup1(new AttributeModification<>("DEFAULT", OperationType.SET))
+                                .operationalLimitsGroups(List.of(OperationalLimitsGroupModificationInfos.builder()
                                         .id("DEFAULT")
                                         .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
-                                        .selectedOperationalLimitsGroupId("DEFAULT")
                                         .modificationType(OperationalLimitsGroupModificationType.ADD)
                                         .temporaryLimitsModificationType(TemporaryLimitModificationType.ADD)
                                         .build()))
                                 .build(),
                         //group0 already exists in network for this equipment
-                        LineModificationInfos.builder().equipmentId("line2").operationalLimitsGroups(List.of(OperationalLimitsGroupModificationInfos.builder()
+                        LineModificationInfos.builder()
+                                .equipmentId("line2")
+                                .selectedOperationalLimitsGroup2(new AttributeModification<>("group0", OperationType.SET))
+                                .operationalLimitsGroups(List.of(OperationalLimitsGroupModificationInfos.builder()
                                         .id("group0")
                                         .applicability(OperationalLimitsGroupInfos.Applicability.SIDE2)
-                                        .selectedOperationalLimitsGroupId("group0")
                                         .modificationType(OperationalLimitsGroupModificationType.REPLACE)
                                         .temporaryLimitsModificationType(TemporaryLimitModificationType.ADD)
                                         .currentLimits(CurrentLimitsModificationInfos.builder()
@@ -172,7 +178,7 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         assertLogMessageWithoutRank("Previous temporary limits were removed", "network.modification.temporaryLimitsReplaced", reportNode);
         assertLogMessageWithoutRank("Cannot add DEFAULT operational limit group, one with the given name already exists", "network.modification.tabular.modification.exception", reportNode);
         assertLogMessageWithoutRank("No existing temporary limit found with acceptableDuration = 3 matching is based on acceptableDuration if that helps", "network.modification.temporaryLimitsNoMatch", reportNode);
-        assertLogMessageWithoutRank("Operational limits group named group0 is now active on SIDE2", "network.modification.newSelectedOperationalLimitsGroup", reportNode);
+        assertLogMessageWithoutRank("limit set selected on side 2 : group0", "network.modification.limitSetSelectedOnSide2", reportNode);
         assertLogMessageWithoutRank("Operational limits group named group0 has been replaced on SIDE2", "network.modification.operationalLimitsGroupReplaced", reportNode);
         assertLogMessageWithoutRank("New operational limits group added named DEFAULT on SIDE1", "network.modification.operationalLimitsGroupAdded", reportNode);
 

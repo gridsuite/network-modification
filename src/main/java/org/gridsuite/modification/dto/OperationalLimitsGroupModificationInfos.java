@@ -38,8 +38,4 @@ public class OperationalLimitsGroupModificationInfos {
 
     @Schema(description = "application side")
     private OperationalLimitsGroupInfos.Applicability applicability;
-
-    // TODO : à virer à priori
-    @Schema(description = "limits set to define as current active one for provided side")
-    private String selectedOperationalLimitsGroupId;
 }

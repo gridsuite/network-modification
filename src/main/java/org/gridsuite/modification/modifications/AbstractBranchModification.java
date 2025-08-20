@@ -71,33 +71,12 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 if (applicability == OperationalLimitsGroupInfos.Applicability.SIDE1
                         || applicability == OperationalLimitsGroupInfos.Applicability.EQUIPMENT) {
                     OperationalLimitsGroup operationalLimitsGroup1 = branch.getOperationalLimitsGroup1(opLGModifInfos.getId()).orElse(null);
-
                     modifyOperationalLimitsGroup(branch::newOperationalLimitsGroup1, opLGModifInfos, operationalLimitsGroup1, side1LimitsReports);
-                    if (opLGModifInfos.getSelectedOperationalLimitsGroupId() != null) {
-                        branch.setSelectedOperationalLimitsGroup1(opLGModifInfos.getSelectedOperationalLimitsGroupId());
-                        side1LimitsReports.add(ReportNode.newRootReportNode()
-                                .withAllResourceBundlesFromClasspath()
-                                .withMessageTemplate("network.modification.newSelectedOperationalLimitsGroup")
-                                .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, opLGModifInfos.getId())
-                                .withUntypedValue(SIDE, opLGModifInfos.getApplicability().toString())
-                                .withSeverity(TypedValue.INFO_SEVERITY)
-                                .build());
-                    }
                 }
                 if (applicability == OperationalLimitsGroupInfos.Applicability.SIDE2
                         || applicability == OperationalLimitsGroupInfos.Applicability.EQUIPMENT) {
                     OperationalLimitsGroup operationalLimitsGroup2 = branch.getOperationalLimitsGroup2(opLGModifInfos.getId()).orElse(null);
                     modifyOperationalLimitsGroup(branch::newOperationalLimitsGroup2, opLGModifInfos, operationalLimitsGroup2, side2LimitsReports);
-                    if (opLGModifInfos.getSelectedOperationalLimitsGroupId() != null) {
-                        branch.setSelectedOperationalLimitsGroup2(opLGModifInfos.getSelectedOperationalLimitsGroupId());
-                        side2LimitsReports.add(ReportNode.newRootReportNode()
-                                .withAllResourceBundlesFromClasspath()
-                                .withMessageTemplate("network.modification.newSelectedOperationalLimitsGroup")
-                                .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, opLGModifInfos.getId())
-                                .withUntypedValue(SIDE, opLGModifInfos.getApplicability().toString())
-                                .withSeverity(TypedValue.INFO_SEVERITY)
-                                .build());
-                    }
                 }
             }
         }
@@ -124,6 +103,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
                         .withUntypedValue("selectedOperationalLimitsGroup", newSelectedOpLG1)
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .build());
+
             } else {
                 branch.setSelectedOperationalLimitsGroup1(newSelectedOpLG1);
                 side1LimitsReports.add(ReportNode.newRootReportNode()
