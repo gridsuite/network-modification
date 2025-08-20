@@ -93,42 +93,73 @@ public abstract class AbstractBranchModification extends AbstractModification {
 
     private void applySelectedOpLGs(Branch<?> branch, List<ReportNode> side1LimitsReports, List<ReportNode> side2LimitsReports) {
         if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
-            String newSelectedOpLG1 = modificationInfos.getSelectedOperationalLimitsGroup1().getValue();
-            // no need to control is there is no change or an unset (empty string) change
-            // TODO that test doesn't seems to be enough : maybe it doens't take into account the newly created opLG
-            // BUT modifyOperationalLimitsGroup doesn't seem to handle limits groups creation so maybe this is the only reason
-            if (StringUtils.hasText(newSelectedOpLG1) && branch.getOperationalLimitsGroup1(newSelectedOpLG1).isEmpty()) {
-                side1LimitsReports.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("network.modification.limitSetAbsentOnSide1")
-                        .withUntypedValue("selectedOperationalLimitsGroup", newSelectedOpLG1)
-                        .withSeverity(TypedValue.WARN_SEVERITY)
-                        .build());
-
-            } else {
-                branch.setSelectedOperationalLimitsGroup1(newSelectedOpLG1);
-                side1LimitsReports.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("network.modification.limitSetSelectedOnSide1")
-                        .withUntypedValue("selectedOperationalLimitsGroup1", newSelectedOpLG1)
-                        .withSeverity(TypedValue.INFO_SEVERITY)
-                        .build());
-            }
+            applySelectedOpLGOnSide1(branch, side1LimitsReports);
         }
         if (modificationInfos.getSelectedOperationalLimitsGroup2() != null) {
-            String newSelectedOpLG2 = modificationInfos.getSelectedOperationalLimitsGroup2().getValue();
-            if (StringUtils.hasText(newSelectedOpLG2) && branch.getOperationalLimitsGroup1(newSelectedOpLG2).isEmpty()) {
-                side2LimitsReports.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("network.modification.limitSetAbsentOnSide2")
-                        .withUntypedValue("selectedOperationalLimitsGroup", newSelectedOpLG2)
-                        .withSeverity(TypedValue.WARN_SEVERITY)
-                        .build());
-            } else {
-                branch.setSelectedOperationalLimitsGroup2(newSelectedOpLG2);
-                side2LimitsReports.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("network.modification.limitSetSelectedOnSide2")
-                        .withUntypedValue("selectedOperationalLimitsGroup2", newSelectedOpLG2)
+            applySelectedOpLGOnSide2(branch, side2LimitsReports);
+        }
+    }
+
+    private void applySelectedOpLGOnSide1(Branch<?> branch, List<ReportNode> side1LimitsReports) {
+        switch (modificationInfos.getSelectedOperationalLimitsGroup1().getOp()) {
+            case UNSET : {
+                branch.setSelectedOperationalLimitsGroup1("");
+                side1LimitsReports.add(ReportNode.newRootReportNode()
+                        .withMessageTemplate("network.modification.noLimitSetSelectedOnSide1")
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .build());
-            }
+            } break;
+            case SET: {
+                String newSelectedOpLG1 = modificationInfos.getSelectedOperationalLimitsGroup1().getValue();
+                if (StringUtils.hasText(newSelectedOpLG1) && branch.getOperationalLimitsGroup1(newSelectedOpLG1).isEmpty()) {
+                    side1LimitsReports.add(ReportNode.newRootReportNode()
+                            .withMessageTemplate("network.modification.limitSetAbsentOnSide1")
+                            .withUntypedValue("selectedOperationalLimitsGroup", newSelectedOpLG1)
+                            .withSeverity(TypedValue.WARN_SEVERITY)
+                            .build());
+
+                } else {
+                    branch.setSelectedOperationalLimitsGroup1(newSelectedOpLG1);
+                    side1LimitsReports.add(ReportNode.newRootReportNode()
+                            .withMessageTemplate("network.modification.limitSetSelectedOnSide1")
+                            .withUntypedValue("selectedOperationalLimitsGroup1", newSelectedOpLG1)
+                            .withSeverity(TypedValue.INFO_SEVERITY)
+                            .build());
+                }
+            } break;
+        }
+    }
+
+    private void applySelectedOpLGOnSide2(Branch<?> branch, List<ReportNode> side2LimitsReports) {
+        switch (modificationInfos.getSelectedOperationalLimitsGroup2().getOp()) {
+            case UNSET : {
+                branch.setSelectedOperationalLimitsGroup2("");
+                side2LimitsReports.add(ReportNode.newRootReportNode()
+                        .withMessageTemplate("network.modification.noLimitSetSelectedOnSide2")
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .build());
+            } break;
+            case SET: {
+                String newSelectedOpLG = modificationInfos.getSelectedOperationalLimitsGroup2().getValue();
+                // no need to control is there is no change or an unset (empty string) change
+                // TODO that test doesn't seems to be enough : maybe it doens't take into account the newly created opLG
+                // BUT modifyOperationalLimitsGroup doesn't seem to handle limits groups creation so maybe this is the only reason
+                if (StringUtils.hasText(newSelectedOpLG) && branch.getOperationalLimitsGroup2(newSelectedOpLG).isEmpty()) {
+                    side2LimitsReports.add(ReportNode.newRootReportNode()
+                            .withMessageTemplate("network.modification.limitSetAbsentOnSide2")
+                            .withUntypedValue("selectedOperationalLimitsGroup2", newSelectedOpLG)
+                            .withSeverity(TypedValue.WARN_SEVERITY)
+                            .build());
+
+                } else {
+                    branch.setSelectedOperationalLimitsGroup2(newSelectedOpLG);
+                    side2LimitsReports.add(ReportNode.newRootReportNode()
+                            .withMessageTemplate("network.modification.limitSetSelectedOnSide2")
+                            .withUntypedValue("selectedOperationalLimitsGroup2", newSelectedOpLG)
+                            .withSeverity(TypedValue.INFO_SEVERITY)
+                            .build());
+                }
+            } break;
         }
     }
 
