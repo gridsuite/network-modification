@@ -141,9 +141,6 @@ public abstract class AbstractBranchModification extends AbstractModification {
             } break;
             case SET: {
                 String newSelectedOpLG = modificationInfos.getSelectedOperationalLimitsGroup2().getValue();
-                // no need to control is there is no change or an unset (empty string) change
-                // TODO that test doesn't seems to be enough : maybe it doens't take into account the newly created opLG
-                // BUT modifyOperationalLimitsGroup doesn't seem to handle limits groups creation so maybe this is the only reason
                 if (StringUtils.hasText(newSelectedOpLG) && branch.getOperationalLimitsGroup2(newSelectedOpLG).isEmpty()) {
                     side2LimitsReports.add(ReportNode.newRootReportNode()
                             .withMessageTemplate("network.modification.limitSetAbsentOnSide2")
