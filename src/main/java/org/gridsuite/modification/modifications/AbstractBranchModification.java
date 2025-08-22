@@ -64,51 +64,24 @@ public abstract class AbstractBranchModification extends AbstractModification {
         List<ReportNode> side1LimitsReports = new ArrayList<>();
         List<ReportNode> side2LimitsReports = new ArrayList<>();
 
-        CurrentLimitsModificationInfos currentLimitsInfos1 = modificationInfos.getCurrentLimits1();
-        CurrentLimitsModificationInfos currentLimitsInfos2 = modificationInfos.getCurrentLimits2();
-        CurrentLimits currentLimits1 = branch.getCurrentLimits1().orElse(null);
-        if (currentLimitsInfos1 != null) {
-            modifyCurrentLimits(currentLimitsInfos1, branch.newCurrentLimits1(), currentLimits1, side1LimitsReports);
-        }
-        CurrentLimits currentLimits2 = branch.getCurrentLimits2().orElse(null);
-        if (currentLimitsInfos2 != null) {
-            modifyCurrentLimits(currentLimitsInfos2, branch.newCurrentLimits2(), currentLimits2, side2LimitsReports);
+        List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos = branchModificationInfos.getOperationalLimitsGroups();
+        if (operationalLimitsInfos != null) {
+            for (OperationalLimitsGroupModificationInfos opLGModifInfos : operationalLimitsInfos) {
+                OperationalLimitsGroupInfos.Applicability applicability = opLGModifInfos.getApplicability();
+                if (applicability == OperationalLimitsGroupInfos.Applicability.SIDE1
+                        || applicability == OperationalLimitsGroupInfos.Applicability.EQUIPMENT) {
+                    OperationalLimitsGroup operationalLimitsGroup1 = branch.getOperationalLimitsGroup1(opLGModifInfos.getId()).orElse(null);
+                    modifyOperationalLimitsGroup(branch::newOperationalLimitsGroup1, opLGModifInfos, operationalLimitsGroup1, side1LimitsReports);
+                }
+                if (applicability == OperationalLimitsGroupInfos.Applicability.SIDE2
+                        || applicability == OperationalLimitsGroupInfos.Applicability.EQUIPMENT) {
+                    OperationalLimitsGroup operationalLimitsGroup2 = branch.getOperationalLimitsGroup2(opLGModifInfos.getId()).orElse(null);
+                    modifyOperationalLimitsGroup(branch::newOperationalLimitsGroup2, opLGModifInfos, operationalLimitsGroup2, side2LimitsReports);
+                }
+            }
         }
 
-        List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos1 = branchModificationInfos.getOperationalLimitsGroup1();
-        List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos2 = branchModificationInfos.getOperationalLimitsGroup2();
-        if (operationalLimitsInfos1 != null) {
-            for (OperationalLimitsGroupModificationInfos operationalLimitsGroupModificationInfos : operationalLimitsInfos1) {
-                OperationalLimitsGroup operationalLimitsGroup1 = branch.getOperationalLimitsGroup1(operationalLimitsGroupModificationInfos.getId()).orElse(null);
-                modifyOperationalLimitsGroup(branch::newOperationalLimitsGroup1, operationalLimitsGroupModificationInfos, operationalLimitsGroup1, side1LimitsReports);
-                if (operationalLimitsGroupModificationInfos.getSelectedOperationalLimitsGroupId() != null) {
-                    branch.setSelectedOperationalLimitsGroup1(operationalLimitsGroupModificationInfos.getSelectedOperationalLimitsGroupId());
-                    side1LimitsReports.add(ReportNode.newRootReportNode()
-                            .withAllResourceBundlesFromClasspath()
-                            .withMessageTemplate("network.modification.newSelectedOperationalLimitsGroup")
-                            .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, operationalLimitsGroupModificationInfos.getId())
-                            .withUntypedValue(SIDE, operationalLimitsGroupModificationInfos.getSide())
-                            .withSeverity(TypedValue.INFO_SEVERITY)
-                            .build());
-                }
-            }
-        }
-        if (operationalLimitsInfos2 != null) {
-            for (OperationalLimitsGroupModificationInfos operationalLimitsGroupModificationInfos : operationalLimitsInfos2) {
-                OperationalLimitsGroup operationalLimitsGroup2 = branch.getOperationalLimitsGroup2(operationalLimitsGroupModificationInfos.getId()).orElse(null);
-                modifyOperationalLimitsGroup(branch::newOperationalLimitsGroup2, operationalLimitsGroupModificationInfos, operationalLimitsGroup2, side2LimitsReports);
-                if (operationalLimitsGroupModificationInfos.getSelectedOperationalLimitsGroupId() != null) {
-                    branch.setSelectedOperationalLimitsGroup2(operationalLimitsGroupModificationInfos.getSelectedOperationalLimitsGroupId());
-                    side2LimitsReports.add(ReportNode.newRootReportNode()
-                            .withAllResourceBundlesFromClasspath()
-                            .withMessageTemplate("network.modification.newSelectedOperationalLimitsGroup")
-                            .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, operationalLimitsGroupModificationInfos.getId())
-                            .withUntypedValue(SIDE, operationalLimitsGroupModificationInfos.getSide())
-                            .withSeverity(TypedValue.INFO_SEVERITY)
-                            .build());
-                }
-            }
-        }
+        applySelectedOpLGs(branch, side1LimitsReports, side2LimitsReports);
 
         if (!side1LimitsReports.isEmpty() || !side2LimitsReports.isEmpty()) {
             ReportNode limitsReportNode = subReportNode.newReportNode().withMessageTemplate("network.modification.limits").add();
@@ -116,6 +89,75 @@ public abstract class AbstractBranchModification extends AbstractModification {
             ModificationUtils.getInstance().reportModifications(limitsReportNode, side2LimitsReports, "network.modification.side2LimitsModification");
         }
         updateConnections(branch, branchModificationInfos);
+    }
+
+    private void applySelectedOpLGs(Branch<?> branch, List<ReportNode> side1LimitsReports, List<ReportNode> side2LimitsReports) {
+        if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
+            applySelectedOpLGOnSide1(branch, side1LimitsReports);
+        }
+        if (modificationInfos.getSelectedOperationalLimitsGroup2() != null) {
+            applySelectedOpLGOnSide2(branch, side2LimitsReports);
+        }
+    }
+
+    private void applySelectedOpLGOnSide1(Branch<?> branch, List<ReportNode> side1LimitsReports) {
+        switch (modificationInfos.getSelectedOperationalLimitsGroup1().getOp()) {
+            case UNSET : {
+                branch.setSelectedOperationalLimitsGroup1("");
+                side1LimitsReports.add(ReportNode.newRootReportNode()
+                        .withMessageTemplate("network.modification.noLimitSetSelectedOnSide1")
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .build());
+            } break;
+            case SET: {
+                String newSelectedOpLG1 = modificationInfos.getSelectedOperationalLimitsGroup1().getValue();
+                if (StringUtils.hasText(newSelectedOpLG1) && branch.getOperationalLimitsGroup1(newSelectedOpLG1).isEmpty()) {
+                    side1LimitsReports.add(ReportNode.newRootReportNode()
+                            .withMessageTemplate("network.modification.limitSetAbsentOnSide1")
+                            .withUntypedValue("selectedOperationalLimitsGroup", newSelectedOpLG1)
+                            .withSeverity(TypedValue.WARN_SEVERITY)
+                            .build());
+
+                } else {
+                    branch.setSelectedOperationalLimitsGroup1(newSelectedOpLG1);
+                    side1LimitsReports.add(ReportNode.newRootReportNode()
+                            .withMessageTemplate("network.modification.limitSetSelectedOnSide1")
+                            .withUntypedValue("selectedOperationalLimitsGroup1", newSelectedOpLG1)
+                            .withSeverity(TypedValue.INFO_SEVERITY)
+                            .build());
+                }
+            } break;
+        }
+    }
+
+    private void applySelectedOpLGOnSide2(Branch<?> branch, List<ReportNode> side2LimitsReports) {
+        switch (modificationInfos.getSelectedOperationalLimitsGroup2().getOp()) {
+            case UNSET : {
+                branch.setSelectedOperationalLimitsGroup2("");
+                side2LimitsReports.add(ReportNode.newRootReportNode()
+                        .withMessageTemplate("network.modification.noLimitSetSelectedOnSide2")
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .build());
+            } break;
+            case SET: {
+                String newSelectedOpLG = modificationInfos.getSelectedOperationalLimitsGroup2().getValue();
+                if (StringUtils.hasText(newSelectedOpLG) && branch.getOperationalLimitsGroup2(newSelectedOpLG).isEmpty()) {
+                    side2LimitsReports.add(ReportNode.newRootReportNode()
+                            .withMessageTemplate("network.modification.limitSetAbsentOnSide2")
+                            .withUntypedValue("selectedOperationalLimitsGroup2", newSelectedOpLG)
+                            .withSeverity(TypedValue.WARN_SEVERITY)
+                            .build());
+
+                } else {
+                    branch.setSelectedOperationalLimitsGroup2(newSelectedOpLG);
+                    side2LimitsReports.add(ReportNode.newRootReportNode()
+                            .withMessageTemplate("network.modification.limitSetSelectedOnSide2")
+                            .withUntypedValue("selectedOperationalLimitsGroup2", newSelectedOpLG)
+                            .withSeverity(TypedValue.INFO_SEVERITY)
+                            .build());
+                }
+            } break;
+        }
     }
 
     public ReportNode updateMeasurements(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode) {
@@ -239,10 +281,10 @@ public abstract class AbstractBranchModification extends AbstractModification {
                         .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("network.modification.operationalLimitsGroupModified")
                         .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, operationalLimitsGroupInfos.getId())
-                        .withUntypedValue(SIDE, operationalLimitsGroupInfos.getSide())
+                        .withUntypedValue(SIDE, operationalLimitsGroupInfos.getApplicability().toString())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .build());
-                modifyCurrentLimits(operationalLimitsGroupInfos, operationalLimitsGroupInfos.getCurrentLimits(), operationalLimitsGroup.newCurrentLimits(), currentLimits, operationalLimitsGroupReports);
+                modifyCurrentLimits(operationalLimitsGroupInfos, operationalLimitsGroup.newCurrentLimits(), currentLimits, operationalLimitsGroupReports);
             });
         } else if (OperationalLimitsGroupModificationType.ADD.equals(operationalLimitsGroupInfos.getModificationType())) {
             if (operationalLimitsGroup != null) {
@@ -253,10 +295,10 @@ public abstract class AbstractBranchModification extends AbstractModification {
                     .withAllResourceBundlesFromClasspath()
                     .withMessageTemplate("network.modification.operationalLimitsGroupAdded")
                     .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, operationalLimitsGroupInfos.getId())
-                    .withUntypedValue(SIDE, operationalLimitsGroupInfos.getSide())
+                    .withUntypedValue(SIDE, operationalLimitsGroupInfos.getApplicability().toString())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .build());
-            modifyCurrentLimits(operationalLimitsGroupInfos, operationalLimitsGroupInfos.getCurrentLimits(), newOperationalLimitsGroup.newCurrentLimits(), newOperationalLimitsGroup.getCurrentLimits().orElse(null), operationalLimitsGroupReports);
+            modifyCurrentLimits(operationalLimitsGroupInfos, newOperationalLimitsGroup.newCurrentLimits(), newOperationalLimitsGroup.getCurrentLimits().orElse(null), operationalLimitsGroupReports);
         } else if (OperationalLimitsGroupModificationType.REPLACE.equals(operationalLimitsGroupInfos.getModificationType())) {
             if (operationalLimitsGroup != null) {
                 operationalLimitsGroup.removeCurrentLimits();
@@ -266,18 +308,19 @@ public abstract class AbstractBranchModification extends AbstractModification {
                     .withAllResourceBundlesFromClasspath()
                     .withMessageTemplate("network.modification.operationalLimitsGroupReplaced")
                     .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, operationalLimitsGroupInfos.getId())
-                    .withUntypedValue(SIDE, operationalLimitsGroupInfos.getSide())
+                    .withUntypedValue(SIDE, operationalLimitsGroupInfos.getApplicability().toString())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .build());
-            modifyCurrentLimits(operationalLimitsGroupInfos, operationalLimitsGroupInfos.getCurrentLimits(), newOperationalLimitsGroup.newCurrentLimits(), null, operationalLimitsGroupReports);
+            modifyCurrentLimits(operationalLimitsGroupInfos, newOperationalLimitsGroup.newCurrentLimits(), null, operationalLimitsGroupReports);
         }
     }
 
-    protected void modifyCurrentLimits(CurrentLimitsModificationInfos currentLimitsInfos, CurrentLimitsAdder limitsAdder, CurrentLimits currentLimits, List<ReportNode> limitsReports) {
-        modifyCurrentLimits(null, currentLimitsInfos, limitsAdder, currentLimits, limitsReports);
-    }
-
-    protected void modifyCurrentLimits(OperationalLimitsGroupModificationInfos operationalLimitsGroupModificationInfos, CurrentLimitsModificationInfos currentLimitsInfos, CurrentLimitsAdder limitsAdder, CurrentLimits currentLimits, List<ReportNode> limitsReports) {
+    protected void modifyCurrentLimits(
+            OperationalLimitsGroupModificationInfos operationalLimitsGroupModificationInfos,
+            CurrentLimitsAdder limitsAdder,
+            CurrentLimits currentLimits,
+            List<ReportNode> limitsReports) {
+        CurrentLimitsModificationInfos currentLimitsInfos = operationalLimitsGroupModificationInfos.getCurrentLimits();
         boolean hasPermanent = currentLimitsInfos.getPermanentLimit() != null;
         if (hasPermanent) {
             limitsReports.add(ModificationUtils.getInstance().buildModificationReport(currentLimits != null ? currentLimits.getPermanentLimit() : Double.NaN,
@@ -288,12 +331,16 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 limitsAdder.setPermanentLimit(currentLimits.getPermanentLimit());
             }
         }
-        modifyTemporaryLimits(operationalLimitsGroupModificationInfos, currentLimitsInfos, limitsAdder, currentLimits, limitsReports);
+        modifyTemporaryLimits(operationalLimitsGroupModificationInfos, limitsAdder, currentLimits, limitsReports);
         limitsAdder.add();
     }
 
-    protected void modifyTemporaryLimits(OperationalLimitsGroupModificationInfos operationalLimitsGroupModificationInfos, CurrentLimitsModificationInfos currentLimitsInfos, CurrentLimitsAdder limitsAdder,
-                                         CurrentLimits currentLimits, List<ReportNode> limitsReports) {
+    protected void modifyTemporaryLimits(OperationalLimitsGroupModificationInfos operationalLimitsGroupModificationInfos,
+                                         CurrentLimitsAdder limitsAdder,
+                                         CurrentLimits currentLimits,
+                                         List<ReportNode> limitsReports) {
+        CurrentLimitsModificationInfos currentLimitsInfos = operationalLimitsGroupModificationInfos.getCurrentLimits();
+
         // we create a mutable list of temporary limits to be able to remove the limits that are modified in current modification
         List<LoadingLimits.TemporaryLimit> branchTemporaryLimits = new ArrayList<>();
         boolean areLimitsReplaced = operationalLimitsGroupModificationInfos != null && TemporaryLimitModificationType.REPLACE.equals(operationalLimitsGroupModificationInfos.getTemporaryLimitsModificationType());
@@ -309,79 +356,81 @@ public abstract class AbstractBranchModification extends AbstractModification {
                     .build());
         }
 
-        for (CurrentTemporaryLimitModificationInfos limit : currentLimitsInfos.getTemporaryLimits()) {
-            int limitAcceptableDuration = limit.getAcceptableDuration() == null ? Integer.MAX_VALUE : limit.getAcceptableDuration();
-            double limitValue = limit.getValue() == null ? Double.MAX_VALUE : limit.getValue();
-            String limitDurationToReport = limitAcceptableDuration == Integer.MAX_VALUE ? " " : String.valueOf(limitAcceptableDuration);
-            String limitValueToReport = limitValue == Double.MAX_VALUE ? "no value" : String.valueOf(limitValue);
-            LoadingLimits.TemporaryLimit limitToModify = null;
-            if (currentLimits != null) {
-                limitToModify = currentLimits.getTemporaryLimit(limitAcceptableDuration);
-                if (limitToModify != null && !limitToModify.getName().equals(limit.getName())) {
-                    throw new PowsyblException("2 temporary limits have the same duration " + limitAcceptableDuration);
-                }
+        if (currentLimitsInfos != null && currentLimitsInfos.getTemporaryLimits() != null) {
+            for (CurrentTemporaryLimitModificationInfos limit : currentLimitsInfos.getTemporaryLimits()) {
+                int limitAcceptableDuration = limit.getAcceptableDuration() == null ? Integer.MAX_VALUE : limit.getAcceptableDuration();
+                double limitValue = limit.getValue() == null ? Double.MAX_VALUE : limit.getValue();
+                String limitDurationToReport = limitAcceptableDuration == Integer.MAX_VALUE ? " " : String.valueOf(limitAcceptableDuration);
+                String limitValueToReport = limitValue == Double.MAX_VALUE ? "no value" : String.valueOf(limitValue);
+                LoadingLimits.TemporaryLimit limitToModify = null;
+                if (currentLimits != null) {
+                    limitToModify = currentLimits.getTemporaryLimit(limitAcceptableDuration);
+                    if (limitToModify != null && !limitToModify.getName().equals(limit.getName())) {
+                        throw new PowsyblException("2 temporary limits have the same duration " + limitAcceptableDuration);
+                    }
 
-                //Additional check for limit sets tabular modifications
-                if (operationalLimitsGroupModificationInfos != null && TemporaryLimitModificationType.ADD.equals(operationalLimitsGroupModificationInfos.getTemporaryLimitsModificationType())) {
-                    currentLimits.getTemporaryLimits().stream().filter(temporaryLimit -> temporaryLimit.getName().equals(limit.getName())).findFirst().ifPresent(temporaryLimit -> {
-                        throw new PowsyblException("2 temporary limits have the same name " + limit.getName());
-                    });
+                    //Additional check for limit sets tabular modifications
+                    if (operationalLimitsGroupModificationInfos != null && TemporaryLimitModificationType.ADD.equals(operationalLimitsGroupModificationInfos.getTemporaryLimitsModificationType())) {
+                        currentLimits.getTemporaryLimits().stream().filter(temporaryLimit -> temporaryLimit.getName().equals(limit.getName())).findFirst().ifPresent(temporaryLimit -> {
+                            throw new PowsyblException("2 temporary limits have the same name " + limit.getName());
+                        });
+                    }
+                    // we remove the limit to modify from the list of temporary limits so we can get the list of temporary limits coming from previous modifications
+                    branchTemporaryLimits.removeIf(temporaryLimit -> temporaryLimit.getAcceptableDuration() == limitAcceptableDuration);
                 }
-                // we remove the limit to modify from the list of temporary limits so we can get the list of temporary limits coming from previous modifications
-                branchTemporaryLimits.removeIf(temporaryLimit -> temporaryLimit.getAcceptableDuration() == limitAcceptableDuration);
-            }
-            if (limitToModify == null && limit.getModificationType() == TemporaryLimitModificationType.ADD || limit.getModificationType() == TemporaryLimitModificationType.REPLACE) {
-                temporaryLimitsReports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("network.modification.temporaryLimitAdded.name")
-                        .withUntypedValue(NAME, limit.getName())
-                        .withUntypedValue(DURATION, limitDurationToReport)
-                        .withUntypedValue(VALUE, limitValueToReport)
-                        .withSeverity(TypedValue.INFO_SEVERITY)
-                        .build());
-
-            } else if (limitToModify != null) {
-                if (limit.getModificationType() == TemporaryLimitModificationType.DELETE) {
+                if (limitToModify == null && limit.getModificationType() == TemporaryLimitModificationType.ADD || limit.getModificationType() == TemporaryLimitModificationType.REPLACE) {
                     temporaryLimitsReports.add(ReportNode.newRootReportNode()
                             .withAllResourceBundlesFromClasspath()
-                            .withMessageTemplate("network.modification.temporaryLimitDeleted.name")
-                            .withUntypedValue(NAME, limit.getName())
-                            .withUntypedValue(DURATION, limitDurationToReport)
-                            .withSeverity(TypedValue.INFO_SEVERITY)
-                            .build());
-                    continue;
-                } else if (Double.compare(limitToModify.getValue(), limitValue) != 0 && limit.getModificationType() != null) {
-                    temporaryLimitsReports.add(ReportNode.newRootReportNode()
-                            .withAllResourceBundlesFromClasspath()
-                            .withMessageTemplate("network.modification.temporaryLimitModified.name")
+                            .withMessageTemplate("network.modification.temporaryLimitAdded.name")
                             .withUntypedValue(NAME, limit.getName())
                             .withUntypedValue(DURATION, limitDurationToReport)
                             .withUntypedValue(VALUE, limitValueToReport)
-                            .withUntypedValue("oldValue",
-                                    limitToModify.getValue() == Double.MAX_VALUE ? "no value"
-                                            : String.valueOf(limitToModify.getValue()))
                             .withSeverity(TypedValue.INFO_SEVERITY)
                             .build());
+
+                } else if (limitToModify != null) {
+                    if (limit.getModificationType() == TemporaryLimitModificationType.DELETE) {
+                        temporaryLimitsReports.add(ReportNode.newRootReportNode()
+                                .withAllResourceBundlesFromClasspath()
+                                .withMessageTemplate("network.modification.temporaryLimitDeleted.name")
+                                .withUntypedValue(NAME, limit.getName())
+                                .withUntypedValue(DURATION, limitDurationToReport)
+                                .withSeverity(TypedValue.INFO_SEVERITY)
+                                .build());
+                        continue;
+                    } else if (Double.compare(limitToModify.getValue(), limitValue) != 0 && limit.getModificationType() != null) {
+                        temporaryLimitsReports.add(ReportNode.newRootReportNode()
+                                .withAllResourceBundlesFromClasspath()
+                                .withMessageTemplate("network.modification.temporaryLimitModified.name")
+                                .withUntypedValue(NAME, limit.getName())
+                                .withUntypedValue(DURATION, limitDurationToReport)
+                                .withUntypedValue(VALUE, limitValueToReport)
+                                .withUntypedValue("oldValue",
+                                        limitToModify.getValue() == Double.MAX_VALUE ? "no value"
+                                                : String.valueOf(limitToModify.getValue()))
+                                .withSeverity(TypedValue.INFO_SEVERITY)
+                                .build());
+                    } else {
+                        limitValue = limitToModify.getValue();
+                    }
+                } else if (limit.getModificationType() == TemporaryLimitModificationType.MODIFY) {
+                    temporaryLimitsReports.add(ReportNode.newRootReportNode()
+                            .withAllResourceBundlesFromClasspath()
+                            .withMessageTemplate("network.modification.temporaryLimitsNoMatch")
+                            .withUntypedValue(LIMIT_ACCEPTABLE_DURATION, limitAcceptableDuration)
+                            .withSeverity(TypedValue.WARN_SEVERITY)
+                            .build());
+                    continue;
                 } else {
-                    limitValue = limitToModify.getValue();
+                    continue;
                 }
-            } else if (limit.getModificationType() == TemporaryLimitModificationType.MODIFY) {
-                temporaryLimitsReports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("network.modification.temporaryLimitsNoMatch")
-                        .withUntypedValue(LIMIT_ACCEPTABLE_DURATION, limitAcceptableDuration)
-                        .withSeverity(TypedValue.WARN_SEVERITY)
-                        .build());
-                continue;
-            } else {
-                continue;
+                limitsAdder
+                        .beginTemporaryLimit()
+                        .setName(limit.getName())
+                        .setValue(limitValue)
+                        .setAcceptableDuration(limitAcceptableDuration)
+                        .endTemporaryLimit();
             }
-            limitsAdder
-                    .beginTemporaryLimit()
-                    .setName(limit.getName())
-                    .setValue(limitValue)
-                    .setAcceptableDuration(limitAcceptableDuration)
-                    .endTemporaryLimit();
         }
         // we add the temporary limits comming from previous modifications
         if (!branchTemporaryLimits.isEmpty()) {
