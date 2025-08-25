@@ -60,13 +60,13 @@ class LoadModificationByAssignmentTest extends AbstractModificationByAssignmentT
     @Override
     protected List<AssignmentInfos<?>> getAssignmentInfos() {
         DoubleAssignmentInfos assignmentInfos1 = DoubleAssignmentInfos.builder()
-                .editedField(LoadField.ACTIVE_POWER.name())
+                .editedField(LoadField.ACTIVE_POWER_SET_POINT.name())
                 .value(25.)
                 .filters(List.of(filter1))
                 .build();
 
         DoubleAssignmentInfos assignmentInfos2 = DoubleAssignmentInfos.builder()
-                .editedField(LoadField.REACTIVE_POWER.name())
+                .editedField(LoadField.REACTIVE_POWER_SET_POINT.name())
                 .value(2.5)
                 .filters(List.of(filter2))
                 .build();
