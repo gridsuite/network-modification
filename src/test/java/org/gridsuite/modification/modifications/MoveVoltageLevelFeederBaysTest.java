@@ -14,7 +14,6 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ConnectablePositionModificationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.MoveVoltageLevelFeederBaysInfos;
-import org.gridsuite.modification.dto.OperatingStatusModificationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
