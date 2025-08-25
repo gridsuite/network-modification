@@ -29,7 +29,7 @@ public class ConnectablePositionModification extends AbstractModification {
 
     @Override
     public String getName() {
-        return "ExtensionAttributeModification";
+        return "ConnectablePositionModification";
     }
 
     @Override
