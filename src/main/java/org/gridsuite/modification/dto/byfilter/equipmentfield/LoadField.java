@@ -21,15 +21,15 @@ import jakarta.validation.constraints.NotNull;
  */
 public enum LoadField {
     LOAD_TYPE,
-    ACTIVE_POWER,
-    REACTIVE_POWER;
+    ACTIVE_POWER_SET_POINT,
+    REACTIVE_POWER_SET_POINT;
 
     public static String getReferenceValue(Load load, String loadField) {
         LoadField field = LoadField.valueOf(loadField);
         return switch (field) {
             case LOAD_TYPE -> load.getLoadType().name();
-            case ACTIVE_POWER -> String.valueOf(load.getP0());
-            case REACTIVE_POWER -> String.valueOf(load.getQ0());
+            case ACTIVE_POWER_SET_POINT -> String.valueOf(load.getP0());
+            case REACTIVE_POWER_SET_POINT -> String.valueOf(load.getQ0());
         };
     }
 
@@ -37,8 +37,8 @@ public enum LoadField {
         LoadField field = LoadField.valueOf(loadField);
         switch (field) {
             case LOAD_TYPE -> load.setLoadType(LoadType.valueOf(newValue));
-            case ACTIVE_POWER -> modifyP0(load, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null);
-            case REACTIVE_POWER -> modifyQ0(load, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null);
+            case ACTIVE_POWER_SET_POINT -> modifyP0(load, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null);
+            case REACTIVE_POWER_SET_POINT -> modifyQ0(load, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null);
         }
     }
 }
