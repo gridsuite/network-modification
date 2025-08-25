@@ -723,7 +723,7 @@ public final class ModificationUtils {
         return reportModifications(connectivityReports, reports, "network.modification.ConnectivityModified");
     }
 
-    private void processConnectivityPosition(ConnectablePosition<?> connectablePosition,
+    public void processConnectivityPosition(ConnectablePosition<?> connectablePosition,
                                              ConnectablePositionAdder<?> connectablePositionAdder,
                                              BasicEquipmentModificationInfos modificationInfos,
                                              Network network,
