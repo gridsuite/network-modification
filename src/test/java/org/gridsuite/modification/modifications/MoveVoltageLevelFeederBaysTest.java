@@ -7,12 +7,14 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ConnectablePositionModificationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.MoveVoltageLevelFeederBaysInfos;
+import org.gridsuite.modification.dto.OperatingStatusModificationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -22,13 +24,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.gridsuite.modification.ModificationType.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS;
 import static org.gridsuite.modification.utils.NetworkUtil.createBusBarSection;
+import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
+class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
 
     @Override
     protected Network createNetwork(UUID networkUuid) {
@@ -200,7 +204,7 @@ public class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationT
     }
 
     @Test
-    public void testGetTerminal() {
+    void testGetTerminal() {
         Network network = getNetwork();
         // is not an injection or a branch
         ConnectablePositionModification connectablePositionModification = new ConnectablePositionModification(ConnectablePositionModificationInfos.builder()
@@ -249,5 +253,20 @@ public class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationT
         assertEquals("v4", terminal.getVoltageLevel().getId());
         assertEquals("line1", terminal.getConnectable().getId());
         assertEquals(TwoSides.TWO, network.getLine("line1").getSide(terminal));
+    }
+
+    @Test
+    void testCreateSubReportNode() {
+        ReportNode reportNode = ReportNode.newRootReportNode()
+            .withAllResourceBundlesFromClasspath()
+            .withMessageTemplate("test")
+            .build();
+
+        MoveVoltageLevelFeederBaysInfos modification = (MoveVoltageLevelFeederBaysInfos) buildModification();
+        MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = (MoveVoltageLevelFeederBays) modification.toModification();
+        assertEquals(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS.toString(), moveVoltageLevelFeederBays.getName());
+
+        modification.createSubReportNode(reportNode);
+        assertLogMessage("Move voltage level feeder bays modification v3", "network.modification.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS", reportNode);
     }
 }
