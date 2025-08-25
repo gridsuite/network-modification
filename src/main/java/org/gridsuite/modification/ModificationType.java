@@ -62,7 +62,8 @@ public enum ModificationType {
     CREATE_COUPLING_DEVICE(PreloadingStrategy.NONE),
     CREATE_VOLTAGE_LEVEL_TOPOLOGY(PreloadingStrategy.NONE),
     LIMIT_SETS_TABULAR_MODIFICATION(PreloadingStrategy.COLLECTION),
-    CREATE_VOLTAGE_LEVEL_SECTION(PreloadingStrategy.NONE);
+    CREATE_VOLTAGE_LEVEL_SECTION(PreloadingStrategy.NONE),
+    MOVE_VOLTAGE_LEVEL_FEEDER_BAYS(PreloadingStrategy.NONE);
 
     private final PreloadingStrategy strategy;
 
