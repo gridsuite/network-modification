@@ -17,7 +17,6 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.MoveVoltageLevelFeederBays;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
