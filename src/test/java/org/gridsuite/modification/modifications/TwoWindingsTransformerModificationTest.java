@@ -20,6 +20,7 @@ import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.*;
 
@@ -347,6 +348,18 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
     }
 
     @Test
+    protected void checkModifiedMethod() {
+        TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos = (TwoWindingsTransformerModificationInfos) buildModification();
+        TwoWindingsTransformerModification twoWindingsTransformerModification = (TwoWindingsTransformerModification) twoWindingsTransformerModificationInfos.toModification();
+        Boolean value = ReflectionTestUtils.invokeMethod(twoWindingsTransformerModification, "phaseTapChangerModified", twoWindingsTransformerModificationInfos.getPhaseTapChanger());
+        assertNotNull(value);
+        assertTrue(value);
+        value = ReflectionTestUtils.invokeMethod(twoWindingsTransformerModification, "ratioTapChangerModified", twoWindingsTransformerModificationInfos.getRatioTapChanger());
+        assertNotNull(value);
+        assertTrue(value);
+    }
+
+    @Test
     void testPhaseTapChangerRegulationModification() {
         TwoWindingsTransformer twt3 = createPhaseTapChanger();
         String twtId = "trf3";
@@ -452,7 +465,9 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
 
         // Regulation mode not set
         phaseTapChangerCreation.getPhaseTapChanger().setRegulationMode(new AttributeModification<>(null, OperationType.SET));
-        assertThrows(ValidationException.class, () -> phaseTapChangerCreation.toModification().apply(getNetwork()));
+        TwoWindingsTransformerModification tmpTransformerModification = (TwoWindingsTransformerModification) phaseTapChangerCreation.toModification();
+        Throwable exc = assertThrows(ValidationException.class, () -> tmpTransformerModification.apply(network));
+        assertEquals("2 windings transformer 'trf3': phase regulation mode is not set", exc.getMessage());
     }
 
     @Override
