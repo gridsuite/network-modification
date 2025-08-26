@@ -20,6 +20,7 @@ import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
+import org.springframework.util.Assert;
 
 import java.util.*;
 
@@ -400,6 +401,15 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertEquals(1.0, phaseTapChanger.getTargetDeadband());
         assertEquals(10.0, phaseTapChanger.getRegulationValue());
         assertTrue(phaseTapChanger.isRegulating());
+
+        // modification 4
+        phaseTapChangerCreation.getPhaseTapChanger().setEnabled(new AttributeModification<>(false, OperationType.SET));
+
+        phaseTapChangerCreation.toModification().apply(getNetwork());
+        phaseTapChanger = getNetwork().getTwoWindingsTransformer(twtId).getPhaseTapChanger();
+
+        // modification 4 assert
+        assertNull(phaseTapChanger);
     }
 
     @Test
@@ -478,6 +488,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
             // change not applied
             assertThat(terminal.isConnected()).isNotEqualTo(expectedState);
             assertThat(exception.getMessage()).isEqualTo(errorMessage);
+            assertFalse(twoWindingsTransformerModification.characteristicsModified(modificationInfos));
         } else {
             modificationInfos.toModification().apply(getNetwork());
             // connection state has changed as expected
@@ -764,6 +775,11 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         ratioTapChangerModification.toModification().apply(getNetwork());
 
         assertEquals(0.0, ratioTapChanger.getTargetDeadband());
+
+        // Add disable test
+        ratioTapChangerModification.getRatioTapChanger().setEnabled(new AttributeModification<>(false, OperationType.SET));
+        ratioTapChangerModification.toModification().apply(getNetwork());
+        assertNull(getNetwork().getTwoWindingsTransformer(twtId).getRatioTapChanger());
     }
 
     @Test
@@ -808,6 +824,10 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertTrue(ratioTapChanger.isRegulating());
         assertEquals(RatioTapChanger.RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
         assertEquals(120.0, ratioTapChanger.getTargetV());
+
+        ratioTapChangerModification.getRatioTapChanger().setRegulationSide(new AttributeModification<>(RegulationSide.SIDE1, OperationType.SET));
+        ratioTapChangerModification.toModification().apply(getNetwork());
+        assertFalse(ratioTapChanger.getRegulationTerminal().isConnected());
     }
 
     @Test
@@ -850,6 +870,26 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertNull(ratioTapChanger.getRegulationTerminal());
     }
 
+    @Test
+    void testMoveFeederBay() {
+        TwoWindingsTransformerModificationInfos transformerModificationInfos = (TwoWindingsTransformerModificationInfos) buildModification();
+        // Change busbar section only on terminal 2
+        transformerModificationInfos.setBusOrBusbarSectionId2(new AttributeModification<>("1A", OperationType.SET));
+
+        transformerModificationInfos.toModification().apply(getNetwork());
+        TwoWindingsTransformer twoWindingsTransformer = getNetwork().getTwoWindingsTransformer("trf1");
+        Terminal terminal1 = twoWindingsTransformer.getTerminal1();
+        Terminal terminal2 = twoWindingsTransformer.getTerminal2();
+        assertEquals("v1", twoWindingsTransformer.getTerminal1().getVoltageLevel().getId());
+        assertEquals("v2", terminal2.getVoltageLevel().getId());
+        BusbarSectionFinderTraverser connectedBusbarSectionFinder1 = new BusbarSectionFinderTraverser(terminal1.isConnected());
+        terminal1.traverse(connectedBusbarSectionFinder1, TraversalType.BREADTH_FIRST);
+        assertEquals("1.1", connectedBusbarSectionFinder1.getFirstTraversedBbsId());
+        BusbarSectionFinderTraverser connectedBusbarSectionFinder2 = new BusbarSectionFinderTraverser(terminal2.isConnected());
+        terminal2.traverse(connectedBusbarSectionFinder2, TraversalType.BREADTH_FIRST);
+        assertEquals("1A", connectedBusbarSectionFinder2.getFirstTraversedBbsId());
+    }
+
     private TwoWindingsTransformerModificationInfos createRatioTapChangerInfos(String twtId) {
         return TwoWindingsTransformerModificationInfos.builder()
             .stashed(false)
@@ -882,26 +922,6 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 ))
                 .build())
             .build();
-    }
-
-    @Test
-    void testMoveFeederBay() {
-        TwoWindingsTransformerModificationInfos transformerModificationInfos = (TwoWindingsTransformerModificationInfos) buildModification();
-        // Change busbar section only on terminal 2
-        transformerModificationInfos.setBusOrBusbarSectionId2(new AttributeModification<>("1A", OperationType.SET));
-
-        transformerModificationInfos.toModification().apply(getNetwork());
-        TwoWindingsTransformer twoWindingsTransformer = getNetwork().getTwoWindingsTransformer("trf1");
-        Terminal terminal1 = twoWindingsTransformer.getTerminal1();
-        Terminal terminal2 = twoWindingsTransformer.getTerminal2();
-        assertEquals("v1", twoWindingsTransformer.getTerminal1().getVoltageLevel().getId());
-        assertEquals("v2", terminal2.getVoltageLevel().getId());
-        BusbarSectionFinderTraverser connectedBusbarSectionFinder1 = new BusbarSectionFinderTraverser(terminal1.isConnected());
-        terminal1.traverse(connectedBusbarSectionFinder1, TraversalType.BREADTH_FIRST);
-        assertEquals("1.1", connectedBusbarSectionFinder1.getFirstTraversedBbsId());
-        BusbarSectionFinderTraverser connectedBusbarSectionFinder2 = new BusbarSectionFinderTraverser(terminal2.isConnected());
-        terminal2.traverse(connectedBusbarSectionFinder2, TraversalType.BREADTH_FIRST);
-        assertEquals("1A", connectedBusbarSectionFinder2.getFirstTraversedBbsId());
     }
 }
 
