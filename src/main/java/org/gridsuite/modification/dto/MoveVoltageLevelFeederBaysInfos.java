@@ -54,8 +54,6 @@ public class MoveVoltageLevelFeederBaysInfos extends ModificationInfos {
 
     @Override
     public Map<String, String> getMapMessageValues() {
-        Map<String, String> mapMessageValues = new HashMap<>();
-        mapMessageValues.put("voltageLevelId", getVoltageLevelId());
-        return mapMessageValues;
+        return Map.of("voltageLevelId", getVoltageLevelId());
     }
 }
