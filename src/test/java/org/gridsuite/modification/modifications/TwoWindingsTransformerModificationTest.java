@@ -449,6 +449,10 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertEquals(0.0, phaseTapChanger.getTargetDeadband());
         assertEquals(10.0, phaseTapChanger.getRegulationValue());
         assertTrue(phaseTapChanger.isRegulating());
+
+        // Regulation mode not set
+        phaseTapChangerCreation.getPhaseTapChanger().setRegulationMode(new AttributeModification<>(null, OperationType.SET));
+        assertThrows(ValidationException.class, () -> phaseTapChangerCreation.toModification().apply(getNetwork()));
     }
 
     @Override
