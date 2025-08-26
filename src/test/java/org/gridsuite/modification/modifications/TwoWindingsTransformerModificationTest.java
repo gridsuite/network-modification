@@ -20,7 +20,6 @@ import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
-import org.springframework.util.Assert;
 
 import java.util.*;
 
@@ -871,23 +870,28 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
     }
 
     @Test
-    void testMoveFeederBay() {
-        TwoWindingsTransformerModificationInfos transformerModificationInfos = (TwoWindingsTransformerModificationInfos) buildModification();
-        // Change busbar section only on terminal 2
-        transformerModificationInfos.setBusOrBusbarSectionId2(new AttributeModification<>("1A", OperationType.SET));
+    void testCreateRegulatingRatioTapChanger() {
+        String twtId = "trf3";
+        TwoWindingsTransformer twt3 = createTwoWindingsTransformer(getNetwork().getSubstation("s1"), "trf3", "trf3", 2.0, 14.745, 0.0, 3.2E-5, 400.0, 225.0,
+            41, 151, getNetwork().getVoltageLevel("v1").getId(), getNetwork().getVoltageLevel("v2").getId(),
+            "trf3", 1, ConnectablePosition.Direction.TOP,
+            "trf3", 2, ConnectablePosition.Direction.TOP);
 
-        transformerModificationInfos.toModification().apply(getNetwork());
-        TwoWindingsTransformer twoWindingsTransformer = getNetwork().getTwoWindingsTransformer("trf1");
-        Terminal terminal1 = twoWindingsTransformer.getTerminal1();
-        Terminal terminal2 = twoWindingsTransformer.getTerminal2();
-        assertEquals("v1", twoWindingsTransformer.getTerminal1().getVoltageLevel().getId());
-        assertEquals("v2", terminal2.getVoltageLevel().getId());
-        BusbarSectionFinderTraverser connectedBusbarSectionFinder1 = new BusbarSectionFinderTraverser(terminal1.isConnected());
-        terminal1.traverse(connectedBusbarSectionFinder1, TraversalType.BREADTH_FIRST);
-        assertEquals("1.1", connectedBusbarSectionFinder1.getFirstTraversedBbsId());
-        BusbarSectionFinderTraverser connectedBusbarSectionFinder2 = new BusbarSectionFinderTraverser(terminal2.isConnected());
-        terminal2.traverse(connectedBusbarSectionFinder2, TraversalType.BREADTH_FIRST);
-        assertEquals("1A", connectedBusbarSectionFinder2.getFirstTraversedBbsId());
+        TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos = createRatioTapChangerInfos(twtId);
+        // modify 'twoWindingsTransformerModificationInfos' in order to test the creation of a ratio tap changer immediately regulating
+        twoWindingsTransformerModificationInfos.getRatioTapChanger().setRegulating(new AttributeModification<>(true, OperationType.SET));
+        twoWindingsTransformerModificationInfos.getRatioTapChanger().setLoadTapChangingCapabilities(new AttributeModification<>(true, OperationType.SET));
+        twoWindingsTransformerModificationInfos.getRatioTapChanger().setTargetV(new AttributeModification<>(200.0, OperationType.SET));
+        twoWindingsTransformerModificationInfos.getRatioTapChanger().setTargetDeadband(new AttributeModification<>(2.0, OperationType.SET));
+        twoWindingsTransformerModificationInfos.toModification().apply(getNetwork());
+
+        RatioTapChanger ratioTapChanger = twt3.getRatioTapChanger();
+
+        assertTrue(ratioTapChanger.isRegulating());
+        assertSame(RatioTapChanger.RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
+        assertEquals("v3", ratioTapChanger.getRegulationTerminal().getVoltageLevel().getId());
+        assertEquals("v3load", ratioTapChanger.getRegulationTerminal().getConnectable().getId());
+        assertEquals(ThreeSides.ONE, ratioTapChanger.getRegulationTerminal().getSide());
     }
 
     private TwoWindingsTransformerModificationInfos createRatioTapChangerInfos(String twtId) {
@@ -922,6 +926,26 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 ))
                 .build())
             .build();
+    }
+
+    @Test
+    void testMoveFeederBay() {
+        TwoWindingsTransformerModificationInfos transformerModificationInfos = (TwoWindingsTransformerModificationInfos) buildModification();
+        // Change busbar section only on terminal 2
+        transformerModificationInfos.setBusOrBusbarSectionId2(new AttributeModification<>("1A", OperationType.SET));
+
+        transformerModificationInfos.toModification().apply(getNetwork());
+        TwoWindingsTransformer twoWindingsTransformer = getNetwork().getTwoWindingsTransformer("trf1");
+        Terminal terminal1 = twoWindingsTransformer.getTerminal1();
+        Terminal terminal2 = twoWindingsTransformer.getTerminal2();
+        assertEquals("v1", twoWindingsTransformer.getTerminal1().getVoltageLevel().getId());
+        assertEquals("v2", terminal2.getVoltageLevel().getId());
+        BusbarSectionFinderTraverser connectedBusbarSectionFinder1 = new BusbarSectionFinderTraverser(terminal1.isConnected());
+        terminal1.traverse(connectedBusbarSectionFinder1, TraversalType.BREADTH_FIRST);
+        assertEquals("1.1", connectedBusbarSectionFinder1.getFirstTraversedBbsId());
+        BusbarSectionFinderTraverser connectedBusbarSectionFinder2 = new BusbarSectionFinderTraverser(terminal2.isConnected());
+        terminal2.traverse(connectedBusbarSectionFinder2, TraversalType.BREADTH_FIRST);
+        assertEquals("1A", connectedBusbarSectionFinder2.getFirstTraversedBbsId());
     }
 }
 
