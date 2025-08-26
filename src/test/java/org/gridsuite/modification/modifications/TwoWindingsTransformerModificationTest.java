@@ -850,6 +850,31 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertNull(ratioTapChanger.getRegulationTerminal());
     }
 
+    @Test
+    void testCreateRegulatingRatioTapChanger() {
+        String twtId = "trf3";
+        TwoWindingsTransformer twt3 = createTwoWindingsTransformer(getNetwork().getSubstation("s1"), "trf3", "trf3", 2.0, 14.745, 0.0, 3.2E-5, 400.0, 225.0,
+            41, 151, getNetwork().getVoltageLevel("v1").getId(), getNetwork().getVoltageLevel("v2").getId(),
+            "trf3", 1, ConnectablePosition.Direction.TOP,
+            "trf3", 2, ConnectablePosition.Direction.TOP);
+
+        TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos = createRatioTapChangerInfos(twtId);
+        // modify 'twoWindingsTransformerModificationInfos' in order to test the creation of a ratio tap changer immediately regulating
+        twoWindingsTransformerModificationInfos.getRatioTapChanger().setRegulating(new AttributeModification<>(true, OperationType.SET));
+        twoWindingsTransformerModificationInfos.getRatioTapChanger().setLoadTapChangingCapabilities(new AttributeModification<>(true, OperationType.SET));
+        twoWindingsTransformerModificationInfos.getRatioTapChanger().setTargetV(new AttributeModification<>(200.0, OperationType.SET));
+        twoWindingsTransformerModificationInfos.getRatioTapChanger().setTargetDeadband(new AttributeModification<>(2.0, OperationType.SET));
+        twoWindingsTransformerModificationInfos.toModification().apply(getNetwork());
+
+        RatioTapChanger ratioTapChanger = twt3.getRatioTapChanger();
+
+        assertTrue(ratioTapChanger.isRegulating());
+        assertSame(RatioTapChanger.RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
+        assertEquals("v3", ratioTapChanger.getRegulationTerminal().getVoltageLevel().getId());
+        assertEquals("v3load", ratioTapChanger.getRegulationTerminal().getConnectable().getId());
+        assertEquals(ThreeSides.ONE, ratioTapChanger.getRegulationTerminal().getSide());
+    }
+
     private TwoWindingsTransformerModificationInfos createRatioTapChangerInfos(String twtId) {
         return TwoWindingsTransformerModificationInfos.builder()
             .stashed(false)
