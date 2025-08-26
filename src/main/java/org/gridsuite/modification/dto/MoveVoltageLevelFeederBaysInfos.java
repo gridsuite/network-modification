@@ -17,7 +17,9 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.MoveVoltageLevelFeederBays;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -28,7 +30,7 @@ import java.util.List;
 @Setter
 @Schema(description = "Move voltage level feeder bays")
 @JsonTypeName("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS")
-@ModificationErrorTypeName("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS")
+@ModificationErrorTypeName("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR")
 public class MoveVoltageLevelFeederBaysInfos extends ModificationInfos {
 
     @Schema(description = "Voltage level id")
@@ -48,5 +50,12 @@ public class MoveVoltageLevelFeederBaysInfos extends ModificationInfos {
             .withMessageTemplate("network.modification.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS")
             .withUntypedValue("voltageLevelId", getVoltageLevelId())
             .add();
+    }
+
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        Map<String, String> mapMessageValues = new HashMap<>();
+        mapMessageValues.put("voltageLevelId", getVoltageLevelId());
+        return mapMessageValues;
     }
 }

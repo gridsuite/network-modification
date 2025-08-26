@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.dto;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -14,9 +13,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.ConnectablePositionModification;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -27,9 +23,7 @@ import org.gridsuite.modification.modifications.ConnectablePositionModification;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Connectable position modification")
-@JsonTypeName("")
-@ModificationErrorTypeName("MODIFICATION_ERROR")
-public class ConnectablePositionModificationInfos extends ModificationInfos {
+public class ConnectablePositionModificationInfos {
     @Schema(description = "Connectable id")
     private String connectableId;
 
@@ -47,9 +41,4 @@ public class ConnectablePositionModificationInfos extends ModificationInfos {
 
     @Schema(description = "connection direction")
     private ConnectablePosition.Direction connectionDirection;
-
-    @Override
-    public AbstractModification toModification() {
-        return new ConnectablePositionModification(this);
-    }
 }

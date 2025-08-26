@@ -14,7 +14,7 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MOVE_FEEDER_BAYS_ERROR;
+import static org.gridsuite.modification.NetworkModificationException.Type.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -69,7 +69,7 @@ public class ConnectablePositionModification extends AbstractModification {
             branchModificationInfos.setConnectionName2(new AttributeModification<>(modificationInfos.getConnectionName(), OperationType.SET));
             branchModificationInfos.setConnectionDirection2(new AttributeModification<>(modificationInfos.getConnectionDirection(), OperationType.SET));
         } else {
-            throw new NetworkModificationException(MOVE_FEEDER_BAYS_ERROR, String.format("the busbar id does not correspond to any of the busbar of %s", branch.getId()));
+            throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format("the busbar id does not correspond to any of the busbar of %s", branch.getId()));
         }
         return branchModificationInfos;
     }
@@ -78,10 +78,10 @@ public class ConnectablePositionModification extends AbstractModification {
     public void check(Network network) throws NetworkModificationException {
         Connectable<?> connectable = network.getConnectable(modificationInfos.getConnectableId());
         if (connectable == null) {
-            throw new NetworkModificationException(MOVE_FEEDER_BAYS_ERROR, String.format("Connectable %s not found", modificationInfos.getConnectableId()));
+            throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format("Connectable %s not found", modificationInfos.getConnectableId()));
         }
         if (!(connectable instanceof Injection<?>) && !(connectable instanceof Branch<?>)) {
-            throw new NetworkModificationException(MOVE_FEEDER_BAYS_ERROR, String.format("ConnectablePositionModification is not implemented for %s", connectable.getClass()));
+            throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format("ConnectablePositionModification is not implemented for %s", connectable.getClass()));
         }
     }
 
@@ -97,11 +97,11 @@ public class ConnectablePositionModification extends AbstractModification {
                 } else if (ModificationUtils.getInstance().getBusOrBusbarSection(branch.getTerminal2()).equals(modificationInfos.getBusBarSectionId())) {
                     return branch.getTerminal2();
                 } else {
-                    throw new NetworkModificationException(MOVE_FEEDER_BAYS_ERROR, String.format("the busbar id %s does not correspond to any of the busbar of %s",
+                    throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format("the busbar id %s does not correspond to any of the busbar of %s",
                         modificationInfos.getBusBarSectionId(), branch.getId()));
                 }
             }
-            default -> throw new NetworkModificationException(MOVE_FEEDER_BAYS_ERROR, String.format("ConnectablePositionModification is not implemented for %s", connectable.getClass()));
+            default -> throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format("ConnectablePositionModification is not implemented for %s", connectable.getClass()));
         }
     }
 }

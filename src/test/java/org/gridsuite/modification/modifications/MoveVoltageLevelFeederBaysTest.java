@@ -115,7 +115,7 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
             .build();
         MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = (MoveVoltageLevelFeederBays) moveVoltageLevelFeederBaysInfos.toModification();
         String message = assertThrows(NetworkModificationException.class, () -> moveVoltageLevelFeederBays.check(network)).getMessage();
-        assertEquals("MOVE_FEEDER_BAYS_ERROR : voltage level notFound is not found", message);
+        assertEquals("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR : voltage level notFound is not found", message);
     }
 
     private void testBusBarNotFound(Network network) {
@@ -134,7 +134,7 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
             .build();
         MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = (MoveVoltageLevelFeederBays) moveVoltageLevelFeederBaysInfos.toModification();
         String message = assertThrows(NetworkModificationException.class, () -> moveVoltageLevelFeederBays.check(network)).getMessage();
-        assertEquals("MOVE_FEEDER_BAYS_ERROR : Busbar section notFound where connectable v3load is supposed to be is not found in voltage Level v3", message);
+        assertEquals("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR : Busbar section notFound where connectable v3load is supposed to be is not found in voltage Level v3", message);
     }
 
     private void testTargetBusBarNotFound(Network network) {
@@ -153,7 +153,7 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
             .build();
         MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = (MoveVoltageLevelFeederBays) moveVoltageLevelFeederBaysInfos.toModification();
         String message = assertThrows(NetworkModificationException.class, () -> moveVoltageLevelFeederBays.check(network)).getMessage();
-        assertEquals("MOVE_FEEDER_BAYS_ERROR : Target busbar section notfound not found in voltage Level v3", message);
+        assertEquals("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR : Target busbar section notfound not found in voltage Level v3", message);
     }
 
     private void testConnectableNotFound(Network network) {
@@ -172,7 +172,7 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
             .build();
         MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = (MoveVoltageLevelFeederBays) moveVoltageLevelFeederBaysInfos.toModification();
         String message = assertThrows(NetworkModificationException.class, () -> moveVoltageLevelFeederBays.check(network)).getMessage();
-        assertEquals("MOVE_FEEDER_BAYS_ERROR : Connectable notFound not found", message);
+        assertEquals("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR : Connectable notFound not found", message);
     }
 
     private void testConnectableNotInjectionOrBranch(Network network) {
@@ -191,12 +191,12 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
             .build();
         MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = (MoveVoltageLevelFeederBays) moveVoltageLevelFeederBaysInfos.toModification();
         String message = assertThrows(NetworkModificationException.class, () -> moveVoltageLevelFeederBays.check(network)).getMessage();
-        assertEquals("MOVE_FEEDER_BAYS_ERROR : ConnectablePositionModification is not implemented for class com.powsybl.network.store.iidm.impl.ThreeWindingsTransformerImpl", message);
+        assertEquals("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR : ConnectablePositionModification is not implemented for class com.powsybl.network.store.iidm.impl.ThreeWindingsTransformerImpl", message);
     }
 
     @Override
     protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("MOVE_FEEDER_BAYS", modificationInfos.getMessageType());
+        assertEquals("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS", modificationInfos.getMessageType());
         Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         });
         assertEquals("v3", createdValues.get("voltageLevelId"));
@@ -216,7 +216,7 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
             .build());
         assertEquals("ConnectablePositionModification", connectablePositionModification.getName());
         String message = assertThrows(NetworkModificationException.class, () -> connectablePositionModification.getTerminal(network)).getMessage();
-        assertEquals("MOVE_FEEDER_BAYS_ERROR : ConnectablePositionModification is not implemented for class com.powsybl.network.store.iidm.impl.ThreeWindingsTransformerImpl", message);
+        assertEquals("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR : ConnectablePositionModification is not implemented for class com.powsybl.network.store.iidm.impl.ThreeWindingsTransformerImpl", message);
         // busbar not found on a branch
         ConnectablePositionModification connectablePositionModification2 = new ConnectablePositionModification(ConnectablePositionModificationInfos.builder()
             .connectableId("line1")
@@ -227,7 +227,7 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
             .connectionDirection(ConnectablePosition.Direction.TOP)
             .build());
         message = assertThrows(NetworkModificationException.class, () -> connectablePositionModification2.getTerminal(network)).getMessage();
-        assertEquals("MOVE_FEEDER_BAYS_ERROR : the busbar id random does not correspond to any of the busbar of line1", message);
+        assertEquals("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR : the busbar id random does not correspond to any of the busbar of line1", message);
         // injection with no error
         ConnectablePositionModification connectablePositionModification3 = new ConnectablePositionModification(ConnectablePositionModificationInfos.builder()
             .connectableId("v3Battery")
