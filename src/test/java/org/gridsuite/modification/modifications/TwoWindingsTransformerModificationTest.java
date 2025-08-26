@@ -252,6 +252,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         twtModificationInfos6.getRatioTapChanger().setTerminalRefConnectableVlId(new AttributeModification<>(null, OperationType.UNSET));
         twtModificationInfos6.getRatioTapChanger().setTerminalRefConnectableType(new AttributeModification<>(null, OperationType.UNSET));
         assertDoesNotThrow(() -> twtModificationInfos6.toModification().check(getNetwork()));
+        assertTrue(((TwoWindingsTransformerModification) twtModificationInfos6.toModification()).characteristicsModified(twtModificationInfos6));
 
         // do not throw
         TwoWindingsTransformerModificationInfos twtModificationInfos7 = (TwoWindingsTransformerModificationInfos) buildModification();
@@ -368,6 +369,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         PhaseTapChanger phaseTapChanger = twt3.getPhaseTapChanger();
 
         // modification 1 assert
+        assertEquals("TwoWindingsTransformerModification", phaseTapChangerCreation.toModification().getName());
         assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
         assertTrue(phaseTapChanger.isRegulating());
         assertEquals(0.0, phaseTapChanger.getTargetDeadband());
