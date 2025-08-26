@@ -348,13 +348,21 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
     }
 
     @Test
-    protected void checkModifiedMethod() {
+    void checkModifiedMethod() {
         TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos = (TwoWindingsTransformerModificationInfos) buildModification();
         TwoWindingsTransformerModification twoWindingsTransformerModification = (TwoWindingsTransformerModification) twoWindingsTransformerModificationInfos.toModification();
-        Boolean value = ReflectionTestUtils.invokeMethod(twoWindingsTransformerModification, "phaseTapChangerModified", twoWindingsTransformerModificationInfos.getPhaseTapChanger());
+        TapChangerModificationInfos phaseTapChangerModificationInfos = twoWindingsTransformerModificationInfos.getPhaseTapChanger();
+        phaseTapChangerModificationInfos.setTerminalRefConnectableId(new AttributeModification<>("test", OperationType.SET));
+        phaseTapChangerModificationInfos.setTerminalRefConnectableVlId(new AttributeModification<>("test", OperationType.SET));
+        phaseTapChangerModificationInfos.setTerminalRefConnectableType(new AttributeModification<>("test", OperationType.SET));
+        Boolean value = ReflectionTestUtils.invokeMethod(twoWindingsTransformerModification, "phaseTapChangerModified", phaseTapChangerModificationInfos);
         assertNotNull(value);
         assertTrue(value);
-        value = ReflectionTestUtils.invokeMethod(twoWindingsTransformerModification, "ratioTapChangerModified", twoWindingsTransformerModificationInfos.getRatioTapChanger());
+        TapChangerModificationInfos ratioTapChangerModificationInfos = twoWindingsTransformerModificationInfos.getRatioTapChanger();
+        ratioTapChangerModificationInfos.setTerminalRefConnectableId(new AttributeModification<>("test", OperationType.SET));
+        ratioTapChangerModificationInfos.setTerminalRefConnectableVlId(new AttributeModification<>("test", OperationType.SET));
+        ratioTapChangerModificationInfos.setTerminalRefConnectableType(new AttributeModification<>("test", OperationType.SET));
+        value = ReflectionTestUtils.invokeMethod(twoWindingsTransformerModification, "ratioTapChangerModified", ratioTapChangerModificationInfos);
         assertNotNull(value);
         assertTrue(value);
     }
