@@ -504,7 +504,8 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         Boolean isRegulating = ratioTapChangerInfos.getRegulating() != null ? ratioTapChangerInfos.getRegulating().getValue() : null;
         // need to set regulation mode before setting regulating
         if (isRegulating != null) {
-            if (isRegulating && ratioTapChanger.getRegulationMode() != RatioTapChanger.RegulationMode.VOLTAGE) {
+            boolean mustUpdateRegulationMode = ratioTapChanger == null || ratioTapChanger.getRegulationMode() != RatioTapChanger.RegulationMode.VOLTAGE;
+            if (isRegulating && mustUpdateRegulationMode) {
                 RatioTapChanger.RegulationMode regulationMode = RatioTapChanger.RegulationMode.VOLTAGE;
                 AttributeModification<RatioTapChanger.RegulationMode> regulationModeModification = AttributeModification.toAttributeModification(regulationMode, OperationType.SET);
                 ReportNode regulationModeReport = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
