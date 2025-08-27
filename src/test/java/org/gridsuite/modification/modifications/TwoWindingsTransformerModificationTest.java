@@ -350,21 +350,31 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
     @Test
     void checkModifiedMethod() {
         TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos = (TwoWindingsTransformerModificationInfos) buildModification();
-        TwoWindingsTransformerModification twoWindingsTransformerModification = (TwoWindingsTransformerModification) twoWindingsTransformerModificationInfos.toModification();
-        TapChangerModificationInfos phaseTapChangerModificationInfos = twoWindingsTransformerModificationInfos.getPhaseTapChanger();
-        phaseTapChangerModificationInfos.setTerminalRefConnectableId(new AttributeModification<>("test", OperationType.SET));
-        phaseTapChangerModificationInfos.setTerminalRefConnectableVlId(new AttributeModification<>("test", OperationType.SET));
-        phaseTapChangerModificationInfos.setTerminalRefConnectableType(new AttributeModification<>("test", OperationType.SET));
-        Boolean value = ReflectionTestUtils.invokeMethod(twoWindingsTransformerModification, "phaseTapChangerModified", phaseTapChangerModificationInfos);
-        assertNotNull(value);
-        assertTrue(value);
-        TapChangerModificationInfos ratioTapChangerModificationInfos = twoWindingsTransformerModificationInfos.getRatioTapChanger();
-        ratioTapChangerModificationInfos.setTerminalRefConnectableId(new AttributeModification<>("test", OperationType.SET));
-        ratioTapChangerModificationInfos.setTerminalRefConnectableVlId(new AttributeModification<>("test", OperationType.SET));
-        ratioTapChangerModificationInfos.setTerminalRefConnectableType(new AttributeModification<>("test", OperationType.SET));
-        value = ReflectionTestUtils.invokeMethod(twoWindingsTransformerModification, "ratioTapChangerModified", ratioTapChangerModificationInfos);
-        assertNotNull(value);
-        assertTrue(value);
+        for (int i = 1; i <= 3; i++) {
+            TapChangerModificationInfos phaseTapChangerModificationInfos = twoWindingsTransformerModificationInfos.getPhaseTapChanger();
+            switch (i) {
+                case 3:
+                    phaseTapChangerModificationInfos.setTerminalRefConnectableId(new AttributeModification<>("test", OperationType.SET));
+                    phaseTapChangerModificationInfos.setTerminalRefConnectableType(new AttributeModification<>(null, OperationType.SET));
+                    phaseTapChangerModificationInfos.setTerminalRefConnectableVlId(new AttributeModification<>(null, OperationType.SET));
+                    break;
+                case 2:
+                    phaseTapChangerModificationInfos.setTerminalRefConnectableId(new AttributeModification<>(null, OperationType.SET));
+                    phaseTapChangerModificationInfos.setTerminalRefConnectableType(new AttributeModification<>(null, OperationType.SET));
+                    phaseTapChangerModificationInfos.setTerminalRefConnectableVlId(new AttributeModification<>("test", OperationType.SET));
+                    break;
+                case 1:
+                    phaseTapChangerModificationInfos.setTerminalRefConnectableId(new AttributeModification<>(null, OperationType.SET));
+                    phaseTapChangerModificationInfos.setTerminalRefConnectableType(new AttributeModification<>("test", OperationType.SET));
+                    phaseTapChangerModificationInfos.setTerminalRefConnectableVlId(new AttributeModification<>(null, OperationType.SET));
+                    break;
+                default:
+            }
+            TwoWindingsTransformerModification twoWindingsTransformerModification = (TwoWindingsTransformerModification) twoWindingsTransformerModificationInfos.toModification();
+            Boolean value = ReflectionTestUtils.invokeMethod(twoWindingsTransformerModification, "commonTapChangerAttributesModified", phaseTapChangerModificationInfos);
+            assertNotNull(value);
+            assertTrue(value);
+        }
     }
 
     @Test
