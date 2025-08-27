@@ -331,18 +331,24 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 modifyCurrentLimits(operationalLimitsGroupInfos, newOperationalLimitsGroup.newCurrentLimits(), null, operationalLimitsGroupReports);
             } break;
             case OperationalLimitsGroupModificationType.DELETE: {
-                if (applicability == SIDE1 || applicability == EQUIPMENT) {
+                boolean log = false;
+                if ((applicability == SIDE1 || applicability == EQUIPMENT) && branch.getOperationalLimitsGroup1(operationalLimitsGroupInfos.getId()).isPresent()) {
                     branch.removeOperationalLimitsGroup1(operationalLimitsGroupInfos.getId());
+                    log = true;
+
                 }
-                if (applicability == SIDE2 || applicability == EQUIPMENT) {
+                if ((applicability == SIDE2 || applicability == EQUIPMENT) && branch.getOperationalLimitsGroup2(operationalLimitsGroupInfos.getId()).isPresent()) {
                     branch.removeOperationalLimitsGroup2(operationalLimitsGroupInfos.getId());
+                    log = true;
                 }
-                operationalLimitsGroupReports.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("network.modification.operationalLimitsGroupDeleted")
-                        .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, operationalLimitsGroupInfos.getId())
-                        .withUntypedValue(SIDE, applicability.toString())
-                        .withSeverity(TypedValue.INFO_SEVERITY)
-                        .build());
+                if (log) {
+                    operationalLimitsGroupReports.add(ReportNode.newRootReportNode()
+                            .withMessageTemplate("network.modification.operationalLimitsGroupDeleted")
+                            .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, operationalLimitsGroupInfos.getId())
+                            .withUntypedValue(SIDE, applicability.toString())
+                            .withSeverity(TypedValue.INFO_SEVERITY)
+                            .build());
+                }
             }
         }
     }
