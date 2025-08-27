@@ -36,7 +36,9 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         return LimitSetsTabularModificationInfos.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1").operationalLimitsGroups(
+                        LineModificationInfos.builder().equipmentId("line1")
+                                .selectedOperationalLimitsGroup1(new AttributeModification<>("", OperationType.UNSET))
+                                .operationalLimitsGroups(
                                 List.of(
                                         OperationalLimitsGroupModificationInfos.builder()
                                         .id("DEFAULT")
@@ -72,6 +74,7 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                         LineModificationInfos.builder()
                                 .equipmentId("line2")
                                 .selectedOperationalLimitsGroup1(new AttributeModification<>("DEFAULT", OperationType.SET))
+                                .selectedOperationalLimitsGroup2(new AttributeModification<>("", OperationType.UNSET))
                                 .operationalLimitsGroups(List.of(
                                 OperationalLimitsGroupModificationInfos.builder()
                                         .id("DEFAULT")
@@ -111,6 +114,7 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                         LineModificationInfos.builder()
                                 .equipmentId("line2")
                                 .selectedOperationalLimitsGroup1(new AttributeModification<>("DEFAULT", OperationType.SET))
+                                .selectedOperationalLimitsGroup2(new AttributeModification<>("DEFAULT", OperationType.SET))
                                 .operationalLimitsGroups(List.of(OperationalLimitsGroupModificationInfos.builder()
                                         .id("DEFAULT")
                                         .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
@@ -122,7 +126,8 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                         LineModificationInfos.builder()
                                 .equipmentId("line2")
                                 .selectedOperationalLimitsGroup2(new AttributeModification<>("group0", OperationType.SET))
-                                .operationalLimitsGroups(List.of(OperationalLimitsGroupModificationInfos.builder()
+                                .operationalLimitsGroups(List.of(
+                                    OperationalLimitsGroupModificationInfos.builder()
                                         .id("group0")
                                         .applicability(OperationalLimitsGroupInfos.Applicability.SIDE2)
                                         .modificationType(OperationalLimitsGroupModificationType.REPLACE)
@@ -137,6 +142,11 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                                 .value(10.)
                                                                 .build()
                                                 )).build())
+                                        .build(),
+                                    OperationalLimitsGroupModificationInfos.builder()
+                                        .id("UNKNOWN")
+                                        .applicability(OperationalLimitsGroupInfos.Applicability.SIDE2)
+                                        .modificationType(OperationalLimitsGroupModificationType.DELETE)
                                         .build()))
                                 .build()))
                 .build();
@@ -155,16 +165,19 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void assertAfterNetworkModificationApplication() {
+        Line line1 = getNetwork().getLine("line1");
         CurrentLimits line1CurrentLimits = getNetwork().getLine("line1").getOperationalLimitsGroup1("DEFAULT").orElse(null).getCurrentLimits().orElse(null);
         assertEquals(2, line1CurrentLimits.getTemporaryLimits().size());
         assertEquals("test2", line1CurrentLimits.getTemporaryLimit(1).getName());
         assertEquals("test1", line1CurrentLimits.getTemporaryLimit(2).getName());
+        assertEquals("", line1.getSelectedOperationalLimitsGroupId1().orElse(null));
 
         Line line2 = getNetwork().getLine("line2");
         CurrentLimits line2CurrentLimitsSide1 = line2.getOperationalLimitsGroup1("DEFAULT").orElse(null).getCurrentLimits().orElse(null);
         assertEquals(1, line2CurrentLimitsSide1.getTemporaryLimits().size());
         assertEquals("test1", line2CurrentLimitsSide1.getTemporaryLimit(1).getName());
         assertEquals("DEFAULT", line2.getSelectedOperationalLimitsGroupId1().orElse(null));
+        assertEquals("group0", line2.getSelectedOperationalLimitsGroupId2().orElse(null));
 
         CurrentLimits line2CurrentLimitsSide2 = line2.getOperationalLimitsGroup2("group0").orElse(null).getCurrentLimits().orElse(null);
         assertEquals(1, line2CurrentLimitsSide2.getTemporaryLimits().size());
