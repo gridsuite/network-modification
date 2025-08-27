@@ -14,4 +14,5 @@ public enum OperationalLimitsGroupModificationType {
     ADD,
     MODIFY,
     REPLACE,
+    DELETE, // TODO : voir avec Hugo
 }
