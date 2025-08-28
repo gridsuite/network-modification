@@ -106,6 +106,18 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                                 .name("test1")
                                                                 .acceptableDuration(3)
                                                                 .value(10.)
+                                                                .build(),
+                                                        CurrentTemporaryLimitModificationInfos.builder()
+                                                                .modificationType(TemporaryLimitModificationType.ADD)
+                                                                .name("test2_plus")
+                                                                .acceptableDuration(1)
+                                                                .value(25.)
+                                                                .build(),
+                                                        CurrentTemporaryLimitModificationInfos.builder()
+                                                                .modificationType(TemporaryLimitModificationType.DELETE)
+                                                                .name("test2")
+                                                                .acceptableDuration(1)
+                                                                .value(15.)
                                                                 .build()
                                                 )).build())
                                         .build()))
@@ -168,7 +180,7 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         Line line1 = getNetwork().getLine("line1");
         CurrentLimits line1CurrentLimits = getNetwork().getLine("line1").getOperationalLimitsGroup1("DEFAULT").orElse(null).getCurrentLimits().orElse(null);
         assertEquals(2, line1CurrentLimits.getTemporaryLimits().size());
-        assertEquals("test2", line1CurrentLimits.getTemporaryLimit(1).getName());
+        assertEquals("test2_plus", line1CurrentLimits.getTemporaryLimit(1).getName());
         assertEquals("test1", line1CurrentLimits.getTemporaryLimit(2).getName());
         assertEquals("", line1.getSelectedOperationalLimitsGroupId1().orElse(null));
 
