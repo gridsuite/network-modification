@@ -403,7 +403,8 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 LoadingLimits.TemporaryLimit limitToModify = null;
                 if (currentLimits != null) {
                     limitToModify = currentLimits.getTemporaryLimit(limitAcceptableDuration);
-                    if (limitToModify != null && !limitToModify.getName().equals(limit.getName())) {
+                    if (limitToModify != null && !limitToModify.getName().equals(limit.getName())
+                            && !currentLimitsInfos.isThisLimitDeleted(limitAcceptableDuration)) {
                         throw new PowsyblException("2 temporary limits have the same duration " + limitAcceptableDuration);
                     }
 
