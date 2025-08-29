@@ -79,9 +79,9 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
 
     private void checkTapChangerModification(Network network, TapChangerModificationInfos tapChangerModificationInfos, TapChanger tapChanger, String errorMessage) {
         ModificationUtils.getInstance().checkEnableRegulation(tapChangerModificationInfos.getRegulationType(),
-            tapChangerModificationInfos.getRegulatingTerminalId(),
-            tapChangerModificationInfos.getRegulatingTerminalType(),
-            tapChangerModificationInfos.getRegulatingTerminalVlId(),
+            tapChangerModificationInfos.getTerminalRefConnectableId(),
+            tapChangerModificationInfos.getTerminalRefConnectableType(),
+            tapChangerModificationInfos.getTerminalRefConnectableVlId(),
             null,
             tapChanger.getRegulationTerminal(),
             network,
@@ -589,13 +589,13 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
             setRegulatingTerminalInfos(tapChangerModificationInfos, terminal);
         }
 
-        if (tapChangerModificationInfos.getRegulatingTerminalId() != null
-                && tapChangerModificationInfos.getRegulatingTerminalType() != null
-                && tapChangerModificationInfos.getRegulatingTerminalVlId() != null) {
+        if (tapChangerModificationInfos.getTerminalRefConnectableId() != null
+                && tapChangerModificationInfos.getTerminalRefConnectableType() != null
+                && tapChangerModificationInfos.getTerminalRefConnectableVlId() != null) {
             Terminal terminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(network,
-                    tapChangerModificationInfos.getRegulatingTerminalId().getValue(),
-                    tapChangerModificationInfos.getRegulatingTerminalType().getValue(),
-                    tapChangerModificationInfos.getRegulatingTerminalVlId().getValue());
+                    tapChangerModificationInfos.getTerminalRefConnectableId().getValue(),
+                    tapChangerModificationInfos.getTerminalRefConnectableType().getValue(),
+                    tapChangerModificationInfos.getTerminalRefConnectableVlId().getValue());
             if (isModification) {
                 tapChanger.setRegulationTerminal(terminal);
             } else {
@@ -603,19 +603,19 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
             }
             regulatedTerminalReports
                     .add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel,
-                            tapChangerModificationInfos.getRegulatingTerminalVlId().getValue(),
+                            tapChangerModificationInfos.getTerminalRefConnectableVlId().getValue(),
                             "Voltage level"));
             regulatedTerminalReports.add(ModificationUtils.getInstance().buildModificationReport(oldEquipment,
-                    tapChangerModificationInfos.getRegulatingTerminalType().getValue() + " : "
-                            + tapChangerModificationInfos.getRegulatingTerminalId().getValue(),
+                    tapChangerModificationInfos.getTerminalRefConnectableType().getValue() + " : "
+                            + tapChangerModificationInfos.getTerminalRefConnectableId().getValue(),
                     "Equipment"));
         }
     }
 
     private void setRegulatingTerminalInfos(TapChangerModificationInfos tapChangerModificationInfos, Terminal terminal) {
-        tapChangerModificationInfos.setRegulatingTerminalVlId(new AttributeModification<>(terminal.getVoltageLevel().getId(), OperationType.SET));
-        tapChangerModificationInfos.setRegulatingTerminalId(new AttributeModification<>(terminal.getConnectable().getId(), OperationType.SET));
-        tapChangerModificationInfos.setRegulatingTerminalType(new AttributeModification<>(terminal.getConnectable().getType().name(), OperationType.SET));
+        tapChangerModificationInfos.setTerminalRefConnectableVlId(new AttributeModification<>(terminal.getVoltageLevel().getId(), OperationType.SET));
+        tapChangerModificationInfos.setTerminalRefConnectableId(new AttributeModification<>(terminal.getConnectable().getId(), OperationType.SET));
+        tapChangerModificationInfos.setTerminalRefConnectableType(new AttributeModification<>(terminal.getConnectable().getType().name(), OperationType.SET));
     }
 
     private static void processTapchangerSteps(List<ReportNode> tapChangerStepsReports,
@@ -750,12 +750,12 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 && tapChangerModificationInfos.getRegulationType().getValue() != null
                 || tapChangerModificationInfos.getRegulationSide() != null
                 && tapChangerModificationInfos.getRegulationSide().getValue() != null
-                || tapChangerModificationInfos.getRegulatingTerminalId() != null
-                && tapChangerModificationInfos.getRegulatingTerminalId().getValue() != null
-                || tapChangerModificationInfos.getRegulatingTerminalType() != null
-                && tapChangerModificationInfos.getRegulatingTerminalType().getValue() != null
-                || tapChangerModificationInfos.getRegulatingTerminalVlId() != null
-                && tapChangerModificationInfos.getRegulatingTerminalVlId().getValue() != null
+                || tapChangerModificationInfos.getTerminalRefConnectableId() != null
+                && tapChangerModificationInfos.getTerminalRefConnectableId().getValue() != null
+                || tapChangerModificationInfos.getTerminalRefConnectableType() != null
+                && tapChangerModificationInfos.getTerminalRefConnectableType().getValue() != null
+                || tapChangerModificationInfos.getTerminalRefConnectableVlId() != null
+                && tapChangerModificationInfos.getTerminalRefConnectableVlId().getValue() != null
                 || tapChangerModificationInfos.getTargetDeadband() != null
                 && tapChangerModificationInfos.getTargetDeadband().getValue() != null
                 || positionsAndStepsModified(tapChangerModificationInfos));
