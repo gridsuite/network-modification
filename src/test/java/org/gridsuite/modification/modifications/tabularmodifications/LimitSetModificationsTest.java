@@ -22,6 +22,7 @@ import java.util.UUID;
 
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessageWithoutRank;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Hugo Marcellin <hugo.marcelin at rte-france.com>
@@ -206,7 +207,7 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         assertEquals(2, line1CurrentLimits.getTemporaryLimits().size());
         assertEquals("test2_plus", line1CurrentLimits.getTemporaryLimit(1).getName());
         assertEquals("test1", line1CurrentLimits.getTemporaryLimit(2).getName());
-        assertEquals(null, line1.getSelectedOperationalLimitsGroupId1().orElse(null));
+        assertNull(line1.getSelectedOperationalLimitsGroupId1().orElse(null));
 
         Line line2 = getNetwork().getLine("line2");
         CurrentLimits line2DefaultCurrentLimitsSide1 = line2.getOperationalLimitsGroup1("DEFAULT").orElse(null).getCurrentLimits().orElse(null);

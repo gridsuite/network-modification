@@ -85,7 +85,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 continue;
             }
             OperationalLimitsGroupInfos.Applicability applicability = opLGModifInfos.getApplicability();
-            // here the modification on an applicability EQUIPMENT are separated into two separate applications of both sides
+            // here the modifications on an applicability EQUIPMENT are separated into two separate applications of both sides
             // because iidm has two separated sets of opLGs on the network object (and for better logs)
             if (applicability == SIDE1
                     || applicability == OperationalLimitsGroupInfos.Applicability.EQUIPMENT) {
@@ -395,6 +395,15 @@ public abstract class AbstractBranchModification extends AbstractModification {
         limitsAdder.add();
     }
 
+    /**
+     * is the limit identied by acceptableDuration deleted in temporaryLimitsModification ?
+     */
+    public boolean isThisLimitDeleted(List<CurrentTemporaryLimitModificationInfos> temporaryLimitsModification, int acceptableDuration) {
+        return temporaryLimitsModification.stream()
+                .filter(temporaryLimit -> temporaryLimit.getAcceptableDuration() != null)
+                .anyMatch(temporaryLimit -> temporaryLimit.getAcceptableDuration() == acceptableDuration && temporaryLimit.getModificationType() == TemporaryLimitModificationType.DELETE);
+    }
+
     protected void modifyTemporaryLimits(OperationalLimitsGroupModificationInfos operationalLimitsGroupModificationInfos,
                                          CurrentLimitsAdder limitsAdder,
                                          CurrentLimits currentLimits,
@@ -426,7 +435,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 if (currentLimits != null) {
                     limitToModify = currentLimits.getTemporaryLimit(limitAcceptableDuration);
                     if (limitToModify != null && !limitToModify.getName().equals(limit.getName())) {
-                        boolean isThisLimitDeleted = currentLimitsInfos.isThisLimitDeleted(limitAcceptableDuration);
+                        boolean isThisLimitDeleted = isThisLimitDeleted(currentLimitsInfos.getTemporaryLimits(), limitAcceptableDuration);
                         if (isThisLimitDeleted) {
                             limitToModify = null;
                         } else {

@@ -33,10 +33,4 @@ public class CurrentLimitsModificationInfos {
     @Schema(description = "Temporary current limits")
     private List<CurrentTemporaryLimitModificationInfos> temporaryLimits;
 
-    public boolean isThisLimitDeleted(int acceptableDuration) {
-        return temporaryLimits.stream()
-                .filter(temporaryLimit -> temporaryLimit.getAcceptableDuration() != null)
-                .anyMatch(temporaryLimit -> temporaryLimit.getAcceptableDuration() == acceptableDuration && temporaryLimit.getModificationType() == TemporaryLimitModificationType.DELETE);
-    }
-
 }
