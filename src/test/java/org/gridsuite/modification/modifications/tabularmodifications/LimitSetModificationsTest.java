@@ -14,6 +14,7 @@ import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.utils.NetworkCreation;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -154,13 +155,36 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                                 .value(10.)
                                                                 .build()
                                                 )).build())
-                                        .build(),
+                                        .build()))
+                                .build(),
+                        //group0 already exists in network for this equipment, so MODIFY_OR_ADD will be a modification
+                        LineModificationInfos.builder()
+                                .equipmentId("line2")
+                                .selectedOperationalLimitsGroup2(new AttributeModification<>("group0", OperationType.SET))
+                                .operationalLimitsGroups(List.of(
+                                    OperationalLimitsGroupModificationInfos.builder()
+                                        .id("group0")
+                                        .applicability(OperationalLimitsGroupInfos.Applicability.SIDE2)
+                                        .modificationType(OperationalLimitsGroupModificationType.MODIFY_OR_ADD)
+                                        .temporaryLimitsModificationType(TemporaryLimitModificationType.ADD)
+                                        .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .permanentLimit(100.)
+                                                .build())
+                                        .build()))
+                                .build(),
+                        // impossible modification (deletion of an inexistent opLG)
+                        // TODO : the real deletion can't be tested yet because removeOperationalLimitsGroup1 doesn't work for now. When it is corrected, add unit test for it
+                        LineModificationInfos.builder()
+                                .equipmentId("line2")
+                                .selectedOperationalLimitsGroup2(new AttributeModification<>("group0", OperationType.SET))
+                                .operationalLimitsGroups(List.of(
                                     OperationalLimitsGroupModificationInfos.builder()
                                         .id("UNKNOWN")
                                         .applicability(OperationalLimitsGroupInfos.Applicability.SIDE2)
                                         .modificationType(OperationalLimitsGroupModificationType.DELETE)
                                         .build()))
-                                .build()))
+                                .build())
+                )
                 .build();
     }
 
@@ -185,11 +209,15 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         assertEquals("", line1.getSelectedOperationalLimitsGroupId1().orElse(null));
 
         Line line2 = getNetwork().getLine("line2");
-        CurrentLimits line2CurrentLimitsSide1 = line2.getOperationalLimitsGroup1("DEFAULT").orElse(null).getCurrentLimits().orElse(null);
-        assertEquals(1, line2CurrentLimitsSide1.getTemporaryLimits().size());
-        assertEquals("test1", line2CurrentLimitsSide1.getTemporaryLimit(1).getName());
+        CurrentLimits line2DefaultCurrentLimitsSide1 = line2.getOperationalLimitsGroup1("DEFAULT").orElse(null).getCurrentLimits().orElse(null);
+        Assertions.assertNotNull(line2DefaultCurrentLimitsSide1);
+        assertEquals(1, line2DefaultCurrentLimitsSide1.getTemporaryLimits().size());
+        assertEquals("test1", line2DefaultCurrentLimitsSide1.getTemporaryLimit(1).getName());
         assertEquals("DEFAULT", line2.getSelectedOperationalLimitsGroupId1().orElse(null));
         assertEquals("group0", line2.getSelectedOperationalLimitsGroupId2().orElse(null));
+        CurrentLimits line2Group0CurrentLimitsSide2 = line2.getOperationalLimitsGroup2("group0").orElse(null).getCurrentLimits().orElse(null);
+        Assertions.assertNotNull(line2Group0CurrentLimitsSide2);
+        assertEquals(100, line2Group0CurrentLimitsSide2.getPermanentLimit());
 
         CurrentLimits line2CurrentLimitsSide2 = line2.getOperationalLimitsGroup2("group0").orElse(null).getCurrentLimits().orElse(null);
         assertEquals(1, line2CurrentLimitsSide2.getTemporaryLimits().size());
