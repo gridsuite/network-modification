@@ -8,7 +8,6 @@ package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -70,24 +69,6 @@ class LineModificationTest extends AbstractNetworkModificationTest {
                 .connectionDirection2(new AttributeModification<>(ConnectablePosition.Direction.TOP, OperationType.SET))
                 .connectionPosition1(new AttributeModification<>(1, OperationType.SET))
                 .connectionPosition2(new AttributeModification<>(1, OperationType.SET))
-                .currentLimits1(CurrentLimitsModificationInfos.builder()
-                        .permanentLimit(12.0)
-                        .temporaryLimits(List.of(CurrentTemporaryLimitModificationInfos.builder()
-                                .acceptableDuration(null)
-                                .name("name31")
-                                .value(null)
-                                .modificationType(TemporaryLimitModificationType.ADD)
-                                .build()))
-                        .build())
-                .currentLimits2(CurrentLimitsModificationInfos.builder()
-                        .permanentLimit(22.0)
-                        .temporaryLimits(List.of(CurrentTemporaryLimitModificationInfos.builder()
-                                .acceptableDuration(32)
-                                .name("name32")
-                                .value(42.0)
-                                .modificationType(TemporaryLimitModificationType.ADD)
-                                .build()))
-                        .build())
                 .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
                 .p1MeasurementValue(new AttributeModification<>(MEASUREMENT_P_VALUE, OperationType.SET))
                 .p1MeasurementValidity(new AttributeModification<>(MEASUREMENT_P_VALID, OperationType.SET))
@@ -97,6 +78,8 @@ class LineModificationTest extends AbstractNetworkModificationTest {
                 .q1MeasurementValidity(new AttributeModification<>(MEASUREMENT_Q_VALID, OperationType.SET))
                 .q2MeasurementValue(new AttributeModification<>(MEASUREMENT_Q_VALUE, OperationType.SET))
                 .q2MeasurementValidity(new AttributeModification<>(MEASUREMENT_Q_VALID, OperationType.SET))
+                .selectedOperationalLimitsGroup1(new AttributeModification<>("invalid_opLG", OperationType.SET))
+                .selectedOperationalLimitsGroup2(new AttributeModification<>("invalid_opLG", OperationType.SET))
                 .build();
     }
 
@@ -110,16 +93,6 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         assertEquals(1.0, modifiedLine.getB1());
         assertEquals(2.0, modifiedLine.getG2());
         assertEquals(2.0, modifiedLine.getB2());
-        assertEquals(12.0, modifiedLine.getNullableCurrentLimits1().getPermanentLimit());
-        TemporaryLimit temporaryLimit = modifiedLine.getNullableCurrentLimits1().getTemporaryLimit(Integer.MAX_VALUE);
-        assertEquals(Integer.MAX_VALUE, temporaryLimit.getAcceptableDuration());
-        assertEquals("name31", temporaryLimit.getName());
-        assertEquals(Double.MAX_VALUE, temporaryLimit.getValue());
-        assertEquals(22.0, modifiedLine.getNullableCurrentLimits2().getPermanentLimit());
-        temporaryLimit = modifiedLine.getNullableCurrentLimits2().getTemporaryLimit(32);
-        assertEquals(32, temporaryLimit.getAcceptableDuration());
-        assertEquals("name32", temporaryLimit.getName());
-        assertEquals(42.0, temporaryLimit.getValue());
         assertEquals(PROPERTY_VALUE, modifiedLine.getProperty(PROPERTY_NAME));
         assertMeasurements(modifiedLine);
     }
