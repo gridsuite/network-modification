@@ -10,6 +10,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.CreateVoltageLevelSectionInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -104,5 +106,31 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
 
         modification.createSubReportNode(reportNode);
         assertLogMessage("Adding busbar section on v1", "network.modification.voltageLevel.section.created", reportNode);
+    }
+
+    @Test
+    void testCreateModificationWithAllBusbars() {
+        Network network = getNetwork();
+        VoltageLevel voltageLevel = network.getVoltageLevel("v1");
+        var bbs = voltageLevel.getNodeBreakerView().newBusbarSection()
+                .setId("bbs1_2")
+                .setName("bbs1_2")
+                .setNode(1)
+                .add();
+        bbs.newExtension(BusbarSectionPositionAdder.class).withBusbarIndex(1).withSectionIndex(0).add();
+        CreateVoltageLevelSectionInfos.builder()
+                .stashed(false)
+                .voltageLevelId("v1")
+                .busbarSectionId("bbs1_2")
+                .busbarIndex(2)
+                .isAfterBusbarSectionId(true)
+                .leftSwitchKind("BREAKER")
+                .rightSwitchKind("DISCONNECTOR")
+                .isAllBusbars(true)
+                .build().toModification().apply(network);
+        List<String> busBarIds = new ArrayList<>();
+        getNetwork().getBusbarSections().forEach(busbarSection -> busBarIds.add(busbarSection.getId()));
+        assertEquals(7, busBarIds.size());
+        assertTrue(busBarIds.containsAll(List.of("bbs1", "bbs2", "bbs3", "bbs4", "bbs1_2", "v1_0_1", "v1_1_1")));
     }
 }
