@@ -206,7 +206,7 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         assertEquals(2, line1CurrentLimits.getTemporaryLimits().size());
         assertEquals("test2_plus", line1CurrentLimits.getTemporaryLimit(1).getName());
         assertEquals("test1", line1CurrentLimits.getTemporaryLimit(2).getName());
-        assertEquals("", line1.getSelectedOperationalLimitsGroupId1().orElse(null));
+        assertEquals(null, line1.getSelectedOperationalLimitsGroupId1().orElse(null));
 
         Line line2 = getNetwork().getLine("line2");
         CurrentLimits line2DefaultCurrentLimitsSide1 = line2.getOperationalLimitsGroup1("DEFAULT").orElse(null).getCurrentLimits().orElse(null);

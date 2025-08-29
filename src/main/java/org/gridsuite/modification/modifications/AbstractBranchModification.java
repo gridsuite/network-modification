@@ -319,8 +319,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 }
                 if (applicability == SIDE1) {
                     branch.removeOperationalLimitsGroup1(opLGModificationInfos.getId());
-                }
-                else if (applicability == SIDE2) {
+                } else if (applicability == SIDE2) {
                     branch.removeOperationalLimitsGroup2(opLGModificationInfos.getId());
                 }
                 operationalLimitsGroupReports.add(ReportNode.newRootReportNode()
