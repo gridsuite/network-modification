@@ -49,14 +49,14 @@ public class TapChangerModificationInfos {
     @Schema(description = "targetDeadband")
     private AttributeModification<Double> targetDeadband;
 
-    @Schema(description = "Regulating terminal equipment id")
-    private AttributeModification<String> regulatingTerminalId;
+    @Schema(description = "Id of the equipment to which is attached the regulating terminal")
+    private AttributeModification<String> terminalRefConnectableId;
 
-    @Schema(description = "Regulating terminal equipment type")
-    private AttributeModification<String> regulatingTerminalType;
+    @Schema(description = "Type of the equipment to which is attached the regulating terminal")
+    private AttributeModification<String> terminalRefConnectableType;
 
-    @Schema(description = "Regulating terminal voltage level id")
-    private AttributeModification<String> regulatingTerminalVlId;
+    @Schema(description = "Voltage level id of the equipment to which is attached the regulating terminal")
+    private AttributeModification<String> terminalRefConnectableVlId;
 
     @Schema(description = "steps")
     private List<TapChangerStepCreationInfos> steps;
