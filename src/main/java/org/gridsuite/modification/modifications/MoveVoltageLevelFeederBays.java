@@ -38,21 +38,21 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
         }
         for (ConnectablePositionModificationInfos connectablePositionModificationInfos : modificationInfos.getFeederBaysAttributeList()) {
             if (voltageLevel.getTopologyKind().equals(TopologyKind.NODE_BREAKER) &&
-                voltageLevel.getNodeBreakerView().getBusbarSection(connectablePositionModificationInfos.getBusBarSectionId()) == null ||
+                voltageLevel.getNodeBreakerView().getBusbarSection(connectablePositionModificationInfos.getBusbarSectionId()) == null ||
                 voltageLevel.getTopologyKind().equals(TopologyKind.BUS_BREAKER) &&
-                    voltageLevel.getBusBreakerView().getBus(connectablePositionModificationInfos.getBusBarSectionId()) == null
+                    voltageLevel.getBusBreakerView().getBus(connectablePositionModificationInfos.getBusbarSectionId()) == null
             ) {
                 throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format("Busbar section %s where connectable %s is supposed to be is not found in voltage Level %s",
-                    connectablePositionModificationInfos.getBusBarSectionId(), connectablePositionModificationInfos.getConnectableId(),
+                    connectablePositionModificationInfos.getBusbarSectionId(), connectablePositionModificationInfos.getConnectableId(),
                     modificationInfos.getVoltageLevelId()));
             }
             if (voltageLevel.getTopologyKind().equals(TopologyKind.NODE_BREAKER) &&
-                voltageLevel.getNodeBreakerView().getBusbarSection(connectablePositionModificationInfos.getTargetBusBarSectionId()) == null ||
+                voltageLevel.getNodeBreakerView().getBusbarSection(connectablePositionModificationInfos.getTargetBusbarSectionId()) == null ||
                 voltageLevel.getTopologyKind().equals(TopologyKind.BUS_BREAKER) &&
-                    voltageLevel.getBusBreakerView().getBus(connectablePositionModificationInfos.getTargetBusBarSectionId()) == null
+                    voltageLevel.getBusBreakerView().getBus(connectablePositionModificationInfos.getTargetBusbarSectionId()) == null
             ) {
                 throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format("Target busbar section %s not found in voltage Level %s",
-                    connectablePositionModificationInfos.getTargetBusBarSectionId(), modificationInfos.getVoltageLevelId()));
+                    connectablePositionModificationInfos.getTargetBusbarSectionId(), modificationInfos.getVoltageLevelId()));
             }
             ConnectablePositionModification connectablePositionModification = new ConnectablePositionModification(connectablePositionModificationInfos);
             connectablePositionModification.check(network);
@@ -64,11 +64,13 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
         for (ConnectablePositionModificationInfos connectablePositionModificationInfos : modificationInfos.getFeederBaysAttributeList()) {
             ConnectablePositionModification connectablePositionModification = new ConnectablePositionModification(connectablePositionModificationInfos);
             connectablePositionModification.apply(network, subReportNode);
-            new MoveFeederBayBuilder().withConnectableId(connectablePositionModificationInfos.getConnectableId())
-                .withTargetVoltageLevelId(modificationInfos.getVoltageLevelId())
-                .withTerminal(connectablePositionModification.getTerminal(network))
-                .withTargetBusOrBusBarSectionId(connectablePositionModificationInfos.getTargetBusBarSectionId())
-                .build().apply(network, true, subReportNode);
+            if (!connectablePositionModificationInfos.getBusbarSectionId().equals(connectablePositionModificationInfos.getTargetBusbarSectionId())) {
+                new MoveFeederBayBuilder().withConnectableId(connectablePositionModificationInfos.getConnectableId())
+                    .withTargetVoltageLevelId(modificationInfos.getVoltageLevelId())
+                    .withTerminal(connectablePositionModification.getTerminal(network))
+                    .withTargetBusOrBusBarSectionId(connectablePositionModificationInfos.getTargetBusbarSectionId())
+                    .build().apply(network, true, subReportNode);
+            }
         }
     }
 

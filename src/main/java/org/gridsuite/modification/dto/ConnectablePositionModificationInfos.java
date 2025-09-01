@@ -28,10 +28,10 @@ public class ConnectablePositionModificationInfos {
     private String connectableId;
 
     @Schema(description = "busbar section id")
-    private String busBarSectionId;
+    private String busbarSectionId;
 
     @Schema(description = "target busbar section id")
-    private String targetBusBarSectionId;
+    private String targetBusbarSectionId;
 
     @Schema(description = "connection position")
     private Integer connectionPosition;

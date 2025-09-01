@@ -60,18 +60,18 @@ public class ConnectablePositionModification extends AbstractModification {
     private BranchModificationInfos getBranchModificationInfos(Branch<?> branch) {
         BranchModificationInfos branchModificationInfos = new BranchModificationInfos();
         branchModificationInfos.setEquipmentId(modificationInfos.getConnectableId());
-        if (ModificationUtils.getInstance().getBusOrBusbarSection(branch.getTerminal1()).equals(modificationInfos.getBusBarSectionId())) {
+        if (ModificationUtils.getInstance().getBusOrBusbarSection(branch.getTerminal1()).equals(modificationInfos.getBusbarSectionId())) {
             branchModificationInfos.setConnectionPosition1(new AttributeModification<>(modificationInfos.getConnectionPosition(), OperationType.SET));
             branchModificationInfos.setConnectionName1(new AttributeModification<>(modificationInfos.getConnectionName(), OperationType.SET));
             branchModificationInfos.setConnectionDirection1(new AttributeModification<>(modificationInfos.getConnectionDirection(), OperationType.SET));
-        } else if (ModificationUtils.getInstance().getBusOrBusbarSection(branch.getTerminal2()).equals(modificationInfos.getBusBarSectionId())) {
+        } else if (ModificationUtils.getInstance().getBusOrBusbarSection(branch.getTerminal2()).equals(modificationInfos.getBusbarSectionId())) {
             branchModificationInfos.setConnectionPosition2(new AttributeModification<>(modificationInfos.getConnectionPosition(), OperationType.SET));
             branchModificationInfos.setConnectionName2(new AttributeModification<>(modificationInfos.getConnectionName(), OperationType.SET));
             branchModificationInfos.setConnectionDirection2(new AttributeModification<>(modificationInfos.getConnectionDirection(), OperationType.SET));
         } else {
             System.out.println(ModificationUtils.getInstance().getBusOrBusbarSection(branch.getTerminal1()));
             System.out.println(ModificationUtils.getInstance().getBusOrBusbarSection(branch.getTerminal2()));
-            throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format("the busbar id %s does not correspond to any of the busbar of %s", modificationInfos.getBusBarSectionId(), branch.getId()));
+            throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format("the busbar id %s does not correspond to any of the busbar of %s", modificationInfos.getBusbarSectionId(), branch.getId()));
         }
         return branchModificationInfos;
     }
@@ -94,13 +94,13 @@ public class ConnectablePositionModification extends AbstractModification {
                 return injection.getTerminal();
             }
             case Branch<?> branch -> {
-                if (ModificationUtils.getInstance().getBusOrBusbarSection(branch.getTerminal1()).equals(modificationInfos.getBusBarSectionId())) {
+                if (ModificationUtils.getInstance().getBusOrBusbarSection(branch.getTerminal1()).equals(modificationInfos.getBusbarSectionId())) {
                     return branch.getTerminal1();
-                } else if (ModificationUtils.getInstance().getBusOrBusbarSection(branch.getTerminal2()).equals(modificationInfos.getBusBarSectionId())) {
+                } else if (ModificationUtils.getInstance().getBusOrBusbarSection(branch.getTerminal2()).equals(modificationInfos.getBusbarSectionId())) {
                     return branch.getTerminal2();
                 } else {
                     throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format("the busbar id %s does not correspond to any of the busbar of %s",
-                        modificationInfos.getBusBarSectionId(), branch.getId()));
+                        modificationInfos.getBusbarSectionId(), branch.getId()));
                 }
             }
             default -> throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format("ConnectablePositionModification is not implemented for %s", connectable.getClass()));
