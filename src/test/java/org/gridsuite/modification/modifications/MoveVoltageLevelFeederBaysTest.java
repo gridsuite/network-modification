@@ -37,6 +37,7 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
     protected Network createNetwork(UUID networkUuid) {
         Network network = NetworkCreation.create(networkUuid, true);
         createBusBarSection(network.getVoltageLevel("v3"), "3B", "3B", 20);
+        createBusBarSection(network.getVoltageLevel("v1"), "1.2", "1.2", 20);
         return network;
     }
 
@@ -253,6 +254,19 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
         assertEquals("v4", terminal.getVoltageLevel().getId());
         assertEquals("line1", terminal.getConnectable().getId());
         assertEquals(TwoSides.TWO, network.getLine("line1").getSide(terminal));
+        // branch side 1 with no error
+        ConnectablePositionModification connectablePositionModification5 = new ConnectablePositionModification(ConnectablePositionModificationInfos.builder()
+            .connectableId("line2")
+            .busbarSectionId("1.1")
+            .targetBusbarSectionId("1.2")
+            .connectionName("line2")
+            .connectionPosition(21)
+            .connectionDirection(ConnectablePosition.Direction.BOTTOM)
+            .build());
+        terminal = connectablePositionModification5.getTerminal(network);
+        assertEquals("v1", terminal.getVoltageLevel().getId());
+        assertEquals("line2", terminal.getConnectable().getId());
+        assertEquals(TwoSides.ONE, network.getLine("line2").getSide(terminal));
     }
 
     @Test
