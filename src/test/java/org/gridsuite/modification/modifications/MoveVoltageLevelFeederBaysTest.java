@@ -86,7 +86,6 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
         // line2
         Line line2 = getNetwork().getLine("line2");
         assertNotNull(line2);
-        getNetwork().getVoltageLevel("v1").getNodeBreakerView().getBusbarSectionStream().forEach(busbar -> System.out.println(busbar.getId()));
         String line2BusbarId = ModificationUtils.getInstance().getBusOrBusbarSection(line2.getTerminal2());
         assertEquals("3B", line2BusbarId);
         ConnectablePosition lineConnectablePosition = line2.getExtension(ConnectablePosition.class);
@@ -282,5 +281,37 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
 
         modification.createSubReportNode(reportNode);
         assertLogMessage("Move voltage level feeder bays modification v3", "network.modification.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS", reportNode);
+    }
+
+    @Test
+    void testConnectablePositionModificationOnSide1() {
+        Network network = getNetwork();
+        ConnectablePositionModificationInfos connectablePositionModificationInfos = ConnectablePositionModificationInfos.builder()
+            .connectableId("line2")
+            .busbarSectionId("1.1")
+            .targetBusbarSectionId("1.2")
+            .connectionName("line2test")
+            .connectionPosition(21)
+            .connectionDirection(ConnectablePosition.Direction.BOTTOM)
+            .build();
+        MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = new MoveVoltageLevelFeederBays(MoveVoltageLevelFeederBaysInfos.builder()
+            .voltageLevelId("v1")
+            .feederBaysAttributeList(List.of(connectablePositionModificationInfos))
+            .build());
+        moveVoltageLevelFeederBays.apply(network);
+
+        Line line = network.getLine("line2");
+        assertNotNull(line);
+        String line2BusbarId = ModificationUtils.getInstance().getBusOrBusbarSection(line.getTerminal1());
+        assertEquals("1.2", line2BusbarId);
+        ConnectablePosition lineConnectablePosition = line.getExtension(ConnectablePosition.class);
+        assertNotNull(lineConnectablePosition);
+        ConnectablePosition.Feeder feeder1 = lineConnectablePosition.getFeeder1();
+        assertNotNull(feeder1);
+        assertTrue(feeder1.getName().isPresent());
+        assertEquals("line2test", feeder1.getName().get());
+        assertTrue(feeder1.getOrder().isPresent());
+        assertEquals(21, feeder1.getOrder().get());
+        assertEquals(ConnectablePosition.Direction.BOTTOM, feeder1.getDirection());
     }
 }

@@ -69,8 +69,6 @@ public class ConnectablePositionModification extends AbstractModification {
             branchModificationInfos.setConnectionName2(new AttributeModification<>(modificationInfos.getConnectionName(), OperationType.SET));
             branchModificationInfos.setConnectionDirection2(new AttributeModification<>(modificationInfos.getConnectionDirection(), OperationType.SET));
         } else {
-            System.out.println(ModificationUtils.getInstance().getBusOrBusbarSection(branch.getTerminal1()));
-            System.out.println(ModificationUtils.getInstance().getBusOrBusbarSection(branch.getTerminal2()));
             throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format("the busbar id %s does not correspond to any of the busbar of %s", modificationInfos.getBusbarSectionId(), branch.getId()));
         }
         return branchModificationInfos;
