@@ -69,7 +69,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
             modifyOperationalLimitsGroups(branch, branchModificationInfos.getOperationalLimitsGroups(), side1LimitsReports, side2LimitsReports);
         }
 
-        applySelectedOpLGs(branch, side1LimitsReports, side2LimitsReports);
+        applySelectedOLGs(branch, side1LimitsReports, side2LimitsReports);
 
         if (!side1LimitsReports.isEmpty() || !side2LimitsReports.isEmpty()) {
             ReportNode limitsReportNode = subReportNode.newReportNode().withMessageTemplate("network.modification.limits").add();
@@ -100,72 +100,66 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
     }
 
-    private void applySelectedOpLGs(Branch<?> branch, List<ReportNode> side1LimitsReports, List<ReportNode> side2LimitsReports) {
+    private void applySelectedOLGs(Branch<?> branch, List<ReportNode> side1LimitsReports, List<ReportNode> side2LimitsReports) {
         if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
-            applySelectedOpLGOnSide1(branch, side1LimitsReports);
+            applySelectedOLGOnSide1(branch, side1LimitsReports);
         }
         if (modificationInfos.getSelectedOperationalLimitsGroup2() != null) {
-            applySelectedOpLGOnSide2(branch, side2LimitsReports);
+            applySelectedOLGOnSide2(branch, side2LimitsReports);
         }
     }
 
-    private void applySelectedOpLGOnSide1(Branch<?> branch, List<ReportNode> reportNode) {
-        switch (modificationInfos.getSelectedOperationalLimitsGroup1().getOp()) {
-            case UNSET : {
-                branch.cancelSelectedOperationalLimitsGroup1();
+    private void applySelectedOLGOnSide1(Branch<?> branch, List<ReportNode> reportNode) {
+        if (Objects.requireNonNull(modificationInfos.getSelectedOperationalLimitsGroup1().getOp()) == OperationType.UNSET) {
+            branch.cancelSelectedOperationalLimitsGroup1();
+            reportNode.add(ReportNode.newRootReportNode()
+                    .withMessageTemplate("network.modification.noLimitSetSelectedOnSide1")
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .build());
+        } else if (modificationInfos.getSelectedOperationalLimitsGroup1().getOp() == OperationType.SET) {
+            String newSelectedOpLG1 = modificationInfos.getSelectedOperationalLimitsGroup1().getValue();
+            if (StringUtils.hasText(newSelectedOpLG1) && branch.getOperationalLimitsGroup1(newSelectedOpLG1).isEmpty()) {
                 reportNode.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("network.modification.noLimitSetSelectedOnSide1")
+                        .withMessageTemplate("network.modification.limitSetAbsentOnSide1")
+                        .withUntypedValue("selectedOperationalLimitsGroup", newSelectedOpLG1)
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .build());
+
+            } else {
+                branch.setSelectedOperationalLimitsGroup1(newSelectedOpLG1);
+                reportNode.add(ReportNode.newRootReportNode()
+                        .withMessageTemplate("network.modification.limitSetSelectedOnSide1")
+                        .withUntypedValue("selectedOperationalLimitsGroup1", newSelectedOpLG1)
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .build());
-            } break;
-            case SET: {
-                String newSelectedOpLG1 = modificationInfos.getSelectedOperationalLimitsGroup1().getValue();
-                if (StringUtils.hasText(newSelectedOpLG1) && branch.getOperationalLimitsGroup1(newSelectedOpLG1).isEmpty()) {
-                    reportNode.add(ReportNode.newRootReportNode()
-                            .withMessageTemplate("network.modification.limitSetAbsentOnSide1")
-                            .withUntypedValue("selectedOperationalLimitsGroup", newSelectedOpLG1)
-                            .withSeverity(TypedValue.WARN_SEVERITY)
-                            .build());
-
-                } else {
-                    branch.setSelectedOperationalLimitsGroup1(newSelectedOpLG1);
-                    reportNode.add(ReportNode.newRootReportNode()
-                            .withMessageTemplate("network.modification.limitSetSelectedOnSide1")
-                            .withUntypedValue("selectedOperationalLimitsGroup1", newSelectedOpLG1)
-                            .withSeverity(TypedValue.INFO_SEVERITY)
-                            .build());
-                }
-            } break;
+            }
         }
     }
 
-    private void applySelectedOpLGOnSide2(Branch<?> branch, List<ReportNode> reportNode) {
-        switch (modificationInfos.getSelectedOperationalLimitsGroup2().getOp()) {
-            case UNSET : {
-                branch.setSelectedOperationalLimitsGroup2("");
+    private void applySelectedOLGOnSide2(Branch<?> branch, List<ReportNode> reportNode) {
+        if (Objects.requireNonNull(modificationInfos.getSelectedOperationalLimitsGroup2().getOp()) == OperationType.UNSET) {
+            branch.setSelectedOperationalLimitsGroup2("");
+            reportNode.add(ReportNode.newRootReportNode()
+                    .withMessageTemplate("network.modification.noLimitSetSelectedOnSide2")
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .build());
+        } else if (modificationInfos.getSelectedOperationalLimitsGroup2().getOp() == OperationType.SET) {
+            String newSelectedOpLG = modificationInfos.getSelectedOperationalLimitsGroup2().getValue();
+            if (StringUtils.hasText(newSelectedOpLG) && branch.getOperationalLimitsGroup2(newSelectedOpLG).isEmpty()) {
                 reportNode.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("network.modification.noLimitSetSelectedOnSide2")
+                        .withMessageTemplate("network.modification.limitSetAbsentOnSide2")
+                        .withUntypedValue("selectedOperationalLimitsGroup2", newSelectedOpLG)
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .build());
+
+            } else {
+                branch.setSelectedOperationalLimitsGroup2(newSelectedOpLG);
+                reportNode.add(ReportNode.newRootReportNode()
+                        .withMessageTemplate("network.modification.limitSetSelectedOnSide2")
+                        .withUntypedValue("selectedOperationalLimitsGroup2", newSelectedOpLG)
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .build());
-            } break;
-            case SET: {
-                String newSelectedOpLG = modificationInfos.getSelectedOperationalLimitsGroup2().getValue();
-                if (StringUtils.hasText(newSelectedOpLG) && branch.getOperationalLimitsGroup2(newSelectedOpLG).isEmpty()) {
-                    reportNode.add(ReportNode.newRootReportNode()
-                            .withMessageTemplate("network.modification.limitSetAbsentOnSide2")
-                            .withUntypedValue("selectedOperationalLimitsGroup2", newSelectedOpLG)
-                            .withSeverity(TypedValue.WARN_SEVERITY)
-                            .build());
-
-                } else {
-                    branch.setSelectedOperationalLimitsGroup2(newSelectedOpLG);
-                    reportNode.add(ReportNode.newRootReportNode()
-                            .withMessageTemplate("network.modification.limitSetSelectedOnSide2")
-                            .withUntypedValue("selectedOperationalLimitsGroup2", newSelectedOpLG)
-                            .withSeverity(TypedValue.INFO_SEVERITY)
-                            .build());
-                }
-            } break;
+            }
         }
     }
 
