@@ -156,7 +156,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                                 .build()
                 ))
                 .selectedOperationalLimitsGroup1(new AttributeModification<>("DEFAULT", OperationType.SET))
-                .selectedOperationalLimitsGroup2(new AttributeModification<>("DEFAULT", OperationType.SET))
+                .selectedOperationalLimitsGroup2(new AttributeModification<>("ETE", OperationType.SET))
                 .build();
     }
 
@@ -176,9 +176,20 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertEquals(5.0, modifiedTwoWindingsTransformer.getRatedU1(), 0.1);
         assertEquals(6.0, modifiedTwoWindingsTransformer.getRatedU2(), 0.1);
         assertEquals(7.0, modifiedTwoWindingsTransformer.getRatedS(), 0.1);
-        assertEquals(PROPERTY_VALUE, getNetwork().getTwoWindingsTransformer("trf1").getProperty(PROPERTY_NAME));
+        assertEquals(PROPERTY_VALUE, modifiedTwoWindingsTransformer.getProperty(PROPERTY_NAME));
+        assertOLG(modifiedTwoWindingsTransformer);
         assertMeasurements(modifiedTwoWindingsTransformer);
         assertToBeEstimated(modifiedTwoWindingsTransformer);
+    }
+
+    private static void assertOLG(TwoWindingsTransformer modifiedTwt) {
+        assertTrue(modifiedTwt.getSelectedOperationalLimitsGroup1().isPresent());
+        assertEquals("DEFAULT", modifiedTwt.getSelectedOperationalLimitsGroup1().get().getId());
+        assertTrue(modifiedTwt.getSelectedOperationalLimitsGroup2().isPresent());
+        assertEquals("ETE", modifiedTwt.getSelectedOperationalLimitsGroup2().get().getId());
+        assertTrue(modifiedTwt.getOperationalLimitsGroup1("ETE").isPresent());
+        assertTrue(modifiedTwt.getOperationalLimitsGroup1("ETE").get().getCurrentLimits().isPresent());
+        assertEquals(800.0, modifiedTwt.getOperationalLimitsGroup1("ETE").get().getCurrentLimits().get().getPermanentLimit());
     }
 
     private void assertMeasurements(TwoWindingsTransformer twt) {
