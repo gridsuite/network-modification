@@ -173,8 +173,6 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                 .build())
                                         .build()))
                                 .build(),
-                        // impossible modification (deletion of an inexistent opLG)
-                        // TODO : the real deletion can't be tested yet because removeOperationalLimitsGroup1 doesn't work for now. When it is corrected, add unit test for it
                         LineModificationInfos.builder()
                                 .equipmentId("line2")
                                 .selectedOperationalLimitsGroup2(new AttributeModification<>("group0", OperationType.SET))
@@ -182,7 +180,6 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                     OperationalLimitsGroupModificationInfos.builder()
                                         .id("UNKNOWN")
                                         .applicability(OperationalLimitsGroupInfos.Applicability.SIDE2)
-                                        .modificationType(OperationalLimitsGroupModificationType.DELETE)
                                         .build()))
                                 .build())
                 )

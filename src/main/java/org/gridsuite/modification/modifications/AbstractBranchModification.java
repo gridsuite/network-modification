@@ -90,12 +90,12 @@ public abstract class AbstractBranchModification extends AbstractModification {
             if (applicability == SIDE1
                     || applicability == OperationalLimitsGroupInfos.Applicability.EQUIPMENT) {
                 OperationalLimitsGroup operationalLimitsGroup1 = branch.getOperationalLimitsGroup1(opLGModifInfos.getId()).orElse(null);
-                applyModificationToOperationalLimitsGroup(branch::newOperationalLimitsGroup1, opLGModifInfos, operationalLimitsGroup1, side1LimitsReports, branch, SIDE1);
+                applyModificationToOperationalLimitsGroup(branch::newOperationalLimitsGroup1, opLGModifInfos, operationalLimitsGroup1, side1LimitsReports, SIDE1);
             }
             if (applicability == SIDE2
                     || applicability == OperationalLimitsGroupInfos.Applicability.EQUIPMENT) {
                 OperationalLimitsGroup operationalLimitsGroup2 = branch.getOperationalLimitsGroup2(opLGModifInfos.getId()).orElse(null);
-                applyModificationToOperationalLimitsGroup(branch::newOperationalLimitsGroup2, opLGModifInfos, operationalLimitsGroup2, side2LimitsReports, branch, SIDE2);
+                applyModificationToOperationalLimitsGroup(branch::newOperationalLimitsGroup2, opLGModifInfos, operationalLimitsGroup2, side2LimitsReports, SIDE2);
             }
         }
     }
@@ -283,7 +283,6 @@ public abstract class AbstractBranchModification extends AbstractModification {
             OperationalLimitsGroupModificationInfos opLGModificationInfos,
             OperationalLimitsGroup modifiedOperationalLimitsGroup,
             List<ReportNode> operationalLimitsGroupReports,
-            Branch<?> branch,
             OperationalLimitsGroupInfos.Applicability applicability
     ) {
         switch (opLGModificationInfos.getModificationType()) {
@@ -306,23 +305,6 @@ public abstract class AbstractBranchModification extends AbstractModification {
             case OperationalLimitsGroupModificationType.REPLACE: {
                 replaceOpLG(groupFactory, opLGModificationInfos, modifiedOperationalLimitsGroup, operationalLimitsGroupReports, applicability);
             } break;
-            case OperationalLimitsGroupModificationType.DELETE: {
-                if (applicability == SIDE1 && branch.getOperationalLimitsGroup1(opLGModificationInfos.getId()).isEmpty() ||
-                        applicability == SIDE2 && branch.getOperationalLimitsGroup2(opLGModificationInfos.getId()).isEmpty()) {
-                    throw new PowsyblException("Cannot delete operational limit group " + opLGModificationInfos.getId() + " which has not been found in equipment on side " + applicability);
-                }
-                if (applicability == SIDE1) {
-                    branch.removeOperationalLimitsGroup1(opLGModificationInfos.getId());
-                } else if (applicability == SIDE2) {
-                    branch.removeOperationalLimitsGroup2(opLGModificationInfos.getId());
-                }
-                operationalLimitsGroupReports.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("network.modification.operationalLimitsGroupDeleted")
-                        .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, opLGModificationInfos.getId())
-                        .withUntypedValue(SIDE, applicability.toString())
-                        .withSeverity(TypedValue.INFO_SEVERITY)
-                        .build());
-            }
         }
     }
 
@@ -390,7 +372,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
     }
 
     /**
-     * is the limit identied by acceptableDuration deleted in temporaryLimitsModification ?
+     * is the limit identified by acceptableDuration deleted in temporaryLimitsModification ?
      */
     public boolean isThisLimitDeleted(List<CurrentTemporaryLimitModificationInfos> temporaryLimitsModification, int acceptableDuration) {
         return temporaryLimitsModification.stream()
