@@ -25,13 +25,13 @@ import lombok.experimental.SuperBuilder;
 @Schema(description = "Connectable position modification")
 public class ConnectablePositionModificationInfos {
     @Schema(description = "Connectable id")
-    private String connectableId;
+    private String equipmentId;
 
     @Schema(description = "busbar section id")
     private String busbarSectionId;
 
-    @Schema(description = "target busbar section id")
-    private String targetBusbarSectionId;
+    @Schema(description = "connection side")
+    private String connectionSide;
 
     @Schema(description = "connection position")
     private Integer connectionPosition;
