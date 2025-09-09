@@ -144,22 +144,36 @@ public class GeneratorModification extends AbstractModification {
                     "Transformer reactance"));
 
         } else if (directTransX != null) {
-            generator.newExtension(GeneratorShortCircuitAdder.class)
-                    .withStepUpTransformerX(oldStepUpTransformerReactance)
-                    .withDirectTransX(directTransX.getValue())
-                    .add();
+            String newValue;
+            if (Double.isNaN(directTransX.getValue())) {
+                generator.removeExtension(GeneratorShortCircuit.class);
+                newValue = "UNSET";
+            } else {
+                generator.newExtension(GeneratorShortCircuitAdder.class)
+                        .withStepUpTransformerX(oldStepUpTransformerReactance)
+                        .withDirectTransX(directTransX.getValue())
+                        .add();
+                newValue = directTransX.getValue().toString();
+            }
             reports.add(ModificationUtils.getInstance().buildModificationReport(
                     oldTransientReactance,
-                    directTransX.getValue(),
+                    newValue,
                     "Transient reactance"));
         } else if (stepUpTransformerX != null) {
-            generator.newExtension(GeneratorShortCircuitAdder.class)
-                    .withStepUpTransformerX(stepUpTransformerX.getValue())
-                    .withDirectTransX(oldTransientReactance)
-                    .add();
+            String newValue;
+            if (Double.isNaN(stepUpTransformerX.getValue())) {
+                generator.removeExtension(GeneratorShortCircuit.class);
+                newValue = "UNSET";
+            } else {
+                generator.newExtension(GeneratorShortCircuitAdder.class)
+                        .withStepUpTransformerX(stepUpTransformerX.getValue())
+                        .withDirectTransX(oldTransientReactance)
+                        .add();
+                newValue = stepUpTransformerX.getValue().toString();
+            }
             reports.add(ModificationUtils.getInstance().buildModificationReport(
                     oldStepUpTransformerReactance,
-                    stepUpTransformerX.getValue(),
+                    newValue,
                     "Transformer reactance"));
         }
         if (subReportNode != null) {

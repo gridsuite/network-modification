@@ -91,7 +91,7 @@ public enum TwoWindingsTransformerField {
     private static void setNewDoubleValue(TwoWindingsTransformer transformer, TwoWindingsTransformerField field, String newValue, String errorMessage) {
         final PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
         final RatioTapChanger ratioTapChanger = transformer.getRatioTapChanger();
-        final Double doubleValue = Double.valueOf(newValue);
+        final Double doubleValue = newValue != null ? Double.parseDouble(newValue) : Double.NaN;
         final AttributeModification<Double> attributeModification = new AttributeModification<>(doubleValue, OperationType.SET);
         switch (field) {
             case R -> {

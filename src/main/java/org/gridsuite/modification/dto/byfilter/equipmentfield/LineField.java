@@ -54,7 +54,7 @@ public enum LineField {
     }
 
     private static void setNewDoubleValue(Line line, LineField field, String newValue, String errorMessage) {
-        Double doubleValue = Double.parseDouble(newValue);
+        Double doubleValue = newValue != null ? Double.parseDouble(newValue) : Double.NaN;
         final AttributeModification<Double> attributeModification = new AttributeModification<>(doubleValue, OperationType.SET);
         switch (field) {
             case R -> {
