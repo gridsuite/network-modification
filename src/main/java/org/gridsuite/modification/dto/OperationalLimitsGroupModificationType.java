@@ -11,7 +11,10 @@ package org.gridsuite.modification.dto;
  */
 
 public enum OperationalLimitsGroupModificationType {
+    // Modification types for Tabular modifications :
     ADD,
     MODIFY,
     REPLACE,
+    // Modification type for simple form modifications :
+    MODIFY_OR_ADD, // if the OLG exists it is modified, if not it is created
 }
