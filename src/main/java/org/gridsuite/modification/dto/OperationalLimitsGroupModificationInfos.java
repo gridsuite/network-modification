@@ -36,9 +36,6 @@ public class OperationalLimitsGroupModificationInfos {
     @Schema(description = "temporary limits modification type")
     private TemporaryLimitModificationType temporaryLimitsModificationType;
 
-    @Schema(description = "limits set to define as current active one for provided side")
-    private String selectedOperationalLimitsGroupId;
-
-    @Schema(description = "operation group side")
-    private String side;
+    @Schema(description = "application side")
+    private OperationalLimitsGroupInfos.Applicability applicability;
 }
