@@ -147,13 +147,13 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
             regulationReports.add(getInstance().buildCreationReport(targetDeadband, "Target deadband"));
         }
         Terminal terminal = getInstance().getTerminalFromIdentifiable(network,
-                phaseTapChangerInfos.getRegulatingTerminalId(),
-                phaseTapChangerInfos.getRegulatingTerminalType(),
-                phaseTapChangerInfos.getRegulatingTerminalVlId());
+                phaseTapChangerInfos.getTerminalRefConnectableId(),
+                phaseTapChangerInfos.getTerminalRefConnectableType(),
+                phaseTapChangerInfos.getTerminalRefConnectableVlId());
         if (terminal != null) {
             phaseTapChangerAdder.setRegulationTerminal(terminal);
-            regulatedTerminalReports.add(getInstance().buildCreationReport(phaseTapChangerInfos.getRegulatingTerminalVlId(), "Voltage level"));
-            regulatedTerminalReports.add(getInstance().buildCreationReport(phaseTapChangerInfos.getRegulatingTerminalType() + " : " + phaseTapChangerInfos.getRegulatingTerminalId(), "Equipment"));
+            regulatedTerminalReports.add(getInstance().buildCreationReport(phaseTapChangerInfos.getTerminalRefConnectableVlId(), "Voltage level"));
+            regulatedTerminalReports.add(getInstance().buildCreationReport(phaseTapChangerInfos.getTerminalRefConnectableType() + " : " + phaseTapChangerInfos.getTerminalRefConnectableId(), "Equipment"));
         }
 
         phaseTapChangerAdder.setRegulating(phaseTapChangerInfos.isRegulating())
@@ -189,12 +189,12 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         RatioTapChangerCreationInfos ratioTapChangerInfos = twoWindingsTransformerCreationInfos.getRatioTapChanger();
         RatioTapChangerAdder ratioTapChangerAdder = twt.newRatioTapChanger();
         Terminal terminal = getInstance().getTerminalFromIdentifiable(network,
-                ratioTapChangerInfos.getRegulatingTerminalId(),
-                ratioTapChangerInfos.getRegulatingTerminalType(),
-                ratioTapChangerInfos.getRegulatingTerminalVlId());
+                ratioTapChangerInfos.getTerminalRefConnectableId(),
+                ratioTapChangerInfos.getTerminalRefConnectableType(),
+                ratioTapChangerInfos.getTerminalRefConnectableVlId());
         if (terminal != null) {
-            regulatedTerminalReports.add(getInstance().buildCreationReport(ratioTapChangerInfos.getRegulatingTerminalVlId(), "Voltage level"));
-            regulatedTerminalReports.add(getInstance().buildCreationReport(ratioTapChangerInfos.getRegulatingTerminalType() + " : " + ratioTapChangerInfos.getRegulatingTerminalId(), "Equipment"));
+            regulatedTerminalReports.add(getInstance().buildCreationReport(ratioTapChangerInfos.getTerminalRefConnectableVlId(), "Voltage level"));
+            regulatedTerminalReports.add(getInstance().buildCreationReport(ratioTapChangerInfos.getTerminalRefConnectableType() + " : " + ratioTapChangerInfos.getTerminalRefConnectableId(), "Equipment"));
         }
 
         Double targetDeadband = ratioTapChangerInfos.getTargetDeadband();
