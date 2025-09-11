@@ -25,6 +25,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.ADD;
 import static org.gridsuite.modification.modifications.TwoWindingsTransformerModification.processPhaseTapRegulation;
 import static org.gridsuite.modification.utils.NetworkUtil.createTwoWindingsTransformer;
 import static org.junit.jupiter.api.Assertions.*;
@@ -59,24 +60,6 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 .ratedU1(new AttributeModification<>(5., OperationType.SET))
                 .ratedU2(new AttributeModification<>(6., OperationType.SET))
                 .ratedS(new AttributeModification<>(7., OperationType.SET))
-                .currentLimits1(CurrentLimitsModificationInfos.builder()
-                        .permanentLimit(12.0)
-                        .temporaryLimits(List.of(CurrentTemporaryLimitModificationInfos.builder()
-                                .acceptableDuration(null)
-                                .name("name31")
-                                .value(null)
-                                .modificationType(TemporaryLimitModificationType.ADD)
-                                .build()))
-                        .build())
-                .currentLimits2(CurrentLimitsModificationInfos.builder()
-                        .permanentLimit(22.0)
-                        .temporaryLimits(List.of(CurrentTemporaryLimitModificationInfos.builder()
-                                .acceptableDuration(32)
-                                .name("name32")
-                                .value(42.0)
-                                .modificationType(TemporaryLimitModificationType.ADD)
-                                .build()))
-                        .build())
                 .voltageLevelId1(new AttributeModification<>("v1", OperationType.SET))
                 .voltageLevelId2(new AttributeModification<>("v2", OperationType.SET))
                 .busOrBusbarSectionId1(new AttributeModification<>("1.1", OperationType.SET))
@@ -153,6 +136,28 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                         ))
                     .build())
                 .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+                .operationalLimitsGroups(List.of(
+                        OperationalLimitsGroupModificationInfos.builder()
+                                .id("ETE")
+                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                .modificationType(ADD)
+                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                        .permanentLimit(800.0)
+                                        .build()
+                                        )
+                                .build(),
+                        OperationalLimitsGroupModificationInfos.builder()
+                                .id("ETE")
+                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE2)
+                                .modificationType(ADD)
+                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                        .permanentLimit(800.0)
+                                        .build()
+                                        )
+                                .build()
+                ))
+                .selectedOperationalLimitsGroup1(new AttributeModification<>("DEFAULT", OperationType.SET))
+                .selectedOperationalLimitsGroup2(new AttributeModification<>("ETE", OperationType.SET))
                 .build();
     }
 
@@ -172,22 +177,20 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertEquals(5.0, modifiedTwoWindingsTransformer.getRatedU1(), 0.1);
         assertEquals(6.0, modifiedTwoWindingsTransformer.getRatedU2(), 0.1);
         assertEquals(7.0, modifiedTwoWindingsTransformer.getRatedS(), 0.1);
-        // limits
-        assertNotNull(modifiedTwoWindingsTransformer.getNullableCurrentLimits1());
-        assertEquals(12.0, modifiedTwoWindingsTransformer.getNullableCurrentLimits1().getPermanentLimit());
-        LoadingLimits.TemporaryLimit temporaryLimit = modifiedTwoWindingsTransformer.getNullableCurrentLimits1().getTemporaryLimit(Integer.MAX_VALUE);
-        assertEquals(Integer.MAX_VALUE, temporaryLimit.getAcceptableDuration());
-        assertEquals("name31", temporaryLimit.getName());
-        assertEquals(Double.MAX_VALUE, temporaryLimit.getValue());
-        assertNotNull(modifiedTwoWindingsTransformer.getNullableCurrentLimits2());
-        assertEquals(22.0, modifiedTwoWindingsTransformer.getNullableCurrentLimits2().getPermanentLimit());
-        temporaryLimit = modifiedTwoWindingsTransformer.getNullableCurrentLimits2().getTemporaryLimit(32);
-        assertEquals(32, temporaryLimit.getAcceptableDuration());
-        assertEquals("name32", temporaryLimit.getName());
-        assertEquals(42.0, temporaryLimit.getValue());
-        assertEquals(PROPERTY_VALUE, getNetwork().getTwoWindingsTransformer("trf1").getProperty(PROPERTY_NAME));
+        assertEquals(PROPERTY_VALUE, modifiedTwoWindingsTransformer.getProperty(PROPERTY_NAME));
+        assertOLG(modifiedTwoWindingsTransformer);
         assertMeasurements(modifiedTwoWindingsTransformer);
         assertToBeEstimated(modifiedTwoWindingsTransformer);
+    }
+
+    private static void assertOLG(TwoWindingsTransformer modifiedTwt) {
+        assertTrue(modifiedTwt.getSelectedOperationalLimitsGroup1().isPresent());
+        assertEquals("DEFAULT", modifiedTwt.getSelectedOperationalLimitsGroup1().get().getId());
+        assertTrue(modifiedTwt.getSelectedOperationalLimitsGroup2().isPresent());
+        assertEquals("ETE", modifiedTwt.getSelectedOperationalLimitsGroup2().get().getId());
+        assertTrue(modifiedTwt.getOperationalLimitsGroup1("ETE").isPresent());
+        assertTrue(modifiedTwt.getOperationalLimitsGroup1("ETE").get().getCurrentLimits().isPresent());
+        assertEquals(800.0, modifiedTwt.getOperationalLimitsGroup1("ETE").get().getCurrentLimits().get().getPermanentLimit());
     }
 
     private void assertMeasurements(TwoWindingsTransformer twt) {
