@@ -129,37 +129,55 @@ public class GeneratorModification extends AbstractModification {
         Double oldStepUpTransformerReactance = generatorShortCircuit != null ? generatorShortCircuit.getStepUpTransformerX() : Double.NaN;
         // Either transient reactance or step-up transformer reactance are modified or
         // both
+        String directTransXNewValue = directTransX != null ? directTransX.getValue().toString() : null;
+        String stepUpTransformerXNewValue = stepUpTransformerX != null ? stepUpTransformerX.getValue().toString() : null;
         if (directTransX != null && stepUpTransformerX != null) {
-            generator.newExtension(GeneratorShortCircuitAdder.class)
-                    .withDirectTransX(directTransX.getValue())
-                    .withStepUpTransformerX(stepUpTransformerX.getValue())
-                    .add();
+            if (Double.isNaN(directTransX.getValue()) && Double.isNaN(stepUpTransformerX.getValue())) {
+                generator.removeExtension(GeneratorShortCircuit.class);
+                directTransXNewValue = NO_VALUE;
+                stepUpTransformerXNewValue = NO_VALUE;
+            } else {
+                generator.newExtension(GeneratorShortCircuitAdder.class)
+                        .withDirectTransX(directTransX.getValue())
+                        .withStepUpTransformerX(stepUpTransformerX.getValue())
+                        .add();
+            }
             reports.add(ModificationUtils.getInstance().buildModificationReport(
                     oldTransientReactance,
-                    directTransX.getValue(),
+                    directTransXNewValue,
                     "Transient reactance"));
             reports.add(ModificationUtils.getInstance().buildModificationReport(
                     oldStepUpTransformerReactance,
-                    stepUpTransformerX.getValue(),
+                    stepUpTransformerXNewValue,
                     "Transformer reactance"));
 
         } else if (directTransX != null) {
-            generator.newExtension(GeneratorShortCircuitAdder.class)
-                    .withStepUpTransformerX(oldStepUpTransformerReactance)
-                    .withDirectTransX(directTransX.getValue())
-                    .add();
+            if (Double.isNaN(directTransX.getValue())) {
+                generator.removeExtension(GeneratorShortCircuit.class);
+                directTransXNewValue = NO_VALUE;
+            } else {
+                generator.newExtension(GeneratorShortCircuitAdder.class)
+                        .withStepUpTransformerX(oldStepUpTransformerReactance)
+                        .withDirectTransX(directTransX.getValue())
+                        .add();
+            }
             reports.add(ModificationUtils.getInstance().buildModificationReport(
                     oldTransientReactance,
-                    directTransX.getValue(),
+                    directTransXNewValue,
                     "Transient reactance"));
         } else if (stepUpTransformerX != null) {
-            generator.newExtension(GeneratorShortCircuitAdder.class)
-                    .withStepUpTransformerX(stepUpTransformerX.getValue())
-                    .withDirectTransX(oldTransientReactance)
-                    .add();
+            if (Double.isNaN(stepUpTransformerX.getValue())) {
+                generator.removeExtension(GeneratorShortCircuit.class);
+                stepUpTransformerXNewValue = NO_VALUE;
+            } else {
+                generator.newExtension(GeneratorShortCircuitAdder.class)
+                        .withStepUpTransformerX(stepUpTransformerX.getValue())
+                        .withDirectTransX(oldTransientReactance)
+                        .add();
+            }
             reports.add(ModificationUtils.getInstance().buildModificationReport(
                     oldStepUpTransformerReactance,
-                    stepUpTransformerX.getValue(),
+                    stepUpTransformerXNewValue,
                     "Transformer reactance"));
         }
         if (subReportNode != null) {
