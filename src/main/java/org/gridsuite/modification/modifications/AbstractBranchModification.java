@@ -429,7 +429,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
                         boolean isThisLimitDeleted = isThisLimitDeleted(currentLimitsInfos.getTemporaryLimits(), limitAcceptableDuration);
                         if (isThisLimitDeleted) {
                             limitToModify = null;
-                        } else {
+                        } else if (TemporaryLimitModificationType.ADD.equals(limit.getModificationType())) {
                             throw new PowsyblException("2 temporary limits have the same duration " + limitAcceptableDuration);
                         }
                     }
