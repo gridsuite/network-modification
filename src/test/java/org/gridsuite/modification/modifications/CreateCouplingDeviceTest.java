@@ -54,7 +54,7 @@ class CreateCouplingDeviceTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void assertAfterNetworkModificationApplication() {
-        Switch switch1 = getNetwork().getSwitch("v1_BREAKER");
+        Switch switch1 = getNetwork().getSwitch("SWITCH_bbs1_bbs5");
         Assertions.assertNotNull(switch1);
         Assertions.assertEquals(SwitchKind.BREAKER, switch1.getKind());
         Assertions.assertEquals("v1", switch1.getVoltageLevel().getId());
@@ -91,5 +91,4 @@ class CreateCouplingDeviceTest extends AbstractNetworkModificationTest {
         Assertions.assertEquals(1, report.getChildren().size());
         Assertions.assertEquals("core.iidm.modification.unexpectedDifferentVoltageLevels", report.getChildren().getFirst().getMessageKey());
     }
-
 }

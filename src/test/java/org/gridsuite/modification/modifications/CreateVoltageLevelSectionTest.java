@@ -81,7 +81,7 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
         List<String> busBarIds = new ArrayList<>();
         getNetwork().getBusbarSections().forEach(busbarSection -> busBarIds.add(busbarSection.getId()));
         assertEquals(5, busBarIds.size());
-        assertTrue(busBarIds.containsAll(List.of("bbs1", "bbs2", "bbs3", "bbs4", "v1_0_1")));
+        assertTrue(busBarIds.containsAll(List.of("bbs1", "bbs2", "bbs3", "bbs4", "BUSBAR_0_1")));
         Set<String> switchIds = getNetwork().getSwitchStream()
                 .map(Switch::getId)
                 .collect(Collectors.toSet());
