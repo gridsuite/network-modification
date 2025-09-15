@@ -12,11 +12,9 @@ import java.util.List;
 @AutoService(NamingStrategy.class)
 public class DummyNamingStrategy implements NamingStrategy {
 
-    private int counter = 0;
-
     @Override
     public final String getName() {
-        return "Fake naming strategy";
+        return "Dummy naming strategy";
     }
 
     @Override
