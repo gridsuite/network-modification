@@ -83,6 +83,7 @@ import java.util.concurrent.atomic.AtomicReference;
     @JsonSubTypes.Type(value = CreateVoltageLevelTopologyInfos.class),
     @JsonSubTypes.Type(value = LimitSetsTabularModificationInfos.class),
     @JsonSubTypes.Type(value = CreateVoltageLevelSectionInfos.class),
+    @JsonSubTypes.Type(value = MoveVoltageLevelFeederBaysInfos.class),
 })
 @SuperBuilder
 @NoArgsConstructor

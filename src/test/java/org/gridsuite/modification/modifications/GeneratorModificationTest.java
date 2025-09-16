@@ -285,9 +285,9 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         Generator generator = getNetwork().getGenerator("idGenerator");
         Terminal terminal = generator.getTerminal();
         assertEquals("v2", terminal.getVoltageLevel().getId());
-        BusbarSectionFinderTraverser connectedBusbarSectionFinder = new BusbarSectionFinderTraverser(terminal.isConnected());
+        BusbarSectionFinderTraverser connectedBusbarSectionFinder = new BusbarSectionFinderTraverser();
         generator.getTerminal().traverse(connectedBusbarSectionFinder, TraversalType.BREADTH_FIRST);
-        assertEquals("1A", connectedBusbarSectionFinder.getFirstTraversedBbsId());
+        assertEquals("1A", connectedBusbarSectionFinder.getBusbarWithClosedDisconnector());
 
         // Change voltageLevel and busbar section
         generatorModificationInfos.setVoltageLevelId(new AttributeModification<>("v1", OperationType.SET));
@@ -296,8 +296,8 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         generator = getNetwork().getGenerator("idGenerator");
         terminal = generator.getTerminal();
         assertEquals("v1", terminal.getVoltageLevel().getId());
-        connectedBusbarSectionFinder = new BusbarSectionFinderTraverser(terminal.isConnected());
+        connectedBusbarSectionFinder = new BusbarSectionFinderTraverser();
         terminal.traverse(connectedBusbarSectionFinder, TraversalType.BREADTH_FIRST);
-        assertEquals("1.1", connectedBusbarSectionFinder.getFirstTraversedBbsId());
+        assertEquals("1.1", connectedBusbarSectionFinder.getBusbarWithClosedDisconnector());
     }
 }
