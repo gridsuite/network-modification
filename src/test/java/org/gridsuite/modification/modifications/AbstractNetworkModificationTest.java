@@ -7,13 +7,10 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.network.store.iidm.impl.NetworkImpl;
 
 import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.utils.DummyNamingStrategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +36,6 @@ public abstract class AbstractNetworkModificationTest {
 
     private Network network;
 
-    private NamingStrategy namingStrategy = new DummyNamingStrategy();
-
-    private ReportNode rootReportNode = ReportNode.newRootReportNode().withMessageTemplate("apply").build();
-
     @Autowired
     protected ObjectMapper mapper;
 
@@ -53,7 +46,7 @@ public abstract class AbstractNetworkModificationTest {
 
     @Test
     public void testApply() throws Exception {
-        buildModification().toModification().apply(network, namingStrategy, rootReportNode);
+        buildModification().toModification().apply(network);
         assertAfterNetworkModificationApplication();
     }
 

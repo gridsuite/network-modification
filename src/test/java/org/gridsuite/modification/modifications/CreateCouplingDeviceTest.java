@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.SwitchKind;
 import org.gridsuite.modification.dto.CouplingDeviceInfos;
 import org.gridsuite.modification.dto.CreateCouplingDeviceInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.utils.DummyNamingStrategy;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -54,7 +55,7 @@ class CreateCouplingDeviceTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void assertAfterNetworkModificationApplication() {
-        Switch switch1 = getNetwork().getSwitch("SWITCH_bbs1_bbs5");
+        Switch switch1 = getNetwork().getSwitch("v1_BREAKER");
         Assertions.assertNotNull(switch1);
         Assertions.assertEquals(SwitchKind.BREAKER, switch1.getKind());
         Assertions.assertEquals("v1", switch1.getVoltageLevel().getId());
@@ -90,5 +91,24 @@ class CreateCouplingDeviceTest extends AbstractNetworkModificationTest {
         Assertions.assertDoesNotThrow(() -> modification.apply(network, report));
         Assertions.assertEquals(1, report.getChildren().size());
         Assertions.assertEquals("core.iidm.modification.unexpectedDifferentVoltageLevels", report.getChildren().getFirst().getMessageKey());
+    }
+
+    @Test
+    void testApplyWithNamingStrategy() {
+        CreateCouplingDeviceInfos createCouplingDeviceInfos = CreateCouplingDeviceInfos.builder()
+                .stashed(false)
+                .voltageLevelId("v1")
+                .couplingDeviceInfos(CouplingDeviceInfos.builder()
+                        .busbarSectionId1("bbs1")
+                        .busbarSectionId2("bbs5")
+                        .build())
+                .build();
+        Network network = getNetwork();
+        AbstractModification modification = createCouplingDeviceInfos.toModification();
+        ReportNode report = ReportNode.newRootReportNode()
+                .withMessageTemplate("test")
+                .build();
+        Assertions.assertDoesNotThrow(() -> modification.apply(network, new DummyNamingStrategy(), report));
+        Assertions.assertNotNull(network.getSwitch("SWITCH_bbs1_bbs5"));
     }
 }

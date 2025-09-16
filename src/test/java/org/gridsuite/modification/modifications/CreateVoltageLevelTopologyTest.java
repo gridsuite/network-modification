@@ -7,14 +7,17 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.CreateVoltageLevelTopologyInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.utils.DummyNamingStrategy;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -67,10 +70,10 @@ class CreateVoltageLevelTopologyTest extends AbstractNetworkModificationTest {
         List<String> busBarIds = new ArrayList<>();
         getNetwork().getBusbarSections().forEach(busbarSection -> busBarIds.add(busbarSection.getId()));
         Assertions.assertEquals(7, busBarIds.size());
-        Assertions.assertTrue(busBarIds.containsAll(List.of("BUSBAR_1_1", "BUSBAR_1_2", "BUSBAR_1_3", "bbs1", "bbs2", "bbs3", "bbs4")));
+        Assertions.assertTrue(busBarIds.containsAll(List.of("v1_1_1", "v1_1_2", "v1_1_3", "bbs1", "bbs2", "bbs3", "bbs4")));
         assertTrue(getNetwork().getSwitchStream().map(Switch::getId).collect(Collectors.toSet())
-            .containsAll(Set.of("l11_DISCONNECTOR_13_0", "DISCONNECTOR_10_7", "ld1_BREAKER", "ld1_DISCONNECTOR_11_0",
-                "DISCONNECTOR_6_9", "DISCONNECTOR_7_8", "BREAKER_1_1", "l11_BREAKER")));
+                .containsAll(Set.of("l11_DISCONNECTOR_13_0", "v1_DISCONNECTOR_10_7", "ld1_BREAKER", "ld1_DISCONNECTOR_11_0",
+                        "v1_DISCONNECTOR_6_9", "v1_DISCONNECTOR_7_8", "v1_BREAKER_1_1", "l11_BREAKER")));
     }
 
     @Override
@@ -79,5 +82,20 @@ class CreateVoltageLevelTopologyTest extends AbstractNetworkModificationTest {
         Map<String, String> updatedValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         });
         assertEquals("v1", updatedValues.get("voltageLevelId"));
+    }
+
+    @Test
+    void testApplyWithNamingStrategy() {
+        Network network = getNetwork();
+        ReportNode report = ReportNode.newRootReportNode()
+                .withMessageTemplate("test")
+                .build();
+        CreateVoltageLevelTopologyInfos.builder()
+                .stashed(false)
+                .voltageLevelId("v1")
+                .sectionCount(3)
+                .switchKinds(List.of(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR))
+                .build().toModification().apply(network, new DummyNamingStrategy(), report);
+        Assertions.assertNotNull(network.getBusbarSection("BUSBAR_1_1"));
     }
 }
