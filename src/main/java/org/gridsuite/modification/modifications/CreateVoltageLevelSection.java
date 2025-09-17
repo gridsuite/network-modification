@@ -11,6 +11,8 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.CreateVoltageLevelSections;
 import com.powsybl.iidm.modification.topology.CreateVoltageLevelSectionsBuilder;
+import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
@@ -66,6 +68,11 @@ public class CreateVoltageLevelSection extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
+        apply(network, new DefaultNamingStrategy(), subReportNode);
+    }
+
+    @Override
+    public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
         VoltageLevel voltageLevel = network.getVoltageLevel(modificationInfos.getVoltageLevelId());
         BusbarSection busbarSection = network.getBusbarSection(modificationInfos.getBusbarSectionId());
         List<String> busBarIds = new ArrayList<>();
@@ -80,7 +87,7 @@ public class CreateVoltageLevelSection extends AbstractModification {
                 .withSwitchPrefixId(voltageLevel.getId())
                 .withBusbarSectionPrefixId(voltageLevel.getId())
                 .build();
-        modification.apply(network, true, subReportNode);
+        modification.apply(network, namingStrategy, true, subReportNode);
 
         if (modificationInfos.isAllBusbars()) {
             List<BusbarSection> newBusbarSections = new ArrayList<>();
