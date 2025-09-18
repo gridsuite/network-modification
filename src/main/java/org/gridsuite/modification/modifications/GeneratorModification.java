@@ -125,22 +125,23 @@ public class GeneratorModification extends AbstractModification {
                                                              ReportNode subReportNode) {
         List<ReportNode> reports = new ArrayList<>();
         GeneratorShortCircuit generatorShortCircuit = generator.getExtension(GeneratorShortCircuit.class);
-        Double oldTransientReactance = generatorShortCircuit != null ? generatorShortCircuit.getDirectTransX() : Double.NaN;
-        Double oldStepUpTransformerReactance = generatorShortCircuit != null ? generatorShortCircuit.getStepUpTransformerX() : Double.NaN;
+        double oldTransientReactance = generatorShortCircuit != null ? generatorShortCircuit.getDirectTransX() : Double.NaN;
+        double oldStepUpTransformerReactance = generatorShortCircuit != null ? generatorShortCircuit.getStepUpTransformerX() : Double.NaN;
         // Either transient reactance or step-up transformer reactance are modified or
         // both
+        String stepUpTransformerXNewValue = stepUpTransformerX != null ? stepUpTransformerX.getValue().toString() : null;
         if (directTransX != null && stepUpTransformerX != null) {
             generator.newExtension(GeneratorShortCircuitAdder.class)
-                    .withDirectTransX(directTransX.getValue())
-                    .withStepUpTransformerX(stepUpTransformerX.getValue())
-                    .add();
+                .withDirectTransX(directTransX.getValue())
+                .withStepUpTransformerX(stepUpTransformerX.getValue())
+                .add();
             reports.add(ModificationUtils.getInstance().buildModificationReport(
                     oldTransientReactance,
                     directTransX.getValue(),
                     "Transient reactance"));
             reports.add(ModificationUtils.getInstance().buildModificationReport(
                     oldStepUpTransformerReactance,
-                    stepUpTransformerX.getValue(),
+                    stepUpTransformerXNewValue,
                     "Transformer reactance"));
 
         } else if (directTransX != null) {
@@ -153,13 +154,20 @@ public class GeneratorModification extends AbstractModification {
                     directTransX.getValue(),
                     "Transient reactance"));
         } else if (stepUpTransformerX != null) {
-            generator.newExtension(GeneratorShortCircuitAdder.class)
-                    .withStepUpTransformerX(stepUpTransformerX.getValue())
-                    .withDirectTransX(oldTransientReactance)
-                    .add();
+            if (Double.isNaN(stepUpTransformerX.getValue())) {
+                generator.newExtension(GeneratorShortCircuitAdder.class)
+                        .withDirectTransX(oldTransientReactance)
+                        .add();
+                stepUpTransformerXNewValue = NO_VALUE;
+            } else {
+                generator.newExtension(GeneratorShortCircuitAdder.class)
+                        .withStepUpTransformerX(stepUpTransformerX.getValue())
+                        .withDirectTransX(oldTransientReactance)
+                        .add();
+            }
             reports.add(ModificationUtils.getInstance().buildModificationReport(
                     oldStepUpTransformerReactance,
-                    stepUpTransformerX.getValue(),
+                    stepUpTransformerXNewValue,
                     "Transformer reactance"));
         }
         if (subReportNode != null) {

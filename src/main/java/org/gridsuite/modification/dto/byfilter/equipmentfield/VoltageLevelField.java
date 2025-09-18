@@ -9,7 +9,6 @@ package org.gridsuite.modification.dto.byfilter.equipmentfield;
 
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
-import jakarta.validation.constraints.NotNull;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
 
@@ -40,7 +39,7 @@ public enum VoltageLevelField {
         };
     }
 
-    public static void setNewValue(VoltageLevel voltageLevel, String voltageLevelField, @NotNull String newValue) {
+    public static void setNewValue(VoltageLevel voltageLevel, String voltageLevelField, String newValue) {
         VoltageLevelField field = VoltageLevelField.valueOf(voltageLevelField);
         final String errorMessage = String.format(ERROR_MESSAGE, voltageLevel.getId());
         switch (field) {
@@ -50,19 +49,21 @@ public enum VoltageLevelField {
                 modifyNominalV(voltageLevel, new AttributeModification<>(nominalVoltage, OperationType.SET), null);
             }
             case LOW_VOLTAGE_LIMIT -> {
-                Double lowVoltageLimit = Double.valueOf(newValue);
+                Double lowVoltageLimit = newValue != null ? Double.parseDouble(newValue) : Double.NaN;
                 checkIsNotNegativeValue(errorMessage, lowVoltageLimit, MODIFY_VOLTAGE_LEVEL_ERROR, "Low voltage limit");
                 modifLowVoltageLimit(voltageLevel, new AttributeModification<>(lowVoltageLimit, OperationType.SET), null);
             }
             case HIGH_VOLTAGE_LIMIT -> {
-                Double highVoltageLimit = Double.valueOf(newValue);
+                Double highVoltageLimit = newValue != null ? Double.parseDouble(newValue) : Double.NaN;
                 checkIsNotNegativeValue(errorMessage, highVoltageLimit, MODIFY_VOLTAGE_LEVEL_ERROR, "High voltage limit");
-                modifyHighVoltageLimit(voltageLevel, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null);
+                modifyHighVoltageLimit(voltageLevel, new AttributeModification<>(highVoltageLimit, OperationType.SET), null);
             }
             case LOW_SHORT_CIRCUIT_CURRENT_LIMIT -> modifyVoltageLevelShortCircuit(
-                    new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null, null, voltageLevel);
+                    new AttributeModification<>(newValue != null ? Double.parseDouble(newValue) : Double.NaN, OperationType.SET),
+                    null, null, voltageLevel);
             case HIGH_SHORT_CIRCUIT_CURRENT_LIMIT -> modifyVoltageLevelShortCircuit(
-                    null, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null, voltageLevel);
+                    null, new AttributeModification<>(newValue != null ? Double.parseDouble(newValue) : Double.NaN, OperationType.SET),
+                    null, voltageLevel);
         }
     }
 }
