@@ -125,26 +125,19 @@ public class GeneratorModification extends AbstractModification {
                                                              ReportNode subReportNode) {
         List<ReportNode> reports = new ArrayList<>();
         GeneratorShortCircuit generatorShortCircuit = generator.getExtension(GeneratorShortCircuit.class);
-        Double oldTransientReactance = generatorShortCircuit != null ? generatorShortCircuit.getDirectTransX() : Double.NaN;
-        Double oldStepUpTransformerReactance = generatorShortCircuit != null ? generatorShortCircuit.getStepUpTransformerX() : Double.NaN;
+        double oldTransientReactance = generatorShortCircuit != null ? generatorShortCircuit.getDirectTransX() : Double.NaN;
+        double oldStepUpTransformerReactance = generatorShortCircuit != null ? generatorShortCircuit.getStepUpTransformerX() : Double.NaN;
         // Either transient reactance or step-up transformer reactance are modified or
         // both
-        String directTransXNewValue = directTransX != null ? directTransX.getValue().toString() : null;
         String stepUpTransformerXNewValue = stepUpTransformerX != null ? stepUpTransformerX.getValue().toString() : null;
         if (directTransX != null && stepUpTransformerX != null) {
-            if (Double.isNaN(directTransX.getValue()) && Double.isNaN(stepUpTransformerX.getValue())) {
-                generator.removeExtension(GeneratorShortCircuit.class);
-                directTransXNewValue = NO_VALUE;
-                stepUpTransformerXNewValue = NO_VALUE;
-            } else {
-                generator.newExtension(GeneratorShortCircuitAdder.class)
-                        .withDirectTransX(directTransX.getValue())
-                        .withStepUpTransformerX(stepUpTransformerX.getValue())
-                        .add();
-            }
+            generator.newExtension(GeneratorShortCircuitAdder.class)
+                .withDirectTransX(directTransX.getValue())
+                .withStepUpTransformerX(stepUpTransformerX.getValue())
+                .add();
             reports.add(ModificationUtils.getInstance().buildModificationReport(
                     oldTransientReactance,
-                    directTransXNewValue,
+                    directTransX.getValue(),
                     "Transient reactance"));
             reports.add(ModificationUtils.getInstance().buildModificationReport(
                     oldStepUpTransformerReactance,
@@ -152,22 +145,19 @@ public class GeneratorModification extends AbstractModification {
                     "Transformer reactance"));
 
         } else if (directTransX != null) {
-            if (Double.isNaN(directTransX.getValue())) {
-                generator.removeExtension(GeneratorShortCircuit.class);
-                directTransXNewValue = NO_VALUE;
-            } else {
-                generator.newExtension(GeneratorShortCircuitAdder.class)
-                        .withStepUpTransformerX(oldStepUpTransformerReactance)
-                        .withDirectTransX(directTransX.getValue())
-                        .add();
-            }
+            generator.newExtension(GeneratorShortCircuitAdder.class)
+                    .withStepUpTransformerX(oldStepUpTransformerReactance)
+                    .withDirectTransX(directTransX.getValue())
+                    .add();
             reports.add(ModificationUtils.getInstance().buildModificationReport(
                     oldTransientReactance,
-                    directTransXNewValue,
+                    directTransX.getValue(),
                     "Transient reactance"));
         } else if (stepUpTransformerX != null) {
             if (Double.isNaN(stepUpTransformerX.getValue())) {
-                generator.removeExtension(GeneratorShortCircuit.class);
+                generator.newExtension(GeneratorShortCircuitAdder.class)
+                        .withDirectTransX(oldTransientReactance)
+                        .add();
                 stepUpTransformerXNewValue = NO_VALUE;
             } else {
                 generator.newExtension(GeneratorShortCircuitAdder.class)
