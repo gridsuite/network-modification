@@ -12,6 +12,7 @@ package org.gridsuite.modification.dto;
 public enum TemporaryLimitModificationType {
     ADD,
     MODIFY,
+    MODIFY_OR_ADD,
     DELETE,
     REPLACE
 }
