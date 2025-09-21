@@ -36,7 +36,7 @@ public class MoveVoltageLevelFeederBaysInfos extends ModificationInfos {
     private String voltageLevelId;
 
     @Schema(description = "Feeder bays list")
-    private List<ConnectablePositionModificationInfos> feederBaysAttributeList;
+    private List<MoveFeederBayInfos> feederBays;
 
     @Override
     public AbstractModification toModification() {

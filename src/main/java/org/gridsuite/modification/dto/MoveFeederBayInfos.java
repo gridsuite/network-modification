@@ -23,7 +23,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Connectable position modification")
-public class ConnectablePositionModificationInfos {
+public class MoveFeederBayInfos {
     @Schema(description = "Connectable id")
     private String equipmentId;
 

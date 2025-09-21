@@ -723,7 +723,7 @@ public final class ModificationUtils {
         return reportModifications(connectivityReports, reports, "network.modification.ConnectivityModified");
     }
 
-    public void processConnectivityPosition(ConnectablePosition<?> connectablePosition,
+    private void processConnectivityPosition(ConnectablePosition<?> connectablePosition,
                                              ConnectablePositionAdder<?> connectablePositionAdder,
                                              BasicEquipmentModificationInfos modificationInfos,
                                              Network network,
@@ -950,9 +950,9 @@ public final class ModificationUtils {
     }
 
     private String getBusbarSectionId(Terminal terminal) {
-        BusbarSectionFinderTraverser finder = new BusbarSectionFinderTraverser();
+        BusbarSectionFinderTraverser finder = new BusbarSectionFinderTraverser(terminal.isConnected());
         terminal.traverse(finder, TraversalType.BREADTH_FIRST);
-        return finder.getBusbarWithClosedDisconnector();
+        return finder.getFirstTraversedBbsId();
     }
 
     private int getPosition(AttributeModification<Integer> connectionPosition,
