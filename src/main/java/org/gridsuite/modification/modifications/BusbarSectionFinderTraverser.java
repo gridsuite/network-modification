@@ -46,3 +46,4 @@ public class BusbarSectionFinderTraverser implements Terminal.TopologyTraverser 
         return firstTraversedBbsId;
     }
 }
+

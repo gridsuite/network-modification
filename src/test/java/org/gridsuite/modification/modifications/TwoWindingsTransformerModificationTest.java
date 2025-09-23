@@ -982,10 +982,10 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         Terminal terminal2 = twoWindingsTransformer.getTerminal2();
         assertEquals("v1", twoWindingsTransformer.getTerminal1().getVoltageLevel().getId());
         assertEquals("v2", terminal2.getVoltageLevel().getId());
-        BusbarSectionFinderTraverser connectedBusbarSectionFinder1 = new BusbarSectionFinderTraverser(terminal2.isConnected());
+        BusbarSectionFinderTraverser connectedBusbarSectionFinder1 = new BusbarSectionFinderTraverser(terminal1.isConnected());
         terminal1.traverse(connectedBusbarSectionFinder1, TraversalType.BREADTH_FIRST);
         assertEquals("1.1", connectedBusbarSectionFinder1.getFirstTraversedBbsId());
-        BusbarSectionFinderTraverser connectedBusbarSectionFinder2 = new BusbarSectionFinderTraverser(terminal1.isConnected());
+        BusbarSectionFinderTraverser connectedBusbarSectionFinder2 = new BusbarSectionFinderTraverser(terminal2.isConnected());
         terminal2.traverse(connectedBusbarSectionFinder2, TraversalType.BREADTH_FIRST);
         assertEquals("1A", connectedBusbarSectionFinder2.getFirstTraversedBbsId());
     }

@@ -950,9 +950,9 @@ public final class ModificationUtils {
     }
 
     private String getBusbarSectionId(Terminal terminal) {
-        BusbarSectionFinderTraverser finder = new BusbarSectionFinderTraverser(terminal.isConnected());
-        terminal.traverse(finder, TraversalType.BREADTH_FIRST);
-        return finder.getFirstTraversedBbsId();
+        BusbarSectionFinderTraverser connectedBusbarSectionFinder = new BusbarSectionFinderTraverser(terminal.isConnected());
+        terminal.traverse(connectedBusbarSectionFinder, TraversalType.BREADTH_FIRST);
+        return connectedBusbarSectionFinder.getFirstTraversedBbsId();
     }
 
     private int getPosition(AttributeModification<Integer> connectionPosition,
