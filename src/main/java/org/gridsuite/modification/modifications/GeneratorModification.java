@@ -504,7 +504,7 @@ public class GeneratorModification extends AbstractModification {
 
     private void modifyGeneratorVoltageLevelBusOrBusBarSectionAttributes(GeneratorModificationInfos modificationInfos,
                                                                        Generator generator, ReportNode subReportNode) {
-        ModificationUtils.getInstance().modifyVoltageLevelBusOrBusBarSectionAttributes(
+        ModificationUtils.getInstance().moveFeederBay(
                 generator, generator.getTerminal(),
                 modificationInfos.getVoltageLevelId(),
                 modificationInfos.getBusOrBusbarSectionId(),

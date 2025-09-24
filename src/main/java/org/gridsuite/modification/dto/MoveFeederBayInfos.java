@@ -10,7 +10,6 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
@@ -20,11 +19,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @Getter
-@Setter
 @ToString(callSuper = true)
-@Schema(description = "Connectable position modification")
+@Schema(description = "Move feeder bay")
 public class MoveFeederBayInfos {
-    @Schema(description = "Connectable id")
+    @Schema(description = "Equipment id")
     private String equipmentId;
 
     @Schema(description = "busbar section id")

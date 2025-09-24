@@ -522,7 +522,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
 
     private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide1(BranchModificationInfos modificationInfos,
                                                                            Branch<?> branch, ReportNode subReportNode) {
-        ModificationUtils.getInstance().modifyVoltageLevelBusOrBusBarSectionAttributes(
+        ModificationUtils.getInstance().moveFeederBay(
                 (Connectable<?>) branch, branch.getTerminal1(),
                 modificationInfos.getVoltageLevelId1(),
                 modificationInfos.getBusOrBusbarSectionId1(),
@@ -532,7 +532,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
 
     private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide2(BranchModificationInfos modificationInfos,
                                                                            Branch<?> branch, ReportNode subReportNode) {
-        ModificationUtils.getInstance().modifyVoltageLevelBusOrBusBarSectionAttributes(
+        ModificationUtils.getInstance().moveFeederBay(
                 (Connectable<?>) branch, branch.getTerminal2(),
                 modificationInfos.getVoltageLevelId2(),
                 modificationInfos.getBusOrBusbarSectionId2(),
