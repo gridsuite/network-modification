@@ -125,7 +125,7 @@ public class BatteryModification extends AbstractModification {
 
     private void modifyBatteryVoltageLevelBusOrBusBarSectionAttributes(BatteryModificationInfos modificationInfos,
                                                                        Battery battery, ReportNode subReportNode) {
-        ModificationUtils.getInstance().modifyVoltageLevelBusOrBusBarSectionAttributes(
+        ModificationUtils.getInstance().moveFeederBay(
                 battery, battery.getTerminal(),
                 modificationInfos.getVoltageLevelId(),
                 modificationInfos.getBusOrBusbarSectionId(),

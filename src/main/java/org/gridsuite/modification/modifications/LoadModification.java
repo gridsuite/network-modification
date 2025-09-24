@@ -82,7 +82,7 @@ public class LoadModification extends AbstractInjectionModification {
 
     private void modifyLoadVoltageLevelBusOrBusBarSectionAttributes(LoadModificationInfos modificationInfos,
                                                                     Load load, ReportNode subReportNode) {
-        ModificationUtils.getInstance().modifyVoltageLevelBusOrBusBarSectionAttributes(
+        ModificationUtils.getInstance().moveFeederBay(
                 load, load.getTerminal(),
                 modificationInfos.getVoltageLevelId(),
                 modificationInfos.getBusOrBusbarSectionId(),
