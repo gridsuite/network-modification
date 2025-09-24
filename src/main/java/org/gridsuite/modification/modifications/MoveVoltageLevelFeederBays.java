@@ -96,9 +96,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
                 BranchModificationInfos branchModificationInfos = buildBranchModificationInfos(newConnectablePositionInfos);
                 ModificationUtils.getInstance().modifyBranchConnectivityAttributes(oldConnectablePosition, connectablePositionAdder, branch, branchModificationInfos, subReportNode);
             }
-            default -> {
-                throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
-            }
+            default -> throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
         }
         moveFeederBay(network, connectable, newConnectablePositionInfos, subReportNode);
     }
