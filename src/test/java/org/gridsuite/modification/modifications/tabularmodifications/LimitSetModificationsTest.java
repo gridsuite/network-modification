@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessageWithoutRank;
@@ -103,11 +104,19 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                         .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY)
                                         .currentLimits(CurrentLimitsModificationInfos.builder()
                                                 .temporaryLimits(List.of(
+                                                        // throws a warning
                                                         CurrentTemporaryLimitModificationInfos.builder()
                                                                 .modificationType(TemporaryLimitModificationType.MODIFY)
                                                                 .name("test1")
                                                                 .acceptableDuration(3)
                                                                 .value(10.)
+                                                                .build(),
+                                                        // valid modification
+                                                        CurrentTemporaryLimitModificationInfos.builder()
+                                                                .modificationType(TemporaryLimitModificationType.MODIFY)
+                                                                .name("test1")
+                                                                .acceptableDuration(2)
+                                                                .value(50.)
                                                                 .build(),
                                                         CurrentTemporaryLimitModificationInfos.builder()
                                                                 .modificationType(TemporaryLimitModificationType.ADD)
@@ -200,24 +209,27 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
     @Override
     protected void assertAfterNetworkModificationApplication() {
         Line line1 = getNetwork().getLine("line1");
-        CurrentLimits line1CurrentLimits = getNetwork().getLine("line1").getOperationalLimitsGroup1("DEFAULT").orElse(null).getCurrentLimits().orElse(null);
+        CurrentLimits line1CurrentLimits = Objects.requireNonNull(getNetwork().getLine("line1").getOperationalLimitsGroup1("DEFAULT").orElse(null)).getCurrentLimits().orElse(null);
+        Assertions.assertNotNull(line1CurrentLimits);
         assertEquals(2, line1CurrentLimits.getTemporaryLimits().size());
         assertEquals("test2_plus", line1CurrentLimits.getTemporaryLimit(1).getName());
         assertEquals("test1", line1CurrentLimits.getTemporaryLimit(2).getName());
+        assertEquals(50, line1CurrentLimits.getTemporaryLimit(2).getValue());
         assertNull(line1.getSelectedOperationalLimitsGroupId1().orElse(null));
 
         Line line2 = getNetwork().getLine("line2");
-        CurrentLimits line2DefaultCurrentLimitsSide1 = line2.getOperationalLimitsGroup1("DEFAULT").orElse(null).getCurrentLimits().orElse(null);
+        CurrentLimits line2DefaultCurrentLimitsSide1 = Objects.requireNonNull(line2.getOperationalLimitsGroup1("DEFAULT").orElse(null)).getCurrentLimits().orElse(null);
         Assertions.assertNotNull(line2DefaultCurrentLimitsSide1);
         assertEquals(1, line2DefaultCurrentLimitsSide1.getTemporaryLimits().size());
         assertEquals("test1", line2DefaultCurrentLimitsSide1.getTemporaryLimit(1).getName());
         assertEquals("DEFAULT", line2.getSelectedOperationalLimitsGroupId1().orElse(null));
         assertEquals("group0", line2.getSelectedOperationalLimitsGroupId2().orElse(null));
-        CurrentLimits line2Group0CurrentLimitsSide2 = line2.getOperationalLimitsGroup2("group0").orElse(null).getCurrentLimits().orElse(null);
+        CurrentLimits line2Group0CurrentLimitsSide2 = Objects.requireNonNull(line2.getOperationalLimitsGroup2("group0").orElse(null)).getCurrentLimits().orElse(null);
         Assertions.assertNotNull(line2Group0CurrentLimitsSide2);
         assertEquals(100, line2Group0CurrentLimitsSide2.getPermanentLimit());
 
-        CurrentLimits line2CurrentLimitsSide2 = line2.getOperationalLimitsGroup2("group0").orElse(null).getCurrentLimits().orElse(null);
+        CurrentLimits line2CurrentLimitsSide2 = Objects.requireNonNull(line2.getOperationalLimitsGroup2("group0").orElse(null)).getCurrentLimits().orElse(null);
+        Assertions.assertNotNull(line2CurrentLimitsSide2);
         assertEquals(1, line2CurrentLimitsSide2.getTemporaryLimits().size());
         assertEquals("test1", line2CurrentLimitsSide2.getTemporaryLimit(1).getName());
         assertEquals("group0", line2.getSelectedOperationalLimitsGroupId2().orElse(null));
@@ -237,5 +249,6 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void checkModification() {
+        // abstract method that has to be implemented even if there is nothing to check
     }
 }
