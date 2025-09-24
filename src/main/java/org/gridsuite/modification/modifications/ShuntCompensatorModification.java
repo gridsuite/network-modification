@@ -234,7 +234,7 @@ public class ShuntCompensatorModification extends AbstractModification {
 
     private void modifyShuntCompensatorVoltageLevelBusOrBusBarSectionAttributes(ShuntCompensatorModificationInfos modificationInfos,
                                                                                 ShuntCompensator shuntCompensator, ReportNode subReportNode) {
-        ModificationUtils.getInstance().modifyVoltageLevelBusOrBusBarSectionAttributes(
+        ModificationUtils.getInstance().moveFeederBay(
                 shuntCompensator, shuntCompensator.getTerminal(),
                 modificationInfos.getVoltageLevelId(),
                 modificationInfos.getBusOrBusbarSectionId(),

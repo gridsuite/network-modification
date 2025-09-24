@@ -1862,10 +1862,10 @@ public final class ModificationUtils {
                 Optional.ofNullable(busOrBusbarSectionId).map(AttributeModification::getValue).isEmpty();
     }
 
-    public void modifyVoltageLevelBusOrBusBarSectionAttributes(Connectable<?> connectable, Terminal terminal,
-                                                               AttributeModification<String> voltageLevelId,
-                                                               AttributeModification<String> busOrBusbarSectionId,
-                                                               ReportNode subReportNode) {
+    public void moveFeederBay(Connectable<?> connectable, Terminal terminal,
+                              AttributeModification<String> voltageLevelId,
+                              AttributeModification<String> busOrBusbarSectionId,
+                              ReportNode subReportNode) {
         if (isNotModificationVoltageLevelBusOrBusBarInfos(voltageLevelId, busOrBusbarSectionId)) {
             return;
         }
