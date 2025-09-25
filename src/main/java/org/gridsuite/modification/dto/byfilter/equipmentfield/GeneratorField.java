@@ -17,6 +17,7 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_GENERATOR_ERROR;
 import static org.gridsuite.modification.modifications.GeneratorModification.*;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
+import static org.gridsuite.modification.utils.ModificationUtils.parseDoubleOrNaNIfNull;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -81,7 +82,7 @@ public enum GeneratorField {
                 generator.setTargetP(Double.parseDouble(newValue));
             }
             case RATED_NOMINAL_POWER -> {
-                Double ratedNominalPower = newValue != null ? Double.parseDouble(newValue) : Double.NaN;
+                Double ratedNominalPower = parseDoubleOrNaNIfNull(newValue);
                 checkIsNotNegativeValue(errorMessage, ratedNominalPower, MODIFY_GENERATOR_ERROR, "Rated apparent power");
                 modifyGeneratorActiveLimitsAttributes(
                     null, null, new AttributeModification<>(ratedNominalPower, OperationType.SET), generator, null);
@@ -113,11 +114,11 @@ public enum GeneratorField {
                     MODIFY_GENERATOR_ERROR, errorMessage);
             }
             case TRANSIENT_REACTANCE -> modifyGeneratorShortCircuitAttributes(
-                    new AttributeModification<>(newValue != null ? Double.parseDouble(newValue) : Double.NaN, OperationType.SET),
+                    new AttributeModification<>(parseDoubleOrNaNIfNull(newValue), OperationType.SET),
                     null, generator, null);
             case STEP_UP_TRANSFORMER_REACTANCE -> modifyGeneratorShortCircuitAttributes(
                     null,
-                    new AttributeModification<>(newValue != null ? Double.parseDouble(newValue) : Double.NaN, OperationType.SET),
+                    new AttributeModification<>(parseDoubleOrNaNIfNull(newValue), OperationType.SET),
                     generator,
                     null
             );

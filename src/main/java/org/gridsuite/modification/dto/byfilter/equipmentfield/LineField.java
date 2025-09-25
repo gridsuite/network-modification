@@ -16,6 +16,7 @@ import org.gridsuite.modification.utils.ModificationUtils;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_LINE_ERROR;
 import static org.gridsuite.modification.modifications.LineModification.*;
+import static org.gridsuite.modification.utils.ModificationUtils.parseDoubleOrNaNIfNull;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -54,7 +55,7 @@ public enum LineField {
     }
 
     private static void setNewDoubleValue(Line line, LineField field, String newValue, String errorMessage) {
-        Double doubleValue = newValue != null ? Double.parseDouble(newValue) : Double.NaN;
+        Double doubleValue = parseDoubleOrNaNIfNull(newValue);
         final AttributeModification<Double> attributeModification = new AttributeModification<>(doubleValue, OperationType.SET);
         switch (field) {
             case R -> {

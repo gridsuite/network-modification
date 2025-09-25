@@ -18,6 +18,7 @@ import static org.gridsuite.modification.NetworkModificationException.Type.MODIF
 import static org.gridsuite.modification.modifications.GeneratorModification.ERROR_MESSAGE;
 import static org.gridsuite.modification.modifications.TwoWindingsTransformerModification.*;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
+import static org.gridsuite.modification.utils.ModificationUtils.parseDoubleOrNaNIfNull;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -91,7 +92,7 @@ public enum TwoWindingsTransformerField {
     private static void setNewDoubleValue(TwoWindingsTransformer transformer, TwoWindingsTransformerField field, String newValue, String errorMessage) {
         final PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
         final RatioTapChanger ratioTapChanger = transformer.getRatioTapChanger();
-        final Double doubleValue = newValue != null ? Double.parseDouble(newValue) : Double.NaN;
+        final Double doubleValue = parseDoubleOrNaNIfNull(newValue);
         final AttributeModification<Double> attributeModification = new AttributeModification<>(doubleValue, OperationType.SET);
         switch (field) {
             case R -> {
