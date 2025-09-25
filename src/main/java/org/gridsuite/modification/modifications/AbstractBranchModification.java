@@ -391,11 +391,12 @@ public abstract class AbstractBranchModification extends AbstractModification {
                                          List<ReportNode> limitsReports) {
         CurrentLimitsModificationInfos currentLimitsInfos = operationalLimitsGroupModificationInfos.getCurrentLimits();
 
-        // we create a mutable list of temporary limits to be able to remove the limits that are modified in current modification
-        List<LoadingLimits.TemporaryLimit> branchTemporaryLimits = new ArrayList<>();
+        // we create a mutable list of temporary limits to be able to remove the limits that are modified in this current modification
+        // those left at the end of the network modification are those that have not been modified (or deleted)
+        List<LoadingLimits.TemporaryLimit> unmodifiedTemporaryLimits = new ArrayList<>();
         boolean areLimitsReplaced = TemporaryLimitModificationType.REPLACE.equals(operationalLimitsGroupModificationInfos.getTemporaryLimitsModificationType());
         if (currentLimits != null && !areLimitsReplaced) {
-            branchTemporaryLimits.addAll(currentLimits.getTemporaryLimits());
+            unmodifiedTemporaryLimits.addAll(currentLimits.getTemporaryLimits());
         }
         List<ReportNode> temporaryLimitsReports = new ArrayList<>();
         if (areLimitsReplaced) {
@@ -413,14 +414,15 @@ public abstract class AbstractBranchModification extends AbstractModification {
                         limitsAdder,
                         currentLimits,
                         limit,
-                        branchTemporaryLimits,
+                        unmodifiedTemporaryLimits,
                         temporaryLimitsReports
                 );
             }
         }
-        // we add the temporary limits comming from previous modifications
-        if (!branchTemporaryLimits.isEmpty()) {
-            for (LoadingLimits.TemporaryLimit limit : branchTemporaryLimits) {
+
+        // we add (back) the temporary limits that have not been modified
+        if (!unmodifiedTemporaryLimits.isEmpty()) {
+            for (LoadingLimits.TemporaryLimit limit : unmodifiedTemporaryLimits) {
                 addTemporaryLimit(limitsAdder, limit.getName(), limit.getValue(), limit.getAcceptableDuration());
             }
         }
@@ -440,12 +442,21 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 || modificationType == TemporaryLimitModificationType.MODIFY_OR_ADD;
     }
 
+    /**
+     * modify a specific limit
+     * @param operationalLimitsGroupModificationInfos part of the network modification containing the operational limits groups data
+     * @param limitsAdder adder which receives all the "validated" limits to be added at the end
+     * @param networkCurrentLimits limits of the branch which is currently modified by the network modification
+     * @param limit modification to be applied to the limit
+     * @param unmodifiedTemporaryLimits list of all the unmodified limits that will be added at the end of the network modification
+     * @param temporaryLimitsReports log report
+     */
     private void applyTemporaryLimitModification(
             OperationalLimitsGroupModificationInfos operationalLimitsGroupModificationInfos,
             CurrentLimitsAdder limitsAdder,
             CurrentLimits networkCurrentLimits,
             CurrentTemporaryLimitModificationInfos limit,
-            List<LoadingLimits.TemporaryLimit> branchTemporaryLimits,
+            List<LoadingLimits.TemporaryLimit> unmodifiedTemporaryLimits,
             List<ReportNode> temporaryLimitsReports) {
         CurrentLimitsModificationInfos currentLimitsInfos = operationalLimitsGroupModificationInfos.getCurrentLimits();
         int limitAcceptableDuration = limit.getAcceptableDuration() == null ? Integer.MAX_VALUE : limit.getAcceptableDuration();
@@ -455,8 +466,8 @@ public abstract class AbstractBranchModification extends AbstractModification {
         LoadingLimits.TemporaryLimit limitToModify = null;
         if (networkCurrentLimits != null) {
             limitToModify = getTemporaryLimitToModify(networkCurrentLimits, limit, currentLimitsInfos, operationalLimitsGroupModificationInfos.getTemporaryLimitsModificationType());
-            // we remove the limit to modify from the list of temporary limits so we can get the list of temporary limits coming from previous modifications
-            branchTemporaryLimits.removeIf(temporaryLimit -> temporaryLimit.getAcceptableDuration() == limitAcceptableDuration);
+            // this limit is modified by the network modification so we remove it from the list of unmodified temporary limits
+            unmodifiedTemporaryLimits.removeIf(temporaryLimit -> temporaryLimit.getAcceptableDuration() == limitAcceptableDuration);
         }
         if (limitToModify == null && mayCreateALimit(limit.getModificationType())) {
             createTemporaryLimit(limitsAdder, limit, temporaryLimitsReports, limitDurationToReport, limitValueToReport, limitValue, limitAcceptableDuration);
@@ -586,7 +597,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
 
     private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide1(BranchModificationInfos modificationInfos,
                                                                            Branch<?> branch, ReportNode subReportNode) {
-        ModificationUtils.getInstance().modifyVoltageLevelBusOrBusBarSectionAttributes(
+        ModificationUtils.getInstance().moveFeederBay(
                 (Connectable<?>) branch, branch.getTerminal1(),
                 modificationInfos.getVoltageLevelId1(),
                 modificationInfos.getBusOrBusbarSectionId1(),
@@ -596,7 +607,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
 
     private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide2(BranchModificationInfos modificationInfos,
                                                                            Branch<?> branch, ReportNode subReportNode) {
-        ModificationUtils.getInstance().modifyVoltageLevelBusOrBusBarSectionAttributes(
+        ModificationUtils.getInstance().moveFeederBay(
                 (Connectable<?>) branch, branch.getTerminal2(),
                 modificationInfos.getVoltageLevelId2(),
                 modificationInfos.getBusOrBusbarSectionId2(),
