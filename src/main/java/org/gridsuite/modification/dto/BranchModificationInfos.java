@@ -32,6 +32,9 @@ public class BranchModificationInfos extends BasicEquipmentModificationInfos {
     @Schema(description = "Series reactance")
     private AttributeModification<Double> x;
 
+    @Schema(description = "If true the operationalLimitsGroups is used, otherwise it is ignored")
+    private Boolean editedOperationalLimitsGroups;
+
     @Schema(description = "Operational limit groups on side 1 and 2")
     private List<OperationalLimitsGroupModificationInfos> operationalLimitsGroups;
 
