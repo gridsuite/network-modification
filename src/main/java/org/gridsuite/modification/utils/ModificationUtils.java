@@ -10,7 +10,6 @@ import com.powsybl.commons.report.*;
 import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
-import com.powsybl.math.graph.TraversalType;
 import com.powsybl.network.store.iidm.impl.MinMaxReactiveLimitsImpl;
 import org.apache.commons.math3.util.Pair;
 import org.gridsuite.modification.IFilterService;
@@ -950,9 +949,7 @@ public final class ModificationUtils {
     }
 
     private String getBusbarSectionId(Terminal terminal) {
-        BusbarSectionFinderTraverser connectedBusbarSectionFinder = new BusbarSectionFinderTraverser(terminal.isConnected());
-        terminal.traverse(connectedBusbarSectionFinder, TraversalType.BREADTH_FIRST);
-        return connectedBusbarSectionFinder.getFirstTraversedBbsId();
+        return BusbarSectionFinderTraverser.findBusbarSectionId(terminal);
     }
 
     private int getPosition(AttributeModification<Integer> connectionPosition,
