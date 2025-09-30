@@ -111,13 +111,13 @@ public final class NetworkUtil {
     }
 
     private static void addLimits(Branch<?> branch) {
-        branch.newOperationalLimitsGroup1("group0");
-        branch.newOperationalLimitsGroup1("group1");
+        branch.newOperationalLimitsGroup1("group0").setProperty("property0", "value0");
+        branch.newOperationalLimitsGroup1("group1").setProperty("property1", "value1");
         branch.newOperationalLimitsGroup1("group2");
         branch.setSelectedOperationalLimitsGroup1("group0");
-        branch.newOperationalLimitsGroup2("group0");
-        branch.newOperationalLimitsGroup2("group1");
-        branch.newOperationalLimitsGroup2("group2");
+        branch.newOperationalLimitsGroup2("group0").setProperty("property0", "value0");
+        branch.newOperationalLimitsGroup2("group1").setProperty("property1", "value1");
+        branch.newOperationalLimitsGroup2("group2").setProperty("property1", "value1");
         branch.setSelectedOperationalLimitsGroup2("group0");
     }
 

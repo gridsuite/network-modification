@@ -8,8 +8,10 @@
 package org.gridsuite.modification.modifications.byfilter;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.TwoSides;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -22,6 +24,9 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFICATION_BY_ASSIGNMENT_ERROR;
+import static org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils.setOperationalLimitsGroupPropertyValue;
+import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES;
+import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
@@ -78,6 +83,11 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
     protected String getOldValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos) {
         AssignmentInfos<?> assignmentInfos = (AssignmentInfos<?>) abstractAssignmentInfos;
         if (assignmentInfos.getDataType() == DataType.PROPERTY) {
+            if (assignmentInfos.getEditedField().equals("OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES")) {
+                return ((Branch<?>) equipment).getSelectedOperationalLimitsGroupId1().orElse(null);
+            } else if (assignmentInfos.getEditedField().equals("OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES")) {
+                return ((Branch<?>) equipment).getSelectedOperationalLimitsGroupId2().orElse(null);
+            }
             return equipment.getProperty(((PropertyAssignmentInfos) assignmentInfos).getPropertyName());
         } else {
             return super.getOldValue(equipment, abstractAssignmentInfos);
@@ -98,7 +108,14 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
         AssignmentInfos<?> assignmentInfos = (AssignmentInfos<?>) abstractAssignmentInfos;
         if (assignmentInfos.getDataType() == DataType.PROPERTY) {
             String newValue = getNewValue(equipment, abstractAssignmentInfos);
-            equipment.setProperty(((PropertyAssignmentInfos) assignmentInfos).getPropertyName(), newValue);
+            String propertyName = ((PropertyAssignmentInfos) assignmentInfos).getPropertyName();
+            if (assignmentInfos.getEditedField().equals(OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES.name())) {
+                setOperationalLimitsGroupPropertyValue((Branch<?>) equipment, propertyName, newValue, TwoSides.ONE);
+            } else if (assignmentInfos.getEditedField().equals(OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES.name())) {
+                setOperationalLimitsGroupPropertyValue((Branch<?>) equipment, propertyName, newValue, TwoSides.TWO);
+            } else {
+                equipment.setProperty(propertyName, newValue);
+            }
             return newValue;
         } else {
             return super.applyValue(equipment, abstractAssignmentInfos);
