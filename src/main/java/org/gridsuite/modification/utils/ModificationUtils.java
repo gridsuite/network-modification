@@ -1816,8 +1816,12 @@ public final class ModificationUtils {
         return reports;
     }
 
+    public static Double parseDoubleOrNaNIfNull(String value) {
+        return value != null ? Double.parseDouble(value) : Double.NaN;
+    }
+
     public static void checkIsNotNegativeValue(String errorMessage, Double valueToCheck, NetworkModificationException.Type exceptionType, String valueName) throws NetworkModificationException {
-        if (valueToCheck != null && valueToCheck < 0) {
+        if (valueToCheck != null && !Double.isNaN(valueToCheck) && valueToCheck < 0) {
             throw new NetworkModificationException(exceptionType, errorMessage + "can not have a negative value for " + valueName);
         }
     }

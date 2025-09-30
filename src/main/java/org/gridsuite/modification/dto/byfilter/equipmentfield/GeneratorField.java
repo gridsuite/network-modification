@@ -10,7 +10,6 @@ package org.gridsuite.modification.dto.byfilter.equipmentfield;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.network.store.iidm.impl.extensions.CoordinatedReactiveControlAdderImpl;
-import jakarta.validation.constraints.NotNull;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -18,6 +17,7 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_GENERATOR_ERROR;
 import static org.gridsuite.modification.modifications.GeneratorModification.*;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
+import static org.gridsuite.modification.utils.ModificationUtils.parseDoubleOrNaNIfNull;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -64,7 +64,7 @@ public enum GeneratorField {
         };
     }
 
-    public static void setNewValue(Generator generator, String generatorField, @NotNull String newValue) {
+    public static void setNewValue(Generator generator, String generatorField, String newValue) {
         GeneratorField field = GeneratorField.valueOf(generatorField);
         String errorMessage = String.format(ERROR_MESSAGE, generator.getId());
         switch (field) {
@@ -82,7 +82,7 @@ public enum GeneratorField {
                 generator.setTargetP(Double.parseDouble(newValue));
             }
             case RATED_NOMINAL_POWER -> {
-                Double ratedNominalPower = Double.parseDouble(newValue);
+                Double ratedNominalPower = parseDoubleOrNaNIfNull(newValue);
                 checkIsNotNegativeValue(errorMessage, ratedNominalPower, MODIFY_GENERATOR_ERROR, "Rated apparent power");
                 modifyGeneratorActiveLimitsAttributes(
                     null, null, new AttributeModification<>(ratedNominalPower, OperationType.SET), generator, null);
@@ -114,10 +114,14 @@ public enum GeneratorField {
                     MODIFY_GENERATOR_ERROR, errorMessage);
             }
             case TRANSIENT_REACTANCE -> modifyGeneratorShortCircuitAttributes(
-                    new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET),
+                    new AttributeModification<>(parseDoubleOrNaNIfNull(newValue), OperationType.SET),
                     null, generator, null);
             case STEP_UP_TRANSFORMER_REACTANCE -> modifyGeneratorShortCircuitAttributes(
-                    null, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), generator, null);
+                    null,
+                    new AttributeModification<>(parseDoubleOrNaNIfNull(newValue), OperationType.SET),
+                    generator,
+                    null
+            );
             case Q_PERCENT -> generator.newExtension(CoordinatedReactiveControlAdderImpl.class)
                     .withQPercent(Double.parseDouble(newValue))
                     .add();

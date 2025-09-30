@@ -25,8 +25,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.gridsuite.modification.utils.NetworkUtil.createGenerator;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -47,7 +46,7 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
     private static final String GENERATOR_ID_10 = "gen10";
 
     @Test
-    void testCreateWithWarning() throws Exception {
+    void testCreateWithWarning() {
         IdentifiableAttributes identifiableAttributes = new IdentifiableAttributes(GENERATOR_ID_1, getIdentifiableType(), 1.0);
         FilterEquipments filter = FilterEquipments.builder().filterId(FILTER_WITH_ONE_WRONG_ID)
                 .identifiableAttributes(List.of(identifiableAttributes))
@@ -256,6 +255,18 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
                 .filters(List.of(filter1))
                 .build();
 
+        DoubleAssignmentInfos assignmentInfos15 = DoubleAssignmentInfos.builder()
+                .editedField(GeneratorField.TRANSIENT_REACTANCE.name())
+                .value(Double.NaN)
+                .filters(List.of(filter1))
+                .build();
+
+        DoubleAssignmentInfos assignmentInfos16 = DoubleAssignmentInfos.builder()
+                .editedField(GeneratorField.STEP_UP_TRANSFORMER_REACTANCE.name())
+                .value(Double.NaN)
+                .filters(List.of(filter1))
+                .build();
+
         List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
         infosList.addAll(List.of(
                 assignmentInfos1,
@@ -271,7 +282,9 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
                 assignmentInfos11,
                 assignmentInfos12,
                 assignmentInfos13,
-                assignmentInfos14
+                assignmentInfos14,
+                assignmentInfos15,
+                assignmentInfos16
         ));
 
         return infosList;
@@ -290,7 +303,9 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
         assertEquals(10, generatorStartup1.getPlannedActivePowerSetpoint(), 0);
         assertEquals(50, generator1.getMaxP(), 0);
         assertEquals(2, generator1.getMinP(), 0);
-        assertEquals(true, generator1.isVoltageRegulatorOn());
+        assertTrue(generator1.isVoltageRegulatorOn());
+        ActivePowerControl<Generator> activePowerControl1 = generator1.getExtension(ActivePowerControl.class);
+        assertNull(activePowerControl1);
 
         Generator generator2 = getNetwork().getGenerator(GENERATOR_ID_2);
         GeneratorStartup generatorStartup2 = generator2.getExtension(GeneratorStartup.class);
@@ -323,13 +338,13 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
         assertEquals(2, generator4.getMinP(), 0);
 
         Generator generator5 = getNetwork().getGenerator(GENERATOR_ID_5);
-        ActivePowerControl activePowerControl5 = generator5.getExtension(ActivePowerControl.class);
+        ActivePowerControl<Generator> activePowerControl5 = generator5.getExtension(ActivePowerControl.class);
         assertNotNull(activePowerControl5);
         assertEquals(50, generator5.getMaxP(), 0);
         assertEquals(2, activePowerControl5.getDroop(), 0);
 
         Generator generator6 = getNetwork().getGenerator(GENERATOR_ID_6);
-        ActivePowerControl activePowerControl6 = generator6.getExtension(ActivePowerControl.class);
+        ActivePowerControl<Generator> activePowerControl6 = generator6.getExtension(ActivePowerControl.class);
         assertNotNull(activePowerControl6);
         assertEquals(50, generator6.getMaxP(), 0);
         assertEquals(2, activePowerControl6.getDroop(), 0);
