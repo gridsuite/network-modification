@@ -118,6 +118,7 @@ public final class NetworkUtil {
         branch.newOperationalLimitsGroup2("group0").setProperty("property0", "value0");
         branch.newOperationalLimitsGroup2("group1").setProperty("property1", "value1");
         branch.newOperationalLimitsGroup2("group2").setProperty("property1", "value1");
+        branch.newOperationalLimitsGroup2("group3").setProperty("property2", "value2");
         branch.setSelectedOperationalLimitsGroup2("group0");
     }
 

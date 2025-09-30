@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES;
+import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES;
 import static org.gridsuite.modification.utils.NetworkUtil.createLine;
 
 /**
@@ -31,6 +32,7 @@ public class OperationalLimitsGroupByAssigmentTest extends AbstractModificationB
 
     private static final String LINE_ID_1 = "line_1";
     private static final String LINE_ID_2 = "line_2";
+    private static final String LINE_ID_3 = "line_3";
 
     @Override
     protected void createEquipments() {
@@ -43,6 +45,11 @@ public class OperationalLimitsGroupByAssigmentTest extends AbstractModificationB
                 3, 5, 1, 0.002, 0.0025,
                 "line_2", 33, ConnectablePosition.Direction.TOP,
                 "line_2", 44, ConnectablePosition.Direction.BOTTOM);
+
+        createLine(getNetwork(), LINE_ID_3, LINE_ID_3, "v1", "v2", 45, 56, 3,
+                3, 5, 1, 0.002, 0.0025,
+                "line_3", 45, ConnectablePosition.Direction.TOP,
+                "line_3", 56, ConnectablePosition.Direction.BOTTOM);
     }
 
     @Override
@@ -51,7 +58,10 @@ public class OperationalLimitsGroupByAssigmentTest extends AbstractModificationB
                 new IdentifiableAttributes(LINE_ID_1, IdentifiableType.LINE, 1.0),
                 new IdentifiableAttributes(LINE_ID_2, IdentifiableType.LINE, 2.0)
         )).build();
-        return Map.of(FILTER_ID_1, filter1);
+        FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(
+                new IdentifiableAttributes(LINE_ID_3, IdentifiableType.LINE, 1.0)
+        )).build();
+        return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2);
     }
 
     @Override
@@ -62,8 +72,14 @@ public class OperationalLimitsGroupByAssigmentTest extends AbstractModificationB
                 .propertyName("property1")
                 .value("value1")
                 .build();
+        PropertyAssignmentInfos assignmentInfos2 = PropertyAssignmentInfos.builder()
+                .filters(List.of(filter2))
+                .editedField(OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES.name())
+                .propertyName("property2")
+                .value("value2")
+                .build();
         List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
-        infosList.add(assignmentInfos1);
+        infosList.addAll(List.of(assignmentInfos1, assignmentInfos2));
         return infosList;
     }
 
@@ -82,6 +98,8 @@ public class OperationalLimitsGroupByAssigmentTest extends AbstractModificationB
         Network network = getNetwork();
         Line line1 = network.getLine(LINE_ID_1);
         Line line2 = network.getLine(LINE_ID_2);
+        Line line3 = network.getLine(LINE_ID_3);
+
         Assertions.assertTrue(line1.getSelectedOperationalLimitsGroupId1().isPresent());
         Assertions.assertEquals("group1", line1.getSelectedOperationalLimitsGroupId1().get());
         Assertions.assertTrue(line1.getSelectedOperationalLimitsGroupId2().isPresent());
@@ -90,5 +108,10 @@ public class OperationalLimitsGroupByAssigmentTest extends AbstractModificationB
         Assertions.assertEquals("group1", line2.getSelectedOperationalLimitsGroupId1().get());
         Assertions.assertTrue(line2.getSelectedOperationalLimitsGroupId2().isPresent());
         Assertions.assertEquals("group0", line2.getSelectedOperationalLimitsGroupId2().get());
+
+        Assertions.assertTrue(line3.getSelectedOperationalLimitsGroupId1().isPresent());
+        Assertions.assertEquals("group0", line3.getSelectedOperationalLimitsGroupId1().get());
+        Assertions.assertTrue(line3.getSelectedOperationalLimitsGroupId2().isPresent());
+        Assertions.assertEquals("group3", line3.getSelectedOperationalLimitsGroupId2().get());
     }
 }
