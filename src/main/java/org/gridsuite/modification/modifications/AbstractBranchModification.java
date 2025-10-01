@@ -66,8 +66,8 @@ public abstract class AbstractBranchModification extends AbstractModification {
         List<ReportNode> side1LimitsReports = new ArrayList<>();
         List<ReportNode> side2LimitsReports = new ArrayList<>();
 
-        boolean modifyOLG = branchModificationInfos.getEditedOperationalLimitsGroups() == null
-                || branchModificationInfos.getEditedOperationalLimitsGroups();
+        boolean modifyOLG = branchModificationInfos.getEnableOLGModification() == null
+                || branchModificationInfos.getEnableOLGModification();
         if (modifyOLG && branchModificationInfos.getOperationalLimitsGroups() != null) {
             modifyOperationalLimitsGroups(branch, branchModificationInfos.getOperationalLimitsGroups(), side1LimitsReports, side2LimitsReports);
         }

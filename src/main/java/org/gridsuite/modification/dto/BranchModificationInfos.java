@@ -33,7 +33,7 @@ public class BranchModificationInfos extends BasicEquipmentModificationInfos {
     private AttributeModification<Double> x;
 
     @Schema(description = "If true the operationalLimitsGroups is used, otherwise it is ignored")
-    private Boolean editedOperationalLimitsGroups;
+    private Boolean enableOLGModification;
 
     @Schema(description = "Operational limit groups on side 1 and 2")
     private List<OperationalLimitsGroupModificationInfos> operationalLimitsGroups;

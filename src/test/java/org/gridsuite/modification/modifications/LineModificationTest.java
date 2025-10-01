@@ -78,7 +78,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
                 .q1MeasurementValidity(new AttributeModification<>(MEASUREMENT_Q_VALID, OperationType.SET))
                 .q2MeasurementValue(new AttributeModification<>(MEASUREMENT_Q_VALUE, OperationType.SET))
                 .q2MeasurementValidity(new AttributeModification<>(MEASUREMENT_Q_VALID, OperationType.SET))
-                .editedOperationalLimitsGroups(false)
+                .enableOLGModification(false)
                 .selectedOperationalLimitsGroup1(new AttributeModification<>("invalid_opLG", OperationType.SET))
                 .selectedOperationalLimitsGroup2(new AttributeModification<>("invalid_opLG", OperationType.SET))
                 .build();
