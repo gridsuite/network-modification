@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package org.gridsuite.modification.modifications;
+package org.gridsuite.modification.modifications.tabular;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
@@ -12,7 +12,8 @@ import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentCreationInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorCreationInfos;
-import org.gridsuite.modification.dto.TabularCreationInfos;
+import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
+import org.gridsuite.modification.modifications.AbstractModification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
