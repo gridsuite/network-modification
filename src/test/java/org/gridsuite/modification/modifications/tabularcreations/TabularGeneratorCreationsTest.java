@@ -102,8 +102,8 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .build()
         );
         return TabularCreationInfos.builder()
-            .creationType(ModificationType.GENERATOR_CREATION)
-            .creations(creations)
+            .modificationType(ModificationType.GENERATOR_CREATION)
+            .modifications(creations)
             .stashed(false)
             .build();
     }
@@ -154,8 +154,8 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
         );
 
         ModificationInfos creationInfos = TabularCreationInfos.builder()
-            .creationType(ModificationType.GENERATOR_CREATION)
-            .creations(creations)
+            .modificationType(ModificationType.GENERATOR_CREATION)
+            .modifications(creations)
             .build();
         ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
@@ -225,8 +225,8 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .build()
         );
         ModificationInfos creationInfos = TabularCreationInfos.builder()
-                .creationType(ModificationType.GENERATOR_CREATION)
-                .creations(creations)
+                .modificationType(ModificationType.GENERATOR_CREATION)
+                .modifications(creations)
                 .build();
         ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()

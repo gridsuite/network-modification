@@ -6,27 +6,23 @@
  */
 package org.gridsuite.modification.dto.tabular;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import lombok.*;
-import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.tabular.TabularModification;
-import org.springframework.lang.NonNull;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.experimental.SuperBuilder;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
+@EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 @NoArgsConstructor
 @Data
@@ -34,15 +30,6 @@ import java.util.Map;
 @JsonTypeName("TABULAR_MODIFICATION")
 @ModificationErrorTypeName("TABULAR_MODIFICATION_ERROR")
 public class TabularModificationInfos extends TabularBaseInfos {
-
-    @Schema(description = "Modification type")
-    @NonNull
-    private ModificationType modificationType;
-
-    @Schema(description = "modifications")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<ModificationInfos> modifications;
-
     @Override
     public AbstractModification toModification() {
         return new TabularModification(this);

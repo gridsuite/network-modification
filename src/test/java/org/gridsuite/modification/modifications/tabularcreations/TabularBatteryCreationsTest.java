@@ -96,8 +96,8 @@ class TabularBatteryCreationsTest extends AbstractNetworkModificationTest {
                 .build()
         );
         return TabularCreationInfos.builder()
-            .creationType(ModificationType.BATTERY_CREATION)
-            .creations(creations)
+            .modificationType(ModificationType.BATTERY_CREATION)
+            .modifications(creations)
             .stashed(false)
             .build();
     }
@@ -135,8 +135,8 @@ class TabularBatteryCreationsTest extends AbstractNetworkModificationTest {
         );
 
         ModificationInfos creationInfos = TabularCreationInfos.builder()
-            .creationType(ModificationType.BATTERY_CREATION)
-            .creations(creations)
+            .modificationType(ModificationType.BATTERY_CREATION)
+            .modifications(creations)
             .build();
         ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
@@ -196,8 +196,8 @@ class TabularBatteryCreationsTest extends AbstractNetworkModificationTest {
                 .build()
         );
         ModificationInfos creationInfos = TabularCreationInfos.builder()
-                .creationType(ModificationType.BATTERY_CREATION)
-                .creations(creations)
+                .modificationType(ModificationType.BATTERY_CREATION)
+                .modifications(creations)
                 .build();
         ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()

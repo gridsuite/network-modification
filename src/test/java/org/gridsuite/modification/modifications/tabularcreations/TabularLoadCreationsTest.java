@@ -71,8 +71,8 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
                 .build()
         );
         return TabularCreationInfos.builder()
-            .creationType(ModificationType.LOAD_CREATION)
-            .creations(creations)
+            .modificationType(ModificationType.LOAD_CREATION)
+            .modifications(creations)
             .stashed(false)
             .csvFilename("filename")
             .build();
@@ -98,8 +98,8 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
         );
 
         ModificationInfos creationInfos = TabularCreationInfos.builder()
-            .creationType(ModificationType.LOAD_CREATION)
-            .creations(creations)
+            .modificationType(ModificationType.LOAD_CREATION)
+            .modifications(creations)
             .build();
         ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
@@ -129,8 +129,8 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
                 .build()
         );
         ModificationInfos creationInfos = TabularCreationInfos.builder()
-                .creationType(ModificationType.LOAD_CREATION)
-                .creations(creations)
+                .modificationType(ModificationType.LOAD_CREATION)
+                .modifications(creations)
                 .build();
         ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()

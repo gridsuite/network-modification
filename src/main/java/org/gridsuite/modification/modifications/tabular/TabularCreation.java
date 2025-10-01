@@ -10,7 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.EquipmentCreationInfos;
+import org.gridsuite.modification.dto.EquipmentModificationInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorCreationInfos;
 import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
 import org.gridsuite.modification.modifications.AbstractModification;
@@ -42,10 +42,10 @@ public class TabularCreation extends AbstractModification {
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         int applicationFailuresCount = 0;
-        for (var creatInfos : creationInfos.getCreations()) {
+        for (var creatInfos : creationInfos.getModifications()) {
             ReportNode creatReportNode = subReportNode.newReportNode()
                     .withMessageTemplate("network.modification.tabular.creation.equipmentId")
-                    .withUntypedValue("equipmentId", ((EquipmentCreationInfos) creatInfos).getEquipmentId())
+                    .withUntypedValue("equipmentId", ((EquipmentModificationInfos) creatInfos).getEquipmentId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
             try {
@@ -70,7 +70,7 @@ public class TabularCreation extends AbstractModification {
             }
         }
         String defaultMessage = creationInfos.formatEquipmentTypeName() + " have been created";
-        if (creationInfos.getCreations().size() == applicationFailuresCount) {
+        if (creationInfos.getModifications().size() == applicationFailuresCount) {
             subReportNode.newReportNode()
                     .withMessageTemplate("network.modification.tabular.creation.error")
                     .withUntypedValue("defaultMessage", defaultMessage)
@@ -79,7 +79,7 @@ public class TabularCreation extends AbstractModification {
         } else if (applicationFailuresCount > 0) {
             subReportNode.newReportNode()
                     .withMessageTemplate("network.modification.tabular.creation.warning")
-                    .withUntypedValue("creationsCount", creationInfos.getCreations().size() - applicationFailuresCount)
+                    .withUntypedValue("creationsCount", creationInfos.getModifications().size() - applicationFailuresCount)
                     .withUntypedValue("failuresCount", applicationFailuresCount)
                     .withUntypedValue("defaultMessage", defaultMessage)
                     .withSeverity(TypedValue.WARN_SEVERITY)
@@ -87,7 +87,7 @@ public class TabularCreation extends AbstractModification {
         } else {
             subReportNode.newReportNode()
                     .withMessageTemplate("network.modification.tabular.creation")
-                    .withUntypedValue("creationsCount", creationInfos.getCreations().size())
+                    .withUntypedValue("creationsCount", creationInfos.getModifications().size())
                     .withUntypedValue("defaultMessage", defaultMessage)
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();

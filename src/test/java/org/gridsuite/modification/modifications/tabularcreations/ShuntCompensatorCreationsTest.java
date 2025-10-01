@@ -69,8 +69,8 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
                         .build()
         );
         return TabularCreationInfos.builder()
-                .creationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
-                .creations(creations)
+                .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
+                .modifications(creations)
                 .stashed(false)
                 .build();
     }
@@ -87,8 +87,8 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
         );
 
         ModificationInfos creationInfos = TabularCreationInfos.builder()
-                .creationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
-                .creations(creations)
+                .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
+                .modifications(creations)
                 .build();
         ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
@@ -109,8 +109,8 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
                         .build()
         );
         ModificationInfos creationInfos = TabularCreationInfos.builder()
-                .creationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
-                .creations(creations)
+                .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
+                .modifications(creations)
                 .build();
         ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
@@ -173,8 +173,8 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
 
         var tabularCreationInfos = TabularCreationInfos
                 .builder()
-                .creationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
-                .creations(List.of(shuntCreation, shuntCreation2, shuntCreation3))
+                .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
+                .modifications(List.of(shuntCreation, shuntCreation2, shuntCreation3))
                 .build();
 
         ReportNode reportNode = tabularCreationInfos.createSubReportNode(ReportNode.newRootReportNode()

@@ -13,7 +13,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.springframework.lang.NonNull;
 
 import java.util.List;
 
@@ -34,4 +36,12 @@ public class TabularBaseInfos extends ModificationInfos {
 
     @Schema(description = "csv file name")
     private String csvFilename;
+
+    @Schema(description = "Modification type")
+    @NonNull
+    private ModificationType modificationType;
+
+    @Schema(description = "modifications")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<ModificationInfos> modifications;
 }

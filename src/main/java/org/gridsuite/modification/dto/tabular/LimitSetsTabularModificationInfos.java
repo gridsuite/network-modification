@@ -9,16 +9,15 @@ package org.gridsuite.modification.dto.tabular;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.tabular.TabularModification;
 
 /**
  * @author Hugo Marcellin <hugo.marcelin at rte-france.com>
  */
-
+@EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 @NoArgsConstructor
 @Data
@@ -26,8 +25,4 @@ import org.gridsuite.modification.modifications.tabular.TabularModification;
 @JsonTypeName("LIMIT_SETS_TABULAR_MODIFICATION")
 @ModificationErrorTypeName("LIMIT_SETS_TABULAR_MODIFICATION_ERROR")
 public class LimitSetsTabularModificationInfos extends TabularModificationInfos {
-    @Override
-    public AbstractModification toModification() {
-        return new TabularModification(this);
-    }
 }
