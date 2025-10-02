@@ -14,7 +14,7 @@ import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.GeneratorCreationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
-import org.gridsuite.modification.dto.TabularCreationInfos;
+import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -102,8 +102,8 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .build()
         );
         return TabularCreationInfos.builder()
-            .creationType(ModificationType.GENERATOR_CREATION)
-            .creations(creations)
+            .modificationType(ModificationType.GENERATOR_CREATION)
+            .modifications(creations)
             .stashed(false)
             .build();
     }
@@ -128,7 +128,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void testAllModificationsHaveSucceeded() throws Exception {
+    void testAllModificationsHaveSucceeded() {
         List<ModificationInfos> creations = List.of(
             GeneratorCreationInfos.builder()
                 .equipmentId("id1").equipmentName("name1").voltageLevelId("v1").busOrBusbarSectionId("1.1")
@@ -154,8 +154,8 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
         );
 
         ModificationInfos creationInfos = TabularCreationInfos.builder()
-            .creationType(ModificationType.GENERATOR_CREATION)
-            .creations(creations)
+            .modificationType(ModificationType.GENERATOR_CREATION)
+            .modifications(creations)
             .build();
         ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
@@ -167,7 +167,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void testAllModificationsHaveFailed() throws Exception {
+    void testAllModificationsHaveFailed() {
         List<ModificationInfos> creations = List.of(
             GeneratorCreationInfos.builder()
                 .equipmentId("id1").equipmentName("name1").voltageLevelId("unknown_vl").busOrBusbarSectionId("1.1")
@@ -225,8 +225,8 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .build()
         );
         ModificationInfos creationInfos = TabularCreationInfos.builder()
-                .creationType(ModificationType.GENERATOR_CREATION)
-                .creations(creations)
+                .modificationType(ModificationType.GENERATOR_CREATION)
+                .modifications(creations)
                 .build();
         ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
