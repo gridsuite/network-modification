@@ -13,84 +13,22 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentModificationInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorCreationInfos;
 import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.TABULAR_CREATION_ERROR;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class TabularCreation extends AbstractModification {
+public class TabularCreation extends AbstractTabularModification {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TabularCreation.class);
-
-    private final TabularCreationInfos creationInfos;
-
-    public TabularCreation(TabularCreationInfos creationInfos) {
-        this.creationInfos = creationInfos;
+    public TabularCreation(TabularCreationInfos modificationInfos) {
+        super(modificationInfos);
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (creationInfos == null) {
+        if (modificationInfos == null) {
             throw new NetworkModificationException(TABULAR_CREATION_ERROR, "No tabular creation to apply !!");
-        }
-    }
-
-    @Override
-    public void apply(Network network, ReportNode subReportNode) {
-        int applicationFailuresCount = 0;
-        for (var creatInfos : creationInfos.getModifications()) {
-            ReportNode creatReportNode = subReportNode.newReportNode()
-                    .withMessageTemplate("network.modification.tabular.creation.equipmentId")
-                    .withUntypedValue("equipmentId", ((EquipmentModificationInfos) creatInfos).getEquipmentId())
-                    .withSeverity(TypedValue.INFO_SEVERITY)
-                    .add();
-            try {
-                AbstractModification modification = creatInfos.toModification();
-                modification.check(network);
-                if (creatInfos instanceof ShuntCompensatorCreationInfos shuntCreation) {
-                    checkShuntCompensatorCreation(shuntCreation, creatReportNode);
-                }
-                modification.apply(network, creatReportNode);
-            } catch (Exception e) {
-                applicationFailuresCount++;
-                ReportNode errorReportNode = creatReportNode.newReportNode()
-                        .withMessageTemplate("network.modification.tabular.creation.error.equipmentError")
-                        .withSeverity(TypedValue.WARN_SEVERITY)
-                        .add();
-                errorReportNode.newReportNode()
-                        .withMessageTemplate("network.modification.tabular.creation.exception")
-                        .withUntypedValue("message", e.getMessage())
-                        .withSeverity(TypedValue.WARN_SEVERITY)
-                        .add();
-                LOGGER.warn(e.getMessage());
-            }
-        }
-        String defaultMessage = creationInfos.formatEquipmentTypeName() + " have been created";
-        if (creationInfos.getModifications().size() == applicationFailuresCount) {
-            subReportNode.newReportNode()
-                    .withMessageTemplate("network.modification.tabular.creation.error")
-                    .withUntypedValue("defaultMessage", defaultMessage)
-                    .withSeverity(TypedValue.ERROR_SEVERITY)
-                    .add();
-        } else if (applicationFailuresCount > 0) {
-            subReportNode.newReportNode()
-                    .withMessageTemplate("network.modification.tabular.creation.warning")
-                    .withUntypedValue("creationsCount", creationInfos.getModifications().size() - applicationFailuresCount)
-                    .withUntypedValue("failuresCount", applicationFailuresCount)
-                    .withUntypedValue("defaultMessage", defaultMessage)
-                    .withSeverity(TypedValue.WARN_SEVERITY)
-                    .add();
-        } else {
-            subReportNode.newReportNode()
-                    .withMessageTemplate("network.modification.tabular.creation")
-                    .withUntypedValue("creationsCount", creationInfos.getModifications().size())
-                    .withUntypedValue("defaultMessage", defaultMessage)
-                    .withSeverity(TypedValue.INFO_SEVERITY)
-                    .add();
         }
     }
 
@@ -99,27 +37,35 @@ public class TabularCreation extends AbstractModification {
         return "TabularCreation";
     }
 
-    private static void checkShuntCompensatorCreation(
-            ShuntCompensatorCreationInfos creationInfos,
-            ReportNode subReportNode
-    ) {
-        if (creationInfos.getMaxSusceptance() != null) {
-            if (creationInfos.getShuntCompensatorType() != null && creationInfos.getMaxQAtNominalV() != null) {
+    @Override
+    public String defaultMessage() {
+        return modificationInfos.formatEquipmentTypeName() + " have been created";
+    }
+
+    @Override
+    public String baseTemplateMessage() {
+        return "network.modification.tabular.creation";
+    }
+
+    @Override
+    public void specificCheck(EquipmentModificationInfos equipmentModificationInfos, Network network, ReportNode subReportNode) {
+        if (equipmentModificationInfos instanceof ShuntCompensatorCreationInfos shuntCompensatorCreationInfos && shuntCompensatorCreationInfos.getMaxSusceptance() != null) {
+            if (shuntCompensatorCreationInfos.getShuntCompensatorType() != null && shuntCompensatorCreationInfos.getMaxQAtNominalV() != null) {
                 subReportNode.newReportNode()
                         .withMessageTemplate("network.modification.tabular.creation.shuntCompensator.maxSusceptanceIgnored.1")
-                        .withUntypedValue("id", creationInfos.getEquipmentId())
+                        .withUntypedValue("id", shuntCompensatorCreationInfos.getEquipmentId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
-            } else if (creationInfos.getShuntCompensatorType() != null) {
+            } else if (shuntCompensatorCreationInfos.getShuntCompensatorType() != null) {
                 subReportNode.newReportNode()
                         .withMessageTemplate("network.modification.tabular.creation.shuntCompensator.maxSusceptanceIgnored.2")
-                        .withUntypedValue("id", creationInfos.getEquipmentId())
+                        .withUntypedValue("id", shuntCompensatorCreationInfos.getEquipmentId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
-            } else if (creationInfos.getMaxQAtNominalV() != null) {
+            } else if (shuntCompensatorCreationInfos.getMaxQAtNominalV() != null) {
                 subReportNode.newReportNode()
                         .withMessageTemplate("network.modification.tabular.creation.shuntCompensator.maxSusceptanceIgnored.3")
-                        .withUntypedValue("id", creationInfos.getEquipmentId())
+                        .withUntypedValue("id", shuntCompensatorCreationInfos.getEquipmentId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
             }

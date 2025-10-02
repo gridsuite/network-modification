@@ -127,13 +127,13 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
                 .withMessageTemplate("test")
                 .build();
 
-        tabularModification.checkShuntCompensatorModification(network, shuntModification, reportNode);
+        tabularModification.specificCheck(shuntModification, network, reportNode);
 
         shuntModification.setShuntCompensatorType(AttributeModification.toAttributeModification(ShuntCompensatorType.CAPACITOR, OperationType.SET));
-        tabularModification.checkShuntCompensatorModification(network, shuntModification, reportNode);
+        tabularModification.specificCheck(shuntModification, network, reportNode);
 
         shuntModification.setMaxQAtNominalV(null);
-        tabularModification.checkShuntCompensatorModification(network, shuntModification, reportNode);
+        tabularModification.specificCheck(shuntModification, network, reportNode);
 
         assertEquals(TypedValue.WARN_SEVERITY, reportNode.getChildren().get(0).getValues().get(ReportConstants.SEVERITY_KEY));
     }
@@ -162,7 +162,7 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
                 .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test")
                 .build();
-        tabularModification.checkShuntCompensatorModification(network, shuntModification, reportNode);
+        tabularModification.specificCheck(shuntModification, network, reportNode);
 
         assertEquals(TypedValue.ERROR_SEVERITY, reportNode.getChildren().get(0).getValues().get(ReportConstants.SEVERITY_KEY));
 
@@ -192,7 +192,7 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
                 .withMessageTemplate("test")
                 .build();
 
-        tabularModification.checkShuntCompensatorModification(network, shuntModification, reportNode);
+        tabularModification.specificCheck(shuntModification, network, reportNode);
         assertEquals(0, reportNode.getChildren().size());
     }
 

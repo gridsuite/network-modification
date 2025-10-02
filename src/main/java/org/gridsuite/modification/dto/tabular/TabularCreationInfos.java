@@ -37,16 +37,6 @@ public class TabularCreationInfos extends TabularBaseInfos {
         return new TabularCreation(this);
     }
 
-    public String formatEquipmentTypeName() {
-        return switch (getModificationType()) {
-            case GENERATOR_CREATION -> getModifications().size() > 1 ? "generators" : "generator";
-            case LOAD_CREATION -> getModifications().size() > 1 ? "loads" : "load";
-            case SHUNT_COMPENSATOR_CREATION -> getModifications().size() > 1 ? "shunt compensators" : "shunt compensator";
-            case BATTERY_CREATION -> getModifications().size() > 1 ? "batteries" : "battery";
-            default -> "equipments of unknown type";
-        };
-    }
-
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
