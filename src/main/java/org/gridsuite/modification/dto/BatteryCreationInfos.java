@@ -61,6 +61,12 @@ public class BatteryCreationInfos extends InjectionCreationInfos implements Reac
     @Schema(description = "Droop")
     private Float droop;
 
+    @Schema(description = "Transient reactance")
+    private Double directTransX;
+
+    @Schema(description = "Step up transformer reactance")
+    private Double stepUpTransformerX;
+
     @Schema(description = "Reactive capability curve")
     private Boolean reactiveCapabilityCurve;
 

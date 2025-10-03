@@ -114,65 +114,13 @@ public class GeneratorModification extends AbstractModification {
         modifyGeneratorConnectivityAttributes(modificationInfos, generator, subReportNode);
         modifyGeneratorLimitsAttributes(modificationInfos, generator, subReportNode);
         modifyGeneratorSetpointsAttributes(modificationInfos, generator, subReportNode);
-        modifyGeneratorShortCircuitAttributes(modificationInfos.getDirectTransX(), modificationInfos.getStepUpTransformerX(), generator, subReportNode);
+        ModificationUtils.getInstance().modifyShortCircuitExtension(modificationInfos.getDirectTransX(),
+                modificationInfos.getStepUpTransformerX(),
+                generator.getExtension(GeneratorShortCircuit.class),
+                () -> generator.newExtension(GeneratorShortCircuitAdder.class),
+                subReportNode);
         modifyGeneratorStartUpAttributes(modificationInfos, generator, subReportNode);
         PropertiesUtils.applyProperties(generator, subReportNode, modificationInfos.getProperties(), "network.modification.GeneratorProperties");
-    }
-
-    public static void modifyGeneratorShortCircuitAttributes(AttributeModification<Double> directTransX,
-                                                             AttributeModification<Double> stepUpTransformerX,
-                                                             Generator generator,
-                                                             ReportNode subReportNode) {
-        List<ReportNode> reports = new ArrayList<>();
-        GeneratorShortCircuit generatorShortCircuit = generator.getExtension(GeneratorShortCircuit.class);
-        double oldTransientReactance = generatorShortCircuit != null ? generatorShortCircuit.getDirectTransX() : Double.NaN;
-        double oldStepUpTransformerReactance = generatorShortCircuit != null ? generatorShortCircuit.getStepUpTransformerX() : Double.NaN;
-        // Either transient reactance or step-up transformer reactance are modified or
-        // both
-        String stepUpTransformerXNewValue = stepUpTransformerX != null ? stepUpTransformerX.getValue().toString() : null;
-        if (directTransX != null && stepUpTransformerX != null) {
-            generator.newExtension(GeneratorShortCircuitAdder.class)
-                .withDirectTransX(directTransX.getValue())
-                .withStepUpTransformerX(stepUpTransformerX.getValue())
-                .add();
-            reports.add(ModificationUtils.getInstance().buildModificationReport(
-                    oldTransientReactance,
-                    directTransX.getValue(),
-                    "Transient reactance"));
-            reports.add(ModificationUtils.getInstance().buildModificationReport(
-                    oldStepUpTransformerReactance,
-                    stepUpTransformerXNewValue,
-                    "Transformer reactance"));
-
-        } else if (directTransX != null) {
-            generator.newExtension(GeneratorShortCircuitAdder.class)
-                    .withStepUpTransformerX(oldStepUpTransformerReactance)
-                    .withDirectTransX(directTransX.getValue())
-                    .add();
-            reports.add(ModificationUtils.getInstance().buildModificationReport(
-                    oldTransientReactance,
-                    directTransX.getValue(),
-                    "Transient reactance"));
-        } else if (stepUpTransformerX != null) {
-            if (Double.isNaN(stepUpTransformerX.getValue())) {
-                generator.newExtension(GeneratorShortCircuitAdder.class)
-                        .withDirectTransX(oldTransientReactance)
-                        .add();
-                stepUpTransformerXNewValue = NO_VALUE;
-            } else {
-                generator.newExtension(GeneratorShortCircuitAdder.class)
-                        .withStepUpTransformerX(stepUpTransformerX.getValue())
-                        .withDirectTransX(oldTransientReactance)
-                        .add();
-            }
-            reports.add(ModificationUtils.getInstance().buildModificationReport(
-                    oldStepUpTransformerReactance,
-                    stepUpTransformerXNewValue,
-                    "Transformer reactance"));
-        }
-        if (subReportNode != null) {
-            ModificationUtils.getInstance().reportModifications(subReportNode, reports, "network.modification.shortCircuitAttributesModified");
-        }
     }
 
     private void modifyGeneratorReactiveCapabilityCurvePoints(GeneratorModificationInfos modificationInfos,
