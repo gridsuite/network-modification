@@ -11,6 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
+import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.BatteryCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -131,6 +132,9 @@ public class BatteryCreation extends AbstractModification {
         ModificationUtils.getInstance().createReactiveLimits(batteryCreationInfos, battery, subReportNodeLimits);
         ReportNode subReportNodeSetpoints = reportBatterySetPoints(batteryCreationInfos, subReportNode);
         createBatteryActivePowerControl(batteryCreationInfos, battery, subReportNodeSetpoints);
+        ModificationUtils.getInstance().createShortCircuitExtension(batteryCreationInfos.getStepUpTransformerX(),
+                batteryCreationInfos.getDirectTransX(), batteryCreationInfos.getEquipmentId(),
+                () -> battery.newExtension(BatteryShortCircuitAdder.class), subReportNode);
     }
 
     private ReportNode reportBatterySetPoints(BatteryCreationInfos batteryCreationInfos, ReportNode subReportNode) {

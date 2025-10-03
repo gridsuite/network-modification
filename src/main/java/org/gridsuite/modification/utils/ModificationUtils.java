@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.utils;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.*;
 import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
@@ -1909,6 +1910,92 @@ public final class ModificationUtils {
 
     private boolean checkAttributeModificationValue(AttributeModification<String> attribute) {
         return attribute != null && attribute.getValue() != null;
+    }
+
+    // for battery and generator
+    public void createShortCircuitExtension(Double stepUpTransformerX, Double directTransX, String equipmentId,
+                                            Supplier<ShortCircuitExtensionAdder<?, ?, ?>> shortCircuitExtensionAdderSupplier,
+                                            ReportNode subReportNode) {
+        if (directTransX != null) {
+            List<ReportNode> shortCircuitReports = new ArrayList<>();
+            try {
+                ShortCircuitExtensionAdder<?, ?, ?> shortCircuitAdder = shortCircuitExtensionAdderSupplier.get()
+                        .withDirectTransX(directTransX);
+                if (stepUpTransformerX != null) {
+                    shortCircuitAdder.withStepUpTransformerX(stepUpTransformerX);
+                }
+                shortCircuitAdder.add();
+                shortCircuitReports.add(buildCreationReport(directTransX, "Transient reactance"));
+                if (stepUpTransformerX != null) {
+                    shortCircuitReports.add(buildCreationReport(stepUpTransformerX, "Transformer reactance"));
+                }
+            } catch (PowsyblException e) {
+                shortCircuitReports.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
+                        .withMessageTemplate("network.modification.ShortCircuitExtensionAddError")
+                        .withUntypedValue("id", equipmentId)
+                        .withUntypedValue("message", e.getMessage())
+                        .withSeverity(TypedValue.ERROR_SEVERITY)
+                        .build());
+            }
+            reportModifications(subReportNode, shortCircuitReports, "network.modification.shortCircuitCreated");
+        }
+    }
+
+    public void modifyShortCircuitExtension(AttributeModification<Double> directTransX,
+                                                   AttributeModification<Double> stepUpTransformerX,
+                                                   ShortCircuitExtension<?> shortCircuitExtension,
+                                                   Supplier<ShortCircuitExtensionAdder<?, ?, ?>> shortCircuitExtensionAdderSupplier,
+                                                   ReportNode subReportNode) {
+        List<ReportNode> reports = new ArrayList<>();
+        double oldTransientReactance = shortCircuitExtension != null ? shortCircuitExtension.getDirectTransX() : Double.NaN;
+        double oldStepUpTransformerReactance = shortCircuitExtension != null ? shortCircuitExtension.getStepUpTransformerX() : Double.NaN;
+        // Either transient reactance or step-up transformer reactance are modified or
+        // both
+        String stepUpTransformerXNewValue = stepUpTransformerX != null ? stepUpTransformerX.getValue().toString() : null;
+        if (directTransX != null && stepUpTransformerX != null) {
+            shortCircuitExtensionAdderSupplier.get()
+                    .withDirectTransX(directTransX.getValue())
+                    .withStepUpTransformerX(stepUpTransformerX.getValue())
+                    .add();
+            reports.add(buildModificationReport(
+                    oldTransientReactance,
+                    directTransX.getValue(),
+                    "Transient reactance"));
+            reports.add(buildModificationReport(
+                    oldStepUpTransformerReactance,
+                    stepUpTransformerXNewValue,
+                    "Transformer reactance"));
+
+        } else if (directTransX != null) {
+            shortCircuitExtensionAdderSupplier.get()
+                    .withStepUpTransformerX(oldStepUpTransformerReactance)
+                    .withDirectTransX(directTransX.getValue())
+                    .add();
+            reports.add(buildModificationReport(
+                    oldTransientReactance,
+                    directTransX.getValue(),
+                    "Transient reactance"));
+        } else if (stepUpTransformerX != null) {
+            if (Double.isNaN(stepUpTransformerX.getValue())) {
+                shortCircuitExtensionAdderSupplier.get()
+                        .withDirectTransX(oldTransientReactance)
+                        .add();
+                stepUpTransformerXNewValue = NO_VALUE;
+            } else {
+                shortCircuitExtensionAdderSupplier.get()
+                        .withStepUpTransformerX(stepUpTransformerX.getValue())
+                        .withDirectTransX(oldTransientReactance)
+                        .add();
+            }
+            reports.add(buildModificationReport(
+                    oldStepUpTransformerReactance,
+                    stepUpTransformerXNewValue,
+                    "Transformer reactance"));
+        }
+        if (subReportNode != null) {
+            reportModifications(subReportNode, reports, "network.modification.shortCircuitAttributesModified");
+        }
     }
 }
 

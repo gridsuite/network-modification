@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
+import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -35,7 +37,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
     @Override
     public void checkModification() {
         Network network = getNetwork();
-        BatteryModificationInfos batteryModificationInfos = (BatteryModificationInfos) buildModification();
+        BatteryModificationInfos batteryModificationInfos = buildModification();
         batteryModificationInfos.setTargetP(new AttributeModification<>(-1.0, OperationType.SET));
         BatteryModification batteryModification = (BatteryModification) batteryModificationInfos.toModification();
         assertThrows(NetworkModificationException.class,
@@ -85,6 +87,8 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
                             new ReactiveCapabilityCurvePointsInfos(100., 100.,
                                             150.)))
             .droop(new AttributeModification<>(0.1f, OperationType.SET))
+            .directTransX(new AttributeModification<>(0.1, OperationType.SET))
+            .stepUpTransformerX(new AttributeModification<>(0.2, OperationType.SET))
             .participate(new AttributeModification<>(true, OperationType.SET))
             .reactiveCapabilityCurve(new AttributeModification<>(true, OperationType.SET))
             .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME)
@@ -120,6 +124,10 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
                   });
         }
         assertEquals(PROPERTY_VALUE, getNetwork().getBattery("v3Battery").getProperty(PROPERTY_NAME));
+        BatteryShortCircuit batteryShortCircuit = modifiedBattery.getExtension(BatteryShortCircuit.class);
+        assertNotNull(batteryShortCircuit);
+        assertEquals(0.1, batteryShortCircuit.getDirectTransX());
+        assertEquals(0.2, batteryShortCircuit.getStepUpTransformerX());
     }
 
     @Test
