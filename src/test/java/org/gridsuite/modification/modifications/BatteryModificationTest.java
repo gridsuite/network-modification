@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
-import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -99,14 +98,16 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
     @Override
     protected void assertAfterNetworkModificationApplication() {
         Battery modifiedBattery = getNetwork().getBattery("v3Battery");
-        BatteryModificationInfos batteryModificationInfos = (BatteryModificationInfos) buildModification();
+        BatteryModificationInfos batteryModificationInfos = buildModification();
         assertEquals("newV1Battery", modifiedBattery.getNameOrId());
         assertEquals(80.0, modifiedBattery.getTargetP());
         assertEquals(40.0, modifiedBattery.getTargetQ());
         assertEquals(0., modifiedBattery.getMinP());
         assertEquals(100., modifiedBattery.getMaxP());
-        assertEquals(0.1f, modifiedBattery.getExtension(ActivePowerControl.class).getDroop());
-        assertTrue(modifiedBattery.getExtension(ActivePowerControl.class).isParticipate());
+        ActivePowerControl<Battery> activePowerControl = modifiedBattery.getExtension(ActivePowerControl.class);
+        assertNotNull(activePowerControl);
+        assertEquals(0.1f, activePowerControl.getDroop());
+        assertTrue(activePowerControl.isParticipate());
         assertEquals(ReactiveLimitsKind.CURVE, modifiedBattery.getReactiveLimits().getKind());
         Collection<ReactiveCapabilityCurve.Point> points = modifiedBattery
                         .getReactiveLimits(ReactiveCapabilityCurve.class).getPoints();
@@ -131,17 +132,19 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
     }
 
     @Test
-    void testImpactsAfterActivePowerControlModifications() throws Exception {
-        BatteryModificationInfos batteryModificationInfos = (BatteryModificationInfos) buildModification();
+    void testImpactsAfterActivePowerControlModifications() {
+        BatteryModificationInfos batteryModificationInfos = buildModification();
         batteryModificationInfos.toModification().apply(getNetwork());
         Battery battery = getNetwork().getBattery("v3Battery");
-        assertEquals(0.1f, battery.getExtension(ActivePowerControl.class).getDroop());
-        assertTrue(battery.getExtension(ActivePowerControl.class).isParticipate());
+        ActivePowerControl<Battery> activePowerControl = battery.getExtension(ActivePowerControl.class);
+        assertNotNull(activePowerControl);
+        assertEquals(0.1f, activePowerControl.getDroop());
+        assertTrue(activePowerControl.isParticipate());
     }
 
     @Test
-    void testActivePowerZeroOrBetweenMinAndMaxActivePower() throws Exception {
-        BatteryModificationInfos batteryModificationInfos = (BatteryModificationInfos) buildModification();
+    void testActivePowerZeroOrBetweenMinAndMaxActivePower() {
+        BatteryModificationInfos batteryModificationInfos = buildModification();
         Battery battery = getNetwork().getBattery("v3Battery");
         battery.setTargetP(80.)
                 .setMinP(0.)
@@ -160,7 +163,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
     }
 
     @Test
-    void testMinQGreaterThanMaxQ() throws Exception {
+    void testMinQGreaterThanMaxQ() {
         BatteryModificationInfos batteryModificationInfos = buildModification();
         Battery battery = getNetwork().getBattery("v3Battery");
         battery.newReactiveCapabilityCurve()

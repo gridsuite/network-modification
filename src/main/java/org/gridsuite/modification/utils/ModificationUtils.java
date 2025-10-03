@@ -1915,7 +1915,7 @@ public final class ModificationUtils {
     // for battery and generator
     public void createShortCircuitExtension(Double stepUpTransformerX, Double directTransX, String equipmentId,
                                             Supplier<ShortCircuitExtensionAdder<?, ?, ?>> shortCircuitExtensionAdderSupplier,
-                                            ReportNode subReportNode) {
+                                            ReportNode subReportNode, String equipmentType) {
         if (directTransX != null) {
             List<ReportNode> shortCircuitReports = new ArrayList<>();
             try {
@@ -1935,6 +1935,7 @@ public final class ModificationUtils {
                         .withMessageTemplate("network.modification.ShortCircuitExtensionAddError")
                         .withUntypedValue("id", equipmentId)
                         .withUntypedValue("message", e.getMessage())
+                        .withUntypedValue("equipmentType", equipmentType)
                         .withSeverity(TypedValue.ERROR_SEVERITY)
                         .build());
             }

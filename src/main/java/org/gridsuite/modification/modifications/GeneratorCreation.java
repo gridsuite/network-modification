@@ -144,7 +144,7 @@ public class GeneratorCreation extends AbstractModification {
         createGeneratorActivePowerControl(generatorCreationInfos, generator, subReporterSetpoints);
         ModificationUtils.getInstance().createShortCircuitExtension(generatorCreationInfos.getStepUpTransformerX(),
                 generatorCreationInfos.getDirectTransX(), generatorCreationInfos.getEquipmentId(),
-                () -> generator.newExtension(GeneratorShortCircuitAdder.class), subReportNode);
+                () -> generator.newExtension(GeneratorShortCircuitAdder.class), subReportNode, "generator");
         createGeneratorStartUp(generatorCreationInfos, generator, subReportNode);
     }
 
