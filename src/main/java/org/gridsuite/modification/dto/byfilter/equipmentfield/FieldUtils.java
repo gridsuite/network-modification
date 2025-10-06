@@ -7,17 +7,25 @@
 
 package org.gridsuite.modification.dto.byfilter.equipmentfield;
 
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import org.gridsuite.modification.NetworkModificationException;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
  */
 public final class FieldUtils {
+    public static final String VALUE_KEY_ID = "id";
+    public static final String VALUE_KEY_PROPERTY_NAME = "propertyName";
+    public static final String VALUE_KEY_PROPERTY_VALUE = "propertyValue";
+    public static final String VALUE_KEY_SIDE = "side";
+
+    public static final String REPORT_KEY_OPERATIONAL_LIMITS_GROUP_PROPERTY_VALUE_NOT_FOUND_ERROR = "network.modification.operationalLimitsGroupPropertyValueNotFoundError";
+    public static final String REPORT_KEY_OPERATIONAL_LIMITS_GROUP_PROPERTY_VALUE_MULTIPLE_ERROR = "network.modification.operationalLimitsGroupPropertyValueMultipleError";
 
     private FieldUtils() {
 
@@ -54,28 +62,48 @@ public final class FieldUtils {
         }
     }
 
-    public static void setOperationalLimitsGroupPropertyValue(Branch<?> branch, String propertyField, String newValue, TwoSides side) {
-        List<OperationalLimitsGroup> operationalLimitsGroupList = new ArrayList<>();
-        switch (side) {
-            case ONE -> operationalLimitsGroupList = branch.getOperationalLimitsGroups1().stream()
-                    .filter(operationalLimitsGroup -> operationalLimitsGroup.getProperty(propertyField) != null &&
-                            operationalLimitsGroup.getProperty(propertyField).equals(newValue))
-                    .toList();
-            case TWO -> operationalLimitsGroupList = branch.getOperationalLimitsGroups2().stream()
-                    .filter(operationalLimitsGroup -> operationalLimitsGroup.getProperty(propertyField) != null &&
-                            operationalLimitsGroup.getProperty(propertyField).equals(newValue))
-                    .toList();
-        }
+    public static boolean isEditableOperationalLimitsGroupPropertyValue(Branch<?> branch, String propertyName, String propertyValue, TwoSides side, List<ReportNode> equipmentsReport) {
+        List<OperationalLimitsGroup> operationalLimitsGroupList = (
+            switch (side) {
+                case ONE -> branch.getOperationalLimitsGroups1();
+                case TWO -> branch.getOperationalLimitsGroups2();
+            }
+        ).stream()
+                .filter(operationalLimitsGroup -> operationalLimitsGroup.getProperty(propertyName) != null &&
+                                                  operationalLimitsGroup.getProperty(propertyName).equals(propertyValue))
+                .toList();
+
         if (operationalLimitsGroupList.isEmpty()) {
-            throw new NetworkModificationException(NetworkModificationException.Type.MODIFICATION_ERROR,
-                    String.format("Error when modifying operational limits group, branch %s has no property %s", branch.getId(), propertyField));
+            equipmentsReport.add(ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate(REPORT_KEY_OPERATIONAL_LIMITS_GROUP_PROPERTY_VALUE_NOT_FOUND_ERROR)
+                    .withUntypedValue(VALUE_KEY_ID, branch.getId())
+                    .withUntypedValue(VALUE_KEY_SIDE, side.ordinal() + 1)
+                    .withUntypedValue(VALUE_KEY_PROPERTY_NAME, propertyName)
+                    .withUntypedValue(VALUE_KEY_PROPERTY_VALUE, propertyValue)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+            return false;
         } else if (operationalLimitsGroupList.size() > 1) {
-            throw new NetworkModificationException(NetworkModificationException.Type.MODIFICATION_ERROR,
-                    String.format("Error when modifying operational limits group, branch %s has several limits group with property %s", branch.getId(), propertyField));
+            equipmentsReport.add(ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate(REPORT_KEY_OPERATIONAL_LIMITS_GROUP_PROPERTY_VALUE_MULTIPLE_ERROR)
+                    .withUntypedValue(VALUE_KEY_ID, branch.getId())
+                    .withUntypedValue(VALUE_KEY_SIDE, side.ordinal() + 1)
+                    .withUntypedValue(VALUE_KEY_PROPERTY_NAME, propertyName)
+                    .withUntypedValue(VALUE_KEY_PROPERTY_VALUE, propertyValue)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+            return false;
         }
+
+        return true;
+    }
+
+    public static void setOperationalLimitsGroup(Branch<?> branch, String newValue, TwoSides side) {
         switch (side) {
-            case ONE -> branch.setSelectedOperationalLimitsGroup1(operationalLimitsGroupList.getFirst().getId());
-            case TWO -> branch.setSelectedOperationalLimitsGroup2(operationalLimitsGroupList.getFirst().getId());
+            case ONE -> branch.setSelectedOperationalLimitsGroup1(newValue);
+            case TWO -> branch.setSelectedOperationalLimitsGroup2(newValue);
         }
     }
 }

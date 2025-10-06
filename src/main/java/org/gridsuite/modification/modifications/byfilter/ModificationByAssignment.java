@@ -19,14 +19,15 @@ import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.DataType;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.PropertyAssignmentInfos;
+import org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField;
 
 import java.util.Collections;
 import java.util.List;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFICATION_BY_ASSIGNMENT_ERROR;
-import static org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils.setOperationalLimitsGroupPropertyValue;
-import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES;
-import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES;
+import static org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils.isEditableOperationalLimitsGroupPropertyValue;
+import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.getReferenceValue;
+import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.setNewValue;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
@@ -68,7 +69,17 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
     protected boolean isEquipmentEditable(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos, List<ReportNode> equipmentsReport) {
         AssignmentInfos<?> assignmentInfos = (AssignmentInfos<?>) abstractAssignmentInfos;
         if (assignmentInfos.getDataType() == DataType.PROPERTY) {
-            return true;
+            PropertyField field = PropertyField.valueOf(abstractAssignmentInfos.getEditedField());
+            String propertyName = ((PropertyAssignmentInfos) abstractAssignmentInfos).getPropertyName();
+            String value = ((PropertyAssignmentInfos) abstractAssignmentInfos).getValue();
+            return switch (equipment.getType()) {
+                case LINE, TWO_WINDINGS_TRANSFORMER -> switch (field) {
+                    case OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES -> isEditableOperationalLimitsGroupPropertyValue((Branch<?>) equipment, propertyName, value, TwoSides.ONE, equipmentsReport);
+                    case OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES -> isEditableOperationalLimitsGroupPropertyValue((Branch<?>) equipment, propertyName, value, TwoSides.TWO, equipmentsReport);
+                    default -> true;
+                };
+                default -> true;
+            };
         } else {
             return super.isEquipmentEditable(equipment, abstractAssignmentInfos, equipmentsReport);
         }
@@ -83,12 +94,9 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
     protected String getOldValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos) {
         AssignmentInfos<?> assignmentInfos = (AssignmentInfos<?>) abstractAssignmentInfos;
         if (assignmentInfos.getDataType() == DataType.PROPERTY) {
-            if (assignmentInfos.getEditedField().equals("OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES")) {
-                return ((Branch<?>) equipment).getSelectedOperationalLimitsGroupId1().orElse(null);
-            } else if (assignmentInfos.getEditedField().equals("OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES")) {
-                return ((Branch<?>) equipment).getSelectedOperationalLimitsGroupId2().orElse(null);
-            }
-            return equipment.getProperty(((PropertyAssignmentInfos) assignmentInfos).getPropertyName());
+            String propertyName = ((PropertyAssignmentInfos) assignmentInfos).getPropertyName();
+            String editedField = assignmentInfos.getEditedField();
+            return getReferenceValue(equipment, editedField, propertyName);
         } else {
             return super.getOldValue(equipment, abstractAssignmentInfos);
         }
@@ -100,7 +108,14 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
         if (assignmentInfos.getValue() == null) {
             return null;
         }
-        return assignmentInfos.getValue().toString();
+        if (assignmentInfos.getDataType() == DataType.PROPERTY) {
+            String propertyName = ((PropertyAssignmentInfos) assignmentInfos).getPropertyName();
+            String propertyValue = ((PropertyAssignmentInfos) assignmentInfos).getValue();
+            String editedField = assignmentInfos.getEditedField();
+            return PropertyField.getNewValue(equipment, editedField, propertyName, propertyValue);
+        } else {
+            return assignmentInfos.getValue().toString();
+        }
     }
 
     @Override
@@ -109,13 +124,8 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
         if (assignmentInfos.getDataType() == DataType.PROPERTY) {
             String newValue = getNewValue(equipment, abstractAssignmentInfos);
             String propertyName = ((PropertyAssignmentInfos) assignmentInfos).getPropertyName();
-            if (assignmentInfos.getEditedField().equals(OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES.name())) {
-                setOperationalLimitsGroupPropertyValue((Branch<?>) equipment, propertyName, newValue, TwoSides.ONE);
-            } else if (assignmentInfos.getEditedField().equals(OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES.name())) {
-                setOperationalLimitsGroupPropertyValue((Branch<?>) equipment, propertyName, newValue, TwoSides.TWO);
-            } else {
-                equipment.setProperty(propertyName, newValue);
-            }
+            String editedField = assignmentInfos.getEditedField();
+            setNewValue(equipment, editedField, propertyName, newValue);
             return newValue;
         } else {
             return super.applyValue(equipment, abstractAssignmentInfos);
