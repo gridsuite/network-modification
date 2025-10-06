@@ -8,10 +8,8 @@
 package org.gridsuite.modification.modifications.byfilter;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.commons.report.TypedValue;
+import com.powsybl.iidm.network.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -25,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFICATION_BY_ASSIGNMENT_ERROR;
-import static org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils.isEditableOperationalLimitsGroupPropertyValue;
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.getReferenceValue;
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.setNewValue;
 
@@ -33,6 +30,15 @@ import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyFie
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
  */
 public class ModificationByAssignment extends AbstractModificationByAssignment {
+
+    public static final String VALUE_KEY_ID = "id";
+    public static final String VALUE_KEY_PROPERTY_NAME = "propertyName";
+    public static final String VALUE_KEY_PROPERTY_VALUE = "propertyValue";
+    public static final String VALUE_KEY_SIDE = "side";
+
+    public static final String REPORT_KEY_OPERATIONAL_LIMITS_GROUP_PROPERTY_VALUE_NOT_FOUND_ERROR = "network.modification.operationalLimitsGroupPropertyValueNotFoundError";
+    public static final String REPORT_KEY_OPERATIONAL_LIMITS_GROUP_PROPERTY_VALUE_MULTIPLE_ERROR = "network.modification.operationalLimitsGroupPropertyValueMultipleError";
+
     private final ModificationByAssignmentInfos modificationInfos;
 
     public ModificationByAssignment(ModificationByAssignmentInfos modificationInfos) {
@@ -83,6 +89,44 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
         } else {
             return super.isEquipmentEditable(equipment, abstractAssignmentInfos, equipmentsReport);
         }
+    }
+
+    private boolean isEditableOperationalLimitsGroupPropertyValue(Branch<?> branch, String propertyName, String propertyValue, TwoSides side, List<ReportNode> equipmentsReport) {
+        List<OperationalLimitsGroup> operationalLimitsGroupList = (
+            switch (side) {
+                case ONE -> branch.getOperationalLimitsGroups1();
+                case TWO -> branch.getOperationalLimitsGroups2();
+            }
+        ).stream()
+            .filter(operationalLimitsGroup -> operationalLimitsGroup.getProperty(propertyName) != null &&
+                      operationalLimitsGroup.getProperty(propertyName).equals(propertyValue))
+            .toList();
+
+        if (operationalLimitsGroupList.isEmpty()) {
+            equipmentsReport.add(ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate(REPORT_KEY_OPERATIONAL_LIMITS_GROUP_PROPERTY_VALUE_NOT_FOUND_ERROR)
+                .withUntypedValue(VALUE_KEY_ID, branch.getId())
+                .withUntypedValue(VALUE_KEY_SIDE, side.ordinal() + 1)
+                .withUntypedValue(VALUE_KEY_PROPERTY_NAME, propertyName)
+                .withUntypedValue(VALUE_KEY_PROPERTY_VALUE, propertyValue)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+            return false;
+        } else if (operationalLimitsGroupList.size() > 1) {
+            equipmentsReport.add(ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate(REPORT_KEY_OPERATIONAL_LIMITS_GROUP_PROPERTY_VALUE_MULTIPLE_ERROR)
+                .withUntypedValue(VALUE_KEY_ID, branch.getId())
+                .withUntypedValue(VALUE_KEY_SIDE, side.ordinal() + 1)
+                .withUntypedValue(VALUE_KEY_PROPERTY_NAME, propertyName)
+                .withUntypedValue(VALUE_KEY_PROPERTY_VALUE, propertyValue)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+            return false;
+        }
+
+        return true;
     }
 
     @Override

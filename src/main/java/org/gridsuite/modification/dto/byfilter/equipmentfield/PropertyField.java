@@ -14,8 +14,6 @@ import org.gridsuite.modification.NetworkModificationException;
 
 import java.util.List;
 
-import static org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils.setOperationalLimitsGroup;
-
 /**
  * @author Etienne LESOT <etienne.lesot at rte-france.com>
  */
@@ -94,8 +92,8 @@ public enum PropertyField {
 
     private static void setNewValue(Branch<?> branch, PropertyField field, String newValue) {
         switch (field) {
-            case OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES -> setOperationalLimitsGroup(branch, newValue, TwoSides.ONE);
-            case OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES -> setOperationalLimitsGroup(branch, newValue, TwoSides.TWO);
+            case OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES -> branch.setSelectedOperationalLimitsGroup1(newValue);
+            case OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES -> branch.setSelectedOperationalLimitsGroup2(newValue);
         }
     }
 }
