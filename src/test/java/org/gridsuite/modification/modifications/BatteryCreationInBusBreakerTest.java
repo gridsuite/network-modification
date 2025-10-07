@@ -58,6 +58,8 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
                 .minQ(20.0)
                 .maxQ(25.0)
                 .droop(5f)
+                .stepUpTransformerX(60.0)
+                .directTransX(61.0)
                 .participate(true)
                 .reactiveCapabilityCurve(true)
                 .reactiveCapabilityCurvePoints(Arrays.asList(new ReactiveCapabilityCurvePointsInfos(2.0, 3.0, 3.1),
