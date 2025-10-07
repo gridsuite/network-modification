@@ -13,6 +13,8 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @SuperBuilder
 @NoArgsConstructor
 @Getter
@@ -28,6 +30,9 @@ public class OperationalLimitsGroupInfos {
 
     @Schema(description = "application side")
     private Applicability applicability;
+
+    @Schema(description = "limits properties")
+    private List<LimitsPropertyInfos> limitsPropertiesInfos;
 
     public enum Applicability {
         EQUIPMENT, // SIDE1 + SIDE2
