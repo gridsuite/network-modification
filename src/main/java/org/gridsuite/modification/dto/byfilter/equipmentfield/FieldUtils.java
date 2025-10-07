@@ -7,11 +7,11 @@
 
 package org.gridsuite.modification.dto.byfilter.equipmentfield;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import org.gridsuite.modification.NetworkModificationException;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,6 +21,13 @@ public final class FieldUtils {
 
     private FieldUtils() {
 
+    }
+
+    public static boolean isEquipmentEditable(Identifiable<?> equipment, String editedField, List<ReportNode> equipmentsReport) {
+        return switch (equipment.getType()) {
+            case TWO_WINDINGS_TRANSFORMER -> TwoWindingsTransformerField.isEquipmentEditable((TwoWindingsTransformer) equipment, editedField, equipmentsReport);
+            default -> true;
+        };
     }
 
     @Nullable
@@ -54,28 +61,4 @@ public final class FieldUtils {
         }
     }
 
-    public static void setOperationalLimitsGroupPropertyValue(Branch<?> branch, String propertyField, String newValue, TwoSides side) {
-        List<OperationalLimitsGroup> operationalLimitsGroupList = new ArrayList<>();
-        switch (side) {
-            case ONE -> operationalLimitsGroupList = branch.getOperationalLimitsGroups1().stream()
-                    .filter(operationalLimitsGroup -> operationalLimitsGroup.getProperty(propertyField) != null &&
-                            operationalLimitsGroup.getProperty(propertyField).equals(newValue))
-                    .toList();
-            case TWO -> operationalLimitsGroupList = branch.getOperationalLimitsGroups2().stream()
-                    .filter(operationalLimitsGroup -> operationalLimitsGroup.getProperty(propertyField) != null &&
-                            operationalLimitsGroup.getProperty(propertyField).equals(newValue))
-                    .toList();
-        }
-        if (operationalLimitsGroupList.isEmpty()) {
-            throw new NetworkModificationException(NetworkModificationException.Type.MODIFICATION_ERROR,
-                    String.format("Error when modifying operational limits group, branch %s has no property %s", branch.getId(), propertyField));
-        } else if (operationalLimitsGroupList.size() > 1) {
-            throw new NetworkModificationException(NetworkModificationException.Type.MODIFICATION_ERROR,
-                    String.format("Error when modifying operational limits group, branch %s has several limits group with property %s", branch.getId(), propertyField));
-        }
-        switch (side) {
-            case ONE -> branch.setSelectedOperationalLimitsGroup1(operationalLimitsGroupList.getFirst().getId());
-            case TWO -> branch.setSelectedOperationalLimitsGroup2(operationalLimitsGroupList.getFirst().getId());
-        }
-    }
 }
