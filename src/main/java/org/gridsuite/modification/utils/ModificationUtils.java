@@ -58,6 +58,8 @@ public final class ModificationUtils {
     public static final String CONNECTION_DIRECTION_FIELD_NAME = "Connection direction";
     public static final String CONNECTION_POSITION_FIELD_NAME = "Connection position";
     public static final String NOT_EXIST_IN_NETWORK = " does not exist in network";
+    public static final String TRANSIENT_REACTANCE = "Transient reactance";
+    public static final String TRANSFORMER_REACTANCE = "Transformer reactance";
 
     private static final String COULD_NOT_ACTION_EQUIPMENT = "Could not %s equipment '%s'";
     private static final String COULD_NOT_ACTION_EQUIPMENT_ON_SIDE = COULD_NOT_ACTION_EQUIPMENT + " on side %s";
@@ -1914,20 +1916,19 @@ public final class ModificationUtils {
 
     // for battery and generator
     public void createShortCircuitExtension(Double stepUpTransformerX, Double directTransX, String equipmentId,
-                                            Supplier<ShortCircuitExtensionAdder<?, ?, ?>> shortCircuitExtensionAdderSupplier,
+                                            ShortCircuitExtensionAdder<?, ?, ?> shortCircuitExtensionAdder,
                                             ReportNode subReportNode, String equipmentType) {
         if (directTransX != null) {
             List<ReportNode> shortCircuitReports = new ArrayList<>();
             try {
-                ShortCircuitExtensionAdder<?, ?, ?> shortCircuitAdder = shortCircuitExtensionAdderSupplier.get()
-                        .withDirectTransX(directTransX);
+                shortCircuitExtensionAdder.withDirectTransX(directTransX);
                 if (stepUpTransformerX != null) {
-                    shortCircuitAdder.withStepUpTransformerX(stepUpTransformerX);
+                    shortCircuitExtensionAdder.withStepUpTransformerX(stepUpTransformerX);
                 }
-                shortCircuitAdder.add();
-                shortCircuitReports.add(buildCreationReport(directTransX, "Transient reactance"));
+                shortCircuitExtensionAdder.add();
+                shortCircuitReports.add(buildCreationReport(directTransX, TRANSIENT_REACTANCE));
                 if (stepUpTransformerX != null) {
-                    shortCircuitReports.add(buildCreationReport(stepUpTransformerX, "Transformer reactance"));
+                    shortCircuitReports.add(buildCreationReport(stepUpTransformerX, TRANSFORMER_REACTANCE));
                 }
             } catch (PowsyblException e) {
                 shortCircuitReports.add(ReportNode.newRootReportNode()
@@ -1962,11 +1963,11 @@ public final class ModificationUtils {
             reports.add(buildModificationReport(
                     oldTransientReactance,
                     directTransX.getValue(),
-                    "Transient reactance"));
+                    TRANSIENT_REACTANCE));
             reports.add(buildModificationReport(
                     oldStepUpTransformerReactance,
                     stepUpTransformerXNewValue,
-                    "Transformer reactance"));
+                    TRANSFORMER_REACTANCE));
 
         } else if (directTransX != null) {
             shortCircuitExtensionAdderSupplier.get()
@@ -1976,7 +1977,7 @@ public final class ModificationUtils {
             reports.add(buildModificationReport(
                     oldTransientReactance,
                     directTransX.getValue(),
-                    "Transient reactance"));
+                    TRANSIENT_REACTANCE));
         } else if (stepUpTransformerX != null) {
             if (Double.isNaN(stepUpTransformerX.getValue())) {
                 shortCircuitExtensionAdderSupplier.get()
@@ -1992,7 +1993,7 @@ public final class ModificationUtils {
             reports.add(buildModificationReport(
                     oldStepUpTransformerReactance,
                     stepUpTransformerXNewValue,
-                    "Transformer reactance"));
+                    TRANSFORMER_REACTANCE));
         }
         if (subReportNode != null) {
             reportModifications(subReportNode, reports, "network.modification.shortCircuitAttributesModified");

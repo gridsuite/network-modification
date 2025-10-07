@@ -134,7 +134,7 @@ public class BatteryCreation extends AbstractModification {
         createBatteryActivePowerControl(batteryCreationInfos, battery, subReportNodeSetpoints);
         ModificationUtils.getInstance().createShortCircuitExtension(batteryCreationInfos.getStepUpTransformerX(),
                 batteryCreationInfos.getDirectTransX(), batteryCreationInfos.getEquipmentId(),
-                () -> battery.newExtension(BatteryShortCircuitAdder.class), subReportNode, "battery");
+                battery.newExtension(BatteryShortCircuitAdder.class), subReportNode, "battery");
     }
 
     private ReportNode reportBatterySetPoints(BatteryCreationInfos batteryCreationInfos, ReportNode subReportNode) {
