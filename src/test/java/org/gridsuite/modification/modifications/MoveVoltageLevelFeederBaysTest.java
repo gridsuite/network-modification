@@ -267,7 +267,7 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
         MoveFeederBayInfos moveFeederBayInfos = MoveFeederBayInfos.builder()
             .equipmentId("line2")
             .busbarSectionId("1.1")
-            .connectionSide("TWO")
+            .connectionSide("ONE")
             .connectionName("line2test")
             .connectionPosition(21)
             .connectionDirection(ConnectablePosition.Direction.BOTTOM)
@@ -286,9 +286,9 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
         ConnectablePosition.Feeder feeder1 = lineConnectablePosition.getFeeder1();
         assertNotNull(feeder1);
         assertTrue(feeder1.getName().isPresent());
-        assertEquals("cn1line2", feeder1.getName().get());
+        assertEquals("line2test", feeder1.getName().get());
         assertTrue(feeder1.getOrder().isPresent());
-        assertEquals(2, feeder1.getOrder().get());
-        assertEquals(ConnectablePosition.Direction.TOP, feeder1.getDirection());
+        assertEquals(21, feeder1.getOrder().get());
+        assertEquals(ConnectablePosition.Direction.BOTTOM, feeder1.getDirection());
     }
 }

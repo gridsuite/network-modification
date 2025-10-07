@@ -11,7 +11,6 @@ import com.powsybl.commons.report.*;
 import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
-import com.powsybl.math.graph.TraversalType;
 import com.powsybl.network.store.iidm.impl.MinMaxReactiveLimitsImpl;
 import org.apache.commons.math3.util.Pair;
 import org.gridsuite.modification.IFilterService;
@@ -947,15 +946,9 @@ public final class ModificationUtils {
                 busOrBusbarSectionId = terminal.getBusBreakerView().getConnectableBus().getId();
             }
         } else {
-            busOrBusbarSectionId = getBusbarSectionId(terminal);
+            busOrBusbarSectionId = BusbarSectionFinderTraverser.findBusbarSectionId(terminal);
         }
         return busOrBusbarSectionId;
-    }
-
-    private String getBusbarSectionId(Terminal terminal) {
-        BusbarSectionFinderTraverser connectedBusbarSectionFinder = new BusbarSectionFinderTraverser(terminal.isConnected());
-        terminal.traverse(connectedBusbarSectionFinder, TraversalType.BREADTH_FIRST);
-        return connectedBusbarSectionFinder.getFirstTraversedBbsId();
     }
 
     private int getPosition(AttributeModification<Integer> connectionPosition,
@@ -1905,7 +1898,7 @@ public final class ModificationUtils {
             ModificationUtils.getInstance().controlBus(targetTerminal.getVoltageLevel(), busOrBusbarSectionId.getValue());
         } else if (checkAttributeModificationValue(voltageLevelId) && !checkAttributeModificationValue(busOrBusbarSectionId)) {
             ModificationUtils.getInstance().controlBus(ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId.getValue()),
-                    getBusbarSectionId(targetTerminal)
+                    BusbarSectionFinderTraverser.findBusbarSectionId(terminal)
             );
         }
     }
