@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
-import com.powsybl.math.graph.TraversalType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -285,9 +284,8 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         Generator generator = getNetwork().getGenerator("idGenerator");
         Terminal terminal = generator.getTerminal();
         assertEquals("v2", terminal.getVoltageLevel().getId());
-        BusbarSectionFinderTraverser connectedBusbarSectionFinder = new BusbarSectionFinderTraverser(terminal.isConnected());
-        generator.getTerminal().traverse(connectedBusbarSectionFinder, TraversalType.BREADTH_FIRST);
-        assertEquals("1A", connectedBusbarSectionFinder.getFirstTraversedBbsId());
+        BusbarSectionFinderTraverser.findBusbarSectionId(terminal);
+        assertEquals("1A", BusbarSectionFinderTraverser.findBusbarSectionId(terminal));
 
         // Change voltageLevel and busbar section
         generatorModificationInfos.setVoltageLevelId(new AttributeModification<>("v1", OperationType.SET));
@@ -296,8 +294,6 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         generator = getNetwork().getGenerator("idGenerator");
         terminal = generator.getTerminal();
         assertEquals("v1", terminal.getVoltageLevel().getId());
-        connectedBusbarSectionFinder = new BusbarSectionFinderTraverser(terminal.isConnected());
-        terminal.traverse(connectedBusbarSectionFinder, TraversalType.BREADTH_FIRST);
-        assertEquals("1.1", connectedBusbarSectionFinder.getFirstTraversedBbsId());
+        assertEquals("1.1", BusbarSectionFinderTraverser.findBusbarSectionId(terminal));
     }
 }
