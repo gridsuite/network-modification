@@ -23,7 +23,7 @@ class ModificationInfosTest {
     }
 
     @Test
-    void testCreateSubReportNode_throwsUnsupportedOperationException() {
+    void testCreateSubReportNodeThrowsUnsupportedOperationException() {
         ModificationInfos modificationInfos = new TestModificationInfos();
         ReportNode mockReportNode = ReportNode.newRootReportNode().withMessageTemplate("test").build();
 
@@ -39,7 +39,7 @@ class ModificationInfosTest {
     }
 
     @Test
-    void testToModification_throwsUnsupportedOperationException() {
+    void testToModificationThrowsUnsupportedOperationException() {
         ModificationInfos modificationInfos = new TestModificationInfos();
 
         UnsupportedOperationException exception = assertThrows(
