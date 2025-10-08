@@ -9,10 +9,7 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.ActivePowerControl;
-import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
-import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.BatteryModificationInfos;
@@ -99,6 +96,11 @@ public class BatteryModification extends AbstractModification {
                 modificationInfos.getParticipate(), modificationInfos.getDroop(),
                 battery, subReportNode);
         modifyBatteryConnectivityAttributes(modificationInfos, battery, subReportNode);
+        ModificationUtils.getInstance().modifyShortCircuitExtension(modificationInfos.getDirectTransX(),
+                modificationInfos.getStepUpTransformerX(),
+                battery.getExtension(BatteryShortCircuit.class),
+                () -> battery.newExtension(BatteryShortCircuitAdder.class),
+                subReportNode);
         PropertiesUtils.applyProperties(battery, subReportNode, modificationInfos.getProperties(), "network.modification.BatteryProperties");
     }
 

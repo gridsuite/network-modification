@@ -113,15 +113,12 @@ public enum GeneratorField {
                         new AttributeModification<>(droopValue, OperationType.SET), null, null,
                     MODIFY_GENERATOR_ERROR, errorMessage);
             }
-            case TRANSIENT_REACTANCE -> modifyGeneratorShortCircuitAttributes(
-                    new AttributeModification<>(parseDoubleOrNaNIfNull(newValue), OperationType.SET),
-                    null, generator, null);
-            case STEP_UP_TRANSFORMER_REACTANCE -> modifyGeneratorShortCircuitAttributes(
-                    null,
-                    new AttributeModification<>(parseDoubleOrNaNIfNull(newValue), OperationType.SET),
-                    generator,
-                    null
-            );
+            case TRANSIENT_REACTANCE -> ModificationUtils.getInstance().modifyShortCircuitExtension(new AttributeModification<>(parseDoubleOrNaNIfNull(newValue), OperationType.SET),
+                    null, generator.getExtension(GeneratorShortCircuit.class),
+                    () -> generator.newExtension(GeneratorShortCircuitAdder.class), null);
+            case STEP_UP_TRANSFORMER_REACTANCE -> ModificationUtils.getInstance().modifyShortCircuitExtension(null,
+                    new AttributeModification<>(parseDoubleOrNaNIfNull(newValue), OperationType.SET), generator.getExtension(GeneratorShortCircuit.class),
+                    () -> generator.newExtension(GeneratorShortCircuitAdder.class), null);
             case Q_PERCENT -> generator.newExtension(CoordinatedReactiveControlAdderImpl.class)
                     .withQPercent(Double.parseDouble(newValue))
                     .add();
