@@ -12,7 +12,6 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
@@ -21,7 +20,7 @@ import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.equipmentfield.TwoWindingsTransformerField;
+import org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.CollectionUtils;
@@ -55,8 +54,6 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     public static final String VALUE_KEY_ERROR_MESSAGE = "errorMessage";
     public static final String VALUE_KEY_ARROW_NAME = "arrow";
     public static final String VALUE_KEY_ARROW_VALUE = "→";
-    public static final String REPORT_KEY_RATIO_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR = "network.modification.ratioTapChangerEquipmentModifiedError";
-    public static final String REPORT_KEY_PHASE_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR = "network.modification.phaseTapChangerEquipmentModifiedError";
     public static final String REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO = "network.modification.equipmentModifiedError.zero";
     public static final String REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_NULL = "network.modification.equipmentModifiedError.null";
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_SOME = "network.modification.byFilterModificationSome";
@@ -192,41 +189,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
         if (abstractAssignmentInfos.getEditedField() == null) {
             return false;
         }
-
-        if (equipment.getType() == IdentifiableType.TWO_WINDINGS_TRANSFORMER) {
-            TwoWindingsTransformerField editedField = TwoWindingsTransformerField.valueOf(abstractAssignmentInfos.getEditedField());
-            TwoWindingsTransformer twoWindingsTransformer = (TwoWindingsTransformer) equipment;
-            return switch (editedField) {
-                case TARGET_V, RATIO_LOW_TAP_POSITION, RATIO_TAP_POSITION, RATIO_TARGET_DEADBAND -> {
-                    boolean isEditable = twoWindingsTransformer.getRatioTapChanger() != null;
-                    if (!isEditable) {
-                        equipmentsReport.add(ReportNode.newRootReportNode()
-                                .withAllResourceBundlesFromClasspath()
-                                .withMessageTemplate(REPORT_KEY_RATIO_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR)
-                                .withUntypedValue(VALUE_KEY_FIELD_NAME, editedField.name())
-                                .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
-                                .withSeverity(TypedValue.DETAIL_SEVERITY)
-                                .build());
-                    }
-                    yield isEditable;
-                }
-                case REGULATION_VALUE, PHASE_LOW_TAP_POSITION, PHASE_TAP_POSITION, PHASE_TARGET_DEADBAND -> {
-                    boolean isEditable = twoWindingsTransformer.getPhaseTapChanger() != null;
-                    if (!isEditable) {
-                        equipmentsReport.add(ReportNode.newRootReportNode()
-                                .withAllResourceBundlesFromClasspath()
-                                .withMessageTemplate(REPORT_KEY_PHASE_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR)
-                                .withUntypedValue(VALUE_KEY_FIELD_NAME, editedField.name())
-                                .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
-                                .withSeverity(TypedValue.DETAIL_SEVERITY)
-                                .build());
-                    }
-                    yield isEditable;
-                }
-                default -> true;
-            };
-        }
-        return true;
+        return FieldUtils.isEquipmentEditable(equipment, abstractAssignmentInfos.getEditedField(), equipmentsReport);
     }
 
     private void createAssignmentReports(List<ReportNode> reports, AbstractAssignmentInfos abstractAssignmentInfos,
