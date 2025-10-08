@@ -99,19 +99,19 @@ public final class NetworkWithTeePoint {
         createSwitch(v1, "l1br1", null, SwitchKind.BREAKER, true, false, false, 5, 4);
         createSwitch(v2, "l1d2", null, SwitchKind.DISCONNECTOR, true, false, false, 0, 5);
         createSwitch(v2, "l1br2", null, SwitchKind.BREAKER, true, false, false, 5, 4);
-        createLine(network, "l1", null, "v1", "v2", 4, 4, 1.0, 1.0, 1.0, 2.0, 1.0, 2.0, "l1", 1, ConnectablePosition.Direction.TOP, "l1", 1, ConnectablePosition.Direction.TOP);
+        createLineWithLimits(network, "l1", null, "v1", "v2", 4, 4, 1.0, 1.0, 1.0, 2.0, 1.0, 2.0, "l1", 1, ConnectablePosition.Direction.TOP, "l1", 1, ConnectablePosition.Direction.TOP);
 
         createSwitch(v2, "l2d2", null, SwitchKind.DISCONNECTOR, true, false, false, 0, 7);
         createSwitch(v2, "l2br2", null, SwitchKind.BREAKER, true, false, false, 7, 6);
         createSwitch(v3, "l2d3", null, SwitchKind.DISCONNECTOR, true, false, false, 0, 5);
         createSwitch(v3, "l2br3", null, SwitchKind.BREAKER, true, false, false, 5, 4);
-        createLine(network, "l2", null, "v2", "v3", 6, 4, 10.0, 5.0, 3.5, 5.5, 4.5, 6.5, "l2", 2, ConnectablePosition.Direction.TOP, "l2", 2, ConnectablePosition.Direction.TOP);
+        createLineWithLimits(network, "l2", null, "v2", "v3", 6, 4, 10.0, 5.0, 3.5, 5.5, 4.5, 6.5, "l2", 2, ConnectablePosition.Direction.TOP, "l2", 2, ConnectablePosition.Direction.TOP);
 
         createSwitch(v2, "l3d2", null, SwitchKind.DISCONNECTOR, true, false, false, 0, 9);
         createSwitch(v2, "l3br2", null, SwitchKind.BREAKER, true, false, true, 9, 8);
         createSwitch(v4, "l3d4", null, SwitchKind.DISCONNECTOR, true, false, false, 0, 5);
         createSwitch(v4, "l3br4", null, SwitchKind.BREAKER, true, false, true, 5, 4);
-        createLine(network, "l3", null, "v2", "v4", 8, 4, 12.0, 7.0, 5.5, 7.5, 6.5, 8.5, "l3", 3, ConnectablePosition.Direction.TOP, "l3", 3, ConnectablePosition.Direction.TOP);
+        createLineWithLimits(network, "l3", null, "v2", "v4", 8, 4, 12.0, 7.0, 5.5, 7.5, 6.5, 8.5, "l3", 3, ConnectablePosition.Direction.TOP, "l3", 3, ConnectablePosition.Direction.TOP);
 
         return network;
     }
