@@ -51,6 +51,12 @@ public class BatteryModificationInfos extends InjectionModificationInfos {
     @Schema(description = "Droop")
     private AttributeModification<Float> droop;
 
+    @Schema(description = "Transient reactance")
+    private AttributeModification<Double> directTransX;
+
+    @Schema(description = "Step up transformer reactance")
+    private AttributeModification<Double> stepUpTransformerX;
+
     @Schema(description = "Minimum reactive power")
     private AttributeModification<Double> minQ;
 

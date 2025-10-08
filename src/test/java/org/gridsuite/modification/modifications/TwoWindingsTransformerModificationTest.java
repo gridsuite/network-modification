@@ -135,6 +135,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                         ))
                     .build())
                 .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+                .enableOLGModification(true)
                 .operationalLimitsGroups(List.of(
                         OperationalLimitsGroupModificationInfos.builder()
                                 .id("ETE")
