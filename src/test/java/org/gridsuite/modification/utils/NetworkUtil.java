@@ -78,25 +78,23 @@ public final class NetworkUtil {
     }
 
     public static void createLine(Network network, String id, String name, String voltageLevel1, String voltageLevel2, int node1, int node2,
-                                    double r, double x, double g1, double g2, double b1, double b2,
-                                    String feederName1, int feederOrder1, ConnectablePosition.Direction direction1,
-                                    String feederName2, int feederOrder2, ConnectablePosition.Direction direction2) {
+                                            double r, double x, double g1, double g2, double b1, double b2,
+                                            String feederName1, int feederOrder1, ConnectablePosition.Direction direction1,
+                                            String feederName2, int feederOrder2, ConnectablePosition.Direction direction2) {
         var l = network.newLine()
-            .setId(id)
-            .setName(name)
-            .setR(r)
-            .setX(x)
-            .setG1(g1)
-            .setG2(g2)
-            .setB1(b1)
-            .setB2(b2)
-            .setVoltageLevel1(voltageLevel1)
-            .setVoltageLevel2(voltageLevel2)
-            .setNode1(node1)
-            .setNode2(node2)
-            .add();
-
-        addLimits(l);
+                .setId(id)
+                .setName(name)
+                .setR(r)
+                .setX(x)
+                .setG1(g1)
+                .setG2(g2)
+                .setB1(b1)
+                .setB2(b2)
+                .setVoltageLevel1(voltageLevel1)
+                .setVoltageLevel2(voltageLevel2)
+                .setNode1(node1)
+                .setNode2(node2)
+                .add();
 
         l.newExtension(ConnectablePositionAdder.class)
                 .newFeeder1()
@@ -108,6 +106,18 @@ public final class NetworkUtil {
                 .withOrder(feederOrder2)
                 .withDirection(direction2).add()
                 .add();
+
+    }
+
+    public static void createLineWithLimits(Network network, String id, String name, String voltageLevel1, String voltageLevel2, int node1, int node2,
+                                            double r, double x, double g1, double g2, double b1, double b2,
+                                            String feederName1, int feederOrder1, ConnectablePosition.Direction direction1,
+                                            String feederName2, int feederOrder2, ConnectablePosition.Direction direction2) {
+
+        createLine(network, id, name, voltageLevel1, voltageLevel2, node1, node2, r, x, g1, g2, b1, b2,
+                feederName1, feederOrder1, direction1, feederName2, feederOrder2, direction2);
+        Line l = network.getLine(id);
+        addLimits(l);
     }
 
     private static void addLimits(Branch<?> branch) {
@@ -119,6 +129,30 @@ public final class NetworkUtil {
         branch.newOperationalLimitsGroup2("group1").setProperty("property1", "value1");
         branch.newOperationalLimitsGroup2("group2").setProperty("property1", "value1");
         branch.newOperationalLimitsGroup2("group3").setProperty("property2", "value2");
+        branch.setSelectedOperationalLimitsGroup2("group0");
+    }
+
+    public static void addLimitsWithIdenticalProperties(Branch<?> branch) {
+        branch.newOperationalLimitsGroup1("group0").setProperty("property0", "value0");
+        branch.newOperationalLimitsGroup1("group1").setProperty("property0", "value0");
+        branch.newOperationalLimitsGroup1("group2");
+        branch.setSelectedOperationalLimitsGroup1("group0");
+        branch.newOperationalLimitsGroup2("group0");
+        branch.newOperationalLimitsGroup2("group1");
+        branch.newOperationalLimitsGroup2("group2");
+        branch.newOperationalLimitsGroup2("group3");
+        branch.setSelectedOperationalLimitsGroup2("group0");
+    }
+
+    public static void addLimitsWithoutProperties(Branch<?> branch) {
+        branch.newOperationalLimitsGroup1("group0");
+        branch.newOperationalLimitsGroup1("group1");
+        branch.newOperationalLimitsGroup1("group2");
+        branch.setSelectedOperationalLimitsGroup1("group0");
+        branch.newOperationalLimitsGroup2("group0");
+        branch.newOperationalLimitsGroup2("group1");
+        branch.newOperationalLimitsGroup2("group2");
+        branch.newOperationalLimitsGroup2("group3");
         branch.setSelectedOperationalLimitsGroup2("group0");
     }
 
