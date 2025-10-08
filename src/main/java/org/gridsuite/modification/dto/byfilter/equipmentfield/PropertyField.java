@@ -96,7 +96,7 @@ public enum PropertyField {
             return switch (equipment.getType()) {
                 case LINE, TWO_WINDINGS_TRANSFORMER -> getReferenceValue((Branch<?>) equipment, field);
                 default -> throw new NetworkModificationException(NetworkModificationException.Type.MODIFICATION_ERROR,
-                        "Unsupported getting value for equipment type : " + equipment.getType().name());
+                        "Unsupported getting value for equipment type : " + " [" + field + "," + equipment.getType() + "]");
             };
         }
     }
@@ -118,7 +118,7 @@ public enum PropertyField {
             return switch (equipment.getType()) {
                 case LINE, TWO_WINDINGS_TRANSFORMER -> getNewValue((Branch<?>) equipment, field, propertyName, propertyValue);
                 default -> throw new NetworkModificationException(NetworkModificationException.Type.MODIFICATION_ERROR,
-                        "Unsupported getting value for equipment type : " + equipment.getType().name());
+                        "Unsupported getting value for equipment type : " + " [" + field + "," + equipment.getType() + "]");
             };
         }
     }
@@ -152,6 +152,8 @@ public enum PropertyField {
         } else {
             switch (equipment.getType()) {
                 case LINE, TWO_WINDINGS_TRANSFORMER -> setNewValue((Branch<?>) equipment, field, newValue);
+                default -> throw new NetworkModificationException(NetworkModificationException.Type.MODIFICATION_ERROR,
+                        "Unsupported setting value for equipment type : " + " [" + field + "," + equipment.getType() + "]");
             }
         }
     }
@@ -160,6 +162,8 @@ public enum PropertyField {
         switch (field) {
             case OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES -> branch.setSelectedOperationalLimitsGroup1(newValue);
             case OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES -> branch.setSelectedOperationalLimitsGroup2(newValue);
+            default -> throw new NetworkModificationException(NetworkModificationException.Type.MODIFICATION_ERROR,
+                    "Unsupported setting value for equipment type : " + " [" + field + "," + branch.getType() + "]");
         }
     }
 }
