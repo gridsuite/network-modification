@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications.byfilter.assignment;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.filter.utils.EquipmentType;
@@ -17,6 +18,7 @@ import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.byfilter.DataType;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.PropertyAssignmentInfos;
+import org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -24,12 +26,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
@@ -51,6 +55,10 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     protected final FilterInfos filter5 = new FilterInfos(FILTER_ID_5, "filter5");
     protected final FilterInfos filter6 = new FilterInfos(FILTER_ID_6, "filter6");
     protected final FilterInfos filterWithOneWrongId = new FilterInfos(FILTER_WITH_ONE_WRONG_ID, "filterWithOneWrongId");
+    protected final ReportNode reportNode = ReportNode.newRootReportNode()
+            .withAllResourceBundlesFromClasspath()
+            .withMessageTemplate("test")
+            .build();
 
     @Mock
     protected IFilterService filterService;
@@ -69,7 +77,7 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(getTestFilters());
         AbstractModification modification = modificationInfo.toModification();
         modification.initApplicationContext(filterService, null);
-        modification.apply(getNetwork());
+        modification.apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication();
     }
 
@@ -103,7 +111,7 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
 
     protected List<AssignmentInfos<?>> getAssignmentInfos() {
         PropertyAssignmentInfos spyAssignmentInfos = spy(PropertyAssignmentInfos.builder()
-                .editedField(DataType.PROPERTY.name())
+                .editedField(PropertyField.FREE_PROPERTIES.name())
                 .propertyName("propertyName")
                 .value("propertyValue")
                 .filters(List.of(filter1))
