@@ -32,7 +32,7 @@ public class OperationalLimitsGroupInfos {
     private Applicability applicability;
 
     @Schema(description = "limits properties")
-    private List<LimitsPropertyInfos> limitsPropertiesInfos;
+    private List<LimitsPropertyInfos> limitsProperties;
 
     public enum Applicability {
         EQUIPMENT, // SIDE1 + SIDE2
