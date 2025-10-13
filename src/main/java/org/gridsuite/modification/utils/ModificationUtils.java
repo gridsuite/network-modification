@@ -1141,7 +1141,7 @@ public final class ModificationUtils {
                             .withMessageTemplate("network.modification.propertyAdded")
                             .withUntypedValue(NAME, property.name())
                             .withUntypedValue(VALUE, property.value()).build());
-                    branch.setProperty(property.name(), property.value());
+                    opGroup.setProperty(property.name(), property.value());
                 });
                 if (!detailsOnLimitSet.isEmpty()) {
                     ModificationUtils.getInstance().reportModifications(limitSetNode, detailsOnLimitSet);
