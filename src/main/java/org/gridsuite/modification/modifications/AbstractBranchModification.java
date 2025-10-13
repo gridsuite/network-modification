@@ -31,11 +31,11 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
 public abstract class AbstractBranchModification extends AbstractModification {
 
     private static final String DURATION = "duration";
-    private static final String NAME = "name";
-    private static final String VALUE = "value";
+    public static final String NAME = "name";
+    public static final String VALUE = "value";
     private static final String VALIDITY = "validity";
     private static final String LIMIT_ACCEPTABLE_DURATION = "limitAcceptableDuration";
-    private static final String OPERATIONAL_LIMITS_GROUP_NAME = "operationalLimitsGroupName";
+    public static final String OPERATIONAL_LIMITS_GROUP_NAME = "operationalLimitsGroupName";
     private static final String SIDE = "side";
 
     protected final BranchModificationInfos modificationInfos;
