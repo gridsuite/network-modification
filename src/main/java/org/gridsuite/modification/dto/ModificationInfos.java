@@ -118,12 +118,12 @@ public class ModificationInfos {
 
     @JsonIgnore
     public ReportNode createSubReportNode(ReportNode reportNode) {
-        throw new UnsupportedOperationException("TODO");
+        throw new UnsupportedOperationException("Method createSubReportNode must be implemented in subclass " + this.getClass().getSimpleName());
     }
 
     @JsonIgnore
     public AbstractModification toModification() {
-        throw new UnsupportedOperationException("TODO");
+        throw new UnsupportedOperationException("Method toModification must be implemented in subclass " + this.getClass().getSimpleName());
     }
 
     @JsonIgnore
