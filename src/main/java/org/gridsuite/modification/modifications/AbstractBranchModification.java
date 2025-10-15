@@ -82,6 +82,64 @@ public abstract class AbstractBranchModification extends AbstractModification {
         updateConnections(branch, branchModificationInfos);
     }
 
+    private void copyOperationalLimitsOnSide(OperationalLimitsGroup opLimitsGroup, OperationalLimitsGroup opLimitGroupToCopy) {
+        // Copy all limits of the other side
+        opLimitGroupToCopy.getCurrentLimits().ifPresent(currentLimits -> {
+            CurrentLimitsAdder adder = opLimitsGroup.newCurrentLimits()
+                .setPermanentLimit(currentLimits.getPermanentLimit());
+
+            for (LoadingLimits.TemporaryLimit tempLimit : currentLimits.getTemporaryLimits()) {
+                addTemporaryLimit(adder, tempLimit.getName(), tempLimit.getValue(), tempLimit.getAcceptableDuration());
+            }
+        });
+    }
+
+    private void copyAndDeleteLimitSet(Branch<?> branch, List<OperationalLimitsGroupModificationInfos> modificationInfos, String modifiedLimitSet,
+                                        OperationalLimitsGroup limitsGroupToCopy, boolean isSide1) {
+        // if we have only one limit set with the same name but applicability is not good
+        // we should copy existing limit set on the right side and removed it from the other side
+        if (modificationInfos.stream().filter(limitSet -> limitSet.getId().equals(modifiedLimitSet)).toList().size() == 1) {
+            // Copy limits
+            OperationalLimitsGroup limitsGroup = isSide1 ? branch.newOperationalLimitsGroup1(limitsGroupToCopy.getId())
+                : branch.newOperationalLimitsGroup2(limitsGroupToCopy.getId());
+            copyOperationalLimitsOnSide(limitsGroup, limitsGroupToCopy);
+
+            // delete other limit set
+            if (isSide1) {
+                branch.removeOperationalLimitsGroup2(modifiedLimitSet);
+            } else {
+                branch.removeOperationalLimitsGroup1(modifiedLimitSet);
+            }
+        }
+    }
+
+    // If we are changing applicability we may not find operational limits group where we should so check both sides
+    private void detectApplicabilityChange(Branch<?> branch, List<OperationalLimitsGroupModificationInfos> modificationInfos,
+                                           OperationalLimitsGroupModificationInfos modifiedLimitSet) {
+
+        OperationalLimitsGroup limitsGroup1 = branch.getOperationalLimitsGroup1(modifiedLimitSet.getId()).orElse(null);
+        OperationalLimitsGroup limitsGroup2 = branch.getOperationalLimitsGroup2(modifiedLimitSet.getId()).orElse(null);
+        if (limitsGroup1 == null && limitsGroup2 == null || limitsGroup1 != null && limitsGroup2 != null || modifiedLimitSet.getApplicability().equals(SIDE1)
+            && limitsGroup1 != null || modifiedLimitSet.getApplicability().equals(SIDE2) && limitsGroup2 != null) {
+            return;
+        }
+
+        switch (modifiedLimitSet.getApplicability()) {
+            case SIDE1 -> copyAndDeleteLimitSet(branch, modificationInfos, modifiedLimitSet.getId(), limitsGroup2, true);
+            case SIDE2 -> copyAndDeleteLimitSet(branch, modificationInfos, modifiedLimitSet.getId(), limitsGroup1, false);
+            case EQUIPMENT -> {
+                if (limitsGroup1 == null) {
+                    limitsGroup1 = branch.newOperationalLimitsGroup1(limitsGroup2.getId());
+                    copyOperationalLimitsOnSide(limitsGroup1, limitsGroup2);
+                }
+                if (limitsGroup2 == null) {
+                    limitsGroup2 = branch.newOperationalLimitsGroup2(limitsGroup1.getId());
+                    copyOperationalLimitsOnSide(limitsGroup2, limitsGroup1);
+                }
+            }
+        }
+    }
+
     private void modifyOperationalLimitsGroups(Branch<?> branch, List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos, List<ReportNode> olgReports) {
         for (OperationalLimitsGroupModificationInfos opLGModifInfos : operationalLimitsInfos) {
             if (opLGModifInfos.getModificationType() == null) {
@@ -90,6 +148,9 @@ public abstract class AbstractBranchModification extends AbstractModification {
             OperationalLimitsGroupInfos.Applicability applicability = opLGModifInfos.getApplicability();
             // here the modifications on an applicability EQUIPMENT are separated into two separate applications of both sides
             // because iidm has two separated sets of opLGs on the network object (and for better logs)
+
+            detectApplicabilityChange(branch, operationalLimitsInfos, opLGModifInfos);
+
             if (applicability == SIDE1
                     || applicability == OperationalLimitsGroupInfos.Applicability.EQUIPMENT) {
                 OperationalLimitsGroup operationalLimitsGroup1 = branch.getOperationalLimitsGroup1(opLGModifInfos.getId()).orElse(null);
