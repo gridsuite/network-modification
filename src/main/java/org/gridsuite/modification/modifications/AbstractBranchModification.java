@@ -37,6 +37,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
     private static final String LIMIT_ACCEPTABLE_DURATION = "limitAcceptableDuration";
     private static final String OPERATIONAL_LIMITS_GROUP_NAME = "operationalLimitsGroupName";
     private static final String SIDE = "side";
+    private static final String APPLICABILITY = "applicability";
 
     protected final BranchModificationInfos modificationInfos;
 
@@ -82,28 +83,33 @@ public abstract class AbstractBranchModification extends AbstractModification {
         updateConnections(branch, branchModificationInfos);
     }
 
-    private void copyOperationalLimitsOnSide(OperationalLimitsGroup opLimitsGroup, OperationalLimitsGroup opLimitGroupToCopy) {
+    private void copyOperationalLimitsOnSide(CurrentLimitsAdder limitsAdder, OperationalLimitsGroup opLimitGroupToCopy) {
         // Copy all limits of the other side
         opLimitGroupToCopy.getCurrentLimits().ifPresent(currentLimits -> {
-            CurrentLimitsAdder adder = opLimitsGroup.newCurrentLimits()
-                .setPermanentLimit(currentLimits.getPermanentLimit());
+            limitsAdder.setPermanentLimit(currentLimits.getPermanentLimit());
 
             for (LoadingLimits.TemporaryLimit tempLimit : currentLimits.getTemporaryLimits()) {
-                addTemporaryLimit(adder, tempLimit.getName(), tempLimit.getValue(), tempLimit.getAcceptableDuration());
+                addTemporaryLimit(limitsAdder, tempLimit.getName(), tempLimit.getValue(), tempLimit.getAcceptableDuration());
             }
+            limitsAdder.add();
         });
     }
 
     private void copyAndDeleteLimitSet(Branch<?> branch, List<OperationalLimitsGroupModificationInfos> modificationInfos, String modifiedLimitSet,
-                                        OperationalLimitsGroup limitsGroupToCopy, boolean isSide1) {
+                                        OperationalLimitsGroup limitsGroupToCopy, boolean isSide1, List<ReportNode> olgReports) {
         // if we have only one limit set with the same name but applicability is not good
         // we should copy existing limit set on the right side and removed it from the other side
         if (modificationInfos.stream().filter(limitSet -> limitSet.getId().equals(modifiedLimitSet)).toList().size() == 1) {
             // Copy limits
             OperationalLimitsGroup limitsGroup = isSide1 ? branch.newOperationalLimitsGroup1(limitsGroupToCopy.getId())
                 : branch.newOperationalLimitsGroup2(limitsGroupToCopy.getId());
-            copyOperationalLimitsOnSide(limitsGroup, limitsGroupToCopy);
+            copyOperationalLimitsOnSide(limitsGroup.newCurrentLimits(), limitsGroupToCopy);
 
+            olgReports.add(ReportNode.newRootReportNode().withMessageTemplate("network.modification.applicabilityChanged")
+                    .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, limitsGroupToCopy.getId())
+                    .withUntypedValue(APPLICABILITY, isSide1 ? SIDE1.toString() : SIDE2.toString())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .build());
             // delete other limit set
             if (isSide1) {
                 branch.removeOperationalLimitsGroup2(modifiedLimitSet);
@@ -115,7 +121,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
 
     // If we are changing applicability we may not find operational limits group where we should so check both sides
     private void detectApplicabilityChange(Branch<?> branch, List<OperationalLimitsGroupModificationInfos> modificationInfos,
-                                           OperationalLimitsGroupModificationInfos modifiedLimitSet) {
+                                           OperationalLimitsGroupModificationInfos modifiedLimitSet, List<ReportNode> olgReports) {
 
         OperationalLimitsGroup limitsGroup1 = branch.getOperationalLimitsGroup1(modifiedLimitSet.getId()).orElse(null);
         OperationalLimitsGroup limitsGroup2 = branch.getOperationalLimitsGroup2(modifiedLimitSet.getId()).orElse(null);
@@ -125,17 +131,24 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
 
         switch (modifiedLimitSet.getApplicability()) {
-            case SIDE1 -> copyAndDeleteLimitSet(branch, modificationInfos, modifiedLimitSet.getId(), limitsGroup2, true);
-            case SIDE2 -> copyAndDeleteLimitSet(branch, modificationInfos, modifiedLimitSet.getId(), limitsGroup1, false);
+            case SIDE1 -> copyAndDeleteLimitSet(branch, modificationInfos, modifiedLimitSet.getId(), limitsGroup2,
+                true, olgReports);
+            case SIDE2 -> copyAndDeleteLimitSet(branch, modificationInfos, modifiedLimitSet.getId(), limitsGroup1,
+                false, olgReports);
             case EQUIPMENT -> {
                 if (limitsGroup1 == null) {
                     limitsGroup1 = branch.newOperationalLimitsGroup1(limitsGroup2.getId());
-                    copyOperationalLimitsOnSide(limitsGroup1, limitsGroup2);
+                    copyOperationalLimitsOnSide(limitsGroup1.newCurrentLimits(), limitsGroup2);
                 }
                 if (limitsGroup2 == null) {
                     limitsGroup2 = branch.newOperationalLimitsGroup2(limitsGroup1.getId());
-                    copyOperationalLimitsOnSide(limitsGroup2, limitsGroup1);
+                    copyOperationalLimitsOnSide(limitsGroup2.newCurrentLimits(), limitsGroup1);
                 }
+                olgReports.add(ReportNode.newRootReportNode().withMessageTemplate("network.modification.applicabilityChanged")
+                    .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, limitsGroup1.getId())
+                    .withUntypedValue(APPLICABILITY, EQUIPMENT.toString())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .build());
             }
         }
     }
@@ -149,7 +162,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
             // here the modifications on an applicability EQUIPMENT are separated into two separate applications of both sides
             // because iidm has two separated sets of opLGs on the network object (and for better logs)
 
-            detectApplicabilityChange(branch, operationalLimitsInfos, opLGModifInfos);
+            detectApplicabilityChange(branch, operationalLimitsInfos, opLGModifInfos, olgReports);
 
             if (applicability == SIDE1
                     || applicability == OperationalLimitsGroupInfos.Applicability.EQUIPMENT) {
