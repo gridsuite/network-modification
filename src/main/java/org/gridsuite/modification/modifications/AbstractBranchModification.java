@@ -83,7 +83,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
         updateConnections(branch, branchModificationInfos);
     }
 
-    private void copyOperationalLimitsOnSide(CurrentLimitsAdder limitsAdder, OperationalLimitsGroup opLimitGroupToCopy) {
+    private void copyOperationalLimitsGroup(CurrentLimitsAdder limitsAdder, OperationalLimitsGroup opLimitGroupToCopy) {
         // Copy all limits of the other side
         opLimitGroupToCopy.getCurrentLimits().ifPresent(currentLimits -> {
             limitsAdder.setPermanentLimit(currentLimits.getPermanentLimit());
@@ -95,23 +95,23 @@ public abstract class AbstractBranchModification extends AbstractModification {
         });
     }
 
-    private void copyAndDeleteLimitSet(Branch<?> branch, List<OperationalLimitsGroupModificationInfos> modificationInfos,
-                                        OperationalLimitsGroup limitsGroupToCopy, String modifiedLimitSet,
-                                       boolean isSide1, List<ReportNode> olgReports) {
+    private void moveLimitSetToTheOtherSide(Branch<?> branch, List<OperationalLimitsGroupModificationInfos> modificationInfos,
+                                            OperationalLimitsGroup limitsGroupToCopy, String modifiedLimitSet,
+                                            boolean isSide1, List<ReportNode> olgReports) {
         // if we have only one limit set with the same name but applicability is not good
         // we should copy existing limit set on the right side and removed it from the other side
         if (modificationInfos.stream().filter(limitSet -> limitSet.getId().equals(modifiedLimitSet)).toList().size() == 1) {
-            // Copy limits
+            // Copy operational limits group to the other side
             OperationalLimitsGroup limitsGroup = isSide1 ? branch.newOperationalLimitsGroup1(limitsGroupToCopy.getId())
                 : branch.newOperationalLimitsGroup2(limitsGroupToCopy.getId());
-            copyOperationalLimitsOnSide(limitsGroup.newCurrentLimits(), limitsGroupToCopy);
+            copyOperationalLimitsGroup(limitsGroup.newCurrentLimits(), limitsGroupToCopy);
 
             olgReports.add(ReportNode.newRootReportNode().withMessageTemplate("network.modification.applicabilityChanged")
                     .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, limitsGroupToCopy.getId())
                     .withUntypedValue(APPLICABILITY, isSide1 ? SIDE1.toString() : SIDE2.toString())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .build());
-            // delete other limit set
+            // Remove copied operational limits group
             if (isSide1) {
                 branch.removeOperationalLimitsGroup2(modifiedLimitSet);
             } else {
@@ -152,31 +152,31 @@ public abstract class AbstractBranchModification extends AbstractModification {
         if (limitsGroup1 == null && modifiedLimitSetInfos.getApplicability().equals(SIDE2)
             || limitsGroup2 == null && modifiedLimitSetInfos.getApplicability().equals(SIDE1)) {
             return;
-        }
-
-        switch (modifiedLimitSetInfos.getApplicability()) {
-            case SIDE1 -> {
-                copyAndDeleteLimitSet(branch, modificationInfos, limitsGroup2, modifiedLimitSetInfos.getId(), true, olgReports);
-                if (shouldDeletedOtherSide(branch, modificationInfos, modifiedLimitSetInfos)) {
+        } else if (limitsGroup1 != null && limitsGroup2 != null && (modifiedLimitSetInfos.getApplicability().equals(SIDE1)
+                || modifiedLimitSetInfos.getApplicability().equals(SIDE2))) {
+            if (shouldDeletedOtherSide(branch, modificationInfos, modifiedLimitSetInfos)) {
+                if (modifiedLimitSetInfos.getApplicability().equals(SIDE1)) {
                     branch.removeOperationalLimitsGroup2(modifiedLimitSetInfos.getId());
-                }
-            }
-            case SIDE2 -> {
-                copyAndDeleteLimitSet(branch, modificationInfos, limitsGroup1, modifiedLimitSetInfos.getId(), false, olgReports);
-                if (shouldDeletedOtherSide(branch, modificationInfos, modifiedLimitSetInfos)) {
+                } else {
                     branch.removeOperationalLimitsGroup1(modifiedLimitSetInfos.getId());
                 }
             }
+            return;
+        }
+
+        switch (modifiedLimitSetInfos.getApplicability()) {
+            case SIDE1 -> moveLimitSetToTheOtherSide(branch, modificationInfos, limitsGroup2, modifiedLimitSetInfos.getId(), true, olgReports);
+            case SIDE2 -> moveLimitSetToTheOtherSide(branch, modificationInfos, limitsGroup1, modifiedLimitSetInfos.getId(), false, olgReports);
             case EQUIPMENT -> {
                 boolean applicabilityChanged = false;
                 if (limitsGroup1 == null && limitsGroup2 != null) {
                     limitsGroup1 = branch.newOperationalLimitsGroup1(limitsGroup2.getId());
-                    copyOperationalLimitsOnSide(limitsGroup1.newCurrentLimits(), limitsGroup2);
+                    copyOperationalLimitsGroup(limitsGroup1.newCurrentLimits(), limitsGroup2);
                     applicabilityChanged = true;
                 }
                 if (limitsGroup2 == null && limitsGroup1 != null) {
                     limitsGroup2 = branch.newOperationalLimitsGroup2(limitsGroup1.getId());
-                    copyOperationalLimitsOnSide(limitsGroup2.newCurrentLimits(), limitsGroup1);
+                    copyOperationalLimitsGroup(limitsGroup2.newCurrentLimits(), limitsGroup1);
                     applicabilityChanged = true;
                 }
                 if (applicabilityChanged) {
@@ -202,12 +202,12 @@ public abstract class AbstractBranchModification extends AbstractModification {
             detectApplicabilityChange(branch, operationalLimitsInfos, opLGModifInfos, olgReports);
 
             if (applicability == SIDE1
-                    || applicability == OperationalLimitsGroupInfos.Applicability.EQUIPMENT) {
+                    || applicability == EQUIPMENT) {
                 OperationalLimitsGroup operationalLimitsGroup1 = branch.getOperationalLimitsGroup1(opLGModifInfos.getId()).orElse(null);
                 applyModificationToOperationalLimitsGroup(branch::newOperationalLimitsGroup1, opLGModifInfos, operationalLimitsGroup1, olgReports, SIDE1);
             }
             if (applicability == SIDE2
-                    || applicability == OperationalLimitsGroupInfos.Applicability.EQUIPMENT) {
+                    || applicability == EQUIPMENT) {
                 OperationalLimitsGroup operationalLimitsGroup2 = branch.getOperationalLimitsGroup2(opLGModifInfos.getId()).orElse(null);
                 applyModificationToOperationalLimitsGroup(branch::newOperationalLimitsGroup2, opLGModifInfos, operationalLimitsGroup2, olgReports, SIDE2);
             }
