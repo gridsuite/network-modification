@@ -213,7 +213,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         opLimitsGroupInfos.setApplicability(SIDE1);
         lineModificationInfos.toModification().apply(getNetwork());
         assertNotNull(line.getOperationalLimitsGroup1("NewLimitsGroup1"));
-        //assertEquals(Optional.empty(), line.getOperationalLimitsGroup2("NewLimitsGroup1"));
+        assertEquals(Optional.empty(), line.getOperationalLimitsGroup2("NewLimitsGroup1"));
     }
 
     @Test
