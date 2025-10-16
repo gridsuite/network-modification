@@ -261,6 +261,19 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         lineModificationInfos5.toModification().apply(getNetwork());
         assertNotNull(line.getOperationalLimitsGroup1("NewLimitsGroup1"));
         assertNotNull(line.getOperationalLimitsGroup2("NewLimitsGroup1"));
+
+        // Change from Equipment -> Side 2
+        OperationalLimitsGroupModificationInfos opLimitsGroupInfos6 = OperationalLimitsGroupModificationInfos.builder()
+            .id("NewLimitsGroup1").applicability(SIDE1).modificationType(MODIFY_OR_ADD).build();
+        opLimitsGroupInfos6.setCurrentLimits(new CurrentLimitsModificationInfos());
+        LineModificationInfos lineModificationInfos6 = LineModificationInfos.builder()
+            .enableOLGModification(true)
+            .equipmentId("line1")
+            .operationalLimitsGroups(Collections.singletonList(opLimitsGroupInfos6)).build();
+
+        lineModificationInfos6.toModification().apply(getNetwork());
+        assertNotNull(line.getOperationalLimitsGroup1("NewLimitsGroup1"));
+        assertEquals(Optional.empty(), line.getOperationalLimitsGroup2("NewLimitsGroup1"));
     }
 
     @Test
