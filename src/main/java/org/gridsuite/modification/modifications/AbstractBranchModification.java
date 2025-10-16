@@ -122,11 +122,11 @@ public abstract class AbstractBranchModification extends AbstractModification {
 
     private boolean shouldDeletedOtherSide(Branch<?> branch, List<OperationalLimitsGroupModificationInfos> modificationInfos,
                                         OperationalLimitsGroupModificationInfos limitsModifInfos) {
-        boolean hasModificationOnSideOne = modificationInfos.stream().filter(opLimitModifInfo ->
+        boolean hasModificationOnSideOne = !modificationInfos.stream().filter(opLimitModifInfo ->
                 opLimitModifInfo.getId().equals(limitsModifInfos.getId()) && opLimitModifInfo.getApplicability().equals(SIDE1))
             .toList().isEmpty();
 
-        boolean hasModificationOnSideTwo = modificationInfos.stream().filter(opLimitModifInfo ->
+        boolean hasModificationOnSideTwo = !modificationInfos.stream().filter(opLimitModifInfo ->
                 opLimitModifInfo.getId().equals(limitsModifInfos.getId()) && opLimitModifInfo.getApplicability().equals(SIDE2))
             .toList().isEmpty();
 
