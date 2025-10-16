@@ -22,7 +22,6 @@ import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -191,7 +190,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
             .operationalLimitsGroups(operationalLimitsGroupInfos).build();
         lineModificationInfos.toModification().apply(getNetwork());
 
-        assertEquals(Optional.empty(),line.getOperationalLimitsGroup1("NewLimitsGroup1"));
+        assertEquals(Optional.empty(), line.getOperationalLimitsGroup1("NewLimitsGroup1"));
         assertNotNull(line.getOperationalLimitsGroup2("NewLimitsGroup1"));
 
         LineModificationInfos lineModificationInfos2 = LineModificationInfos.builder()
