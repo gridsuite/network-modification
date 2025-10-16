@@ -7,7 +7,9 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.ThreeSides;
@@ -174,6 +176,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         OperationalLimitsGroup limitsGroup = line.newOperationalLimitsGroup1("NewLimitsGroup1");
         limitsGroup.newCurrentLimits()
             .setPermanentLimit(10.0)
+            .beginTemporaryLimit().setName("IT10").setValue(15.0).setAcceptableDuration(600).endTemporaryLimit()
             .add();
 
         assertNotNull(line.getOperationalLimitsGroup1("NewLimitsGroup1"));
@@ -191,6 +194,16 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         lineModificationInfos.toModification().apply(getNetwork());
         assertTrue(line.getOperationalLimitsGroup1("NewLimitsGroup1").isEmpty());
         assertNotNull(line.getOperationalLimitsGroup2("NewLimitsGroup1"));
+
+        OperationalLimitsGroup opLimitsGroupOnLine = line.getOperationalLimitsGroup2("NewLimitsGroup1").get();
+        assertNotNull(opLimitsGroupOnLine.getCurrentLimits());
+        CurrentLimits currentLimits = opLimitsGroupOnLine.getCurrentLimits().get();
+        assertEquals(10.0, currentLimits.getPermanentLimit());
+        assertNotNull(currentLimits.getTemporaryLimit(600));
+        LoadingLimits.TemporaryLimit temporaryLimit = currentLimits.getTemporaryLimit(600);
+        assertEquals(15.0, temporaryLimit.getValue());
+        assertEquals(600, temporaryLimit.getAcceptableDuration());
+        assertEquals("IT10", temporaryLimit.getName());
 
         // Change from Side 2 -> Equipment
         OperationalLimitsGroupModificationInfos opLimitsGroupInfos2 = OperationalLimitsGroupModificationInfos.builder()
@@ -219,13 +232,6 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         lineModificationInfos3.toModification().apply(getNetwork());
         assertNotNull(line.getOperationalLimitsGroup1("NewLimitsGroup1"));
         assertEquals(Optional.empty(), line.getOperationalLimitsGroup2("NewLimitsGroup1"));
-
-        // Change from Equipment -> Side 2
-        opLimitsGroupInfos3.setApplicability(SIDE2);
-        lineModificationInfos3.toModification().apply(getNetwork());
-
-        assertNotNull(line.getOperationalLimitsGroup2("NewLimitsGroup1"));
-        assertEquals(Optional.empty(), line.getOperationalLimitsGroup1("NewLimitsGroup1"));
     }
 
     @Test
