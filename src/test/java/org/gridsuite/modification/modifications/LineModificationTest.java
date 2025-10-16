@@ -195,6 +195,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         assertTrue(line.getOperationalLimitsGroup1("NewLimitsGroup1").isEmpty());
         assertNotNull(line.getOperationalLimitsGroup2("NewLimitsGroup1"));
 
+        // Test on the copy of the limit set
         OperationalLimitsGroup opLimitsGroupOnLine = line.getOperationalLimitsGroup2("NewLimitsGroup1").get();
         assertNotNull(opLimitsGroupOnLine.getCurrentLimits());
         CurrentLimits currentLimits = opLimitsGroupOnLine.getCurrentLimits().get();
@@ -220,9 +221,9 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         assertNotNull(line.getOperationalLimitsGroup1("NewLimitsGroup1"));
         assertNotNull(line.getOperationalLimitsGroup2("NewLimitsGroup1"));
 
-        // Change from Equipment -> Side 1
+        // Change from Equipment -> Side 2
         OperationalLimitsGroupModificationInfos opLimitsGroupInfos3 = OperationalLimitsGroupModificationInfos.builder()
-            .id("NewLimitsGroup1").applicability(SIDE1).modificationType(MODIFY_OR_ADD).build();
+            .id("NewLimitsGroup1").applicability(SIDE2).modificationType(MODIFY_OR_ADD).build();
         opLimitsGroupInfos3.setCurrentLimits(new CurrentLimitsModificationInfos());
         LineModificationInfos lineModificationInfos3 = LineModificationInfos.builder()
             .enableOLGModification(true)
@@ -230,8 +231,36 @@ class LineModificationTest extends AbstractNetworkModificationTest {
             .operationalLimitsGroups(Collections.singletonList(opLimitsGroupInfos3)).build();
 
         lineModificationInfos3.toModification().apply(getNetwork());
+        assertNotNull(line.getOperationalLimitsGroup2("NewLimitsGroup1"));
+        assertEquals(Optional.empty(), line.getOperationalLimitsGroup1("NewLimitsGroup1"));
+
+        // Change from Side 2 -> Side 1
+        OperationalLimitsGroupModificationInfos opLimitsGroupInfos4 = OperationalLimitsGroupModificationInfos.builder()
+            .id("NewLimitsGroup1").applicability(SIDE2).modificationType(MODIFY_OR_ADD).build();
+        opLimitsGroupInfos4.setCurrentLimits(new CurrentLimitsModificationInfos());
+        LineModificationInfos lineModificationInfos4 = LineModificationInfos.builder()
+            .enableOLGModification(true)
+            .equipmentId("line1")
+            .operationalLimitsGroups(Collections.singletonList(opLimitsGroupInfos4)).build();
+
+        lineModificationInfos4.toModification().apply(getNetwork());
         assertNotNull(line.getOperationalLimitsGroup1("NewLimitsGroup1"));
-        assertEquals(Optional.empty(), line.getOperationalLimitsGroup2("NewLimitsGroup1"));
+        assertEquals(Optional.empty(), line.getOperationalLimitsGroup1("NewLimitsGroup1"));
+
+        // Change from Side 1 -> Equipment
+        OperationalLimitsGroupModificationInfos opLimitsGroupInfos5 = OperationalLimitsGroupModificationInfos.builder()
+            .id("NewLimitsGroup1").applicability(EQUIPMENT).modificationType(MODIFY_OR_ADD).build();
+        opLimitsGroupInfos5.setCurrentLimits(new CurrentLimitsModificationInfos());
+
+        LineModificationInfos lineModificationInfos5 = LineModificationInfos.builder()
+            .equipmentId("line1")
+            .enableOLGModification(true)
+            .operationalLimitsGroups(Collections.singletonList(opLimitsGroupInfos2)).build();
+        lineModificationInfos5.toModification().apply(getNetwork());
+
+        lineModificationInfos5.toModification().apply(getNetwork());
+        assertNotNull(line.getOperationalLimitsGroup1("NewLimitsGroup1"));
+        assertNotNull(line.getOperationalLimitsGroup2("NewLimitsGroup1"));
     }
 
     @Test
