@@ -190,7 +190,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
             .operationalLimitsGroups(operationalLimitsGroupInfos).build();
         lineModificationInfos.toModification().apply(getNetwork());
 
-        assertEquals(Optional.empty(), line.getOperationalLimitsGroup1("NewLimitsGroup1"));
+        assertTrue(line.getOperationalLimitsGroup1("NewLimitsGroup1").isEmpty());
         assertNotNull(line.getOperationalLimitsGroup2("NewLimitsGroup1"));
 
         LineModificationInfos lineModificationInfos2 = LineModificationInfos.builder()
