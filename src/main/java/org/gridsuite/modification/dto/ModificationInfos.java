@@ -17,6 +17,9 @@ import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
+import org.gridsuite.modification.dto.tabular.LimitSetsTabularModificationInfos;
+import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
+import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
 import org.gridsuite.modification.modifications.AbstractModification;
 
 import java.time.Instant;

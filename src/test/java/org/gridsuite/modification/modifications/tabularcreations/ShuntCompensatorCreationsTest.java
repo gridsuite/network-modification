@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -68,8 +69,8 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
                         .build()
         );
         return TabularCreationInfos.builder()
-                .creationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
-                .creations(creations)
+                .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
+                .modifications(creations)
                 .stashed(false)
                 .build();
     }
@@ -86,8 +87,8 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
         );
 
         ModificationInfos creationInfos = TabularCreationInfos.builder()
-                .creationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
-                .creations(creations)
+                .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
+                .modifications(creations)
                 .build();
         ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
@@ -108,8 +109,8 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
                         .build()
         );
         ModificationInfos creationInfos = TabularCreationInfos.builder()
-                .creationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
-                .creations(creations)
+                .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
+                .modifications(creations)
                 .build();
         ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
@@ -172,8 +173,8 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
 
         var tabularCreationInfos = TabularCreationInfos
                 .builder()
-                .creationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
-                .creations(List.of(shuntCreation, shuntCreation2, shuntCreation3))
+                .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
+                .modifications(List.of(shuntCreation, shuntCreation2, shuntCreation3))
                 .build();
 
         ReportNode reportNode = tabularCreationInfos.createSubReportNode(ReportNode.newRootReportNode()
