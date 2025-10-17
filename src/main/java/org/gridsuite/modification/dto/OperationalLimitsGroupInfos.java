@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,7 @@ public class OperationalLimitsGroupInfos {
     private Applicability applicability;
 
     @Schema(description = "limits properties")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<LimitsPropertyInfos> limitsProperties;
 
     public enum Applicability {
