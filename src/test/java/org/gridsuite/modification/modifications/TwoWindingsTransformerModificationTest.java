@@ -188,9 +188,9 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertEquals("DEFAULT", modifiedTwt.getSelectedOperationalLimitsGroup1().get().getId());
         assertTrue(modifiedTwt.getSelectedOperationalLimitsGroup2().isPresent());
         assertEquals("ETE", modifiedTwt.getSelectedOperationalLimitsGroup2().get().getId());
-        assertTrue(modifiedTwt.getOperationalLimitsGroup1("ETE").isPresent());
-        assertTrue(modifiedTwt.getOperationalLimitsGroup1("ETE").get().getCurrentLimits().isPresent());
-        assertEquals(800.0, modifiedTwt.getOperationalLimitsGroup1("ETE").get().getCurrentLimits().get().getPermanentLimit());
+        assertTrue(modifiedTwt.getOperationalLimitsGroup2("ETE").isPresent());
+        assertTrue(modifiedTwt.getOperationalLimitsGroup2("ETE").get().getCurrentLimits().isPresent());
+        assertEquals(800.0, modifiedTwt.getOperationalLimitsGroup2("ETE").get().getCurrentLimits().get().getPermanentLimit());
     }
 
     private void assertMeasurements(TwoWindingsTransformer twt) {
