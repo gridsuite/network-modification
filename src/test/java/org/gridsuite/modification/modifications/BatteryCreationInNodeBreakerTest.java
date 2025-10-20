@@ -8,14 +8,12 @@ package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.BatteryCreationInfos;
-import org.gridsuite.modification.dto.FreePropertyInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
+import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -93,6 +92,8 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
                 .minQ(20.0)
                 .maxQ(25.0)
                 .droop(5f)
+                .stepUpTransformerX(60.0)
+                .directTransX(61.0)
                 .participate(true)
                 .reactiveCapabilityCurve(true)
                 .reactiveCapabilityCurvePoints(Arrays.asList(new ReactiveCapabilityCurvePointsInfos(2.0, 3.0, 3.1),
@@ -178,5 +179,18 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         assertEquals("BATTERY_CREATION", modificationInfos.getMessageType());
         Map<String, String> updatedValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
         assertEquals("idBattery1", updatedValues.get("equipmentId"));
+    }
+
+    @Test
+    void testCreateWithShortCircuitErrors() {
+        // invalid short circuit transient reactance
+        BatteryCreationInfos batteryCreationInfos = (BatteryCreationInfos) buildModification();
+        batteryCreationInfos.setDirectTransX(Double.NaN);
+
+        ReportNode report = batteryCreationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withAllResourceBundlesFromClasspath()
+                .withMessageTemplate("test").build());
+        batteryCreationInfos.toModification().apply(getNetwork(), report);
+        assertLogMessage("cannot add short-circuit extension on battery with id=idBattery1 : Undefined directTransX", "network.modification.ShortCircuitExtensionAddError", report);
     }
 }
