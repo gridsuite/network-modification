@@ -1133,8 +1133,9 @@ public final class ModificationUtils {
             limitsAdder.add();
 
             //add properties
-            if (!CollectionUtils.isEmpty(opLimitsGroup.getLimitsProperties())) {
-                List<ReportNode> detailsOnLimitSet = new ArrayList<>();
+            List<ReportNode> detailsOnLimitSet = new ArrayList<>();
+            if (!CollectionUtils.isEmpty(opLimitsGroup.getLimitsProperties()) &&
+                checkPropertiesUnicity(opLimitsGroup.getLimitsProperties(), detailsOnLimitSet)) {
                 opLimitsGroup.getLimitsProperties().forEach(property -> {
                     detailsOnLimitSet.add(
                             ReportNode.newRootReportNode().withSeverity(TypedValue.DETAIL_SEVERITY)
@@ -1148,6 +1149,23 @@ public final class ModificationUtils {
                 }
             }
         }
+    }
+
+    private static boolean checkPropertiesUnicity(List<LimitsPropertyInfos> properties, List<ReportNode> reportNodeList) {
+
+        if (CollectionUtils.isEmpty(properties)) {
+            return true;
+        }
+        boolean unicity = true;
+        for (LimitsPropertyInfos property : properties) {
+            if (properties.stream().filter(prop -> prop.name().equals(property.name())).toList().size() > 1) {
+                reportNodeList.add(ReportNode.newRootReportNode().withSeverity(TypedValue.ERROR_SEVERITY)
+                    .withMessageTemplate("network.modification.propertyNameUnique")
+                    .withUntypedValue(NAME, property.name()).build());
+                unicity = false;
+            }
+        }
+        return unicity;
     }
 
     public <T> ReportNode buildCreationReport(T value, String fieldName) {
