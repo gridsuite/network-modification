@@ -158,6 +158,29 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
         assertEquals(PROP2_VALUE, limitSet.get().getProperty(PROP2_NAME));
     }
 
+    @Test
+    void testCreateLimitsPropertiesWithDuplicates() {
+        LineCreationInfos modificationInfos = (LineCreationInfos) buildModification();
+        modificationInfos.setOperationalLimitsGroups(List.of(
+            OperationalLimitsGroupInfos.builder()
+                .id("newLimit")
+                .applicability(SIDE1)
+                .limitsProperties(List.of(new LimitsPropertyInfos(PROP1_NAME, PROP1_VALUE),
+                    new LimitsPropertyInfos(PROP1_NAME, PROP2_VALUE)))
+                .currentLimits(CurrentLimitsInfos.builder().permanentLimit(10.0)
+                    .build())
+                .build()));
+        modificationInfos.toModification().apply(getNetwork());
+        Line line = getNetwork().getLine("idLine1");
+        assertNotNull(line);
+        Optional<OperationalLimitsGroup> limitSet = line.getOperationalLimitsGroup1("newLimit");
+        assertTrue(limitSet.isPresent());
+
+        // If there are duplicates properties are not created
+        Set<String> propertiesName = limitSet.get().getPropertyNames();
+        assertEquals(0, propertiesName.size());
+    }
+
     private ModificationInfos buildModificationWithInvalidSelectedLimitGroups() {
         return buildModification("invalid1", "invalid2");
     }
