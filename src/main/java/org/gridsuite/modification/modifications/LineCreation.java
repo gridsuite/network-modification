@@ -72,11 +72,22 @@ public class LineCreation extends AbstractModification {
         ReportNode limitsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.limitsCreated").add();
         List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE1);
         List<OperationalLimitsGroupInfos> opLimitsGroupSide2 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE2);
+        ReportNode reportNode = null;
         if (!CollectionUtils.isEmpty(opLimitsGroupSide1)) {
-            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide1, line, ONE, limitsReporter);
+            reportNode = limitsReporter.newReportNode()
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .withMessageTemplate("network.modification.LimitSets")
+                .add();
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(reportNode, opLimitsGroupSide1, line, ONE, limitsReporter);
         }
         if (!CollectionUtils.isEmpty(opLimitsGroupSide2)) {
-            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide2, line, TWO, limitsReporter);
+            if (reportNode == null) {
+                reportNode = limitsReporter.newReportNode()
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .withMessageTemplate("network.modification.LimitSets")
+                    .add();
+            }
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(reportNode, opLimitsGroupSide2, line, TWO, limitsReporter);
         }
         List<ReportNode> limitSetsOnSideReportNodes = new ArrayList<>();
         if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {

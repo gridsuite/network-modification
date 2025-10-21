@@ -1084,16 +1084,11 @@ public final class ModificationUtils {
      * @param side which side of the branch receives the limits
      * @param limitsReporter reporter limits on side
      */
-    public void setCurrentLimitsOnASide(List<OperationalLimitsGroupInfos> opLimitGroups, Branch<?> branch, TwoSides side, ReportNode limitsReporter) {
+    public void setCurrentLimitsOnASide(ReportNode reportNode, List<OperationalLimitsGroupInfos> opLimitGroups, Branch<?> branch, TwoSides side, ReportNode limitsReporter) {
 
         if (CollectionUtils.isEmpty(opLimitGroups)) {
             return;
         }
-
-        ReportNode reportNode = limitsReporter.newReportNode()
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .withMessageTemplate("network.modification.LimitSets")
-            .add();
 
         for (OperationalLimitsGroupInfos opLimitsGroup : opLimitGroups) {
             boolean hasPermanent = opLimitsGroup.getCurrentLimits().getPermanentLimit() != null;
