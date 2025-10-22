@@ -1079,10 +1079,10 @@ public final class ModificationUtils {
     }
 
     /**
+     * @param reportNode Limit sets report node
      * @param opLimitGroups added current limits
      * @param branch branch to which limits are going to be added
      * @param side which side of the branch receives the limits
-     * @param limitsReporter reporter limits on side
      */
     public void setCurrentLimitsOnASide(ReportNode reportNode, List<OperationalLimitsGroupInfos> opLimitGroups, Branch<?> branch, TwoSides side) {
 
