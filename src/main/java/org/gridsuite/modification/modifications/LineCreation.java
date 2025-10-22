@@ -78,7 +78,7 @@ public class LineCreation extends AbstractModification {
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .withMessageTemplate("network.modification.LimitSets")
                 .add();
-            ModificationUtils.getInstance().setCurrentLimitsOnASide(reportNode, opLimitsGroupSide1, line, ONE, limitsReporter);
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(reportNode, opLimitsGroupSide1, line, ONE);
         }
         if (!CollectionUtils.isEmpty(opLimitsGroupSide2)) {
             if (reportNode == null) {
@@ -87,7 +87,7 @@ public class LineCreation extends AbstractModification {
                     .withMessageTemplate("network.modification.LimitSets")
                     .add();
             }
-            ModificationUtils.getInstance().setCurrentLimitsOnASide(reportNode, opLimitsGroupSide2, line, TWO, limitsReporter);
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(reportNode, opLimitsGroupSide2, line, TWO);
         }
         List<ReportNode> limitSetsOnSideReportNodes = new ArrayList<>();
         if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {

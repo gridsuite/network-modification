@@ -1084,7 +1084,7 @@ public final class ModificationUtils {
      * @param side which side of the branch receives the limits
      * @param limitsReporter reporter limits on side
      */
-    public void setCurrentLimitsOnASide(ReportNode reportNode, List<OperationalLimitsGroupInfos> opLimitGroups, Branch<?> branch, TwoSides side, ReportNode limitsReporter) {
+    public void setCurrentLimitsOnASide(ReportNode reportNode, List<OperationalLimitsGroupInfos> opLimitGroups, Branch<?> branch, TwoSides side) {
 
         if (CollectionUtils.isEmpty(opLimitGroups)) {
             return;
