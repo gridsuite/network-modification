@@ -42,13 +42,13 @@
     </developers>
 
     <properties>
-        <powsybl-ws-dependencies.version>2.24.0</powsybl-ws-dependencies.version>
-        <gridsuite-filter.version>1.6.0</gridsuite-filter.version>
+        <powsybl-ws-dependencies.version>2.25.0-SNAPSHOT</powsybl-ws-dependencies.version>
+        <gridsuite-filter.version>1.13.0-SNAPSHOT</gridsuite-filter.version>
         <sonar.organization>gridsuite</sonar.organization>
         <sonar.projectKey>org.gridsuite:network-modification</sonar.projectKey>
         <powsybl-balances-adjustment.version>2.14.1</powsybl-balances-adjustment.version>
         <!-- FIXME: powsybl-network-store modules'version is overloaded in the dependencies section.The overloads and this property below have to be removed at next powsybl-ws-dependencies.version upgrade -->
-        <powsybl-network-store.version>1.31.0</powsybl-network-store.version>
+        <powsybl-network-store.version>1.32.0-SNAPSHOT</powsybl-network-store.version>
     </properties>
 
     <build>
