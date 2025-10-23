@@ -373,7 +373,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         assertTrue(line.getOperationalLimitsGroup1("NewLimitsGroup2").isEmpty());
         assertTrue(line.getOperationalLimitsGroup2("NewLimitsGroup3").isPresent());
 
-        // modification 3 remove olg on side one
+        // modification 3 remove olg on side two
         OperationalLimitsGroupModificationInfos opLimitsGroupInfos3 = OperationalLimitsGroupModificationInfos.builder()
                 .id("NewLimitsGroup3").applicability(SIDE2).modificationType(DELETE).build();
         LineModificationInfos lineModificationInfos3 = LineModificationInfos.builder()

@@ -153,21 +153,14 @@ public abstract class AbstractBranchModification extends AbstractModification {
             || limitsGroup2 == null && modifiedLimitSetInfos.getApplicability().equals(SIDE1)) {
             return;
         } else if (limitsGroup1 != null && limitsGroup2 != null && !modifiedLimitSetInfos.getApplicability().equals(EQUIPMENT)) {
+            // applicability change from EQUIPMENT to one side
             if (shouldDeletedOtherSide(branch, modificationInfos, modifiedLimitSetInfos)) {
                 if (modifiedLimitSetInfos.getApplicability().equals(SIDE1)) {
                     branch.removeOperationalLimitsGroup2(modifiedLimitSetInfos.getId());
-                    olgReports.add(ReportNode.newRootReportNode().withMessageTemplate("network.modification.applicabilityChanged")
-                            .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, limitsGroup1.getId())
-                            .withUntypedValue(APPLICABILITY, SIDE1.toString())
-                            .withSeverity(TypedValue.INFO_SEVERITY)
-                            .build());
+                    logApplicabilityChange(olgReports, limitsGroup1.getId(), SIDE1);
                 } else if (modifiedLimitSetInfos.getApplicability().equals(SIDE2)) {
                     branch.removeOperationalLimitsGroup1(modifiedLimitSetInfos.getId());
-                    olgReports.add(ReportNode.newRootReportNode().withMessageTemplate("network.modification.applicabilityChanged")
-                            .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, limitsGroup1.getId())
-                            .withUntypedValue(APPLICABILITY, SIDE2.toString())
-                            .withSeverity(TypedValue.INFO_SEVERITY)
-                            .build());
+                    logApplicabilityChange(olgReports, limitsGroup2.getId(), SIDE2);
                 }
             }
             return;
@@ -189,14 +182,18 @@ public abstract class AbstractBranchModification extends AbstractModification {
                     applicabilityChanged = true;
                 }
                 if (applicabilityChanged) {
-                    olgReports.add(ReportNode.newRootReportNode().withMessageTemplate("network.modification.applicabilityChanged")
-                        .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, limitsGroup1.getId())
-                        .withUntypedValue(APPLICABILITY, EQUIPMENT.toString())
-                        .withSeverity(TypedValue.INFO_SEVERITY)
-                        .build());
+                    logApplicabilityChange(olgReports, limitsGroup1.getId(), EQUIPMENT);
                 }
             }
         }
+    }
+
+    private void logApplicabilityChange(List<ReportNode> olgReports, String groupId, OperationalLimitsGroupInfos.Applicability applicability) {
+        olgReports.add(ReportNode.newRootReportNode().withMessageTemplate("network.modification.applicabilityChanged")
+                .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, groupId)
+                .withUntypedValue(APPLICABILITY, applicability.toString())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
     }
 
     private void modifyOperationalLimitsGroups(Branch<?> branch, List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos, List<ReportNode> olgReports) {
