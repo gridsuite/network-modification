@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.BRANCH_MODIFICATION_ERROR;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.*;
+import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.DELETE;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
 /**
@@ -204,8 +205,9 @@ public abstract class AbstractBranchModification extends AbstractModification {
             OperationalLimitsGroupInfos.Applicability applicability = opLGModifInfos.getApplicability();
             // here the modifications on an applicability EQUIPMENT are separated into two separate applications of both sides
             // because iidm has two separated sets of opLGs on the network object (and for better logs)
-
-            detectApplicabilityChange(branch, operationalLimitsInfos, opLGModifInfos, olgReports);
+            if (!opLGModifInfos.getModificationType().equals(DELETE)) {
+                detectApplicabilityChange(branch, operationalLimitsInfos, opLGModifInfos, olgReports);
+            }
 
             if (applicability == SIDE1
                     || applicability == EQUIPMENT) {
@@ -441,7 +443,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
             case OperationalLimitsGroupModificationType.REPLACE: {
                 replaceOpLG(groupFactory, opLGModificationInfos, modifiedOperationalLimitsGroup, operationalLimitsGroupReports, applicability);
             } break;
-            case OperationalLimitsGroupModificationType.DELETE: {
+            case DELETE: {
                 removeOlg(branch, opLGModificationInfos, operationalLimitsGroupReports, applicability);
             }
         }
