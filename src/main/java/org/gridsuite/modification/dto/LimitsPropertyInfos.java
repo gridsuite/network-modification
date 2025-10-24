@@ -8,7 +8,7 @@
 package org.gridsuite.modification.dto;
 
 /**
- * @author basseche <bassel.el-cheikh_externe at rte-france.com>
+ * @author El Cheikh Bassel <bassel.el-cheikh_externe at rte-france.com>
  */
 
 public record LimitsPropertyInfos(String name, String value) {
