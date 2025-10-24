@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import static org.gridsuite.modification.modifications.AbstractBranchModification.*;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -547,6 +548,20 @@ public final class ModificationUtils {
 
     public ReportNode reportModifications(ReportNode reportNode, List<ReportNode> reports, String subReportNodeKey) {
         return reportModifications(reportNode, reports, subReportNodeKey, Map.of());
+    }
+
+    public void reportModifications(ReportNode reportNode, List<ReportNode> reports) {
+        List<ReportNode> validReports = reports.stream().filter(Objects::nonNull).toList();
+        if (!validReports.isEmpty() && reportNode != null) {
+            for (ReportNode report : validReports) {
+                ReportNodeAdder reportNodeAdder = reportNode.newReportNode().withMessageTemplate(report.getMessageKey()).withSeverity(TypedValue.DETAIL_SEVERITY);
+                for (Map.Entry<String, TypedValue> valueEntry : report.getValues().entrySet()) {
+                    reportNodeAdder.withUntypedValue(valueEntry.getKey(), valueEntry.getValue().toString());
+                }
+                report.getValue(ReportConstants.SEVERITY_KEY).ifPresent(reportNodeAdder::withSeverity);
+                reportNodeAdder.add();
+            }
+        }
     }
 
     public ReportNode reportModifications(ReportNode reportNode, List<ReportNode> reports, String subReportNodeKey, Map<String, Object> subReportNodeKeyArgs) {
@@ -1064,33 +1079,36 @@ public final class ModificationUtils {
     }
 
     /**
+     * @param reportNode Limit sets report node
      * @param opLimitGroups added current limits
      * @param branch branch to which limits are going to be added
      * @param side which side of the branch receives the limits
-     * @param limitsReporter reporter limits on side
      */
-    public void setCurrentLimitsOnASide(List<OperationalLimitsGroupInfos> opLimitGroups, Branch<?> branch, TwoSides side, ReportNode limitsReporter) {
-        List<ReportNode> limitSetsOnSideReportNodes = new ArrayList<>();
+    public void setCurrentLimitsOnASide(ReportNode reportNode, List<OperationalLimitsGroupInfos> opLimitGroups, Branch<?> branch, TwoSides side) {
+
+        if (CollectionUtils.isEmpty(opLimitGroups)) {
+            return;
+        }
+
         for (OperationalLimitsGroupInfos opLimitsGroup : opLimitGroups) {
             boolean hasPermanent = opLimitsGroup.getCurrentLimits().getPermanentLimit() != null;
             boolean hasTemporary = !CollectionUtils.isEmpty(opLimitsGroup.getCurrentLimits().getTemporaryLimits());
             boolean hasLimits = hasPermanent || hasTemporary;
 
-            if (!hasLimits) {
+            if (!hasLimits || opLimitsGroup.getId() == null) {
                 continue;
             }
 
             OperationalLimitsGroup opGroup = side == ONE
                     ? branch.newOperationalLimitsGroup1(opLimitsGroup.getId())
                     : branch.newOperationalLimitsGroup2(opLimitsGroup.getId());
-            if (opLimitsGroup.getId() != null) {
-                limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("network.modification.limitSetAdded")
-                        .withUntypedValue("name", opLimitsGroup.getId())
-                        .withSeverity(TypedValue.INFO_SEVERITY)
-                        .build());
-            }
+
+            ReportNode limitSetNode = reportNode.newReportNode()
+                .withMessageTemplate("network.modification.limitSetAdded")
+                .withUntypedValue("name", opLimitsGroup.getId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+
             CurrentLimitsAdder limitsAdder = opGroup.newCurrentLimits();
             if (hasPermanent) {
                 limitsAdder.setPermanentLimit(opLimitsGroup.getCurrentLimits().getPermanentLimit());
@@ -1108,11 +1126,41 @@ public final class ModificationUtils {
                 });
             }
             limitsAdder.add();
+
+            //add properties
+            List<ReportNode> detailsOnLimitSet = new ArrayList<>();
+            if (!CollectionUtils.isEmpty(opLimitsGroup.getLimitsProperties()) &&
+                checkPropertiesUnicity(opLimitsGroup.getLimitsProperties(), detailsOnLimitSet)) {
+                opLimitsGroup.getLimitsProperties().forEach(property -> {
+                    detailsOnLimitSet.add(
+                            ReportNode.newRootReportNode().withSeverity(TypedValue.DETAIL_SEVERITY)
+                            .withMessageTemplate("network.modification.propertyAdded")
+                            .withUntypedValue(NAME, property.name())
+                            .withUntypedValue(VALUE, property.value()).build());
+                    opGroup.setProperty(property.name(), property.value());
+                });
+                if (!detailsOnLimitSet.isEmpty()) {
+                    ModificationUtils.getInstance().reportModifications(limitSetNode, detailsOnLimitSet);
+                }
+            }
         }
-        if (!limitSetsOnSideReportNodes.isEmpty()) {
-            ModificationUtils.getInstance().reportModifications(limitsReporter, limitSetsOnSideReportNodes,
-                    "network.modification.LimitsSetsOnSide" + side.getNum());
+    }
+
+    private static boolean checkPropertiesUnicity(List<LimitsPropertyInfos> properties, List<ReportNode> reportNodeList) {
+
+        if (CollectionUtils.isEmpty(properties)) {
+            return true;
         }
+        boolean unicity = true;
+        for (LimitsPropertyInfos property : properties) {
+            if (properties.stream().filter(prop -> prop.name().equals(property.name())).toList().size() > 1) {
+                reportNodeList.add(ReportNode.newRootReportNode().withSeverity(TypedValue.ERROR_SEVERITY)
+                    .withMessageTemplate("network.modification.propertyNameUnique")
+                    .withUntypedValue(NAME, property.name()).build());
+                unicity = false;
+            }
+        }
+        return unicity;
     }
 
     public <T> ReportNode buildCreationReport(T value, String fieldName) {

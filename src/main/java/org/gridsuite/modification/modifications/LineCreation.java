@@ -52,6 +52,13 @@ public class LineCreation extends AbstractModification {
         checkIsNotNegativeValue(errorMessage, modificationInfos.getG2(), CREATE_LINE_ERROR, "Conductance on side 2 G2");
     }
 
+    private ReportNode addLimitSetReportNode(ReportNode limitsReporter) {
+        return limitsReporter.newReportNode()
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .withMessageTemplate("network.modification.LimitSets")
+            .add();
+    }
+
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         VoltageLevel voltageLevel1 = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId1());
@@ -72,11 +79,16 @@ public class LineCreation extends AbstractModification {
         ReportNode limitsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.limitsCreated").add();
         List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE1);
         List<OperationalLimitsGroupInfos> opLimitsGroupSide2 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE2);
+        ReportNode reportNode = null;
         if (!CollectionUtils.isEmpty(opLimitsGroupSide1)) {
-            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide1, line, ONE, limitsReporter);
+            reportNode = addLimitSetReportNode(limitsReporter);
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(reportNode, opLimitsGroupSide1, line, ONE);
         }
         if (!CollectionUtils.isEmpty(opLimitsGroupSide2)) {
-            ModificationUtils.getInstance().setCurrentLimitsOnASide(opLimitsGroupSide2, line, TWO, limitsReporter);
+            if (reportNode == null) {
+                reportNode = addLimitSetReportNode(limitsReporter);
+            }
+            ModificationUtils.getInstance().setCurrentLimitsOnASide(reportNode, opLimitsGroupSide2, line, TWO);
         }
         List<ReportNode> limitSetsOnSideReportNodes = new ArrayList<>();
         if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
