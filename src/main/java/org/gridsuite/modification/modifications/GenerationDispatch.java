@@ -458,15 +458,19 @@ public class GenerationDispatch extends AbstractModification {
         generationDispatchInfos.getGeneratorsFrequencyReserve().forEach(frequencyReserveInfos ->
             frequencyReserveInfos.getGeneratorsFilters().forEach(filterInfos -> filterNamesByUuid.put(filterInfos.getId(), filterInfos.getName()))
         );
-        List<AbstractFilter> filters = filterService.getFilters(new ArrayList<>(filterNamesByUuid.keySet()));
-        Set<UUID> validFilters = filters.stream().map(AbstractFilter::getId).collect(Collectors.toSet());
-        List<UUID> missingFilters = filterNamesByUuid.keySet().stream().filter(filterId -> !validFilters.contains(filterId)).toList();
-        if (!missingFilters.isEmpty()) {
-            report(subReportNode, "network.modification.missingFiltersInGenerationDispatch",
-                Map.of("nb", missingFilters.size(), IS_PLURAL, missingFilters.size() > 1 ? "s" : ""),
-                TypedValue.ERROR_SEVERITY);
+        if (!filterNamesByUuid.isEmpty()) {
+            List<AbstractFilter> filters = filterService.getFilters(new ArrayList<>(filterNamesByUuid.keySet()));
+            Set<UUID> validFilters = filters.stream().map(AbstractFilter::getId).collect(Collectors.toSet());
+            List<UUID> missingFilters = filterNamesByUuid.keySet().stream().filter(filterId -> !validFilters.contains(filterId)).toList();
+            if (!missingFilters.isEmpty()) {
+                report(subReportNode, "network.modification.missingFiltersInGenerationDispatch",
+                    Map.of("nb", missingFilters.size(), IS_PLURAL, missingFilters.size() > 1 ? "s" : ""),
+                    TypedValue.ERROR_SEVERITY);
+            }
+            return !missingFilters.isEmpty();
+        } else {
+            return false;
         }
-        return !missingFilters.isEmpty();
     }
 
     @Override
