@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import lombok.Builder;
 import lombok.Getter;
 
+import org.gridsuite.filter.AbstractFilter;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
@@ -450,8 +451,32 @@ public class GenerationDispatch extends AbstractModification {
         }
     }
 
+    private boolean checkMissingFilters(ReportNode subReportNode) {
+        Map<UUID, String> filterNamesByUuid = new LinkedHashMap<>();
+        generationDispatchInfos.getGeneratorsWithoutOutage().forEach(filterInfos -> filterNamesByUuid.put(filterInfos.getId(), filterInfos.getName()));
+        generationDispatchInfos.getGeneratorsWithFixedSupply().forEach(filterInfos -> filterNamesByUuid.put(filterInfos.getId(), filterInfos.getName()));
+        generationDispatchInfos.getGeneratorsFrequencyReserve().forEach(frequencyReserveInfos ->
+            frequencyReserveInfos.getGeneratorsFilters().forEach(filterInfos -> filterNamesByUuid.put(filterInfos.getId(), filterInfos.getName()))
+        );
+        List<AbstractFilter> filters = filterService.getFilters(new ArrayList<>(filterNamesByUuid.keySet()));
+        Set<UUID> validFilters = filters.stream().map(AbstractFilter::getId).collect(Collectors.toSet());
+        List<UUID> missingFilters = filterNamesByUuid.keySet().stream().filter(filterId -> !validFilters.contains(filterId)).toList();
+        if (!missingFilters.isEmpty()) {
+            report(subReportNode, "network.modification.missingFiltersInGenerationDispatch",
+                Map.of("nb", missingFilters.size(), IS_PLURAL, missingFilters.size() > 1 ? "s" : ""),
+                TypedValue.ERROR_SEVERITY);
+        }
+        return !missingFilters.isEmpty();
+    }
+
     @Override
     public void apply(Network network, ReportNode subReportNode) {
+        // check existence of all filters
+        boolean missingFilters = checkMissingFilters(subReportNode);
+        if (missingFilters) {
+            return;
+        }
+
         Collection<Component> synchronousComponents = network.getBusView().getBusStream()
             .filter(Bus::isInMainConnectedComponent)
             .map(Bus::getSynchronousComponent)

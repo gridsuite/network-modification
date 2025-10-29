@@ -31,4 +31,7 @@ public class GeneratorsFilterInfos {
 
     @Schema(description = "name of generators filter")
     private String name;
+
+    @Schema(description = "filter validity")
+    private Boolean valid;
 }
