@@ -42,7 +42,7 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
                 .leftSwitchKind("BREAKER")
                 .rightSwitchKind("DISCONNECTOR")
                 .isAllBusbars(false)
-                .isSwitchOpen(false)
+                .isSwitchOpen(true)
                 .build();
     }
 
@@ -88,6 +88,13 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
                 .map(Switch::getId)
                 .collect(Collectors.toSet());
         assertFalse(switchIds.isEmpty());
+        assertTrue(switchIds.containsAll(List.of("v1_DISCONNECTOR_0_7", "v1_BREAKER_7_8", "v1_DISCONNECTOR_8_6")));
+        Switch disconnector1 = getNetwork().getSwitch("v1_DISCONNECTOR_0_7");
+        Switch disconnector2 = getNetwork().getSwitch("v1_DISCONNECTOR_8_6");
+        Switch breaker1 = getNetwork().getSwitch("v1_BREAKER_7_8");
+        assertTrue(disconnector1.isOpen());
+        assertTrue(disconnector2.isOpen());
+        assertTrue(breaker1.isOpen());
     }
 
     @Override
