@@ -463,7 +463,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
         modifyCurrentLimits(opLGModificationInfos, newOperationalLimitsGroup.newCurrentLimits(), null, limitSetReports);
         addProperties(newOperationalLimitsGroup, opLGModificationInfos, limitSetReports);
 
-        if (CollectionUtils.isEmpty(limitSetReports)) {
+        if (!CollectionUtils.isEmpty(limitSetReports)) {
             ReportNode reportNode = limitsSetsReportNode.newReportNode()
                 .withMessageTemplate("network.modification.operationalLimitsGroupReplaced")
                 .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, opLGModificationInfos.getId())
@@ -491,13 +491,16 @@ public abstract class AbstractBranchModification extends AbstractModification {
     }
 
     private void removeAllProperties(OperationalLimitsGroup limitsGroup, List<ReportNode> limitSetsReports) {
-        limitsGroup.getPropertyNames().forEach(propertyName -> {
+
+        Iterator<String> propertiesIt = limitsGroup.getPropertyNames().iterator();
+        while (propertiesIt.hasNext()) {
+            String propertyName = propertiesIt.next();
             limitsGroup.removeProperty(propertyName);
             limitSetsReports.add(ReportNode.newRootReportNode()
                 .withMessageTemplate("network.modification.propertyDeleted")
                 .withUntypedValue(NAME, propertyName)
                 .withSeverity(TypedValue.DETAIL_SEVERITY).build());
-        });
+        }
     }
 
     private void modifyProperties(OperationalLimitsGroup limitsGroup, OperationalLimitsGroupModificationInfos operationalLimitsGroupInfos, List<ReportNode> limitSetsReports) {
