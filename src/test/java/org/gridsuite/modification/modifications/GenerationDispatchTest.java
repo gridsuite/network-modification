@@ -9,8 +9,11 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
+import org.gridsuite.filter.AbstractFilter;
 import org.gridsuite.filter.identifierlistfilter.FilterEquipments;
 import org.gridsuite.filter.identifierlistfilter.IdentifiableAttributes;
+import org.gridsuite.filter.identifierlistfilter.IdentifierListFilter;
+import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
@@ -90,6 +93,15 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         assertLogMessageWithoutRank("Sum of generator active power setpoints in SOUTH region: " + totalAmount + " MW (NUCLEAR: 0.0 MW, THERMAL: 0.0 MW, HYDRO: " + totalAmount + " MW, WIND AND SOLAR: 0.0 MW, OTHER: 0.0 MW).", "network.modification.SumGeneratorActivePower", report);
     }
 
+    @Override
+    @Test
+    public void testApply() throws Exception {
+        GenerationDispatch modif = (GenerationDispatch) buildModification().toModification();
+        modif.initApplicationContext(filterService, null);
+        modif.apply(getNetwork());
+        assertAfterNetworkModificationApplication();
+    }
+
     @Test
     void testGenerationDispatch() throws Exception {
         GenerationDispatchInfos modification = buildModification();
@@ -101,8 +113,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
                 .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test")
                 .build());
-
-        modification.toModification().apply(getNetwork(), report);
+        GenerationDispatch modif = (GenerationDispatch) modification.toModification();
+        modif.initApplicationContext(filterService, null);
+        modif.apply(getNetwork(), report);
         assertNetworkAfterCreationWithStandardLossCoefficient();
 
         assertLogReportsForDefaultNetwork(0., report);
@@ -123,7 +136,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
-        modification.toModification().apply(getNetwork(), report);
+        GenerationDispatch modif = (GenerationDispatch) modification.toModification();
+        modif.initApplicationContext(filterService, null);
+        modif.apply(getNetwork(), report);
         assertLogReportsForDefaultNetwork(batteryTotalTargetP, report);
     }
 
@@ -144,7 +159,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
-        modification.toModification().apply(getNetwork(), report);
+        GenerationDispatch modif = (GenerationDispatch) modification.toModification();
+        modif.initApplicationContext(filterService, null);
+        modif.apply(getNetwork(), report);
         assertLogReportsForDefaultNetwork(batteryTotalTargetP, report);
     }
 
@@ -157,7 +174,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
-        modification.toModification().apply(getNetwork(), report);
+        GenerationDispatch modif = (GenerationDispatch) modification.toModification();
+        modif.initApplicationContext(filterService, null);
+        modif.apply(getNetwork(), report);
 
         assertLogMessageWithoutRank("The total demand is : 768.0 MW", "network.modification.TotalDemand", report);
         assertLogMessageWithoutRank("The total amount of fixed supply is : 0.0 MW", "network.modification.TotalAmountFixedSupply", report);
@@ -179,7 +198,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
-        modification.toModification().apply(getNetwork(), report);
+        GenerationDispatch modif = (GenerationDispatch) modification.toModification();
+        modif.initApplicationContext(filterService, null);
+        modif.apply(getNetwork(), report);
 
         assertEquals(100., getNetwork().getGenerator(GH1_ID).getTargetP(), 0.001);
         assertEquals(70., getNetwork().getGenerator(GH2_ID).getTargetP(), 0.001);
@@ -220,7 +241,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("test").build());
-        modification.toModification().apply(getNetwork(), report);
+        GenerationDispatch modif = (GenerationDispatch) modification.toModification();
+        modif.initApplicationContext(filterService, null);
+        modif.apply(getNetwork(), report);
 
         assertEquals(100., getNetwork().getGenerator(GH1_ID).getTargetP(), 0.001);
         assertEquals(70., getNetwork().getGenerator(GH2_ID).getTargetP(), 0.001);
@@ -256,11 +279,18 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         // network with 2 synchronous components, 2 hvdc lines between them, forcedOutageRate and plannedOutageRate defined for the generators
         setNetwork(Network.read("testGenerationDispatchReduceMaxP.xiidm", getClass().getResourceAsStream("/testGenerationDispatchReduceMaxP.xiidm")));
 
-        List<FilterEquipments> filters = List.of(new FilterEquipments(FILTER_ID_1, List.of(getIdentifiableAttributes(GTH2_ID), getIdentifiableAttributes(GROUP1_ID)), List.of()),
+        List<FilterEquipments> filterEquipments = List.of(new FilterEquipments(FILTER_ID_1, List.of(getIdentifiableAttributes(GTH2_ID), getIdentifiableAttributes(GROUP1_ID)), List.of()),
             new FilterEquipments(FILTER_ID_2, List.of(getIdentifiableAttributes(ABC_ID), getIdentifiableAttributes(GH3_ID)), List.of()),
             new FilterEquipments(FILTER_ID_3, List.of(), List.of(GEN1_NOT_FOUND_ID, GEN2_NOT_FOUND_ID)));
 
-        when(filterService.exportFilters(List.of(FILTER_ID_1, FILTER_ID_2, FILTER_ID_3), getNetwork())).thenReturn(filters.stream());
+        when(filterService.exportFilters(List.of(FILTER_ID_1, FILTER_ID_2, FILTER_ID_3), getNetwork())).thenReturn(filterEquipments.stream());
+
+        List<AbstractFilter> filters = List.of(
+            new IdentifierListFilter(FILTER_ID_1, new Date(), EquipmentType.GENERATOR, List.of()),
+            new IdentifierListFilter(FILTER_ID_2, new Date(), EquipmentType.GENERATOR, List.of()),
+            new IdentifierListFilter(FILTER_ID_3, new Date(), EquipmentType.GENERATOR, List.of()));
+        when(filterService.getFilters(List.of(FILTER_ID_1, FILTER_ID_2, FILTER_ID_3))).thenReturn(filters);
+
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
         modif.initApplicationContext(filterService, null);
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
@@ -322,6 +352,13 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         List<FilterEquipments> filtersForFixedSupply = List.of(new FilterEquipments(FILTER_ID_1, List.of(getIdentifiableAttributes(GTH1_ID), getIdentifiableAttributes(GROUP1_ID)), List.of(GEN1_NOT_FOUND_ID)),
             new FilterEquipments(FILTER_ID_4, List.of(getIdentifiableAttributes(TEST1_ID), getIdentifiableAttributes(GROUP2_ID)), List.of()));
         when(filterService.exportFilters(List.of(FILTER_ID_1, FILTER_ID_4), getNetwork())).thenReturn(filtersForFixedSupply.stream());
+
+        List<AbstractFilter> filters = List.of(
+            new IdentifierListFilter(FILTER_ID_1, new Date(), EquipmentType.GENERATOR, List.of()),
+            new IdentifierListFilter(FILTER_ID_2, new Date(), EquipmentType.GENERATOR, List.of()),
+            new IdentifierListFilter(FILTER_ID_3, new Date(), EquipmentType.GENERATOR, List.of()),
+            new IdentifierListFilter(FILTER_ID_4, new Date(), EquipmentType.GENERATOR, List.of()));
+        when(filterService.getFilters(List.of(FILTER_ID_1, FILTER_ID_2, FILTER_ID_3, FILTER_ID_4))).thenReturn(filters);
 
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
         modif.initApplicationContext(filterService, null);
@@ -413,6 +450,15 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         when(filterService.exportFilters(List.of(FILTER_ID_4, FILTER_ID_5), getNetwork())).thenReturn(filtersForFrequencyReserve.stream());
         when(filterService.exportFilters(List.of(FILTER_ID_6), getNetwork())).thenReturn(getGeneratorsFrequencyReserveFilter6().stream());
 
+        List<AbstractFilter> filters = List.of(
+            new IdentifierListFilter(FILTER_ID_1, new Date(), EquipmentType.GENERATOR, List.of()),
+            new IdentifierListFilter(FILTER_ID_2, new Date(), EquipmentType.GENERATOR, List.of()),
+            new IdentifierListFilter(FILTER_ID_3, new Date(), EquipmentType.GENERATOR, List.of()),
+            new IdentifierListFilter(FILTER_ID_4, new Date(), EquipmentType.GENERATOR, List.of()),
+            new IdentifierListFilter(FILTER_ID_5, new Date(), EquipmentType.GENERATOR, List.of()),
+            new IdentifierListFilter(FILTER_ID_6, new Date(), EquipmentType.GENERATOR, List.of()));
+        when(filterService.getFilters(List.of(FILTER_ID_1, FILTER_ID_2, FILTER_ID_3, FILTER_ID_4, FILTER_ID_5, FILTER_ID_6))).thenReturn(filters);
+
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
         modif.initApplicationContext(filterService, null);
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
@@ -463,8 +509,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
 
         // network
         setNetwork(Network.read("ieee118cdf_testDemGroupe.xiidm", getClass().getResourceAsStream("/ieee118cdf_testDemGroupe.xiidm")));
-
-        modification.toModification().apply(getNetwork());
+        GenerationDispatch modif = (GenerationDispatch) modification.toModification();
+        modif.initApplicationContext(filterService, null);
+        modif.apply(getNetwork());
 
         // generators modified
         assertEquals(264, getNetwork().getGenerator("B4-G").getTargetP(), 0.001);
@@ -557,9 +604,11 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         );
         when(filterService.exportFilters(List.of(FILTER_ID_1), getNetwork())).thenReturn(filtersForFixedSupply.stream());
 
+        List<AbstractFilter> filters = List.of(new IdentifierListFilter(FILTER_ID_1, new Date(), EquipmentType.GENERATOR, List.of()));
+        when(filterService.getFilters(List.of(FILTER_ID_1))).thenReturn(filters);
+
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
         modif.initApplicationContext(filterService, null);
-
         modif.apply(getNetwork());
 
         // Check expected target active power values
@@ -627,6 +676,15 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         when(filterService.exportFilters(List.of(FILTER_ID_1, FILTER_ID_2, FILTER_ID_3), getNetwork())).thenReturn(getGeneratorsWithoutOutageFilters123().stream());
         when(filterService.exportFilters(List.of(FILTER_ID_4, FILTER_ID_5), getNetwork())).thenReturn(getGeneratorsFrequencyReserveFilters45().stream());
         when(filterService.exportFilters(List.of(FILTER_ID_6), getNetwork())).thenReturn(getGeneratorsFrequencyReserveFilter6().stream());
+
+        List<AbstractFilter> filters = List.of(
+            new IdentifierListFilter(FILTER_ID_1, new Date(), EquipmentType.GENERATOR, List.of()),
+            new IdentifierListFilter(FILTER_ID_2, new Date(), EquipmentType.GENERATOR, List.of()),
+            new IdentifierListFilter(FILTER_ID_3, new Date(), EquipmentType.GENERATOR, List.of()),
+            new IdentifierListFilter(FILTER_ID_4, new Date(), EquipmentType.GENERATOR, List.of()),
+            new IdentifierListFilter(FILTER_ID_5, new Date(), EquipmentType.GENERATOR, List.of()),
+            new IdentifierListFilter(FILTER_ID_6, new Date(), EquipmentType.GENERATOR, List.of()));
+        when(filterService.getFilters(List.of(FILTER_ID_1, FILTER_ID_2, FILTER_ID_3, FILTER_ID_4, FILTER_ID_5, FILTER_ID_6))).thenReturn(filters);
 
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
         modif.initApplicationContext(filterService, null);
@@ -708,6 +766,35 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         modification.setDefaultOutageRate(140.);
         e = assertThrows(NetworkModificationException.class, () -> modification.toModification().check(getNetwork()));
         assertEquals("GENERATION_DISPATCH_ERROR : The default outage rate must be between 0 and 100", e.getMessage());
+    }
 
+    @Test
+    void testGenerationDispatchWithMissingFilters() {
+        GenerationDispatchInfos modification = buildModification();
+        modification.setDefaultOutageRate(15.);
+        modification.setGeneratorsWithoutOutage(
+            List.of(GeneratorsFilterInfos.builder().id(FILTER_ID_1).name("filter1").build(),
+                GeneratorsFilterInfos.builder().id(FILTER_ID_2).name("filter2").build(),
+                GeneratorsFilterInfos.builder().id(FILTER_ID_3).name("filter3").build()));
+        modification.setGeneratorsWithFixedSupply(
+            List.of(GeneratorsFilterInfos.builder().id(FILTER_ID_1).name("filter1").build(),
+                GeneratorsFilterInfos.builder().id(FILTER_ID_2).name("filter2").build(),
+                GeneratorsFilterInfos.builder().id(FILTER_ID_3).name("filter3").build()));
+        modification.setGeneratorsFrequencyReserve(List.of(GeneratorsFrequencyReserveInfos.builder().frequencyReserve(3.)
+                .generatorsFilters(List.of(GeneratorsFilterInfos.builder().id(FILTER_ID_4).name("filter4").build(),
+                    GeneratorsFilterInfos.builder().id(FILTER_ID_5).name("filter5").build())).build(),
+            GeneratorsFrequencyReserveInfos.builder().frequencyReserve(5.)
+                .generatorsFilters(List.of(GeneratorsFilterInfos.builder().id(FILTER_ID_6).name("filter6").build())).build()));
+
+        // network with 2 synchronous components, 2 hvdc lines between them, forcedOutageRate and plannedOutageRate defined for the generators
+        setNetwork(Network.read("testGenerationDispatchReduceMaxP.xiidm", getClass().getResourceAsStream("/testGenerationDispatchReduceMaxP.xiidm")));
+
+        GenerationDispatch modif = (GenerationDispatch) modification.toModification();
+        modif.initApplicationContext(filterService, null);
+        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
+            .withAllResourceBundlesFromClasspath()
+            .withMessageTemplate("test").build());
+        modif.apply(getNetwork(), report);
+        assertLogMessage("The modification points to at least 6 filters that does not exist anymore", "network.modification.missingFiltersInGenerationDispatch", report);
     }
 }
