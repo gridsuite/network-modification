@@ -17,4 +17,5 @@ public enum OperationalLimitsGroupModificationType {
     REPLACE,
     // Modification type for simple form modifications :
     MODIFY_OR_ADD, // if the OLG exists it is modified, if not it is created
+    DELETE,
 }
