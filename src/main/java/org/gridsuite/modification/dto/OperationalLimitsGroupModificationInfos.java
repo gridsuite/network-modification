@@ -13,6 +13,8 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 /**
  * @author Hugo Marcellin <hugo.marcelin at rte-france.com>
  */
@@ -35,6 +37,9 @@ public class OperationalLimitsGroupModificationInfos {
 
     @Schema(description = "temporary limits modification type")
     private TemporaryLimitModificationType temporaryLimitsModificationType;
+
+    @Schema(description = "limits properties")
+    private List<LimitsPropertyInfos> limitsProperties;
 
     @Schema(description = "application side")
     private OperationalLimitsGroupInfos.Applicability applicability;
