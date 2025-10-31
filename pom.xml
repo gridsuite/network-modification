@@ -19,7 +19,7 @@
 
     <groupId>org.gridsuite</groupId>
     <artifactId>gridsuite-network-modification</artifactId>
-    <version>0.45.0-SNAPSHOT</version>
+    <version>0.46.0-SNAPSHOT</version>
 
     <packaging>jar</packaging>
     <name>Network modification library</name>
@@ -42,7 +42,7 @@
     </developers>
 
     <properties>
-        <powsybl-ws-dependencies.version>2.25.0-SNAPSHOT</powsybl-ws-dependencies.version>
+        <powsybl-ws-dependencies.version>2.26.0-SNAPSHOT</powsybl-ws-dependencies.version>
         <gridsuite-filter.version>1.13.0-SNAPSHOT</gridsuite-filter.version>
         <sonar.organization>gridsuite</sonar.organization>
         <sonar.projectKey>org.gridsuite:network-modification</sonar.projectKey>
