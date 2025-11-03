@@ -7,7 +7,9 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.ValidationException;
 
 import org.gridsuite.modification.NetworkModificationException;
@@ -17,6 +19,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.BUS_NOT_FOUND;
@@ -31,6 +35,10 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
 
     private static final String PROPERTY_NAME = "property-name";
     private static final String PROPERTY_VALUE = "property-value";
+    private static final String PROP1_NAME = "prop1";
+    private static final String PROP2_NAME = "prop2";
+    private static final String PROP1_VALUE = "value1";
+    private static final String PROP2_VALUE = "value2";
 
     @Override
     protected void checkModification() {
@@ -122,6 +130,55 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
             .busOrBusbarSectionId2("bus2")
             .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
             .build();
+    }
+
+    @Test
+    void testCreateLimitsProperties() {
+        LineCreationInfos modificationInfos = (LineCreationInfos) buildModification();
+        modificationInfos.setOperationalLimitsGroups(List.of(
+            OperationalLimitsGroupInfos.builder()
+                .id("newLimit")
+                .applicability(SIDE1)
+                .limitsProperties(List.of(new LimitsPropertyInfos(PROP1_NAME, PROP1_VALUE),
+                    new LimitsPropertyInfos(PROP2_NAME, PROP2_VALUE)))
+                .currentLimits(CurrentLimitsInfos.builder().permanentLimit(10.0)
+                    .build())
+                .build()));
+
+        modificationInfos.toModification().apply(getNetwork());
+        Line line = getNetwork().getLine("idLine1");
+        assertNotNull(line);
+        Optional<OperationalLimitsGroup> limitSet = line.getOperationalLimitsGroup1("newLimit");
+        assertTrue(limitSet.isPresent());
+        Set<String> propertiesName = limitSet.get().getPropertyNames();
+        assertEquals(2, propertiesName.size());
+        assertTrue(propertiesName.contains(PROP1_NAME));
+        assertTrue(propertiesName.contains(PROP2_NAME));
+        assertEquals(PROP1_VALUE, limitSet.get().getProperty(PROP1_NAME));
+        assertEquals(PROP2_VALUE, limitSet.get().getProperty(PROP2_NAME));
+    }
+
+    @Test
+    void testCreateLimitsPropertiesWithDuplicates() {
+        LineCreationInfos modificationInfos = (LineCreationInfos) buildModification();
+        modificationInfos.setOperationalLimitsGroups(List.of(
+            OperationalLimitsGroupInfos.builder()
+                .id("newLimit")
+                .applicability(SIDE1)
+                .limitsProperties(List.of(new LimitsPropertyInfos(PROP1_NAME, PROP1_VALUE),
+                    new LimitsPropertyInfos(PROP1_NAME, PROP2_VALUE)))
+                .currentLimits(CurrentLimitsInfos.builder().permanentLimit(10.0)
+                    .build())
+                .build()));
+        modificationInfos.toModification().apply(getNetwork());
+        Line line = getNetwork().getLine("idLine1");
+        assertNotNull(line);
+        Optional<OperationalLimitsGroup> limitSet = line.getOperationalLimitsGroup1("newLimit");
+        assertTrue(limitSet.isPresent());
+
+        // If there are duplicates properties are not created
+        Set<String> propertiesName = limitSet.get().getPropertyNames();
+        assertEquals(0, propertiesName.size());
     }
 
     private ModificationInfos buildModificationWithInvalidSelectedLimitGroups() {
