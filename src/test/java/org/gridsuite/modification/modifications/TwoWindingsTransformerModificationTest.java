@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimated;
-import com.powsybl.math.graph.TraversalType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
@@ -136,6 +135,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                         ))
                     .build())
                 .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+                .enableOLGModification(true)
                 .operationalLimitsGroups(List.of(
                         OperationalLimitsGroupModificationInfos.builder()
                                 .id("ETE")
@@ -188,9 +188,9 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertEquals("DEFAULT", modifiedTwt.getSelectedOperationalLimitsGroup1().get().getId());
         assertTrue(modifiedTwt.getSelectedOperationalLimitsGroup2().isPresent());
         assertEquals("ETE", modifiedTwt.getSelectedOperationalLimitsGroup2().get().getId());
-        assertTrue(modifiedTwt.getOperationalLimitsGroup1("ETE").isPresent());
-        assertTrue(modifiedTwt.getOperationalLimitsGroup1("ETE").get().getCurrentLimits().isPresent());
-        assertEquals(800.0, modifiedTwt.getOperationalLimitsGroup1("ETE").get().getCurrentLimits().get().getPermanentLimit());
+        assertTrue(modifiedTwt.getOperationalLimitsGroup2("ETE").isPresent());
+        assertTrue(modifiedTwt.getOperationalLimitsGroup2("ETE").get().getCurrentLimits().isPresent());
+        assertEquals(800.0, modifiedTwt.getOperationalLimitsGroup2("ETE").get().getCurrentLimits().get().getPermanentLimit());
     }
 
     private void assertMeasurements(TwoWindingsTransformer twt) {
@@ -982,12 +982,8 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         Terminal terminal2 = twoWindingsTransformer.getTerminal2();
         assertEquals("v1", twoWindingsTransformer.getTerminal1().getVoltageLevel().getId());
         assertEquals("v2", terminal2.getVoltageLevel().getId());
-        BusbarSectionFinderTraverser connectedBusbarSectionFinder1 = new BusbarSectionFinderTraverser(terminal1.isConnected());
-        terminal1.traverse(connectedBusbarSectionFinder1, TraversalType.BREADTH_FIRST);
-        assertEquals("1.1", connectedBusbarSectionFinder1.getFirstTraversedBbsId());
-        BusbarSectionFinderTraverser connectedBusbarSectionFinder2 = new BusbarSectionFinderTraverser(terminal2.isConnected());
-        terminal2.traverse(connectedBusbarSectionFinder2, TraversalType.BREADTH_FIRST);
-        assertEquals("1A", connectedBusbarSectionFinder2.getFirstTraversedBbsId());
+        assertEquals("1.1", BusbarSectionFinderTraverser.findBusbarSectionId(terminal1));
+        assertEquals("1A", BusbarSectionFinderTraverser.findBusbarSectionId(terminal2));
     }
 }
 

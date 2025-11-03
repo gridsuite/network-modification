@@ -6,11 +6,11 @@
  */
 package org.gridsuite.modification.utils;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.*;
 import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
-import com.powsybl.math.graph.TraversalType;
 import com.powsybl.network.store.iidm.impl.MinMaxReactiveLimitsImpl;
 import org.apache.commons.math3.util.Pair;
 import org.gridsuite.modification.IFilterService;
@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import static org.gridsuite.modification.modifications.AbstractBranchModification.*;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -57,6 +58,8 @@ public final class ModificationUtils {
     public static final String CONNECTION_DIRECTION_FIELD_NAME = "Connection direction";
     public static final String CONNECTION_POSITION_FIELD_NAME = "Connection position";
     public static final String NOT_EXIST_IN_NETWORK = " does not exist in network";
+    public static final String TRANSIENT_REACTANCE = "Transient reactance";
+    public static final String TRANSFORMER_REACTANCE = "Transformer reactance";
 
     private static final String COULD_NOT_ACTION_EQUIPMENT = "Could not %s equipment '%s'";
     private static final String COULD_NOT_ACTION_EQUIPMENT_ON_SIDE = COULD_NOT_ACTION_EQUIPMENT + " on side %s";
@@ -547,6 +550,20 @@ public final class ModificationUtils {
         return reportModifications(reportNode, reports, subReportNodeKey, Map.of());
     }
 
+    public void reportModifications(ReportNode reportNode, List<ReportNode> reports) {
+        List<ReportNode> validReports = reports.stream().filter(Objects::nonNull).toList();
+        if (!validReports.isEmpty() && reportNode != null) {
+            for (ReportNode report : validReports) {
+                ReportNodeAdder reportNodeAdder = reportNode.newReportNode().withMessageTemplate(report.getMessageKey()).withSeverity(TypedValue.DETAIL_SEVERITY);
+                for (Map.Entry<String, TypedValue> valueEntry : report.getValues().entrySet()) {
+                    reportNodeAdder.withUntypedValue(valueEntry.getKey(), valueEntry.getValue().toString());
+                }
+                report.getValue(ReportConstants.SEVERITY_KEY).ifPresent(reportNodeAdder::withSeverity);
+                reportNodeAdder.add();
+            }
+        }
+    }
+
     public ReportNode reportModifications(ReportNode reportNode, List<ReportNode> reports, String subReportNodeKey, Map<String, Object> subReportNodeKeyArgs) {
         List<ReportNode> validReports = reports.stream().filter(Objects::nonNull).toList();
         ReportNode subReportNode = null;
@@ -944,15 +961,9 @@ public final class ModificationUtils {
                 busOrBusbarSectionId = terminal.getBusBreakerView().getConnectableBus().getId();
             }
         } else {
-            busOrBusbarSectionId = getBusbarSectionId(terminal);
+            busOrBusbarSectionId = BusbarSectionFinderTraverser.findBusbarSectionId(terminal);
         }
         return busOrBusbarSectionId;
-    }
-
-    private String getBusbarSectionId(Terminal terminal) {
-        BusbarSectionFinderTraverser connectedBusbarSectionFinder = new BusbarSectionFinderTraverser(terminal.isConnected());
-        terminal.traverse(connectedBusbarSectionFinder, TraversalType.BREADTH_FIRST);
-        return connectedBusbarSectionFinder.getFirstTraversedBbsId();
     }
 
     private int getPosition(AttributeModification<Integer> connectionPosition,
@@ -1068,33 +1079,36 @@ public final class ModificationUtils {
     }
 
     /**
+     * @param reportNode Limit sets report node
      * @param opLimitGroups added current limits
      * @param branch branch to which limits are going to be added
      * @param side which side of the branch receives the limits
-     * @param limitsReporter reporter limits on side
      */
-    public void setCurrentLimitsOnASide(List<OperationalLimitsGroupInfos> opLimitGroups, Branch<?> branch, TwoSides side, ReportNode limitsReporter) {
-        List<ReportNode> limitSetsOnSideReportNodes = new ArrayList<>();
+    public void setCurrentLimitsOnASide(ReportNode reportNode, List<OperationalLimitsGroupInfos> opLimitGroups, Branch<?> branch, TwoSides side) {
+
+        if (CollectionUtils.isEmpty(opLimitGroups)) {
+            return;
+        }
+
         for (OperationalLimitsGroupInfos opLimitsGroup : opLimitGroups) {
             boolean hasPermanent = opLimitsGroup.getCurrentLimits().getPermanentLimit() != null;
             boolean hasTemporary = !CollectionUtils.isEmpty(opLimitsGroup.getCurrentLimits().getTemporaryLimits());
             boolean hasLimits = hasPermanent || hasTemporary;
 
-            if (!hasLimits) {
+            if (!hasLimits || opLimitsGroup.getId() == null) {
                 continue;
             }
 
             OperationalLimitsGroup opGroup = side == ONE
                     ? branch.newOperationalLimitsGroup1(opLimitsGroup.getId())
                     : branch.newOperationalLimitsGroup2(opLimitsGroup.getId());
-            if (opLimitsGroup.getId() != null) {
-                limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("network.modification.limitSetAdded")
-                        .withUntypedValue("name", opLimitsGroup.getId())
-                        .withSeverity(TypedValue.INFO_SEVERITY)
-                        .build());
-            }
+
+            ReportNode limitSetNode = reportNode.newReportNode()
+                .withMessageTemplate("network.modification.limitSetAdded")
+                .withUntypedValue("name", opLimitsGroup.getId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+
             CurrentLimitsAdder limitsAdder = opGroup.newCurrentLimits();
             if (hasPermanent) {
                 limitsAdder.setPermanentLimit(opLimitsGroup.getCurrentLimits().getPermanentLimit());
@@ -1112,11 +1126,41 @@ public final class ModificationUtils {
                 });
             }
             limitsAdder.add();
+
+            //add properties
+            List<ReportNode> detailsOnLimitSet = new ArrayList<>();
+            if (!CollectionUtils.isEmpty(opLimitsGroup.getLimitsProperties()) &&
+                checkPropertiesUnicity(opLimitsGroup.getLimitsProperties(), detailsOnLimitSet)) {
+                opLimitsGroup.getLimitsProperties().forEach(property -> {
+                    detailsOnLimitSet.add(
+                            ReportNode.newRootReportNode().withSeverity(TypedValue.DETAIL_SEVERITY)
+                            .withMessageTemplate("network.modification.propertyAdded")
+                            .withUntypedValue(NAME, property.name())
+                            .withUntypedValue(VALUE, property.value()).build());
+                    opGroup.setProperty(property.name(), property.value());
+                });
+                if (!detailsOnLimitSet.isEmpty()) {
+                    ModificationUtils.getInstance().reportModifications(limitSetNode, detailsOnLimitSet);
+                }
+            }
         }
-        if (!limitSetsOnSideReportNodes.isEmpty()) {
-            ModificationUtils.getInstance().reportModifications(limitsReporter, limitSetsOnSideReportNodes,
-                    "network.modification.LimitsSetsOnSide" + side.getNum());
+    }
+
+    private static boolean checkPropertiesUnicity(List<LimitsPropertyInfos> properties, List<ReportNode> reportNodeList) {
+
+        if (CollectionUtils.isEmpty(properties)) {
+            return true;
         }
+        boolean unicity = true;
+        for (LimitsPropertyInfos property : properties) {
+            if (properties.stream().filter(prop -> prop.name().equals(property.name())).toList().size() > 1) {
+                reportNodeList.add(ReportNode.newRootReportNode().withSeverity(TypedValue.ERROR_SEVERITY)
+                    .withMessageTemplate("network.modification.propertyNameUnique")
+                    .withUntypedValue(NAME, property.name()).build());
+                unicity = false;
+            }
+        }
+        return unicity;
     }
 
     public <T> ReportNode buildCreationReport(T value, String fieldName) {
@@ -1902,13 +1946,99 @@ public final class ModificationUtils {
             ModificationUtils.getInstance().controlBus(targetTerminal.getVoltageLevel(), busOrBusbarSectionId.getValue());
         } else if (checkAttributeModificationValue(voltageLevelId) && !checkAttributeModificationValue(busOrBusbarSectionId)) {
             ModificationUtils.getInstance().controlBus(ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId.getValue()),
-                    getBusbarSectionId(targetTerminal)
+                    BusbarSectionFinderTraverser.findBusbarSectionId(terminal)
             );
         }
     }
 
     private boolean checkAttributeModificationValue(AttributeModification<String> attribute) {
         return attribute != null && attribute.getValue() != null;
+    }
+
+    // for battery and generator
+    public void createShortCircuitExtension(Double stepUpTransformerX, Double directTransX, String equipmentId,
+                                            ShortCircuitExtensionAdder<?, ?, ?> shortCircuitExtensionAdder,
+                                            ReportNode subReportNode, String equipmentType) {
+        if (directTransX != null) {
+            List<ReportNode> shortCircuitReports = new ArrayList<>();
+            try {
+                shortCircuitExtensionAdder.withDirectTransX(directTransX);
+                if (stepUpTransformerX != null) {
+                    shortCircuitExtensionAdder.withStepUpTransformerX(stepUpTransformerX);
+                }
+                shortCircuitExtensionAdder.add();
+                shortCircuitReports.add(buildCreationReport(directTransX, TRANSIENT_REACTANCE));
+                if (stepUpTransformerX != null) {
+                    shortCircuitReports.add(buildCreationReport(stepUpTransformerX, TRANSFORMER_REACTANCE));
+                }
+            } catch (PowsyblException e) {
+                shortCircuitReports.add(ReportNode.newRootReportNode()
+                        .withAllResourceBundlesFromClasspath()
+                        .withMessageTemplate("network.modification.ShortCircuitExtensionAddError")
+                        .withUntypedValue("id", equipmentId)
+                        .withUntypedValue("message", e.getMessage())
+                        .withUntypedValue("equipmentType", equipmentType)
+                        .withSeverity(TypedValue.ERROR_SEVERITY)
+                        .build());
+            }
+            reportModifications(subReportNode, shortCircuitReports, "network.modification.shortCircuitCreated");
+        }
+    }
+
+    public void modifyShortCircuitExtension(AttributeModification<Double> directTransX,
+                                                   AttributeModification<Double> stepUpTransformerX,
+                                                   ShortCircuitExtension<?> shortCircuitExtension,
+                                                   Supplier<ShortCircuitExtensionAdder<?, ?, ?>> shortCircuitExtensionAdderSupplier,
+                                                   ReportNode subReportNode) {
+        List<ReportNode> reports = new ArrayList<>();
+        double oldTransientReactance = shortCircuitExtension != null ? shortCircuitExtension.getDirectTransX() : Double.NaN;
+        double oldStepUpTransformerReactance = shortCircuitExtension != null ? shortCircuitExtension.getStepUpTransformerX() : Double.NaN;
+        // Either transient reactance or step-up transformer reactance are modified or
+        // both
+        String stepUpTransformerXNewValue = stepUpTransformerX != null ? stepUpTransformerX.getValue().toString() : null;
+        if (directTransX != null && stepUpTransformerX != null) {
+            shortCircuitExtensionAdderSupplier.get()
+                    .withDirectTransX(directTransX.getValue())
+                    .withStepUpTransformerX(stepUpTransformerX.getValue())
+                    .add();
+            reports.add(buildModificationReport(
+                    oldTransientReactance,
+                    directTransX.getValue(),
+                    TRANSIENT_REACTANCE));
+            reports.add(buildModificationReport(
+                    oldStepUpTransformerReactance,
+                    stepUpTransformerXNewValue,
+                    TRANSFORMER_REACTANCE));
+
+        } else if (directTransX != null) {
+            shortCircuitExtensionAdderSupplier.get()
+                    .withStepUpTransformerX(oldStepUpTransformerReactance)
+                    .withDirectTransX(directTransX.getValue())
+                    .add();
+            reports.add(buildModificationReport(
+                    oldTransientReactance,
+                    directTransX.getValue(),
+                    TRANSIENT_REACTANCE));
+        } else if (stepUpTransformerX != null) {
+            if (Double.isNaN(stepUpTransformerX.getValue())) {
+                shortCircuitExtensionAdderSupplier.get()
+                        .withDirectTransX(oldTransientReactance)
+                        .add();
+                stepUpTransformerXNewValue = NO_VALUE;
+            } else {
+                shortCircuitExtensionAdderSupplier.get()
+                        .withStepUpTransformerX(stepUpTransformerX.getValue())
+                        .withDirectTransX(oldTransientReactance)
+                        .add();
+            }
+            reports.add(buildModificationReport(
+                    oldStepUpTransformerReactance,
+                    stepUpTransformerXNewValue,
+                    TRANSFORMER_REACTANCE));
+        }
+        if (subReportNode != null) {
+            reportModifications(subReportNode, reports, "network.modification.shortCircuitAttributesModified");
+        }
     }
 }
 

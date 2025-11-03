@@ -7,10 +7,12 @@
 
 package org.gridsuite.modification.dto.byfilter.equipmentfield;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import org.gridsuite.modification.NetworkModificationException;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
@@ -19,6 +21,13 @@ public final class FieldUtils {
 
     private FieldUtils() {
 
+    }
+
+    public static boolean isEquipmentEditable(Identifiable<?> equipment, String editedField, List<ReportNode> equipmentsReport) {
+        return switch (equipment.getType()) {
+            case TWO_WINDINGS_TRANSFORMER -> TwoWindingsTransformerField.isEquipmentEditable((TwoWindingsTransformer) equipment, editedField, equipmentsReport);
+            default -> true;
+        };
     }
 
     @Nullable
@@ -51,4 +60,5 @@ public final class FieldUtils {
                             "Unsupported setting value for equipment type : " + equipment.getType().name());
         }
     }
+
 }

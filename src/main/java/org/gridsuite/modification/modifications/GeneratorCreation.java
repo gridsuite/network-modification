@@ -22,7 +22,8 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_GENERATOR_ERROR;
+import static org.gridsuite.modification.NetworkModificationException.Type.GENERATOR_ALREADY_EXISTS;
 import static org.gridsuite.modification.modifications.GeneratorModification.ERROR_MESSAGE;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
@@ -141,7 +142,9 @@ public class GeneratorCreation extends AbstractModification {
         ReportNode subReporterSetpoints = reportGeneratorSetPoints(generatorCreationInfos, subReportNode);
         createGeneratorVoltageRegulation(generatorCreationInfos, generator, voltageLevel, subReporterSetpoints);
         createGeneratorActivePowerControl(generatorCreationInfos, generator, subReporterSetpoints);
-        createGeneratorShortCircuit(generatorCreationInfos, generator, subReportNode);
+        ModificationUtils.getInstance().createShortCircuitExtension(generatorCreationInfos.getStepUpTransformerX(),
+                generatorCreationInfos.getDirectTransX(), generatorCreationInfos.getEquipmentId(),
+                generator.newExtension(GeneratorShortCircuitAdder.class), subReportNode, "generator");
         createGeneratorStartUp(generatorCreationInfos, generator, subReportNode);
     }
 
@@ -274,33 +277,6 @@ public class GeneratorCreation extends AbstractModification {
 
             }
             ModificationUtils.getInstance().reportModifications(subReportNode, activePowerRegulationReports, "network.modification.ActivePowerRegulationCreated");
-        }
-    }
-
-    private void createGeneratorShortCircuit(GeneratorCreationInfos generatorCreationInfos, Generator generator, ReportNode subReportNode) {
-        if (generatorCreationInfos.getDirectTransX() != null) {
-            List<ReportNode> shortCircuitReports = new ArrayList<>();
-            try {
-                GeneratorShortCircuitAdder shortCircuitAdder = generator.newExtension(GeneratorShortCircuitAdder.class)
-                    .withDirectTransX(generatorCreationInfos.getDirectTransX());
-                if (generatorCreationInfos.getStepUpTransformerX() != null) {
-                    shortCircuitAdder.withStepUpTransformerX(generatorCreationInfos.getStepUpTransformerX());
-                }
-                shortCircuitAdder.add();
-                shortCircuitReports.add(ModificationUtils.getInstance().buildCreationReport(generatorCreationInfos.getDirectTransX(), "Transient reactance"));
-                if (generatorCreationInfos.getStepUpTransformerX() != null) {
-                    shortCircuitReports.add(ModificationUtils.getInstance().buildCreationReport(generatorCreationInfos.getStepUpTransformerX(), "Transformer reactance"));
-                }
-            } catch (PowsyblException e) {
-                shortCircuitReports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("network.modification.ShortCircuitExtensionAddError")
-                        .withUntypedValue("id", generatorCreationInfos.getEquipmentId())
-                        .withUntypedValue("message", e.getMessage())
-                        .withSeverity(TypedValue.ERROR_SEVERITY)
-                        .build());
-            }
-            ModificationUtils.getInstance().reportModifications(subReportNode, shortCircuitReports, "network.modification.shortCircuitCreated");
         }
     }
 

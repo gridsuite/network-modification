@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.gridsuite.modification.utils.NetworkUtil.createLine;
+import static org.gridsuite.modification.utils.NetworkUtil.createLineWithLimits;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -71,32 +71,32 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
 
     @Override
     protected void createEquipments() {
-        createLine(getNetwork(), LINE_ID_1, LINE_ID_1, "v1", "v2", 21, 21, 2,
+        createLineWithLimits(getNetwork(), LINE_ID_1, LINE_ID_1, "v1", "v2", 21, 21, 2,
             1, 3, 4, 0.001, 0.0015,
                 "line_1", 11, ConnectablePosition.Direction.TOP,
                 "line_1", 22, ConnectablePosition.Direction.BOTTOM);
 
-        createLine(getNetwork(), LINE_ID_2, LINE_ID_2, "v1", "v2", 33, 44, 3,
+        createLineWithLimits(getNetwork(), LINE_ID_2, LINE_ID_2, "v1", "v2", 33, 44, 3,
             3, 5, 1, 0.002, 0.0025,
             "line_2", 33, ConnectablePosition.Direction.TOP,
             "line_2", 44, ConnectablePosition.Direction.BOTTOM);
 
-        createLine(getNetwork(), LINE_ID_3, LINE_ID_3, "v2", "v4", 33, 44, 3,
+        createLineWithLimits(getNetwork(), LINE_ID_3, LINE_ID_3, "v2", "v4", 33, 44, 3,
             3, 5, 1, 0.002, 0.0025,
             "line_3", 10, ConnectablePosition.Direction.TOP,
             "line_3", 20, ConnectablePosition.Direction.BOTTOM);
 
-        createLine(getNetwork(), LINE_ID_4, LINE_ID_4, "v2", "v4", 35, 45, 3,
+        createLineWithLimits(getNetwork(), LINE_ID_4, LINE_ID_4, "v2", "v4", 35, 45, 3,
             3, 5, 1, 0.002, 0.0025,
             "line_4", 11, ConnectablePosition.Direction.TOP,
             "line_4", 21, ConnectablePosition.Direction.BOTTOM);
 
-        createLine(getNetwork(), LINE_ID_5, LINE_ID_5, "v2", "v4", 45, 55, 3,
+        createLineWithLimits(getNetwork(), LINE_ID_5, LINE_ID_5, "v2", "v4", 45, 55, 3,
             3, 5, 1, 0.002, 0.0025,
             "line_5", 12, ConnectablePosition.Direction.TOP,
             "line_5", 22, ConnectablePosition.Direction.BOTTOM);
 
-        createLine(getNetwork(), LINE_ID_6, LINE_ID_6, "v2", "v4", 55, 65, 3,
+        createLineWithLimits(getNetwork(), LINE_ID_6, LINE_ID_6, "v2", "v4", 55, 65, 3,
             3, 5, 1, 0.002, 0.0025,
             "line_6", 13, ConnectablePosition.Direction.TOP,
             "line_6", 23, ConnectablePosition.Direction.BOTTOM);

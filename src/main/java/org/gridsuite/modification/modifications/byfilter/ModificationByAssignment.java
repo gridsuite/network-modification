@@ -17,16 +17,20 @@ import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.DataType;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.PropertyAssignmentInfos;
+import org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField;
 
 import java.util.Collections;
 import java.util.List;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFICATION_BY_ASSIGNMENT_ERROR;
+import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.getReferenceValue;
+import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.setNewValue;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
  */
 public class ModificationByAssignment extends AbstractModificationByAssignment {
+
     private final ModificationByAssignmentInfos modificationInfos;
 
     public ModificationByAssignment(ModificationByAssignmentInfos modificationInfos) {
@@ -63,7 +67,10 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
     protected boolean isEquipmentEditable(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos, List<ReportNode> equipmentsReport) {
         AssignmentInfos<?> assignmentInfos = (AssignmentInfos<?>) abstractAssignmentInfos;
         if (assignmentInfos.getDataType() == DataType.PROPERTY) {
-            return true;
+            String editedField = abstractAssignmentInfos.getEditedField();
+            String propertyName = ((PropertyAssignmentInfos) abstractAssignmentInfos).getPropertyName();
+            String propertyValue = ((PropertyAssignmentInfos) abstractAssignmentInfos).getValue();
+            return PropertyField.isEquipmentEditable(equipment, editedField, propertyName, propertyValue, equipmentsReport);
         } else {
             return super.isEquipmentEditable(equipment, abstractAssignmentInfos, equipmentsReport);
         }
@@ -78,7 +85,9 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
     protected String getOldValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos) {
         AssignmentInfos<?> assignmentInfos = (AssignmentInfos<?>) abstractAssignmentInfos;
         if (assignmentInfos.getDataType() == DataType.PROPERTY) {
-            return equipment.getProperty(((PropertyAssignmentInfos) assignmentInfos).getPropertyName());
+            String propertyName = ((PropertyAssignmentInfos) assignmentInfos).getPropertyName();
+            String editedField = assignmentInfos.getEditedField();
+            return getReferenceValue(equipment, editedField, propertyName);
         } else {
             return super.getOldValue(equipment, abstractAssignmentInfos);
         }
@@ -90,7 +99,14 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
         if (assignmentInfos.getValue() == null) {
             return null;
         }
-        return assignmentInfos.getValue().toString();
+        if (assignmentInfos.getDataType() == DataType.PROPERTY) {
+            String propertyName = ((PropertyAssignmentInfos) assignmentInfos).getPropertyName();
+            String propertyValue = ((PropertyAssignmentInfos) assignmentInfos).getValue();
+            String editedField = assignmentInfos.getEditedField();
+            return PropertyField.getNewValue(equipment, editedField, propertyName, propertyValue);
+        } else {
+            return assignmentInfos.getValue().toString();
+        }
     }
 
     @Override
@@ -98,7 +114,9 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
         AssignmentInfos<?> assignmentInfos = (AssignmentInfos<?>) abstractAssignmentInfos;
         if (assignmentInfos.getDataType() == DataType.PROPERTY) {
             String newValue = getNewValue(equipment, abstractAssignmentInfos);
-            equipment.setProperty(((PropertyAssignmentInfos) assignmentInfos).getPropertyName(), newValue);
+            String propertyName = ((PropertyAssignmentInfos) assignmentInfos).getPropertyName();
+            String editedField = assignmentInfos.getEditedField();
+            setNewValue(equipment, editedField, propertyName, newValue);
             return newValue;
         } else {
             return super.applyValue(equipment, abstractAssignmentInfos);
