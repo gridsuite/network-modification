@@ -239,10 +239,10 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         completeTwoWindingsTransformerCreation(network, twoWindingsTransformer, modificationInfos, subReportNode);
     }
 
-    private void setCurrentLimitsForSide(List<OperationalLimitsGroupInfos> operationalLimitsGroups, String selectedGroup, TwoWindingsTransformer transformer, TwoSides side, ReportNode limitsReporter,
+    private void setCurrentLimitsForSide(ReportNode reportNode, List<OperationalLimitsGroupInfos> operationalLimitsGroups, String selectedGroup, TwoWindingsTransformer transformer, TwoSides side,
                                          List<ReportNode> limitSetsOnSideReportNodes) {
         if (!CollectionUtils.isEmpty(operationalLimitsGroups)) {
-            getInstance().setCurrentLimitsOnASide(operationalLimitsGroups, transformer, side, limitsReporter);
+            getInstance().setCurrentLimitsOnASide(reportNode, operationalLimitsGroups, transformer, side);
         }
         if (selectedGroup != null) {
             if (!ModificationUtils.hasLimitSet(operationalLimitsGroups, selectedGroup)) {
@@ -290,8 +290,12 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         List<OperationalLimitsGroupInfos> operationalLimitsGroups2 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), SIDE2);
 
         List<ReportNode> limitSetsOnSideReportNodes = new ArrayList<>();
-        setCurrentLimitsForSide(operationalLimitsGroups1, modificationInfos.getSelectedOperationalLimitsGroup1(), twoWindingsTransformer, TwoSides.ONE, limitsReporter, limitSetsOnSideReportNodes);
-        setCurrentLimitsForSide(operationalLimitsGroups2, modificationInfos.getSelectedOperationalLimitsGroup2(), twoWindingsTransformer, TwoSides.TWO, limitsReporter, limitSetsOnSideReportNodes);
+        ReportNode reportNode = limitsReporter.newReportNode()
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .withMessageTemplate("network.modification.LimitSets")
+            .add();
+        setCurrentLimitsForSide(reportNode, operationalLimitsGroups1, modificationInfos.getSelectedOperationalLimitsGroup1(), twoWindingsTransformer, TwoSides.ONE, limitSetsOnSideReportNodes);
+        setCurrentLimitsForSide(reportNode, operationalLimitsGroups2, modificationInfos.getSelectedOperationalLimitsGroup2(), twoWindingsTransformer, TwoSides.TWO, limitSetsOnSideReportNodes);
         if (!limitSetsOnSideReportNodes.isEmpty()) {
             ModificationUtils.getInstance().reportModifications(limitsReporter, limitSetsOnSideReportNodes,
                 "network.modification.ActiveLimitSets");
