@@ -510,8 +510,10 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
     }
 
-    private void modifyProperties(OperationalLimitsGroup limitsGroup, OperationalLimitsGroupModificationInfos operationalLimitsGroupInfos, List<ReportNode> limitSetsReports) {
-        if (limitsGroup == null) {
+    private void modifyProperties(OperationalLimitsGroup limitsGroup,
+                                  OperationalLimitsGroupModificationInfos operationalLimitsGroupInfos,
+                                  List<ReportNode> limitSetsReports) {
+        if (limitsGroup == null || operationalLimitsGroupInfos == null) {
             return;
         }
 
@@ -519,17 +521,23 @@ public abstract class AbstractBranchModification extends AbstractModification {
 
         List<LimitsPropertyInfos> propertiesToModify = new ArrayList<>();
         List<LimitsPropertyInfos> propertiesToAdd = new ArrayList<>();
-        for (LimitsPropertyInfos propertyInfos : operationalLimitsGroupInfos.getLimitsProperties()) {
-            if (currentProperties.contains(propertyInfos.name())) {
-                propertiesToModify.add(propertyInfos);
-            } else {
-                propertiesToAdd.add(propertyInfos);
-            }
-        }
+        List<String> propertiesToRemove;
 
-        List<String> propertiesToRemove = currentProperties.stream().filter(
-            (String propertyName) -> propertiesToModify.stream().filter(propertyInfos ->
-                propertyInfos.name().equals(propertyName)).toList().isEmpty()).toList();
+        if (!CollectionUtils.isEmpty(operationalLimitsGroupInfos.getLimitsProperties())) {
+            for (LimitsPropertyInfos propertyInfos : operationalLimitsGroupInfos.getLimitsProperties()) {
+                if (currentProperties.contains(propertyInfos.name())) {
+                    propertiesToModify.add(propertyInfos);
+                } else {
+                    propertiesToAdd.add(propertyInfos);
+                }
+            }
+
+            propertiesToRemove = currentProperties.stream().filter(
+                (String propertyName) -> propertiesToModify.stream().filter(propertyInfos ->
+                    propertyInfos.name().equals(propertyName)).toList().isEmpty()).toList();
+        } else {
+            propertiesToRemove = new ArrayList<>(currentProperties);
+        }
 
         propertiesToRemove.forEach((String propertyName) -> {
             limitsGroup.removeProperty(propertyName);
