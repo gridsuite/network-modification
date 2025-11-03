@@ -511,7 +511,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
     }
 
     private void modifyProperties(OperationalLimitsGroup limitsGroup, OperationalLimitsGroupModificationInfos operationalLimitsGroupInfos, List<ReportNode> limitSetsReports) {
-        if (limitsGroup == null || CollectionUtils.isEmpty(operationalLimitsGroupInfos.getLimitsProperties())) {
+        if (limitsGroup == null) {
             return;
         }
 
