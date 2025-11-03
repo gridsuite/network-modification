@@ -195,7 +195,8 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
     }
 
-    private void modifyOperationalLimitsGroups(Branch<?> branch, List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos,
+    private void modifyOperationalLimitsGroups(Branch<?> branch,
+                                               List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos,
                                                ReportNode limitSetsReportNode) {
 
         for (OperationalLimitsGroupModificationInfos opLGModifInfos : operationalLimitsInfos) {
@@ -203,13 +204,13 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 continue;
             }
 
-            ArrayList<ReportNode> limitSetReports = new ArrayList<>();
+            ArrayList<ReportNode> olgSetReports = new ArrayList<>();
 
             OperationalLimitsGroupInfos.Applicability applicability = opLGModifInfos.getApplicability();
             // here the modifications on an applicability EQUIPMENT are separated into two separate applications of both sides
             // because iidm has two separated sets of opLGs on the network object (and for better logs)
 
-            detectApplicabilityChange(branch, operationalLimitsInfos, opLGModifInfos, limitSetReports);
+            detectApplicabilityChange(branch, operationalLimitsInfos, opLGModifInfos, olgSetReports);
             if (applicability == SIDE1
                 || applicability == EQUIPMENT) {
                 OperationalLimitsGroup operationalLimitsGroup1 = branch.getOperationalLimitsGroup1(opLGModifInfos.getId()).orElse(null);
@@ -449,8 +450,10 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
     }
 
-    private void replaceOpLG(Function<String, OperationalLimitsGroup> groupFactory, OperationalLimitsGroupModificationInfos opLGModificationInfos,
-                             OperationalLimitsGroup modifiedOperationalLimitsGroup, OperationalLimitsGroupInfos.Applicability applicability,
+    private void replaceOpLG(Function<String, OperationalLimitsGroup> groupFactory,
+                             OperationalLimitsGroupModificationInfos opLGModificationInfos,
+                             OperationalLimitsGroup modifiedOperationalLimitsGroup,
+                             OperationalLimitsGroupInfos.Applicability applicability,
                              ReportNode limitsSetsReportNode) {
 
         List<ReportNode> limitSetReports = new ArrayList<>();
@@ -491,6 +494,10 @@ public abstract class AbstractBranchModification extends AbstractModification {
     }
 
     private void removeAllProperties(OperationalLimitsGroup limitsGroup, List<ReportNode> limitSetsReports) {
+
+        if (limitsGroup == null) {
+            return;
+        }
 
         Iterator<String> propertiesIt = limitsGroup.getPropertyNames().iterator();
         while (propertiesIt.hasNext()) {
