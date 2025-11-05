@@ -9,6 +9,7 @@ package org.gridsuite.modification.modifications.byfilter.assignment;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
+import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.IdentifiableAttributes;
@@ -23,8 +24,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.gridsuite.modification.utils.NetworkUtil.createBattery;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -140,8 +140,20 @@ class BatteryModificationByAssignmentTest extends AbstractModificationByAssignme
                 .value(2.)
                 .build();
 
+        DoubleAssignmentInfos assignmentInfos6 = DoubleAssignmentInfos.builder()
+                .filters(List.of(filter4))
+                .editedField(BatteryField.TRANSIENT_REACTANCE.name())
+                .value(3.)
+                .build();
+
+        DoubleAssignmentInfos assignmentInfos7 = DoubleAssignmentInfos.builder()
+                .filters(List.of(filter4))
+                .editedField(BatteryField.STEP_UP_TRANSFORMER_REACTANCE.name())
+                .value(4.)
+                .build();
+
         List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
-        infosList.addAll(List.of(assignmentInfos1, assignmentInfos2, assignmentInfos3, assignmentInfos4, assignmentInfos5));
+        infosList.addAll(List.of(assignmentInfos1, assignmentInfos2, assignmentInfos3, assignmentInfos4, assignmentInfos5, assignmentInfos6, assignmentInfos7));
 
         return infosList;
     }
@@ -167,6 +179,16 @@ class BatteryModificationByAssignmentTest extends AbstractModificationByAssignme
         assertEquals(2, activePowerControl5.getDroop(), 0);
 
         assertEquals(30, getNetwork().getBattery(BATTERY_ID_6).getMinP(), 0);
+
+        assertNotNull(getNetwork().getBattery(BATTERY_ID_5).getExtension(BatteryShortCircuit.class));
+        BatteryShortCircuit batteryShortCircuit5 = getNetwork().getBattery(BATTERY_ID_5).getExtension(BatteryShortCircuit.class);
+        assertEquals(3, batteryShortCircuit5.getDirectTransX());
+        assertEquals(4, batteryShortCircuit5.getStepUpTransformerX());
+
+        assertNotNull(getNetwork().getBattery(BATTERY_ID_1).getExtension(BatteryShortCircuit.class));
+        BatteryShortCircuit batteryShortCircuit1 = getNetwork().getBattery(BATTERY_ID_5).getExtension(BatteryShortCircuit.class);
+        assertEquals(3, batteryShortCircuit1.getDirectTransX());
+        assertEquals(4, batteryShortCircuit1.getStepUpTransformerX());
     }
 
     @Override
