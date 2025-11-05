@@ -52,21 +52,20 @@ public enum BatteryField {
     public static void setNewValue(Battery battery, String batteryField, @NotNull String newValue) {
         BatteryField field = BatteryField.valueOf(batteryField);
         String errorMessage = String.format(ERROR_MESSAGE, battery.getId());
-        final AttributeModification<Double> attributeModification = new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET);
         switch (field) {
             case MINIMUM_ACTIVE_POWER ->
-                    modifyBatteryActiveLimitsAttributes(null, attributeModification, battery, null);
+                    modifyBatteryActiveLimitsAttributes(null, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), battery, null);
             case MAXIMUM_ACTIVE_POWER ->
-                    modifyBatteryActiveLimitsAttributes(attributeModification, null, battery, null);
+                    modifyBatteryActiveLimitsAttributes(new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null, battery, null);
             case ACTIVE_POWER_SET_POINT -> {
                 ModificationUtils.getInstance().checkActivePowerZeroOrBetweenMinAndMaxActivePower(
-                        attributeModification, null, null, battery.getMinP(),
+                        new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null, null, battery.getMinP(),
                         battery.getMaxP(), battery.getTargetP(), MODIFY_BATTERY_ERROR, errorMessage
                 );
-                modifyBatterySetpointsAttributes(attributeModification, null, null, null, battery, null);
+                modifyBatterySetpointsAttributes(new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null, null, null, battery, null);
             }
             case REACTIVE_POWER_SET_POINT -> modifyBatterySetpointsAttributes(
-                    null, attributeModification, null, null, battery, null);
+                    null, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null, null, battery, null);
             case DROOP -> {
                 Float droopValue = Float.parseFloat(newValue);
                 ModificationUtils.checkIsPercentage(errorMessage, droopValue, MODIFY_BATTERY_ERROR, "Droop");
