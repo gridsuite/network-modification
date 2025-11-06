@@ -309,6 +309,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
 
         LineModificationInfos lineModificationInfos5 = LineModificationInfos.builder()
                 .equipmentId("line1")
+                .allOperationalLimitsGroupsModificationType(AllOperationalLimitsGroupsModificationType.REPLACE)
                 .enableOLGModification(true)
                 .operationalLimitsGroups(Collections.singletonList(opLimitsGroupInfos5)).build();
         lineModificationInfos5.toModification().apply(getNetwork());
@@ -470,6 +471,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         LineModificationInfos lineModificationInfos1 = LineModificationInfos.builder()
             .equipmentId("line1")
             .enableOLGModification(true)
+            .allOperationalLimitsGroupsModificationType(AllOperationalLimitsGroupsModificationType.REPLACE)
             .operationalLimitsGroups(List.of(opLimitsGroupInfos1, opLimitsGroupInfos2)).build();
         lineModificationInfos1.toModification().apply(getNetwork());
 
