@@ -15,6 +15,8 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 
+import java.util.function.Consumer;
+
 import static org.gridsuite.modification.NetworkModificationException.Type.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR;
 
 /**
@@ -133,9 +135,15 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
                                          java.util.function.Consumer<AttributeModification<String>> setName,
                                          java.util.function.Consumer<AttributeModification<ConnectablePosition.Direction>> setDirection,
                                          MoveFeederBayInfos info) {
-        setPosition.accept(new AttributeModification<>(info.getConnectionPosition(), OperationType.SET));
-        setName.accept(new AttributeModification<>(info.getConnectionName(), OperationType.SET));
-        setDirection.accept(new AttributeModification<>(info.getConnectionDirection(), OperationType.SET));
+        acceptIfNotNull(setPosition, info.getConnectionPosition());
+        acceptIfNotNull(setName, info.getConnectionName());
+        acceptIfNotNull(setDirection, info.getConnectionDirection());
+    }
+
+    private <T> void acceptIfNotNull(Consumer<AttributeModification<T>> setter, T value) {
+        if (value != null) {
+            setter.accept(new AttributeModification<>(value, OperationType.SET));
+        }
     }
 
     private void moveFeederBay(Network network, Connectable<?> connectable, MoveFeederBayInfos info, ReportNode subReportNode) {
