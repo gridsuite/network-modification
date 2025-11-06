@@ -253,6 +253,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
             Collection<OperationalLimitsGroup> operationalLimitsGroups,
             OperationalLimitsGroupInfos.Applicability applicability,
             ReportNode limitSetsReportNode) {
+        List<String> olgToBeDeleted = new ArrayList<>();
         operationalLimitsGroups.stream().filter(
                 operationalLimitsGroup ->
                     operationalLimitsInfos.stream().noneMatch(
@@ -262,7 +263,13 @@ public abstract class AbstractBranchModification extends AbstractModification {
                                     && (operationalLimitsGroupModificationInfos.getApplicability() == applicability
                                     || operationalLimitsGroupModificationInfos.getApplicability() == EQUIPMENT)
                     )
-        ).forEach(operationalLimitsGroup -> removeOlg(branch, operationalLimitsGroup.getId(), applicability, limitSetsReportNode));
+        ).forEach(operationalLimitsGroup -> olgToBeDeleted.add(operationalLimitsGroup.getId()));
+
+        Iterator<String> i = olgToBeDeleted.iterator();
+        while (i.hasNext()) {
+            String s = i.next();
+            removeOlg(branch, s, applicability, limitSetsReportNode);
+        }
     }
 
     private void applySelectedOLGs(Branch<?> branch, List<ReportNode> activeOLGReports) {
