@@ -700,7 +700,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
         if (hasPermanent) {
             if (!(currentLimits != null && currentLimits.getPermanentLimit() == currentLimitsInfos.getPermanentLimit())) {
                 limitsReports.add(ModificationUtils.getInstance().buildModificationReport(currentLimits != null ? currentLimits.getPermanentLimit() : Double.NaN,
-                        currentLimitsInfos.getPermanentLimit(), "IST"));
+                        currentLimitsInfos.getPermanentLimit(), "PATL"));
             }
             limitsAdder.setPermanentLimit(currentLimitsInfos.getPermanentLimit());
         } else {
