@@ -77,7 +77,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
             ReportNode limitSetsReportNode = limitsReportNode.newReportNode().withMessageTemplate("network.modification.limitsSets").add();
             modifyOperationalLimitsGroups(
                     branch,
-                    branchModificationInfos.getAllOperationalLimitsGroupsModificationType(),
+                    branchModificationInfos.getOperationalLimitsGroupsModificationType(),
                     branchModificationInfos.getOperationalLimitsGroups(),
                     limitSetsReportNode);
         }
@@ -208,11 +208,11 @@ public abstract class AbstractBranchModification extends AbstractModification {
 
     private void modifyOperationalLimitsGroups(
             Branch<?> branch,
-            AllOperationalLimitsGroupsModificationType allOperationalLimitsGroupsModificationType,
+            OperationalLimitsGroupsModificationType operationalLimitsGroupsModificationType,
             List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos,
             ReportNode limitSetsReportNode) {
 
-        if (allOperationalLimitsGroupsModificationType == AllOperationalLimitsGroupsModificationType.REPLACE) {
+        if (operationalLimitsGroupsModificationType == OperationalLimitsGroupsModificationType.REPLACE) {
             // because we are replacing all the limit sets we remove all the limit sets that are not specified in the network modification
             // the others may be modified instead of recreated so it is better to not delete them in order to have more precise logs
             deleteOlgsUnspecifiedInTheModification(branch, operationalLimitsInfos, branch.getOperationalLimitsGroups1(), SIDE1, limitSetsReportNode);
