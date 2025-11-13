@@ -48,6 +48,8 @@ public class GenerationDispatch extends AbstractModification {
     private static final String SUBSTATION = "substation";
     private static final String REGION_CVG = "regionCvg";
     private static final String IS_PLURAL = "isPlural";
+    private static final String ITS_PURAL = "itsPlural";
+    private static final String HAVE_PLURAL = "havePlural";
     private static final double EPSILON = 0.001;
     private static final String GENERATORS_WITH_FIXED_SUPPLY = "generatorsWithFixedSupply";
     private static final String GENERATORS_WITHOUT_OUTAGE = "generatorsWithoutOutage";
@@ -104,9 +106,13 @@ public class GenerationDispatch extends AbstractModification {
                 })
                 .mapToDouble(Generator::getTargetP).sum();
         if (!generatorsWithoutSetpointList.isEmpty()) {
+            boolean plural = generatorsWithoutSetpointList.size() > 1;
             report(reportNode, "network.modification.GeneratorsWithoutPredefinedActivePowerSetpoint",
                     Map.of("numGeneratorsWithoutSetpoint", generatorsWithoutSetpointList.size(),
-                            IS_PLURAL, generatorsWithoutSetpointList.size() > 1 ? "s do" : " does"), TypedValue.WARN_SEVERITY);
+                            IS_PLURAL, plural ? "s do" : " does",
+                            ITS_PURAL, plural ? "Their" : "Its",
+                            HAVE_PLURAL, plural ? "have" : "has"),
+                TypedValue.INFO_SEVERITY);
         }
 
         // Report details for each generator without a predefined setpoint
