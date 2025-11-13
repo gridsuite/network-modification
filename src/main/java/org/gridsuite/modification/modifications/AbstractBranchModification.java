@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.BRANCH_MODIFICATION_ERROR;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.*;
+import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.DELETE;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
 /**
@@ -74,7 +75,11 @@ public abstract class AbstractBranchModification extends AbstractModification {
         if (modifyOLG && !CollectionUtils.isEmpty(branchModificationInfos.getOperationalLimitsGroups())) {
             limitsReportNode = subReportNode.newReportNode().withMessageTemplate("network.modification.limits").add();
             ReportNode limitSetsReportNode = limitsReportNode.newReportNode().withMessageTemplate("network.modification.limitsSets").add();
-            modifyOperationalLimitsGroups(branch, branchModificationInfos.getOperationalLimitsGroups(), limitSetsReportNode);
+            modifyOperationalLimitsGroups(
+                    branch,
+                    branchModificationInfos.getOperationalLimitsGroupsModificationType(),
+                    branchModificationInfos.getOperationalLimitsGroups(),
+                    limitSetsReportNode);
         }
 
         applySelectedOLGs(branch, activeOLGReports);
@@ -157,13 +162,15 @@ public abstract class AbstractBranchModification extends AbstractModification {
         if (limitsGroup1 == null && modifiedLimitSetInfos.getApplicability().equals(SIDE2)
             || limitsGroup2 == null && modifiedLimitSetInfos.getApplicability().equals(SIDE1)) {
             return;
-        } else if (limitsGroup1 != null && limitsGroup2 != null && (modifiedLimitSetInfos.getApplicability().equals(SIDE1)
-                || modifiedLimitSetInfos.getApplicability().equals(SIDE2))) {
+        } else if (limitsGroup1 != null && limitsGroup2 != null && !modifiedLimitSetInfos.getApplicability().equals(EQUIPMENT)) {
+            // applicability change from EQUIPMENT to one side
             if (shouldDeletedOtherSide(branch, modificationInfos, modifiedLimitSetInfos)) {
                 if (modifiedLimitSetInfos.getApplicability().equals(SIDE1)) {
                     branch.removeOperationalLimitsGroup2(modifiedLimitSetInfos.getId());
-                } else {
+                    logApplicabilityChange(olgReports, limitsGroup1.getId(), SIDE1);
+                } else if (modifiedLimitSetInfos.getApplicability().equals(SIDE2)) {
                     branch.removeOperationalLimitsGroup1(modifiedLimitSetInfos.getId());
+                    logApplicabilityChange(olgReports, limitsGroup2.getId(), SIDE2);
                 }
             }
             return;
@@ -185,19 +192,32 @@ public abstract class AbstractBranchModification extends AbstractModification {
                     applicabilityChanged = true;
                 }
                 if (applicabilityChanged) {
-                    olgReports.add(ReportNode.newRootReportNode().withMessageTemplate("network.modification.applicabilityChanged")
-                        .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, limitsGroup1.getId())
-                        .withUntypedValue(APPLICABILITY, EQUIPMENT.toString())
-                        .withSeverity(TypedValue.INFO_SEVERITY)
-                        .build());
+                    logApplicabilityChange(olgReports, limitsGroup1.getId(), EQUIPMENT);
                 }
             }
         }
     }
 
-    private void modifyOperationalLimitsGroups(Branch<?> branch,
-                                               List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos,
-                                               ReportNode limitSetsReportNode) {
+    private void logApplicabilityChange(List<ReportNode> olgReports, String groupId, OperationalLimitsGroupInfos.Applicability applicability) {
+        olgReports.add(ReportNode.newRootReportNode().withMessageTemplate("network.modification.applicabilityChanged")
+                .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, groupId)
+                .withUntypedValue(APPLICABILITY, applicability.toString())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    private void modifyOperationalLimitsGroups(
+            Branch<?> branch,
+            OperationalLimitsGroupsModificationType operationalLimitsGroupsModificationType,
+            List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos,
+            ReportNode limitSetsReportNode) {
+
+        if (operationalLimitsGroupsModificationType == OperationalLimitsGroupsModificationType.REPLACE) {
+            // because we are replacing all the limit sets we remove all the limit sets that are not specified in the network modification
+            // the others may be modified instead of recreated so it is better to not delete them in order to have more precise logs
+            deleteOlgsUnspecifiedInTheModification(branch, operationalLimitsInfos, branch.getOperationalLimitsGroups1(), SIDE1, limitSetsReportNode);
+            deleteOlgsUnspecifiedInTheModification(branch, operationalLimitsInfos, branch.getOperationalLimitsGroups2(), SIDE2, limitSetsReportNode);
+        }
 
         for (OperationalLimitsGroupModificationInfos opLGModifInfos : operationalLimitsInfos) {
             if (opLGModifInfos.getModificationType() == null) {
@@ -210,19 +230,45 @@ public abstract class AbstractBranchModification extends AbstractModification {
             // here the modifications on an applicability EQUIPMENT are separated into two separate applications of both sides
             // because iidm has two separated sets of opLGs on the network object (and for better logs)
 
-            detectApplicabilityChange(branch, operationalLimitsInfos, opLGModifInfos, olgSetReports);
+            if (!opLGModifInfos.getModificationType().equals(DELETE)) {
+                detectApplicabilityChange(branch, operationalLimitsInfos, opLGModifInfos, olgSetReports);
+            }
+
             if (applicability == SIDE1
                 || applicability == EQUIPMENT) {
                 OperationalLimitsGroup operationalLimitsGroup1 = branch.getOperationalLimitsGroup1(opLGModifInfos.getId()).orElse(null);
-                applyModificationToOperationalLimitsGroup(branch::newOperationalLimitsGroup1, opLGModifInfos, operationalLimitsGroup1,
-                    SIDE1, limitSetsReportNode);
+                applyModificationToOperationalLimitsGroup(branch, branch::newOperationalLimitsGroup1, opLGModifInfos, operationalLimitsGroup1, SIDE1, limitSetsReportNode);
             }
             if (applicability == SIDE2
                 || applicability == EQUIPMENT) {
                 OperationalLimitsGroup operationalLimitsGroup2 = branch.getOperationalLimitsGroup2(opLGModifInfos.getId()).orElse(null);
-                applyModificationToOperationalLimitsGroup(branch::newOperationalLimitsGroup2, opLGModifInfos, operationalLimitsGroup2,
-                    SIDE2, limitSetsReportNode);
+                applyModificationToOperationalLimitsGroup(branch, branch::newOperationalLimitsGroup2, opLGModifInfos, operationalLimitsGroup2, SIDE2, limitSetsReportNode);
             }
+        }
+    }
+
+    private void deleteOlgsUnspecifiedInTheModification(
+            Branch<?> branch,
+            List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos,
+            Collection<OperationalLimitsGroup> operationalLimitsGroups,
+            OperationalLimitsGroupInfos.Applicability applicability,
+            ReportNode limitSetsReportNode) {
+        List<String> olgToBeDeleted = new ArrayList<>();
+        operationalLimitsGroups.stream().filter(
+                operationalLimitsGroup ->
+                    operationalLimitsInfos.stream().noneMatch(
+                            operationalLimitsGroupModificationInfos ->
+                                    // we don't want to remove the limit sets specified in the network modification (operationalLimitsGroups) :
+                                    Objects.equals(operationalLimitsGroupModificationInfos.getId(), operationalLimitsGroup.getId())
+                                    && (operationalLimitsGroupModificationInfos.getApplicability() == applicability
+                                    || operationalLimitsGroupModificationInfos.getApplicability() == EQUIPMENT)
+                    )
+        ).forEach(operationalLimitsGroup -> olgToBeDeleted.add(operationalLimitsGroup.getId()));
+
+        Iterator<String> i = olgToBeDeleted.iterator();
+        while (i.hasNext()) {
+            String s = i.next();
+            removeOlg(branch, s, applicability, limitSetsReportNode);
         }
     }
 
@@ -420,6 +466,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
      * therefore applicability is SIDE1 or SIDE2, not EQUIPMENT
      */
     protected void applyModificationToOperationalLimitsGroup(
+            Branch<?> branch,
             Function<String, OperationalLimitsGroup> groupFactory,
             OperationalLimitsGroupModificationInfos opLGModificationInfos,
             OperationalLimitsGroup modifiedOperationalLimitsGroup,
@@ -446,8 +493,32 @@ public abstract class AbstractBranchModification extends AbstractModification {
             case OperationalLimitsGroupModificationType.REPLACE: {
                 replaceOpLG(groupFactory, opLGModificationInfos, modifiedOperationalLimitsGroup, applicability, limitsSetsReportNode);
             } break;
-            default: break;
+            case DELETE: {
+                removeOlg(branch, opLGModificationInfos.getId(), applicability, limitsSetsReportNode);
+            }
         }
+    }
+
+    private void removeOlg(
+            Branch<?> branch,
+            String olgId,
+            OperationalLimitsGroupInfos.Applicability applicability,
+            ReportNode limitsSetsReportNode) {
+        if (applicability == SIDE1 && branch.getOperationalLimitsGroup1(olgId).isEmpty() ||
+                applicability == SIDE2 && branch.getOperationalLimitsGroup2(olgId).isEmpty()) {
+            throw new PowsyblException("Cannot delete operational limit group " + olgId + " which has not been found in equipment on side " + applicability);
+        }
+        if (applicability == SIDE1) {
+            branch.removeOperationalLimitsGroup1(olgId);
+        } else if (applicability == SIDE2) {
+            branch.removeOperationalLimitsGroup2(olgId);
+        }
+        limitsSetsReportNode.newReportNode()
+                .withMessageTemplate("network.modification.operationalLimitsGroupDeleted")
+                .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, olgId)
+                .withUntypedValue(SIDE, applicability.toString())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
     }
 
     private void replaceOpLG(Function<String, OperationalLimitsGroup> groupFactory,
@@ -627,8 +698,10 @@ public abstract class AbstractBranchModification extends AbstractModification {
         CurrentLimitsModificationInfos currentLimitsInfos = operationalLimitsGroupModificationInfos.getCurrentLimits();
         boolean hasPermanent = currentLimitsInfos.getPermanentLimit() != null;
         if (hasPermanent) {
-            limitsReports.add(ModificationUtils.getInstance().buildModificationReport(currentLimits != null ? currentLimits.getPermanentLimit() : Double.NaN,
-                    currentLimitsInfos.getPermanentLimit(), "PATL"));
+            if (!(currentLimits != null && currentLimits.getPermanentLimit() == currentLimitsInfos.getPermanentLimit())) {
+                limitsReports.add(ModificationUtils.getInstance().buildModificationReport(currentLimits != null ? currentLimits.getPermanentLimit() : Double.NaN,
+                        currentLimitsInfos.getPermanentLimit(), "PATL"));
+            }
             limitsAdder.setPermanentLimit(currentLimitsInfos.getPermanentLimit());
         } else {
             if (currentLimits != null) {
