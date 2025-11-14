@@ -49,7 +49,6 @@ public class GenerationDispatch extends AbstractModification {
     private static final String REGION_CVG = "regionCvg";
     private static final String IS_PLURAL = "isPlural";
     private static final String ITS_PURAL = "itsPlural";
-    private static final String HAVE_PLURAL = "havePlural";
     private static final double EPSILON = 0.001;
     private static final String GENERATORS_WITH_FIXED_SUPPLY = "generatorsWithFixedSupply";
     private static final String GENERATORS_WITHOUT_OUTAGE = "generatorsWithoutOutage";
@@ -110,8 +109,7 @@ public class GenerationDispatch extends AbstractModification {
             report(reportNode, "network.modification.GeneratorsWithoutPredefinedActivePowerSetpoint",
                     Map.of("numGeneratorsWithoutSetpoint", generatorsWithoutSetpointList.size(),
                             IS_PLURAL, plural ? "s do" : " does",
-                            ITS_PURAL, plural ? "Their" : "Its",
-                            HAVE_PLURAL, plural ? "have" : "has"),
+                            ITS_PURAL, plural ? "Their" : "Its"),
                 TypedValue.INFO_SEVERITY);
         }
 
