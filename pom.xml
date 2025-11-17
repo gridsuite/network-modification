@@ -78,18 +78,6 @@
         <dependencies>
             <dependency>
                 <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-network-store-model</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-network-store-iidm-impl</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-network-store-client</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-ws-dependencies</artifactId>
                 <version>${powsybl-ws-dependencies.version}</version>
                 <type>pom</type>
