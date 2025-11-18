@@ -7,15 +7,14 @@
 package org.gridsuite.modification.dto;
 
 /**
- * @author Hugo Marcellin <hugo.marcelin at rte-france.com>
+ * @author Mathieu Deharbe <mathieu.deharbe at rte-france.com>
+ *
+ * Determines how all the operational limits groups will be modified as a group
  */
 
-public enum OperationalLimitsGroupModificationType {
+public enum OperationalLimitsGroupsModificationType {
     // Modification types for Tabular modifications :
-    ADD,
-    MODIFY,
-    REPLACE,
+    MODIFY, // standard mode : the olg modifications are applied. The unspecified olg are not changed at all
     // Modification type for simple form modifications :
-    MODIFY_OR_ADD, // if the OLG exists it is modified, if not it is created
-    DELETE,
+    REPLACE, // All the olg are removed, then the olg modification/add etc are applied
 }

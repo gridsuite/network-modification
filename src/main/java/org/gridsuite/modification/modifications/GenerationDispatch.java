@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import lombok.Builder;
 import lombok.Getter;
 
+import org.gridsuite.filter.AbstractFilter;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
@@ -47,6 +48,7 @@ public class GenerationDispatch extends AbstractModification {
     private static final String SUBSTATION = "substation";
     private static final String REGION_CVG = "regionCvg";
     private static final String IS_PLURAL = "isPlural";
+    private static final String ITS_PURAL = "itsPlural";
     private static final double EPSILON = 0.001;
     private static final String GENERATORS_WITH_FIXED_SUPPLY = "generatorsWithFixedSupply";
     private static final String GENERATORS_WITHOUT_OUTAGE = "generatorsWithoutOutage";
@@ -103,9 +105,12 @@ public class GenerationDispatch extends AbstractModification {
                 })
                 .mapToDouble(Generator::getTargetP).sum();
         if (!generatorsWithoutSetpointList.isEmpty()) {
+            boolean plural = generatorsWithoutSetpointList.size() > 1;
             report(reportNode, "network.modification.GeneratorsWithoutPredefinedActivePowerSetpoint",
                     Map.of("numGeneratorsWithoutSetpoint", generatorsWithoutSetpointList.size(),
-                            IS_PLURAL, generatorsWithoutSetpointList.size() > 1 ? "s do" : " does"), TypedValue.WARN_SEVERITY);
+                            IS_PLURAL, plural ? "s do" : " does",
+                            ITS_PURAL, plural ? "Their" : "Its"),
+                TypedValue.INFO_SEVERITY);
         }
 
         // Report details for each generator without a predefined setpoint
@@ -450,8 +455,36 @@ public class GenerationDispatch extends AbstractModification {
         }
     }
 
+    private boolean checkMissingFilters(ReportNode subReportNode) {
+        Map<UUID, String> filterNamesByUuid = new LinkedHashMap<>();
+        generationDispatchInfos.getGeneratorsWithoutOutage().forEach(filterInfos -> filterNamesByUuid.put(filterInfos.getId(), filterInfos.getName()));
+        generationDispatchInfos.getGeneratorsWithFixedSupply().forEach(filterInfos -> filterNamesByUuid.put(filterInfos.getId(), filterInfos.getName()));
+        generationDispatchInfos.getGeneratorsFrequencyReserve().forEach(frequencyReserveInfos ->
+            frequencyReserveInfos.getGeneratorsFilters().forEach(filterInfos -> filterNamesByUuid.put(filterInfos.getId(), filterInfos.getName()))
+        );
+        if (!filterNamesByUuid.isEmpty()) {
+            List<AbstractFilter> filters = filterService.getFilters(new ArrayList<>(filterNamesByUuid.keySet()));
+            Set<UUID> validFilters = filters.stream().map(AbstractFilter::getId).collect(Collectors.toSet());
+            List<UUID> missingFilters = filterNamesByUuid.keySet().stream().filter(filterId -> !validFilters.contains(filterId)).toList();
+            if (!missingFilters.isEmpty()) {
+                report(subReportNode, "network.modification.missingFiltersInGenerationDispatch",
+                    Map.of("nb", missingFilters.size(), IS_PLURAL, missingFilters.size() > 1 ? "s" : ""),
+                    TypedValue.ERROR_SEVERITY);
+            }
+            return !missingFilters.isEmpty();
+        } else {
+            return false;
+        }
+    }
+
     @Override
     public void apply(Network network, ReportNode subReportNode) {
+        // check existence of all filters
+        boolean missingFilters = checkMissingFilters(subReportNode);
+        if (missingFilters) {
+            return;
+        }
+
         Collection<Component> synchronousComponents = network.getBusView().getBusStream()
             .filter(Bus::isInMainConnectedComponent)
             .map(Bus::getSynchronousComponent)
