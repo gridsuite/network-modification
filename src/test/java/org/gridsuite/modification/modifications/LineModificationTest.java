@@ -7,6 +7,7 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.Measurement;
@@ -23,7 +24,9 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.*;
+import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.DELETE;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.MODIFY_OR_ADD;
+import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.REPLACE;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -37,6 +40,14 @@ class LineModificationTest extends AbstractNetworkModificationTest {
     private static final Double MEASUREMENT_Q_VALUE = -10.0;
     private static final Boolean MEASUREMENT_P_VALID = true;
     private static final Boolean MEASUREMENT_Q_VALID = false;
+
+    private static final String OLG_PROP1_NAME = "olgProperyName1";
+    private static final String OLG_PROP1_VALUE = "olgProperyValue1";
+    private static final String OLG_PROP2_NAME = "olgProperyName2";
+    private static final String OLG_PROP2_VALUE = "olgProperyValue2";
+    private static final String OLG_PROP3_NAME = "olgProperyName3";
+    private static final String OLG_PROP3_VALUE = "olgProperyValue3";
+    private static final String OTHER_VALUE = "OtherValue";
 
     @Override
     protected Network createNetwork(UUID networkUuid) {
@@ -298,6 +309,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
 
         LineModificationInfos lineModificationInfos5 = LineModificationInfos.builder()
                 .equipmentId("line1")
+                .operationalLimitsGroupsModificationType(OperationalLimitsGroupsModificationType.REPLACE)
                 .enableOLGModification(true)
                 .operationalLimitsGroups(Collections.singletonList(opLimitsGroupInfos5)).build();
         lineModificationInfos5.toModification().apply(getNetwork());
@@ -323,6 +335,79 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         getNetwork().getSwitch("v3bl1").setOpen(true);
         exception = assertThrows(NetworkModificationException.class, () -> changeLineConnectionState(getNetwork().getLine("line1"), true));
         assertEquals("BRANCH_MODIFICATION_ERROR : Could not connect equipment 'line1' on side 1 & 2", exception.getMessage());
+    }
+
+    @Test
+    void testDelete() {
+        Line line = getNetwork().getLine("line1");
+        // side 1
+        line.newOperationalLimitsGroup1("NewLimitsGroup1").newCurrentLimits()
+                .setPermanentLimit(10.0)
+                .add();
+        line.newOperationalLimitsGroup1("NewLimitsGroup2").newCurrentLimits()
+                .setPermanentLimit(10.0)
+                .add();
+        // side 2
+        line.newOperationalLimitsGroup2("NewLimitsGroup1").newCurrentLimits()
+                .setPermanentLimit(10.0)
+                .add();
+        line.newOperationalLimitsGroup2("NewLimitsGroup3").newCurrentLimits()
+                .setPermanentLimit(10.0)
+                .add();
+
+        // modification 1 remove olg on both side
+        OperationalLimitsGroupModificationInfos opLimitsGroupInfos1 = OperationalLimitsGroupModificationInfos.builder()
+                .id("NewLimitsGroup1").applicability(EQUIPMENT).modificationType(DELETE).build();
+        LineModificationInfos lineModificationInfos1 = LineModificationInfos.builder()
+                .enableOLGModification(true)
+                .equipmentId("line1")
+                .operationalLimitsGroups(Collections.singletonList(opLimitsGroupInfos1)).build();
+        lineModificationInfos1.toModification().apply(getNetwork());
+
+        assertTrue(line.getOperationalLimitsGroup1("NewLimitsGroup1").isEmpty());
+        assertTrue(line.getOperationalLimitsGroup2("NewLimitsGroup1").isEmpty());
+        assertTrue(line.getOperationalLimitsGroup1("NewLimitsGroup2").isPresent());
+        assertTrue(line.getOperationalLimitsGroup2("NewLimitsGroup3").isPresent());
+
+        // modification 2 remove olg on side one
+        OperationalLimitsGroupModificationInfos opLimitsGroupInfos2 = OperationalLimitsGroupModificationInfos.builder()
+                .id("NewLimitsGroup2").applicability(SIDE1).modificationType(DELETE).build();
+        LineModificationInfos lineModificationInfos2 = LineModificationInfos.builder()
+                .enableOLGModification(true)
+                .equipmentId("line1")
+                .operationalLimitsGroups(Collections.singletonList(opLimitsGroupInfos2)).build();
+        lineModificationInfos2.toModification().apply(getNetwork());
+
+        assertTrue(line.getOperationalLimitsGroup1("NewLimitsGroup1").isEmpty());
+        assertTrue(line.getOperationalLimitsGroup2("NewLimitsGroup1").isEmpty());
+        assertTrue(line.getOperationalLimitsGroup1("NewLimitsGroup2").isEmpty());
+        assertTrue(line.getOperationalLimitsGroup2("NewLimitsGroup3").isPresent());
+
+        // modification 3 remove olg on side two
+        OperationalLimitsGroupModificationInfos opLimitsGroupInfos3 = OperationalLimitsGroupModificationInfos.builder()
+                .id("NewLimitsGroup3").applicability(SIDE2).modificationType(DELETE).build();
+        LineModificationInfos lineModificationInfos3 = LineModificationInfos.builder()
+                .enableOLGModification(true)
+                .equipmentId("line1")
+                .operationalLimitsGroups(Collections.singletonList(opLimitsGroupInfos3)).build();
+        lineModificationInfos3.toModification().apply(getNetwork());
+
+        assertTrue(line.getOperationalLimitsGroup1("NewLimitsGroup1").isEmpty());
+        assertTrue(line.getOperationalLimitsGroup2("NewLimitsGroup1").isEmpty());
+        assertTrue(line.getOperationalLimitsGroup1("NewLimitsGroup2").isEmpty());
+        assertTrue(line.getOperationalLimitsGroup2("NewLimitsGroup3").isEmpty());
+
+        // try to remove not existing group
+        OperationalLimitsGroupModificationInfos opLimitsGroupInfos4 = OperationalLimitsGroupModificationInfos.builder()
+                .id("doesNotExist").applicability(SIDE2).modificationType(DELETE).build();
+        LineModificationInfos lineModificationInfos4 = LineModificationInfos.builder()
+                .enableOLGModification(true)
+                .equipmentId("line1")
+                .operationalLimitsGroups(Collections.singletonList(opLimitsGroupInfos4)).build();
+        Network network = getNetwork();
+        AbstractModification modification = lineModificationInfos4.toModification();
+        String errorMessage = assertThrows(PowsyblException.class, () -> modification.apply(network)).getMessage();
+        assertEquals("Cannot delete operational limit group doesNotExist which has not been found in equipment on side SIDE2", errorMessage);
     }
 
     private void changeLineConnectionState(Line existingEquipment, boolean expectedState) {
@@ -358,4 +443,131 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         assertThat(existingEquipment.getTerminal1().isConnected()).isEqualTo(expectedState);
         assertThat(existingEquipment.getTerminal2().isConnected()).isEqualTo(expectedState);
     }
+
+    @Test
+    void testLimitsPropertiesModificationDifferentOperationalLimits() {
+        Line line = getNetwork().getLine("line1");
+        OperationalLimitsGroup limitsGroup1 = line.newOperationalLimitsGroup1("NewLimitsGroup");
+        limitsGroup1.newCurrentLimits().setPermanentLimit(10.0).add();
+        limitsGroup1.setProperty(OLG_PROP1_NAME, OLG_PROP1_VALUE);
+
+        OperationalLimitsGroup limitsGroup2 = line.newOperationalLimitsGroup2("NewLimitsGroup");
+        limitsGroup2.newCurrentLimits().setPermanentLimit(10.0).add();
+        limitsGroup2.setProperty(OLG_PROP1_NAME, OLG_PROP1_VALUE);
+        limitsGroup2.setProperty(OLG_PROP2_NAME, OLG_PROP2_VALUE);
+
+        // We modify the list of properties on side 1 to add new properties
+        OperationalLimitsGroupModificationInfos opLimitsGroupInfos1 = OperationalLimitsGroupModificationInfos.builder()
+            .id("NewLimitsGroup").applicability(SIDE1).modificationType(MODIFY_OR_ADD)
+            .currentLimits(CurrentLimitsModificationInfos.builder().permanentLimit(10.0).build())
+            .limitsProperties(List.of(new LimitsPropertyInfos(OLG_PROP2_NAME, OLG_PROP2_VALUE))).build();
+
+        OperationalLimitsGroupModificationInfos opLimitsGroupInfos2 = OperationalLimitsGroupModificationInfos.builder()
+            .id("NewLimitsGroup").applicability(SIDE2).modificationType(MODIFY_OR_ADD)
+            .currentLimits(CurrentLimitsModificationInfos.builder().permanentLimit(10.0).build())
+            .limitsProperties(List.of(new LimitsPropertyInfos(OLG_PROP1_NAME, OTHER_VALUE),
+                new LimitsPropertyInfos(OLG_PROP3_NAME, OLG_PROP3_VALUE))).build();
+
+        LineModificationInfos lineModificationInfos1 = LineModificationInfos.builder()
+            .equipmentId("line1")
+            .enableOLGModification(true)
+            .operationalLimitsGroupsModificationType(OperationalLimitsGroupsModificationType.REPLACE)
+            .operationalLimitsGroups(List.of(opLimitsGroupInfos1, opLimitsGroupInfos2)).build();
+        lineModificationInfos1.toModification().apply(getNetwork());
+
+        assertEquals(1, limitsGroup1.getPropertyNames().size());
+        assertTrue(limitsGroup1.hasProperty(OLG_PROP2_NAME));
+        assertFalse(limitsGroup1.hasProperty(OLG_PROP1_NAME));
+        assertEquals(OLG_PROP2_VALUE, limitsGroup1.getProperty(OLG_PROP2_NAME));
+
+        assertEquals(2, limitsGroup2.getPropertyNames().size());
+        assertTrue(limitsGroup2.hasProperty(OLG_PROP1_NAME));
+        assertTrue(limitsGroup2.hasProperty(OLG_PROP3_NAME));
+        assertFalse(limitsGroup2.hasProperty(OLG_PROP2_NAME));
+        assertEquals(OTHER_VALUE, limitsGroup2.getProperty(OLG_PROP1_NAME));
+        assertEquals(OLG_PROP3_VALUE, limitsGroup2.getProperty(OLG_PROP3_NAME));
+    }
+
+    @Test
+    void testLimitsPropertiesModificationSameOperationalLimits() {
+        Line line = getNetwork().getLine("line1");
+        OperationalLimitsGroup limitsGroup1 = line.newOperationalLimitsGroup1("NewLimitsGroup");
+        limitsGroup1.newCurrentLimits().setPermanentLimit(10.0).add();
+        limitsGroup1.setProperty(OLG_PROP1_NAME, OLG_PROP1_VALUE);
+
+        OperationalLimitsGroup limitsGroup2 = line.newOperationalLimitsGroup2("NewLimitsGroup");
+        limitsGroup2.newCurrentLimits().setPermanentLimit(10.0).add();
+        limitsGroup2.setProperty(OLG_PROP1_NAME, OLG_PROP1_VALUE);
+
+        // We modify the list of properties on side 1 to add new properties
+        OperationalLimitsGroupModificationInfos opLimitsGroupInfos = OperationalLimitsGroupModificationInfos.builder()
+            .id("NewLimitsGroup").applicability(EQUIPMENT).modificationType(MODIFY_OR_ADD)
+            .currentLimits(CurrentLimitsModificationInfos.builder().permanentLimit(10.0).build())
+            .limitsProperties(List.of(new LimitsPropertyInfos(OLG_PROP2_NAME, OLG_PROP2_VALUE),
+                new LimitsPropertyInfos(OLG_PROP3_NAME, OLG_PROP3_VALUE))).build();
+
+        LineModificationInfos lineModificationInfos = LineModificationInfos.builder()
+            .equipmentId("line1")
+            .enableOLGModification(true)
+            .operationalLimitsGroups(List.of(opLimitsGroupInfos)).build();
+        lineModificationInfos.toModification().apply(getNetwork());
+
+        assertEquals(2, limitsGroup1.getPropertyNames().size());
+        assertTrue(limitsGroup1.hasProperty(OLG_PROP2_NAME));
+        assertTrue(limitsGroup1.hasProperty(OLG_PROP3_NAME));
+        assertFalse(limitsGroup1.hasProperty(OLG_PROP1_NAME));
+        assertEquals(OLG_PROP2_VALUE, limitsGroup1.getProperty(OLG_PROP2_NAME));
+        assertEquals(OLG_PROP3_VALUE, limitsGroup1.getProperty(OLG_PROP3_NAME));
+
+        assertEquals(2, limitsGroup2.getPropertyNames().size());
+        assertTrue(limitsGroup2.hasProperty(OLG_PROP2_NAME));
+        assertTrue(limitsGroup2.hasProperty(OLG_PROP3_NAME));
+        assertFalse(limitsGroup2.hasProperty(OLG_PROP1_NAME));
+        assertEquals(OLG_PROP2_VALUE, limitsGroup2.getProperty(OLG_PROP2_NAME));
+        assertEquals(OLG_PROP3_VALUE, limitsGroup2.getProperty(OLG_PROP3_NAME));
+    }
+
+    @Test
+    void testLimitsPropertiesModificationSameOperationalLimitsReplace() {
+        Line line = getNetwork().getLine("line1");
+        OperationalLimitsGroup limitsGroup1 = line.newOperationalLimitsGroup1("NewLimitsGroup");
+        limitsGroup1.newCurrentLimits().setPermanentLimit(10.0).add();
+        limitsGroup1.setProperty(OLG_PROP1_NAME, OLG_PROP1_VALUE);
+
+        OperationalLimitsGroup limitsGroup2 = line.newOperationalLimitsGroup2("NewLimitsGroup");
+        limitsGroup2.newCurrentLimits().setPermanentLimit(10.0).add();
+        limitsGroup2.setProperty(OLG_PROP1_NAME, OLG_PROP1_VALUE);
+
+        // We modify the list of properties on side 1 to add new properties
+        OperationalLimitsGroupModificationInfos opLimitsGroupInfos = OperationalLimitsGroupModificationInfos.builder()
+            .id("NewLimitsGroup").applicability(EQUIPMENT).modificationType(REPLACE)
+            .currentLimits(CurrentLimitsModificationInfos.builder().permanentLimit(10.0).build())
+            .limitsProperties(List.of(new LimitsPropertyInfos(OLG_PROP2_NAME, OLG_PROP2_VALUE),
+                new LimitsPropertyInfos(OLG_PROP3_NAME, OLG_PROP3_VALUE))).build();
+
+        LineModificationInfos lineModificationInfos = LineModificationInfos.builder()
+            .equipmentId("line1")
+            .enableOLGModification(true)
+            .operationalLimitsGroups(List.of(opLimitsGroupInfos)).build();
+        lineModificationInfos.toModification().apply(getNetwork());
+
+        OperationalLimitsGroup repLimitsGroup1 = line.getOperationalLimitsGroup1("NewLimitsGroup").orElse(null);
+        assertNotNull(repLimitsGroup1);
+        assertEquals(2, repLimitsGroup1.getPropertyNames().size());
+        assertTrue(repLimitsGroup1.hasProperty(OLG_PROP2_NAME));
+        assertTrue(repLimitsGroup1.hasProperty(OLG_PROP3_NAME));
+        assertFalse(repLimitsGroup1.hasProperty(OLG_PROP1_NAME));
+        assertEquals(OLG_PROP2_VALUE, repLimitsGroup1.getProperty(OLG_PROP2_NAME));
+        assertEquals(OLG_PROP3_VALUE, repLimitsGroup1.getProperty(OLG_PROP3_NAME));
+
+        OperationalLimitsGroup repLimitsGroup2 = line.getOperationalLimitsGroup2("NewLimitsGroup").orElse(null);
+        assertNotNull(repLimitsGroup2);
+        assertEquals(2, repLimitsGroup2.getPropertyNames().size());
+        assertTrue(repLimitsGroup2.hasProperty(OLG_PROP2_NAME));
+        assertTrue(repLimitsGroup2.hasProperty(OLG_PROP3_NAME));
+        assertFalse(repLimitsGroup2.hasProperty(OLG_PROP1_NAME));
+        assertEquals(OLG_PROP2_VALUE, repLimitsGroup2.getProperty(OLG_PROP2_NAME));
+        assertEquals(OLG_PROP3_VALUE, repLimitsGroup2.getProperty(OLG_PROP3_NAME));
+    }
+
 }
