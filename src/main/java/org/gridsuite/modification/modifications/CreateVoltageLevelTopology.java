@@ -9,14 +9,14 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
-import com.powsybl.iidm.modification.topology.MoveFeederBayBuilder;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.CreateVoltageLevelTopologyInfos;
-import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.Comparator;
 import java.util.List;
@@ -62,7 +62,6 @@ public class CreateVoltageLevelTopology extends AbstractModification {
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
         VoltageLevel voltageLevel = network.getVoltageLevel(createVoltageLevelTopologyInfos.getVoltageLevelId());
         createVoltageLevelBusBarSection(network, namingStrategy, subReportNode, voltageLevel);
-        moveConnectableToAddSwitchesOnTheNewBar(network, voltageLevel);
     }
 
     private void createVoltageLevelBusBarSection(Network network, NamingStrategy namingStrategy, ReportNode subReportNode, VoltageLevel voltageLevel) {
@@ -73,24 +72,8 @@ public class CreateVoltageLevelTopology extends AbstractModification {
             .withAlignedBusesOrBusbarCount(1)
             .withLowBusOrBusbarIndex(lowBusOrBusbarIndex)
             .withSwitchKinds(createVoltageLevelTopologyInfos.getSwitchKinds())
+            .withConnectExistingConnectables(true)
             .build().apply(network, namingStrategy, true, subReportNode);
-    }
-
-    private void moveConnectableToAddSwitchesOnTheNewBar(Network network, VoltageLevel voltageLevel) {
-        String voltageLevelId = voltageLevel.getId();
-        voltageLevel.getConnectableStream().filter(connectable -> connectable.getType() != IdentifiableType.BUSBAR_SECTION).forEach(conn -> {
-            Optional<Terminal> terminalConnectedToVl = conn.getTerminals().stream()
-                .filter(terminal -> ((Terminal) terminal).getVoltageLevel().getId().equals(voltageLevelId))
-                .findFirst();
-            if (terminalConnectedToVl.isPresent()) {
-                String busbarSectionId = ModificationUtils.getInstance().getBusOrBusbarSection(terminalConnectedToVl.get());
-                new MoveFeederBayBuilder().withConnectableId(conn.getId())
-                    .withTargetVoltageLevelId(voltageLevelId)
-                    .withTerminal(terminalConnectedToVl.get())
-                    .withTargetBusOrBusBarSectionId(busbarSectionId)
-                    .build().apply(network, false, ReportNode.NO_OP);
-            }
-        });
     }
 
     private int findLowBusOrBusbarIndex(VoltageLevel voltageLevel) {
