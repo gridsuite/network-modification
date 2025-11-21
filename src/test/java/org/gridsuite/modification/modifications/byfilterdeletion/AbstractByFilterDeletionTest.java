@@ -19,6 +19,7 @@ import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.modifications.ByFilterDeletion;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -91,7 +92,7 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
         ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification();
         byFilterDeletion.initApplicationContext(filterService, null);
         ReportNode report = byFilterDeletionInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
         byFilterDeletion.apply(getNetwork(), report);
@@ -121,7 +122,7 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
         ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification();
         byFilterDeletion.initApplicationContext(filterService, null);
         ReportNode report = byFilterDeletionInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
         byFilterDeletion.apply(getNetwork(), report);

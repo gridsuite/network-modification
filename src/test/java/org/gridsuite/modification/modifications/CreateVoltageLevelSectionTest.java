@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.CreateVoltageLevelSectionInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.DummyNamingStrategy;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
 import org.junit.jupiter.api.Assertions;
@@ -107,7 +108,7 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
     @Test
     void testCreateSubReportNode() {
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build();
 

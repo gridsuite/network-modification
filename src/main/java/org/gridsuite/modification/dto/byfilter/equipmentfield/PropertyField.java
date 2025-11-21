@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.TwoSides;
 import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 
 import java.util.List;
 
@@ -63,7 +64,7 @@ public enum PropertyField {
 
         if (operationalLimitsGroupList.isEmpty()) {
             equipmentsReport.add(ReportNode.newRootReportNode()
-                    .withAllResourceBundlesFromClasspath()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate(REPORT_KEY_OPERATIONAL_LIMITS_GROUP_PROPERTY_VALUE_NOT_FOUND_ERROR)
                     .withUntypedValue(VALUE_KEY_ID, branch.getId())
                     .withUntypedValue(VALUE_KEY_SIDE, side.ordinal() + 1)
@@ -74,7 +75,7 @@ public enum PropertyField {
             return false;
         } else if (operationalLimitsGroupList.size() > 1) {
             equipmentsReport.add(ReportNode.newRootReportNode()
-                    .withAllResourceBundlesFromClasspath()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate(REPORT_KEY_OPERATIONAL_LIMITS_GROUP_PROPERTY_VALUE_MULTIPLE_ERROR)
                     .withUntypedValue(VALUE_KEY_ID, branch.getId())
                     .withUntypedValue(VALUE_KEY_SIDE, side.ordinal() + 1)
