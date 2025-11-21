@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.*;
 import jakarta.validation.constraints.NotNull;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
+import org.gridsuite.modification.utils.OlgUtils;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.List;
@@ -193,7 +194,7 @@ public enum TwoWindingsTransformerField {
                         .stream()
                         .map(OperationalLimitsGroup::getId)
                         .toList(), 1);
-                modifySelectedOperationalLimitsGroup(transformer, attributeModification, TwoSides.ONE, null);
+                OlgUtils.modifySelectedOperationalLimitsGroup(transformer, attributeModification, TwoSides.ONE, null);
             }
             case SELECTED_OPERATIONAL_LIMITS_GROUP_2 -> {
                 ModificationUtils.checkLimitsGroupExist(errorMessage, newValue, MODIFY_LINE_ERROR,
@@ -201,7 +202,7 @@ public enum TwoWindingsTransformerField {
                         .stream()
                         .map(OperationalLimitsGroup::getId)
                         .toList(), 2);
-                modifySelectedOperationalLimitsGroup(transformer, attributeModification, TwoSides.TWO, null);
+                OlgUtils.modifySelectedOperationalLimitsGroup(transformer, attributeModification, TwoSides.TWO, null);
             }
             default -> throw new IllegalArgumentException(String.format("field %s is not a string modification", field));
         }
