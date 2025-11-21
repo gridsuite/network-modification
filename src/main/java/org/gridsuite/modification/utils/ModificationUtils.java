@@ -159,9 +159,8 @@ public final class ModificationUtils {
             controlBus(voltageLevel, busOrBusbarSectionId);
             // check if position is free
             Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
-            var position = getPosition(connectionPosition, busOrBusbarSectionId, network, voltageLevel);
-            if (takenFeederPositions.contains(position)) {
-                throw new NetworkModificationException(CONNECTION_POSITION_ERROR, "PositionOrder '" + position + "' already taken");
+            if (takenFeederPositions.contains(connectionPosition)) {
+                throw new NetworkModificationException(CONNECTION_POSITION_ERROR, "PositionOrder '" + connectionPosition + "' already taken");
             }
         } else {
             // bus breaker must exist
