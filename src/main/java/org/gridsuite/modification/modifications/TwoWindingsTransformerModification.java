@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimatedAd
 import org.apache.commons.lang3.BooleanUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -625,7 +626,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                                         List<TapChangerStepCreationInfos> modifSteps) {
         if (tapChangerStepsReports != null) {
             tapChangerStepsReports.add(ReportNode.newRootReportNode()
-                    .withAllResourceBundlesFromClasspath()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate("network.modification.tapChangerStepsModification")
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .build());
@@ -716,7 +717,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
 
     private static void addStepAttributeReport(List<ReportNode> tapChangerStepsReports, String key, String value) {
         tapChangerStepsReports.add(ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate(key)
                 .withUntypedValue("value", value)
                 .withUntypedValue("delta", "Δ") // Workaround to use non-ISO-8859-1 characters in the internationalization file

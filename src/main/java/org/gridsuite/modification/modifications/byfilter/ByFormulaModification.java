@@ -17,6 +17,7 @@ import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.dto.byfilter.formula.Operator;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 
 import javax.annotation.Nonnull;
 import java.math.BigDecimal;
@@ -71,7 +72,7 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
             equipmentNotModifiedCount += 1;
             notEditableEquipments.add(equipment.getId());
             reports.add(ReportNode.newRootReportNode()
-                    .withAllResourceBundlesFromClasspath()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_NULL)
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
                     .withSeverity(TypedValue.DETAIL_SEVERITY)
@@ -83,7 +84,7 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
             equipmentNotModifiedCount += 1;
             notEditableEquipments.add(equipment.getId());
             reports.add(ReportNode.newRootReportNode()
-                    .withAllResourceBundlesFromClasspath()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO)
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
                     .withSeverity(TypedValue.DETAIL_SEVERITY)

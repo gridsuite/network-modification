@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.*;
 import jakarta.validation.constraints.NotNull;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.List;
@@ -60,7 +61,7 @@ public enum TwoWindingsTransformerField {
                 boolean isEditable = twoWindingsTransformer.getRatioTapChanger() != null;
                 if (!isEditable) {
                     equipmentsReport.add(ReportNode.newRootReportNode()
-                            .withAllResourceBundlesFromClasspath()
+                            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                             .withMessageTemplate(REPORT_KEY_RATIO_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR)
                             .withUntypedValue(VALUE_KEY_FIELD_NAME, field.name())
                             .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, twoWindingsTransformer.getId())
@@ -73,7 +74,7 @@ public enum TwoWindingsTransformerField {
                 boolean isEditable = twoWindingsTransformer.getPhaseTapChanger() != null;
                 if (!isEditable) {
                     equipmentsReport.add(ReportNode.newRootReportNode()
-                            .withAllResourceBundlesFromClasspath()
+                            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                             .withMessageTemplate(REPORT_KEY_PHASE_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR)
                             .withUntypedValue(VALUE_KEY_FIELD_NAME, field.name())
                             .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, twoWindingsTransformer.getId())

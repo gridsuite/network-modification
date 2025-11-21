@@ -16,6 +16,7 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentAttributeModificationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.VoltageLevelTopologyModificationInfos;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 
 import java.util.*;
@@ -175,7 +176,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
                 .build();
 
         ReportNode report = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         assertEquals("Voltage Level topology modification v1", report.getMessage());
         modificationInfos.toModification().apply(getNetwork(), report);

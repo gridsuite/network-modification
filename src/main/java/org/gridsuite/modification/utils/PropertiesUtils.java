@@ -9,6 +9,7 @@ package org.gridsuite.modification.utils;
 import com.powsybl.commons.report.*;
 import com.powsybl.iidm.network.Identifiable;
 import org.gridsuite.modification.dto.FreePropertyInfos;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 
 import java.util.*;
 
@@ -34,7 +35,7 @@ public final class PropertiesUtils {
     }
 
     private static ReportNode applyProperty(Identifiable<?> identifiable, FreePropertyInfos prop) {
-        ReportNodeBuilder builder = ReportNode.newRootReportNode().withAllResourceBundlesFromClasspath();
+        ReportNodeBuilder builder = ReportNode.newRootReportNode().withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME);
         if (prop.isDeletionMark()) {
             if (identifiable.removeProperty(prop.getName())) {
                 reportPropertyDeletion(builder, prop);

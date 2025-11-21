@@ -19,6 +19,7 @@ import org.gridsuite.modification.dto.GeneratorScalingInfos;
 import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.ScalingVariationInfos;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -169,7 +170,7 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
         GeneratorScaling generatorScaling = (GeneratorScaling) generatorScalingInfo.toModification();
         generatorScaling.initApplicationContext(filterService, null);
         ReportNode report = generatorScalingInfo.createSubReportNode(ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         generatorScaling.apply(getNetwork(), report);
         assertLogMessage(generatorScalingInfo.getErrorType().name() + ": There is no valid equipment ID among the provided filter(s)",

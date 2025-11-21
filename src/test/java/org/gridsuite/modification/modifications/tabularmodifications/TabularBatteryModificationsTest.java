@@ -13,6 +13,7 @@ import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
@@ -54,7 +55,7 @@ class TabularBatteryModificationsTest extends AbstractNetworkModificationTest {
     public void testApply() {
         ModificationInfos modificationInfos = buildModification();
         ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         modificationInfos.toModification().apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication(reportNode);

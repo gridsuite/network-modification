@@ -22,6 +22,7 @@ import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils;
 import org.gridsuite.modification.modifications.AbstractModification;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -196,14 +197,14 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                                          FilterInfos filterInfos, FilterEquipments filterEquipments, List<String> notEditableEquipments) {
         if (notEditableEquipments.size() == filterEquipments.getIdentifiableAttributes().size()) {
             reports.add(ReportNode.newRootReportNode()
-                    .withAllResourceBundlesFromClasspath()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_FAILED)
                     .withUntypedValue(VALUE_KEY_FILTER_NAME, filterInfos.getName())
                     .withSeverity(TypedValue.WARN_SEVERITY)
                     .build());
         } else {
             reports.add(ReportNode.newRootReportNode()
-                    .withAllResourceBundlesFromClasspath()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_SUCCESS)
                     .withUntypedValue(VALUE_KEY_MODIFICATION_TYPE_LABEL, getModificationTypeLabel())
                     .withUntypedValue(VALUE_KEY_FILTER_NAME, filterInfos.getName())
@@ -211,7 +212,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                     .build());
 
             reports.add(ReportNode.newRootReportNode()
-                    .withAllResourceBundlesFromClasspath()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate(REPORT_KEY_NUMBER_OF_VALID_EQUIPMENT)
                     .withUntypedValue(VALUE_KEY_NB_CHANGED, filterEquipments.getIdentifiableAttributes().size() - notEditableEquipments.size())
                     .withSeverity(TypedValue.INFO_SEVERITY)
@@ -219,7 +220,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
 
             if (!CollectionUtils.isEmpty(notEditableEquipments)) {
                 reports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate(REPORT_KEY_NOT_EDITED_EQUIPMENTS_FILTER)
                         .withUntypedValue(VALUE_KEY_NB_UNCHANGED, notEditableEquipments.size())
                         .withSeverity(TypedValue.WARN_SEVERITY)
@@ -228,7 +229,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
         }
 
         reports.add(ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate(REPORT_KEY_EDITED_FIELD_FILTER)
                 .withUntypedValue(VALUE_KEY_FIELD_NAME, getEditedFieldLabel(abstractAssignmentInfos))
                 .withSeverity(TypedValue.INFO_SEVERITY)
@@ -237,7 +238,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
         if (!CollectionUtils.isEmpty(filterEquipments.getNotFoundEquipments())) {
             String equipmentIds = String.join(", ", filterEquipments.getNotFoundEquipments());
             reports.add(ReportNode.newRootReportNode()
-                    .withAllResourceBundlesFromClasspath()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate(REPORT_KEY_FILTER_EQUIPMENTS_NOT_FOUND)
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_IDS, equipmentIds)
                     .withSeverity(TypedValue.WARN_SEVERITY)
@@ -260,7 +261,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
             final String oldValue = getOldValue(equipment, abstractAssignmentInfos);
             final String newValue = applyValue(equipment, abstractAssignmentInfos);
             reports.add(ReportNode.newRootReportNode()
-                    .withAllResourceBundlesFromClasspath()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_REPORT)
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_TYPE, equipment.getType().name())
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
@@ -274,7 +275,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
             notEditableEquipments.add(equipment.getId());
             equipmentNotModifiedCount += 1;
             reports.add(ReportNode.newRootReportNode()
-                    .withAllResourceBundlesFromClasspath()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_REPORT_EXCEPTION)
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
                     .withUntypedValue(VALUE_KEY_ERROR_MESSAGE, e.getMessage())
@@ -299,7 +300,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
 
         if (CollectionUtils.isEmpty(filterEquipments.getIdentifiableAttributes())) {
             reports.add(ReportNode.newRootReportNode()
-                    .withAllResourceBundlesFromClasspath()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_NOT_FOUND)
                     .withUntypedValue(VALUE_KEY_FILTER_NAME, filterInfos.getName())
                     .withSeverity(TypedValue.WARN_SEVERITY)

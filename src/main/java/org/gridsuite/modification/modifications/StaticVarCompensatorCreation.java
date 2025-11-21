@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.StaticVarCompensatorCreationInfos;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -180,7 +181,7 @@ public class StaticVarCompensatorCreation extends AbstractModification {
                         "Low voltage threshold"));
             } catch (PowsyblException e) {
                 standbyAutomatonReports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.StandbyAutomatonExtensionAddError")
                         .withUntypedValue("message", e.getMessage())
                         .withSeverity(TypedValue.ERROR_SEVERITY)

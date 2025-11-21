@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.extensions.*;
 import jakarta.validation.constraints.NotNull;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -757,7 +758,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 // this needs to be logged only if there are unmodifiedTemporaryLimits left.
                 // which means that they are going to be removed by the REPLACE mode
                 temporaryLimitsReports.addFirst(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.temporaryLimitsReplaced")
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .build());
@@ -770,7 +771,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
         if (!temporaryLimitsReports.isEmpty()) {
             temporaryLimitsReports.addFirst(ReportNode.newRootReportNode()
-                    .withAllResourceBundlesFromClasspath()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate("network.modification.temporaryLimitsModification")
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .build());
@@ -818,7 +819,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
             if (limit.getModificationType() == TemporaryLimitModificationType.DELETE) {
                 // the limit has been removed previously
                 temporaryLimitsReports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.temporaryLimitDeleted.name")
                         .withUntypedValue(NAME, limit.getName())
                         .withUntypedValue(DURATION, limitDurationToReport)
@@ -830,7 +831,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
         } else if (limit.getModificationType() == TemporaryLimitModificationType.MODIFY || limit.getModificationType() == TemporaryLimitModificationType.MODIFY_OR_ADD) {
             // invalid modification
             temporaryLimitsReports.add(ReportNode.newRootReportNode()
-                    .withAllResourceBundlesFromClasspath()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate("network.modification.temporaryLimitsNoMatch")
                     .withUntypedValue(LIMIT_ACCEPTABLE_DURATION, limitAcceptableDuration)
                     .withSeverity(TypedValue.WARN_SEVERITY)
@@ -849,7 +850,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
             int limitAcceptableDuration) {
         if (Double.compare(limitToModify.getValue(), limitValue) != 0 && limitModificationInfos.getModificationType() != null) {
             temporaryLimitsReports.add(ReportNode.newRootReportNode()
-                    .withAllResourceBundlesFromClasspath()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate("network.modification.temporaryLimitModified.name")
                     .withUntypedValue(NAME, limitModificationInfos.getName())
                     .withUntypedValue(DURATION, limitDurationToReport)
@@ -875,7 +876,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
             double limitValue,
             int limitAcceptableDuration) {
         temporaryLimitsReports.add(ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("network.modification.temporaryLimitAdded.name")
                 .withUntypedValue(NAME, limit.getName())
                 .withUntypedValue(DURATION, limitDurationToReport)

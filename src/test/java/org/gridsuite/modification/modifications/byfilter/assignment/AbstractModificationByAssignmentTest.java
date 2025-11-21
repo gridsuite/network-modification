@@ -21,6 +21,7 @@ import org.gridsuite.modification.dto.byfilter.assignment.PropertyAssignmentInfo
 import org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,7 +57,7 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     protected final FilterInfos filter6 = new FilterInfos(FILTER_ID_6, "filter6");
     protected final FilterInfos filterWithOneWrongId = new FilterInfos(FILTER_WITH_ONE_WRONG_ID, "filterWithOneWrongId");
     protected final ReportNode reportNode = ReportNode.newRootReportNode()
-            .withAllResourceBundlesFromClasspath()
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test")
             .build();
 

@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -188,7 +189,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
 
         Network network = getNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build();
 
@@ -231,7 +232,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
 
         Network network = getNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build();
 
@@ -267,7 +268,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
 
         Network network = getNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build();
 

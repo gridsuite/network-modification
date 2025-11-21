@@ -20,6 +20,7 @@ import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.dto.LoadScalingInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.ScalingVariationInfos;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -171,7 +172,7 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
         LoadScaling loadScaling = (LoadScaling) loadScalingInfo.toModification();
         loadScaling.initApplicationContext(filterService, null);
         ReportNode report = loadScalingInfo.createSubReportNode(ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         loadScaling.apply(getNetwork(), report);
         assertLogMessage(loadScalingInfo.getErrorType().name() + ": There is no valid equipment ID among the provided filter(s)",

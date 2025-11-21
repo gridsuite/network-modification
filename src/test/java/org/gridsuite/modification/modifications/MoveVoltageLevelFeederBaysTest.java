@@ -14,6 +14,7 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.MoveFeederBayInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.MoveVoltageLevelFeederBaysInfos;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -251,7 +252,7 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
     @Test
     void testCreateSubReportNode() {
         ReportNode reportNode = ReportNode.newRootReportNode()
-            .withAllResourceBundlesFromClasspath()
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test")
             .build();
         MoveVoltageLevelFeederBaysInfos modification = (MoveVoltageLevelFeederBaysInfos) buildModification();

@@ -16,6 +16,7 @@ import org.gridsuite.modification.dto.LoadCreationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
@@ -102,7 +103,7 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
             .modifications(creations)
             .build();
         ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         creationInfos.toModification().apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: 1 load have been created", "network.modification.tabular.creation", reportNode);
@@ -133,7 +134,7 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
                 .modifications(creations)
                 .build();
         ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         creationInfos.toModification().apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: No loads have been created", "network.modification.tabular.creation.error", reportNode);
