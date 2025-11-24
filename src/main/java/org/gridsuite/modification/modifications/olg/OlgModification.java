@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.*;
 import static org.gridsuite.modification.modifications.AbstractBranchModification.NAME;
@@ -45,28 +44,28 @@ public class OlgModification {
         return modifiedBranch.getOperationalLimitsGroup2(olgModifInfos.getId()).orElse(null);
     }
 
-    protected void applyModificationToOperationalLimitsGroup(Function<String, OperationalLimitsGroup> groupFactory) {
+    protected void applyModificationToOperationalLimitsGroup() {
         switch (olgModifInfos.getModificationType()) {
             case OperationalLimitsGroupModificationType.MODIFY_OR_ADD: {
                 switch (olgModifInfos.getApplicability()) {
                     case EQUIPMENT :
                         if (modifiedOperationalLimitsGroup1() == null && modifiedOperationalLimitsGroup2() == null) {
                             // TODO : attention quand un est valide et l'autre non
-                            addOpLG(groupFactory, olgModifInfos.getApplicability());
+                            addOlg();
                         } else {
                             modifyOLG();
                         }
                         break;
                     case SIDE1 :
                         if (modifiedOperationalLimitsGroup1() == null) {
-                            addOpLG(groupFactory, olgModifInfos.getApplicability());
+                            addOlg();
                         } else {
                             modifyOLG();
                         }
                         break;
                     case SIDE2 :
                         if (modifiedOperationalLimitsGroup2() == null) {
-                            addOpLG(groupFactory, olgModifInfos.getApplicability());
+                            addOlg();
                         } else {
                             modifyOLG();
                         }
@@ -83,10 +82,10 @@ public class OlgModification {
                 modifyOLG();
             } break;
             case OperationalLimitsGroupModificationType.ADD: {
-                addOpLG(groupFactory, olgModifInfos.getApplicability());
+                addOlg();
             } break;
             case OperationalLimitsGroupModificationType.REPLACE: {
-                replaceOpLG(groupFactory);
+                replaceOpLG();
             } break;
             case DELETE: {
                 removeOlg();
@@ -211,45 +210,61 @@ public class OlgModification {
         limitsAdder.add();
     }
 
-    private void addOpLG(Function<String, OperationalLimitsGroup> groupFactory, OperationalLimitsGroupInfos.Applicability applicability) {
+    private void addOlg() {
 
         List<ReportNode> limitSetReports = new ArrayList<>();
-        if ((applicability == EQUIPMENT || applicability == SIDE1) && modifiedOperationalLimitsGroup1() != null) {
-            throw new PowsyblException("Cannot add " + modifiedOperationalLimitsGroup1().getId() + " operational limit group, one with the given name already exists");
+        if (olgModifInfos.getApplicability() == EQUIPMENT || olgModifInfos.getApplicability() == SIDE1) {
+            if (modifiedOperationalLimitsGroup1() != null) {
+                throw new PowsyblException("Cannot add " + modifiedOperationalLimitsGroup1().getId() + " operational limit group, one with the given name already exists");
+            }
+            addOlgOnASide(modifiedBranch.newOperationalLimitsGroup1(olgModifInfos.getId()), limitSetReports);
         }
-        if ((applicability == EQUIPMENT || applicability == SIDE2) && modifiedOperationalLimitsGroup2() != null) {
-            throw new PowsyblException("Cannot add " + modifiedOperationalLimitsGroup2().getId() + " operational limit group, one with the given name already exists");
+        if (olgModifInfos.getApplicability() == EQUIPMENT || olgModifInfos.getApplicability() == SIDE2) {
+            if (modifiedOperationalLimitsGroup2() != null) {
+                throw new PowsyblException("Cannot add " + modifiedOperationalLimitsGroup2().getId() + " operational limit group, one with the given name already exists");
+            }
+            addOlgOnASide(modifiedBranch.newOperationalLimitsGroup2(olgModifInfos.getId()), limitSetReports);
         }
-        OperationalLimitsGroup newOperationalLimitsGroup = groupFactory.apply(olgModifInfos.getId());
-        modifyCurrentLimits(newOperationalLimitsGroup.newCurrentLimits(),
-                newOperationalLimitsGroup.getCurrentLimits().orElse(null), limitSetReports);
-        addProperties(newOperationalLimitsGroup, limitSetReports);
 
         if (!CollectionUtils.isEmpty(limitSetReports)) {
             ReportNode limitSetNode = olgsReportNode.newReportNode()
                     .withMessageTemplate("network.modification.operationalLimitsGroupAdded")
                     .withUntypedValue(OlgUtils.OPERATIONAL_LIMITS_GROUP_NAME, olgModifInfos.getId())
-                    .withUntypedValue(OlgUtils.SIDE, applicability.toString())
-                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .withUntypedValue(OlgUtils.SIDE, olgModifInfos.getApplicability().toString())
+                    .withSeverity(TypedValue.DETAIL_SEVERITY)
                     .add();
             ModificationUtils.getInstance().reportModifications(limitSetNode, limitSetReports);
         }
     }
 
-    private void replaceOpLG(Function<String, OperationalLimitsGroup> groupFactory) {
-        List<ReportNode> limitSetReports = new ArrayList<>();
-        if (modifySide1() && modifiedOperationalLimitsGroup1() != null) {
-            modifiedOperationalLimitsGroup1().removeCurrentLimits();
-            removeAllProperties(modifiedOperationalLimitsGroup1(), limitSetReports);
-        }
-        if (modifySide2() && modifiedOperationalLimitsGroup2() != null) {
-            modifiedOperationalLimitsGroup2().removeCurrentLimits();
-            removeAllProperties(modifiedOperationalLimitsGroup2(), limitSetReports);
-        }
-
-        OperationalLimitsGroup newOperationalLimitsGroup = groupFactory.apply(olgModifInfos.getId());
-        modifyCurrentLimits(newOperationalLimitsGroup.newCurrentLimits(), null, limitSetReports);
+    private void addOlgOnASide(OperationalLimitsGroup newOperationalLimitsGroup, List<ReportNode> limitSetReports) {
+        modifyCurrentLimits(newOperationalLimitsGroup.newCurrentLimits(),
+                newOperationalLimitsGroup.getCurrentLimits().orElse(null), limitSetReports);
         addProperties(newOperationalLimitsGroup, limitSetReports);
+    }
+
+    private void replaceOpLG() {
+        List<ReportNode> limitSetReports = new ArrayList<>();
+        if (modifySide1()) {
+            OperationalLimitsGroup modifiedOlg = modifiedOperationalLimitsGroup1();
+            if (modifiedOlg != null) {
+                modifiedOlg.removeCurrentLimits();
+                removeAllProperties(modifiedOlg, limitSetReports);
+            }
+            OperationalLimitsGroup newOperationalLimitsGroup = modifiedBranch.newOperationalLimitsGroup1(olgModifInfos.getId());
+            modifyCurrentLimits(newOperationalLimitsGroup.newCurrentLimits(), null, limitSetReports);
+            addProperties(newOperationalLimitsGroup, limitSetReports);
+        }
+        if (modifySide2()) {
+            OperationalLimitsGroup modifiedOlg = modifiedOperationalLimitsGroup2();
+            if (modifiedOlg != null) {
+                modifiedOlg.removeCurrentLimits();
+                removeAllProperties(modifiedOlg, limitSetReports);
+            }
+            OperationalLimitsGroup newOperationalLimitsGroup = modifiedBranch.newOperationalLimitsGroup2(olgModifInfos.getId());
+            modifyCurrentLimits(newOperationalLimitsGroup.newCurrentLimits(), null, limitSetReports);
+            addProperties(newOperationalLimitsGroup, limitSetReports);
+        }
 
         if (!CollectionUtils.isEmpty(limitSetReports)) {
             ReportNode reportNode = olgsReportNode.newReportNode()

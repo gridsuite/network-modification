@@ -53,7 +53,7 @@ public class OlgsModification {
                     modifiedBranch,
                     opLGModifInfos,
                     olgsReportNode
-            ).applyModificationToOperationalLimitsGroup(modifiedBranch::newOperationalLimitsGroup1);
+            ).applyModificationToOperationalLimitsGroup();
         }
     }
 
