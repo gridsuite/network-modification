@@ -122,7 +122,7 @@ public class OlgModification {
             ReportNode limitSetReport = olgsReportNode.newReportNode()
                     .withMessageTemplate("network.modification.operationalLimitsGroupModified")
                     .withUntypedValue(OlgUtils.OPERATIONAL_LIMITS_GROUP_NAME, olgModifInfos.getId())
-                    .withUntypedValue(OlgUtils.SIDE, olgModifInfos.getApplicability().toString())
+                    .withUntypedValue(OlgUtils.SIDE, applicabilityToString(olgModifInfos.getApplicability()))
                     .withSeverity(TypedValue.INFO_SEVERITY).add();
             ModificationUtils.getInstance().reportModifications(limitSetReport, limitSetsReports);
         }
@@ -234,11 +234,19 @@ public class OlgModification {
             ReportNode limitSetNode = olgsReportNode.newReportNode()
                     .withMessageTemplate("network.modification.operationalLimitsGroupAdded")
                     .withUntypedValue(OlgUtils.OPERATIONAL_LIMITS_GROUP_NAME, olgModifInfos.getId())
-                    .withUntypedValue(OlgUtils.SIDE, olgModifInfos.getApplicability().toString())
+                    .withUntypedValue(OlgUtils.SIDE, applicabilityToString(olgModifInfos.getApplicability()))
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
             ModificationUtils.getInstance().reportModifications(limitSetNode, limitSetReports);
         }
+    }
+
+    private String applicabilityToString(OperationalLimitsGroupInfos.Applicability applicability) {
+        return switch (applicability) {
+            case EQUIPMENT -> "sides 1 & 2";
+            case SIDE1 -> "side 1";
+            case SIDE2 -> "side 2";
+        };
     }
 
     private void addOlgOnASide(OperationalLimitsGroup newOperationalLimitsGroup, List<ReportNode> limitSetReports) {
@@ -274,7 +282,7 @@ public class OlgModification {
             ReportNode reportNode = olgsReportNode.newReportNode()
                     .withMessageTemplate("network.modification.operationalLimitsGroupReplaced")
                     .withUntypedValue(OlgUtils.OPERATIONAL_LIMITS_GROUP_NAME, olgModifInfos.getId())
-                    .withUntypedValue(OlgUtils.SIDE, olgModifInfos.getApplicability().toString())
+                    .withUntypedValue(OlgUtils.SIDE, applicabilityToString(olgModifInfos.getApplicability()))
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
             ModificationUtils.getInstance().reportModifications(reportNode, limitSetReports);
@@ -301,7 +309,8 @@ public class OlgModification {
         String olgId = olgModifInfos.getId();
         if (applicableOnSide1() && modifiedBranch.getOperationalLimitsGroup1(olgId).isEmpty() ||
             applicableOnSide2() && modifiedBranch.getOperationalLimitsGroup2(olgId).isEmpty()) {
-            throw new PowsyblException("Cannot delete operational limit group " + olgId + " which has not been found in equipment on side " + olgModifInfos.getApplicability().toString());
+            throw new PowsyblException(
+                    "Cannot delete operational limit group " + olgId + " which has not been found in equipment on " + applicabilityToString(olgModifInfos.getApplicability()));
         }
         if (applicableOnSide1()) {
             modifiedBranch.removeOperationalLimitsGroup1(olgId);
@@ -312,7 +321,7 @@ public class OlgModification {
         olgsReportNode.newReportNode()
                 .withMessageTemplate("network.modification.operationalLimitsGroupDeleted")
                 .withUntypedValue(OlgUtils.OPERATIONAL_LIMITS_GROUP_NAME, olgId)
-                .withUntypedValue(OlgUtils.SIDE, olgModifInfos.getApplicability().toString())
+                .withUntypedValue(OlgUtils.SIDE, applicabilityToString(olgModifInfos.getApplicability()))
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
