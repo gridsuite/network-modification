@@ -51,8 +51,7 @@ public class OlgModification {
                     case EQUIPMENT :
                         if (modifiedOperationalLimitsGroup1() == null && modifiedOperationalLimitsGroup2() == null) {
                             addOlg(EQUIPMENT);
-                        }
-                        else if (modifiedOperationalLimitsGroup1() == null && modifiedOperationalLimitsGroup2() != null) {
+                        } else if (modifiedOperationalLimitsGroup1() != null && modifiedOperationalLimitsGroup2() != null) {
                             modifyOLG(EQUIPMENT);
                         } else {
                             // one side already existed (modification), the other was empty so this is a creation
