@@ -166,21 +166,6 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
     }
 
-    public static boolean mayCreateALimit(TemporaryLimitModificationType modificationType) {
-        return modificationType == TemporaryLimitModificationType.ADD
-                || modificationType == TemporaryLimitModificationType.REPLACE
-                || modificationType == TemporaryLimitModificationType.MODIFY_OR_ADD;
-    }
-
-    public static void addTemporaryLimit(CurrentLimitsAdder limitsAdder, String limit, double limitValue, int limitAcceptableDuration) {
-        limitsAdder
-                .beginTemporaryLimit()
-                .setName(limit)
-                .setValue(limitValue)
-                .setAcceptableDuration(limitAcceptableDuration)
-                .endTemporaryLimit();
-    }
-
     public ReportNode updateMeasurements(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode) {
         Double p1Value = branchModificationInfos.getP1MeasurementValue() != null ? branchModificationInfos.getP1MeasurementValue().getValue() : null;
         Double q1Value = branchModificationInfos.getQ1MeasurementValue() != null ? branchModificationInfos.getQ1MeasurementValue().getValue() : null;
@@ -292,6 +277,21 @@ public abstract class AbstractBranchModification extends AbstractModification {
         return done;
     }
 
+    public static boolean mayCreateALimit(TemporaryLimitModificationType modificationType) {
+        return modificationType == TemporaryLimitModificationType.ADD
+                || modificationType == TemporaryLimitModificationType.REPLACE
+                || modificationType == TemporaryLimitModificationType.MODIFY_OR_ADD;
+    }
+
+    public static void addTemporaryLimit(CurrentLimitsAdder limitsAdder, String limit, double limitValue, int limitAcceptableDuration) {
+        limitsAdder
+                .beginTemporaryLimit()
+                .setName(limit)
+                .setValue(limitValue)
+                .setAcceptableDuration(limitAcceptableDuration)
+                .endTemporaryLimit();
+    }
+
     protected boolean characteristicsModified(BranchModificationInfos branchModificationInfos) {
         return branchModificationInfos.getX() != null
                 && branchModificationInfos.getX().getValue() != null
@@ -344,5 +344,4 @@ public abstract class AbstractBranchModification extends AbstractModification {
             }
         }
     }
-
 }

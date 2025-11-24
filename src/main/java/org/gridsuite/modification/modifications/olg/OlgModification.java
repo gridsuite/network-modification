@@ -47,7 +47,7 @@ public class OlgModification {
         limitsReportsSide2 = new ArrayList<>();
     }
 
-    private void logOnSide(ReportNode reportNode, OperationalLimitsGroupInfos.Applicability applicability) {
+    private void addToLogsOnSide(ReportNode reportNode, OperationalLimitsGroupInfos.Applicability applicability) {
         if (applicability == EQUIPMENT || applicability == SIDE1) {
             limitsReportsSide1.add(reportNode);
         }
@@ -158,15 +158,21 @@ public class OlgModification {
                     .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, olgModifInfos.getId())
                     .withUntypedValue(SIDE, applicabilityToString(applicability))
                     .withSeverity(TypedValue.INFO_SEVERITY).add();
-            logSideNode(limitSetReport, "network.modification.operationalLimitsGroupModified.detail", limitsReportsSide1);
-            logSideNode(limitSetReport, "network.modification.operationalLimitsGroupModified.detail", limitsReportsSide2);
+            logSideNode(limitSetReport, "network.modification.operationalLimitsGroupModified.detail", SIDE1);
+            logSideNode(limitSetReport, "network.modification.operationalLimitsGroupModified.detail", SIDE2);
         }
     }
 
     /**
-     * cerates a log node specific for each side
+     * creates a log node specific for each side
      */
-    private void logSideNode(ReportNode limitSetReport, String messageTemplate, List<ReportNode> limitsReports) {
+    private void logSideNode(ReportNode limitSetReport, String messageTemplate, OperationalLimitsGroupInfos.Applicability applicability) {
+        List<ReportNode> limitsReports;
+        if (applicability == SIDE1) {
+            limitsReports = limitsReportsSide1;
+        } else {
+            limitsReports = limitsReportsSide2;
+        }
         if (!limitsReports.isEmpty()) {
             ReportNode limitSetReport1 = limitSetReport.newReportNode()
                     .withMessageTemplate(messageTemplate)
@@ -205,7 +211,7 @@ public class OlgModification {
 
         propertiesToRemove.forEach((String propertyName) -> {
             limitsGroup.removeProperty(propertyName);
-            logOnSide(ReportNode.newRootReportNode()
+            addToLogsOnSide(ReportNode.newRootReportNode()
                     .withMessageTemplate("network.modification.propertyDeleted")
                     .withUntypedValue(NAME, propertyName)
                     .withSeverity(TypedValue.DETAIL_SEVERITY).build(),
@@ -217,7 +223,7 @@ public class OlgModification {
             if (limitsGroup.getProperty(property.name()).equals(property.value())) {
                 return;
             }
-            logOnSide(ReportNode.newRootReportNode()
+            addToLogsOnSide(ReportNode.newRootReportNode()
                     .withMessageTemplate("network.modification.propertyChanged")
                     .withUntypedValue(NAME, property.name())
                     .withUntypedValue("to", property.value())
@@ -228,7 +234,7 @@ public class OlgModification {
         });
 
         propertiesToAdd.forEach((LimitsPropertyInfos property) -> {
-            logOnSide(ReportNode.newRootReportNode()
+            addToLogsOnSide(ReportNode.newRootReportNode()
                     .withMessageTemplate("network.modification.propertyAdded")
                     .withUntypedValue(NAME, property.name())
                     .withUntypedValue(VALUE, property.value())
@@ -247,7 +253,7 @@ public class OlgModification {
         boolean hasPermanent = currentLimitsInfos.getPermanentLimit() != null;
         if (hasPermanent) {
             if (!(currentLimits != null && currentLimits.getPermanentLimit() == currentLimitsInfos.getPermanentLimit())) {
-                logOnSide(ModificationUtils.buildModificationReport(
+                addToLogsOnSide(ModificationUtils.buildModificationReport(
                         currentLimits != null ? currentLimits.getPermanentLimit() : Double.NaN, currentLimitsInfos.getPermanentLimit(),
                                 "Permanent limit",
                                 TypedValue.DETAIL_SEVERITY
@@ -285,8 +291,8 @@ public class OlgModification {
                     .withUntypedValue(SIDE, applicabilityToString(applicability))
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
-            logSideNode(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", limitsReportsSide1);
-            logSideNode(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", limitsReportsSide2);
+            logSideNode(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", SIDE1);
+            logSideNode(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", SIDE2);
         }
     }
 
@@ -332,8 +338,8 @@ public class OlgModification {
                     .withUntypedValue(SIDE, applicabilityToString(olgModifInfos.getApplicability()))
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
-            logSideNode(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", limitsReportsSide1);
-            logSideNode(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", limitsReportsSide2);
+            logSideNode(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", SIDE1);
+            logSideNode(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", SIDE2);
         }
     }
 
@@ -343,7 +349,7 @@ public class OlgModification {
         }
 
         olgModifInfos.getLimitsProperties().forEach((LimitsPropertyInfos property) -> {
-            logOnSide(ReportNode.newRootReportNode()
+            addToLogsOnSide(ReportNode.newRootReportNode()
                     .withMessageTemplate("network.modification.propertyAdded")
                     .withUntypedValue(NAME, property.name())
                     .withUntypedValue(VALUE, property.value())
@@ -385,7 +391,7 @@ public class OlgModification {
         while (propertiesIt.hasNext()) {
             String propertyName = propertiesIt.next();
             limitsGroup.removeProperty(propertyName);
-            logOnSide(ReportNode.newRootReportNode()
+            addToLogsOnSide(ReportNode.newRootReportNode()
                     .withMessageTemplate("network.modification.propertyDeleted")
                     .withUntypedValue(NAME, propertyName)
                     .withSeverity(TypedValue.DETAIL_SEVERITY).build(),
@@ -423,7 +429,7 @@ public class OlgModification {
             if (areLimitsReplaced) {
                 // this needs to be logged only if there are unmodifiedTemporaryLimits left.
                 // which means that they are going to be removed by the REPLACE mode
-                logOnSide(ReportNode.newRootReportNode()
+                addToLogsOnSide(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("network.modification.temporaryLimitsReplaced")
                         .withSeverity(TypedValue.DETAIL_SEVERITY)
@@ -468,7 +474,7 @@ public class OlgModification {
             // the limit already exists
             if (limit.getModificationType() == TemporaryLimitModificationType.DELETE) {
                 // the limit has been removed previously
-                logOnSide(ReportNode.newRootReportNode()
+                addToLogsOnSide(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("network.modification.temporaryLimitDeleted.name")
                         .withUntypedValue(NAME, limit.getName())
@@ -481,7 +487,7 @@ public class OlgModification {
             }
         } else if (limit.getModificationType() == TemporaryLimitModificationType.MODIFY || limit.getModificationType() == TemporaryLimitModificationType.MODIFY_OR_ADD) {
             // invalid modification
-            logOnSide(ReportNode.newRootReportNode()
+            addToLogsOnSide(ReportNode.newRootReportNode()
                     .withAllResourceBundlesFromClasspath()
                     .withMessageTemplate("network.modification.temporaryLimitsNoMatch")
                     .withUntypedValue(LIMIT_ACCEPTABLE_DURATION, limitAcceptableDuration)
@@ -539,7 +545,7 @@ public class OlgModification {
             OperationalLimitsGroupInfos.Applicability applicability) {
         if (Double.compare(limitToModify.getValue(), limitValue) != 0 && limitModificationInfos.getModificationType() != null) {
             // value change
-            logOnSide(ReportNode.newRootReportNode()
+            addToLogsOnSide(ReportNode.newRootReportNode()
                             .withAllResourceBundlesFromClasspath()
                             .withMessageTemplate("network.modification.temporaryLimitValueModified.name")
                             .withUntypedValue(AbstractBranchModification.NAME, limitModificationInfos.getName())
@@ -563,7 +569,7 @@ public class OlgModification {
                                   int limitAcceptableDuration,
                                   OperationalLimitsGroupInfos.Applicability applicability) {
         AbstractBranchModification.addTemporaryLimit(limitsAdder, limit, limitValue, limitAcceptableDuration);
-        logOnSide(ReportNode.newRootReportNode()
+        addToLogsOnSide(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("network.modification.temporaryLimitModified.name")
                         .withUntypedValue(NAME, limit)
@@ -582,7 +588,7 @@ public class OlgModification {
             double limitValue,
             int limitAcceptableDuration,
             OperationalLimitsGroupInfos.Applicability applicability) {
-        logOnSide(ReportNode.newRootReportNode()
+        addToLogsOnSide(ReportNode.newRootReportNode()
                 .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("network.modification.temporaryLimitAdded.name")
                 .withUntypedValue(AbstractBranchModification.NAME, limit.getName())
