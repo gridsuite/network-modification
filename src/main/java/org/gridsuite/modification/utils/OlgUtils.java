@@ -4,13 +4,10 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.TwoSides;
 import org.gridsuite.modification.dto.AttributeModification;
-import org.gridsuite.modification.dto.CurrentTemporaryLimitModificationInfos;
 import org.gridsuite.modification.dto.OperationType;
 import org.gridsuite.modification.dto.TemporaryLimitModificationType;
-import org.gridsuite.modification.modifications.AbstractBranchModification;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -90,53 +87,6 @@ public final class OlgUtils {
         return modificationType == TemporaryLimitModificationType.ADD
                 || modificationType == TemporaryLimitModificationType.REPLACE
                 || modificationType == TemporaryLimitModificationType.MODIFY_OR_ADD;
-    }
-
-    public static void modifyTemporaryLimit(
-            CurrentLimitsAdder limitsAdder,
-            CurrentTemporaryLimitModificationInfos limitModificationInfos,
-            List<ReportNode> temporaryLimitsReports,
-            LoadingLimits.TemporaryLimit limitToModify,
-            double limitValue,
-            String limitDurationToReport,
-            String limitValueToReport,
-            int limitAcceptableDuration) {
-        if (Double.compare(limitToModify.getValue(), limitValue) != 0 && limitModificationInfos.getModificationType() != null) {
-            temporaryLimitsReports.add(ReportNode.newRootReportNode()
-                    .withAllResourceBundlesFromClasspath()
-                    .withMessageTemplate("network.modification.temporaryLimitModified.name")
-                    .withUntypedValue(AbstractBranchModification.NAME, limitModificationInfos.getName())
-                    .withUntypedValue(DURATION, limitDurationToReport)
-                    .withUntypedValue(AbstractBranchModification.VALUE, limitValueToReport)
-                    .withUntypedValue("oldValue",
-                            limitToModify.getValue() == Double.MAX_VALUE ? "no value"
-                                    : String.valueOf(limitToModify.getValue()))
-                    .withSeverity(TypedValue.DETAIL_SEVERITY)
-                    .build());
-            addTemporaryLimit(limitsAdder, limitModificationInfos.getName(), limitValue, limitAcceptableDuration);
-        } else {
-            // no real modification
-            addTemporaryLimit(limitsAdder, limitModificationInfos.getName(), limitToModify.getValue(), limitAcceptableDuration);
-        }
-    }
-
-    public static void createTemporaryLimit(
-            CurrentLimitsAdder limitsAdder,
-            CurrentTemporaryLimitModificationInfos limit,
-            List<ReportNode> temporaryLimitsReports,
-            String limitDurationToReport,
-            String limitValueToReport,
-            double limitValue,
-            int limitAcceptableDuration) {
-        temporaryLimitsReports.add(ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
-                .withMessageTemplate("network.modification.temporaryLimitAdded.name")
-                .withUntypedValue(AbstractBranchModification.NAME, limit.getName())
-                .withUntypedValue(DURATION, limitDurationToReport)
-                .withUntypedValue(AbstractBranchModification.VALUE, limitValueToReport)
-                .withSeverity(TypedValue.DETAIL_SEVERITY)
-                .build());
-        addTemporaryLimit(limitsAdder, limit.getName(), limitValue, limitAcceptableDuration);
     }
 
     public static void addTemporaryLimit(CurrentLimitsAdder limitsAdder, String limit, double limitValue, int limitAcceptableDuration) {
