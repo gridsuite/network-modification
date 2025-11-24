@@ -407,7 +407,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         Network network = getNetwork();
         AbstractModification modification = lineModificationInfos4.toModification();
         String errorMessage = assertThrows(PowsyblException.class, () -> modification.apply(network)).getMessage();
-        assertEquals("Cannot delete operational limit group doesNotExist which has not been found in equipment on side SIDE2", errorMessage);
+        assertEquals("Cannot delete operational limit group doesNotExist which has not been found in equipment on side 2", errorMessage);
     }
 
     private void changeLineConnectionState(Line existingEquipment, boolean expectedState) {
