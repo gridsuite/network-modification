@@ -111,7 +111,7 @@ public final class OlgUtils {
                     .withUntypedValue("oldValue",
                             limitToModify.getValue() == Double.MAX_VALUE ? "no value"
                                     : String.valueOf(limitToModify.getValue()))
-                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .withSeverity(TypedValue.DETAIL_SEVERITY)
                     .build());
             addTemporaryLimit(limitsAdder, limitModificationInfos.getName(), limitValue, limitAcceptableDuration);
         } else {
@@ -134,7 +134,7 @@ public final class OlgUtils {
                 .withUntypedValue(AbstractBranchModification.NAME, limit.getName())
                 .withUntypedValue(DURATION, limitDurationToReport)
                 .withUntypedValue(AbstractBranchModification.VALUE, limitValueToReport)
-                .withSeverity(TypedValue.INFO_SEVERITY)
+                .withSeverity(TypedValue.DETAIL_SEVERITY)
                 .build());
         addTemporaryLimit(limitsAdder, limit.getName(), limitValue, limitAcceptableDuration);
     }
