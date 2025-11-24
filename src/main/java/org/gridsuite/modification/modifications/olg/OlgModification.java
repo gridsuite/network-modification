@@ -174,11 +174,11 @@ public class OlgModification {
             limitsReports = limitsReportsSide2;
         }
         if (!limitsReports.isEmpty()) {
-            ReportNode limitSetReport1 = limitSetReport.newReportNode()
+            ReportNode limitSetReportDetail = limitSetReport.newReportNode()
                     .withMessageTemplate(messageTemplate)
-                    .withUntypedValue(SIDE, applicabilityToString(SIDE1))
+                    .withUntypedValue(SIDE, applicabilityToString(applicability))
                     .withSeverity(TypedValue.DETAIL_SEVERITY).add();
-            ModificationUtils.getInstance().reportModifications(limitSetReport1, limitsReports);
+            ModificationUtils.getInstance().reportModifications(limitSetReportDetail, limitsReports);
         }
     }
 
