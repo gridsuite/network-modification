@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.*;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.AbstractBranchModification;
 import org.gridsuite.modification.utils.ModificationUtils;
-import org.gridsuite.modification.utils.OlgUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -22,9 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.*;
-import static org.gridsuite.modification.modifications.AbstractBranchModification.NAME;
-import static org.gridsuite.modification.modifications.AbstractBranchModification.VALUE;
-import static org.gridsuite.modification.utils.OlgUtils.DURATION;
+import static org.gridsuite.modification.modifications.AbstractBranchModification.*;
 
 /**
  * handles the modification of a single operational limits group from AbstractBranchModification
@@ -158,8 +155,8 @@ public class OlgModification {
         if (!limitsReportsSide1.isEmpty() || !limitsReportsSide2.isEmpty()) {
             ReportNode limitSetReport = olgsReportNode.newReportNode()
                     .withMessageTemplate("network.modification.operationalLimitsGroupModified")
-                    .withUntypedValue(OlgUtils.OPERATIONAL_LIMITS_GROUP_NAME, olgModifInfos.getId())
-                    .withUntypedValue(OlgUtils.SIDE, applicabilityToString(applicability))
+                    .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, olgModifInfos.getId())
+                    .withUntypedValue(SIDE, applicabilityToString(applicability))
                     .withSeverity(TypedValue.INFO_SEVERITY).add();
             logSideNode(limitSetReport, "network.modification.operationalLimitsGroupModified.detail", limitsReportsSide1);
             logSideNode(limitSetReport, "network.modification.operationalLimitsGroupModified.detail", limitsReportsSide2);
@@ -173,7 +170,7 @@ public class OlgModification {
         if (!limitsReports.isEmpty()) {
             ReportNode limitSetReport1 = limitSetReport.newReportNode()
                     .withMessageTemplate(messageTemplate)
-                    .withUntypedValue(OlgUtils.SIDE, applicabilityToString(SIDE1))
+                    .withUntypedValue(SIDE, applicabilityToString(SIDE1))
                     .withSeverity(TypedValue.DETAIL_SEVERITY).add();
             ModificationUtils.getInstance().reportModifications(limitSetReport1, limitsReports);
         }
@@ -284,8 +281,8 @@ public class OlgModification {
         if (!CollectionUtils.isEmpty(limitsReportsSide1) || !CollectionUtils.isEmpty(limitsReportsSide2)) {
             ReportNode limitSetReport = olgsReportNode.newReportNode()
                     .withMessageTemplate("network.modification.operationalLimitsGroupAdded")
-                    .withUntypedValue(OlgUtils.OPERATIONAL_LIMITS_GROUP_NAME, olgModifInfos.getId())
-                    .withUntypedValue(OlgUtils.SIDE, applicabilityToString(applicability))
+                    .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, olgModifInfos.getId())
+                    .withUntypedValue(SIDE, applicabilityToString(applicability))
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
             logSideNode(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", limitsReportsSide1);
@@ -331,8 +328,8 @@ public class OlgModification {
         if (!CollectionUtils.isEmpty(limitsReportsSide1) || !CollectionUtils.isEmpty(limitsReportsSide2)) {
             ReportNode limitSetReport = olgsReportNode.newReportNode()
                     .withMessageTemplate("network.modification.operationalLimitsGroupReplaced")
-                    .withUntypedValue(OlgUtils.OPERATIONAL_LIMITS_GROUP_NAME, olgModifInfos.getId())
-                    .withUntypedValue(OlgUtils.SIDE, applicabilityToString(olgModifInfos.getApplicability()))
+                    .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, olgModifInfos.getId())
+                    .withUntypedValue(SIDE, applicabilityToString(olgModifInfos.getApplicability()))
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
             logSideNode(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", limitsReportsSide1);
@@ -372,8 +369,8 @@ public class OlgModification {
         }
         olgsReportNode.newReportNode()
                 .withMessageTemplate("network.modification.operationalLimitsGroupDeleted")
-                .withUntypedValue(OlgUtils.OPERATIONAL_LIMITS_GROUP_NAME, olgId)
-                .withUntypedValue(OlgUtils.SIDE, applicabilityToString(olgModifInfos.getApplicability()))
+                .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, olgId)
+                .withUntypedValue(SIDE, applicabilityToString(olgModifInfos.getApplicability()))
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
@@ -465,7 +462,7 @@ public class OlgModification {
             // this limit is modified by the network modification so we remove it from the list of unmodified temporary limits
             unmodifiedTemporaryLimits.removeIf(temporaryLimit -> temporaryLimit.getAcceptableDuration() == limitAcceptableDuration);
         }
-        if (limitToModify == null && OlgUtils.mayCreateALimit(limit.getModificationType())) {
+        if (limitToModify == null && mayCreateALimit(limit.getModificationType())) {
             createTemporaryLimit(limitsAdder, limit, limitDurationToReport, limitValueToReport, limitValue, limitAcceptableDuration, applicability);
         } else if (limitToModify != null) {
             // the limit already exists
@@ -487,7 +484,7 @@ public class OlgModification {
             logOnSide(ReportNode.newRootReportNode()
                     .withAllResourceBundlesFromClasspath()
                     .withMessageTemplate("network.modification.temporaryLimitsNoMatch")
-                    .withUntypedValue(OlgUtils.LIMIT_ACCEPTABLE_DURATION, limitAcceptableDuration)
+                    .withUntypedValue(LIMIT_ACCEPTABLE_DURATION, limitAcceptableDuration)
                     .withSeverity(TypedValue.WARN_SEVERITY)
                     .build(),
                     applicability);
@@ -565,12 +562,12 @@ public class OlgModification {
                                   double limitValue,
                                   int limitAcceptableDuration,
                                   OperationalLimitsGroupInfos.Applicability applicability) {
-        OlgUtils.addTemporaryLimit(limitsAdder, limit, limitValue, limitAcceptableDuration);
+        AbstractBranchModification.addTemporaryLimit(limitsAdder, limit, limitValue, limitAcceptableDuration);
         logOnSide(ReportNode.newRootReportNode()
                         .withAllResourceBundlesFromClasspath()
                         .withMessageTemplate("network.modification.temporaryLimitModified.name")
-                        .withUntypedValue(AbstractBranchModification.NAME, limit)
-                        .withUntypedValue(AbstractBranchModification.VALUE, limitValue)
+                        .withUntypedValue(NAME, limit)
+                        .withUntypedValue(VALUE, limitValue)
                         .withUntypedValue(DURATION, limitAcceptableDuration)
                         .withSeverity(TypedValue.DETAIL_SEVERITY)
                         .build(),

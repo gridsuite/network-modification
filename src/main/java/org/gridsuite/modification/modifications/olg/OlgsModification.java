@@ -10,13 +10,13 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.utils.OlgUtils;
 
 import java.util.*;
 
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.*;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.EQUIPMENT;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.DELETE;
+import static org.gridsuite.modification.modifications.AbstractBranchModification.*;
 
 /**
  * handles the modification of a list of operational limits groups from AbstractBranchModification
@@ -97,8 +97,8 @@ public class OlgsModification {
 
     private void logApplicabilityChange(List<ReportNode> olgReports, String groupId, OperationalLimitsGroupInfos.Applicability applicability) {
         olgReports.add(ReportNode.newRootReportNode().withMessageTemplate("network.modification.applicabilityChanged")
-                .withUntypedValue(OlgUtils.OPERATIONAL_LIMITS_GROUP_NAME, groupId)
-                .withUntypedValue(OlgUtils.APPLICABILITY, applicability.toString())
+                .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, groupId)
+                .withUntypedValue(APPLICABILITY, applicability.toString())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
@@ -182,8 +182,8 @@ public class OlgsModification {
             copyOperationalLimitsGroup(limitsGroup.newCurrentLimits(), limitsGroupToCopy);
 
             olgReports.add(ReportNode.newRootReportNode().withMessageTemplate("network.modification.applicabilityChanged")
-                    .withUntypedValue(OlgUtils.OPERATIONAL_LIMITS_GROUP_NAME, limitsGroupToCopy.getId())
-                    .withUntypedValue(OlgUtils.APPLICABILITY, isSide1 ? SIDE1.toString() : SIDE2.toString())
+                    .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, limitsGroupToCopy.getId())
+                    .withUntypedValue(APPLICABILITY, isSide1 ? SIDE1.toString() : SIDE2.toString())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .build());
             // Remove copied operational limits group
@@ -201,7 +201,7 @@ public class OlgsModification {
             limitsAdder.setPermanentLimit(currentLimits.getPermanentLimit());
 
             for (LoadingLimits.TemporaryLimit tempLimit : currentLimits.getTemporaryLimits()) {
-                OlgUtils.addTemporaryLimit(limitsAdder, tempLimit.getName(), tempLimit.getValue(), tempLimit.getAcceptableDuration());
+                addTemporaryLimit(limitsAdder, tempLimit.getName(), tempLimit.getValue(), tempLimit.getAcceptableDuration());
             }
             limitsAdder.add();
         });

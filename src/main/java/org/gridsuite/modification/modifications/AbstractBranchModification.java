@@ -13,8 +13,8 @@ import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.olg.OlgsModification;
-import org.gridsuite.modification.utils.OlgUtils;
 import org.gridsuite.modification.utils.ModificationUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,9 +27,14 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
  */
 public abstract class AbstractBranchModification extends AbstractModification {
 
+    public static final String DURATION = "duration";
     public static final String NAME = "name";
     public static final String VALUE = "value";
     private static final String VALIDITY = "validity";
+    public static final String LIMIT_ACCEPTABLE_DURATION = "limitAcceptableDuration";
+    public static final String OPERATIONAL_LIMITS_GROUP_NAME = "operationalLimitsGroupName";
+    public static final String SIDE = "side";
+    public static final String APPLICABILITY = "applicability";
 
     protected final BranchModificationInfos modificationInfos;
 
@@ -85,7 +90,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
 
     private void applySelectedOLGs(Branch<?> branch, List<ReportNode> activeOLGReports) {
         if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
-            OlgUtils.modifySelectedOperationalLimitsGroup(
+            modifySelectedOperationalLimitsGroup(
                     branch,
                     modificationInfos.getSelectedOperationalLimitsGroup1(),
                     TwoSides.ONE,
@@ -93,12 +98,87 @@ public abstract class AbstractBranchModification extends AbstractModification {
             );
         }
         if (modificationInfos.getSelectedOperationalLimitsGroup2() != null) {
-            OlgUtils.modifySelectedOperationalLimitsGroup(
+            modifySelectedOperationalLimitsGroup(
                     branch,
                     modificationInfos.getSelectedOperationalLimitsGroup2(),
                     TwoSides.TWO,
                     activeOLGReports);
         }
+    }
+
+    private static void applySelectedOLGOnSide1(Branch<?> branch, AttributeModification<String> modifOperationalLimitsGroup, List<ReportNode> reportNode, String newSelectedOLG) {
+        if (!StringUtils.hasText(newSelectedOLG) || modifOperationalLimitsGroup.getOp() == OperationType.UNSET) {
+            branch.cancelSelectedOperationalLimitsGroup1();
+            if (reportNode != null) {
+                reportNode.add(ReportNode.newRootReportNode()
+                        .withMessageTemplate("network.modification.noLimitSetSelectedOnSide1")
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .build());
+            }
+        } else {
+            if (StringUtils.hasText(newSelectedOLG) && branch.getOperationalLimitsGroup1(newSelectedOLG).isEmpty() && reportNode != null) {
+                reportNode.add(ReportNode.newRootReportNode()
+                        .withMessageTemplate("network.modification.limitSetAbsentOnSide1")
+                        .withUntypedValue("selectedOperationalLimitsGroup", newSelectedOLG)
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .build());
+
+            } else {
+                branch.setSelectedOperationalLimitsGroup1(newSelectedOLG);
+                if (reportNode != null) {
+                    reportNode.add(ReportNode.newRootReportNode()
+                            .withMessageTemplate("network.modification.limitSetSelectedOnSide1")
+                            .withUntypedValue("selectedOperationalLimitsGroup1", newSelectedOLG)
+                            .withSeverity(TypedValue.INFO_SEVERITY)
+                            .build());
+                }
+            }
+        }
+    }
+
+    private static void applySelectedOLGOnSide2(Branch<?> branch, AttributeModification<String> modifOperationalLimitsGroup, List<ReportNode> reportNode, String newSelectedOLG) {
+        if (!StringUtils.hasText(newSelectedOLG) || modifOperationalLimitsGroup.getOp() == OperationType.UNSET) {
+            branch.cancelSelectedOperationalLimitsGroup2();
+            if (reportNode != null) {
+                reportNode.add(ReportNode.newRootReportNode()
+                        .withMessageTemplate("network.modification.noLimitSetSelectedOnSide2")
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .build());
+            }
+        } else {
+            if (StringUtils.hasText(newSelectedOLG) && branch.getOperationalLimitsGroup2(newSelectedOLG).isEmpty() && reportNode != null) {
+                reportNode.add(ReportNode.newRootReportNode()
+                        .withMessageTemplate("network.modification.limitSetAbsentOnSide2")
+                        .withUntypedValue("selectedOperationalLimitsGroup", newSelectedOLG)
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .build());
+
+            } else {
+                branch.setSelectedOperationalLimitsGroup2(newSelectedOLG);
+                if (reportNode != null) {
+                    reportNode.add(ReportNode.newRootReportNode()
+                            .withMessageTemplate("network.modification.limitSetSelectedOnSide2")
+                            .withUntypedValue("selectedOperationalLimitsGroup2", newSelectedOLG)
+                            .withSeverity(TypedValue.INFO_SEVERITY)
+                            .build());
+                }
+            }
+        }
+    }
+
+    public static boolean mayCreateALimit(TemporaryLimitModificationType modificationType) {
+        return modificationType == TemporaryLimitModificationType.ADD
+                || modificationType == TemporaryLimitModificationType.REPLACE
+                || modificationType == TemporaryLimitModificationType.MODIFY_OR_ADD;
+    }
+
+    public static void addTemporaryLimit(CurrentLimitsAdder limitsAdder, String limit, double limitValue, int limitAcceptableDuration) {
+        limitsAdder
+                .beginTemporaryLimit()
+                .setName(limit)
+                .setValue(limitValue)
+                .setAcceptableDuration(limitAcceptableDuration)
+                .endTemporaryLimit();
     }
 
     public ReportNode updateMeasurements(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode) {
@@ -247,6 +327,22 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 modificationInfos.getBusOrBusbarSectionId2(),
                 subReportNode
         );
+    }
+
+    public static void modifySelectedOperationalLimitsGroup(
+            Branch<?> branch,
+            AttributeModification<String> modifOperationalLimitsGroup,
+            TwoSides side,
+            List<ReportNode> reportNode) {
+        Objects.requireNonNull(side);
+        if (modifOperationalLimitsGroup != null) {
+            String newSelectedOLG = modifOperationalLimitsGroup.getValue();
+            if (side == TwoSides.ONE) {
+                applySelectedOLGOnSide1(branch, modifOperationalLimitsGroup, reportNode, newSelectedOLG);
+            } else if (side == TwoSides.TWO) {
+                applySelectedOLGOnSide2(branch, modifOperationalLimitsGroup, reportNode, newSelectedOLG);
+            }
+        }
     }
 
 }

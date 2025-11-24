@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.TwoSides;
 import groovyjarjarantlr4.v4.runtime.misc.NotNull;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
-import org.gridsuite.modification.utils.OlgUtils;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_LINE_ERROR;
@@ -87,7 +86,7 @@ public enum LineField {
                     .stream()
                     .map(OperationalLimitsGroup::getId)
                     .toList(), 1);
-                OlgUtils.modifySelectedOperationalLimitsGroup(line, attributeModification, TwoSides.ONE, null);
+                modifySelectedOperationalLimitsGroup(line, attributeModification, TwoSides.ONE, null);
             }
             case SELECTED_OPERATIONAL_LIMITS_GROUP_2 -> {
                 ModificationUtils.checkLimitsGroupExist(errorMessage, newValue, MODIFY_LINE_ERROR,
@@ -95,7 +94,7 @@ public enum LineField {
                         .stream()
                         .map(OperationalLimitsGroup::getId)
                         .toList(), 2);
-                OlgUtils.modifySelectedOperationalLimitsGroup(line, attributeModification, TwoSides.TWO, null);
+                modifySelectedOperationalLimitsGroup(line, attributeModification, TwoSides.TWO, null);
             }
             default -> throw new IllegalArgumentException(String.format("field %s is not a string modification", field));
         }
