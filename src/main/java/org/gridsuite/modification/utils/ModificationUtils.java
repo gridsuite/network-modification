@@ -17,6 +17,7 @@ import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.BusbarSectionFinderTraverser;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -159,9 +160,8 @@ public final class ModificationUtils {
             controlBus(voltageLevel, busOrBusbarSectionId);
             // check if position is free
             Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
-            var position = getPosition(connectionPosition, busOrBusbarSectionId, network, voltageLevel);
-            if (takenFeederPositions.contains(position)) {
-                throw new NetworkModificationException(CONNECTION_POSITION_ERROR, "PositionOrder '" + position + "' already taken");
+            if (takenFeederPositions.contains(connectionPosition)) {
+                throw new NetworkModificationException(CONNECTION_POSITION_ERROR, "PositionOrder '" + connectionPosition + "' already taken");
             }
         } else {
             // bus breaker must exist
@@ -539,7 +539,7 @@ public final class ModificationUtils {
 
     public ReportNode createEnabledDisabledReport(String key, boolean enabled) {
         return ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate(key)
                 .withUntypedValue("status", enabled ? "Enabled" : "Disabled")
                 .withSeverity(TypedValue.INFO_SEVERITY)
@@ -617,7 +617,7 @@ public final class ModificationUtils {
         final String newValueString = (newValue == null || newValue instanceof Double newDouble && Double.isNaN(newDouble))
                 ? NO_VALUE : newValue.toString();
         return ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("network.modification.fieldModification")
                 .withUntypedValue("arrow", "→") // Workaround to use non-ISO-8859-1 characters in the internationalization file
                 .withUntypedValue("fieldName", fieldName)
@@ -1018,7 +1018,7 @@ public final class ModificationUtils {
 
         String reportKey = "network.modification.equipment" + capitalize(action) + (side != null ? ".side" : "");
         ReportNodeBuilder builder = ReportNode.newRootReportNode()
-            .withAllResourceBundlesFromClasspath()
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
             .withMessageTemplate(reportKey)
             .withUntypedValue("id", equipment.getId())
             .withSeverity(TypedValue.INFO_SEVERITY);
@@ -1166,7 +1166,7 @@ public final class ModificationUtils {
     public <T> ReportNode buildCreationReport(T value, String fieldName) {
         String newValueString = value == null ? NO_VALUE : value.toString();
         return ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("network.modification.creation.fieldName")
                 .withUntypedValue("fieldName", fieldName)
                 .withUntypedValue("value", newValueString)
@@ -1849,7 +1849,7 @@ public final class ModificationUtils {
 
             if (!isConnected) {
                 reports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate(EQUIPMENT_DISCONNECTED)
                         .withUntypedValue("id", equipmentId)
                         .withSeverity(TypedValue.INFO_SEVERITY)
@@ -1973,7 +1973,7 @@ public final class ModificationUtils {
                 }
             } catch (PowsyblException e) {
                 shortCircuitReports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.ShortCircuitExtensionAddError")
                         .withUntypedValue("id", equipmentId)
                         .withUntypedValue("message", e.getMessage())

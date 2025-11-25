@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.SwitchKind;
 import org.gridsuite.modification.dto.CouplingDeviceInfos;
 import org.gridsuite.modification.dto.CreateCouplingDeviceInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.DummyNamingStrategy;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
 import org.junit.jupiter.api.Assertions;
@@ -85,7 +86,7 @@ class CreateCouplingDeviceTest extends AbstractNetworkModificationTest {
         Network network = getNetwork();
         AbstractModification modification = createCouplingDeviceInfos.toModification();
         ReportNode report = ReportNode.newRootReportNode()
-            .withAllResourceBundlesFromClasspath()
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test")
             .build();
         Assertions.assertDoesNotThrow(() -> modification.apply(network, report));

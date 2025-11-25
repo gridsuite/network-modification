@@ -16,6 +16,7 @@ import com.powsybl.network.store.iidm.impl.extensions.CoordinatedReactiveControl
 import com.powsybl.network.store.iidm.impl.extensions.GeneratorStartupAdderImpl;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.GeneratorCreationInfos;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -209,7 +210,7 @@ public class GeneratorCreation extends AbstractModification {
                 voltageReports.add(ModificationUtils.getInstance().buildCreationReport(generatorCreationInfos.getQPercent(), "Reactive percentage"));
             } catch (PowsyblException e) {
                 voltageReports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.ReactivePercentageError")
                         .withUntypedValue("id", generatorCreationInfos.getEquipmentId())
                         .withUntypedValue("message", e.getMessage())
@@ -268,7 +269,7 @@ public class GeneratorCreation extends AbstractModification {
                         "Droop"));
             } catch (PowsyblException e) {
                 activePowerRegulationReports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.activePowerExtensionAddError.generator")
                         .withUntypedValue("id", generatorCreationInfos.getEquipmentId())
                         .withUntypedValue("message", e.getMessage())
@@ -311,7 +312,7 @@ public class GeneratorCreation extends AbstractModification {
                 }
             } catch (PowsyblException e) {
                 startupReports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.StartupExtensionAddError")
                         .withUntypedValue("id", generatorCreationInfos.getEquipmentId())
                         .withUntypedValue("message", e.getMessage())

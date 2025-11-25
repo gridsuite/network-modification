@@ -18,6 +18,7 @@ import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.modifications.tabular.TabularModification;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -74,7 +75,7 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
     public void testApply() {
         ModificationInfos modificationInfos = buildModification();
         ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         modificationInfos.toModification().apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication(reportNode);
@@ -123,7 +124,7 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
         when(shuntCompensator.getModelType()).thenReturn(ShuntCompensatorModelType.LINEAR);
         when(shuntCompensator.getId()).thenReturn("id");
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build();
 
@@ -159,7 +160,7 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
         when(shuntCompensator.getId()).thenReturn("id");
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build();
         tabularModification.specificCheck(shuntModification, network, reportNode);
@@ -188,7 +189,7 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
         when(shuntCompensator.getModelType()).thenReturn(ShuntCompensatorModelType.LINEAR);
         when(shuntCompensator.getId()).thenReturn("id");
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build();
 

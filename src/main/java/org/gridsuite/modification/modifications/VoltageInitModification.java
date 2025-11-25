@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.NetworkModificationException.Type;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
@@ -89,7 +90,7 @@ public class VoltageInitModification extends AbstractModification {
             }
             if (bus == null) {
                 reports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.busNotFound")
                         .withUntypedValue("id", m.getBusId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
@@ -97,7 +98,7 @@ public class VoltageInitModification extends AbstractModification {
             } else if (m.getV() != null || m.getAngle() != null) {
                 modificationsCount++;
                 reports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.busModification")
                         .withUntypedValue("id", m.getBusId())
                         .withSeverity(TypedValue.DETAIL_SEVERITY)
@@ -136,7 +137,7 @@ public class VoltageInitModification extends AbstractModification {
             final Generator generator = network.getGenerator(m.getGeneratorId());
             if (generator == null) {
                 reports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.generatorNotFound")
                         .withUntypedValue("id", m.getGeneratorId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
@@ -144,7 +145,7 @@ public class VoltageInitModification extends AbstractModification {
             } else if (m.getTargetV() != null || m.getTargetQ() != null) {
                 modificationsCount++;
                 reports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.generatorModification")
                         .withUntypedValue("id", m.getGeneratorId())
                         .withSeverity(TypedValue.DETAIL_SEVERITY)
@@ -183,14 +184,14 @@ public class VoltageInitModification extends AbstractModification {
                 final ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer(t.getTransformerId());
                 if (threeWindingsTransformer == null) {
                     reports3WT.add(ReportNode.newRootReportNode()
-                            .withAllResourceBundlesFromClasspath()
+                            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                             .withMessageTemplate("network.modification.3WindingsTransformerNotFound")
                             .withUntypedValue("id", t.getTransformerId())
                             .withSeverity(TypedValue.WARN_SEVERITY)
                             .build());
                 } else if (threeWindingsTransformer.getLeg(t.getLegSide()).getRatioTapChanger() == null) {
                     reports3WT.add(ReportNode.newRootReportNode()
-                            .withAllResourceBundlesFromClasspath()
+                            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                             .withMessageTemplate("network.modification.3WindingsTransformerRatioTapChangerNotFound")
                             .withUntypedValue("id", t.getTransformerId())
                             .withUntypedValue("leg", t.getLegSide().name())
@@ -199,7 +200,7 @@ public class VoltageInitModification extends AbstractModification {
                 } else if (t.getRatioTapChangerPosition() != null || t.getRatioTapChangerTargetV() != null) {
                     modificationsCount++;
                     reports3WT.add(ReportNode.newRootReportNode()
-                            .withAllResourceBundlesFromClasspath()
+                            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                             .withMessageTemplate("network.modification.3WindingsTransformerModification")
                             .withUntypedValue("id", t.getTransformerId())
                             .withSeverity(TypedValue.DETAIL_SEVERITY)
@@ -219,14 +220,14 @@ public class VoltageInitModification extends AbstractModification {
                 final TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(t.getTransformerId());
                 if (twoWindingsTransformer == null) {
                     reports2WT.add(ReportNode.newRootReportNode()
-                            .withAllResourceBundlesFromClasspath()
+                            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                             .withMessageTemplate("network.modification.2WindingsTransformerNotFound")
                             .withUntypedValue("id", t.getTransformerId())
                             .withSeverity(TypedValue.WARN_SEVERITY)
                             .build());
                 } else if (twoWindingsTransformer.getRatioTapChanger() == null) {
                     reports2WT.add(ReportNode.newRootReportNode()
-                            .withAllResourceBundlesFromClasspath()
+                            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                             .withMessageTemplate("network.modification.2WindingsTransformerRatioTapChangerNotFound")
                             .withUntypedValue("id", t.getTransformerId())
                             .withSeverity(TypedValue.WARN_SEVERITY)
@@ -234,7 +235,7 @@ public class VoltageInitModification extends AbstractModification {
                 } else if (t.getRatioTapChangerPosition() != null || t.getRatioTapChangerTargetV() != null) {
                     modificationsCount++;
                     reports2WT.add(ReportNode.newRootReportNode()
-                            .withAllResourceBundlesFromClasspath()
+                            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                             .withMessageTemplate("network.modification.2WindingsTransformerModification")
                             .withUntypedValue("id", t.getTransformerId())
                             .withSeverity(TypedValue.DETAIL_SEVERITY)
@@ -276,7 +277,7 @@ public class VoltageInitModification extends AbstractModification {
             final StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator(s.getStaticVarCompensatorId());
             if (staticVarCompensator == null) {
                 reports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.staticVarCompensatorNotFound")
                         .withUntypedValue("id", s.getStaticVarCompensatorId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
@@ -284,7 +285,7 @@ public class VoltageInitModification extends AbstractModification {
             } else if (s.getVoltageSetpoint() != null || s.getReactivePowerSetpoint() != null) {
                 modificationsCount++;
                 reports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.staticVarCompensatorModification")
                         .withUntypedValue("id", s.getStaticVarCompensatorId())
                         .withSeverity(TypedValue.DETAIL_SEVERITY)
@@ -321,7 +322,7 @@ public class VoltageInitModification extends AbstractModification {
             final VscConverterStation vscConverterStation = network.getVscConverterStation(v.getVscConverterStationId());
             if (vscConverterStation == null) {
                 reports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.vscConverterStationNotFound")
                         .withUntypedValue("id", v.getVscConverterStationId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
@@ -329,7 +330,7 @@ public class VoltageInitModification extends AbstractModification {
             } else if (v.getVoltageSetpoint() != null || v.getReactivePowerSetpoint() != null) {
                 modificationsCount++;
                 reports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.vscConverterStationModification")
                         .withUntypedValue("id", v.getVscConverterStationId())
                         .withSeverity(TypedValue.DETAIL_SEVERITY)
@@ -366,7 +367,7 @@ public class VoltageInitModification extends AbstractModification {
             final ShuntCompensator shuntCompensator = network.getShuntCompensator(m.getShuntCompensatorId());
             if (shuntCompensator == null) {
                 reports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.shuntCompensatorNotFound")
                         .withUntypedValue("id", m.getShuntCompensatorId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
@@ -378,7 +379,7 @@ public class VoltageInitModification extends AbstractModification {
                 if (shuntCompensatorTerminal.isConnected()) {  // shunt compensator is connected
                     if (m.getSectionCount() == null) {
                         reportsShunt.add(ReportNode.newRootReportNode()
-                                .withAllResourceBundlesFromClasspath()
+                                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                                 .withMessageTemplate("network.modification.shuntCompensatorSectionCountUndefined")
                                 .withSeverity(TypedValue.WARN_SEVERITY)
                                 .build());
@@ -386,7 +387,7 @@ public class VoltageInitModification extends AbstractModification {
                         if (m.getSectionCount() == 0) {
                             shuntCompensatorTerminal.disconnect();
                             reportsShunt.add(ReportNode.newRootReportNode()
-                                    .withAllResourceBundlesFromClasspath()
+                                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                                     .withMessageTemplate("network.modification.shuntCompensatorDisconnected")
                                     .withSeverity(TypedValue.DETAIL_SEVERITY)
                                     .build());
@@ -399,7 +400,7 @@ public class VoltageInitModification extends AbstractModification {
                 } else {  // shunt compensator is disconnected
                     if (m.getConnect() == null) {
                         reportsShunt.add(ReportNode.newRootReportNode()
-                                .withAllResourceBundlesFromClasspath()
+                                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                                 .withMessageTemplate("network.modification.shuntCompensatorConnectUndefined")
                                 .withSeverity(TypedValue.WARN_SEVERITY)
                                 .build());
@@ -407,7 +408,7 @@ public class VoltageInitModification extends AbstractModification {
                         if (Boolean.TRUE.equals(m.getConnect())) {
                             shuntCompensatorTerminal.connect();
                             reportsShunt.add(ReportNode.newRootReportNode()
-                                    .withAllResourceBundlesFromClasspath()
+                                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                                     .withMessageTemplate("network.modification.shuntCompensatorReconnected")
                                     .withSeverity(TypedValue.DETAIL_SEVERITY)
                                     .build());
@@ -426,7 +427,7 @@ public class VoltageInitModification extends AbstractModification {
                 if (!reportsShunt.isEmpty()) {
                     modificationsCount++;
                     reports.add(ReportNode.newRootReportNode()
-                            .withAllResourceBundlesFromClasspath()
+                            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                             .withMessageTemplate("network.modification.shuntCompensatorModification")
                             .withUntypedValue("id", m.getShuntCompensatorId())
                             .withSeverity(TypedValue.DETAIL_SEVERITY)
