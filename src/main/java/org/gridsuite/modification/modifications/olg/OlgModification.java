@@ -438,7 +438,7 @@ public class OlgModification {
             } else {
                 // we add (back) the temporary limits that have not been modified
                 for (LoadingLimits.TemporaryLimit limit : unmodifiedTemporaryLimits) {
-                    addTemporaryLimit(limitsAdder, limit.getName(), limit.getValue(), limit.getAcceptableDuration(), applicability);
+                    addTemporaryLimit(limitsAdder, limit.getName(), limit.getValue(), limit.getAcceptableDuration());
                 }
             }
         }
@@ -557,27 +557,23 @@ public class OlgModification {
                             .withSeverity(TypedValue.DETAIL_SEVERITY)
                             .build(),
                     applicability);
-            addTemporaryLimit(limitsAdder, limitModificationInfos.getName(), limitValue, limitAcceptableDuration, applicability);
+            addTemporaryLimit(limitsAdder, limitModificationInfos.getName(), limitValue, limitAcceptableDuration);
         } else {
-            addTemporaryLimit(limitsAdder, limitModificationInfos.getName(), limitToModify.getValue(), limitAcceptableDuration, applicability);
+            addTemporaryLimit(limitsAdder, limitModificationInfos.getName(), limitToModify.getValue(), limitAcceptableDuration);
+            // log only if there is at least one actual modification
+            if (Double.compare(limitToModify.getValue(), limitValue) != 0 ||
+                    !limitToModify.getName().equals(limitModificationInfos.getName())) {
+                addToLogsOnSide(ReportNode.newRootReportNode()
+                                .withAllResourceBundlesFromClasspath()
+                                .withMessageTemplate("network.modification.temporaryLimitModified.name")
+                                .withUntypedValue(NAME, limitModificationInfos.getName())
+                                .withUntypedValue(VALUE, limitToModify.getValue())
+                                .withUntypedValue(DURATION, limitAcceptableDuration)
+                                .withSeverity(TypedValue.DETAIL_SEVERITY)
+                                .build(),
+                        applicability);
+            }
         }
-    }
-
-    public void addTemporaryLimit(CurrentLimitsAdder limitsAdder,
-                                  String limit,
-                                  double limitValue,
-                                  int limitAcceptableDuration,
-                                  OperationalLimitsGroupInfos.Applicability applicability) {
-        AbstractBranchModification.addTemporaryLimit(limitsAdder, limit, limitValue, limitAcceptableDuration);
-        addToLogsOnSide(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("network.modification.temporaryLimitModified.name")
-                        .withUntypedValue(NAME, limit)
-                        .withUntypedValue(VALUE, limitValue)
-                        .withUntypedValue(DURATION, limitAcceptableDuration)
-                        .withSeverity(TypedValue.DETAIL_SEVERITY)
-                        .build(),
-                applicability);
     }
 
     public void createTemporaryLimit(
@@ -596,7 +592,7 @@ public class OlgModification {
                 .withUntypedValue(AbstractBranchModification.VALUE, limitValueToReport)
                 .withSeverity(TypedValue.DETAIL_SEVERITY)
                 .build(),
-                olgModifInfos.getApplicability());
-        addTemporaryLimit(limitsAdder, limit.getName(), limitValue, limitAcceptableDuration, applicability);
+                applicability);
+        addTemporaryLimit(limitsAdder, limit.getName(), limitValue, limitAcceptableDuration);
     }
 }
