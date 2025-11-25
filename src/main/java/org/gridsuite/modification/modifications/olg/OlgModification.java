@@ -281,7 +281,7 @@ public class OlgModification {
             addOlgOnASide(modifiedBranch.newOperationalLimitsGroup2(olgModifInfos.getId()), SIDE2);
         }
 
-        if (!CollectionUtils.isEmpty(limitsReportsSide1) || !CollectionUtils.isEmpty(limitsReportsSide2)) {
+        if (!limitsReportsSide1.isEmpty() || !limitsReportsSide2.isEmpty()) {
             ReportNode limitSetReport = olgsReportNode.newReportNode()
                     .withMessageTemplate("network.modification.operationalLimitsGroupAdded")
                     .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, olgModifInfos.getId())
