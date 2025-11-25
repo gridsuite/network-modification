@@ -328,7 +328,7 @@ public class OlgModification {
             addProperties(newOperationalLimitsGroup, SIDE2);
         }
 
-        if (!CollectionUtils.isEmpty(limitsReportsSide1) || !CollectionUtils.isEmpty(limitsReportsSide2)) {
+        if (!limitsReportsSide1.isEmpty() || !limitsReportsSide2.isEmpty()) {
             ReportNode limitSetReport = olgsReportNode.newReportNode()
                     .withMessageTemplate("network.modification.operationalLimitsGroupReplaced")
                     .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, olgModifInfos.getId())
