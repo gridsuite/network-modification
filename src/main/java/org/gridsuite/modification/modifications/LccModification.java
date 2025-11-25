@@ -15,6 +15,7 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LccConverterStationModificationInfos;
 import org.gridsuite.modification.dto.LccModificationInfos;
 import org.gridsuite.modification.dto.LccShuntCompensatorModificationInfos;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -181,7 +182,7 @@ public class LccModification extends AbstractModification {
 
         if (shuntCompensator == null) {
             nodes.add(ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("network.modification.lcc.shuntCompensator.notFound")
                 .withUntypedValue("id", infos.getId())
                 .withSeverity(TypedValue.WARN_SEVERITY)
@@ -192,7 +193,7 @@ public class LccModification extends AbstractModification {
         if (infos.isDeletionMark()) {
             shuntCompensator.remove();
             nodes.add(ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("network.modification.lcc.shuntCompensator.removed")
                 .withUntypedValue("id", infos.getId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
@@ -209,7 +210,7 @@ public class LccModification extends AbstractModification {
             if (Boolean.TRUE.equals(infos.getConnectedToHvdc())) {
                 shuntCompensator.getTerminal().connect();
                 nodes.add(ReportNode.newRootReportNode()
-                    .withAllResourceBundlesFromClasspath()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate("network.modification.lcc.shuntCompensator.connected")
                     .withUntypedValue("id", shuntCompensator.getId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
@@ -217,7 +218,7 @@ public class LccModification extends AbstractModification {
             } else {
                 shuntCompensator.getTerminal().disconnect();
                 nodes.add(ReportNode.newRootReportNode()
-                    .withAllResourceBundlesFromClasspath()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate("network.modification.lcc.shuntCompensator.disconnected")
                     .withUntypedValue("id", shuntCompensator.getId())
                     .withSeverity(TypedValue.INFO_SEVERITY)
