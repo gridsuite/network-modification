@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.olg.OlgsModification;
-import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.StringUtils;
 
@@ -278,7 +277,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
         return done;
     }
 
-    public static boolean mayCreateALimit(TemporaryLimitModificationType modificationType) {
+    public static boolean mayCreateLimit(TemporaryLimitModificationType modificationType) {
         return modificationType == TemporaryLimitModificationType.ADD
                 || modificationType == TemporaryLimitModificationType.REPLACE
                 || modificationType == TemporaryLimitModificationType.MODIFY_OR_ADD;

@@ -12,6 +12,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.AbstractBranchModification;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -66,7 +67,7 @@ public class OlgModification {
 
     protected void applyModificationToOperationalLimitsGroup() {
         switch (olgModifInfos.getModificationType()) {
-            case OperationalLimitsGroupModificationType.MODIFY_OR_ADD: {
+            case OperationalLimitsGroupModificationType.MODIFY_OR_ADD:
                 switch (olgModifInfos.getApplicability()) {
                     case EQUIPMENT :
                         if (modifiedOperationalLimitsGroup1() == null && modifiedOperationalLimitsGroup2() == null) {
@@ -102,8 +103,8 @@ public class OlgModification {
                         }
                         break;
                 }
-            } break;
-            case OperationalLimitsGroupModificationType.MODIFY: {
+                break;
+            case OperationalLimitsGroupModificationType.MODIFY:
                 if (applicableOnSide1() && modifiedOperationalLimitsGroup1() == null) {
                     throw new PowsyblException("Cannot modify operational limit group " + olgModifInfos.getId() + " which has not been found in equipment side 1");
                 }
@@ -111,16 +112,15 @@ public class OlgModification {
                     throw new PowsyblException("Cannot modify operational limit group " + olgModifInfos.getId() + " which has not been found in equipment side 2");
                 }
                 modifyOLG(olgModifInfos.getApplicability());
-            } break;
-            case OperationalLimitsGroupModificationType.ADD: {
+                break;
+            case OperationalLimitsGroupModificationType.ADD:
                 addOlg(olgModifInfos.getApplicability());
-            } break;
-            case OperationalLimitsGroupModificationType.REPLACE: {
+                break;
+            case OperationalLimitsGroupModificationType.REPLACE:
                 replaceOpLG();
-            } break;
-            case DELETE: {
+                break;
+            case DELETE:
                 removeOlg();
-            }
         }
     }
 
@@ -430,7 +430,7 @@ public class OlgModification {
                 // this needs to be logged only if there are unmodifiedTemporaryLimits left.
                 // which means that they are going to be removed by the REPLACE mode
                 addToLogsOnSide(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.temporaryLimitsReplaced")
                         .withSeverity(TypedValue.DETAIL_SEVERITY)
                         .build(),
@@ -468,14 +468,14 @@ public class OlgModification {
             // this limit is modified by the network modification so we remove it from the list of unmodified temporary limits
             unmodifiedTemporaryLimits.removeIf(temporaryLimit -> temporaryLimit.getAcceptableDuration() == limitAcceptableDuration);
         }
-        if (limitToModify == null && mayCreateALimit(limit.getModificationType())) {
+        if (limitToModify == null && mayCreateLimit(limit.getModificationType())) {
             createTemporaryLimit(limitsAdder, limit, limitDurationToReport, limitValueToReport, limitValue, limitAcceptableDuration, applicability);
         } else if (limitToModify != null) {
             // the limit already exists
             if (limit.getModificationType() == TemporaryLimitModificationType.DELETE) {
                 // the limit has been removed previously
                 addToLogsOnSide(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.temporaryLimitDeleted.name")
                         .withUntypedValue(NAME, limit.getName())
                         .withUntypedValue(DURATION, limitDurationToReport)
@@ -488,7 +488,7 @@ public class OlgModification {
         } else if (limit.getModificationType() == TemporaryLimitModificationType.MODIFY || limit.getModificationType() == TemporaryLimitModificationType.MODIFY_OR_ADD) {
             // invalid modification
             addToLogsOnSide(ReportNode.newRootReportNode()
-                    .withAllResourceBundlesFromClasspath()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate("network.modification.temporaryLimitsNoMatch")
                     .withUntypedValue(LIMIT_ACCEPTABLE_DURATION, limitAcceptableDuration)
                     .withSeverity(TypedValue.WARN_SEVERITY)
@@ -546,7 +546,7 @@ public class OlgModification {
         if (Double.compare(limitToModify.getValue(), limitValue) != 0 && limitModificationInfos.getModificationType() != null) {
             // value change
             addToLogsOnSide(ReportNode.newRootReportNode()
-                            .withAllResourceBundlesFromClasspath()
+                            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                             .withMessageTemplate("network.modification.temporaryLimitValueModified.name")
                             .withUntypedValue(AbstractBranchModification.NAME, limitModificationInfos.getName())
                             .withUntypedValue(DURATION, limitDurationToReport)
@@ -564,7 +564,7 @@ public class OlgModification {
             if (Double.compare(limitToModify.getValue(), limitValue) != 0 ||
                     !limitToModify.getName().equals(limitModificationInfos.getName())) {
                 addToLogsOnSide(ReportNode.newRootReportNode()
-                                .withAllResourceBundlesFromClasspath()
+                                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                                 .withMessageTemplate("network.modification.temporaryLimitModified.name")
                                 .withUntypedValue(NAME, limitModificationInfos.getName())
                                 .withUntypedValue(VALUE, limitToModify.getValue())
@@ -585,7 +585,7 @@ public class OlgModification {
             int limitAcceptableDuration,
             OperationalLimitsGroupInfos.Applicability applicability) {
         addToLogsOnSide(ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("network.modification.temporaryLimitAdded.name")
                 .withUntypedValue(AbstractBranchModification.NAME, limit.getName())
                 .withUntypedValue(DURATION, limitDurationToReport)
