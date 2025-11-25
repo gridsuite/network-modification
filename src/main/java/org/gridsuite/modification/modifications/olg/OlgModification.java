@@ -31,6 +31,7 @@ import static org.gridsuite.modification.modifications.AbstractBranchModificatio
  * @author Mathieu DEHARBE <mathieu.deharbe at rte-france.com>
  */
 public class OlgModification {
+    public static final String OPERATIONAL_LIMITS_GROUP_ADDED_LOG_DETAIL = "network.modification.operationalLimitsGroupAdded.detail";
     private final Branch<?> modifiedBranch; // branch modified by the network modification
     private final OperationalLimitsGroupModificationInfos olgModifInfos;
     private final ReportNode olgsReportNode;
@@ -117,7 +118,7 @@ public class OlgModification {
                 addOlg(olgModifInfos.getApplicability());
                 break;
             case OperationalLimitsGroupModificationType.REPLACE:
-                replaceOpLG();
+                replaceOlg();
                 break;
             case DELETE:
                 removeOlg();
@@ -270,13 +271,13 @@ public class OlgModification {
             if (modifiedOperationalLimitsGroup1() != null) {
                 throw new PowsyblException("Cannot add " + modifiedOperationalLimitsGroup1().getId() + " operational limit group, one with the given name already exists");
             }
-            addOlgOnASide(modifiedBranch.newOperationalLimitsGroup1(olgModifInfos.getId()), SIDE1);
+            addOlgOnSide(modifiedBranch.newOperationalLimitsGroup1(olgModifInfos.getId()), SIDE1);
         }
         if (applicability == EQUIPMENT || applicability == SIDE2) {
             if (modifiedOperationalLimitsGroup2() != null) {
                 throw new PowsyblException("Cannot add " + modifiedOperationalLimitsGroup2().getId() + " operational limit group, one with the given name already exists");
             }
-            addOlgOnASide(modifiedBranch.newOperationalLimitsGroup2(olgModifInfos.getId()), SIDE2);
+            addOlgOnSide(modifiedBranch.newOperationalLimitsGroup2(olgModifInfos.getId()), SIDE2);
         }
 
         if (!limitsReportsSide1.isEmpty() || !limitsReportsSide2.isEmpty()) {
@@ -286,8 +287,8 @@ public class OlgModification {
                     .withUntypedValue(SIDE, applicabilityToString(applicability))
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
-            createLogNodeForSide(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", SIDE1);
-            createLogNodeForSide(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", SIDE2);
+            createLogNodeForSide(limitSetReport, OPERATIONAL_LIMITS_GROUP_ADDED_LOG_DETAIL, SIDE1);
+            createLogNodeForSide(limitSetReport, OPERATIONAL_LIMITS_GROUP_ADDED_LOG_DETAIL, SIDE2);
         }
     }
 
@@ -299,12 +300,12 @@ public class OlgModification {
         };
     }
 
-    private void addOlgOnASide(OperationalLimitsGroup newOperationalLimitsGroup, OperationalLimitsGroupInfos.Applicability applicability) {
+    private void addOlgOnSide(OperationalLimitsGroup newOperationalLimitsGroup, OperationalLimitsGroupInfos.Applicability applicability) {
         modifyCurrentLimits(newOperationalLimitsGroup.newCurrentLimits(), newOperationalLimitsGroup.getCurrentLimits().orElse(null), applicability);
         addProperties(newOperationalLimitsGroup, applicability);
     }
 
-    private void replaceOpLG() {
+    private void replaceOlg() {
         if (applicableOnSide1()) {
             OperationalLimitsGroup modifiedOlg = modifiedOperationalLimitsGroup1();
             if (modifiedOlg != null) {
@@ -333,8 +334,8 @@ public class OlgModification {
                     .withUntypedValue(SIDE, applicabilityToString(olgModifInfos.getApplicability()))
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
-            createLogNodeForSide(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", SIDE1);
-            createLogNodeForSide(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", SIDE2);
+            createLogNodeForSide(limitSetReport, OPERATIONAL_LIMITS_GROUP_ADDED_LOG_DETAIL, SIDE1);
+            createLogNodeForSide(limitSetReport, OPERATIONAL_LIMITS_GROUP_ADDED_LOG_DETAIL, SIDE2);
         }
     }
 
@@ -497,7 +498,6 @@ public class OlgModification {
      */
     public boolean isThisLimitDeleted(List<CurrentTemporaryLimitModificationInfos> temporaryLimitsModification, int acceptableDuration) {
         return temporaryLimitsModification.stream()
-                .filter(temporaryLimit -> temporaryLimit.getAcceptableDuration() != null)
                 .anyMatch(temporaryLimit ->
                         temporaryLimit.getAcceptableDuration() == acceptableDuration && temporaryLimit.getModificationType() == TemporaryLimitModificationType.DELETE
                 );
@@ -512,8 +512,7 @@ public class OlgModification {
         LoadingLimits.TemporaryLimit limitToModify;
         limitToModify = networkCurrentLimits.getTemporaryLimit(limitAcceptableDuration);
         if (limitToModify != null && !limitToModify.getName().equals(limit.getName())) {
-            boolean isThisLimitDeleted = isThisLimitDeleted(currentLimitsInfos.getTemporaryLimits(), limitAcceptableDuration);
-            if (isThisLimitDeleted) {
+            if (isThisLimitDeleted(currentLimitsInfos.getTemporaryLimits(), limitAcceptableDuration)) {
                 limitToModify = null;
             } else if (TemporaryLimitModificationType.ADD.equals(limit.getModificationType())) {
                 throw new PowsyblException("2 temporary limits have the same duration " + limitAcceptableDuration);
