@@ -158,15 +158,12 @@ public class OlgModification {
                     .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, olgModifInfos.getId())
                     .withUntypedValue(SIDE, applicabilityToString(applicability))
                     .withSeverity(TypedValue.INFO_SEVERITY).add();
-            logSideNode(limitSetReport, "network.modification.operationalLimitsGroupModified.detail", SIDE1);
-            logSideNode(limitSetReport, "network.modification.operationalLimitsGroupModified.detail", SIDE2);
+            createLogNodeForSide(limitSetReport, "network.modification.operationalLimitsGroupModified.detail", SIDE1);
+            createLogNodeForSide(limitSetReport, "network.modification.operationalLimitsGroupModified.detail", SIDE2);
         }
     }
 
-    /**
-     * creates a log node specific for each side
-     */
-    private void logSideNode(ReportNode limitSetReport, String messageTemplate, OperationalLimitsGroupInfos.Applicability applicability) {
+    private void createLogNodeForSide(ReportNode limitSetReport, String messageTemplate, OperationalLimitsGroupInfos.Applicability applicability) {
         List<ReportNode> limitsReports;
         if (applicability == SIDE1) {
             limitsReports = limitsReportsSide1;
@@ -291,8 +288,8 @@ public class OlgModification {
                     .withUntypedValue(SIDE, applicabilityToString(applicability))
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
-            logSideNode(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", SIDE1);
-            logSideNode(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", SIDE2);
+            createLogNodeForSide(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", SIDE1);
+            createLogNodeForSide(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", SIDE2);
         }
     }
 
@@ -338,8 +335,8 @@ public class OlgModification {
                     .withUntypedValue(SIDE, applicabilityToString(olgModifInfos.getApplicability()))
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
-            logSideNode(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", SIDE1);
-            logSideNode(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", SIDE2);
+            createLogNodeForSide(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", SIDE1);
+            createLogNodeForSide(limitSetReport, "network.modification.operationalLimitsGroupAdded.detail", SIDE2);
         }
     }
 
