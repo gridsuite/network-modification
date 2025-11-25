@@ -164,12 +164,10 @@ public class OlgModification {
     }
 
     private void createLogNodeForSide(ReportNode limitSetReport, String messageTemplate, OperationalLimitsGroupInfos.Applicability applicability) {
-        List<ReportNode> limitsReports;
-        if (applicability == SIDE1) {
-            limitsReports = limitsReportsSide1;
-        } else {
-            limitsReports = limitsReportsSide2;
+        if (applicability == EQUIPMENT) {
+            throw new IllegalArgumentException("createLogNodeForSide cannot be called on an EQUIPMENT applicability");
         }
+        List<ReportNode> limitsReports = applicability == SIDE1 ? limitsReportsSide1 : limitsReportsSide2;
         if (!limitsReports.isEmpty()) {
             ReportNode limitSetReportDetail = limitSetReport.newReportNode()
                     .withMessageTemplate(messageTemplate)
