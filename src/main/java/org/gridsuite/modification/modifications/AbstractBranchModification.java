@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.BRANCH_MODIFICATION_ERROR;
-import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
+import static org.gridsuite.modification.utils.ModificationUtils.NO_VALUE;
 
 /**
  * @author Florent MILLOT <florent.millot at rte-france.com>
@@ -48,9 +48,14 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 .withUntypedValue("id", branchModificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
-        if (branchModificationInfos.getEquipmentName() != null) {
-            insertReportNode(subReportNode, ModificationUtils.getInstance().buildModificationReport(Optional.of(branch.getOptionalName()).orElse(null), branchModificationInfos.getEquipmentName().getValue(), "Name"));
-            branch.setName(branchModificationInfos.getEquipmentName().getValue());
+        if (branchModificationInfos.getEquipmentName() != null && modificationInfos.getEquipmentName().getValue() != null) {
+            ModificationUtils.getInstance().applyElementaryModifications(
+                    branch::setName,
+                    () -> branch.getOptionalName().orElse(NO_VALUE),
+                    modificationInfos.getEquipmentName(),
+                    subReportNode,
+                    "Name"
+            );
         }
 
         modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide1(modificationInfos, branch, subReportNode);
