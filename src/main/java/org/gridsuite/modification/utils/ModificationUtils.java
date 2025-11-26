@@ -2043,7 +2043,7 @@ public final class ModificationUtils {
         }
     }
 
-    public void createNewActivePowerControlForInjectionCreation(ActivePowerControlAdder adder, Boolean participate, Float droop, ReportNode subReporter) {
+    public void createNewActivePowerControlForInjectionCreation(ActivePowerControlAdder<?> adder, Boolean participate, Float droop, ReportNode subReporter) {
         if (participate != null) {
             List<ReportNode> activePowerRegulationReports = new ArrayList<>();
             double droopNotNull = droop != null ? droop : Double.NaN;
