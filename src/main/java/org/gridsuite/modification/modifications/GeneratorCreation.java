@@ -142,7 +142,11 @@ public class GeneratorCreation extends AbstractModification {
         ModificationUtils.getInstance().createReactiveLimits(generatorCreationInfos, generator, subReporterLimits);
         ReportNode subReporterSetpoints = reportGeneratorSetPoints(generatorCreationInfos, subReportNode);
         createGeneratorVoltageRegulation(generatorCreationInfos, generator, voltageLevel, subReporterSetpoints);
-        createGeneratorActivePowerControl(generatorCreationInfos, generator, subReporterSetpoints);
+        ModificationUtils.getInstance().createActivePowerControl(generatorCreationInfos.getEquipmentId(),
+                generator.newExtension(ActivePowerControlAdder.class),
+                generatorCreationInfos.getParticipate(),
+                generatorCreationInfos.getDroop(),
+                subReporterSetpoints);
         ModificationUtils.getInstance().createShortCircuitExtension(generatorCreationInfos.getStepUpTransformerX(),
                 generatorCreationInfos.getDirectTransX(), generatorCreationInfos.getEquipmentId(),
                 generator.newExtension(GeneratorShortCircuitAdder.class), subReportNode, "generator");
@@ -254,19 +258,18 @@ public class GeneratorCreation extends AbstractModification {
     }
 
     private void createGeneratorActivePowerControl(GeneratorCreationInfos generatorCreationInfos, Generator generator, ReportNode subReportNode) {
-        if (generatorCreationInfos.getParticipate() != null && generatorCreationInfos.getDroop() != null) {
+        if (generatorCreationInfos.getParticipate() != null) {
             List<ReportNode> activePowerRegulationReports = new ArrayList<>();
+            double droop = generatorCreationInfos.getDroop() != null ? generatorCreationInfos.getDroop() : Double.NaN;
             try {
                 generator.newExtension(ActivePowerControlAdder.class)
                         .withParticipate(generatorCreationInfos.getParticipate())
-                        .withDroop(generatorCreationInfos.getDroop())
+                        .withDroop(droop)
                         .add();
                 activePowerRegulationReports.add(ModificationUtils.getInstance().buildCreationReport(
                         generatorCreationInfos.getParticipate(),
                         "Participate"));
-                activePowerRegulationReports.add(ModificationUtils.getInstance().buildCreationReport(
-                        generatorCreationInfos.getDroop(),
-                        "Droop"));
+                activePowerRegulationReports.add(ModificationUtils.getInstance().buildCreationReport(droop, "Droop"));
             } catch (PowsyblException e) {
                 activePowerRegulationReports.add(ReportNode.newRootReportNode()
                         .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)

@@ -132,7 +132,11 @@ public class BatteryCreation extends AbstractModification {
         ReportNode subReportNodeLimits = reportBatteryActiveLimits(batteryCreationInfos, subReportNode);
         ModificationUtils.getInstance().createReactiveLimits(batteryCreationInfos, battery, subReportNodeLimits);
         ReportNode subReportNodeSetpoints = reportBatterySetPoints(batteryCreationInfos, subReportNode);
-        createBatteryActivePowerControl(batteryCreationInfos, battery, subReportNodeSetpoints);
+        ModificationUtils.getInstance().createActivePowerControl(batteryCreationInfos.getEquipmentId(),
+                battery.newExtension(ActivePowerControlAdder.class),
+                batteryCreationInfos.getParticipate(),
+                batteryCreationInfos.getDroop(),
+                subReportNodeSetpoints);
         ModificationUtils.getInstance().createShortCircuitExtension(batteryCreationInfos.getStepUpTransformerX(),
                 batteryCreationInfos.getDirectTransX(), batteryCreationInfos.getEquipmentId(),
                 battery.newExtension(BatteryShortCircuitAdder.class), subReportNode, "battery");

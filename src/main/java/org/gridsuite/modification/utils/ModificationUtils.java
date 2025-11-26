@@ -2040,5 +2040,31 @@ public final class ModificationUtils {
             reportModifications(subReportNode, reports, "network.modification.shortCircuitAttributesModified");
         }
     }
+
+    public void createActivePowerControl(String equipmentId, ActivePowerControlAdder adder, Boolean participate, Float droop, ReportNode subReporter) {
+        if (participate != null) {
+            List<ReportNode> activePowerRegulationReports = new ArrayList<>();
+            double droopNotNull = droop != null ? droop : Double.NaN;
+            try {
+                adder.withParticipate(participate).withDroop(droopNotNull).add();
+                activePowerRegulationReports.add(ModificationUtils.getInstance().buildCreationReport(
+                        participate,
+                        "Participate"));
+                activePowerRegulationReports.add(ModificationUtils.getInstance().buildCreationReport(
+                        droopNotNull,
+                        "Droop"));
+            } catch (PowsyblException e) {
+                activePowerRegulationReports.add(ReportNode.newRootReportNode()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                        .withMessageTemplate("network.modification.activePowerExtensionAddError.battery")
+                        .withUntypedValue("id", equipmentId)
+                        .withUntypedValue("message", e.getMessage())
+                        .withSeverity(TypedValue.ERROR_SEVERITY)
+                        .build());
+            }
+            reportModifications(subReporter, activePowerRegulationReports, "network.modification.ActivePowerRegulationCreated");
+        }
+
+    }
 }
 
