@@ -30,14 +30,14 @@ import static org.gridsuite.modification.modifications.AbstractBranchModificatio
  *
  * @author Mathieu DEHARBE <mathieu.deharbe at rte-france.com>
  */
-public class OlgModification {
+public class OperationalLimitsGroupModification {
     private final Branch<?> modifiedBranch; // branch modified by the network modification
     private final OperationalLimitsGroupModificationInfos olgModifInfos;
     private final ReportNode olgsReportNode;
     List<ReportNode> limitsReportsSide1;
     List<ReportNode> limitsReportsSide2;
 
-    public OlgModification(
+    public OperationalLimitsGroupModification(
             Branch<?> modifiedBranch,
             OperationalLimitsGroupModificationInfos olgModifInfos,
             ReportNode limitSetsReportNode) {

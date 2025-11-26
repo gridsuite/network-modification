@@ -23,12 +23,12 @@ import static org.gridsuite.modification.modifications.AbstractBranchModificatio
  *
  * @author Mathieu DEHARBE <mathieu.deharbe at rte-france.com>
  */
-public class OlgsModification {
+public class OperationalLimitsGroupsModification {
     private final Branch<?> modifiedBranch; // branch modified by the network modification
     private final List<OperationalLimitsGroupModificationInfos> olgModificationInfos;
     private final ReportNode olgsReportNode;
 
-    public OlgsModification(
+    public OperationalLimitsGroupsModification(
             Branch<?> branch,
             List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos,
             ReportNode limitSetsReportNode) {
@@ -57,7 +57,7 @@ public class OlgsModification {
                 detectApplicabilityChange(opLGModifInfos, olgSetReports);
             }
 
-            new OlgModification(
+            new OperationalLimitsGroupModification(
                     modifiedBranch,
                     opLGModifInfos,
                     olgsReportNode
@@ -84,7 +84,7 @@ public class OlgsModification {
         Iterator<String> i = olgToBeDeleted.iterator();
         while (i.hasNext()) {
             String s = i.next();
-            new OlgModification(
+            new OperationalLimitsGroupModification(
                     modifiedBranch,
                     OperationalLimitsGroupModificationInfos.builder()
                             .id(s)

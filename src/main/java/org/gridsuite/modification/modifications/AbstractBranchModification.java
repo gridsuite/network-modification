@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.modifications.olg.OlgsModification;
+import org.gridsuite.modification.modifications.olg.OperationalLimitsGroupsModification;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.StringUtils;
 
@@ -75,7 +75,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
         if (modifyOLG) {
             limitsReportNode = subReportNode.newReportNode().withMessageTemplate("network.modification.limits").add();
             ReportNode limitSetsReportNode = limitsReportNode.newReportNode().withMessageTemplate("network.modification.limitsSets").add();
-            new OlgsModification(
+            new OperationalLimitsGroupsModification(
                     branch,
                     branchModificationInfos.getOperationalLimitsGroups(),
                     limitSetsReportNode
