@@ -7,15 +7,15 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.FreePropertyInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.SubstationCreationInfos;
-import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
+import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.utils.DummyNamingStrategy;
 import org.gridsuite.modification.utils.ModificationCreation;
 import org.gridsuite.modification.utils.NetworkCreation;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -206,5 +206,17 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
         assertEquals("VOLTAGE_LEVEL_CREATION", modificationInfos.getMessageType());
         Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
         assertEquals("vlId", createdValues.get("equipmentId"));
+    }
+
+    @Test
+    void testApplyWithNamingStrategy() {
+        Network network = getNetwork();
+        ReportNode report = ReportNode.newRootReportNode()
+                .withMessageTemplate("test")
+                .build();
+        ModificationCreation.getCreationVoltageLevel("s2", "vlId", "vlName")
+                .toModification().apply(network, new DummyNamingStrategy(), report);
+        Assertions.assertNotNull(network.getBusbarSection("BUSBAR_1_1"));
+        Assertions.assertNotNull(network.getSwitch("DISCONNECTOR_1_5"));
     }
 }
