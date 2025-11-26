@@ -1357,9 +1357,9 @@ public final class ModificationUtils {
         Boolean participate = Optional.ofNullable(participateInfo).map(AttributeModification::getValue).orElse(null);
         Float droop = Optional.ofNullable(droopInfo).map(AttributeModification::getValue).orElse(null);
         checkActivePowerControl(participate, droop, exceptionType, errorMessage);
-        if (participate != null && droop != null) {
+        if (participate != null) {
             adder.withParticipate(participate)
-                .withDroop(droop)
+                .withDroop(droop != null ? droop : Double.NaN)
                 .add();
             if (reports != null) {
                 reports.add(buildModificationReport(null, participate, PARTICIPATE));
