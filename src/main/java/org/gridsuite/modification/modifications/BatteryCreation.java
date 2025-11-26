@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
@@ -14,7 +13,6 @@ import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.BatteryCreationInfos;
-import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -132,8 +130,7 @@ public class BatteryCreation extends AbstractModification {
         ReportNode subReportNodeLimits = reportBatteryActiveLimits(batteryCreationInfos, subReportNode);
         ModificationUtils.getInstance().createReactiveLimits(batteryCreationInfos, battery, subReportNodeLimits);
         ReportNode subReportNodeSetpoints = reportBatterySetPoints(batteryCreationInfos, subReportNode);
-        ModificationUtils.getInstance().createActivePowerControl(batteryCreationInfos.getEquipmentId(),
-                battery.newExtension(ActivePowerControlAdder.class),
+        ModificationUtils.getInstance().createActivePowerControl(battery.newExtension(ActivePowerControlAdder.class),
                 batteryCreationInfos.getParticipate(),
                 batteryCreationInfos.getDroop(),
                 subReportNodeSetpoints);
@@ -162,32 +159,5 @@ public class BatteryCreation extends AbstractModification {
             batteryCreationInfos.getMaxP(), "Max active power"));
         ModificationUtils.getInstance().reportModifications(subReportNodeLimits, limitsReports, "network.modification.ActiveLimitsCreated");
         return subReportNodeLimits;
-    }
-
-    private void createBatteryActivePowerControl(BatteryCreationInfos batteryCreationInfos, Battery battery, ReportNode subReporter) {
-        if (batteryCreationInfos.getParticipate() != null && batteryCreationInfos.getDroop() != null) {
-            List<ReportNode> activePowerRegulationReports = new ArrayList<>();
-            try {
-                battery.newExtension(ActivePowerControlAdder.class)
-                        .withParticipate(batteryCreationInfos.getParticipate())
-                        .withDroop(batteryCreationInfos.getDroop())
-                        .add();
-                activePowerRegulationReports.add(ModificationUtils.getInstance().buildCreationReport(
-                        batteryCreationInfos.getParticipate(),
-                        "Participate"));
-                activePowerRegulationReports.add(ModificationUtils.getInstance().buildCreationReport(
-                        batteryCreationInfos.getDroop(),
-                        "Droop"));
-            } catch (PowsyblException e) {
-                activePowerRegulationReports.add(ReportNode.newRootReportNode()
-                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                        .withMessageTemplate("network.modification.activePowerExtensionAddError.battery")
-                        .withUntypedValue("id", batteryCreationInfos.getEquipmentId())
-                        .withUntypedValue("message", e.getMessage())
-                        .withSeverity(TypedValue.ERROR_SEVERITY)
-                        .build());
-            }
-            ModificationUtils.getInstance().reportModifications(subReporter, activePowerRegulationReports, "network.modification.ActivePowerRegulationCreated");
-        }
     }
 }

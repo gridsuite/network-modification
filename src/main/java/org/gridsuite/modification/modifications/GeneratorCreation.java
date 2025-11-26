@@ -142,8 +142,7 @@ public class GeneratorCreation extends AbstractModification {
         ModificationUtils.getInstance().createReactiveLimits(generatorCreationInfos, generator, subReporterLimits);
         ReportNode subReporterSetpoints = reportGeneratorSetPoints(generatorCreationInfos, subReportNode);
         createGeneratorVoltageRegulation(generatorCreationInfos, generator, voltageLevel, subReporterSetpoints);
-        ModificationUtils.getInstance().createActivePowerControl(generatorCreationInfos.getEquipmentId(),
-                generator.newExtension(ActivePowerControlAdder.class),
+        ModificationUtils.getInstance().createActivePowerControl(generator.newExtension(ActivePowerControlAdder.class),
                 generatorCreationInfos.getParticipate(),
                 generatorCreationInfos.getDroop(),
                 subReporterSetpoints);
