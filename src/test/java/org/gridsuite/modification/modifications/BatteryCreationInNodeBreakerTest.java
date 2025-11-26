@@ -183,14 +183,6 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         batteryCreationInfos4.setEquipmentId("v3Battery");
         exception = assertThrows(NetworkModificationException.class, () -> batteryCreationInfos4.toModification().check(getNetwork()));
         assertEquals("BATTERY_ALREADY_EXISTS : v3Battery", exception.getMessage());
-
-        // try to
-        BatteryCreationInfos batteryCreationInfos5 = (BatteryCreationInfos) buildModification();
-        batteryCreationInfos5.setEquipmentId("v3Battery");
-        batteryCreationInfos5.setDroop(-10f);
-        batteryCreationInfos5.setParticipate(true);
-//        exception = assertThrows(NetworkModificationException.class, () -> batteryCreationInfos4.toModification().check(getNetwork()));
-//        assertEquals("BATTERY_ALREADY_EXISTS : v3Battery", exception.getMessage());
     }
 
     @Override
@@ -239,5 +231,26 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         ActivePowerControl activePowerControl = battery.getExtension(ActivePowerControl.class);
         assertEquals(Double.NaN, activePowerControl.getDroop());
         assertFalse(activePowerControl.isParticipate());
+
+        BatteryCreationInfos batteryCreationInfos2 = BatteryCreationInfos.builder()
+                .stashed(false)
+                .equipmentId("idBattery4")
+                .voltageLevelId("v2")
+                .busOrBusbarSectionId("1B")
+                .minP(100.0)
+                .maxP(600.0)
+                .targetP(400.)
+                .targetQ(50.)
+                .minQ(20.0)
+                .maxQ(25.0)
+                .droop(5f)
+                .participate(null)
+                .reactiveCapabilityCurve(false)
+                .connectionName("top")
+                .connectionDirection(ConnectablePosition.Direction.TOP)
+                .build();
+        batteryCreationInfos2.toModification().apply(network);
+        Battery battery2 = network.getBattery("idBattery4");
+        assertNull(battery2.getExtension(ActivePowerControl.class));
     }
 }

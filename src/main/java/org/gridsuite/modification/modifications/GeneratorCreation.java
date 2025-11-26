@@ -256,33 +256,6 @@ public class GeneratorCreation extends AbstractModification {
         return subReportNodeLimits;
     }
 
-    private void createGeneratorActivePowerControl(GeneratorCreationInfos generatorCreationInfos, Generator generator, ReportNode subReportNode) {
-        if (generatorCreationInfos.getParticipate() != null) {
-            List<ReportNode> activePowerRegulationReports = new ArrayList<>();
-            double droop = generatorCreationInfos.getDroop() != null ? generatorCreationInfos.getDroop() : Double.NaN;
-            try {
-                generator.newExtension(ActivePowerControlAdder.class)
-                        .withParticipate(generatorCreationInfos.getParticipate())
-                        .withDroop(droop)
-                        .add();
-                activePowerRegulationReports.add(ModificationUtils.getInstance().buildCreationReport(
-                        generatorCreationInfos.getParticipate(),
-                        "Participate"));
-                activePowerRegulationReports.add(ModificationUtils.getInstance().buildCreationReport(droop, "Droop"));
-            } catch (PowsyblException e) {
-                activePowerRegulationReports.add(ReportNode.newRootReportNode()
-                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                        .withMessageTemplate("network.modification.activePowerExtensionAddError.generator")
-                        .withUntypedValue("id", generatorCreationInfos.getEquipmentId())
-                        .withUntypedValue("message", e.getMessage())
-                        .withSeverity(TypedValue.ERROR_SEVERITY)
-                        .build());
-
-            }
-            ModificationUtils.getInstance().reportModifications(subReportNode, activePowerRegulationReports, "network.modification.ActivePowerRegulationCreated");
-        }
-    }
-
     private void createGeneratorStartUp(GeneratorCreationInfos generatorCreationInfos, Generator generator, ReportNode subReportNode) {
         if (generatorCreationInfos.getPlannedActivePowerSetPoint() != null
                 || generatorCreationInfos.getMarginalCost() != null
