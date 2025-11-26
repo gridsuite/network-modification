@@ -8,6 +8,7 @@ package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.Measurement;
@@ -16,6 +17,7 @@ import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
@@ -27,6 +29,7 @@ import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applica
 import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.DELETE;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.MODIFY_OR_ADD;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.REPLACE;
+import static org.gridsuite.modification.utils.TestUtils.assertLogMessageWithoutRank;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -335,6 +338,24 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         getNetwork().getSwitch("v3bl1").setOpen(true);
         exception = assertThrows(NetworkModificationException.class, () -> changeLineConnectionState(getNetwork().getLine("line1"), true));
         assertEquals("BRANCH_MODIFICATION_ERROR : Could not connect equipment 'line1' on side 1 & 2", exception.getMessage());
+    }
+
+    @Test
+    void testRename() {
+        Line line = getNetwork().getLine("line1");
+        line.setName(null);
+
+        LineModificationInfos modificationInfos = LineModificationInfos.builder()
+                .equipmentName(AttributeModification.toAttributeModification("newName", OperationType.SET))
+                .equipmentId("line1")
+                .build();
+        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+        modificationInfos.toModification().apply(getNetwork(), reportNode);
+
+        assertEquals("newName", line.getOptionalName().orElseThrow());
+        assertLogMessageWithoutRank("Name : No value → newName", "network.modification.fieldModification", reportNode);
     }
 
     @Test
