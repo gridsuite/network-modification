@@ -7,7 +7,9 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.BatteryCreationInfos;
@@ -92,5 +94,39 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
         assertEquals("BATTERY_CREATION", modificationInfos.getMessageType());
         Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
         assertEquals("idBattery2", createdValues.get("equipmentId"));
+        Battery battery = getNetwork().getBattery("idBattery2");
+        assertNotNull(battery.getExtension(ActivePowerControl.class));
+        ActivePowerControl activePowerControl = battery.getExtension(ActivePowerControl.class);
+        assertEquals(5, activePowerControl.getDroop());
+        assertTrue(activePowerControl.isParticipate());
+    }
+
+    @Test
+    void testCreateWithDroopNull() {
+        Network network = getNetwork();
+        BatteryCreationInfos batteryCreationInfos = BatteryCreationInfos.builder()
+                .stashed(false)
+                .equipmentId("idBattery2")
+                .equipmentName("nameBattery2")
+                .voltageLevelId("v1")
+                .busOrBusbarSectionId("bus1")
+                .minP(100.0)
+                .maxP(600.0)
+                .targetP(400.)
+                .targetQ(50.)
+                .minQ(20.0)
+                .maxQ(25.0)
+                .droop(null)
+                .participate(false)
+                .reactiveCapabilityCurve(false)
+                .connectionName("top")
+                .connectionDirection(ConnectablePosition.Direction.TOP)
+                .build();
+        batteryCreationInfos.toModification().apply(network);
+        Battery battery = network.getBattery("idBattery2");
+        assertNotNull(battery.getExtension(ActivePowerControl.class));
+        ActivePowerControl activePowerControl = battery.getExtension(ActivePowerControl.class);
+        assertEquals(Double.NaN, activePowerControl.getDroop());
+        assertFalse(activePowerControl.isParticipate());
     }
 }

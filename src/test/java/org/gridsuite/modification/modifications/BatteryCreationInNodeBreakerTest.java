@@ -9,11 +9,16 @@ package org.gridsuite.modification.modifications;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.dto.BatteryCreationInfos;
+import org.gridsuite.modification.dto.FreePropertyInfos;
+import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -111,6 +116,11 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         assertEquals(1, getNetwork().getVoltageLevel("v2").getBatteryStream()
                 .filter(transformer -> transformer.getId().equals("idBattery1")).count());
         assertEquals(PROPERTY_VALUE, getNetwork().getBattery("idBattery1").getProperty(PROPERTY_NAME));
+        Battery battery = getNetwork().getBattery("idBattery1");
+        assertNotNull(battery.getExtension(ActivePowerControl.class));
+        ActivePowerControl activePowerControl = battery.getExtension(ActivePowerControl.class);
+        assertEquals(5, activePowerControl.getDroop());
+        assertTrue(activePowerControl.isParticipate());
     }
 
     @Test
@@ -193,5 +203,33 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
                 .withMessageTemplate("test").build());
         batteryCreationInfos.toModification().apply(getNetwork(), report);
         assertLogMessage("cannot add short-circuit extension on battery with id=idBattery1 : Undefined directTransX", "network.modification.ShortCircuitExtensionAddError", report);
+    }
+
+    @Test
+    void testCreateWithDroopNull() {
+        Network network = getNetwork();
+        BatteryCreationInfos batteryCreationInfos = BatteryCreationInfos.builder()
+                .stashed(false)
+                .equipmentId("idBattery3")
+                .voltageLevelId("v2")
+                .busOrBusbarSectionId("1B")
+                .minP(100.0)
+                .maxP(600.0)
+                .targetP(400.)
+                .targetQ(50.)
+                .minQ(20.0)
+                .maxQ(25.0)
+                .droop(null)
+                .participate(false)
+                .reactiveCapabilityCurve(false)
+                .connectionName("top")
+                .connectionDirection(ConnectablePosition.Direction.TOP)
+                .build();
+        batteryCreationInfos.toModification().apply(network);
+        Battery battery = network.getBattery("idBattery3");
+        assertNotNull(battery.getExtension(ActivePowerControl.class));
+        ActivePowerControl activePowerControl = battery.getExtension(ActivePowerControl.class);
+        assertEquals(Double.NaN, activePowerControl.getDroop());
+        assertFalse(activePowerControl.isParticipate());
     }
 }
