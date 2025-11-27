@@ -375,6 +375,11 @@ public final class ModificationUtils {
 
     public void createVoltageLevel(VoltageLevelCreationInfos voltageLevelCreationInfos,
                                    ReportNode subReportNode, Network network) {
+        createVoltageLevel(voltageLevelCreationInfos, subReportNode, network, new DefaultNamingStrategy());
+    }
+
+    public void createVoltageLevel(VoltageLevelCreationInfos voltageLevelCreationInfos,
+                                   ReportNode subReportNode, Network network, NamingStrategy namingStrategy) {
         String substationId = voltageLevelCreationInfos.getSubstationId();
         SubstationCreationInfos substationCreation = voltageLevelCreationInfos.getSubstationCreation();
         Substation substation;
@@ -423,7 +428,7 @@ public final class ModificationUtils {
                 .withAlignedBusesOrBusbarCount(voltageLevelCreationInfos.getBusbarCount())
                 .withSectionCount(voltageLevelCreationInfos.getSectionCount())
                 .withSwitchKinds(voltageLevelCreationInfos.getSwitchKinds())
-                .build().apply(network);
+                .build().apply(network, namingStrategy);
 
         voltageLevelCreationInfos.getCouplingDevices().forEach(couplingDevice -> {
             if (!checkBbs(network, couplingDevice.getBusbarSectionId1(), couplingDevice.getBusbarSectionId2(), subReportNode)) {
@@ -433,7 +438,7 @@ public final class ModificationUtils {
             couplingDeviceBuilder.withBusOrBusbarSectionId1(couplingDevice.getBusbarSectionId1())
                 .withBusOrBusbarSectionId2(couplingDevice.getBusbarSectionId2())
                 .withSwitchPrefixId(voltageLevelCreationInfos.getEquipmentId() + "_COUPL")
-                    .build().apply(network, subReportNode);
+                    .build().apply(network, namingStrategy, subReportNode);
         });
 
         subReportNode.newReportNode()
