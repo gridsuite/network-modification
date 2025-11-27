@@ -80,16 +80,25 @@ public class LineCreation extends AbstractModification {
         List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE1);
         List<OperationalLimitsGroupInfos> opLimitsGroupSide2 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE2);
         ReportNode reportNode = null;
-        if (!CollectionUtils.isEmpty(opLimitsGroupSide1)) {
+        if (!CollectionUtils.isEmpty(modificationInfos.getOperationalLimitsGroups())) {
             reportNode = addLimitSetReportNode(limitsReporter);
-            ModificationUtils.getInstance().setCurrentLimitsOnASide(reportNode, opLimitsGroupSide1, line, ONE);
-        }
-        if (!CollectionUtils.isEmpty(opLimitsGroupSide2)) {
-            if (reportNode == null) {
-                reportNode = addLimitSetReportNode(limitsReporter);
+
+            for (OperationalLimitsGroupInfos olgInfos : modificationInfos.getOperationalLimitsGroups()) {
+                ReportNode limitSetNode = reportNode.newReportNode()
+                        .withMessageTemplate("network.modification.limitSetAdded")
+                        .withUntypedValue("name", olgInfos.getId())
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .add();
+
+                if (olgInfos.getApplicability() == Applicability.SIDE1 || olgInfos.getApplicability() == Applicability.EQUIPMENT) {
+                    ModificationUtils.getInstance().setCurrentLimitsOnASide(limitSetNode, olgInfos, line, ONE);
+                }
+                if (olgInfos.getApplicability() == Applicability.SIDE2 || olgInfos.getApplicability() == Applicability.EQUIPMENT) {
+                    ModificationUtils.getInstance().setCurrentLimitsOnASide(limitSetNode, olgInfos, line, TWO);
+                }
             }
-            ModificationUtils.getInstance().setCurrentLimitsOnASide(reportNode, opLimitsGroupSide2, line, TWO);
         }
+
         List<ReportNode> limitSetsOnSideReportNodes = new ArrayList<>();
         if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
             if (!ModificationUtils.hasLimitSet(opLimitsGroupSide1, modificationInfos.getSelectedOperationalLimitsGroup1())) {

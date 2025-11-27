@@ -8,6 +8,7 @@ package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.Measurement;
@@ -16,6 +17,7 @@ import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
@@ -27,6 +29,7 @@ import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applica
 import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.DELETE;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.MODIFY_OR_ADD;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.REPLACE;
+import static org.gridsuite.modification.utils.TestUtils.assertLogMessageWithoutRank;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -338,6 +341,24 @@ class LineModificationTest extends AbstractNetworkModificationTest {
     }
 
     @Test
+    void testRename() {
+        Line line = getNetwork().getLine("line1");
+        line.setName(null);
+
+        LineModificationInfos modificationInfos = LineModificationInfos.builder()
+                .equipmentName(AttributeModification.toAttributeModification("newName", OperationType.SET))
+                .equipmentId("line1")
+                .build();
+        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+        modificationInfos.toModification().apply(getNetwork(), reportNode);
+
+        assertEquals("newName", line.getOptionalName().orElseThrow());
+        assertLogMessageWithoutRank("Name : No value → newName", "network.modification.fieldModification", reportNode);
+    }
+
+    @Test
     void testDelete() {
         Line line = getNetwork().getLine("line1");
         // side 1
@@ -407,7 +428,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         Network network = getNetwork();
         AbstractModification modification = lineModificationInfos4.toModification();
         String errorMessage = assertThrows(PowsyblException.class, () -> modification.apply(network)).getMessage();
-        assertEquals("Cannot delete operational limit group doesNotExist which has not been found in equipment on side SIDE2", errorMessage);
+        assertEquals("Cannot delete operational limit group doesNotExist which has not been found in equipment on side 2", errorMessage);
     }
 
     private void changeLineConnectionState(Line existingEquipment, boolean expectedState) {
