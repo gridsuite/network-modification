@@ -61,6 +61,8 @@ public final class ModificationUtils {
     public static final String NOT_EXIST_IN_NETWORK = " does not exist in network";
     public static final String TRANSIENT_REACTANCE = "Transient reactance";
     public static final String TRANSFORMER_REACTANCE = "Transformer reactance";
+    private static final String DROOP = "Droop";
+    private static final String PARTICIPATE = "Participate";
 
     private static final String COULD_NOT_ACTION_EQUIPMENT = "Could not %s equipment '%s'";
     private static final String COULD_NOT_ACTION_EQUIPMENT_ON_SIDE = COULD_NOT_ACTION_EQUIPMENT + " on side %s";
@@ -1334,14 +1336,14 @@ public final class ModificationUtils {
         Optional.ofNullable(participateInfo).ifPresent(info -> {
             activePowerControl.setParticipate(info.getValue());
             if (reports != null) {
-                reports.add(buildModificationReport(oldParticipate, info.getValue(), "Participate"));
+                reports.add(buildModificationReport(oldParticipate, info.getValue(), PARTICIPATE));
             }
         });
 
         Optional.ofNullable(droopInfo).ifPresent(info -> {
             activePowerControl.setDroop(info.getValue());
             if (reports != null) {
-                reports.add(buildModificationReport(oldDroop, info.getValue(), "Droop"));
+                reports.add(buildModificationReport(oldDroop, info.getValue(), DROOP));
             }
         });
     }
@@ -1355,13 +1357,13 @@ public final class ModificationUtils {
         Boolean participate = Optional.ofNullable(participateInfo).map(AttributeModification::getValue).orElse(null);
         Float droop = Optional.ofNullable(droopInfo).map(AttributeModification::getValue).orElse(null);
         checkActivePowerControl(participate, droop, exceptionType, errorMessage);
-        if (participate != null && droop != null) {
+        if (participate != null) {
             adder.withParticipate(participate)
-                .withDroop(droop)
+                .withDroop(droop != null ? droop : Double.NaN)
                 .add();
             if (reports != null) {
-                reports.add(buildModificationReport(null, participate, "Participate"));
-                reports.add(buildModificationReport(Double.NaN, droop, "Droop"));
+                reports.add(buildModificationReport(null, participate, PARTICIPATE));
+                reports.add(buildModificationReport(Double.NaN, droop, DROOP));
             }
         }
     }
@@ -2039,6 +2041,18 @@ public final class ModificationUtils {
         if (subReportNode != null) {
             reportModifications(subReportNode, reports, "network.modification.shortCircuitAttributesModified");
         }
+    }
+
+    public void createNewActivePowerControlForInjectionCreation(ActivePowerControlAdder<?> adder, Boolean participate, Float droop, ReportNode subReporter) {
+        if (participate != null) {
+            List<ReportNode> activePowerRegulationReports = new ArrayList<>();
+            double droopNotNull = droop != null ? droop : Double.NaN;
+            adder.withParticipate(participate).withDroop(droopNotNull).add();
+            activePowerRegulationReports.add(ModificationUtils.getInstance().buildCreationReport(participate, PARTICIPATE));
+            activePowerRegulationReports.add(ModificationUtils.getInstance().buildCreationReport(droopNotNull, DROOP));
+            reportModifications(subReporter, activePowerRegulationReports, "network.modification.ActivePowerRegulationCreated");
+        }
+
     }
 }
 
