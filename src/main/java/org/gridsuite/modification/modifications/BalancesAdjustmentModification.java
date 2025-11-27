@@ -8,7 +8,6 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.balances_adjustment.balance_computation.*;
 import com.powsybl.balances_adjustment.util.CountryAreaFactory;
-import com.powsybl.balances_adjustment.util.Reports;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
@@ -60,6 +59,7 @@ public class BalancesAdjustmentModification extends AbstractModification {
     private BalanceComputationParameters createBalanceComputationParameters(ReportNode reportNode) {
         BalanceComputationParameters parameters = BalanceComputationParameters.load();
         parameters.getScalingParameters().setPriority(ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED);
+        parameters.setWithLoadFlow(balancesAdjustmentModificationInfos.isWithLoadFlow());
 
         if (!balancesAdjustmentModificationInfos.isWithLoadFlow()) {
             return parameters;
@@ -137,34 +137,14 @@ public class BalancesAdjustmentModification extends AbstractModification {
 
         BalanceComputationParameters parameters = createBalanceComputationParameters(reportNode);
 
-        if (balancesAdjustmentModificationInfos.isWithLoadFlow()) {
-            applyWithLoadFlow(network, computationManager, reportNode, parameters);
-        } else {
-            applyWithoutLoadFlow(network, reportNode, parameters);
-        }
-    }
-
-    private void applyWithLoadFlow(Network network, ComputationManager computationManager,
-                                   ReportNode reportNode, BalanceComputationParameters parameters) {
         List<BalanceComputationArea> areas = createBalanceComputationAreas(network, reportNode);
 
         BalanceComputation balanceComputation = new BalanceComputationFactoryImpl()
-                .create(areas, LoadFlow.find(), computationManager);
+            .create(areas, LoadFlow.find(), computationManager);
 
         balanceComputation
-                .run(network, network.getVariantManager().getWorkingVariantId(), parameters, reportNode)
-                .join();
-    }
-
-    private void applyWithoutLoadFlow(Network network, ReportNode reportNode, BalanceComputationParameters parameters) {
-        balancesAdjustmentModificationInfos.getAreas().forEach(area -> {
-            CountryArea countryArea = new CountryArea(network, area.getCountries());
-            double offset = area.getNetPosition() - countryArea.getNetPosition();
-            Scalable scalable = createScalable(area, network, reportNode);
-            double done = scalable.scale(network, offset, parameters.getScalingParameters());
-            Reports.reportAreaScaling(reportNode, area.getName(), offset, done);
-            LOGGER.info("Scaling for area {}: offset={}, done={}", area.getName(), offset, done);
-        });
+            .run(network, network.getVariantManager().getWorkingVariantId(), parameters, reportNode)
+            .join();
     }
 
     private List<BalanceComputationArea> createBalanceComputationAreas(Network network, ReportNode reportNode) {
