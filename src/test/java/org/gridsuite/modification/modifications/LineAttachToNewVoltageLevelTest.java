@@ -130,6 +130,7 @@ class LineAttachToNewVoltageLevelTest extends AbstractNetworkModificationTest {
         assertEquals("valueSubstation", attachmentPointSubstation.getProperty("substationProp"));
         assertTrue(attachmentPointSubstation.getCountry().isPresent());
         assertEquals(Country.FR, attachmentPointSubstation.getCountry().get());
+        assertTrue(attachmentPointSubstation.isFictitious());
 
         // attachment point voltage level
         VoltageLevel attachmentPointVoltageLevel = getNetwork().getVoltageLevel("AttPointId");
@@ -138,6 +139,7 @@ class LineAttachToNewVoltageLevelTest extends AbstractNetworkModificationTest {
         assertEquals(380.0, attachmentPointVoltageLevel.getNominalV(), 0.001);
         assertEquals(50.0, attachmentPointVoltageLevel.getLowVoltageLimit(), 0.001);
         assertEquals(100.0, attachmentPointVoltageLevel.getHighVoltageLimit(), 0.001);
+        assertTrue(attachmentPointVoltageLevel.isFictitious());
 
         IdentifiableShortCircuit identifiableShortCircuit = attachmentPointVoltageLevel.getExtension(IdentifiableShortCircuit.class);
         assertNotNull(identifiableShortCircuit);
