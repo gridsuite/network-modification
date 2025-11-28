@@ -106,7 +106,7 @@ public class LineAttachToVoltageLevel extends AbstractModification {
                 voltageLevel.setLowVoltageLimit(modificationInfos.getAttachmentPointDetailInformation().getLowVoltageLimit());
             }
             if (modificationInfos.getAttachmentPointDetailInformation().getIpMax() != null || modificationInfos.getAttachmentPointDetailInformation().getIpMin() != null) {
-                IdentifiableShortCircuitAdder adder = voltageLevel.newExtension(IdentifiableShortCircuitAdder.class);
+                IdentifiableShortCircuitAdder<VoltageLevel> adder = voltageLevel.newExtension(IdentifiableShortCircuitAdder.class);
                 if (modificationInfos.getAttachmentPointDetailInformation().getIpMax() != null) {
                     adder.withIpMax(modificationInfos.getAttachmentPointDetailInformation().getIpMax());
                 }
