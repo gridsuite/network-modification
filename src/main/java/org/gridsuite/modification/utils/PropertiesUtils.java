@@ -21,6 +21,10 @@ public final class PropertiesUtils {
         // Should not be instantiated
     }
 
+    public static void applyProperties(Identifiable<?> identifiable, @Nullable List<FreePropertyInfos> properties) {
+        applyProperties(identifiable, null, properties, null);
+    }
+
     public static void applyProperties(Identifiable<?> identifiable, ReportNode subReportNode, @Nullable List<FreePropertyInfos> properties, String propertiesLabelKey) {
         List<ReportNode> reportNodes = new ArrayList<>();
         Optional.ofNullable(properties).ifPresent(props ->
@@ -29,7 +33,7 @@ public final class PropertiesUtils {
                     .ifPresent(reportNodes::add)
             )
         );
-        if (!reportNodes.isEmpty()) {
+        if (subReportNode != null && !reportNodes.isEmpty()) {
             ModificationUtils.getInstance().reportModifications(subReportNode, reportNodes, propertiesLabelKey);
         }
     }
