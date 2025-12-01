@@ -16,6 +16,7 @@ import com.powsybl.network.store.iidm.impl.extensions.CoordinatedReactiveControl
 import com.powsybl.network.store.iidm.impl.extensions.GeneratorStartupAdderImpl;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.GeneratorCreationInfos;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -141,7 +142,10 @@ public class GeneratorCreation extends AbstractModification {
         ModificationUtils.getInstance().createReactiveLimits(generatorCreationInfos, generator, subReporterLimits);
         ReportNode subReporterSetpoints = reportGeneratorSetPoints(generatorCreationInfos, subReportNode);
         createGeneratorVoltageRegulation(generatorCreationInfos, generator, voltageLevel, subReporterSetpoints);
-        createGeneratorActivePowerControl(generatorCreationInfos, generator, subReporterSetpoints);
+        ModificationUtils.getInstance().createNewActivePowerControlForInjectionCreation(generator.newExtension(ActivePowerControlAdder.class),
+                generatorCreationInfos.getParticipate(),
+                generatorCreationInfos.getDroop(),
+                subReporterSetpoints);
         ModificationUtils.getInstance().createShortCircuitExtension(generatorCreationInfos.getStepUpTransformerX(),
                 generatorCreationInfos.getDirectTransX(), generatorCreationInfos.getEquipmentId(),
                 generator.newExtension(GeneratorShortCircuitAdder.class), subReportNode, "generator");
@@ -209,7 +213,7 @@ public class GeneratorCreation extends AbstractModification {
                 voltageReports.add(ModificationUtils.getInstance().buildCreationReport(generatorCreationInfos.getQPercent(), "Reactive percentage"));
             } catch (PowsyblException e) {
                 voltageReports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.ReactivePercentageError")
                         .withUntypedValue("id", generatorCreationInfos.getEquipmentId())
                         .withUntypedValue("message", e.getMessage())
@@ -252,34 +256,6 @@ public class GeneratorCreation extends AbstractModification {
         return subReportNodeLimits;
     }
 
-    private void createGeneratorActivePowerControl(GeneratorCreationInfos generatorCreationInfos, Generator generator, ReportNode subReportNode) {
-        if (generatorCreationInfos.getParticipate() != null && generatorCreationInfos.getDroop() != null) {
-            List<ReportNode> activePowerRegulationReports = new ArrayList<>();
-            try {
-                generator.newExtension(ActivePowerControlAdder.class)
-                        .withParticipate(generatorCreationInfos.getParticipate())
-                        .withDroop(generatorCreationInfos.getDroop())
-                        .add();
-                activePowerRegulationReports.add(ModificationUtils.getInstance().buildCreationReport(
-                        generatorCreationInfos.getParticipate(),
-                        "Participate"));
-                activePowerRegulationReports.add(ModificationUtils.getInstance().buildCreationReport(
-                        generatorCreationInfos.getDroop(),
-                        "Droop"));
-            } catch (PowsyblException e) {
-                activePowerRegulationReports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
-                        .withMessageTemplate("network.modification.activePowerExtensionAddError.generator")
-                        .withUntypedValue("id", generatorCreationInfos.getEquipmentId())
-                        .withUntypedValue("message", e.getMessage())
-                        .withSeverity(TypedValue.ERROR_SEVERITY)
-                        .build());
-
-            }
-            ModificationUtils.getInstance().reportModifications(subReportNode, activePowerRegulationReports, "network.modification.ActivePowerRegulationCreated");
-        }
-    }
-
     private void createGeneratorStartUp(GeneratorCreationInfos generatorCreationInfos, Generator generator, ReportNode subReportNode) {
         if (generatorCreationInfos.getPlannedActivePowerSetPoint() != null
                 || generatorCreationInfos.getMarginalCost() != null
@@ -311,7 +287,7 @@ public class GeneratorCreation extends AbstractModification {
                 }
             } catch (PowsyblException e) {
                 startupReports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.StartupExtensionAddError")
                         .withUntypedValue("id", generatorCreationInfos.getEquipmentId())
                         .withUntypedValue("message", e.getMessage())

@@ -16,7 +16,9 @@ import org.apache.commons.math3.util.Pair;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.modifications.AbstractBranchModification;
 import org.gridsuite.modification.modifications.BusbarSectionFinderTraverser;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -33,6 +35,8 @@ import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE1;
+import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE2;
 import static org.gridsuite.modification.modifications.AbstractBranchModification.*;
 
 /**
@@ -51,6 +55,7 @@ public final class ModificationUtils {
     public static final String NO_VALUE = "No value";
     public static final String LIMITS = "network.modification.limits";
     public static final String REACTIVE_LIMITS = "network.modification.ReactiveLimits";
+    public static final String OPERATIONAL_LIMITS_GROUP_ADDED_LOG_DETAIL = "network.modification.operationalLimitsGroupAdded.detail";
     private static final String SETPOINTS = "network.modification.Setpoints";
     private static final String MIN_REACTIVE_POWER_FIELDNAME = "Minimum reactive power";
     private static final String MAX_REACTIVE_POWER_FIELDNAME = "Maximum reactive power";
@@ -60,11 +65,21 @@ public final class ModificationUtils {
     public static final String NOT_EXIST_IN_NETWORK = " does not exist in network";
     public static final String TRANSIENT_REACTANCE = "Transient reactance";
     public static final String TRANSFORMER_REACTANCE = "Transformer reactance";
+    private static final String DROOP = "Droop";
+    private static final String PARTICIPATE = "Participate";
 
     private static final String COULD_NOT_ACTION_EQUIPMENT = "Could not %s equipment '%s'";
     private static final String COULD_NOT_ACTION_EQUIPMENT_ON_SIDE = COULD_NOT_ACTION_EQUIPMENT + " on side %s";
     public static final String CONNECT = "connect";
     public static final String DISCONNECT = "disconnect";
+
+    public static String applicabilityToString(OperationalLimitsGroupInfos.Applicability applicability) {
+        return switch (applicability) {
+            case EQUIPMENT -> "sides 1 & 2";
+            case SIDE1 -> "side 1";
+            case SIDE2 -> "side 2";
+        };
+    }
 
     public enum FeederSide {
         INJECTION_SINGLE_SIDE,
@@ -159,9 +174,8 @@ public final class ModificationUtils {
             controlBus(voltageLevel, busOrBusbarSectionId);
             // check if position is free
             Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
-            var position = getPosition(connectionPosition, busOrBusbarSectionId, network, voltageLevel);
-            if (takenFeederPositions.contains(position)) {
-                throw new NetworkModificationException(CONNECTION_POSITION_ERROR, "PositionOrder '" + position + "' already taken");
+            if (takenFeederPositions.contains(connectionPosition)) {
+                throw new NetworkModificationException(CONNECTION_POSITION_ERROR, "PositionOrder '" + connectionPosition + "' already taken");
             }
         } else {
             // bus breaker must exist
@@ -539,7 +553,7 @@ public final class ModificationUtils {
 
     public ReportNode createEnabledDisabledReport(String key, boolean enabled) {
         return ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate(key)
                 .withUntypedValue("status", enabled ? "Enabled" : "Disabled")
                 .withSeverity(TypedValue.INFO_SEVERITY)
@@ -617,7 +631,7 @@ public final class ModificationUtils {
         final String newValueString = (newValue == null || newValue instanceof Double newDouble && Double.isNaN(newDouble))
                 ? NO_VALUE : newValue.toString();
         return ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("network.modification.fieldModification")
                 .withUntypedValue("arrow", "→") // Workaround to use non-ISO-8859-1 characters in the internationalization file
                 .withUntypedValue("fieldName", fieldName)
@@ -1018,7 +1032,7 @@ public final class ModificationUtils {
 
         String reportKey = "network.modification.equipment" + capitalize(action) + (side != null ? ".side" : "");
         ReportNodeBuilder builder = ReportNode.newRootReportNode()
-            .withAllResourceBundlesFromClasspath()
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
             .withMessageTemplate(reportKey)
             .withUntypedValue("id", equipment.getId())
             .withSeverity(TypedValue.INFO_SEVERITY);
@@ -1079,70 +1093,76 @@ public final class ModificationUtils {
     }
 
     /**
-     * @param reportNode Limit sets report node
-     * @param opLimitGroups added current limits
+     * @param reportNode Limit set report node
+     * @param opLimitsGroup added current limits
      * @param branch branch to which limits are going to be added
      * @param side which side of the branch receives the limits
      */
-    public void setCurrentLimitsOnASide(ReportNode reportNode, List<OperationalLimitsGroupInfos> opLimitGroups, Branch<?> branch, TwoSides side) {
+    public void setCurrentLimitsOnASide(ReportNode reportNode, OperationalLimitsGroupInfos opLimitsGroup, Branch<?> branch, TwoSides side) {
 
-        if (CollectionUtils.isEmpty(opLimitGroups)) {
+        boolean hasPermanent = opLimitsGroup.getCurrentLimits().getPermanentLimit() != null;
+        boolean hasTemporary = !CollectionUtils.isEmpty(opLimitsGroup.getCurrentLimits().getTemporaryLimits());
+        boolean hasLimits = hasPermanent || hasTemporary;
+
+        if (!hasPermanent && !hasLimits || opLimitsGroup.getId() == null) {
             return;
         }
+        ReportNode limitSetReportDetail = reportNode.newReportNode()
+                .withMessageTemplate(OPERATIONAL_LIMITS_GROUP_ADDED_LOG_DETAIL)
+                .withUntypedValue(SIDE, applicabilityToString(side == ONE ? SIDE1 : SIDE2))
+                .withSeverity(TypedValue.DETAIL_SEVERITY).add();
 
-        for (OperationalLimitsGroupInfos opLimitsGroup : opLimitGroups) {
-            boolean hasPermanent = opLimitsGroup.getCurrentLimits().getPermanentLimit() != null;
-            boolean hasTemporary = !CollectionUtils.isEmpty(opLimitsGroup.getCurrentLimits().getTemporaryLimits());
-            boolean hasLimits = hasPermanent || hasTemporary;
+        OperationalLimitsGroup opGroup = side == ONE
+                ? branch.newOperationalLimitsGroup1(opLimitsGroup.getId())
+                : branch.newOperationalLimitsGroup2(opLimitsGroup.getId());
+        List<ReportNode> detailsOnLimitSet = new ArrayList<>();
 
-            if (!hasLimits || opLimitsGroup.getId() == null) {
-                continue;
-            }
+        CurrentLimitsAdder limitsAdder = opGroup.newCurrentLimits();
+        if (hasPermanent) {
+            limitsAdder.setPermanentLimit(opLimitsGroup.getCurrentLimits().getPermanentLimit());
+            detailsOnLimitSet.add(ReportNode.newRootReportNode()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                    .withMessageTemplate("network.modification.permanentLimit")
+                    .withUntypedValue(VALUE, opLimitsGroup.getCurrentLimits().getPermanentLimit())
+                    .withSeverity(TypedValue.DETAIL_SEVERITY)
+                    .build());
+        }
+        if (hasTemporary) {
+            opLimitsGroup.getCurrentLimits().getTemporaryLimits().forEach(limit -> {
+                double value = limit.getValue() != null ? limit.getValue() : Double.MAX_VALUE;
+                int duration = limit.getAcceptableDuration() != null ? limit.getAcceptableDuration() : Integer.MAX_VALUE;
+                detailsOnLimitSet.add(ReportNode.newRootReportNode()
+                                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                                .withMessageTemplate("network.modification.temporaryLimitModified.name")
+                                .withUntypedValue(AbstractBranchModification.NAME, limit.getName())
+                                .withUntypedValue(DURATION, duration)
+                                .withUntypedValue(AbstractBranchModification.VALUE, value)
+                                .withSeverity(TypedValue.DETAIL_SEVERITY)
+                                .build());
 
-            OperationalLimitsGroup opGroup = side == ONE
-                    ? branch.newOperationalLimitsGroup1(opLimitsGroup.getId())
-                    : branch.newOperationalLimitsGroup2(opLimitsGroup.getId());
+                limitsAdder.beginTemporaryLimit()
+                        .setName(limit.getName())
+                        .setValue(value)
+                        .setAcceptableDuration(duration)
+                        .endTemporaryLimit();
+            });
+        }
+        limitsAdder.add();
 
-            ReportNode limitSetNode = reportNode.newReportNode()
-                .withMessageTemplate("network.modification.limitSetAdded")
-                .withUntypedValue("name", opLimitsGroup.getId())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
-
-            CurrentLimitsAdder limitsAdder = opGroup.newCurrentLimits();
-            if (hasPermanent) {
-                limitsAdder.setPermanentLimit(opLimitsGroup.getCurrentLimits().getPermanentLimit());
-            }
-            if (hasTemporary) {
-                opLimitsGroup.getCurrentLimits().getTemporaryLimits().forEach(limit -> {
-                    double value = limit.getValue() != null ? limit.getValue() : Double.MAX_VALUE;
-                    int duration = limit.getAcceptableDuration() != null ? limit.getAcceptableDuration() : Integer.MAX_VALUE;
-
-                    limitsAdder.beginTemporaryLimit()
-                            .setName(limit.getName())
-                            .setValue(value)
-                            .setAcceptableDuration(duration)
-                            .endTemporaryLimit();
-                });
-            }
-            limitsAdder.add();
-
-            //add properties
-            List<ReportNode> detailsOnLimitSet = new ArrayList<>();
-            if (!CollectionUtils.isEmpty(opLimitsGroup.getLimitsProperties()) &&
-                checkPropertiesUnicity(opLimitsGroup.getLimitsProperties(), detailsOnLimitSet)) {
-                opLimitsGroup.getLimitsProperties().forEach(property -> {
-                    detailsOnLimitSet.add(
-                            ReportNode.newRootReportNode().withSeverity(TypedValue.DETAIL_SEVERITY)
-                            .withMessageTemplate("network.modification.propertyAdded")
-                            .withUntypedValue(NAME, property.name())
-                            .withUntypedValue(VALUE, property.value()).build());
-                    opGroup.setProperty(property.name(), property.value());
-                });
-                if (!detailsOnLimitSet.isEmpty()) {
-                    ModificationUtils.getInstance().reportModifications(limitSetNode, detailsOnLimitSet);
-                }
-            }
+        //add properties
+        if (!CollectionUtils.isEmpty(opLimitsGroup.getLimitsProperties()) &&
+            checkPropertiesUnicity(opLimitsGroup.getLimitsProperties(), detailsOnLimitSet)) {
+            opLimitsGroup.getLimitsProperties().forEach(property -> {
+                detailsOnLimitSet.add(
+                        ReportNode.newRootReportNode().withSeverity(TypedValue.DETAIL_SEVERITY)
+                        .withMessageTemplate("network.modification.propertyAdded")
+                        .withUntypedValue(NAME, property.name())
+                        .withUntypedValue(VALUE, property.value()).build());
+                opGroup.setProperty(property.name(), property.value());
+            });
+        }
+        if (!detailsOnLimitSet.isEmpty()) {
+            ModificationUtils.getInstance().reportModifications(limitSetReportDetail, detailsOnLimitSet);
         }
     }
 
@@ -1166,7 +1186,7 @@ public final class ModificationUtils {
     public <T> ReportNode buildCreationReport(T value, String fieldName) {
         String newValueString = value == null ? NO_VALUE : value.toString();
         return ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("network.modification.creation.fieldName")
                 .withUntypedValue("fieldName", fieldName)
                 .withUntypedValue("value", newValueString)
@@ -1334,14 +1354,14 @@ public final class ModificationUtils {
         Optional.ofNullable(participateInfo).ifPresent(info -> {
             activePowerControl.setParticipate(info.getValue());
             if (reports != null) {
-                reports.add(buildModificationReport(oldParticipate, info.getValue(), "Participate"));
+                reports.add(buildModificationReport(oldParticipate, info.getValue(), PARTICIPATE));
             }
         });
 
         Optional.ofNullable(droopInfo).ifPresent(info -> {
             activePowerControl.setDroop(info.getValue());
             if (reports != null) {
-                reports.add(buildModificationReport(oldDroop, info.getValue(), "Droop"));
+                reports.add(buildModificationReport(oldDroop, info.getValue(), DROOP));
             }
         });
     }
@@ -1355,13 +1375,13 @@ public final class ModificationUtils {
         Boolean participate = Optional.ofNullable(participateInfo).map(AttributeModification::getValue).orElse(null);
         Float droop = Optional.ofNullable(droopInfo).map(AttributeModification::getValue).orElse(null);
         checkActivePowerControl(participate, droop, exceptionType, errorMessage);
-        if (participate != null && droop != null) {
+        if (participate != null) {
             adder.withParticipate(participate)
-                .withDroop(droop)
+                .withDroop(droop != null ? droop : Double.NaN)
                 .add();
             if (reports != null) {
-                reports.add(buildModificationReport(null, participate, "Participate"));
-                reports.add(buildModificationReport(Double.NaN, droop, "Droop"));
+                reports.add(buildModificationReport(null, participate, PARTICIPATE));
+                reports.add(buildModificationReport(Double.NaN, droop, DROOP));
             }
         }
     }
@@ -1849,7 +1869,7 @@ public final class ModificationUtils {
 
             if (!isConnected) {
                 reports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate(EQUIPMENT_DISCONNECTED)
                         .withUntypedValue("id", equipmentId)
                         .withSeverity(TypedValue.INFO_SEVERITY)
@@ -1973,7 +1993,7 @@ public final class ModificationUtils {
                 }
             } catch (PowsyblException e) {
                 shortCircuitReports.add(ReportNode.newRootReportNode()
-                        .withAllResourceBundlesFromClasspath()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                         .withMessageTemplate("network.modification.ShortCircuitExtensionAddError")
                         .withUntypedValue("id", equipmentId)
                         .withUntypedValue("message", e.getMessage())
@@ -2039,6 +2059,18 @@ public final class ModificationUtils {
         if (subReportNode != null) {
             reportModifications(subReportNode, reports, "network.modification.shortCircuitAttributesModified");
         }
+    }
+
+    public void createNewActivePowerControlForInjectionCreation(ActivePowerControlAdder<?> adder, Boolean participate, Float droop, ReportNode subReporter) {
+        if (participate != null) {
+            List<ReportNode> activePowerRegulationReports = new ArrayList<>();
+            double droopNotNull = droop != null ? droop : Double.NaN;
+            adder.withParticipate(participate).withDroop(droopNotNull).add();
+            activePowerRegulationReports.add(ModificationUtils.getInstance().buildCreationReport(participate, PARTICIPATE));
+            activePowerRegulationReports.add(ModificationUtils.getInstance().buildCreationReport(droopNotNull, DROOP));
+            reportModifications(subReporter, activePowerRegulationReports, "network.modification.ActivePowerRegulationCreated");
+        }
+
     }
 }
 
