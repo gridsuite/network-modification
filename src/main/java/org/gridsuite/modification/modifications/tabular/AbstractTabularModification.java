@@ -55,12 +55,12 @@ public abstract class AbstractTabularModification extends AbstractModification {
                 applicationFailuresCount++;
                 ReportNode errorReportNode = modifReportNode.newReportNode()
                         .withMessageTemplate(baseTemplateMessage() + ".error.equipmentError")
-                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .withSeverity(TypedValue.ERROR_SEVERITY)
                         .add();
                 errorReportNode.newReportNode()
                         .withMessageTemplate(baseTemplateMessage() + ".exception")
                         .withUntypedValue("message", e.getMessage())
-                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .withSeverity(TypedValue.ERROR_SEVERITY)
                         .add();
                 LOGGER.warn(e.getMessage());
             }
