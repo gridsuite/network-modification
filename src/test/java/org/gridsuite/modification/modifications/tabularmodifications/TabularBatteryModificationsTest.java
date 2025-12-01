@@ -73,7 +73,7 @@ class TabularBatteryModificationsTest extends AbstractNetworkModificationTest {
         assertLogNthMessage("Modification of v1Battery", "network.modification.tabular.modification.equipmentId", reportNode, 1);
         assertLogNthMessage("Modification of v2Battery", "network.modification.tabular.modification.equipmentId", reportNode, 2);
         assertLogNthMessage("Modification of v3Battery", "network.modification.tabular.modification.equipmentId", reportNode, 3);
-        assertLogMessageWithoutRank("Tabular modification: 3 batteries have been modified and 1 have not been modified", "network.modification.tabular.modification.warning", reportNode);
+        assertLogMessageWithoutRank("Tabular modification: 3 batteries have been modified and 1 have not been modified", "network.modification.tabular.modification.partial", reportNode);
     }
 
     @Override
