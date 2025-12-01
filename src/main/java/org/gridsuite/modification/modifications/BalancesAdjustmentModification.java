@@ -10,15 +10,15 @@ import com.powsybl.balances_adjustment.balance_computation.*;
 import com.powsybl.balances_adjustment.util.CountryAreaFactory;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
-import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.scalable.ProportionalScalable;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.modification.scalable.ScalingParameters;
-import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openloadflow.OpenLoadFlowParameters;
+import lombok.SneakyThrows;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.dto.*;
@@ -128,19 +128,16 @@ public class BalancesAdjustmentModification extends AbstractModification {
                 .setSlackDistributionFailureBehavior(OpenLoadFlowParameters.SlackDistributionFailureBehavior.FAIL);
     }
 
+    @SneakyThrows
     @Override
-    public void apply(Network network,
-                      NamingStrategy namingStrategy,
-                      boolean throwException,
-                      ComputationManager computationManager,
-                      ReportNode reportNode) {
+    public void apply(Network network, ReportNode reportNode) {
 
         BalanceComputationParameters parameters = createBalanceComputationParameters(reportNode);
 
         List<BalanceComputationArea> areas = createBalanceComputationAreas(network, reportNode);
 
         BalanceComputation balanceComputation = new BalanceComputationFactoryImpl()
-            .create(areas, LoadFlow.find(), computationManager);
+            .create(areas, LoadFlow.find(), new LocalComputationManager(Runnable::run));
 
         balanceComputation
             .run(network, network.getVariantManager().getWorkingVariantId(), parameters, reportNode)
