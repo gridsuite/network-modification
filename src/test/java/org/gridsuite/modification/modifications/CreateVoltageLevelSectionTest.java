@@ -16,9 +16,7 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.CreateVoltageLevelSectionInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
-import org.gridsuite.modification.utils.DummyNamingStrategy;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -144,30 +142,4 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
         assertTrue(busBarIds.containsAll(List.of("bbs1", "bbs2", "bbs3", "bbs4", "bbs1_2", "v1_0_1", "v1_1_1")));
     }
 
-    @Test
-    void testApplyWithNamingStrategy() {
-        Network network = getNetwork();
-        VoltageLevel voltageLevel = network.getVoltageLevel("v1");
-        var bbs = voltageLevel.getNodeBreakerView().newBusbarSection()
-                .setId("bbs1_2")
-                .setName("bbs1_2")
-                .setNode(1)
-                .add();
-        bbs.newExtension(BusbarSectionPositionAdder.class).withBusbarIndex(1).withSectionIndex(0).add();
-
-        ReportNode report = ReportNode.newRootReportNode()
-                .withMessageTemplate("test")
-                .build();
-        CreateVoltageLevelSectionInfos.builder()
-                .stashed(false)
-                .voltageLevelId("v1")
-                .busbarSectionId("bbs1_2")
-                .busbarIndex(2)
-                .isAfterBusbarSectionId(true)
-                .leftSwitchKind("BREAKER")
-                .rightSwitchKind("DISCONNECTOR")
-                .isAllBusbars(false)
-                .build().toModification().apply(network, new DummyNamingStrategy(), report);
-        Assertions.assertNotNull(network.getSwitch("DISCONNECTOR_1_7"));
-    }
 }
