@@ -14,6 +14,7 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.scalable.ProportionalScalable;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.modification.scalable.ScalingParameters;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -130,7 +131,7 @@ public class BalancesAdjustmentModification extends AbstractModification {
 
     @SneakyThrows
     @Override
-    public void apply(Network network, ReportNode reportNode) {
+    public void apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode) {
 
         BalanceComputationParameters parameters = createBalanceComputationParameters(reportNode);
 
