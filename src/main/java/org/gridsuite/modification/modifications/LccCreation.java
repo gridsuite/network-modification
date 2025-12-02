@@ -63,8 +63,8 @@ public class LccCreation extends AbstractModification {
         // check connectivity
         ModificationUtils.getInstance().controlConnectivity(network,
                 converterStation.getVoltageLevelId(),
-                converterStation.getBusOrBusbarSectionId(),
-                converterStation.getConnectionPosition());
+                converterStation.getBusOrBusbarSectionId()
+        );
     }
 
     @Override
