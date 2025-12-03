@@ -37,6 +37,7 @@ class LineAttachToNewVoltageLevelTest extends AbstractNetworkModificationTest {
                 .nominalV(0)
                 .substationCreation(SubstationCreationInfos.builder().stashed(false)
                         .equipmentId("attachmentPointSubstation")
+                        .equipmentName("attachmentPointSubstationName")
                         .country(Country.FR)
                         .properties(List.of(FreePropertyInfos.builder()
                                 .added(true)
@@ -124,6 +125,8 @@ class LineAttachToNewVoltageLevelTest extends AbstractNetworkModificationTest {
         // attachment point substation
         Substation attachmentPointSubstation = getNetwork().getSubstation("attachmentPointSubstation");
         assertNotNull(attachmentPointSubstation);
+        assertTrue(attachmentPointSubstation.getOptionalName().isPresent());
+        assertEquals("attachmentPointSubstationName", attachmentPointSubstation.getOptionalName().get());
         assertEquals("valueSubstation", attachmentPointSubstation.getProperty("substationProp"));
         assertTrue(attachmentPointSubstation.getCountry().isPresent());
         assertEquals(Country.FR, attachmentPointSubstation.getCountry().get());
