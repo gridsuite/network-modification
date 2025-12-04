@@ -55,12 +55,12 @@ public abstract class AbstractTabularModification extends AbstractModification {
                 applicationFailuresCount++;
                 ReportNode errorReportNode = modifReportNode.newReportNode()
                         .withMessageTemplate(baseTemplateMessage() + ".error.equipmentError")
-                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .withSeverity(TypedValue.ERROR_SEVERITY)
                         .add();
                 errorReportNode.newReportNode()
                         .withMessageTemplate(baseTemplateMessage() + ".exception")
                         .withUntypedValue("message", e.getMessage())
-                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .withSeverity(TypedValue.ERROR_SEVERITY)
                         .add();
                 LOGGER.warn(e.getMessage());
             }
@@ -73,11 +73,11 @@ public abstract class AbstractTabularModification extends AbstractModification {
                     .add();
         } else if (applicationFailuresCount > 0) {
             subReportNode.newReportNode()
-                    .withMessageTemplate(baseTemplateMessage() + ".warning")
+                    .withMessageTemplate(baseTemplateMessage() + ".partial")
                     .withUntypedValue("modificationsCount", modificationInfos.getModifications().size() - applicationFailuresCount)
                     .withUntypedValue("failuresCount", applicationFailuresCount)
                     .withUntypedValue(DEFAULT_MESSAGE_KEY, defaultMessage())
-                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .withSeverity(TypedValue.ERROR_SEVERITY)
                     .add();
         } else {
             subReportNode.newReportNode()

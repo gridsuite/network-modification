@@ -76,7 +76,7 @@ class TabularTwoWindingsTransformerModificationsTest extends AbstractNetworkModi
         assertAfterNetworkModificationApplication();
         assertLogNthMessage("Modification of trf1", "network.modification.tabular.modification.equipmentId", reportNode, 1);
         assertLogNthMessage("Modification of trf2", "network.modification.tabular.modification.equipmentId", reportNode, 2);
-        assertLogMessageWithoutRank("Tabular modification: 2 two windings transformers have been modified and 1 have not been modified", "network.modification.tabular.modification.warning", reportNode);
+        assertLogMessageWithoutRank("Tabular modification: 2 two windings transformers have been modified and 1 have not been modified", "network.modification.tabular.modification.partial", reportNode);
     }
 
     @Override
