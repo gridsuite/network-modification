@@ -13,6 +13,8 @@ import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
+
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -199,6 +201,9 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
                     .v(230.)
                     .angle(0.5)
                     .build()))
+            .rootNetworkName("rootNetwork1")
+            .nodeName("node1")
+            .computationDate(Instant.now())
             .build();
     }
 
