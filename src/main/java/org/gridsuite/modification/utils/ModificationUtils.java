@@ -167,20 +167,9 @@ public final class ModificationUtils {
         return staticVarCompensator;
     }
 
-    public void controlConnectivity(Network network, String voltageLevelId, String busOrBusbarSectionId, Integer connectionPosition) {
+    public void controlConnectivity(Network network, String voltageLevelId, String busOrBusbarSectionId) {
         VoltageLevel voltageLevel = getVoltageLevel(network, voltageLevelId);
-        if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            // bus bar section must exist
-            controlBus(voltageLevel, busOrBusbarSectionId);
-            // check if position is free
-            Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
-            if (takenFeederPositions.contains(connectionPosition)) {
-                throw new NetworkModificationException(CONNECTION_POSITION_ERROR, "PositionOrder '" + connectionPosition + "' already taken");
-            }
-        } else {
-            // bus breaker must exist
-            controlBus(voltageLevel, busOrBusbarSectionId);
-        }
+        controlBus(voltageLevel, busOrBusbarSectionId);
     }
 
     public void controlBus(VoltageLevel voltageLevel, String busOrBusbarSectionId) {
@@ -191,16 +180,16 @@ public final class ModificationUtils {
         }
     }
 
-    public void controlBranchCreation(Network network, String voltageLevelId1, String busOrBusbarSectionId1, Integer connectionPosition1,
-                                      String voltageLevelId2, String busOrBusbarSectionId2, Integer connectionPosition2) {
+    public void controlBranchCreation(Network network, String voltageLevelId1, String busOrBusbarSectionId1,
+                                      String voltageLevelId2, String busOrBusbarSectionId2) {
         VoltageLevel voltageLevel1 = getVoltageLevel(network, voltageLevelId1);
         VoltageLevel voltageLevel2 = getVoltageLevel(network, voltageLevelId2);
         if (voltageLevel1.getTopologyKind() == TopologyKind.NODE_BREAKER &&
                 voltageLevel2.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             controlConnectivity(network, voltageLevelId1,
-                    busOrBusbarSectionId1, connectionPosition1);
+                    busOrBusbarSectionId1);
             controlConnectivity(network, voltageLevelId2,
-                    busOrBusbarSectionId2, connectionPosition2);
+                    busOrBusbarSectionId2);
         } else {
             // bus or mixed mode
             controlBus(voltageLevel1, busOrBusbarSectionId1);
@@ -234,8 +223,6 @@ public final class ModificationUtils {
                 var leftRange = TopologyModificationUtils.getUnusedOrderPositionsBefore(bbs);
                 if (leftRange.isPresent()) {
                     position = leftRange.get().getMaximum();
-                } else {
-                    throw new NetworkModificationException(POSITION_ORDER_ERROR, "no available position");
                 }
             }
         }
@@ -1766,6 +1753,7 @@ public final class ModificationUtils {
                         : injectionCreationInfos.getEquipmentId())
                 .withInjectionPositionOrder(position)
                 .withInjectionAdder(injectionAdder)
+                .withLogOrThrowIfIncorrectPositionOrder(false)
                 .build();
         algo.apply(network, true, subReportNode);
     }
