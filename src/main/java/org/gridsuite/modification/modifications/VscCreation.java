@@ -83,8 +83,8 @@ public class VscCreation extends AbstractModification {
         // check connectivity
         ModificationUtils.getInstance().controlConnectivity(network,
                 converterStation.getVoltageLevelId(),
-                converterStation.getBusOrBusbarSectionId(),
-                converterStation.getConnectionPosition());
+                converterStation.getBusOrBusbarSectionId()
+        );
 
         // check reactive limits
         ModificationUtils.getInstance().checkReactiveLimitsCreation(converterStation,

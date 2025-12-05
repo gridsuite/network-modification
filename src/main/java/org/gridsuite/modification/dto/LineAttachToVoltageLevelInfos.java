@@ -42,6 +42,9 @@ public class LineAttachToVoltageLevelInfos extends ModificationInfos {
     @Schema(description = "attachment point name")
     private String attachmentPointName;
 
+    @Schema(description = "details about attachment point, may be null")
+    private VoltageLevelCreationInfos attachmentPointDetailInformation;
+
     @Schema(description = "possible new voltage level to create before inserting it, may be null")
     private VoltageLevelCreationInfos mayNewVoltageLevelInfos;
 
