@@ -46,7 +46,7 @@ public class ShuntCompensatorCreation extends AbstractModification {
                     modificationInfos.getSectionCount()));
         }
         ModificationUtils.getInstance().controlConnectivity(network, modificationInfos.getVoltageLevelId(),
-                modificationInfos.getBusOrBusbarSectionId(), modificationInfos.getConnectionPosition());
+                modificationInfos.getBusOrBusbarSectionId());
     }
 
     @Override

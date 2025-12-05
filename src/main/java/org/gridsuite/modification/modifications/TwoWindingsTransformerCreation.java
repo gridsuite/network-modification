@@ -41,8 +41,8 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         }
         String errorMessage = "Two windings transformer '" + modificationInfos.getEquipmentId() + "' : ";
         getInstance().controlBranchCreation(network,
-                modificationInfos.getVoltageLevelId1(), modificationInfos.getBusOrBusbarSectionId1(), modificationInfos.getConnectionPosition1(),
-                modificationInfos.getVoltageLevelId2(), modificationInfos.getBusOrBusbarSectionId2(), modificationInfos.getConnectionPosition2());
+                modificationInfos.getVoltageLevelId1(), modificationInfos.getBusOrBusbarSectionId1(),
+                modificationInfos.getVoltageLevelId2(), modificationInfos.getBusOrBusbarSectionId2());
         checkIsNotNegativeValue(errorMessage, modificationInfos.getR(), CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Resistance R");
         checkIsNotNegativeValue(errorMessage, modificationInfos.getG(), CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Conductance G");
         checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedU1(), CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 1");

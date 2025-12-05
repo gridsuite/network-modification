@@ -46,7 +46,7 @@ public class StaticVarCompensatorCreation extends AbstractModification {
         // check connectivity
         ModificationUtils.getInstance()
                 .controlConnectivity(network, modificationInfos.getVoltageLevelId(),
-                modificationInfos.getBusOrBusbarSectionId(), modificationInfos.getConnectionPosition());
+                modificationInfos.getBusOrBusbarSectionId());
 
         // check reactive power limits and set points
         ModificationUtils.getInstance().checkReactivePowerLimitsAndSetPointsCreation(modificationInfos);

@@ -79,12 +79,6 @@ class ShuntCompensatorCreationInNodeBreakerTest extends AbstractNetworkModificat
         modificationToCreate.setSectionCount(3);
         exception = assertThrows(NetworkModificationException.class, () -> modificationToCreate.toModification().check(getNetwork()));
         assertEquals("CREATE_SHUNT_COMPENSATOR_ERROR : Section count should be between 0 and Maximum section count (2), actual : 3", exception.getMessage());
-
-        // CreateWithExistingConnectionPosition
-        ShuntCompensatorCreationInfos dto = (ShuntCompensatorCreationInfos) buildModification();
-        dto.setConnectionPosition(2);
-        exception = assertThrows(NetworkModificationException.class, () -> dto.toModification().check(getNetwork()));
-        assertEquals("CONNECTION_POSITION_ERROR : PositionOrder '2' already taken", exception.getMessage());
     }
 
     @Override
