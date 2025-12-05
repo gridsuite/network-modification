@@ -119,6 +119,9 @@ public class ModificationInfos {
     @Builder.Default
     private Boolean activated = true;
 
+    @Schema(description = "User description")
+    private String description;
+
     @JsonIgnore
     public ReportNode createSubReportNode(ReportNode reportNode) {
         throw new UnsupportedOperationException("Method createSubReportNode must be implemented in subclass " + this.getClass().getSimpleName());
