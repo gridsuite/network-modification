@@ -21,13 +21,13 @@ import lombok.*;
 public class CurrentTemporaryLimitModificationInfos {
 
     @Schema(description = "name")
-    private String name;
+    private AttributeModification<String> name;
 
     @Schema(description = "value")
-    private Double value;
+    private AttributeModification<Double> value;
 
     @Schema(description = "acceptable duration")
-    private Integer acceptableDuration;
+    private AttributeModification<Integer> acceptableDuration;
 
     @Schema(description = "modification type")
     private TemporaryLimitModificationType modificationType;
