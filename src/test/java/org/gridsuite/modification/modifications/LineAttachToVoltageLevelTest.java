@@ -13,9 +13,8 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.UUID;
+
+import java.util.*;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,8 +46,8 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
                 .ipMax(10.0)
                 .busbarCount(2)
                 .sectionCount(2)
-                .switchKinds(Arrays.asList(SwitchKind.BREAKER))
-                .couplingDevices(Arrays.asList(CouplingDeviceInfos.builder().busbarSectionId1("bbs.nw").busbarSectionId2("bbs.ne").build()))
+                .switchKinds(List.of(SwitchKind.BREAKER))
+                .couplingDevices(Collections.singletonList(CouplingDeviceInfos.builder().busbarSectionId1("bbs.nw").busbarSectionId2("bbs.ne").build()))
                 .build();
     }
 

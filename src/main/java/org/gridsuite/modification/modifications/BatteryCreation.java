@@ -45,7 +45,7 @@ public class BatteryCreation extends AbstractModification {
         // check connectivity
         ModificationUtils.getInstance()
                 .controlConnectivity(network, modificationInfos.getVoltageLevelId(),
-                modificationInfos.getBusOrBusbarSectionId(), modificationInfos.getConnectionPosition());
+                modificationInfos.getBusOrBusbarSectionId());
 
         // check reactive limits
         ModificationUtils.getInstance().checkReactiveLimitsCreation(modificationInfos,
