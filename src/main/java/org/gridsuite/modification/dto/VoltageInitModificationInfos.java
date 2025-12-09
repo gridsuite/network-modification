@@ -21,7 +21,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -52,11 +51,11 @@ public class VoltageInitModificationInfos extends ModificationInfos {
     @Schema(description = "buses modifications")
     private List<VoltageInitBusModificationInfos> buses;
 
-    @Schema(description = "root network id")
-    private UUID rootNetworkId;
+    @Schema(description = "root network name")
+    private String rootNetworkName;
 
-    @Schema(description = "node id")
-    private UUID nodeId;
+    @Schema(description = "node name")
+    private String nodeName;
 
     @Schema(description = "computation date")
     private Instant computationDate;
@@ -74,8 +73,8 @@ public class VoltageInitModificationInfos extends ModificationInfos {
     @Override
     public Map<String, String> getMapMessageValues() {
         Map<String, String> mapMessageValues = new HashMap<>();
-        mapMessageValues.put("rootNetworkId", getRootNetworkId().toString());
-        mapMessageValues.put("nodeId", getNodeId().toString());
+        mapMessageValues.put("rootNetworkName", getRootNetworkName());
+        mapMessageValues.put("nodeName", getNodeName());
         mapMessageValues.put("computationDate", getComputationDate() != null ? getComputationDate().toString() : null);
         return mapMessageValues;
     }

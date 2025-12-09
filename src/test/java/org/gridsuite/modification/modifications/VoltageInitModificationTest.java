@@ -29,9 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
 class VoltageInitModificationTest extends AbstractNetworkModificationTest {
-    private static final UUID ROOT_NETWORK_UUID = UUID.randomUUID();
-    private static final UUID NODE_UUID = UUID.randomUUID();
-
     @Override
     protected Network createNetwork(UUID networkUuid) {
         Network network = NetworkCreation.create(networkUuid, true);
@@ -205,8 +202,8 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
                     .v(230.)
                     .angle(0.5)
                     .build()))
-            .rootNetworkId(ROOT_NETWORK_UUID)
-            .nodeId(NODE_UUID)
+            .rootNetworkName("rootNetwork1")
+            .nodeName("node1")
             .computationDate(Instant.now())
             .build();
     }
@@ -273,8 +270,8 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
     void testMapMessageValues() {
         ModificationInfos modifications = buildModification();
         Map<String, String> values = modifications.getMapMessageValues();
-        assertEquals(ROOT_NETWORK_UUID.toString(), values.get("rootNetworkId"));
-        assertEquals(NODE_UUID.toString(), values.get("nodeId"));
+        assertEquals("rootNetwork1", values.get("rootNetworkName"));
+        assertEquals("node1", values.get("nodeName"));
     }
 
     @Override
