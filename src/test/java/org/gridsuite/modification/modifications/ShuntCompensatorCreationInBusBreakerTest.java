@@ -34,7 +34,7 @@ class ShuntCompensatorCreationInBusBreakerTest extends AbstractNetworkModificati
         ShuntCompensatorCreationInfos shunt = (ShuntCompensatorCreationInfos) buildModification();
         shunt.setBusOrBusbarSectionId("notFoundBus");
         NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> shunt.toModification().check(getNetwork()));
-        assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
+        assertEquals("Bus notFoundBus does not exist in network", exception.getMessage());
     }
 
     @Override

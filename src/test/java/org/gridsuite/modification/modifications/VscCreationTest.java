@@ -177,7 +177,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         vscCreationInfos.setConverterStation2(converterStationCreationInfos);
         VscCreation vscCreation = (VscCreation) vscCreationInfos.toModification();
         NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> vscCreation.check(network));
-        assertEquals(new NetworkModificationRunException("notFoundVoltageLevelId").getMessage(), exception.getMessage());
+        assertEquals("Voltage level notFoundVoltageLevelId does not exist in network", exception.getMessage());
 
         // invalid min max reactive limit
         vscCreationInfos = (VscCreationInfos) buildModification();
@@ -230,7 +230,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         vscCreationInfos.setEquipmentId("hvdcLine");
         VscCreation vscCreation5 = (VscCreation) vscCreationInfos.toModification();
         exception = assertThrows(NetworkModificationRunException.class, () -> vscCreation5.check(network));
-        assertEquals(new NetworkModificationRunException("hvdcLine").getMessage(), exception.getMessage());
+        assertEquals("HVDC line already exists: hvdcLine", exception.getMessage());
 
         VscCreationInfos vscCreationInfos6 = VscCreationInfos.builder()
             .equipmentId("hvdcLine2")
@@ -241,7 +241,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         VscCreation vscCreation6 = (VscCreation) vscCreationInfos6.toModification();
         String message = assertThrows(NetworkModificationRunException.class,
             () -> vscCreation6.check(network)).getMessage();
-        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : can not have a negative value for Resistance R", message);
+        assertEquals("HVDC vsc 'hvdcLine2' : can not have a negative value for Resistance R", message);
 
         VscCreationInfos vscCreationInfos7 = VscCreationInfos.builder()
             .equipmentId("hvdcLine2")
@@ -256,7 +256,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         VscCreation vscCreation7 = (VscCreation) vscCreationInfos7.toModification();
         message = assertThrows(NetworkModificationRunException.class,
             () -> vscCreation7.check(network)).getMessage();
-        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : can not have a negative value for voltage set point side 1", message);
+        assertEquals("HVDC vsc 'hvdcLine2' : can not have a negative value for voltage set point side 1", message);
 
         VscCreationInfos vscCreationInfos8 = VscCreationInfos.builder()
             .equipmentId("hvdcLine2")
@@ -271,7 +271,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         VscCreation vscCreation8 = (VscCreation) vscCreationInfos8.toModification();
         message = assertThrows(NetworkModificationRunException.class,
             () -> vscCreation8.check(network)).getMessage();
-        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : can not have a negative value for voltage set point side 2", message);
+        assertEquals("HVDC vsc 'hvdcLine2' : can not have a negative value for voltage set point side 2", message);
 
         VscCreationInfos vscCreationInfos9 = VscCreationInfos.builder()
             .equipmentId("hvdcLine2")
@@ -282,7 +282,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         VscCreation vscCreation9 = (VscCreation) vscCreationInfos9.toModification();
         message = assertThrows(NetworkModificationRunException.class,
             () -> vscCreation9.check(network)).getMessage();
-        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : can not have a negative value for Nominal voltage", message);
+        assertEquals("HVDC vsc 'hvdcLine2' : can not have a negative value for Nominal voltage", message);
 
         VscCreationInfos vscCreationInfos10 = VscCreationInfos.builder()
             .equipmentId("hvdcLine2")
@@ -297,7 +297,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         VscCreation vscCreation10 = (VscCreation) vscCreationInfos10.toModification();
         message = assertThrows(NetworkModificationRunException.class,
             () -> vscCreation10.check(network)).getMessage();
-        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : must have loss factor side 2 between 0 and 100", message);
+        assertEquals("HVDC vsc 'hvdcLine2' : must have loss factor side 2 between 0 and 100", message);
 
         VscCreationInfos vscCreationInfos11 = VscCreationInfos.builder()
             .equipmentId("hvdcLine2")
@@ -312,7 +312,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         VscCreation vscCreation11 = (VscCreation) vscCreationInfos11.toModification();
         message = assertThrows(NetworkModificationRunException.class,
             () -> vscCreation11.check(network)).getMessage();
-        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : must have loss factor side 1 between 0 and 100", message);
+        assertEquals("HVDC vsc 'hvdcLine2' : must have loss factor side 1 between 0 and 100", message);
     }
 
     @Test

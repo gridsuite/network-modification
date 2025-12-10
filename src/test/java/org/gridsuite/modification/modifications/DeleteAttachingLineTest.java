@@ -77,7 +77,7 @@ class DeleteAttachingLineTest extends AbstractNetworkModificationTest {
         DeleteAttachingLineInfos deleteAttachingLineInfos = (DeleteAttachingLineInfos) buildModification();
         deleteAttachingLineInfos.setReplacingLine1Id("l2");
         NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> deleteAttachingLineInfos.toModification().check(getNetwork()));
-        assertEquals("LINE_ALREADY_EXISTS : l2", exception.getMessage());
+        assertEquals("Line already exist: l2", exception.getMessage());
     }
 
     @Override

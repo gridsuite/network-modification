@@ -80,7 +80,7 @@ class StaticVarCompensatorCreationInBusBreakerTest extends AbstractNetworkModifi
         StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos = (StaticVarCompensatorCreationInfos) buildModification();
         staticVarCompensatorCreationInfos.setBusOrBusbarSectionId("notFoundBus");
         NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> staticVarCompensatorCreationInfos.toModification().check(getNetwork()));
-        assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
+        assertEquals("Bus notFoundBus does not exist in network", exception.getMessage());
 
         // CreateWithRegulatedTerminalError
         StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos1 = (StaticVarCompensatorCreationInfos) buildModification();
@@ -89,7 +89,7 @@ class StaticVarCompensatorCreationInBusBreakerTest extends AbstractNetworkModifi
         staticVarCompensatorCreationInfos1.setRegulatingTerminalId("test");
         staticVarCompensatorCreationInfos1.setRegulatingTerminalType("STATIC_VAR_COMPENSATOR");
         exception = assertThrows(NetworkModificationRunException.class, () -> staticVarCompensatorCreationInfos1.toModification().check(getNetwork()));
-        assertEquals("EQUIPMENT_NOT_FOUND : Equipment with id=test not found with type STATIC_VAR_COMPENSATOR", exception.getMessage());
+        assertEquals("Equipment with id=test not found with type STATIC_VAR_COMPENSATOR", exception.getMessage());
     }
 
     @Override

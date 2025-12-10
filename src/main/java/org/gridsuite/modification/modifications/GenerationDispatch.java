@@ -346,7 +346,7 @@ public class GenerationDispatch extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationRunException {
+    public void check(Network network) {
         double lossCoefficient = generationDispatchInfos.getLossCoefficient();
         if (lossCoefficient < 0. || lossCoefficient > 100.) {
             throw new NetworkModificationRunException("Generation dispatch error: the loss coefficient must be between 0 and 100");

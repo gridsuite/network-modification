@@ -74,7 +74,7 @@ class OperatingStatusModificationEnergiseSideOneLineTest extends AbstractNetwork
         OperatingStatusModificationInfos modificationInfos = (OperatingStatusModificationInfos) buildModification();
         modificationInfos.setEquipmentId("cantdisconnect");
         NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> modificationInfos.toModification().apply(getNetwork()));
-        assertEquals("OPERATING_STATUS_MODIFICATION_ERROR : Unable to energise equipment end", exception.getMessage());
+        assertEquals("Unable to energise equipment end", exception.getMessage());
 
     }
 

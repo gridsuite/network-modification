@@ -85,10 +85,9 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
         assertNull(getNetwork().getLine("line3"));
     }
 
-    private void tryToCreateLineWithExistingId(LineAttachToVoltageLevelInfos tryWithExistingLine, String existingLineId) throws Exception {
+    private void tryToCreateLineWithExistingId(LineAttachToVoltageLevelInfos tryWithExistingLine, String existingLineId) {
         NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> tryWithExistingLine.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationRunException(existingLineId).getMessage(),
-                exception.getMessage());
+        assertEquals("Line already exists: " + existingLineId, exception.getMessage());
     }
 
     @Override
@@ -96,8 +95,7 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
         LineAttachToVoltageLevelInfos lineAttachToAbsentLine = (LineAttachToVoltageLevelInfos) buildModification();
         lineAttachToAbsentLine.setLineToAttachToId("absent_line_id");
         NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> lineAttachToAbsentLine.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationRunException("absent_line_id").getMessage(),
-                exception.getMessage());
+        assertEquals("Line not found: absent_line_id", exception.getMessage());
     }
 
     @Test
@@ -118,8 +116,7 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
         LineAttachToVoltageLevelInfos tryWithAttachmentPointId = (LineAttachToVoltageLevelInfos) buildModification();
         tryWithAttachmentPointId.setAttachmentPointId("v5");
         NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> tryWithAttachmentPointId.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationRunException("v5").getMessage(),
-                exception.getMessage());
+        assertEquals("Voltage level already exists: v5", exception.getMessage());
     }
 
     @Override

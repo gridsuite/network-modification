@@ -117,6 +117,6 @@ class LccCreationInBusBreakerTest extends AbstractNetworkModificationTest {
         LccCreation lccCreation = (LccCreation) lccCreationInfos.toModification();
         Network network = getNetwork();
         NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> lccCreation.check(network));
-        assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
+        assertEquals("Bus notFoundBus does not exist in network", exception.getMessage());
     }
 }

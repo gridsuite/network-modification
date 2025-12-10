@@ -65,7 +65,7 @@ class EquipmentAttributeModificationTest extends AbstractNetworkModificationTest
             .build();
 
         NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> switchStatusModificationInfos.toModification().apply(getNetwork()));
-        assertEquals("ATTRIBUTE_NOT_EDITABLE : SWITCH attribute 'close' not editable", exception.getMessage());
+        assertEquals("SWITCH attribute 'close' not editable", exception.getMessage());
     }
 
     @Override

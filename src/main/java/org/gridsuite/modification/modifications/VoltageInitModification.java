@@ -43,7 +43,7 @@ public class VoltageInitModification extends AbstractModification {
     private static final String COUNT = "count";
 
     @Override
-    public void check(Network network) throws NetworkModificationRunException {
+    public void check(Network network) {
         if (voltageInitModificationInfos == null) {
             throw new NetworkModificationRunException("No voltage init modification to apply !!");
         }

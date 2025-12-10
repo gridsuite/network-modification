@@ -64,20 +64,17 @@ class LinesAttachToSplitLinesTest extends AbstractNetworkModificationTest {
         LinesAttachToSplitLinesInfos linesAttachToSplitLinesInfos = (LinesAttachToSplitLinesInfos) buildModification();
         linesAttachToSplitLinesInfos.setLineToAttachTo1Id("absent_line_id");
         Exception exception = assertThrows(NetworkModificationRunException.class, () -> linesAttachToSplitLinesInfos.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationRunException("absent_line_id").getMessage(),
-                exception.getMessage());
+        assertEquals("Line not found: absent_line_id", exception.getMessage());
         // try to create an already existing line
         LinesAttachToSplitLinesInfos linesAttachToSplitLinesInfos1 = (LinesAttachToSplitLinesInfos) buildModification();
         linesAttachToSplitLinesInfos1.setReplacingLine1Id("l1");
         exception = assertThrows(NetworkModificationRunException.class, () -> linesAttachToSplitLinesInfos1.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationRunException("l1").getMessage(),
-                exception.getMessage());
+        assertEquals("Line already exists: l1", exception.getMessage());
         // same test on 'replacingLine2Id'
         LinesAttachToSplitLinesInfos linesAttachToSplitLinesInfos2 = (LinesAttachToSplitLinesInfos) buildModification();
         linesAttachToSplitLinesInfos2.setReplacingLine2Id("l1");
         exception = assertThrows(NetworkModificationRunException.class, () -> linesAttachToSplitLinesInfos2.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationRunException("l1").getMessage(),
-                exception.getMessage());
+        assertEquals("Line already exists: l1", exception.getMessage());
     }
 
     @Override

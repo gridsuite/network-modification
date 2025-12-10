@@ -44,8 +44,7 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
         LineCreationInfos lineCreationInfos = (LineCreationInfos) buildModification();
         lineCreationInfos.setBusOrBusbarSectionId2("notFoundBus");
         NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> lineCreationInfos.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationRunException("notFoundBus").getMessage(),
-                exception.getMessage());
+        assertEquals("Bus notFoundBus does not exist in network", exception.getMessage());
     }
 
     @Test

@@ -42,7 +42,7 @@ class GeneratorCreationInBusBreakerTest extends AbstractNetworkModificationTest 
         generatorCreationInfos.setBusOrBusbarSectionId("notFoundBus");
         NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class,
                 () -> generatorCreationInfos.toModification().check(getNetwork()));
-        assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
+        assertEquals("Bus notFoundBus does not exist in network", exception.getMessage());
     }
 
     @Override
@@ -98,7 +98,7 @@ class GeneratorCreationInBusBreakerTest extends AbstractNetworkModificationTest 
         generatorCreationInfos.setBusOrBusbarSectionId("notFoundBus");
         NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class,
                 () -> generatorCreationInfos.toModification().check(getNetwork()));
-        assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
+        assertEquals("Bus notFoundBus does not exist in network", exception.getMessage());
     }
 
     @Test
@@ -110,7 +110,7 @@ class GeneratorCreationInBusBreakerTest extends AbstractNetworkModificationTest 
 
         NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class,
                 () -> generatorCreationInfos.toModification().check(getNetwork()));
-        assertEquals("EQUIPMENT_NOT_FOUND : Equipment with id=titi not found with type LINE", exception.getMessage());
+        assertEquals("Equipment with id=titi not found with type LINE", exception.getMessage());
     }
 
     @Override

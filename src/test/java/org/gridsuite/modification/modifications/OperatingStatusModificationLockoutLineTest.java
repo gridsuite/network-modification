@@ -137,7 +137,7 @@ class OperatingStatusModificationLockoutLineTest extends AbstractNetworkModifica
         OperatingStatusModificationInfos modificationInfos = (OperatingStatusModificationInfos) buildModification();
         modificationInfos.setEquipmentId("notFound");
         NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> modificationInfos.toModification().check(getNetwork()));
-        assertEquals("EQUIPMENT_NOT_FOUND : notFound", exception.getMessage());
+        assertEquals("Equipment not found: notFound", exception.getMessage());
     }
 
     @Override

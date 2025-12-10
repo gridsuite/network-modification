@@ -69,7 +69,7 @@ class SubstationModificationTest extends AbstractNetworkModificationTest {
                 .country(new AttributeModification<>(Country.JP, OperationType.SET))
                 .build();
         NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> infos.toModification().check(getNetwork()));
-        assertEquals("SUBSTATION_NOT_FOUND : Substation unknown does not exist in network", exception.getMessage());
+        assertEquals("Substation unknown does not exist in network", exception.getMessage());
     }
 
     @Override

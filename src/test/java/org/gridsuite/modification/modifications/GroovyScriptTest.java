@@ -45,13 +45,12 @@ class GroovyScriptTest extends AbstractNetworkModificationTest {
         groovyScriptInfos.setScript("");
         // apply empty groovy script
         Exception exception = assertThrows(NetworkModificationRunException.class, () -> groovyScriptInfos.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationRunException("GROOVY_SCRIPT_EMPTY").getMessage(),
-                exception.getMessage());
+        assertEquals("Groovy script empty", exception.getMessage());
 
         groovyScriptInfos.setScript("      ");
         // apply blank groovy script
         exception = assertThrows(NetworkModificationRunException.class, () -> groovyScriptInfos.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationRunException("GROOVY_SCRIPT_EMPTY").getMessage(),
+        assertEquals("Groovy script empty",
                 exception.getMessage());
 
         groovyScriptInfos.setScript("network.getGenerator('there is no generator').targetP=12\n");

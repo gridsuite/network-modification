@@ -135,7 +135,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         LineModification lineModification1 = (LineModification) lineModificationInfos1.toModification();
         String message = assertThrows(NetworkModificationRunException.class,
             () -> lineModification1.check(network)).getMessage();
-        assertEquals("MODIFY_LINE_ERROR : Line 'line1' : can not have a negative value for Resistance R", message);
+        assertEquals("Line 'line1' : can not have a negative value for Resistance R", message);
 
         LineModificationInfos lineModificationInfos2 = LineModificationInfos.builder()
             .equipmentId("line1")
@@ -144,7 +144,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         LineModification lineModification2 = (LineModification) lineModificationInfos2.toModification();
         message = assertThrows(NetworkModificationRunException.class,
             () -> lineModification2.check(network)).getMessage();
-        assertEquals("MODIFY_LINE_ERROR : Line 'line1' : can not have a negative value for Conductance on side 1 G1", message);
+        assertEquals("Line 'line1' : can not have a negative value for Conductance on side 1 G1", message);
 
         LineModificationInfos lineModificationInfos3 = LineModificationInfos.builder()
             .equipmentId("line1")
@@ -153,7 +153,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         LineModification lineModification3 = (LineModification) lineModificationInfos3.toModification();
         message = assertThrows(NetworkModificationRunException.class,
             () -> lineModification3.check(network)).getMessage();
-        assertEquals("MODIFY_LINE_ERROR : Line 'line1' : can not have a negative value for Conductance on side 2 G2", message);
+        assertEquals("Line 'line1' : can not have a negative value for Conductance on side 2 G2", message);
     }
 
     @Override
@@ -326,17 +326,17 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         getNetwork().getSwitch("v3dl1").setOpen(true);
         getNetwork().getSwitch("v3bl1").setOpen(true);
         NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> changeLineConnectionState(getNetwork().getLine("line1"), true));
-        assertEquals("BRANCH_MODIFICATION_ERROR : Could not connect equipment 'line1' on side 1", exception.getMessage());
+        assertEquals("Could not connect equipment 'line1' on side 1", exception.getMessage());
         getNetwork().getSwitch("v3dl1").setOpen(false);
         getNetwork().getSwitch("v3bl1").setOpen(false);
         getNetwork().getSwitch("v4dl1").setOpen(true);
         getNetwork().getSwitch("v4bl1").setOpen(true);
         exception = assertThrows(NetworkModificationRunException.class, () -> changeLineConnectionState(getNetwork().getLine("line1"), true));
-        assertEquals("BRANCH_MODIFICATION_ERROR : Could not connect equipment 'line1' on side 2", exception.getMessage());
+        assertEquals("Could not connect equipment 'line1' on side 2", exception.getMessage());
         getNetwork().getSwitch("v3dl1").setOpen(true);
         getNetwork().getSwitch("v3bl1").setOpen(true);
         exception = assertThrows(NetworkModificationRunException.class, () -> changeLineConnectionState(getNetwork().getLine("line1"), true));
-        assertEquals("BRANCH_MODIFICATION_ERROR : Could not connect equipment 'line1' on side 1 & 2", exception.getMessage());
+        assertEquals("Could not connect equipment 'line1' on side 1 & 2", exception.getMessage());
     }
 
     @Test

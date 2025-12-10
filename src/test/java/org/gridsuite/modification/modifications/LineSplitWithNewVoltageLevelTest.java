@@ -31,8 +31,7 @@ class LineSplitWithNewVoltageLevelTest extends AbstractNetworkModificationTest {
         LineSplitWithVoltageLevelInfos lineSplitAbsentLine = (LineSplitWithVoltageLevelInfos) buildModification();
         lineSplitAbsentLine.setLineToSplitId("absent_line_id");
         NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> lineSplitAbsentLine.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationRunException("absent_line_id").getMessage(),
-                exception.getMessage());
+        assertEquals("Line not found: absent_line_id", exception.getMessage());
     }
 
     @Override

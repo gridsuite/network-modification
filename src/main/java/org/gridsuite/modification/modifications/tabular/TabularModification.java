@@ -25,7 +25,7 @@ public class TabularModification extends AbstractTabularModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationRunException {
+    public void check(Network network) {
         if (modificationInfos == null) {
             throw new NetworkModificationRunException("No tabular modification to apply !!");
         }

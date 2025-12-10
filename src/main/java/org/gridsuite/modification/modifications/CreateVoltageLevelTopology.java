@@ -44,7 +44,7 @@ public class CreateVoltageLevelTopology extends AbstractModification {
             throw new NetworkModificationRunException("The switch kinds list must have a size equal to the section count minus one");
         }
         if (network.getVoltageLevel(createVoltageLevelTopologyInfos.getVoltageLevelId()) == null) {
-            throw new NetworkModificationRunException("voltage level " +
+            throw new NetworkModificationRunException("Voltage level " +
                 createVoltageLevelTopologyInfos.getVoltageLevelId() + " is not found");
         }
     }

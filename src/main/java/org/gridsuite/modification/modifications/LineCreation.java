@@ -37,7 +37,7 @@ public class LineCreation extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationRunException {
+    public void check(Network network) {
         if (network.getLine(modificationInfos.getEquipmentId()) != null) {
             throw new NetworkModificationRunException("line already exists: " + modificationInfos.getEquipmentId());
         }

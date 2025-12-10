@@ -35,13 +35,13 @@ class LoadCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         // VoltageLevel not found
         loadCreationInfos.setVoltageLevelId("notFoundVoltageLevelId");
         NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> loadCreationInfos.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationRunException("notFoundVoltageLevelId").getMessage(), exception.getMessage());
+        assertEquals("Voltage level notFoundVoltageLevelId does not exist in network", exception.getMessage());
 
         loadCreationInfos.setEquipmentId("idLoad1");
         loadCreationInfos.setVoltageLevelId("v2");
         loadCreationInfos.setBusOrBusbarSectionId("notFoundBusbarSection");
         exception = assertThrows(NetworkModificationRunException.class, () -> loadCreationInfos.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationRunException("notFoundBusbarSection").getMessage(), exception.getMessage());
+        assertEquals("Busbar section notFoundBusbarSection does not exist in network", exception.getMessage());
 
         loadCreationInfos.setBusOrBusbarSectionId("1B");
         loadCreationInfos.setP0(Double.NaN);
