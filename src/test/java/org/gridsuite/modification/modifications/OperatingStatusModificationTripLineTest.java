@@ -11,7 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.OperatingStatusModificationInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
@@ -71,7 +71,7 @@ class OperatingStatusModificationTripLineTest extends AbstractNetworkModificatio
     protected void checkModification() {
         OperatingStatusModificationInfos modification = (OperatingStatusModificationInfos) buildModification();
         modification.setEquipmentId("NotFoundEquipmentId");
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> modification.toModification().check(getNetwork()));
+        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> modification.toModification().check(getNetwork()));
         assertEquals("EQUIPMENT_NOT_FOUND : NotFoundEquipmentId", exception.getMessage());
     }
 

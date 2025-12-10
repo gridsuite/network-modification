@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRangeAdder;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.ConverterStationModificationInfos;
 import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
 import org.gridsuite.modification.dto.VscModificationInfos;
@@ -26,8 +26,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_VSC_ERROR;
-import static org.gridsuite.modification.NetworkModificationException.Type.WRONG_HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL;
 import static org.gridsuite.modification.modifications.VscCreation.VSC_CHARACTERISTICS;
 import static org.gridsuite.modification.modifications.VscCreation.VSC_SETPOINTS;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
@@ -57,15 +55,15 @@ public class VscModification extends AbstractModification {
     protected void checkConverterStation(@Nonnull ConverterStationModificationInfos converterStationModificationInfos, @Nonnull VscConverterStation vscConverterStation) {
         String errorMessage = "Converter station '" + converterStationModificationInfos.getEquipmentId() + "' : ";
         ModificationUtils.getInstance().checkReactiveLimit(vscConverterStation, converterStationModificationInfos.getMinQ(), converterStationModificationInfos.getMaxQ(),
-                converterStationModificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_VSC_ERROR, errorMessage);
+                converterStationModificationInfos.getReactiveCapabilityCurvePoints(), errorMessage);
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         if (modificationInfos == null
                 || modificationInfos.getConverterStation1() == null
                 || modificationInfos.getConverterStation2() == null) {
-            throw new NetworkModificationException(MODIFY_VSC_ERROR, "Missing required attributes to modify the equipment");
+            throw new NetworkModificationRunException("Missing required attributes to modify the equipment");
         }
         HvdcLine hvdcLine = ModificationUtils.getInstance().getHvdcLine(network, modificationInfos.getEquipmentId());
         String errorMessage = "HVDC vsc '" + modificationInfos.getEquipmentId() + "' : ";
@@ -76,26 +74,26 @@ public class VscModification extends AbstractModification {
         checkConverterStation(modificationInfos.getConverterStation2(), converterStation2);
         checkDroop(hvdcLine);
         if (modificationInfos.getR() != null) {
-            checkIsNotNegativeValue(errorMessage, modificationInfos.getR().getValue(), MODIFY_VSC_ERROR, "Resistance R");
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getR().getValue(), "Resistance R");
         }
         if (modificationInfos.getNominalV() != null) {
-            checkIsNotNegativeValue(errorMessage, modificationInfos.getNominalV().getValue(), MODIFY_VSC_ERROR, "Nominal voltage");
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getNominalV().getValue(), "Nominal voltage");
         }
         if (modificationInfos.getConverterStation1().getVoltageSetpoint() != null) {
             checkIsNotNegativeValue(errorMessage, modificationInfos.getConverterStation1().getVoltageSetpoint().getValue(),
-                MODIFY_VSC_ERROR, "voltage set point side 1");
+                "voltage set point side 1");
         }
         if (modificationInfos.getConverterStation2().getVoltageSetpoint() != null) {
             checkIsNotNegativeValue(errorMessage, modificationInfos.getConverterStation2().getVoltageSetpoint().getValue(),
-                MODIFY_VSC_ERROR, "voltage set point side 2");
+                "voltage set point side 2");
         }
         if (modificationInfos.getConverterStation1().getLossFactor() != null) {
             checkIsPercentage(errorMessage, modificationInfos.getConverterStation1().getLossFactor().getValue(),
-                MODIFY_VSC_ERROR, "loss factor side 1");
+                "loss factor side 1");
         }
         if (modificationInfos.getConverterStation2().getLossFactor() != null) {
             checkIsPercentage(errorMessage, modificationInfos.getConverterStation2().getLossFactor().getValue(),
-                MODIFY_VSC_ERROR, "loss factor side 2");
+                "loss factor side 2");
         }
     }
 
@@ -116,7 +114,7 @@ public class VscModification extends AbstractModification {
         }
         // at least one field is provided but not for the others => NOT OK
         if (isPresentAngleDroopActivePowerControl || isPresentDroop || isPresentP0) {
-            throw new NetworkModificationException(WRONG_HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL, ACTIVE_POWER_CONTROL_DROOP_P0_REQUIRED_ERROR_MSG);
+            throw new NetworkModificationRunException(ACTIVE_POWER_CONTROL_DROOP_P0_REQUIRED_ERROR_MSG);
         }
         // otherwise, i.e. none of the fields is provided => OK extension will not be created
     }

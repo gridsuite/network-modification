@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         BatteryModificationInfos batteryModificationInfos = buildModification();
         batteryModificationInfos.setTargetP(new AttributeModification<>(-1.0, OperationType.SET));
         BatteryModification batteryModification = (BatteryModification) batteryModificationInfos.toModification();
-        assertThrows(NetworkModificationException.class,
+        assertThrows(NetworkModificationRunException.class,
             () -> batteryModification.check(network));
 
         BatteryModificationInfos batteryModificationInfos1 = BatteryModificationInfos.builder()
@@ -47,7 +47,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
             .droop(new AttributeModification<>(101f, OperationType.SET))
             .build();
         BatteryModification batteryModification1 = (BatteryModification) batteryModificationInfos1.toModification();
-        String message = assertThrows(NetworkModificationException.class,
+        String message = assertThrows(NetworkModificationRunException.class,
             () -> batteryModification1.check(network)).getMessage();
         assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : must have Droop between 0 and 100", message);
 
@@ -56,7 +56,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
             .droop(new AttributeModification<>(-1f, OperationType.SET))
             .build();
         BatteryModification batteryModification2 = (BatteryModification) batteryModificationInfos2.toModification();
-        message = assertThrows(NetworkModificationException.class,
+        message = assertThrows(NetworkModificationRunException.class,
             () -> batteryModification2.check(network)).getMessage();
         assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : must have Droop between 0 and 100", message);
     }
@@ -155,7 +155,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         Double maxActivePower = batteryModificationInfos.getMaxP() != null ? batteryModificationInfos.getMaxP().getValue() : battery.getMaxP();
         Double activePower = batteryModificationInfos.getTargetP() != null ? batteryModificationInfos.getTargetP().getValue() : battery.getTargetP();
 
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class,
+        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class,
                 () -> batteryModificationInfos.toModification().check(getNetwork()));
         assertEquals("MODIFY_BATTERY_ERROR : Battery '" + "v3Battery" + "' : Active power " + activePower + " is expected to be equal to 0 or within the range of minimum active power and maximum active power: [" + minActivePower + ", " + maxActivePower + "]",
                 exception.getMessage());
@@ -192,7 +192,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
                         minQ.set(newPoint.getMinQ());
                     });
         }
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class,
+        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class,
                 () -> batteryModificationInfos.toModification().check(getNetwork()));
         assertEquals("MODIFY_BATTERY_ERROR : Battery '" + "v3Battery" + "' : maximum reactive power " + maxQ.get()
                         + " is expected to be greater than or equal to minimum reactive power " + minQ.get(), exception.getMessage());
@@ -221,7 +221,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         BatteryModificationInfos batteryModificationInfos = new BatteryModificationInfos();
         batteryModificationInfos.setEquipmentId("v3Battery");
         batteryModificationInfos.setTerminalConnected(new AttributeModification<>(true, OperationType.SET));
-        String message = assertThrows(NetworkModificationException.class, () -> batteryModificationInfos.toModification().apply(getNetwork())).getMessage();
+        String message = assertThrows(NetworkModificationRunException.class, () -> batteryModificationInfos.toModification().apply(getNetwork())).getMessage();
         assertEquals("INJECTION_MODIFICATION_ERROR : Could not connect equipment 'v3Battery'", message);
     }
 }

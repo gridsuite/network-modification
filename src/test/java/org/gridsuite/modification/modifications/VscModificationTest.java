@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRangeAdder;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,6 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.gridsuite.modification.NetworkModificationException.Type.WRONG_HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL;
 import static org.gridsuite.modification.modifications.VscModification.ACTIVE_POWER_CONTROL_DROOP_P0_REQUIRED_ERROR_MSG;
 import static org.junit.jupiter.api.Assertions.*;
 /**
@@ -238,10 +237,10 @@ class VscModificationTest extends AbstractNetworkModificationTest {
 
     private static void checkDroopWithAbsentInfos(VscModificationInfos modificationInfos, Network networkWithoutExt) {
         VscModification vscModification = new VscModification(modificationInfos);
-        String message = assertThrows(NetworkModificationException.class,
+        String message = assertThrows(NetworkModificationRunException.class,
                 () -> vscModification.check(networkWithoutExt))
             .getMessage();
-        assertThat(message).isEqualTo(WRONG_HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL.name() + " : "
+        assertThat(message).isEqualTo(" : "
               + ACTIVE_POWER_CONTROL_DROOP_P0_REQUIRED_ERROR_MSG);
     }
 
@@ -316,7 +315,7 @@ class VscModificationTest extends AbstractNetworkModificationTest {
         var networkuuid = UUID.randomUUID();
         Network networkWitoutExt = NetworkCreation.createWithVSC(networkuuid, true);
         VscModification vscModification = new VscModification(modificationInfos);
-        assertThrows(NetworkModificationException.class, () -> vscModification.check(networkWitoutExt));
+        assertThrows(NetworkModificationRunException.class, () -> vscModification.check(networkWitoutExt));
     }
 
     @Test
@@ -372,7 +371,7 @@ class VscModificationTest extends AbstractNetworkModificationTest {
             .r(new AttributeModification<>(-1d, OperationType.SET))
             .build();
         VscModification vscModification = (VscModification) vscModificationInfos.toModification();
-        String message = assertThrows(NetworkModificationException.class,
+        String message = assertThrows(NetworkModificationRunException.class,
             () -> vscModification.check(network)).getMessage();
         assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : can not have a negative value for Resistance R", message);
 
@@ -385,7 +384,7 @@ class VscModificationTest extends AbstractNetworkModificationTest {
             .converterStation2(buildConverterStationWithReactiveCapabilityCurve())
             .build();
         VscModification vscModification2 = (VscModification) vscModificationInfos2.toModification();
-        message = assertThrows(NetworkModificationException.class,
+        message = assertThrows(NetworkModificationRunException.class,
             () -> vscModification2.check(network)).getMessage();
         assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : can not have a negative value for voltage set point side 1", message);
 
@@ -398,7 +397,7 @@ class VscModificationTest extends AbstractNetworkModificationTest {
                 .build())
             .build();
         VscModification vscModification3 = (VscModification) vscModificationInfos3.toModification();
-        message = assertThrows(NetworkModificationException.class,
+        message = assertThrows(NetworkModificationRunException.class,
             () -> vscModification3.check(network)).getMessage();
         assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : can not have a negative value for voltage set point side 2", message);
 
@@ -409,7 +408,7 @@ class VscModificationTest extends AbstractNetworkModificationTest {
             .converterStation2(buildConverterStationWithReactiveCapabilityCurve())
             .build();
         VscModification vscModification4 = (VscModification) vscModificationInfos4.toModification();
-        message = assertThrows(NetworkModificationException.class,
+        message = assertThrows(NetworkModificationRunException.class,
             () -> vscModification4.check(network)).getMessage();
         assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : can not have a negative value for Nominal voltage", message);
 
@@ -422,7 +421,7 @@ class VscModificationTest extends AbstractNetworkModificationTest {
                 .build())
             .build();
         VscModification vscModification5 = (VscModification) vscModificationInfos5.toModification();
-        message = assertThrows(NetworkModificationException.class,
+        message = assertThrows(NetworkModificationRunException.class,
             () -> vscModification5.check(network)).getMessage();
         assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : must have loss factor side 2 between 0 and 100", message);
 
@@ -435,7 +434,7 @@ class VscModificationTest extends AbstractNetworkModificationTest {
                 .build())
             .build();
         VscModification vscModification6 = (VscModification) vscModificationInfos6.toModification();
-        message = assertThrows(NetworkModificationException.class,
+        message = assertThrows(NetworkModificationRunException.class,
             () -> vscModification6.check(network)).getMessage();
         assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : must have loss factor side 1 between 0 and 100", message);
     }

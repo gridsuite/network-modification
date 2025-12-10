@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimated;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimatedAdder;
 import org.apache.commons.lang3.BooleanUtils;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -21,7 +21,6 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.*;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
@@ -38,11 +37,11 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         String errorMessage = "Two windings transformer '" + modificationInfos.getEquipmentId() + "' : ";
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(modificationInfos.getEquipmentId());
         if (transformer == null) {
-            throw new NetworkModificationException(TWO_WINDINGS_TRANSFORMER_NOT_FOUND, errorMessage + "it does not exist in the network");
+            throw new NetworkModificationRunException(errorMessage + " does not exist in the network");
         }
         ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId1(),
                 modificationInfos.getBusOrBusbarSectionId1(), transformer.getTerminal1());
@@ -52,23 +51,22 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         checkAndModifyTapChanger(network, twtModificationInfos.getRatioTapChanger(), transformer.getRatioTapChanger(), errorMessage);
         checkAndModifyTapChanger(network, twtModificationInfos.getPhaseTapChanger(), transformer.getPhaseTapChanger(), errorMessage);
         if (twtModificationInfos.getR() != null) {
-            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getR().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Resistance R");
+            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getR().getValue(), "Resistance R");
         }
         if (twtModificationInfos.getG() != null) {
-            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getG().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Conductance G");
+            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getG().getValue(), "Conductance G");
         }
         if (twtModificationInfos.getRatedU1() != null) {
-            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getRatedU1().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 1");
+            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getRatedU1().getValue(), "Rated Voltage on side 1");
         }
         if (twtModificationInfos.getRatedU2() != null) {
-            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getRatedU2().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 2");
+            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getRatedU2().getValue(), "Rated Voltage on side 2");
         }
         if (twtModificationInfos.getRatedS() != null) {
-            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getRatedS().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated nominal power");
+            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getRatedS().getValue(), "Rated nominal power");
         }
         if (twtModificationInfos.getRatioTapChanger() != null && twtModificationInfos.getRatioTapChanger().getTargetV() != null) {
-            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getRatioTapChanger().getTargetV().getValue(),
-                MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Target voltage for ratio tap changer");
+            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getRatioTapChanger().getTargetV().getValue(), "Target voltage for ratio tap changer");
         }
     }
 
@@ -86,7 +84,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
             null,
             tapChanger.getRegulationTerminal(),
             network,
-            MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, errorMessage);
+            errorMessage);
     }
 
     @Override
@@ -321,7 +319,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                                                  AttributeModification<Double> regulationValueModification,
                                                  AttributeModification<Double> targetDeadbandModification,
                                                  AttributeModification<Boolean> regulatingModification,
-                                                 List<ReportNode> regulationReports) throws NetworkModificationException {
+                                                 List<ReportNode> regulationReports) throws NetworkModificationRunException {
 
         // checks will be done in powsybl
         AttributeModification<Double> finalTargetDeadbandModification = targetDeadbandModification;
@@ -332,10 +330,10 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                     finalTargetDeadbandModification = new AttributeModification<>(0.0, OperationType.SET);
                 }
                 if (regulationValueModification == null) {
-                    throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value is missing when creating tap phase changer with regulation enabled");
+                    throw new NetworkModificationRunException("Two winding transformer creation error: Regulation value is missing when creating tap phase changer with regulation enabled");
                 }
                 if (regulationModeModification == null) {
-                    throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation mode is missing when creating tap phase changer with regulation enabled");
+                    throw new NetworkModificationRunException("Two winding transformer creation error: Regulation mode is missing when creating tap phase changer with regulation enabled");
                 }
 
             } else {
@@ -344,10 +342,10 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 }
 
                 if (regulationValueModification == null && Double.isNaN(phaseTapChanger.getRegulationValue())) {
-                    throw new NetworkModificationException(MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value is missing when modifying, phase tap changer can not regulate");
+                    throw new NetworkModificationRunException("Two winding transformer modification error: Regulation value is missing when modifying, phase tap changer can not regulate");
                 }
                 if (regulationModeModification == null && phaseTapChanger.getRegulationMode() == null) {
-                    throw new NetworkModificationException(MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation mode is missing when modifying, phase tap changer can not regulate");
+                    throw new NetworkModificationRunException("Two winding transformer modification error: Regulation mode is missing when modifying, phase tap changer can not regulate");
                 }
             }
         }

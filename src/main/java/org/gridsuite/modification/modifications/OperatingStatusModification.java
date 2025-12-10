@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import com.powsybl.iidm.network.util.SwitchPredicates;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.OperatingStatusModificationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.slf4j.Logger;
@@ -27,8 +27,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.EQUIPMENT_NOT_FOUND;
-import static org.gridsuite.modification.NetworkModificationException.Type.OPERATING_STATUS_MODIFICATION_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
 
 /**
@@ -46,11 +44,11 @@ public class OperatingStatusModification extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         String equipmentId = modificationInfos.getEquipmentId();
         Identifiable<?> equipment = network.getIdentifiable(equipmentId);
         if (equipment == null) {
-            throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, equipmentId);
+            throw new NetworkModificationRunException("Equipment not found: " + equipmentId);
         }
     }
 
@@ -59,7 +57,7 @@ public class OperatingStatusModification extends AbstractModification {
         String equipmentId = modificationInfos.getEquipmentId();
         Identifiable<?> equipment = network.getIdentifiable(equipmentId);
         if (equipment == null) {
-            throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, equipmentId);
+            throw new NetworkModificationRunException("Equipment not found: " + equipmentId);
         }
 
         String equipmentType = String.valueOf(equipment.getType());
@@ -72,7 +70,7 @@ public class OperatingStatusModification extends AbstractModification {
             case ENERGISE_END_TWO ->
                     applyEnergiseEquipmentEnd(subReportNode, equipment, equipmentType, TwoSides.TWO);
             default ->
-                    throw NetworkModificationException.createOperatingActionTypeUnsupported(modificationInfos.getAction());
+                    throw new NetworkModificationRunException("The operating action type : " + modificationInfos.getAction() + " is unsupported");
         }
     }
 
@@ -85,7 +83,7 @@ public class OperatingStatusModification extends AbstractModification {
         if (disconnectAllTerminals(equipment)) {
             equipment.newExtension(OperatingStatusAdder.class).withStatus(OperatingStatus.Status.PLANNED_OUTAGE).add();
         } else {
-            throw new NetworkModificationException(OPERATING_STATUS_MODIFICATION_ERROR, "Unable to disconnect all equipment ends");
+            throw new NetworkModificationRunException("Unable to disconnect all equipment ends");
         }
         subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.lockout.equipment.Applied")
@@ -128,13 +126,13 @@ public class OperatingStatusModification extends AbstractModification {
 
     private void applySwitchOnEquipment(ReportNode subReportNode, Identifiable<?> equipment, String equipmentType) {
         if (!(equipment instanceof Branch<?>)) {
-            throw NetworkModificationException.createEquipmentTypeNotSupported(equipment.getClass().getSimpleName());
+            throw new NetworkModificationRunException("The equipment type : " + equipment.getClass().getSimpleName() + " is not supported");
         }
 
         if (connectAllTerminals(equipment)) {
             equipment.newExtension(OperatingStatusAdder.class).withStatus(OperatingStatus.Status.IN_OPERATION).add();
         } else {
-            throw new NetworkModificationException(OPERATING_STATUS_MODIFICATION_ERROR, "Unable to connect all equipment ends");
+            throw new NetworkModificationRunException("Unable to connect all equipment ends");
         }
 
         subReportNode.newReportNode()
@@ -147,14 +145,14 @@ public class OperatingStatusModification extends AbstractModification {
 
     private void applyEnergiseEquipmentEnd(ReportNode subReportNode, Identifiable<?> equipment, String equipmentType, TwoSides side) {
         if (!(equipment instanceof Branch<?> branch)) {
-            throw NetworkModificationException.createEquipmentTypeNotSupported(equipment.getClass().getSimpleName());
+            throw new NetworkModificationRunException("The equipment type : " + equipment.getClass().getSimpleName() + " is not supported");
         }
 
         TwoSides oppositeSide = side == TwoSides.ONE ? TwoSides.TWO : TwoSides.ONE;
         if (connectOneTerminal(branch.getTerminal(side)) && disconnectOneTerminal(branch.getTerminal(oppositeSide), SwitchPredicates.IS_CLOSED_BREAKER)) {
             branch.newExtension(OperatingStatusAdder.class).withStatus(OperatingStatus.Status.IN_OPERATION).add();
         } else {
-            throw new NetworkModificationException(OPERATING_STATUS_MODIFICATION_ERROR, "Unable to energise equipment end");
+            throw new NetworkModificationRunException("Unable to energise equipment end");
         }
 
         subReportNode.newReportNode()
@@ -192,6 +190,6 @@ public class OperatingStatusModification extends AbstractModification {
         } else if (identifiable instanceof HvdcLine hvdcLine) {
             return new HvdcLineTripping(hvdcLine.getId());
         }
-        throw NetworkModificationException.createEquipmentTypeNotSupported(identifiable.getClass().getSimpleName());
+        throw new NetworkModificationRunException("The equipment type : " + identifiable.getClass().getSimpleName() + " is not supported");
     }
 }

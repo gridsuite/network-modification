@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.BatteryCreation;
 
@@ -31,7 +30,6 @@ import java.util.List;
 @ToString(callSuper = true)
 @Schema(description = "Battery creation")
 @JsonTypeName("BATTERY_CREATION")
-@ModificationErrorTypeName("CREATE_BATTERY_ERROR")
 public class BatteryCreationInfos extends InjectionCreationInfos implements ReactiveLimitsHolderInfos {
 
     @Schema(description = "Minimum active power")

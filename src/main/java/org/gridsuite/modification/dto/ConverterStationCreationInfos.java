@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 
 import java.util.List;
 
@@ -29,7 +28,6 @@ import java.util.List;
 @ToString(callSuper = true)
 @Schema(description = "Converter station creation")
 @JsonTypeName("CONVERTER_STATION_CREATION")
-@ModificationErrorTypeName("CREATE_CONVERTER_STATION_ERROR")
 public class ConverterStationCreationInfos extends InjectionCreationInfos implements ReactiveLimitsHolderInfos {
     @Schema(description = "Loss Factor")
     private Float lossFactor;

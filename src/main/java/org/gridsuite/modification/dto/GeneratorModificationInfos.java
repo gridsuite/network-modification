@@ -11,7 +11,6 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.GeneratorModification;
 
@@ -33,7 +32,6 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 @Schema(description = "generator modification")
 @JsonTypeName("GENERATOR_MODIFICATION")
-@ModificationErrorTypeName("MODIFY_GENERATOR_ERROR")
 public class GeneratorModificationInfos extends InjectionModificationInfos {
     @Schema(description = "Energy source")
     private AttributeModification<EnergySource> energySource;

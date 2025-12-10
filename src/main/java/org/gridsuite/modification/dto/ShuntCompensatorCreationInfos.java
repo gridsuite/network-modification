@@ -15,7 +15,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.ShuntCompensatorCreation;
 
@@ -30,7 +29,6 @@ import org.gridsuite.modification.modifications.ShuntCompensatorCreation;
 @ToString(callSuper = true)
 @Schema(description = "Shunt compensator creation")
 @JsonTypeName("SHUNT_COMPENSATOR_CREATION")
-@ModificationErrorTypeName("CREATE_SHUNT_COMPENSATOR_ERROR")
 public class ShuntCompensatorCreationInfos extends InjectionCreationInfos {
     @Schema(description = "Maximum number of sections")
     private Integer maximumSectionCount;

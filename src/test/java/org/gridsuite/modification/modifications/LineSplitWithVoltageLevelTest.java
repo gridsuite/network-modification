@@ -8,15 +8,13 @@ package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.LineSplitWithVoltageLevelInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BUSBAR_SECTION_NOT_FOUND;
-import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -57,30 +55,30 @@ class LineSplitWithVoltageLevelTest extends AbstractNetworkModificationTest {
         // try to create an already existing line
         LineSplitWithVoltageLevelInfos tryWithNewLine1Id = (LineSplitWithVoltageLevelInfos) buildModification();
         tryWithNewLine1Id.setNewLine1Id("line1");
-        Exception exception = assertThrows(NetworkModificationException.class, () -> tryWithNewLine1Id.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(LINE_ALREADY_EXISTS, "line1").getMessage(),
+        Exception exception = assertThrows(NetworkModificationRunException.class, () -> tryWithNewLine1Id.toModification().check(getNetwork()));
+        assertEquals(new NetworkModificationRunException("line1").getMessage(),
                 exception.getMessage());
 
         // same test with "newLine2Id"
         LineSplitWithVoltageLevelInfos tryWithNewLine2Id = (LineSplitWithVoltageLevelInfos) buildModification();
         tryWithNewLine2Id.setNewLine2Id("line1");
-        exception = assertThrows(NetworkModificationException.class, () -> tryWithNewLine2Id.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(LINE_ALREADY_EXISTS, "line1").getMessage(),
+        exception = assertThrows(NetworkModificationRunException.class, () -> tryWithNewLine2Id.toModification().check(getNetwork()));
+        assertEquals(new NetworkModificationRunException("line1").getMessage(),
                 exception.getMessage());
 
         // testCreateWithWrongBusBar
         // not existing busbar
         LineSplitWithVoltageLevelInfos tryWithBadId = (LineSplitWithVoltageLevelInfos) buildModification();
         tryWithBadId.setBbsOrBusId("999A");
-        exception = assertThrows(NetworkModificationException.class, () -> tryWithBadId.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, "999A").getMessage(),
+        exception = assertThrows(NetworkModificationRunException.class, () -> tryWithBadId.toModification().check(getNetwork()));
+        assertEquals(new NetworkModificationRunException("999A").getMessage(),
                 exception.getMessage());
 
         // try with a switch, not a busbar
         LineSplitWithVoltageLevelInfos tryWithSwitchId = (LineSplitWithVoltageLevelInfos) buildModification();
         tryWithSwitchId.setBbsOrBusId("v1d1");
-        exception = assertThrows(NetworkModificationException.class, () -> tryWithSwitchId.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, "v1d1").getMessage(),
+        exception = assertThrows(NetworkModificationRunException.class, () -> tryWithSwitchId.toModification().check(getNetwork()));
+        assertEquals(new NetworkModificationRunException("v1d1").getMessage(),
                 exception.getMessage());
     }
 

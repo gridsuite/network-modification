@@ -11,7 +11,6 @@ import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LinesAttachToSplitLines;
 import java.util.Map;
@@ -28,7 +27,6 @@ import java.util.Map;
 @ToString(callSuper = true)
 @Schema(description = "Line attach to split line")
 @JsonTypeName("LINES_ATTACH_TO_SPLIT_LINES")
-@ModificationErrorTypeName("LINE_ATTACH_ERROR")
 public class LinesAttachToSplitLinesInfos extends ModificationInfos {
 
     @Schema(description = "line 1 id")

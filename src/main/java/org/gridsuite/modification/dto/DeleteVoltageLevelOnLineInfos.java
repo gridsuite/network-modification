@@ -11,7 +11,6 @@ import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.DeleteVoltageLevelOnLine;
 
@@ -30,7 +29,6 @@ import java.util.Map;
 @ToString(callSuper = true)
 @Schema(description = "Delete voltage level on line infos")
 @JsonTypeName("DELETE_VOLTAGE_LEVEL_ON_LINE")
-@ModificationErrorTypeName("DELETE_VOLTAGE_LEVEL_ON_LINE_ERROR")
 public class DeleteVoltageLevelOnLineInfos extends ModificationInfos {
 
     @Schema(description = "line 1 id")

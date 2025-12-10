@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuitAdder;
 import com.powsybl.network.store.iidm.impl.extensions.CoordinatedReactiveControlAdderImpl;
 import com.powsybl.network.store.iidm.impl.extensions.GeneratorStartupAdderImpl;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.GeneratorCreationInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -23,8 +23,6 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_GENERATOR_ERROR;
-import static org.gridsuite.modification.NetworkModificationException.Type.GENERATOR_ALREADY_EXISTS;
 import static org.gridsuite.modification.modifications.GeneratorModification.ERROR_MESSAGE;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
@@ -40,9 +38,9 @@ public class GeneratorCreation extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         if (network.getGenerator(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationException(GENERATOR_ALREADY_EXISTS, modificationInfos.getEquipmentId());
+            throw new NetworkModificationRunException("Generator already exists: " + modificationInfos.getEquipmentId());
         }
         String errorMessage = "Generator '" + modificationInfos.getEquipmentId() + "' : ";
 
@@ -52,7 +50,6 @@ public class GeneratorCreation extends AbstractModification {
 
         // check reactive limits
         ModificationUtils.getInstance().checkReactiveLimitsCreation(modificationInfos,
-                modificationInfos.getErrorType(),
                 modificationInfos.getEquipmentId(),
                 "Generator");
 
@@ -64,11 +61,11 @@ public class GeneratorCreation extends AbstractModification {
             modificationInfos.getRegulatingTerminalVlId());
 
         ModificationUtils.getInstance().checkActivePowerControl(modificationInfos.getParticipate(),
-            modificationInfos.getDroop(), CREATE_GENERATOR_ERROR, String.format(ERROR_MESSAGE, modificationInfos.getEquipmentId()));
+            modificationInfos.getDroop(), String.format(ERROR_MESSAGE, modificationInfos.getEquipmentId()));
 
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getTargetV(), CREATE_GENERATOR_ERROR, "Target Voltage");
-        checkIsPercentage(errorMessage, modificationInfos.getDroop(), CREATE_GENERATOR_ERROR, "Droop");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedS(), CREATE_GENERATOR_ERROR, "Rated apparent power");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getTargetV(), "Target Voltage");
+        checkIsPercentage(errorMessage, modificationInfos.getDroop(), "Droop");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedS(), "Rated apparent power");
     }
 
     @Override

@@ -17,7 +17,6 @@ import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
 import org.gridsuite.modification.utils.ModificationUtils;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_BATTERY_ERROR;
 import static org.gridsuite.modification.modifications.BatteryModification.*;
 import static org.gridsuite.modification.utils.ModificationUtils.parseDoubleOrNaNIfNull;
 
@@ -60,7 +59,7 @@ public enum BatteryField {
             case ACTIVE_POWER_SET_POINT -> {
                 ModificationUtils.getInstance().checkActivePowerZeroOrBetweenMinAndMaxActivePower(
                         new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null, null, battery.getMinP(),
-                        battery.getMaxP(), battery.getTargetP(), MODIFY_BATTERY_ERROR, errorMessage
+                        battery.getMaxP(), battery.getTargetP(), errorMessage
                 );
                 modifyBatterySetpointsAttributes(new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null, null, null, battery, null);
             }
@@ -68,13 +67,13 @@ public enum BatteryField {
                     null, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null, null, battery, null);
             case DROOP -> {
                 Float droopValue = Float.parseFloat(newValue);
-                ModificationUtils.checkIsPercentage(errorMessage, droopValue, MODIFY_BATTERY_ERROR, "Droop");
+                ModificationUtils.checkIsPercentage(errorMessage, droopValue, "Droop");
                 ActivePowerControl<Battery> activePowerControl = battery.getExtension(ActivePowerControl.class);
                 ActivePowerControlAdder<Battery> activePowerControlAdder = battery.newExtension(ActivePowerControlAdder.class);
                 ModificationUtils.getInstance().modifyActivePowerControlAttributes(
                         activePowerControl, activePowerControlAdder, null,
                         new AttributeModification<>(droopValue, OperationType.SET), null,
-                    null, MODIFY_BATTERY_ERROR, errorMessage);
+                    null, errorMessage);
             }
             case TRANSIENT_REACTANCE -> ModificationUtils.getInstance().modifyShortCircuitExtension(new AttributeModification<>(parseDoubleOrNaNIfNull(newValue), OperationType.SET),
                     null, battery.getExtension(BatteryShortCircuit.class),

@@ -11,7 +11,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.filter.utils.expertfilter.RatioRegulationModeType;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -22,7 +22,6 @@ import java.util.Optional;
 
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.iidm.network.TwoSides.TWO;
-import static org.gridsuite.modification.NetworkModificationException.Type.*;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE1;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE2;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
@@ -35,22 +34,22 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         if (network.getTwoWindingsTransformer(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationException(TWO_WINDINGS_TRANSFORMER_ALREADY_EXISTS, modificationInfos.getEquipmentId());
+            throw new NetworkModificationRunException("Two winding transformer already exists: " + modificationInfos.getEquipmentId());
         }
         String errorMessage = "Two windings transformer '" + modificationInfos.getEquipmentId() + "' : ";
         getInstance().controlBranchCreation(network,
                 modificationInfos.getVoltageLevelId1(), modificationInfos.getBusOrBusbarSectionId1(),
                 modificationInfos.getVoltageLevelId2(), modificationInfos.getBusOrBusbarSectionId2());
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getR(), CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Resistance R");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getG(), CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Conductance G");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedU1(), CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 1");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedU2(), CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 2");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedS(), CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated nominal power");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getR(), "Resistance R");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getG(), "Conductance G");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedU1(), "Rated Voltage on side 1");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedU2(), "Rated Voltage on side 2");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedS(), "Rated nominal power");
         if (modificationInfos.getRatioTapChanger() != null) {
             checkIsNotNegativeValue(errorMessage, modificationInfos.getRatioTapChanger().getTargetV(),
-                CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Target voltage for ratio tap changer");
+                "Target voltage for ratio tap changer");
         }
     }
 
@@ -98,7 +97,7 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         } else if (s2 != null) {
             branchAdder = s2.newTwoWindingsTransformer();
         } else {
-            throw new NetworkModificationException(TWO_WINDINGS_TRANSFORMER_CREATION_ERROR, "The two windings transformer should belong to a substation");
+            throw new NetworkModificationRunException("The two windings transformer should belong to a substation");
         }
         // common settings
         TwoWindingsTransformerAdder twoWindingsTransformerAdder = branchAdder.setId(twoWindingsTransformerCreationInfos.getEquipmentId())

@@ -13,7 +13,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VoltageInitModification;
 
@@ -28,7 +27,6 @@ import java.util.List;
 @Setter
 @Schema(description = "Voltage init modification infos")
 @JsonTypeName("VOLTAGE_INIT_MODIFICATION")
-@ModificationErrorTypeName("VOLTAGE_INIT_MODIFICATION_ERROR")
 public class VoltageInitModificationInfos extends ModificationInfos {
     @Schema(description = "generators modifications")
     private List<VoltageInitGeneratorModificationInfos> generators;

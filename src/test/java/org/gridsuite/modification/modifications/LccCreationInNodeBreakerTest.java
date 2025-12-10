@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.LccConverterStationCreationInfos;
 import org.gridsuite.modification.dto.LccCreationInfos;
@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.VOLTAGE_LEVEL_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -140,8 +139,8 @@ class LccCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         lccCreationInfos.setConverterStation2(converterStationCreationInfos);
         LccCreation lccCreation = (LccCreation) lccCreationInfos.toModification();
         Network network = getNetwork();
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lccCreation.check(network));
-        assertEquals(new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, "notFoundVoltageLevelId").getMessage(), exception.getMessage());
+        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> lccCreation.check(network));
+        assertEquals(new NetworkModificationRunException("notFoundVoltageLevelId").getMessage(), exception.getMessage());
     }
 
 }

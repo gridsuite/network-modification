@@ -8,7 +8,7 @@ package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.DeleteVoltageLevelOnLineInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -29,7 +29,7 @@ class DeleteVoltageLevelOnLineTest extends AbstractNetworkModificationTest {
     public void checkModification() {
         DeleteVoltageLevelOnLineInfos deleteVoltageLevelOnLineInfos = (DeleteVoltageLevelOnLineInfos) buildModification();
         deleteVoltageLevelOnLineInfos.setLineToAttachTo1Id("notFoundLine");
-        assertThrows(NetworkModificationException.class, () -> deleteVoltageLevelOnLineInfos.toModification().check(getNetwork()));
+        assertThrows(NetworkModificationRunException.class, () -> deleteVoltageLevelOnLineInfos.toModification().check(getNetwork()));
     }
 
     @Override
@@ -66,8 +66,8 @@ class DeleteVoltageLevelOnLineTest extends AbstractNetworkModificationTest {
                 .lineToAttachTo2Id("ll")
                 .replacingLine1Id("replacementLineId")
                 .build();
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> deleteVoltageLevelOnLineInfos.toModification().check(getNetwork()));
-        assertEquals("LINE_NOT_FOUND : ll", exception.getMessage());
+        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> deleteVoltageLevelOnLineInfos.toModification().check(getNetwork()));
+        assertEquals("Line not found: ll", exception.getMessage());
     }
 
     @Test
@@ -75,8 +75,8 @@ class DeleteVoltageLevelOnLineTest extends AbstractNetworkModificationTest {
         // try to create an already existing line
         DeleteVoltageLevelOnLineInfos deleteVoltageLevelOnLineInfos = (DeleteVoltageLevelOnLineInfos) buildModification();
         deleteVoltageLevelOnLineInfos.setReplacingLine1Id("l2");
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> deleteVoltageLevelOnLineInfos.toModification().check(getNetwork()));
-        assertEquals("LINE_ALREADY_EXISTS : l2", exception.getMessage());
+        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> deleteVoltageLevelOnLineInfos.toModification().check(getNetwork()));
+        assertEquals("Line already exists: l2", exception.getMessage());
     }
 
     @Override

@@ -7,13 +7,12 @@
 package org.gridsuite.modification.modifications;
 
 import com.powsybl.iidm.network.Network;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.GroovyScriptInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.GROOVY_SCRIPT_EMPTY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -45,14 +44,14 @@ class GroovyScriptTest extends AbstractNetworkModificationTest {
         GroovyScriptInfos groovyScriptInfos = (GroovyScriptInfos) buildModification();
         groovyScriptInfos.setScript("");
         // apply empty groovy script
-        Exception exception = assertThrows(NetworkModificationException.class, () -> groovyScriptInfos.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(GROOVY_SCRIPT_EMPTY).getMessage(),
+        Exception exception = assertThrows(NetworkModificationRunException.class, () -> groovyScriptInfos.toModification().check(getNetwork()));
+        assertEquals(new NetworkModificationRunException("GROOVY_SCRIPT_EMPTY").getMessage(),
                 exception.getMessage());
 
         groovyScriptInfos.setScript("      ");
         // apply blank groovy script
-        exception = assertThrows(NetworkModificationException.class, () -> groovyScriptInfos.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(GROOVY_SCRIPT_EMPTY).getMessage(),
+        exception = assertThrows(NetworkModificationRunException.class, () -> groovyScriptInfos.toModification().check(getNetwork()));
+        assertEquals(new NetworkModificationRunException("GROOVY_SCRIPT_EMPTY").getMessage(),
                 exception.getMessage());
 
         groovyScriptInfos.setScript("network.getGenerator('there is no generator').targetP=12\n");

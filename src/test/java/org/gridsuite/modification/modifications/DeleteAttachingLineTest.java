@@ -9,7 +9,7 @@ package org.gridsuite.modification.modifications;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.DeleteAttachingLineInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
@@ -30,7 +30,7 @@ class DeleteAttachingLineTest extends AbstractNetworkModificationTest {
     public void checkModification() {
         DeleteAttachingLineInfos deleteAttachingLineInfos = (DeleteAttachingLineInfos) buildModification();
         deleteAttachingLineInfos.setLineToAttachTo1Id("notFoundLine");
-        assertThrows(NetworkModificationException.class, () -> deleteAttachingLineInfos.toModification().check(getNetwork()));
+        assertThrows(NetworkModificationRunException.class, () -> deleteAttachingLineInfos.toModification().check(getNetwork()));
     }
 
     @Override
@@ -76,7 +76,7 @@ class DeleteAttachingLineTest extends AbstractNetworkModificationTest {
         // try to create an already existing line
         DeleteAttachingLineInfos deleteAttachingLineInfos = (DeleteAttachingLineInfos) buildModification();
         deleteAttachingLineInfos.setReplacingLine1Id("l2");
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> deleteAttachingLineInfos.toModification().check(getNetwork()));
+        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> deleteAttachingLineInfos.toModification().check(getNetwork()));
         assertEquals("LINE_ALREADY_EXISTS : l2", exception.getMessage());
     }
 

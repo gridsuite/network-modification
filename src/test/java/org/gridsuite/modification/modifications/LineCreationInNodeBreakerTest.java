@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.LineCreationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -37,15 +36,15 @@ class LineCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         lineCreationInfos.setEquipmentId("idLine4");
         lineCreationInfos.setVoltageLevelId1("notFoundVoltageLevelId1");
         LineCreation lineCreation = (LineCreation) lineCreationInfos.toModification();
-        Exception exception = assertThrows(NetworkModificationException.class, () -> lineCreation.check(network));
-        assertEquals(new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, "notFoundVoltageLevelId1").getMessage(),
+        Exception exception = assertThrows(NetworkModificationRunException.class, () -> lineCreation.check(network));
+        assertEquals(new NetworkModificationRunException("notFoundVoltageLevelId1").getMessage(),
                 exception.getMessage());
 
         lineCreationInfos.setVoltageLevelId1("v1");
         lineCreationInfos.setBusOrBusbarSectionId1("notFoundBusbarSection1");
         LineCreation lineCreation1 = (LineCreation) lineCreationInfos.toModification();
-        exception = assertThrows(NetworkModificationException.class, () -> lineCreation1.check(network));
-        assertEquals(new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, "notFoundBusbarSection1").getMessage(),
+        exception = assertThrows(NetworkModificationRunException.class, () -> lineCreation1.check(network));
+        assertEquals(new NetworkModificationRunException("notFoundBusbarSection1").getMessage(),
                 exception.getMessage());
 
         lineCreationInfos.setVoltageLevelId1("v1");
@@ -64,8 +63,8 @@ class LineCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         // try to create an existing line
         lineCreationInfos.setEquipmentId("line2");
         LineCreation lineCreation4 = (LineCreation) lineCreationInfos.toModification();
-        exception = assertThrows(NetworkModificationException.class, () -> lineCreation4.check(network));
-        assertEquals(new NetworkModificationException(LINE_ALREADY_EXISTS, "line2").getMessage(),
+        exception = assertThrows(NetworkModificationRunException.class, () -> lineCreation4.check(network));
+        assertEquals(new NetworkModificationRunException("line2").getMessage(),
                 exception.getMessage());
 
         LineCreationInfos lineCreationInfos1 = LineCreationInfos.builder()
@@ -77,7 +76,7 @@ class LineCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
             .r(-1d)
             .build();
         LineCreation lineCreation5 = (LineCreation) lineCreationInfos1.toModification();
-        String message = assertThrows(NetworkModificationException.class,
+        String message = assertThrows(NetworkModificationRunException.class,
             () -> lineCreation5.check(network)).getMessage();
         assertEquals("CREATE_LINE_ERROR : Line 'line8' : can not have a negative value for Resistance R", message);
 
@@ -90,7 +89,7 @@ class LineCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
             .g1(-2d)
             .build();
         LineCreation lineCreation6 = (LineCreation) lineCreationInfos2.toModification();
-        message = assertThrows(NetworkModificationException.class,
+        message = assertThrows(NetworkModificationRunException.class,
             () -> lineCreation6.check(network)).getMessage();
         assertEquals("CREATE_LINE_ERROR : Line 'line8' : can not have a negative value for Conductance on side 1 G1", message);
 
@@ -103,7 +102,7 @@ class LineCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
             .g2(-100d)
             .build();
         LineCreation lineCreation7 = (LineCreation) lineCreationInfos3.toModification();
-        message = assertThrows(NetworkModificationException.class,
+        message = assertThrows(NetworkModificationRunException.class,
             () -> lineCreation7.check(network)).getMessage();
         assertEquals("CREATE_LINE_ERROR : Line 'line8' : can not have a negative value for Conductance on side 2 G2", message);
     }

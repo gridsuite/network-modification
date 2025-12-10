@@ -10,7 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.collections4.CollectionUtils;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.LineCreationInfos;
 import org.gridsuite.modification.dto.OperationalLimitsGroupInfos;
 import org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability;
@@ -22,8 +22,6 @@ import java.util.List;
 
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.iidm.network.TwoSides.TWO;
-import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_LINE_ERROR;
-import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 import static org.gridsuite.modification.utils.ModificationUtils.createBranchInNodeBreaker;
 
@@ -39,17 +37,17 @@ public class LineCreation extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) throws NetworkModificationRunException {
         if (network.getLine(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationInfos.getEquipmentId());
+            throw new NetworkModificationRunException("line already exists: " + modificationInfos.getEquipmentId());
         }
         String errorMessage = "Line '" + modificationInfos.getEquipmentId() + "' : ";
         ModificationUtils.getInstance().controlBranchCreation(network,
                 modificationInfos.getVoltageLevelId1(), modificationInfos.getBusOrBusbarSectionId1(),
                 modificationInfos.getVoltageLevelId2(), modificationInfos.getBusOrBusbarSectionId2());
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getR(), CREATE_LINE_ERROR, "Resistance R");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getG1(), CREATE_LINE_ERROR, "Conductance on side 1 G1");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getG2(), CREATE_LINE_ERROR, "Conductance on side 2 G2");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getR(), "Resistance R");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getG1(), "Conductance on side 1 G1");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getG2(), "Conductance on side 2 G2");
     }
 
     private ReportNode addLimitSetReportNode(ReportNode limitsReporter) {

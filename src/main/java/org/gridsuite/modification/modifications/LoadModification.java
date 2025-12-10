@@ -12,13 +12,11 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.LoadModificationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
-
-import static org.gridsuite.modification.NetworkModificationException.Type.LOAD_NOT_FOUND;
 
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
@@ -30,11 +28,10 @@ public class LoadModification extends AbstractInjectionModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         Load load = network.getLoad(modificationInfos.getEquipmentId());
         if (load == null) {
-            throw new NetworkModificationException(LOAD_NOT_FOUND,
-                    "Load " + modificationInfos.getEquipmentId() + " does not exist in network");
+            throw new NetworkModificationRunException("Load " + modificationInfos.getEquipmentId() + " does not exist in network");
         }
         ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId(),
                 modificationInfos.getBusOrBusbarSectionId(), load.getTerminal());

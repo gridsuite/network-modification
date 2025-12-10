@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.BatteryCreationInfos;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -37,7 +37,7 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
     public void checkModification() {
         BatteryCreationInfos batteryCreationInfos = (BatteryCreationInfos) buildModification();
         batteryCreationInfos.setBusOrBusbarSectionId("notFoundBus");
-        assertThrows(NetworkModificationException.class, () -> batteryCreationInfos.toModification().check(getNetwork()));
+        assertThrows(NetworkModificationRunException.class, () -> batteryCreationInfos.toModification().check(getNetwork()));
     }
 
     @Override
@@ -84,7 +84,7 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
     void testCreateWithBusbarSectionErrors() throws Exception {
         BatteryCreationInfos batteryCreationInfos = (BatteryCreationInfos) buildModification();
         batteryCreationInfos.setBusOrBusbarSectionId("notFoundBus");
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class,
+        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class,
                 () -> batteryCreationInfos.toModification().apply(getNetwork()));
         assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
     }

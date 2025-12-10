@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LccCreation;
 
@@ -31,7 +30,6 @@ import org.gridsuite.modification.modifications.LccCreation;
 @ToString(callSuper = true)
 @Schema(description = "LCC creation")
 @JsonTypeName("LCC_CREATION")
-@ModificationErrorTypeName("CREATE_LCC_ERROR")
 public class LccCreationInfos extends EquipmentCreationInfos {
     @Schema(description = "DC nominal voltage")
     private Double nominalV;

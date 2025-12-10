@@ -14,8 +14,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-
 import java.util.List;
 
 /**
@@ -28,7 +26,6 @@ import java.util.List;
 @ToString(callSuper = true)
 @Schema(description = "Converter station modification")
 @JsonTypeName("CONVERTER_STATION_MODIFICATION")
-@ModificationErrorTypeName("MODIFY_CONVERTER_STATION_ERROR")
 public class ConverterStationModificationInfos extends InjectionModificationInfos {
     @Schema(description = "Loss Factor")
     private AttributeModification<Float> lossFactor;

@@ -11,7 +11,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.BatteryCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -19,8 +19,6 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BATTERY_ALREADY_EXISTS;
-import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_BATTERY_ERROR;
 import static org.gridsuite.modification.modifications.BatteryModification.ERROR_MESSAGE;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
@@ -36,9 +34,9 @@ public class BatteryCreation extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         if (network.getBattery(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationException(BATTERY_ALREADY_EXISTS, modificationInfos.getEquipmentId());
+            throw new NetworkModificationRunException("Battery already exists: " + modificationInfos.getEquipmentId());
         }
         String errorMessage = "Battery '" + modificationInfos.getEquipmentId() + "' : ";
 
@@ -49,13 +47,12 @@ public class BatteryCreation extends AbstractModification {
 
         // check reactive limits
         ModificationUtils.getInstance().checkReactiveLimitsCreation(modificationInfos,
-                modificationInfos.getErrorType(),
                 modificationInfos.getEquipmentId(),
                 "Battery");
 
         ModificationUtils.getInstance().checkActivePowerControl(modificationInfos.getParticipate(),
-            modificationInfos.getDroop(), CREATE_BATTERY_ERROR, String.format(ERROR_MESSAGE, modificationInfos.getEquipmentId()));
-        checkIsPercentage(errorMessage, modificationInfos.getDroop(), CREATE_BATTERY_ERROR, "Droop");
+            modificationInfos.getDroop(), String.format(ERROR_MESSAGE, modificationInfos.getEquipmentId()));
+        checkIsPercentage(errorMessage, modificationInfos.getDroop(), "Droop");
     }
 
     @Override

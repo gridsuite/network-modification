@@ -9,7 +9,7 @@ package org.gridsuite.modification.modifications;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.CouplingDeviceInfos;
 import org.gridsuite.modification.dto.LineSplitWithVoltageLevelInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -31,8 +30,8 @@ class LineSplitWithNewVoltageLevelTest extends AbstractNetworkModificationTest {
     protected void checkModification() {
         LineSplitWithVoltageLevelInfos lineSplitAbsentLine = (LineSplitWithVoltageLevelInfos) buildModification();
         lineSplitAbsentLine.setLineToSplitId("absent_line_id");
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lineSplitAbsentLine.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(LINE_NOT_FOUND, "absent_line_id").getMessage(),
+        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> lineSplitAbsentLine.toModification().check(getNetwork()));
+        assertEquals(new NetworkModificationRunException("absent_line_id").getMessage(),
                 exception.getMessage());
     }
 

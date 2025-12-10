@@ -18,8 +18,6 @@ import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_LINE_ERROR;
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR;
 import static org.gridsuite.modification.modifications.GeneratorModification.ERROR_MESSAGE;
 import static org.gridsuite.modification.modifications.TwoWindingsTransformerModification.*;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
@@ -142,29 +140,29 @@ public enum TwoWindingsTransformerField {
         final AttributeModification<Double> attributeModification = new AttributeModification<>(doubleValue, OperationType.SET);
         switch (field) {
             case R -> {
-                checkIsNotNegativeValue(errorMessage, doubleValue, MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Resistance R");
+                checkIsNotNegativeValue(errorMessage, doubleValue, "Resistance R");
                 modifyR(transformer, attributeModification, null);
             }
             case X -> modifyX(transformer, attributeModification, null);
             case G -> {
-                checkIsNotNegativeValue(errorMessage, doubleValue, MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Conductance G");
+                checkIsNotNegativeValue(errorMessage, doubleValue, "Conductance G");
                 modifyG(transformer, attributeModification, null);
             }
             case B -> modifyB(transformer, attributeModification, null);
             case RATED_U1 -> {
-                checkIsNotNegativeValue(errorMessage, doubleValue, MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 1");
+                checkIsNotNegativeValue(errorMessage, doubleValue, "Rated Voltage on side 1");
                 modifyRatedU1(transformer, attributeModification, null);
             }
             case RATED_U2 -> {
-                checkIsNotNegativeValue(errorMessage, doubleValue, MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 2");
+                checkIsNotNegativeValue(errorMessage, doubleValue, "Rated Voltage on side 2");
                 modifyRatedU2(transformer, attributeModification, null);
             }
             case RATED_S -> {
-                checkIsNotNegativeValue(errorMessage, doubleValue, MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated nominal power");
+                checkIsNotNegativeValue(errorMessage, doubleValue, "Rated nominal power");
                 modifyRatedS(transformer, attributeModification, null);
             }
             case TARGET_V -> {
-                checkIsNotNegativeValue(errorMessage, doubleValue, MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Target Voltage");
+                checkIsNotNegativeValue(errorMessage, doubleValue, "Target Voltage");
                 modifyTargets(ratioTapChanger, null, true, attributeModification, null, null);
             }
             case RATIO_LOW_TAP_POSITION -> processTapChangerPositionsAndSteps(ratioTapChanger, null, true,
@@ -189,7 +187,7 @@ public enum TwoWindingsTransformerField {
         final AttributeModification<String> attributeModification = new AttributeModification<>(newValue, OperationType.SET);
         switch (field) {
             case SELECTED_OPERATIONAL_LIMITS_GROUP_1 -> {
-                ModificationUtils.checkLimitsGroupExist(errorMessage, newValue, MODIFY_LINE_ERROR,
+                ModificationUtils.checkLimitsGroupExist(errorMessage, newValue,
                     transformer.getOperationalLimitsGroups1()
                         .stream()
                         .map(OperationalLimitsGroup::getId)
@@ -197,7 +195,7 @@ public enum TwoWindingsTransformerField {
                 modifySelectedOperationalLimitsGroup(transformer, attributeModification, TwoSides.ONE, null);
             }
             case SELECTED_OPERATIONAL_LIMITS_GROUP_2 -> {
-                ModificationUtils.checkLimitsGroupExist(errorMessage, newValue, MODIFY_LINE_ERROR,
+                ModificationUtils.checkLimitsGroupExist(errorMessage, newValue,
                     transformer.getOperationalLimitsGroups2()
                         .stream()
                         .map(OperationalLimitsGroup::getId)

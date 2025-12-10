@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.SwitchKind;
 
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.OperatingStatusModificationInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
@@ -136,7 +136,7 @@ class OperatingStatusModificationLockoutLineTest extends AbstractNetworkModifica
         // line not existing
         OperatingStatusModificationInfos modificationInfos = (OperatingStatusModificationInfos) buildModification();
         modificationInfos.setEquipmentId("notFound");
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> modificationInfos.toModification().check(getNetwork()));
+        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> modificationInfos.toModification().check(getNetwork()));
         assertEquals("EQUIPMENT_NOT_FOUND : notFound", exception.getMessage());
     }
 

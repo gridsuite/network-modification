@@ -11,13 +11,11 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.function.Consumer;
-
-import static org.gridsuite.modification.NetworkModificationException.Type.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -36,7 +34,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         VoltageLevel voltageLevel = getVoltageLevelOrThrow(network, modificationInfos.getVoltageLevelId());
         for (MoveFeederBayInfos info : modificationInfos.getFeederBays()) {
             checkBusOrBusbarSectionExist(voltageLevel, info);
@@ -47,7 +45,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
     private VoltageLevel getVoltageLevelOrThrow(Network network, String voltageLevelId) {
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
-            throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(VOLTAGE_LEVEL_NOT_FOUND, voltageLevelId));
+            throw new NetworkModificationRunException(String.format(VOLTAGE_LEVEL_NOT_FOUND, voltageLevelId));
         }
         return voltageLevel;
     }
@@ -57,7 +55,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
                 ? voltageLevel.getNodeBreakerView().getBusbarSection(info.getBusbarSectionId()) != null
                 : voltageLevel.getBusBreakerView().getBus(info.getBusbarSectionId()) != null;
         if (!busOrBusbarSectionExists) {
-            throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(BUSBAR_NOT_FOUND,
+            throw new NetworkModificationRunException(String.format(BUSBAR_NOT_FOUND,
                     info.getBusbarSectionId(), info.getEquipmentId(), modificationInfos.getVoltageLevelId()));
         }
     }
@@ -65,10 +63,10 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
     private void checkConnectable(Network network, MoveFeederBayInfos info) {
         Connectable<?> connectable = network.getConnectable(info.getEquipmentId());
         if (connectable == null) {
-            throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(CONNECTABLE_NOT_FOUND, info.getEquipmentId()));
+            throw new NetworkModificationRunException(String.format(CONNECTABLE_NOT_FOUND, info.getEquipmentId()));
         }
         if (connectable instanceof BusbarSection || connectable instanceof ThreeWindingsTransformer) {
-            throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
+            throw new NetworkModificationRunException(String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
         }
     }
 
@@ -98,7 +96,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
                 BranchModificationInfos branchModificationInfos = buildBranchModificationInfos(newConnectablePositionInfos);
                 ModificationUtils.getInstance().modifyBranchConnectivityAttributes(oldConnectablePosition, connectablePositionAdder, branch, branchModificationInfos, subReportNode);
             }
-            default -> throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
+            default -> throw new NetworkModificationRunException(String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
         }
         moveFeederBay(network, connectable, newConnectablePositionInfos, subReportNode);
     }
@@ -126,7 +124,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
                     branchInfos::setConnectionName2,
                     branchInfos::setConnectionDirection2,
                     info);
-            default -> throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(INVALID_CONNECTION_SIDE, info.getConnectionSide(), branchInfos.getEquipmentId()));
+            default -> throw new NetworkModificationRunException(String.format(INVALID_CONNECTION_SIDE, info.getConnectionSide(), branchInfos.getEquipmentId()));
         }
         return branchInfos;
     }
@@ -168,11 +166,10 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
                     TwoSides side = TwoSides.valueOf(info.getConnectionSide());
                     yield branch.getTerminal(side);
                 } catch (IllegalArgumentException e) {
-                    throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR,
-                            String.format(INVALID_CONNECTION_SIDE, info.getConnectionSide(), branch.getId()));
+                    throw new NetworkModificationRunException(String.format(INVALID_CONNECTION_SIDE, info.getConnectionSide(), branch.getId()));
                 }
             }
-            default -> throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
+            default -> throw new NetworkModificationRunException(String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
         };
     }
 }

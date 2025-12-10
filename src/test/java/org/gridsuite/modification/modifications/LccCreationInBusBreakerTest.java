@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.LccConverterStationCreationInfos;
 import org.gridsuite.modification.dto.LccCreationInfos;
@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BUS_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -117,8 +116,7 @@ class LccCreationInBusBreakerTest extends AbstractNetworkModificationTest {
         lccCreationInfos.getConverterStation1().setBusOrBusbarSectionId("notFoundBus");
         LccCreation lccCreation = (LccCreation) lccCreationInfos.toModification();
         Network network = getNetwork();
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lccCreation.check(network));
-        assertEquals(BUS_NOT_FOUND, exception.getType());
+        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> lccCreation.check(network));
         assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
     }
 }

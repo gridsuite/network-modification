@@ -10,7 +10,6 @@ package org.gridsuite.modification.modifications.byfilter;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
@@ -22,7 +21,6 @@ import org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField;
 import java.util.Collections;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFICATION_BY_ASSIGNMENT_ERROR;
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.getReferenceValue;
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.setNewValue;
 
@@ -56,11 +54,6 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
     @Override
     public List<AbstractAssignmentInfos> getAssignmentInfosList() {
         return Collections.unmodifiableList(modificationInfos.getAssignmentInfosList());
-    }
-
-    @Override
-    public NetworkModificationException.Type getExceptionType() {
-        return MODIFICATION_BY_ASSIGNMENT_ERROR;
     }
 
     @Override

@@ -9,7 +9,7 @@ package org.gridsuite.modification.modifications;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.EquipmentAttributeModificationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -29,7 +29,7 @@ class EquipmentAttributeModificationTest extends AbstractNetworkModificationTest
     public void checkModification() {
         EquipmentAttributeModificationInfos switchStatusModificationInfos = (EquipmentAttributeModificationInfos) buildModification();
         switchStatusModificationInfos.setEquipmentId("notFound");
-        assertThrows(NetworkModificationException.class, () -> switchStatusModificationInfos.toModification().check(getNetwork()));
+        assertThrows(NetworkModificationRunException.class, () -> switchStatusModificationInfos.toModification().check(getNetwork()));
     }
 
     @Override
@@ -64,7 +64,7 @@ class EquipmentAttributeModificationTest extends AbstractNetworkModificationTest
             .equipmentId("v1b1")
             .build();
 
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> switchStatusModificationInfos.toModification().apply(getNetwork()));
+        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> switchStatusModificationInfos.toModification().apply(getNetwork()));
         assertEquals("ATTRIBUTE_NOT_EDITABLE : SWITCH attribute 'close' not editable", exception.getMessage());
     }
 

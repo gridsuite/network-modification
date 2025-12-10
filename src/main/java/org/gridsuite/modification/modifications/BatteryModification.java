@@ -10,7 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.BatteryModificationInfos;
 import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
@@ -20,7 +20,6 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 import java.util.Collection;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_BATTERY_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsPercentage;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
@@ -38,23 +37,23 @@ public class BatteryModification extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         if (modificationInfos == null) {
-            throw new NetworkModificationException(MODIFY_BATTERY_ERROR, "Missing required attributes to modify the equipment");
+            throw new NetworkModificationRunException("Missing required attributes to modify the equipment");
         }
         Battery battery = ModificationUtils.getInstance().getBattery(network, modificationInfos.getEquipmentId());
         String errorMessage = "Battery '" + modificationInfos.getEquipmentId() + "' : ";
         ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId(),
                 modificationInfos.getBusOrBusbarSectionId(), battery.getTerminal());
         ModificationUtils.getInstance().checkReactiveLimit(battery, modificationInfos.getMinQ(), modificationInfos.getMaxQ(),
-                modificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_BATTERY_ERROR, errorMessage);
-        checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(modificationInfos, battery, MODIFY_BATTERY_ERROR, errorMessage);
+                modificationInfos.getReactiveCapabilityCurvePoints(), errorMessage);
+        checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(modificationInfos, battery, errorMessage);
         if (modificationInfos.getDroop() != null) {
-            checkIsPercentage(errorMessage, modificationInfos.getDroop().getValue(), MODIFY_BATTERY_ERROR, "Droop");
+            checkIsPercentage(errorMessage, modificationInfos.getDroop().getValue(), "Droop");
         }
     }
 
-    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(BatteryModificationInfos modificationInfos, Battery battery, NetworkModificationException.Type exceptionType, String errorMessage) {
+    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(BatteryModificationInfos modificationInfos, Battery battery, String errorMessage) {
         ModificationUtils.getInstance().checkActivePowerZeroOrBetweenMinAndMaxActivePower(
                 modificationInfos.getTargetP(),
                 modificationInfos.getMinP(),
@@ -62,7 +61,6 @@ public class BatteryModification extends AbstractModification {
                 battery.getMinP(),
                 battery.getMaxP(),
                 battery.getTargetP(),
-                exceptionType,
                 errorMessage
         );
     }
@@ -191,7 +189,7 @@ public class BatteryModification extends AbstractModification {
         ActivePowerControl<Battery> activePowerControl = battery.getExtension(ActivePowerControl.class);
         ActivePowerControlAdder<Battery> activePowerControlAdder = battery.newExtension(ActivePowerControlAdder.class);
         return ModificationUtils.getInstance().modifyActivePowerControlAttributes(activePowerControl, activePowerControlAdder,
-            participate, droop, subReportNode, subReportNodeSetpoints, MODIFY_BATTERY_ERROR, String.format(ERROR_MESSAGE, battery.getId()));
+            participate, droop, subReportNode, subReportNodeSetpoints, String.format(ERROR_MESSAGE, battery.getId()));
     }
 
     private ReportNode modifyBatteryConnectivityAttributes(BatteryModificationInfos modificationInfos,

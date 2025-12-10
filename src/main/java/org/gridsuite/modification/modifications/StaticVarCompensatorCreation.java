@@ -11,7 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.StaticVarCompensatorCreationInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_STATIC_VAR_COMPENSATOR_ERROR;
-import static org.gridsuite.modification.NetworkModificationException.Type.STATIC_VAR_COMPENSATOR_ALREADY_EXISTS;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
 /**
@@ -37,9 +35,9 @@ public class StaticVarCompensatorCreation extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         if (network.getStaticVarCompensator(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationException(STATIC_VAR_COMPENSATOR_ALREADY_EXISTS, modificationInfos.getEquipmentId());
+            throw new NetworkModificationRunException("static var compensator already exists: " + modificationInfos.getEquipmentId());
         }
         String errorMessage = "Static var compensator '" + modificationInfos.getEquipmentId() + "' : ";
 
@@ -58,11 +56,11 @@ public class StaticVarCompensatorCreation extends AbstractModification {
 
         // check standby automaton
         ModificationUtils.getInstance().checkStandbyAutomatonCreation(modificationInfos);
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getVoltageSetpoint(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "voltage set point");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getHighVoltageSetpoint(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "high voltage set point");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getLowVoltageSetpoint(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "low voltage set point");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getHighVoltageThreshold(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "high voltage threshold");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getLowVoltageThreshold(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "low voltage threshold");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getVoltageSetpoint(), "voltage set point");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getHighVoltageSetpoint(), "high voltage set point");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getLowVoltageSetpoint(), "low voltage set point");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getHighVoltageThreshold(), "high voltage threshold");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getLowVoltageThreshold(), "low voltage threshold");
     }
 
     @Override

@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.VoltageLevelModificationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_VOLTAGE_LEVEL_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
@@ -39,38 +38,38 @@ public class VoltageLevelModification extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         boolean ipMinSet = false;
         boolean ipMaxSet = false;
         String errorMessage = "Voltage level '" + modificationInfos.getEquipmentId() + "' : ";
         if (Objects.nonNull(modificationInfos.getIpMin())) {
             ipMinSet = true;
             if (modificationInfos.getIpMin().getValue() < 0) {
-                throw new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "IpMin must be positive");
+                throw new NetworkModificationRunException("Voltage level modification error: IpMin must be positive");
             }
         }
         if (Objects.nonNull(modificationInfos.getIpMax())) {
             ipMaxSet = true;
             if (modificationInfos.getIpMax().getValue() < 0) {
-                throw new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "IpMax must be positive");
+                throw new NetworkModificationRunException("Voltage level modification error: IpMax must be positive");
             }
         }
         if (ipMinSet && ipMaxSet) {
             if (modificationInfos.getIpMin().getValue() > modificationInfos.getIpMax().getValue()) {
-                throw new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "IpMin cannot be greater than IpMax");
+                throw new NetworkModificationRunException("Voltage level modification error: IpMin cannot be greater than IpMax");
             }
         } else if (ipMinSet || ipMaxSet) {
             // only one Icc set: check with existing VL attributes
             checkIccValuesAgainstEquipmentInNetwork(network, ipMinSet, ipMaxSet);
         }
         if (modificationInfos.getNominalV() != null) {
-            checkIsNotNegativeValue(errorMessage, modificationInfos.getNominalV().getValue(), MODIFY_VOLTAGE_LEVEL_ERROR, "Nominal Voltage");
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getNominalV().getValue(), "Nominal Voltage");
         }
         if (modificationInfos.getLowVoltageLimit() != null) {
-            checkIsNotNegativeValue(errorMessage, modificationInfos.getLowVoltageLimit().getValue(), MODIFY_VOLTAGE_LEVEL_ERROR, "Low voltage limit");
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getLowVoltageLimit().getValue(), "Low voltage limit");
         }
         if (modificationInfos.getHighVoltageLimit() != null) {
-            checkIsNotNegativeValue(errorMessage, modificationInfos.getHighVoltageLimit().getValue(), MODIFY_VOLTAGE_LEVEL_ERROR, "High voltage limit");
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getHighVoltageLimit().getValue(), "High voltage limit");
         }
     }
 
@@ -79,12 +78,12 @@ public class VoltageLevelModification extends AbstractModification {
         IdentifiableShortCircuit<VoltageLevel> identifiableShortCircuit = existingVoltageLevel.getExtension(IdentifiableShortCircuit.class);
         if (Objects.isNull(identifiableShortCircuit)) {
             if (ipMinSet) {
-                throw new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "IpMax is required");
+                throw new NetworkModificationRunException("Voltage level modification error: IpMax is required");
             }
         } else {
             if (ipMinSet && modificationInfos.getIpMin().getValue() > identifiableShortCircuit.getIpMax() ||
                     ipMaxSet && identifiableShortCircuit.getIpMin() > modificationInfos.getIpMax().getValue()) {
-                throw new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "IpMin cannot be greater than IpMax");
+                throw new NetworkModificationRunException("Voltage level modification error: IpMin cannot be greater than IpMax");
             }
         }
     }

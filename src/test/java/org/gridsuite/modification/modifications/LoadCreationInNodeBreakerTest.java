@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.LoadCreationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BUSBAR_SECTION_NOT_FOUND;
-import static org.gridsuite.modification.NetworkModificationException.Type.VOLTAGE_LEVEL_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -36,14 +34,14 @@ class LoadCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         LoadCreationInfos loadCreationInfos = (LoadCreationInfos) buildModification();
         // VoltageLevel not found
         loadCreationInfos.setVoltageLevelId("notFoundVoltageLevelId");
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> loadCreationInfos.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, "notFoundVoltageLevelId").getMessage(), exception.getMessage());
+        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> loadCreationInfos.toModification().check(getNetwork()));
+        assertEquals(new NetworkModificationRunException("notFoundVoltageLevelId").getMessage(), exception.getMessage());
 
         loadCreationInfos.setEquipmentId("idLoad1");
         loadCreationInfos.setVoltageLevelId("v2");
         loadCreationInfos.setBusOrBusbarSectionId("notFoundBusbarSection");
-        exception = assertThrows(NetworkModificationException.class, () -> loadCreationInfos.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, "notFoundBusbarSection").getMessage(), exception.getMessage());
+        exception = assertThrows(NetworkModificationRunException.class, () -> loadCreationInfos.toModification().check(getNetwork()));
+        assertEquals(new NetworkModificationRunException("notFoundBusbarSection").getMessage(), exception.getMessage());
 
         loadCreationInfos.setBusOrBusbarSectionId("1B");
         loadCreationInfos.setP0(Double.NaN);

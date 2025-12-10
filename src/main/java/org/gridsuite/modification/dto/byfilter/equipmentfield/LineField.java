@@ -14,7 +14,6 @@ import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
 import org.gridsuite.modification.utils.ModificationUtils;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_LINE_ERROR;
 import static org.gridsuite.modification.modifications.LineModification.*;
 import static org.gridsuite.modification.utils.ModificationUtils.parseDoubleOrNaNIfNull;
 
@@ -59,16 +58,16 @@ public enum LineField {
         final AttributeModification<Double> attributeModification = new AttributeModification<>(doubleValue, OperationType.SET);
         switch (field) {
             case R -> {
-                ModificationUtils.checkIsNotNegativeValue(errorMessage, doubleValue, MODIFY_LINE_ERROR, "Resistance R");
+                ModificationUtils.checkIsNotNegativeValue(errorMessage, doubleValue, "Resistance R");
                 modifyR(line, attributeModification, null);
             }
             case X -> modifyX(line, attributeModification, null);
             case G1 -> {
-                ModificationUtils.checkIsNotNegativeValue(errorMessage, doubleValue, MODIFY_LINE_ERROR, "Conductance G on side 1");
+                ModificationUtils.checkIsNotNegativeValue(errorMessage, doubleValue, "Conductance G on side 1");
                 modifyG1(line, attributeModification, null);
             }
             case G2 -> {
-                ModificationUtils.checkIsNotNegativeValue(errorMessage, doubleValue, MODIFY_LINE_ERROR, "Conductance G on side 2");
+                ModificationUtils.checkIsNotNegativeValue(errorMessage, doubleValue, "Conductance G on side 2");
                 modifyG2(line, attributeModification, null);
             }
             case B1 -> modifyB1(line, attributeModification, null);
@@ -81,7 +80,7 @@ public enum LineField {
         final AttributeModification<String> attributeModification = new AttributeModification<>(newValue, OperationType.SET);
         switch (field) {
             case SELECTED_OPERATIONAL_LIMITS_GROUP_1 -> {
-                ModificationUtils.checkLimitsGroupExist(errorMessage, newValue, MODIFY_LINE_ERROR,
+                ModificationUtils.checkLimitsGroupExist(errorMessage, newValue,
                     line.getOperationalLimitsGroups1()
                     .stream()
                     .map(OperationalLimitsGroup::getId)
@@ -89,7 +88,7 @@ public enum LineField {
                 modifySelectedOperationalLimitsGroup(line, attributeModification, TwoSides.ONE, null);
             }
             case SELECTED_OPERATIONAL_LIMITS_GROUP_2 -> {
-                ModificationUtils.checkLimitsGroupExist(errorMessage, newValue, MODIFY_LINE_ERROR,
+                ModificationUtils.checkLimitsGroupExist(errorMessage, newValue,
                     line.getOperationalLimitsGroups2()
                         .stream()
                         .map(OperationalLimitsGroup::getId)

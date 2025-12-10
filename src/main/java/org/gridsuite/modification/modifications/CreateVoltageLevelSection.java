@@ -17,14 +17,11 @@ import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.CreateVoltageLevelSectionInfos;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.gridsuite.modification.NetworkModificationException.Type.BUSBAR_SECTION_NOT_FOUND;
-import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_VOLTAGE_LEVEL_ERROR;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
@@ -38,15 +35,14 @@ public class CreateVoltageLevelSection extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         var voltageLevel = network.getVoltageLevel(modificationInfos.getVoltageLevelId());
         if (voltageLevel == null) {
-            throw new NetworkModificationException(CREATE_VOLTAGE_LEVEL_ERROR, "Voltage level not found: " + modificationInfos.getVoltageLevelId());
+            throw new NetworkModificationRunException("Voltage level not found: " + modificationInfos.getVoltageLevelId());
         }
         var bbs = network.getBusbarSection(modificationInfos.getBusbarSectionId());
         if (bbs == null) {
-            throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND,
-                 String.format("%s not found in voltage level %s",
+            throw new NetworkModificationRunException(String.format("%s not found in voltage level %s",
                      modificationInfos.getBusbarSectionId(),
                      voltageLevel.getId()));
         }
@@ -56,8 +52,7 @@ public class CreateVoltageLevelSection extends AbstractModification {
         }
         var busbarIndex = bbs.getExtension(BusbarSectionPosition.class).getBusbarIndex();
         if (busbarIndex != modificationInfos.getBusbarIndex()) {
-            throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND,
-                String.format("%s is not the busbar index of the busbar section %s in voltage level %s",
+            throw new NetworkModificationRunException(String.format("%s is not the busbar index of the busbar section %s in voltage level %s",
                     modificationInfos.getBusbarIndex(),
                     bbs.getId(),
                     voltageLevel.getId()));
