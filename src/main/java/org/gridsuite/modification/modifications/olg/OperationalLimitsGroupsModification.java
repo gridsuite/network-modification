@@ -77,11 +77,11 @@ public class OperationalLimitsGroupsModification {
         getDeletableOperationalLimitsGroupStream(modifiedBranch.getOperationalLimitsGroups2(), SIDE2)
                 .forEach(operationalLimitsGroup -> {
                     if (olgsToBeDeleted.containsKey(operationalLimitsGroup.getId())) {
-                    olgsToBeDeleted.put(operationalLimitsGroup.getId(), EQUIPMENT);
-                } else {
-                    olgsToBeDeleted.put(operationalLimitsGroup.getId(), SIDE2);
-                }
-            });
+                        olgsToBeDeleted.put(operationalLimitsGroup.getId(), EQUIPMENT);
+                    } else {
+                        olgsToBeDeleted.put(operationalLimitsGroup.getId(), SIDE2);
+                    }
+                });
 
         for (Map.Entry<String, OperationalLimitsGroupInfos.Applicability> deletedOlg : olgsToBeDeleted.entrySet()) {
             new OperationalLimitsGroupModification(
