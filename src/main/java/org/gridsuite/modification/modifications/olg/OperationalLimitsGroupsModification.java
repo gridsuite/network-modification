@@ -65,9 +65,9 @@ public class OperationalLimitsGroupsModification {
     }
 
     private void deleteOlgsUnspecifiedInTheModification() {
-        Map<String, OperationalLimitsGroupInfos.Applicability> olgToBeDeleted = new HashMap<>();
+        Map<String, OperationalLimitsGroupInfos.Applicability> olgsToBeDeleted = new HashMap<>();
 
-        // get the deletion on side 1
+        // get the deletions on side 1
         modifiedBranch.getOperationalLimitsGroups1().stream().filter(
                 operationalLimitsGroup ->
                         olgModificationInfos.stream().noneMatch(
@@ -77,9 +77,9 @@ public class OperationalLimitsGroupsModification {
                                                 && (operationalLimitsGroupModificationInfos.getApplicability() == SIDE1
                                                 || operationalLimitsGroupModificationInfos.getApplicability() == EQUIPMENT)
                         )
-        ).forEach(operationalLimitsGroup -> olgToBeDeleted.put(operationalLimitsGroup.getId(), SIDE1));
+        ).forEach(operationalLimitsGroup -> olgsToBeDeleted.put(operationalLimitsGroup.getId(), SIDE1));
 
-        // then get the deletion on side 2. And if there is already a deletion on side 1, change it to EQUIPMENT
+        // then get the deletions on side 2. And if there is already a deletion on side 1, change it to EQUIPMENT
         modifiedBranch.getOperationalLimitsGroups2().stream().filter(
                 operationalLimitsGroup ->
                         olgModificationInfos.stream().noneMatch(
@@ -90,19 +90,19 @@ public class OperationalLimitsGroupsModification {
                                                 || operationalLimitsGroupModificationInfos.getApplicability() == EQUIPMENT)
                         )
         ).forEach(operationalLimitsGroup -> {
-            if (olgToBeDeleted.containsKey(operationalLimitsGroup.getId())) {
-                olgToBeDeleted.put(operationalLimitsGroup.getId(), EQUIPMENT);
+            if (olgsToBeDeleted.containsKey(operationalLimitsGroup.getId())) {
+                olgsToBeDeleted.put(operationalLimitsGroup.getId(), EQUIPMENT);
             } else {
-                olgToBeDeleted.put(operationalLimitsGroup.getId(), SIDE2);
+                olgsToBeDeleted.put(operationalLimitsGroup.getId(), SIDE2);
             }
         });
 
-        for (Map.Entry<String, OperationalLimitsGroupInfos.Applicability> entry : olgToBeDeleted.entrySet()) {
+        for (Map.Entry<String, OperationalLimitsGroupInfos.Applicability> deletedOlg : olgsToBeDeleted.entrySet()) {
             new OperationalLimitsGroupModification(
                     modifiedBranch,
                     OperationalLimitsGroupModificationInfos.builder()
-                            .id(entry.getKey())
-                            .applicability(entry.getValue())
+                            .id(deletedOlg.getKey())
+                            .applicability(deletedOlg.getValue())
                             .build(),
                     olgsReportNode
             ).removeOlg();
