@@ -79,7 +79,7 @@ public class LineCreation extends AbstractModification {
         ReportNode limitsReporter = null;
         List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE1);
         List<OperationalLimitsGroupInfos> opLimitsGroupSide2 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE2);
-        ReportNode reportNode = null;
+        ReportNode reportNode;
         if (!CollectionUtils.isEmpty(modificationInfos.getOperationalLimitsGroups())) {
             limitsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.limitsCreated").add();
             reportNode = addLimitSetReportNode(limitsReporter);
