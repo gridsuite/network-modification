@@ -7,7 +7,9 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.SwitchKind;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
@@ -25,11 +27,26 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
     private static LineCreationInfos getAttachmentLine(String lineName) {
+        List<FreePropertyInfos> propertiesList = new ArrayList<>();
+        FreePropertyInfos propertyOne = new FreePropertyInfos();
+        propertyOne.setName("property");
+        propertyOne.setValue("value");
+        propertiesList.add(propertyOne);
+        List<OperationalLimitsGroupInfos> operationalLimitsList = new ArrayList<>();
+        OperationalLimitsGroupInfos limitsGroup = new OperationalLimitsGroupInfos();
+        limitsGroup.setId("groupId");
+        limitsGroup.setApplicability(OperationalLimitsGroupInfos.Applicability.SIDE1);
+        CurrentLimitsInfos currentLimitsInfos = new CurrentLimitsInfos();
+        currentLimitsInfos.setPermanentLimit(1.0);
+        limitsGroup.setCurrentLimits(currentLimitsInfos);
+        operationalLimitsList.add(limitsGroup);
         return LineCreationInfos.builder()
                 .stashed(false)
                 .equipmentId(lineName)
                 .r(50.6)
                 .x(25.3)
+                .properties(propertiesList)
+                .operationalLimitsGroups(operationalLimitsList)
                 .build();
     }
 
@@ -78,12 +95,23 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
     @Override
     protected void assertAfterNetworkModificationApplication() {
         // new equipments in the network:
-        assertNotNull(getNetwork().getLine("attachmentLine"));
         assertNotNull(getNetwork().getLine("nl1"));
         assertNotNull(getNetwork().getLine("nl2"));
         assertNotNull(getNetwork().getVoltageLevel("AttPointId"));
         // replaced line is gone
         assertNull(getNetwork().getLine("line3"));
+
+        Line attachmentLine = getNetwork().getLine("attachmentLine");
+        assertNotNull(attachmentLine);
+        assertFalse(attachmentLine.getOperationalLimitsGroups1().isEmpty());
+        Optional<OperationalLimitsGroup> operationalLimitsGroup = attachmentLine.getOperationalLimitsGroup1("groupId");
+        assertTrue(operationalLimitsGroup.isPresent());
+        assertEquals("groupId", operationalLimitsGroup.get().getId());
+        assertTrue(operationalLimitsGroup.get().getCurrentLimits().isPresent());
+        assertEquals(1.0, operationalLimitsGroup.get().getCurrentLimits().get().getPermanentLimit());
+        assertFalse(attachmentLine.getPropertyNames().isEmpty());
+        assertTrue(attachmentLine.getPropertyNames().contains("property"));
+
     }
 
     private void tryToCreateLineWithExistingId(LineAttachToVoltageLevelInfos tryWithExistingLine, String existingLineId) throws Exception {
