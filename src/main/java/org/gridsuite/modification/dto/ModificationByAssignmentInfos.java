@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.modifications.byfilter.ModificationByAssignment;
 
@@ -30,7 +29,6 @@ import java.util.List;
 @Getter
 @Setter
 @JsonTypeName("MODIFICATION_BY_ASSIGNMENT")
-@ModificationErrorTypeName("MODIFICATION_BY_ASSIGNMENT_ERROR")
 @ToString(callSuper = true)
 @Schema(description = "Modification by assignment")
 public class ModificationByAssignmentInfos extends ModificationInfos {

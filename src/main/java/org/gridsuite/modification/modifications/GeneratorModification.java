@@ -11,7 +11,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.network.store.iidm.impl.extensions.CoordinatedReactiveControlAdderImpl;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_GENERATOR_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
 /**
@@ -40,9 +39,9 @@ public class GeneratorModification extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         if (modificationInfos == null) {
-            throw new NetworkModificationException(MODIFY_GENERATOR_ERROR, "Missing required attributes to modify the equipment");
+            throw new NetworkModificationRunException("Missing required attributes to modify the equipment");
         }
         Generator generator = ModificationUtils.getInstance().getGenerator(network, modificationInfos.getEquipmentId());
         // check min max reactive limits
@@ -50,7 +49,7 @@ public class GeneratorModification extends AbstractModification {
         ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId(),
                 modificationInfos.getBusOrBusbarSectionId(), generator.getTerminal());
         ModificationUtils.getInstance().checkReactiveLimit(generator, modificationInfos.getMinQ(), modificationInfos.getMaxQ(),
-                modificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_GENERATOR_ERROR, errorMessage);
+                modificationInfos.getReactiveCapabilityCurvePoints(), errorMessage);
         // check regulated terminal
         ModificationUtils.getInstance().checkEnableRegulation(
             modificationInfos.getVoltageRegulationType(),
@@ -60,21 +59,20 @@ public class GeneratorModification extends AbstractModification {
             generator.getTerminal(),
             generator.getRegulatingTerminal(),
             network,
-            MODIFY_GENERATOR_ERROR,
             errorMessage);
-        checkActivePowerZeroOrBetweenMinAndMaxActivePowerGenerator(modificationInfos, generator, MODIFY_GENERATOR_ERROR, errorMessage);
+        checkActivePowerZeroOrBetweenMinAndMaxActivePowerGenerator(modificationInfos, generator, errorMessage);
         if (modificationInfos.getRatedS() != null) {
-            checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedS().getValue(), MODIFY_GENERATOR_ERROR, "Rated apparent power");
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedS().getValue(), "Rated apparent power");
         }
         if (modificationInfos.getDroop() != null) {
-            checkIsPercentage(errorMessage, modificationInfos.getDroop().getValue(), MODIFY_GENERATOR_ERROR, "Droop");
+            checkIsPercentage(errorMessage, modificationInfos.getDroop().getValue(), "Droop");
         }
         if (modificationInfos.getTargetV() != null) {
-            checkIsNotNegativeValue(errorMessage, modificationInfos.getTargetV().getValue(), MODIFY_GENERATOR_ERROR, "Target Voltage");
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getTargetV().getValue(), "Target Voltage");
         }
     }
 
-    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerGenerator(GeneratorModificationInfos modificationInfos, Generator generator, NetworkModificationException.Type exceptionType, String errorMessage) {
+    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerGenerator(GeneratorModificationInfos modificationInfos, Generator generator, String errorMessage) {
         ModificationUtils.getInstance().checkActivePowerZeroOrBetweenMinAndMaxActivePower(
                 modificationInfos.getTargetP(),
                 modificationInfos.getMinP(),
@@ -82,7 +80,6 @@ public class GeneratorModification extends AbstractModification {
                 generator.getMinP(),
                 generator.getMaxP(),
                 generator.getTargetP(),
-                exceptionType,
                 errorMessage
         );
     }
@@ -190,7 +187,7 @@ public class GeneratorModification extends AbstractModification {
 
         return ModificationUtils.getInstance().modifyActivePowerControlAttributes(activePowerControl, activePowerControlAdder,
             modificationInfos.getParticipate(), modificationInfos.getDroop(), subReportNode, subReportNodeSetpoints,
-            MODIFY_GENERATOR_ERROR, String.format(ERROR_MESSAGE, modificationInfos.getEquipmentId()));
+            String.format(ERROR_MESSAGE, modificationInfos.getEquipmentId()));
     }
 
     private void modifyGeneratorStartUpAttributes(GeneratorModificationInfos modificationInfos, Generator generator,

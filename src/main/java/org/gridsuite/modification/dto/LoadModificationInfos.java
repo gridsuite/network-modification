@@ -9,7 +9,6 @@ package org.gridsuite.modification.dto;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LoadModification;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -29,7 +28,6 @@ import lombok.experimental.SuperBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Load modification")
 @JsonTypeName("LOAD_MODIFICATION")
-@ModificationErrorTypeName("MODIFY_LOAD_ERROR")
 public class LoadModificationInfos extends InjectionModificationInfos {
     @Schema(description = "Load type modification")
     private AttributeModification<LoadType> loadType;

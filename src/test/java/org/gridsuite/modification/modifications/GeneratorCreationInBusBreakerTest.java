@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.GeneratorCreationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BUS_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -41,10 +40,9 @@ class GeneratorCreationInBusBreakerTest extends AbstractNetworkModificationTest 
     protected void checkModification() {
         GeneratorCreationInfos generatorCreationInfos = (GeneratorCreationInfos) buildModification();
         generatorCreationInfos.setBusOrBusbarSectionId("notFoundBus");
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class,
+        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class,
                 () -> generatorCreationInfos.toModification().check(getNetwork()));
-        assertEquals(BUS_NOT_FOUND, exception.getType());
-        assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
+        assertEquals("Bus notFoundBus does not exist in network", exception.getMessage());
     }
 
     @Override
@@ -98,9 +96,9 @@ class GeneratorCreationInBusBreakerTest extends AbstractNetworkModificationTest 
     void testCreateWithBusbarSectionErrors() throws Exception {
         GeneratorCreationInfos generatorCreationInfos = (GeneratorCreationInfos) buildModification();
         generatorCreationInfos.setBusOrBusbarSectionId("notFoundBus");
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class,
+        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class,
                 () -> generatorCreationInfos.toModification().check(getNetwork()));
-        assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
+        assertEquals("Bus notFoundBus does not exist in network", exception.getMessage());
     }
 
     @Test
@@ -110,9 +108,9 @@ class GeneratorCreationInBusBreakerTest extends AbstractNetworkModificationTest 
         generatorCreationInfos.setRegulatingTerminalType("LINE");
         generatorCreationInfos.setRegulatingTerminalId("titi");
 
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class,
+        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class,
                 () -> generatorCreationInfos.toModification().check(getNetwork()));
-        assertEquals("EQUIPMENT_NOT_FOUND : Equipment with id=titi not found with type LINE", exception.getMessage());
+        assertEquals("Equipment with id=titi not found with type LINE", exception.getMessage());
     }
 
     @Override

@@ -11,7 +11,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.util.Pair;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LccConverterStationModificationInfos;
 import org.gridsuite.modification.dto.LccModificationInfos;
 import org.gridsuite.modification.dto.LccShuntCompensatorModificationInfos;
@@ -59,14 +58,14 @@ public class LccModification extends AbstractModification {
 
         // Nominal Voltage
         if (modificationInfos.getNominalV() != null) {
-            ModificationUtils.checkIsNotNegativeValue(errorMessage, modificationInfos.getNominalV().getValue(), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Nominal voltage");
+            ModificationUtils.checkIsNotNegativeValue(errorMessage, modificationInfos.getNominalV().getValue(), "Nominal voltage");
             characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setNominalV,
                 hvdcLine::getNominalV, modificationInfos.getNominalV(), "DC nominal voltage"));
         }
 
         // DC resistance
         if (modificationInfos.getR() != null) {
-            ModificationUtils.checkIsNotNegativeValue(errorMessage, modificationInfos.getR().getValue(), NetworkModificationException.Type.MODIFY_LCC_ERROR, "DC resistance");
+            ModificationUtils.checkIsNotNegativeValue(errorMessage, modificationInfos.getR().getValue(), "DC resistance");
             characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setR,
                 hvdcLine::getR, modificationInfos.getR(), "DC resistance"));
         }
@@ -139,13 +138,13 @@ public class LccModification extends AbstractModification {
         }
 
         if (converterStationModificationInfos.getLossFactor() != null) {
-            ModificationUtils.checkIsPercentage(errorMessage, converterStationModificationInfos.getLossFactor().getValue(), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Loss factor");
+            ModificationUtils.checkIsPercentage(errorMessage, converterStationModificationInfos.getLossFactor().getValue(), "Loss factor");
             characteristicsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setLossFactor,
                 converterStation::getLossFactor, converterStationModificationInfos.getLossFactor(), "Loss factor"));
         }
 
         if (converterStationModificationInfos.getPowerFactor() != null) {
-            ModificationUtils.checkIsInInterval(errorMessage, converterStationModificationInfos.getPowerFactor().getValue(), new Pair<>(0.f, 1.f), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Power factor");
+            ModificationUtils.checkIsInInterval(errorMessage, converterStationModificationInfos.getPowerFactor().getValue(), new Pair<>(0.f, 1.f), "Power factor");
             characteristicsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setPowerFactor,
                 converterStation::getPowerFactor, converterStationModificationInfos.getPowerFactor(), "Power factor"));
         }

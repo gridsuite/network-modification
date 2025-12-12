@@ -9,12 +9,11 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.LoadCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.LOAD_ALREADY_EXISTS;
 import static org.gridsuite.modification.utils.ModificationUtils.createInjectionInNodeBreaker;
 
 /**
@@ -29,9 +28,9 @@ public class LoadCreation extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         if (network.getLoad(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationException(LOAD_ALREADY_EXISTS, modificationInfos.getEquipmentId());
+            throw new NetworkModificationRunException("Load already exists: " + modificationInfos.getEquipmentId());
         }
         ModificationUtils.getInstance().controlConnectivity(network, modificationInfos.getVoltageLevelId(),
                 modificationInfos.getBusOrBusbarSectionId());

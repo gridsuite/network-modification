@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.CreateVoltageLevelSection;
 
@@ -31,7 +30,6 @@ import java.util.Map;
 @ToString(callSuper = true)
 @Schema(description = "Create Voltage Level Section")
 @JsonTypeName("CREATE_VOLTAGE_LEVEL_SECTION")
-@ModificationErrorTypeName("CREATE_VOLTAGE_LEVEL_SECTION_ERROR")
 public class CreateVoltageLevelSectionInfos extends ModificationInfos {
     @Schema(description = "VoltageLevelId")
     private String voltageLevelId;

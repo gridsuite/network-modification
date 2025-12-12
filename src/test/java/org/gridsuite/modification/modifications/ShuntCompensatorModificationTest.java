@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -44,8 +44,8 @@ class ShuntCompensatorModificationTest extends AbstractInjectionModificationTest
                 .equipmentId("wrong id")
                 .build();
 
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> shuntCompensator.toModification().check(getNetwork()));
-        assertEquals("SHUNT_COMPENSATOR_NOT_FOUND : Shunt compensator wrong id does not exist in network", exception.getMessage());
+        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> shuntCompensator.toModification().check(getNetwork()));
+        assertEquals("Shunt compensator wrong id does not exist in network", exception.getMessage());
 
         // WrongMaximumSectionCount
         var shuntCompensator1 = ShuntCompensatorModificationInfos.builder()
@@ -53,8 +53,8 @@ class ShuntCompensatorModificationTest extends AbstractInjectionModificationTest
                 .sectionCount(new AttributeModification<>(3, OperationType.SET))
                 .maximumSectionCount(new AttributeModification<>(-1, OperationType.SET))
                 .build();
-        exception = assertThrows(NetworkModificationException.class, () -> shuntCompensator1.toModification().check(getNetwork()));
-        assertEquals("MODIFY_SHUNT_COMPENSATOR_ERROR : Maximum section count should be greater or equal to 1", exception.getMessage());
+        exception = assertThrows(NetworkModificationRunException.class, () -> shuntCompensator1.toModification().check(getNetwork()));
+        assertEquals("Unable to modify shunt compensator: Maximum section count should be greater or equal to 1", exception.getMessage());
 
         // testWrongSectionCount
         var shuntCompensator2 = ShuntCompensatorModificationInfos.builder()
@@ -63,8 +63,8 @@ class ShuntCompensatorModificationTest extends AbstractInjectionModificationTest
                 .maximumSectionCount(new AttributeModification<>(1, OperationType.SET))
                 .build();
 
-        exception = assertThrows(NetworkModificationException.class, () -> shuntCompensator2.toModification().check(getNetwork()));
-        assertEquals("MODIFY_SHUNT_COMPENSATOR_ERROR : Section count should be between 0 and Maximum section count (1), actual : 3", exception.getMessage());
+        exception = assertThrows(NetworkModificationRunException.class, () -> shuntCompensator2.toModification().check(getNetwork()));
+        assertEquals("Unable to modify shunt compensator: Section count should be between 0 and Maximum section count (1), actual : 3", exception.getMessage());
 
         // WrongSectionCountChangeSectionCount
         VoltageLevel v5 = getNetwork().getVoltageLevel("v5");
@@ -79,8 +79,8 @@ class ShuntCompensatorModificationTest extends AbstractInjectionModificationTest
                 .sectionCount(new AttributeModification<>(3, OperationType.SET))
                 .build();
 
-        exception = assertThrows(NetworkModificationException.class, () -> shuntCompensatorModifications.toModification().check(getNetwork()));
-        assertEquals("MODIFY_SHUNT_COMPENSATOR_ERROR : Section count should be between 0 and Maximum section count (1), actual : 3", exception.getMessage());
+        exception = assertThrows(NetworkModificationRunException.class, () -> shuntCompensatorModifications.toModification().check(getNetwork()));
+        assertEquals("Unable to modify shunt compensator: Section count should be between 0 and Maximum section count (1), actual : 3", exception.getMessage());
 
         // WrongSectionCountChangeMaximumSectionCount
         var shuntCompensator4 = getNetwork().getShuntCompensator("v7shunt");
@@ -91,8 +91,8 @@ class ShuntCompensatorModificationTest extends AbstractInjectionModificationTest
                 .equipmentId("v7shunt")
                 .sectionCount(new AttributeModification<>(-1, OperationType.SET))
                 .build();
-        exception = assertThrows(NetworkModificationException.class, () -> shuntCompensatorModifications1.toModification().check(getNetwork()));
-        assertEquals("MODIFY_SHUNT_COMPENSATOR_ERROR : Section count should be between 0 and Maximum section count (1), actual : -1", exception.getMessage());
+        exception = assertThrows(NetworkModificationRunException.class, () -> shuntCompensatorModifications1.toModification().check(getNetwork()));
+        assertEquals("Unable to modify shunt compensator: Section count should be between 0 and Maximum section count (1), actual : -1", exception.getMessage());
 
         // NegativeQmaxAtNominalV
         var shuntCompensator5 = ShuntCompensatorModificationInfos.builder()
@@ -100,8 +100,8 @@ class ShuntCompensatorModificationTest extends AbstractInjectionModificationTest
                 .equipmentId("v5shunt")
                 .maxQAtNominalV(new AttributeModification<>(-15.0, OperationType.SET))
                 .build();
-        exception = assertThrows(NetworkModificationException.class, () -> shuntCompensator5.toModification().apply(getNetwork()));
-        assertEquals("MODIFY_SHUNT_COMPENSATOR_ERROR : Qmax at nominal voltage should be greater or equal to 0", exception.getMessage());
+        exception = assertThrows(NetworkModificationRunException.class, () -> shuntCompensator5.toModification().apply(getNetwork()));
+        assertEquals("Unable to modify shunt compensator: Qmax at nominal voltage should be greater or equal to 0", exception.getMessage());
     }
 
     @Test

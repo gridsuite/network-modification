@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.DeleteAttachingLine;
 
@@ -33,7 +32,6 @@ import java.util.Map;
 @ToString(callSuper = true)
 @Schema(description = "Delete attaching line infos")
 @JsonTypeName("DELETE_ATTACHING_LINE")
-@ModificationErrorTypeName("DELETE_ATTACHING_LINE_ERROR")
 public class DeleteAttachingLineInfos extends ModificationInfos {
 
     @Schema(description = "line 1 id")

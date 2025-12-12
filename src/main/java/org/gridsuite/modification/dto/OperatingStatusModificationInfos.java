@@ -14,14 +14,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.OperatingStatusModification;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.gridsuite.modification.NetworkModificationException.Type.OPERATING_ACTION_TYPE_EMPTY;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -33,7 +30,6 @@ import static org.gridsuite.modification.NetworkModificationException.Type.OPERA
 @ToString(callSuper = true)
 @Schema(description = "Operating status modification")
 @JsonTypeName("OPERATING_STATUS_MODIFICATION")
-@ModificationErrorTypeName("OPERATING_STATUS_MODIFICATION_ERROR")
 public class OperatingStatusModificationInfos extends EquipmentModificationInfos {
     @Schema(description = "Action type")
     private ActionType action;
@@ -73,7 +69,7 @@ public class OperatingStatusModificationInfos extends EquipmentModificationInfos
     public void check() {
         super.check();
         if (action == null) {
-            throw new NetworkModificationException(OPERATING_ACTION_TYPE_EMPTY);
+            throw new NetworkModificationRunException("Empty operating action type");
         }
     }
 
