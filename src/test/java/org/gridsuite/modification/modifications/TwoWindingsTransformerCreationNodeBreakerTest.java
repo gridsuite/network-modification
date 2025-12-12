@@ -184,7 +184,7 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
     }
 
     @Test
-    void testCreateTwoWindingsTransformerWithRatioTapChangerInNodeBreaker() throws Exception {
+    void testCreateTwoWindingsTransformerWithRatioTapChangerInNodeBreaker() {
         // create new 2wt in voltage level with Node/breaker topology, having a RatioTapChanger
         RatioTapChangerCreationInfos ratioTapChangerCreationInfos = RatioTapChangerCreationInfos.builder()
                 .lowTapPosition(0)
@@ -292,7 +292,7 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
     }
 
     @Test
-    void testCreateTwoWindingsTransformerWithPhaseTapChangerInNodeBreaker() throws Exception {
+    void testCreateTwoWindingsTransformerWithPhaseTapChangerInNodeBreaker() {
         // create new 2wt in voltage level with Node/breaker topology, having a PhaseTapChanger with Load regulating
         PhaseTapChangerCreationInfos phaseTapChangerLoadRegulatingCreationInfos = PhaseTapChangerCreationInfos.builder()
                 .lowTapPosition(0)
