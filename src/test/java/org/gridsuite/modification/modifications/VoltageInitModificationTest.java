@@ -201,6 +201,12 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
                     .busId("v1_0")
                     .v(230.)
                     .angle(0.5)
+                    .build(),
+                VoltageInitBusModificationInfos.builder()
+                    .voltageLevelId("vlNotFound")
+                    .busId("v1_0")
+                    .v(230.)
+                    .angle(0.5)
                     .build()))
             .rootNetworkName("rootNetwork1")
             .nodeName("node1")
