@@ -107,9 +107,9 @@ public class VscModification extends AbstractModification {
         }
 
         //--- the extension doesn't exist yet ---//
-        boolean isPresentAngleDroopActivePowerControl = modificationInfos.getAngleDroopActivePowerControl() != null;
-        boolean isPresentDroop = modificationInfos.getDroop() != null;
-        boolean isPresentP0 = modificationInfos.getP0() != null;
+        boolean isPresentAngleDroopActivePowerControl = modificationInfos.getAngleDroopActivePowerControl() != null && modificationInfos.getAngleDroopActivePowerControl().getValue() != null;
+        boolean isPresentDroop = modificationInfos.getDroop() != null && modificationInfos.getDroop().getValue() != null;
+        boolean isPresentP0 = modificationInfos.getP0() != null && modificationInfos.getP0().getValue() != null;
         // all fields are provided => OK extension will be created
         if (isPresentAngleDroopActivePowerControl && isPresentDroop && isPresentP0) {
             return;
@@ -280,7 +280,10 @@ public class VscModification extends AbstractModification {
 
     private boolean shouldCreateDroopActivePowerControlExtension() {
         return shouldCreateDroopActivePowerControlExtension(
-            modificationInfos.getAngleDroopActivePowerControl() != null, modificationInfos.getDroop() != null, modificationInfos.getP0() != null);
+                modificationInfos.getAngleDroopActivePowerControl() != null &&
+                        modificationInfos.getAngleDroopActivePowerControl().getValue() != null,
+                modificationInfos.getDroop() != null && modificationInfos.getDroop().getValue() != null,
+                modificationInfos.getP0() != null && modificationInfos.getP0().getValue() != null);
     }
 
     private List<ReportNode> hvdcAngleDroopActivePowerControlAdder(HvdcLine hvdcLine) {
