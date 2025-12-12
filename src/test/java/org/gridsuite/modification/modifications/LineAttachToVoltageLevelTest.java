@@ -101,6 +101,7 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
         // replaced line is gone
         assertNull(getNetwork().getLine("line3"));
 
+        // check attachment Line
         Line attachmentLine = getNetwork().getLine("attachmentLine");
         assertNotNull(attachmentLine);
         assertFalse(attachmentLine.getOperationalLimitsGroups1().isEmpty());
