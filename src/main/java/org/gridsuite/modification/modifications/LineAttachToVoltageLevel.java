@@ -77,7 +77,8 @@ public class LineAttachToVoltageLevel extends AbstractModification {
                 .setB1(ModificationUtils.getInstance().zeroIfNull(attachmentLineInfos.getB1()))
                 .setG2(ModificationUtils.getInstance().zeroIfNull(attachmentLineInfos.getG2()))
                 .setB2(ModificationUtils.getInstance().zeroIfNull(attachmentLineInfos.getB2()));
-        String newSubstationId = modificationInfos.getAttachmentPointDetailInformation() != null ?
+        String newSubstationId = modificationInfos.getAttachmentPointDetailInformation() != null &&
+                modificationInfos.getAttachmentPointDetailInformation().getSubstationCreation() != null ?
                 modificationInfos.getAttachmentPointDetailInformation().getSubstationCreation().getEquipmentId() :
                 modificationInfos.getAttachmentPointId() + "_substation";
         CreateLineOnLine algo = new CreateLineOnLineBuilder()
@@ -124,7 +125,9 @@ public class LineAttachToVoltageLevel extends AbstractModification {
         PropertiesUtils.applyProperties(voltageLevel, attachmentPointDetailInformation.getProperties());
         // override substation
         SubstationCreationInfos substationCreationInfos = attachmentPointDetailInformation.getSubstationCreation();
-        updateAttachmentSubstation(network, substationCreationInfos);
+        if (substationCreationInfos != null) {
+            updateAttachmentSubstation(network, substationCreationInfos);
+        }
     }
 
     private void updateAttachmentSubstation(Network network, @NotNull SubstationCreationInfos substationCreationInfos) {
