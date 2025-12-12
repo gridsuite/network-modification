@@ -76,11 +76,12 @@ public class LineCreation extends AbstractModification {
         Line line = network.getLine(modificationInfos.getEquipmentId());
 
         // Set permanent and temporary current limits
-        ReportNode limitsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.limitsCreated").add();
+        ReportNode limitsReporter = null;
         List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE1);
         List<OperationalLimitsGroupInfos> opLimitsGroupSide2 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE2);
-        ReportNode reportNode = null;
+        ReportNode reportNode;
         if (!CollectionUtils.isEmpty(modificationInfos.getOperationalLimitsGroups())) {
+            limitsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.limitsCreated").add();
             reportNode = addLimitSetReportNode(limitsReporter);
 
             for (OperationalLimitsGroupInfos olgInfos : modificationInfos.getOperationalLimitsGroups()) {
@@ -134,6 +135,9 @@ public class LineCreation extends AbstractModification {
         }
 
         if (!limitSetsOnSideReportNodes.isEmpty()) {
+            if (limitsReporter == null) {
+                limitsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.limitsCreated").add();
+            }
             ModificationUtils.getInstance().reportModifications(limitsReporter, limitSetsOnSideReportNodes,
                 "network.modification.ActiveLimitSets");
         }
