@@ -7,6 +7,7 @@
 package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
@@ -64,9 +65,6 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
 
     private void checkConnectable(Network network, MoveFeederBayInfos info) {
         Connectable<?> connectable = network.getConnectable(info.getEquipmentId());
-        if (connectable == null) {
-            throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(CONNECTABLE_NOT_FOUND, info.getEquipmentId()));
-        }
         if (connectable instanceof BusbarSection || connectable instanceof ThreeWindingsTransformer) {
             throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
         }
@@ -76,7 +74,15 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
     public void apply(Network network, ReportNode subReportNode) {
         for (MoveFeederBayInfos info : modificationInfos.getFeederBays()) {
             Connectable<?> connectable = network.getConnectable(info.getEquipmentId());
-            modifyConnectablePosition(network, connectable, info, subReportNode);
+            if (connectable != null) {
+                modifyConnectablePosition(network, connectable, info, subReportNode);
+            } else {
+                subReportNode.newReportNode()
+                        .withMessageTemplate("network.modification.moveFeederBaysConnectableNotFoundWarning")
+                        .withUntypedValue("id", info.getEquipmentId())
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .add();
+            }
         }
     }
 
