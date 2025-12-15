@@ -214,7 +214,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      * Test modifying only the name of a temporary limit (value unchanged)
      */
     @Test
-    protected void testModifyTemporaryLimitNameOnly() {
+    void testModifyTemporaryLimitNameOnly() {
         ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
@@ -256,7 +256,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      * Test modifying only the value of a temporary limit (name unchanged)
      */
     @Test
-    protected void testModifyTemporaryLimitValueOnly() {
+    void testModifyTemporaryLimitValueOnly() {
         ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
@@ -299,7 +299,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      * Test modifying temporary limit with null value (MAX_VALUE scenario)
      */
     @Test
-    protected void testModifyTemporaryLimitWithNullValue() {
+    void testModifyTemporaryLimitWithNullValue() {
         ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
@@ -340,7 +340,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      * Test DELETE modification type with isThisLimitDeleted check
      */
     @Test
-    protected void testDeleteTemporaryLimit() {
+    void testDeleteTemporaryLimit() {
         ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
@@ -381,7 +381,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      * Test MODIFY_OR_ADD with non-existent limit (should add)
      */
     @Test
-    protected void testModifyOrAddNonExistentLimit() {
+    void testModifyOrAddNonExistentLimit() {
         ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
@@ -424,7 +424,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      * Test modification with no actual changes (name and value same as existing)
      */
     @Test
-    protected void testModifyWithNoActualChanges() {
+    void testModifyWithNoActualChanges() {
         // First get current values
         CurrentLimits existingLimits = Objects.requireNonNull(getNetwork().getLine("line1")
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
@@ -515,7 +515,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      * Test creating temporary limit with createTemporaryLimit method
      */
     @Test
-    protected void testCreateTemporaryLimit() {
+    void testCreateTemporaryLimit() {
         ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
@@ -558,7 +558,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      * Test modifying both name and value simultaneously
      */
     @Test
-    protected void testModifyBothNameAndValue() {
+    void testModifyBothNameAndValue() {
         ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(

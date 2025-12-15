@@ -37,6 +37,8 @@ public class OperationalLimitsGroupModification {
     List<ReportNode> limitsReportsSide1;
     List<ReportNode> limitsReportsSide2;
 
+    private static final String NO_VALUE = "no value";
+
     public OperationalLimitsGroupModification(
             Branch<?> modifiedBranch,
             OperationalLimitsGroupModificationInfos olgModifInfos,
@@ -448,7 +450,7 @@ public class OperationalLimitsGroupModification {
         int limitAcceptableDuration = limit.getAcceptableDuration() == null ? Integer.MAX_VALUE : limit.getAcceptableDuration().getValue();
         double limitValue = limit.getValue() == null ? Double.MAX_VALUE : limit.getValue().getValue();
         String limitDurationToReport = limitAcceptableDuration == Integer.MAX_VALUE ? " " : String.valueOf(limitAcceptableDuration);
-        String limitValueToReport = limitValue == Double.MAX_VALUE ? "no value" : String.valueOf(limitValue);
+        String limitValueToReport = limitValue == Double.MAX_VALUE ? NO_VALUE : String.valueOf(limitValue);
         LoadingLimits.TemporaryLimit limitToModify = null;
         if (networkCurrentLimits != null) {
             limitToModify = getTemporaryLimitToModify(networkCurrentLimits, limit, currentLimitsInfos, olgModifInfos.getTemporaryLimitsModificationType());
@@ -546,7 +548,7 @@ public class OperationalLimitsGroupModification {
 
         if (valueChanged && limitModificationInfos.getModificationType() != null) {
             // value change
-            String finalValueToReport = finalValue == Double.MAX_VALUE ? "no value" : String.valueOf(finalValue);
+            String finalValueToReport = finalValue == Double.MAX_VALUE ? NO_VALUE : String.valueOf(finalValue);
             addToLogsOnSide(ReportNode.newRootReportNode()
                             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                             .withMessageTemplate("network.modification.temporaryLimitValueModified.name")
@@ -554,7 +556,7 @@ public class OperationalLimitsGroupModification {
                             .withUntypedValue(DURATION, limitDurationToReport)
                             .withUntypedValue(AbstractBranchModification.VALUE, finalValueToReport)
                             .withUntypedValue("oldValue",
-                                    limitToModify.getValue() == Double.MAX_VALUE ? "no value"
+                                    limitToModify.getValue() == Double.MAX_VALUE ? NO_VALUE
                                             : String.valueOf(limitToModify.getValue()))
                             .withSeverity(TypedValue.DETAIL_SEVERITY)
                             .build(),
