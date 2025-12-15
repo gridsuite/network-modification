@@ -25,7 +25,6 @@ import static org.gridsuite.modification.NetworkModificationException.Type.MOVE_
  */
 public class MoveVoltageLevelFeederBays extends AbstractModification {
     private static final String VOLTAGE_LEVEL_NOT_FOUND = "Voltage level %s is not found";
-    private static final String CONNECTABLE_NOT_FOUND = "Connectable %s not found";
     private static final String BUSBAR_NOT_FOUND = "Bus or busbar section %s where connectable %s is supposed to be is not found in voltage level %s";
     private static final String UNSUPPORTED_CONNECTABLE = "MoveVoltageLevelFeederBays is not implemented for %s";
     private static final String INVALID_CONNECTION_SIDE = "Invalid connection side: %s for branch %s";
