@@ -8,6 +8,7 @@
 package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -102,6 +103,13 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
         // No checks implemented for this modification
     }
 
+    @Override
+    @Test
+    public void testApply() throws Exception {
+        buildModification().toModification().apply(getNetwork(), new DefaultNamingStrategy(), ReportNode.NO_OP);
+        assertAfterNetworkModificationApplication();
+    }
+
     @Test
     void testApplyWithLoadFlow() {
         var infos = BalancesAdjustmentModificationInfos.builder()
@@ -149,7 +157,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
                         .build());
         BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
         modification.initApplicationContext(null, loadFlowService);
-        modification.apply(getNetwork(), false);
+        modification.apply(getNetwork(), new DefaultNamingStrategy(), ReportNode.NO_OP);
 
         assertEquals(-58d, getNetwork().getGenerator("GH1").getTerminal().getP(), PRECISION);
         assertEquals(-36d, getNetwork().getGenerator("GH2").getTerminal().getP(), PRECISION);
@@ -194,7 +202,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
                 .build();
 
         // Should not throw exception but use default parameters and complete successfully
-        assertDoesNotThrow(() -> modification.apply(network, false, reportNode));
+        assertDoesNotThrow(() -> modification.apply(network, new DefaultNamingStrategy(), reportNode));
 
         // Verify that the appropriate report message was generated
         TestUtils.assertLogMessage(
@@ -237,7 +245,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
                 .build();
 
         // Should not throw exception but use default parameters and complete successfully
-        assertDoesNotThrow(() -> modification.apply(network, false, reportNode));
+        assertDoesNotThrow(() -> modification.apply(network, new DefaultNamingStrategy(), reportNode));
 
         // Verify that the appropriate report message was generated
         TestUtils.assertLogMessageWithoutRank(
@@ -273,7 +281,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
                 .build();
 
         // Should not throw exception but use default parameters and complete successfully
-        assertDoesNotThrow(() -> modification.apply(network, false, reportNode));
+        assertDoesNotThrow(() -> modification.apply(network, new DefaultNamingStrategy(), reportNode));
 
         // Verify that the appropriate report message was generated
         TestUtils.assertLogMessageWithoutRank(

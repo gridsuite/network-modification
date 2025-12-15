@@ -76,7 +76,7 @@ class TabularLineModificationsTest extends AbstractNetworkModificationTest {
         assertLogNthMessage("Modification of line2", "network.modification.tabular.modification.equipmentId", reportNode, 2);
         assertLogNthMessage("Modification of line3", "network.modification.tabular.modification.equipmentId", reportNode, 3);
         assertLogNthMessage("Modification of line3", "network.modification.tabular.modification.equipmentId", reportNode, 4);
-        assertLogMessageWithoutRank("Tabular modification: 4 lines have been modified and 1 have not been modified", "network.modification.tabular.modification.warning", reportNode);
+        assertLogMessageWithoutRank("Tabular modification: 4 lines have been modified and 1 have not been modified", "network.modification.tabular.modification.partial", reportNode);
     }
 
     @Override

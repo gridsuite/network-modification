@@ -74,7 +74,7 @@ class TabularGeneratorModificationsTest extends AbstractNetworkModificationTest 
         assertLogNthMessage("Modification of idGenerator", "network.modification.tabular.modification.equipmentId", reportNode, 1);
         assertLogNthMessage("Modification of v5generator", "network.modification.tabular.modification.equipmentId", reportNode, 2);
         assertLogNthMessage("Modification of v6generator", "network.modification.tabular.modification.equipmentId", reportNode, 3);
-        assertLogMessageWithoutRank("Tabular modification: 3 generators have been modified and 1 have not been modified", "network.modification.tabular.modification.warning", reportNode);
+        assertLogMessageWithoutRank("Tabular modification: 3 generators have been modified and 1 have not been modified", "network.modification.tabular.modification.partial", reportNode);
     }
 
     @Test
