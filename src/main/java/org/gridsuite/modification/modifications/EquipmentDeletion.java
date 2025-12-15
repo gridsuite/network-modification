@@ -10,7 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.EquipmentDeletionInfos;
 import org.gridsuite.modification.dto.HvdcLccDeletionInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -18,8 +18,6 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.gridsuite.modification.NetworkModificationException.Type.EQUIPMENT_NOT_FOUND;
 
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
@@ -33,10 +31,10 @@ public class EquipmentDeletion extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         Identifiable<?> identifiable = ModificationUtils.getInstance().getEquipmentByIdentifiableType(network, modificationInfos.getEquipmentType(), modificationInfos.getEquipmentId());
         if (identifiable == null) {
-            throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, "Equipment with id=" + modificationInfos.getEquipmentId() + " not found or of bad type");
+            throw new NetworkModificationRunException(modificationInfos.getEquipmentType() + " with id :" + modificationInfos.getEquipmentId() + " not found");
         }
     }
 

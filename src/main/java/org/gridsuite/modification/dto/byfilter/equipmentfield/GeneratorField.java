@@ -14,7 +14,6 @@ import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
 import org.gridsuite.modification.utils.ModificationUtils;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_GENERATOR_ERROR;
 import static org.gridsuite.modification.modifications.GeneratorModification.*;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 import static org.gridsuite.modification.utils.ModificationUtils.parseDoubleOrNaNIfNull;
@@ -77,20 +76,20 @@ public enum GeneratorField {
                 ModificationUtils.getInstance().checkActivePowerZeroOrBetweenMinAndMaxActivePower(
                     new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET),
                     null, null, generator.getMinP(), generator.getMaxP(), generator.getTargetP(),
-                    MODIFY_GENERATOR_ERROR, errorMessage
+                    errorMessage
                 );
                 generator.setTargetP(Double.parseDouble(newValue));
             }
             case RATED_NOMINAL_POWER -> {
                 Double ratedNominalPower = parseDoubleOrNaNIfNull(newValue);
-                checkIsNotNegativeValue(errorMessage, ratedNominalPower, MODIFY_GENERATOR_ERROR, "Rated apparent power");
+                checkIsNotNegativeValue(errorMessage, ratedNominalPower, "Rated apparent power");
                 modifyGeneratorActiveLimitsAttributes(
                     null, null, new AttributeModification<>(ratedNominalPower, OperationType.SET), generator, null);
             }
             case REACTIVE_POWER_SET_POINT -> modifyTargetQ(generator, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET));
             case VOLTAGE_SET_POINT -> {
                 Double voltageSetPoint = Double.parseDouble(newValue);
-                checkIsNotNegativeValue(errorMessage, voltageSetPoint, MODIFY_GENERATOR_ERROR, "Voltage set point");
+                checkIsNotNegativeValue(errorMessage, voltageSetPoint, "Voltage set point");
                 modifyTargetV(generator, new AttributeModification<>(voltageSetPoint, OperationType.SET));
             }
             case PLANNED_ACTIVE_POWER_SET_POINT -> modifyGeneratorStartUpAttributes(
@@ -106,12 +105,12 @@ public enum GeneratorField {
                     modifyGeneratorStartUpAttributes(null, null, null, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), generator, null, null);
             case DROOP -> {
                 Float droopValue = Float.parseFloat(newValue);
-                ModificationUtils.checkIsPercentage(errorMessage, droopValue, MODIFY_GENERATOR_ERROR, "Droop");
+                ModificationUtils.checkIsPercentage(errorMessage, droopValue, "Droop");
                 ActivePowerControl<Generator> activePowerControl = generator.getExtension(ActivePowerControl.class);
                 ActivePowerControlAdder<Generator> activePowerControlAdder = generator.newExtension(ActivePowerControlAdder.class);
                 ModificationUtils.getInstance().modifyActivePowerControlAttributes(activePowerControl, activePowerControlAdder, null,
                         new AttributeModification<>(droopValue, OperationType.SET), null, null,
-                    MODIFY_GENERATOR_ERROR, errorMessage);
+                    errorMessage);
             }
             case TRANSIENT_REACTANCE -> ModificationUtils.getInstance().modifyShortCircuitExtension(new AttributeModification<>(parseDoubleOrNaNIfNull(newValue), OperationType.SET),
                     null, generator.getExtension(GeneratorShortCircuit.class),

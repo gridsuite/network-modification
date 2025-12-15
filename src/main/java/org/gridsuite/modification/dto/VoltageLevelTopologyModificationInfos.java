@@ -14,7 +14,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VoltageLevelTopologyModification;
 
@@ -30,7 +29,6 @@ import java.util.List;
 @Setter
 @Schema(description = "Voltage level topology modification")
 @JsonTypeName("VOLTAGE_LEVEL_TOPOLOGY_MODIFICATION")
-@ModificationErrorTypeName("MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR")
 public class VoltageLevelTopologyModificationInfos extends EquipmentModificationInfos {
 
     @Schema(description = "Switch attribute modification list")

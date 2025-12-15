@@ -12,12 +12,9 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.EquipmentAttributeModificationInfos;
 import org.gridsuite.modification.dto.VoltageLevelTopologyModificationInfos;
-
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR;
-import static org.gridsuite.modification.NetworkModificationException.Type.VOLTAGE_LEVEL_NOT_FOUND;
 
 /**
  * @author REHILI Ghazwa <ghazwarhili@gmail.com>
@@ -31,10 +28,10 @@ public class VoltageLevelTopologyModification extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         VoltageLevel voltageLevel = network.getVoltageLevel(modificationInfos.getEquipmentId());
         if (voltageLevel == null) {
-            throw new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, modificationInfos.getEquipmentId());
+            throw new NetworkModificationRunException("Voltage level not found: " + modificationInfos.getEquipmentId());
         }
         if (!modificationInfos.getEquipmentAttributeModificationList().isEmpty()) {
             for (EquipmentAttributeModificationInfos equipmentAttributeModificationInfos : modificationInfos.getEquipmentAttributeModificationList()) {
@@ -42,7 +39,7 @@ public class VoltageLevelTopologyModification extends AbstractModification {
                 equipmentAttributeModification.check(network);
             }
         } else {
-            throw new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR, "Missing required switches to modify the voltage level topology");
+            throw new NetworkModificationRunException("Missing required switches to modify the voltage level topology");
         }
     }
 

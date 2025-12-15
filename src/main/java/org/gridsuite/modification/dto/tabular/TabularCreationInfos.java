@@ -13,7 +13,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.tabular.TabularCreation;
 
@@ -29,7 +28,6 @@ import java.util.Map;
 @Data
 @Schema(description = "Tabular creation")
 @JsonTypeName("TABULAR_CREATION")
-@ModificationErrorTypeName("TABULAR_CREATION_ERROR")
 public class TabularCreationInfos extends TabularBaseInfos {
 
     @Override

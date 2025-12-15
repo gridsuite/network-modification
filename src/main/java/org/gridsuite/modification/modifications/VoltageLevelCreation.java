@@ -9,12 +9,10 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_VOLTAGE_LEVEL_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 
 /**
@@ -29,12 +27,12 @@ public class VoltageLevelCreation extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         String errorMessage = "Voltage level '" + modificationInfos.getEquipmentId() + "' : ";
         ModificationUtils.getInstance().controlVoltageLevelCreation(modificationInfos, network);
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getNominalV(), CREATE_VOLTAGE_LEVEL_ERROR, "Nominal Voltage");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getLowVoltageLimit(), CREATE_VOLTAGE_LEVEL_ERROR, "Low voltage limit");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getHighVoltageLimit(), CREATE_VOLTAGE_LEVEL_ERROR, "High voltage limit");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getNominalV(), "Nominal Voltage");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getLowVoltageLimit(), "Low voltage limit");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getHighVoltageLimit(), "High voltage limit");
     }
 
     @Override

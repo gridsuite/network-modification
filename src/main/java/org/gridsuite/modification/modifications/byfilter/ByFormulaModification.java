@@ -11,7 +11,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ByFormulaModificationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
@@ -24,8 +23,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.List;
-
-import static org.gridsuite.modification.NetworkModificationException.Type.BY_FORMULA_MODIFICATION_ERROR;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
@@ -56,11 +53,6 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
     @Override
     public List<AbstractAssignmentInfos> getAssignmentInfosList() {
         return Collections.unmodifiableList(modificationInfos.getFormulaInfosList());
-    }
-
-    @Override
-    public NetworkModificationException.Type getExceptionType() {
-        return BY_FORMULA_MODIFICATION_ERROR;
     }
 
     @Override

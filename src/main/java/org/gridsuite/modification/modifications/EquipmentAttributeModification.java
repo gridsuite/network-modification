@@ -11,11 +11,8 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.EquipmentAttributeModificationInfos;
-
-import static org.gridsuite.modification.NetworkModificationException.Type.EQUIPMENT_NOT_FOUND;
-import static org.gridsuite.modification.NetworkModificationException.Type.WRONG_EQUIPMENT_TYPE;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -29,13 +26,13 @@ public class EquipmentAttributeModification extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         Identifiable<?> identifiable = network.getIdentifiable(modificationInfos.getEquipmentId());
         if (identifiable == null) {
-            throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, modificationInfos.getEquipmentId());
+            throw new NetworkModificationRunException("Equipment not found: " + modificationInfos.getEquipmentId());
         }
         if (identifiable.getType() != modificationInfos.getEquipmentType()) {
-            throw new NetworkModificationException(WRONG_EQUIPMENT_TYPE, String.format("Type of '%s' is not %s but %s", modificationInfos.getEquipmentId(), modificationInfos.getEquipmentType(), identifiable.getType()));
+            throw new NetworkModificationRunException("Wrong equipment type: " + String.format("Type of '%s' is not %s but %s", modificationInfos.getEquipmentId(), modificationInfos.getEquipmentType(), identifiable.getType()));
         }
     }
 
@@ -79,7 +76,7 @@ public class EquipmentAttributeModification extends AbstractModification {
                     .add();
             }
         } else {
-            throw NetworkModificationException.createEquipementAttributeNotEditable(aSwitch.getType(), attributeName);
+            throw new NetworkModificationRunException(aSwitch.getType().name() + " attribute '" + attributeName + "' not editable");
         }
     }
 
@@ -93,7 +90,7 @@ public class EquipmentAttributeModification extends AbstractModification {
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
         } else {
-            throw NetworkModificationException.createEquipementAttributeNotEditable(generator.getType(), attributeName);
+            throw new NetworkModificationRunException(generator.getType().name() + " attribute '" + attributeName + "' not editable");
         }
     }
 
@@ -107,7 +104,7 @@ public class EquipmentAttributeModification extends AbstractModification {
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
         } else {
-            throw NetworkModificationException.createEquipementAttributeNotEditable(line.getType(), attributeName);
+            throw new NetworkModificationRunException(line.getType().name() + " attribute '" + attributeName + "' not editable");
         }
     }
 
@@ -124,7 +121,7 @@ public class EquipmentAttributeModification extends AbstractModification {
                 reportKey = "network.modification.phaseTapPositionChanged";
                 break;
             default:
-                throw NetworkModificationException.createEquipementAttributeNotEditable(transformer.getType(), attributeName);
+                throw new NetworkModificationRunException(transformer.getType().name() + " attribute '" + attributeName + "' not editable");
         }
 
         reportNode.newReportNode()
@@ -164,7 +161,7 @@ public class EquipmentAttributeModification extends AbstractModification {
                 reportKey = "network.modification.phaseTapChanger3.tapPosition";
                 break;
             default:
-                throw NetworkModificationException.createEquipementAttributeNotEditable(transformer.getType(), attributeName);
+                throw new NetworkModificationRunException(transformer.getType().name() + " attribute '" + attributeName + "' not editable");
         }
 
         reportNode.newReportNode()

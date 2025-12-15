@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.StaticVarCompensatorCreation;
 
@@ -31,7 +30,6 @@ import org.gridsuite.modification.modifications.StaticVarCompensatorCreation;
 @ToString(callSuper = true)
 @Schema(description = "Static var compensator creation")
 @JsonTypeName("STATIC_VAR_COMPENSATOR_CREATION")
-@ModificationErrorTypeName("CREATE_STATIC_VAR_COMPENSATOR_ERROR")
 public class StaticVarCompensatorCreationInfos extends InjectionCreationInfos {
     @Schema(description = "Susceptance max")
     private Double maxSusceptance;

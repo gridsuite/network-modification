@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_VOLTAGE_LEVEL_ERROR;
 import static org.gridsuite.modification.modifications.GeneratorModification.ERROR_MESSAGE;
 import static org.gridsuite.modification.modifications.VoltageLevelModification.*;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
@@ -46,17 +45,17 @@ public enum VoltageLevelField {
         switch (field) {
             case NOMINAL_VOLTAGE -> {
                 Double nominalVoltage = Double.valueOf(newValue);
-                checkIsNotNegativeValue(errorMessage, nominalVoltage, MODIFY_VOLTAGE_LEVEL_ERROR, "Nominal voltage");
+                checkIsNotNegativeValue(errorMessage, nominalVoltage, "Nominal voltage");
                 modifyNominalV(voltageLevel, new AttributeModification<>(nominalVoltage, OperationType.SET), null);
             }
             case LOW_VOLTAGE_LIMIT -> {
                 Double lowVoltageLimit = parseDoubleOrNaNIfNull(newValue);
-                checkIsNotNegativeValue(errorMessage, lowVoltageLimit, MODIFY_VOLTAGE_LEVEL_ERROR, "Low voltage limit");
+                checkIsNotNegativeValue(errorMessage, lowVoltageLimit, "Low voltage limit");
                 modifLowVoltageLimit(voltageLevel, new AttributeModification<>(lowVoltageLimit, OperationType.SET), null);
             }
             case HIGH_VOLTAGE_LIMIT -> {
                 Double highVoltageLimit = parseDoubleOrNaNIfNull(newValue);
-                checkIsNotNegativeValue(errorMessage, highVoltageLimit, MODIFY_VOLTAGE_LEVEL_ERROR, "High voltage limit");
+                checkIsNotNegativeValue(errorMessage, highVoltageLimit, "High voltage limit");
                 modifyHighVoltageLimit(voltageLevel, new AttributeModification<>(highVoltageLimit, OperationType.SET), null);
             }
             case LOW_SHORT_CIRCUIT_CURRENT_LIMIT -> modifyVoltageLevelShortCircuit(

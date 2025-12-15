@@ -12,7 +12,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRangeAdder;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.ConverterStationCreationInfos;
 import org.gridsuite.modification.dto.VscCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -21,7 +21,6 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.*;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
 /**
@@ -40,20 +39,20 @@ public class VscCreation extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         if (network.getHvdcLine(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationException(HVDC_LINE_ALREADY_EXISTS, modificationInfos.getEquipmentId());
+            throw new NetworkModificationRunException("HVDC line already exists: " + modificationInfos.getEquipmentId());
         }
         String errorMessage = "HVDC vsc '" + modificationInfos.getEquipmentId() + "' : ";
         checkConverterStation(network, modificationInfos.getConverterStation1());
         checkConverterStation(network, modificationInfos.getConverterStation2());
         checkDroop();
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getR(), CREATE_VSC_ERROR, "Resistance R");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getNominalV(), CREATE_VSC_ERROR, "Nominal voltage");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getConverterStation1().getVoltageSetpoint(), CREATE_VSC_ERROR, "voltage set point side 1");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getConverterStation2().getVoltageSetpoint(), CREATE_VSC_ERROR, "voltage set point side 2");
-        checkIsPercentage(errorMessage, modificationInfos.getConverterStation1().getLossFactor(), CREATE_VSC_ERROR, "loss factor side 1");
-        checkIsPercentage(errorMessage, modificationInfos.getConverterStation2().getLossFactor(), CREATE_VSC_ERROR, "loss factor side 2");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getR(), "Resistance R");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getNominalV(), "Nominal voltage");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getConverterStation1().getVoltageSetpoint(), "voltage set point side 1");
+        checkIsNotNegativeValue(errorMessage, modificationInfos.getConverterStation2().getVoltageSetpoint(), "voltage set point side 2");
+        checkIsPercentage(errorMessage, modificationInfos.getConverterStation1().getLossFactor(), "loss factor side 1");
+        checkIsPercentage(errorMessage, modificationInfos.getConverterStation2().getLossFactor(), "loss factor side 2");
     }
 
     private void checkDroop() {
@@ -70,7 +69,7 @@ public class VscCreation extends AbstractModification {
         }
         // at least one field is provided but not for the others => NOT OK
         if (isPresentAngleDroopActivePowerControl || isPresentDroop || isPresentP0) {
-            throw new NetworkModificationException(WRONG_HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL, VscModification.ACTIVE_POWER_CONTROL_DROOP_P0_REQUIRED_ERROR_MSG);
+            throw new NetworkModificationRunException(VscModification.ACTIVE_POWER_CONTROL_DROOP_P0_REQUIRED_ERROR_MSG);
         }
         // otherwise, i.e. none of the fields is not provided => OK extension will not be created
     }
@@ -78,7 +77,7 @@ public class VscCreation extends AbstractModification {
     private void checkConverterStation(Network network,
                                        ConverterStationCreationInfos converterStation) {
         if (converterStation == null) {
-            throw new NetworkModificationException(CREATE_VSC_ERROR, modificationInfos.getEquipmentId() + "Missing required converter station");
+            throw new NetworkModificationRunException(modificationInfos.getEquipmentId() + "Missing required converter station");
         }
         // check connectivity
         ModificationUtils.getInstance().controlConnectivity(network,
@@ -88,7 +87,6 @@ public class VscCreation extends AbstractModification {
 
         // check reactive limits
         ModificationUtils.getInstance().checkReactiveLimitsCreation(converterStation,
-                CREATE_VSC_ERROR,
                 modificationInfos.getEquipmentId(),
                 "Vsc");
     }

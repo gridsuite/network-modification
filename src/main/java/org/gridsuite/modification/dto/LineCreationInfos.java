@@ -15,7 +15,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LineCreation;
 
@@ -30,7 +29,6 @@ import org.gridsuite.modification.modifications.LineCreation;
 @ToString(callSuper = true)
 @Schema(description = "Line creation")
 @JsonTypeName("LINE_CREATION")
-@ModificationErrorTypeName("CREATE_LINE_ERROR")
 public class LineCreationInfos extends BranchCreationInfos {
 
     @Schema(description = "Shunt conductance Side 1")

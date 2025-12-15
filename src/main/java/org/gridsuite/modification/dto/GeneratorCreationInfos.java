@@ -17,7 +17,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.GeneratorCreation;
 
@@ -34,7 +33,6 @@ import java.util.List;
 @ToString(callSuper = true)
 @Schema(description = "Generator creation")
 @JsonTypeName("GENERATOR_CREATION")
-@ModificationErrorTypeName("CREATE_GENERATOR_ERROR")
 public class GeneratorCreationInfos extends InjectionCreationInfos implements ReactiveLimitsHolderInfos {
     @Schema(description = "Energy source")
     private EnergySource energySource;

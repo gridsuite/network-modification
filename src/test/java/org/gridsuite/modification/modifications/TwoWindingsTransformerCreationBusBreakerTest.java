@@ -12,13 +12,13 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BUS_NOT_FOUND;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -169,12 +169,12 @@ class TwoWindingsTransformerCreationBusBreakerTest extends AbstractNetworkModifi
     protected void checkModification() {
         TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos = (TwoWindingsTransformerCreationInfos) buildModification();
         twoWindingsTransformerCreationInfos.setEquipmentId("");
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> twoWindingsTransformerCreationInfos.toModification().apply(getNetwork()));
+        RuntimeException exception = assertThrows(PowsyblException.class, () -> twoWindingsTransformerCreationInfos.toModification().apply(getNetwork()));
         assertEquals("Invalid id ''", exception.getMessage());
 
         twoWindingsTransformerCreationInfos.setBusOrBusbarSectionId1("notFoundBus");
-        exception = assertThrows(PowsyblException.class, () -> twoWindingsTransformerCreationInfos.toModification().check(getNetwork()));
-        assertEquals(BUS_NOT_FOUND + " : notFoundBus", exception.getMessage());
+        exception = assertThrows(NetworkModificationRunException.class, () -> twoWindingsTransformerCreationInfos.toModification().check(getNetwork()));
+        assertEquals("Bus notFoundBus does not exist in network", exception.getMessage());
     }
 
     @Override
