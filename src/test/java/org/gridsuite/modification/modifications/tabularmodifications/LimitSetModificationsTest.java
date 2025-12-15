@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import static org.gridsuite.modification.dto.AttributeModification.toAttributeModification;
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessageWithoutRank;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -54,9 +55,9 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                 .temporaryLimits(List.of(
                                                         CurrentTemporaryLimitModificationInfos.builder()
                                                                 .modificationType(TemporaryLimitModificationType.REPLACE)
-                                                                .name("test1")
-                                                                .acceptableDuration(2)
-                                                                .value(10.)
+                                                                .name(toAttributeModification("test1", OperationType.SET))
+                                                                .acceptableDuration(toAttributeModification(2, OperationType.SET))
+                                                                .value(toAttributeModification(10., OperationType.SET))
                                                                 .build()
                                                 )).build())
                                         .build(),
@@ -69,9 +70,9 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                 .temporaryLimits(List.of(
                                                         CurrentTemporaryLimitModificationInfos.builder()
                                                                 .modificationType(TemporaryLimitModificationType.ADD)
-                                                                .name("test2")
-                                                                .acceptableDuration(1)
-                                                                .value(10.)
+                                                                .name(toAttributeModification("test2", OperationType.SET))
+                                                                .acceptableDuration(toAttributeModification(1, OperationType.SET))
+                                                                .value(toAttributeModification(10., OperationType.SET))
                                                                 .build()
                                                 )).build())
                                         .build()))
@@ -91,9 +92,9 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                 .temporaryLimits(List.of(
                                                         CurrentTemporaryLimitModificationInfos.builder()
                                                                 .modificationType(TemporaryLimitModificationType.ADD)
-                                                                .name("test1")
-                                                                .acceptableDuration(1)
-                                                                .value(10.)
+                                                                .name(toAttributeModification("test1", OperationType.SET))
+                                                                .acceptableDuration(toAttributeModification(1, OperationType.SET))
+                                                                .value(toAttributeModification(10., OperationType.SET))
                                                                 .build()
                                                 )).build())
                                         .build()))
@@ -109,28 +110,28 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                         // throws a warning
                                                         CurrentTemporaryLimitModificationInfos.builder()
                                                                 .modificationType(TemporaryLimitModificationType.MODIFY)
-                                                                .name("test1")
-                                                                .acceptableDuration(3)
-                                                                .value(10.)
+                                                                .name(toAttributeModification("test1", OperationType.SET))
+                                                                .acceptableDuration(toAttributeModification(3, OperationType.SET))
+                                                                .value(toAttributeModification(10., OperationType.SET))
                                                                 .build(),
                                                         // valid modification
                                                         CurrentTemporaryLimitModificationInfos.builder()
                                                                 .modificationType(TemporaryLimitModificationType.MODIFY)
-                                                                .name("test1")
-                                                                .acceptableDuration(2)
-                                                                .value(50.)
+                                                                .name(toAttributeModification("test1", OperationType.SET))
+                                                                .acceptableDuration(toAttributeModification(2, OperationType.SET))
+                                                                .value(toAttributeModification(50., OperationType.SET))
                                                                 .build(),
                                                         CurrentTemporaryLimitModificationInfos.builder()
                                                                 .modificationType(TemporaryLimitModificationType.ADD)
-                                                                .name("test2_plus")
-                                                                .acceptableDuration(1)
-                                                                .value(25.)
+                                                                .name(toAttributeModification("test2_plus", OperationType.SET))
+                                                                .acceptableDuration(toAttributeModification(1, OperationType.SET))
+                                                                .value(toAttributeModification(25., OperationType.SET))
                                                                 .build(),
                                                         CurrentTemporaryLimitModificationInfos.builder()
                                                                 .modificationType(TemporaryLimitModificationType.DELETE)
-                                                                .name("test2")
-                                                                .acceptableDuration(1)
-                                                                .value(15.)
+                                                                .name(toAttributeModification("test2", OperationType.SET))
+                                                                .acceptableDuration(toAttributeModification(1, OperationType.SET))
+                                                                .value(toAttributeModification(15., OperationType.SET))
                                                                 .build()
                                                 )).build())
                                         .build()))
@@ -162,9 +163,9 @@ public class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                 .temporaryLimits(List.of(
                                                         CurrentTemporaryLimitModificationInfos.builder()
                                                                 .modificationType(TemporaryLimitModificationType.ADD)
-                                                                .name("test1")
-                                                                .acceptableDuration(1)
-                                                                .value(10.)
+                                                                .name(toAttributeModification("test1", OperationType.SET))
+                                                                .acceptableDuration(toAttributeModification(1, OperationType.SET))
+                                                                .value(toAttributeModification(10., OperationType.SET))
                                                                 .build()
                                                 )).build())
                                         .build()))
