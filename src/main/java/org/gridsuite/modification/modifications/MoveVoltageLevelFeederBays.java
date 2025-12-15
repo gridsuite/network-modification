@@ -7,6 +7,7 @@
 package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
@@ -24,7 +25,6 @@ import static org.gridsuite.modification.NetworkModificationException.Type.MOVE_
  */
 public class MoveVoltageLevelFeederBays extends AbstractModification {
     private static final String VOLTAGE_LEVEL_NOT_FOUND = "Voltage level %s is not found";
-    private static final String CONNECTABLE_NOT_FOUND = "Connectable %s not found";
     private static final String BUSBAR_NOT_FOUND = "Bus or busbar section %s where connectable %s is supposed to be is not found in voltage level %s";
     private static final String UNSUPPORTED_CONNECTABLE = "MoveVoltageLevelFeederBays is not implemented for %s";
     private static final String INVALID_CONNECTION_SIDE = "Invalid connection side: %s for branch %s";
@@ -64,9 +64,6 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
 
     private void checkConnectable(Network network, MoveFeederBayInfos info) {
         Connectable<?> connectable = network.getConnectable(info.getEquipmentId());
-        if (connectable == null) {
-            throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(CONNECTABLE_NOT_FOUND, info.getEquipmentId()));
-        }
         if (connectable instanceof BusbarSection || connectable instanceof ThreeWindingsTransformer) {
             throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
         }
@@ -76,7 +73,15 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
     public void apply(Network network, ReportNode subReportNode) {
         for (MoveFeederBayInfos info : modificationInfos.getFeederBays()) {
             Connectable<?> connectable = network.getConnectable(info.getEquipmentId());
-            modifyConnectablePosition(network, connectable, info, subReportNode);
+            if (connectable != null) {
+                modifyConnectablePosition(network, connectable, info, subReportNode);
+            } else {
+                subReportNode.newReportNode()
+                        .withMessageTemplate("network.modification.moveFeederBaysConnectableNotFoundWarning")
+                        .withUntypedValue("id", info.getEquipmentId())
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .add();
+            }
         }
     }
 
