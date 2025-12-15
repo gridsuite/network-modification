@@ -255,12 +255,13 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         PropertiesUtils.applyProperties(twoWindingsTransformer, characteristicsReporter, modificationInfos.getProperties(), "network.modification.TwoWindingsTransformerProperties");
 
         // Set permanent and temporary current limits
-        ReportNode limitsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.limitsCreated").add();
+        ReportNode limitsReporter = null;
         List<OperationalLimitsGroupInfos> operationalLimitsGroups1 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), SIDE1);
         List<OperationalLimitsGroupInfos> operationalLimitsGroups2 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), SIDE2);
 
         List<ReportNode> limitSetsOnSideReportNodes = new ArrayList<>();
         if (!CollectionUtils.isEmpty(modificationInfos.getOperationalLimitsGroups())) {
+            limitsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.limitsCreated").add();
             ReportNode reportNode = limitsReporter.newReportNode()
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .withMessageTemplate("network.modification.LimitSets")
@@ -316,6 +317,9 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         }
 
         if (!limitSetsOnSideReportNodes.isEmpty()) {
+            if (limitsReporter == null) {
+                limitsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.limitsCreated").add();
+            }
             ModificationUtils.getInstance().reportModifications(limitsReporter, limitSetsOnSideReportNodes,
                 "network.modification.ActiveLimitSets");
         }

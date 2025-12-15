@@ -9,9 +9,11 @@ package org.gridsuite.modification.modifications.olg;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
+import jakarta.validation.constraints.NotNull;
 import org.gridsuite.modification.dto.*;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.*;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.EQUIPMENT;
@@ -42,8 +44,7 @@ public class OperationalLimitsGroupsModification {
         if (operationalLimitsGroupsModificationType == OperationalLimitsGroupsModificationType.REPLACE) {
             // because we are replacing all the limit sets we remove all the limit sets that are not specified in the network modification
             // the others may be modified instead of recreated so it is better to not delete them in order to have more precise logs
-            deleteOlgsUnspecifiedInTheModification(SIDE1);
-            deleteOlgsUnspecifiedInTheModification(SIDE2);
+            deleteOlgsUnspecifiedInTheModification();
         }
 
         for (OperationalLimitsGroupModificationInfos opLGModifInfos : olgModificationInfos) {
@@ -65,34 +66,47 @@ public class OperationalLimitsGroupsModification {
         }
     }
 
-    private void deleteOlgsUnspecifiedInTheModification(OperationalLimitsGroupInfos.Applicability applicability) {
-        List<String> olgToBeDeleted = new ArrayList<>();
-        Collection<OperationalLimitsGroup> operationalLimitsGroups = applicability == SIDE1 ?
-                modifiedBranch.getOperationalLimitsGroups1() :
-                modifiedBranch.getOperationalLimitsGroups2();
-        operationalLimitsGroups.stream().filter(
+    private void deleteOlgsUnspecifiedInTheModification() {
+        Map<String, OperationalLimitsGroupInfos.Applicability> olgsToBeDeleted = new HashMap<>();
+
+        // get the deletions on side 1
+        getDeletableOperationalLimitsGroupStream(modifiedBranch.getOperationalLimitsGroups1(), SIDE1)
+                .forEach(operationalLimitsGroup -> olgsToBeDeleted.put(operationalLimitsGroup.getId(), SIDE1));
+
+        // then get the deletions on side 2. And if there is already a deletion on side 1, change it to EQUIPMENT
+        getDeletableOperationalLimitsGroupStream(modifiedBranch.getOperationalLimitsGroups2(), SIDE2)
+                .forEach(operationalLimitsGroup -> {
+                    if (olgsToBeDeleted.containsKey(operationalLimitsGroup.getId())) {
+                        olgsToBeDeleted.put(operationalLimitsGroup.getId(), EQUIPMENT);
+                    } else {
+                        olgsToBeDeleted.put(operationalLimitsGroup.getId(), SIDE2);
+                    }
+                });
+
+        for (Map.Entry<String, OperationalLimitsGroupInfos.Applicability> deletedOlg : olgsToBeDeleted.entrySet()) {
+            new OperationalLimitsGroupModification(
+                    modifiedBranch,
+                    OperationalLimitsGroupModificationInfos.builder()
+                            .id(deletedOlg.getKey())
+                            .applicability(deletedOlg.getValue())
+                            .build(),
+                    olgsReportNode
+            ).removeOlg();
+        }
+    }
+
+    @NotNull
+    private Stream<OperationalLimitsGroup> getDeletableOperationalLimitsGroupStream(Collection<OperationalLimitsGroup> modifiedOlgs, OperationalLimitsGroupInfos.Applicability side) {
+        return modifiedOlgs.stream().filter(
                 operationalLimitsGroup ->
                         olgModificationInfos.stream().noneMatch(
                                 operationalLimitsGroupModificationInfos ->
                                         // we don't want to remove the limit sets specified in the network modification (operationalLimitsGroups) :
                                         Objects.equals(operationalLimitsGroupModificationInfos.getId(), operationalLimitsGroup.getId())
-                                                && (operationalLimitsGroupModificationInfos.getApplicability() == applicability
+                                                && (operationalLimitsGroupModificationInfos.getApplicability() == side
                                                 || operationalLimitsGroupModificationInfos.getApplicability() == EQUIPMENT)
                         )
-        ).forEach(operationalLimitsGroup -> olgToBeDeleted.add(operationalLimitsGroup.getId()));
-
-        Iterator<String> i = olgToBeDeleted.iterator();
-        while (i.hasNext()) {
-            String s = i.next();
-            new OperationalLimitsGroupModification(
-                    modifiedBranch,
-                    OperationalLimitsGroupModificationInfos.builder()
-                            .id(s)
-                            .applicability(applicability)
-                            .build(),
-                    olgsReportNode
-            ).removeOlg();
-        }
+        );
     }
 
     private void logApplicabilityChange(List<ReportNode> olgReports, String groupId, OperationalLimitsGroupInfos.Applicability applicability) {
