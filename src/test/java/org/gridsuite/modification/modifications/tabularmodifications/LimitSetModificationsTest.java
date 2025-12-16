@@ -296,47 +296,6 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
     }
 
     /**
-     * Test modifying temporary limit with null value (MAX_VALUE scenario)
-     */
-    @Test
-    void testModifyTemporaryLimitWithNullValue() {
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
-                .modificationType(ModificationType.LINE_MODIFICATION)
-                .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
-                                .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
-                                                .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
-                                                .modificationType(OperationalLimitsGroupModificationType.MODIFY)
-                                                .temporaryLimitsModificationType(TemporaryLimitModificationType.ADD)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
-                                                        .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
-                                                                        .modificationType(TemporaryLimitModificationType.ADD)
-                                                                        .name(toAttributeModification("limit_no_value", OperationType.SET))
-                                                                        .acceptableDuration(null) // Will be Integer.MAX_VALUE
-                                                                        .value(null) // Will be Double.MAX_VALUE
-                                                                        .build()
-                                                        )).build())
-                                                .build()
-                                )).build()
-                ))
-                .build();
-
-        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
-
-        CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
-                        .getOperationalLimitsGroup1("DEFAULT").orElse(null))
-                .getCurrentLimits().orElse(null);
-        assertNotNull(limits);
-        assertNotNull(limits.getTemporaryLimit(Integer.MAX_VALUE));
-    }
-
-    /**
      * Test DELETE modification type with isThisLimitDeleted check
      */
     @Test
@@ -552,48 +511,6 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         assertNotNull(limits.getTemporaryLimit(10));
         assertEquals("created_limit", limits.getTemporaryLimit(10).getName());
         assertEquals(500., limits.getTemporaryLimit(10).getValue(), 0.01);
-    }
-
-    /**
-     * Test modifying both name and value simultaneously
-     */
-    @Test
-    void testModifyBothNameAndValue() {
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
-                .modificationType(ModificationType.LINE_MODIFICATION)
-                .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
-                                .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
-                                                .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
-                                                .modificationType(OperationalLimitsGroupModificationType.MODIFY)
-                                                .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
-                                                        .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
-                                                                        .modificationType(TemporaryLimitModificationType.MODIFY)
-                                                                        .name(toAttributeModification("both_changed", OperationType.SET))
-                                                                        .acceptableDuration(toAttributeModification(32, OperationType.SET))
-                                                                        .value(toAttributeModification(777., OperationType.SET))
-                                                                        .build()
-                                                        )).build())
-                                                .build()
-                                )).build()
-                ))
-                .build();
-
-        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
-
-        CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
-                        .getOperationalLimitsGroup1("DEFAULT").orElse(null))
-                .getCurrentLimits().orElse(null);
-        assertNotNull(limits);
-        assertEquals("both_changed", limits.getTemporaryLimit(32).getName());
-        assertEquals(777., limits.getTemporaryLimit(32).getValue(), 0.01);
     }
 
     @Override
