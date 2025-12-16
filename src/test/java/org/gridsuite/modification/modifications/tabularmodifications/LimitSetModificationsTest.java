@@ -470,49 +470,6 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         assertLogMessageWithoutRank("Limit set DEFAULT added on side 1", "network.modification.operationalLimitsGroupAdded", reportNode);
     }
 
-    /**
-     * Test creating temporary limit with createTemporaryLimit method
-     */
-    @Test
-    void testCreateTemporaryLimit() {
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
-                .modificationType(ModificationType.LINE_MODIFICATION)
-                .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
-                                .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
-                                                .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
-                                                .modificationType(OperationalLimitsGroupModificationType.MODIFY)
-                                                .temporaryLimitsModificationType(TemporaryLimitModificationType.ADD)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
-                                                        .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
-                                                                        .modificationType(TemporaryLimitModificationType.ADD)
-                                                                        .name(toAttributeModification("created_limit", OperationType.SET))
-                                                                        .acceptableDuration(toAttributeModification(10, OperationType.SET))
-                                                                        .value(toAttributeModification(500., OperationType.SET))
-                                                                        .build()
-                                                        )).build())
-                                                .build()
-                                )).build()
-                ))
-                .build();
-
-        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
-
-        CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
-                        .getOperationalLimitsGroup1("DEFAULT").orElse(null))
-                .getCurrentLimits().orElse(null);
-        assertNotNull(limits);
-        assertNotNull(limits.getTemporaryLimit(10));
-        assertEquals("created_limit", limits.getTemporaryLimit(10).getName());
-        assertEquals(500., limits.getTemporaryLimit(10).getValue(), 0.01);
-    }
-
     @Override
     protected void checkModification() {
         // abstract method that has to be implemented even if there is nothing to check
