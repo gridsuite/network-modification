@@ -167,25 +167,25 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
 
         StringAssignmentInfos assignmentInfos7 = StringAssignmentInfos.builder()
             .filters(List.of(filter1))
-            .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_1.name())
+            .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID1.name())
             .value("group1")
             .build();
 
         StringAssignmentInfos assignmentInfos8 = StringAssignmentInfos.builder()
             .filters(List.of(filter2))
-            .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_2.name())
+            .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID2.name())
             .value("group2")
             .build();
 
         StringAssignmentInfos assignmentInfos9 = StringAssignmentInfos.builder()
             .filters(List.of(filter3))
-            .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_1.name())
+            .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID1.name())
             .value(null)
             .build();
 
         StringAssignmentInfos assignmentInfos10 = StringAssignmentInfos.builder()
             .filters(List.of(filter3))
-            .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_2.name())
+            .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID2.name())
             .value("")
             .build();
 
