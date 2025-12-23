@@ -546,8 +546,8 @@ public class OperationalLimitsGroupModification {
         boolean nameChanged = !limitToModify.getName().equals(finalName);
         boolean valueChanged = Double.compare(limitToModify.getValue(), finalValue) != 0;
 
-        if (valueChanged && limitModificationInfos.getModificationType() != null) {
-            // value change
+        if (valueChanged  && !nameChanged) {
+            // only the value changes
             String finalValueToReport = finalValue == Double.MAX_VALUE ? NO_VALUE : String.valueOf(finalValue);
             addToLogsOnSide(ReportNode.newRootReportNode()
                             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
