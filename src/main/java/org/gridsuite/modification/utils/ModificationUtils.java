@@ -374,6 +374,15 @@ public final class ModificationUtils {
         }
     }
 
+    public void createVoltageLevelWithProperties(VoltageLevelCreationInfos mayNewVL, Network network, ReportNode subReportNode) {
+        if (mayNewVL != null) {
+            ModificationUtils.getInstance().createVoltageLevel(mayNewVL, subReportNode, network);
+            // properties
+            VoltageLevel voltageLevel = network.getVoltageLevel(mayNewVL.getEquipmentId());
+            PropertiesUtils.applyProperties(voltageLevel, mayNewVL.getProperties());
+        }
+    }
+
     public void createVoltageLevel(VoltageLevelCreationInfos voltageLevelCreationInfos,
                                    ReportNode subReportNode, Network network) {
         String substationId = voltageLevelCreationInfos.getSubstationId();

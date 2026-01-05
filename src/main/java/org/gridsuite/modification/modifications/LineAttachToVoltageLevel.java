@@ -9,7 +9,10 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.CreateLineOnLine;
 import com.powsybl.iidm.modification.topology.CreateLineOnLineBuilder;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.LineAdder;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 import groovyjarjarantlr4.v4.runtime.misc.NotNull;
 import org.gridsuite.modification.NetworkModificationException;
@@ -60,12 +63,7 @@ public class LineAttachToVoltageLevel extends AbstractModification {
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         VoltageLevelCreationInfos mayNewVL = modificationInfos.getMayNewVoltageLevelInfos();
-        if (mayNewVL != null) {
-            ModificationUtils.getInstance().createVoltageLevel(mayNewVL, subReportNode, network);
-            // properties
-            VoltageLevel voltageLevel = network.getVoltageLevel(mayNewVL.getEquipmentId());
-            PropertiesUtils.applyProperties(voltageLevel, null, mayNewVL.getProperties(), null);
-        }
+        ModificationUtils.getInstance().createVoltageLevelWithProperties(mayNewVL, network, subReportNode);
 
         LineCreationInfos attachmentLineInfos = modificationInfos.getAttachmentLine();
         LineAdder lineAdder = network.newLine()
