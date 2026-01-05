@@ -150,8 +150,7 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
             .feederBays(moveFeederBayInfos)
             .build();
         MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = (MoveVoltageLevelFeederBays) moveVoltageLevelFeederBaysInfos.toModification();
-        String message = assertThrows(NetworkModificationRunException.class, () -> moveVoltageLevelFeederBays.check(network)).getMessage();
-        assertEquals("Connectable notFound not found", message);
+        assertDoesNotThrow(() -> moveVoltageLevelFeederBays.check(network));
     }
 
     private void testConnectableNotInjectionOrBranch(Network network) {

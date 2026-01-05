@@ -224,13 +224,13 @@ class VscModificationTest extends AbstractNetworkModificationTest {
         VscModificationInfos modificationInfos = (VscModificationInfos) buildModification();
         // reset null depending to test arguments
         if (!isPresentAngleDroopActivePowerControl) {
-            modificationInfos.setAngleDroopActivePowerControl(null);
+            modificationInfos.setAngleDroopActivePowerControl(new AttributeModification<>(null, null));
         }
         if (!isPresentDroop) {
-            modificationInfos.setDroop(null);
+            modificationInfos.setDroop(new AttributeModification<>(null, null));
         }
         if (!isPresentP0) {
-            modificationInfos.setP0(null);
+            modificationInfos.setP0(new AttributeModification<>(null, null));
         }
         return modificationInfos;
     }

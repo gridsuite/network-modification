@@ -13,7 +13,10 @@ import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
+
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.gridsuite.modification.utils.NetworkUtil.createGenerator;
@@ -198,7 +201,16 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
                     .busId("v1_0")
                     .v(230.)
                     .angle(0.5)
+                    .build(),
+                VoltageInitBusModificationInfos.builder()
+                    .voltageLevelId("vlNotFound")
+                    .busId("v1_0")
+                    .v(230.)
+                    .angle(0.5)
                     .build()))
+            .rootNetworkName("rootNetwork1")
+            .nodeName("node1")
+            .computationDate(Instant.now())
             .build();
     }
 
@@ -258,6 +270,14 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
         ReportNode report = testVoltageInitShunt("v5shunt", 1, 1, true);
         assertLogMessage("Shunt compensator reconnected", "network.modification.shuntCompensatorReconnected", report);
         assertEquals(1, getNetwork().getShuntCompensator("v5shunt").getSectionCount());
+    }
+
+    @Test
+    void testMapMessageValues() {
+        ModificationInfos modifications = buildModification();
+        Map<String, String> values = modifications.getMapMessageValues();
+        assertEquals("rootNetwork1", values.get("rootNetworkName"));
+        assertEquals("node1", values.get("nodeName"));
     }
 
     @Override

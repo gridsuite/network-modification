@@ -42,8 +42,8 @@ public enum TwoWindingsTransformerField {
     PHASE_LOW_TAP_POSITION,
     PHASE_TAP_POSITION,
     PHASE_TARGET_DEADBAND,
-    SELECTED_OPERATIONAL_LIMITS_GROUP_1,
-    SELECTED_OPERATIONAL_LIMITS_GROUP_2;
+    SELECTED_OPERATIONAL_LIMITS_GROUP_ID1,
+    SELECTED_OPERATIONAL_LIMITS_GROUP_ID2;
 
     public static final String VALUE_KEY_FIELD_NAME = "fieldName";
     public static final String VALUE_KEY_EQUIPMENT_NAME = "equipmentName";
@@ -113,9 +113,9 @@ public enum TwoWindingsTransformerField {
                 phaseTapChanger != null ? String.valueOf(phaseTapChanger.getTapPosition()) : null;
             case PHASE_TARGET_DEADBAND ->
                 phaseTapChanger != null ? String.valueOf(phaseTapChanger.getTargetDeadband()) : null;
-            case SELECTED_OPERATIONAL_LIMITS_GROUP_1 ->
+            case SELECTED_OPERATIONAL_LIMITS_GROUP_ID1 ->
                 String.valueOf(transformer.getSelectedOperationalLimitsGroupId1().orElse(null));
-            case SELECTED_OPERATIONAL_LIMITS_GROUP_2 ->
+            case SELECTED_OPERATIONAL_LIMITS_GROUP_ID2 ->
                 String.valueOf(transformer.getSelectedOperationalLimitsGroupId2().orElse(null));
         };
     }
@@ -128,7 +128,7 @@ public enum TwoWindingsTransformerField {
             case R, X, G, B, RATED_U1, RATED_U2, RATED_S, TARGET_V, RATIO_LOW_TAP_POSITION, RATIO_TAP_POSITION,
                  RATIO_TARGET_DEADBAND, REGULATION_VALUE, PHASE_LOW_TAP_POSITION, PHASE_TAP_POSITION,
                  PHASE_TARGET_DEADBAND -> setNewDoubleValue(transformer, field, newValue, errorMessage);
-            case SELECTED_OPERATIONAL_LIMITS_GROUP_1, SELECTED_OPERATIONAL_LIMITS_GROUP_2 ->
+            case SELECTED_OPERATIONAL_LIMITS_GROUP_ID1, SELECTED_OPERATIONAL_LIMITS_GROUP_ID2 ->
                 setNewStringValue(transformer, field, newValue, errorMessage);
         }
     }
@@ -186,7 +186,7 @@ public enum TwoWindingsTransformerField {
     private static void setNewStringValue(TwoWindingsTransformer transformer, TwoWindingsTransformerField field, String newValue, String errorMessage) {
         final AttributeModification<String> attributeModification = new AttributeModification<>(newValue, OperationType.SET);
         switch (field) {
-            case SELECTED_OPERATIONAL_LIMITS_GROUP_1 -> {
+            case SELECTED_OPERATIONAL_LIMITS_GROUP_ID1 -> {
                 ModificationUtils.checkLimitsGroupExist(errorMessage, newValue,
                     transformer.getOperationalLimitsGroups1()
                         .stream()
@@ -194,7 +194,7 @@ public enum TwoWindingsTransformerField {
                         .toList(), 1);
                 modifySelectedOperationalLimitsGroup(transformer, attributeModification, TwoSides.ONE, null);
             }
-            case SELECTED_OPERATIONAL_LIMITS_GROUP_2 -> {
+            case SELECTED_OPERATIONAL_LIMITS_GROUP_ID2 -> {
                 ModificationUtils.checkLimitsGroupExist(errorMessage, newValue,
                     transformer.getOperationalLimitsGroups2()
                         .stream()

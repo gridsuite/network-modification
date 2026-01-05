@@ -16,7 +16,10 @@ import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VoltageInitModification;
 
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -46,6 +49,15 @@ public class VoltageInitModificationInfos extends ModificationInfos {
     @Schema(description = "buses modifications")
     private List<VoltageInitBusModificationInfos> buses;
 
+    @Schema(description = "root network name")
+    private String rootNetworkName;
+
+    @Schema(description = "node name")
+    private String nodeName;
+
+    @Schema(description = "computation date")
+    private Instant computationDate;
+
     @Override
     public AbstractModification toModification() {
         return new VoltageInitModification(this);
@@ -54,5 +66,14 @@ public class VoltageInitModificationInfos extends ModificationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode().withMessageTemplate("network.modification.voltageInitModification").add();
+    }
+
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        Map<String, String> mapMessageValues = new HashMap<>();
+        mapMessageValues.put("rootNetworkName", getRootNetworkName());
+        mapMessageValues.put("nodeName", getNodeName());
+        mapMessageValues.put("computationDate", getComputationDate() != null ? getComputationDate().toString() : null);
+        return mapMessageValues;
     }
 }

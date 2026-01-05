@@ -93,18 +93,18 @@ public abstract class AbstractBranchModification extends AbstractModification {
     }
 
     private void applySelectedOLGs(Branch<?> branch, List<ReportNode> activeOLGReports) {
-        if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
+        if (modificationInfos.getSelectedOperationalLimitsGroupId1() != null) {
             modifySelectedOperationalLimitsGroup(
                     branch,
-                    modificationInfos.getSelectedOperationalLimitsGroup1(),
+                    modificationInfos.getSelectedOperationalLimitsGroupId1(),
                     TwoSides.ONE,
                     activeOLGReports
             );
         }
-        if (modificationInfos.getSelectedOperationalLimitsGroup2() != null) {
+        if (modificationInfos.getSelectedOperationalLimitsGroupId2() != null) {
             modifySelectedOperationalLimitsGroup(
                     branch,
-                    modificationInfos.getSelectedOperationalLimitsGroup2(),
+                    modificationInfos.getSelectedOperationalLimitsGroupId2(),
                     TwoSides.TWO,
                     activeOLGReports);
         }

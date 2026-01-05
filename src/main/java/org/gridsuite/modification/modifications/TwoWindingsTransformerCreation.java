@@ -254,12 +254,13 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         PropertiesUtils.applyProperties(twoWindingsTransformer, characteristicsReporter, modificationInfos.getProperties(), "network.modification.TwoWindingsTransformerProperties");
 
         // Set permanent and temporary current limits
-        ReportNode limitsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.limitsCreated").add();
+        ReportNode limitsReporter = null;
         List<OperationalLimitsGroupInfos> operationalLimitsGroups1 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), SIDE1);
         List<OperationalLimitsGroupInfos> operationalLimitsGroups2 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), SIDE2);
 
         List<ReportNode> limitSetsOnSideReportNodes = new ArrayList<>();
         if (!CollectionUtils.isEmpty(modificationInfos.getOperationalLimitsGroups())) {
+            limitsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.limitsCreated").add();
             ReportNode reportNode = limitsReporter.newReportNode()
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .withMessageTemplate("network.modification.LimitSets")
@@ -281,40 +282,43 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
             }
         }
 
-        if (modificationInfos.getSelectedOperationalLimitsGroup1() != null) {
-            if (!ModificationUtils.hasLimitSet(operationalLimitsGroups1, modificationInfos.getSelectedOperationalLimitsGroup1())) {
+        if (modificationInfos.getSelectedOperationalLimitsGroupId1() != null) {
+            if (!ModificationUtils.hasLimitSet(operationalLimitsGroups1, modificationInfos.getSelectedOperationalLimitsGroupId1())) {
                 limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
                         .withMessageTemplate("network.modification.limitSetAbsentOnSide1")
-                        .withUntypedValue("selectedOperationalLimitsGroup", modificationInfos.getSelectedOperationalLimitsGroup1())
+                        .withUntypedValue("selectedOperationalLimitsGroup", modificationInfos.getSelectedOperationalLimitsGroupId1())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .build());
             } else {
-                twoWindingsTransformer.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroup1());
+                twoWindingsTransformer.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroupId1());
                 limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
                         .withMessageTemplate("network.modification.limitSetSelectedOnSide1")
-                        .withUntypedValue("selectedOperationalLimitsGroup1", modificationInfos.getSelectedOperationalLimitsGroup1())
+                        .withUntypedValue("selectedOperationalLimitsGroup1", modificationInfos.getSelectedOperationalLimitsGroupId1())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .build());
             }
         }
-        if (modificationInfos.getSelectedOperationalLimitsGroup2() != null) {
-            if (!ModificationUtils.hasLimitSet(operationalLimitsGroups2, modificationInfos.getSelectedOperationalLimitsGroup2())) {
+        if (modificationInfos.getSelectedOperationalLimitsGroupId2() != null) {
+            if (!ModificationUtils.hasLimitSet(operationalLimitsGroups2, modificationInfos.getSelectedOperationalLimitsGroupId2())) {
                 limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
                         .withMessageTemplate("network.modification.limitSetAbsentOnSide2")
-                        .withUntypedValue("selectedOperationalLimitsGroup", modificationInfos.getSelectedOperationalLimitsGroup2())
+                        .withUntypedValue("selectedOperationalLimitsGroup", modificationInfos.getSelectedOperationalLimitsGroupId2())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .build());
             } else {
-                twoWindingsTransformer.setSelectedOperationalLimitsGroup2(modificationInfos.getSelectedOperationalLimitsGroup2());
+                twoWindingsTransformer.setSelectedOperationalLimitsGroup2(modificationInfos.getSelectedOperationalLimitsGroupId2());
                 limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
                         .withMessageTemplate("network.modification.limitSetSelectedOnSide2")
-                        .withUntypedValue("selectedOperationalLimitsGroup2", modificationInfos.getSelectedOperationalLimitsGroup2())
+                        .withUntypedValue("selectedOperationalLimitsGroup2", modificationInfos.getSelectedOperationalLimitsGroupId2())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .build());
             }
         }
 
         if (!limitSetsOnSideReportNodes.isEmpty()) {
+            if (limitsReporter == null) {
+                limitsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.limitsCreated").add();
+            }
             ModificationUtils.getInstance().reportModifications(limitsReporter, limitSetsOnSideReportNodes,
                 "network.modification.ActiveLimitSets");
         }

@@ -20,6 +20,8 @@ import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
+import static org.gridsuite.modification.modifications.LineCreation.addLimits;
+
 /**
  * @author David Braquart <david.braquart at rte-france.com>
  */
@@ -75,7 +77,8 @@ public class LineAttachToVoltageLevel extends AbstractModification {
                 .setB1(ModificationUtils.getInstance().zeroIfNull(attachmentLineInfos.getB1()))
                 .setG2(ModificationUtils.getInstance().zeroIfNull(attachmentLineInfos.getG2()))
                 .setB2(ModificationUtils.getInstance().zeroIfNull(attachmentLineInfos.getB2()));
-        String newSubstationId = modificationInfos.getAttachmentPointDetailInformation() != null ?
+        String newSubstationId = modificationInfos.getAttachmentPointDetailInformation() != null &&
+                modificationInfos.getAttachmentPointDetailInformation().getSubstationCreation() != null ?
                 modificationInfos.getAttachmentPointDetailInformation().getSubstationCreation().getEquipmentId() :
                 modificationInfos.getAttachmentPointId() + "_substation";
         CreateLineOnLine algo = new CreateLineOnLineBuilder()
@@ -94,6 +97,12 @@ public class LineAttachToVoltageLevel extends AbstractModification {
                 .build();
 
         algo.apply(network, true, subReportNode);
+
+        // add extra information on attachment line
+        Line createdAttachmentLine = network.getLine(attachmentLineInfos.getEquipmentId());
+        addLimits(attachmentLineInfos, subReportNode, createdAttachmentLine);
+        PropertiesUtils.applyProperties(createdAttachmentLine, subReportNode, attachmentLineInfos.getProperties(), "network.modification.LineProperties");
+
         // override attachment point
         if (modificationInfos.getAttachmentPointDetailInformation() != null) {
             // override voltage level
@@ -122,7 +131,9 @@ public class LineAttachToVoltageLevel extends AbstractModification {
         PropertiesUtils.applyProperties(voltageLevel, attachmentPointDetailInformation.getProperties());
         // override substation
         SubstationCreationInfos substationCreationInfos = attachmentPointDetailInformation.getSubstationCreation();
-        updateAttachmentSubstation(network, substationCreationInfos);
+        if (substationCreationInfos != null) {
+            updateAttachmentSubstation(network, substationCreationInfos);
+        }
     }
 
     private void updateAttachmentSubstation(Network network, @NotNull SubstationCreationInfos substationCreationInfos) {
