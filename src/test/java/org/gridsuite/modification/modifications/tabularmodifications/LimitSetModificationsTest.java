@@ -44,7 +44,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
                         LineModificationInfos.builder().equipmentId("line1")
-                                .selectedOperationalLimitsGroup1(new AttributeModification<>("", OperationType.UNSET))
+                                .selectedOperationalLimitsGroupId1(new AttributeModification<>("", OperationType.UNSET))
                                 .operationalLimitsGroups(
                                         List.of(
                                                 OperationalLimitsGroupModificationInfos.builder()
@@ -80,8 +80,8 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                 .build(),
                         LineModificationInfos.builder()
                                 .equipmentId("line2")
-                                .selectedOperationalLimitsGroup1(new AttributeModification<>("DEFAULT", OperationType.SET))
-                                .selectedOperationalLimitsGroup2(new AttributeModification<>("", OperationType.UNSET))
+                                .selectedOperationalLimitsGroupId1(new AttributeModification<>("DEFAULT", OperationType.SET))
+                                .selectedOperationalLimitsGroupId2(new AttributeModification<>("", OperationType.UNSET))
                                 .operationalLimitsGroups(List.of(
                                         OperationalLimitsGroupModificationInfos.builder()
                                                 .id("DEFAULT")
@@ -140,8 +140,8 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                         //Should fail since provided operational limit group already exists on this side
                         LineModificationInfos.builder()
                                 .equipmentId("line2")
-                                .selectedOperationalLimitsGroup1(new AttributeModification<>("DEFAULT", OperationType.SET))
-                                .selectedOperationalLimitsGroup2(new AttributeModification<>("DEFAULT", OperationType.SET))
+                                .selectedOperationalLimitsGroupId1(new AttributeModification<>("DEFAULT", OperationType.SET))
+                                .selectedOperationalLimitsGroupId2(new AttributeModification<>("DEFAULT", OperationType.SET))
                                 .operationalLimitsGroups(List.of(OperationalLimitsGroupModificationInfos.builder()
                                         .id("DEFAULT")
                                         .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
@@ -152,7 +152,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                         //group0 already exists in network for this equipment
                         LineModificationInfos.builder()
                                 .equipmentId("line2")
-                                .selectedOperationalLimitsGroup2(new AttributeModification<>("group0", OperationType.SET))
+                                .selectedOperationalLimitsGroupId2(new AttributeModification<>("group0", OperationType.SET))
                                 .operationalLimitsGroups(List.of(
                                         OperationalLimitsGroupModificationInfos.builder()
                                                 .id("group0")
@@ -174,7 +174,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                         //group0 already exists in network for this equipment, so MODIFY_OR_ADD will be a modification
                         LineModificationInfos.builder()
                                 .equipmentId("line2")
-                                .selectedOperationalLimitsGroup2(new AttributeModification<>("group0", OperationType.SET))
+                                .selectedOperationalLimitsGroupId2(new AttributeModification<>("group0", OperationType.SET))
                                 .operationalLimitsGroups(List.of(
                                         OperationalLimitsGroupModificationInfos.builder()
                                                 .id("group0")
@@ -188,7 +188,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                 .build(),
                         LineModificationInfos.builder()
                                 .equipmentId("line2")
-                                .selectedOperationalLimitsGroup2(new AttributeModification<>("group0", OperationType.SET))
+                                .selectedOperationalLimitsGroupId2(new AttributeModification<>("group0", OperationType.SET))
                                 .operationalLimitsGroups(List.of(
                                         OperationalLimitsGroupModificationInfos.builder()
                                                 .id("UNKNOWN")
