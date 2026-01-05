@@ -14,6 +14,7 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LineSplitWithVoltageLevelInfos;
 import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
+import org.gridsuite.modification.utils.PropertiesUtils;
 import org.springframework.lang.NonNull;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
@@ -50,6 +51,9 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
         VoltageLevelCreationInfos mayNewVL = modificationInfos.getMayNewVoltageLevelInfos();
         if (mayNewVL != null) {
             ModificationUtils.getInstance().createVoltageLevel(mayNewVL, subReportNode, network);
+            // properties
+            VoltageLevel voltageLevel = network.getVoltageLevel(mayNewVL.getEquipmentId());
+            PropertiesUtils.applyProperties(voltageLevel, mayNewVL.getProperties());
         }
 
         ConnectVoltageLevelOnLine algo = new ConnectVoltageLevelOnLineBuilder()
