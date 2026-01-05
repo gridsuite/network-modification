@@ -63,9 +63,6 @@ public class LineAttachToVoltageLevel extends AbstractModification {
         VoltageLevelCreationInfos mayNewVL = modificationInfos.getMayNewVoltageLevelInfos();
         if (mayNewVL != null) {
             ModificationUtils.getInstance().createVoltageLevel(mayNewVL, subReportNode, network);
-            // properties
-            VoltageLevel voltageLevel = network.getVoltageLevel(mayNewVL.getEquipmentId());
-            PropertiesUtils.applyProperties(voltageLevel, null, mayNewVL.getProperties(), null);
         }
 
         LineCreationInfos attachmentLineInfos = modificationInfos.getAttachmentLine();
