@@ -156,8 +156,8 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                                         )
                                 .build()
                 ))
-                .selectedOperationalLimitsGroup1(new AttributeModification<>("DEFAULT", OperationType.SET))
-                .selectedOperationalLimitsGroup2(new AttributeModification<>("ETE", OperationType.SET))
+                .selectedOperationalLimitsGroupId1(new AttributeModification<>("DEFAULT", OperationType.SET))
+                .selectedOperationalLimitsGroupId2(new AttributeModification<>("ETE", OperationType.SET))
                 .build();
     }
 
