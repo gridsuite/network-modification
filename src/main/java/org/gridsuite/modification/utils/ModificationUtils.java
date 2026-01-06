@@ -184,11 +184,11 @@ public final class ModificationUtils {
         VoltageLevel voltageLevel1 = getVoltageLevel(network, voltageLevelId1);
         VoltageLevel voltageLevel2 = getVoltageLevel(network, voltageLevelId2);
         if (voltageLevel1.getTopologyKind() == TopologyKind.NODE_BREAKER &&
-            voltageLevel2.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+                voltageLevel2.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             controlConnectivity(network, voltageLevelId1,
-                busOrBusbarSectionId1);
+                    busOrBusbarSectionId1);
             controlConnectivity(network, voltageLevelId2,
-                busOrBusbarSectionId2);
+                    busOrBusbarSectionId2);
         } else {
             // bus or mixed mode
             controlBus(voltageLevel1, busOrBusbarSectionId1);
@@ -198,8 +198,8 @@ public final class ModificationUtils {
 
     public int getPosition(Integer defaultPosition, String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel) {
         return defaultPosition != null
-            ? defaultPosition
-            : getPosition(busOrBusbarSectionId, network, voltageLevel);
+                ? defaultPosition
+                : getPosition(busOrBusbarSectionId, network, voltageLevel);
     }
 
     public int getPosition(String busOrBusbarSectionId, Network network, VoltageLevel voltageLevel) {
@@ -288,7 +288,7 @@ public final class ModificationUtils {
     }
 
     public void controlNewOrExistingVoltageLevel(VoltageLevelCreationInfos mayNewVL,
-                                                 String existingVoltageLevelId, String bbsOrBusId, Network network) {
+                String existingVoltageLevelId, String bbsOrBusId, Network network) {
         if (mayNewVL != null) {
             controlVoltageLevelCreation(mayNewVL, network);
         } else {
@@ -330,45 +330,45 @@ public final class ModificationUtils {
         Identifiable<?> busOrBbs2 = network.getIdentifiable(busbarSectionId2);
         if (busOrBbs1 == null) {
             subReportNode.newReportNode()
-                .withMessageTemplate("network.modification.notFoundBurOrBusbarSection")
-                .withUntypedValue(BUS_BAR_SECTION_ID, busbarSectionId1)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .add();
+                    .withMessageTemplate("network.modification.notFoundBurOrBusbarSection")
+                    .withUntypedValue(BUS_BAR_SECTION_ID, busbarSectionId1)
+                    .withSeverity(TypedValue.ERROR_SEVERITY)
+                    .add();
             return false;
         }
         if (busOrBbs2 == null) {
             subReportNode.newReportNode()
-                .withMessageTemplate("network.modification.notFoundBurOrBusbarSection")
-                .withUntypedValue(BUS_BAR_SECTION_ID, busbarSectionId2)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .add();
+                    .withMessageTemplate("network.modification.notFoundBurOrBusbarSection")
+                    .withUntypedValue(BUS_BAR_SECTION_ID, busbarSectionId2)
+                    .withSeverity(TypedValue.ERROR_SEVERITY)
+                    .add();
             return false;
         }
         return true;
     }
 
     public void createSubstation(SubstationCreationInfos substationCreationInfos,
-                                 ReportNode subReportNode, Network network) {
+                                   ReportNode subReportNode, Network network) {
         network.newSubstation()
-            .setId(substationCreationInfos.getEquipmentId())
-            .setName(substationCreationInfos.getEquipmentName())
-            .setCountry(substationCreationInfos.getCountry())
-            .add();
+                .setId(substationCreationInfos.getEquipmentId())
+                .setName(substationCreationInfos.getEquipmentName())
+                .setCountry(substationCreationInfos.getCountry())
+                .add();
 
         subReportNode.newReportNode()
-            .withMessageTemplate("network.modification.substationCreated")
-            .withUntypedValue("id", substationCreationInfos.getEquipmentId())
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
+                .withMessageTemplate("network.modification.substationCreated")
+                .withUntypedValue("id", substationCreationInfos.getEquipmentId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
 
         // name and country
         if (substationCreationInfos.getEquipmentName() != null) {
             ModificationUtils.getInstance()
-                .reportElementaryCreation(subReportNode, substationCreationInfos.getEquipmentName(), "Name");
+                    .reportElementaryCreation(subReportNode, substationCreationInfos.getEquipmentName(), "Name");
         }
         if (substationCreationInfos.getCountry() != null) {
             ModificationUtils.getInstance()
-                .reportElementaryCreation(subReportNode, substationCreationInfos.getCountry(), "Country");
+                    .reportElementaryCreation(subReportNode, substationCreationInfos.getCountry(), "Country");
         }
     }
 
@@ -404,25 +404,25 @@ public final class ModificationUtils {
 
         if (voltageLevelCreationInfos.getIpMax() != null && voltageLevelCreationInfos.getIpMin() != null) {
             voltageLevel.newExtension(IdentifiableShortCircuitAdder.class)
-                .withIpMin(voltageLevelCreationInfos.getIpMin())
-                .withIpMax(voltageLevelCreationInfos.getIpMax())
-                .add();
+                    .withIpMin(voltageLevelCreationInfos.getIpMin())
+                    .withIpMax(voltageLevelCreationInfos.getIpMax())
+                    .add();
         } else if (voltageLevelCreationInfos.getIpMax() != null && voltageLevelCreationInfos.getIpMin() == null) {
             voltageLevel.newExtension(IdentifiableShortCircuitAdder.class)
-                .withIpMax(voltageLevelCreationInfos.getIpMax())
-                .add();
+                    .withIpMax(voltageLevelCreationInfos.getIpMax())
+                    .add();
         } else if (voltageLevelCreationInfos.getIpMax() == null && voltageLevelCreationInfos.getIpMin() != null) {
             voltageLevel.newExtension(IdentifiableShortCircuitAdder.class)
-                .withIpMin(voltageLevelCreationInfos.getIpMin())
-                .add();
+                    .withIpMin(voltageLevelCreationInfos.getIpMin())
+                    .add();
         }
 
         CreateVoltageLevelTopologyBuilder voltageLevelTopologyBuilder = new CreateVoltageLevelTopologyBuilder();
         voltageLevelTopologyBuilder.withVoltageLevelId(voltageLevelCreationInfos.getEquipmentId())
-            .withAlignedBusesOrBusbarCount(voltageLevelCreationInfos.getBusbarCount())
-            .withSectionCount(voltageLevelCreationInfos.getSectionCount())
-            .withSwitchKinds(voltageLevelCreationInfos.getSwitchKinds())
-            .build().apply(network);
+                .withAlignedBusesOrBusbarCount(voltageLevelCreationInfos.getBusbarCount())
+                .withSectionCount(voltageLevelCreationInfos.getSectionCount())
+                .withSwitchKinds(voltageLevelCreationInfos.getSwitchKinds())
+                .build().apply(network);
 
         voltageLevelCreationInfos.getCouplingDevices().forEach(couplingDevice -> {
             if (!checkBbs(network, couplingDevice.getBusbarSectionId1(), couplingDevice.getBusbarSectionId2(), subReportNode)) {
@@ -432,14 +432,14 @@ public final class ModificationUtils {
             couplingDeviceBuilder.withBusOrBusbarSectionId1(couplingDevice.getBusbarSectionId1())
                 .withBusOrBusbarSectionId2(couplingDevice.getBusbarSectionId2())
                 .withSwitchPrefixId(voltageLevelCreationInfos.getEquipmentId() + "_COUPL")
-                .build().apply(network, subReportNode);
+                    .build().apply(network, subReportNode);
         });
 
         subReportNode.newReportNode()
-            .withMessageTemplate("network.modification.voltageLevelCreated")
-            .withUntypedValue("id", voltageLevelCreationInfos.getEquipmentId())
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
+                .withMessageTemplate("network.modification.voltageLevelCreated")
+                .withUntypedValue("id", voltageLevelCreationInfos.getEquipmentId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
         PropertiesUtils.applyProperties(voltageLevel, subReportNode, voltageLevelCreationInfos.getProperties(), "network.modification.VlProperties");
     }
 
@@ -447,16 +447,16 @@ public final class ModificationUtils {
 
         // common settings
         LineAdder lineAdder = network.newLine()
-            .setId(lineCreationInfos.getEquipmentId())
-            .setName(lineCreationInfos.getEquipmentName())
-            .setVoltageLevel1(lineCreationInfos.getVoltageLevelId1())
-            .setVoltageLevel2(lineCreationInfos.getVoltageLevelId2())
-            .setR(lineCreationInfos.getR())
-            .setX(lineCreationInfos.getX())
-            .setG1(lineCreationInfos.getG1() != null ? lineCreationInfos.getG1() : 0.0)
-            .setB1(lineCreationInfos.getB1() != null ? lineCreationInfos.getB1() : 0.0)
-            .setG2(lineCreationInfos.getG2() != null ? lineCreationInfos.getG2() : 0.0)
-            .setB2(lineCreationInfos.getB2() != null ? lineCreationInfos.getB2() : 0.0);
+                .setId(lineCreationInfos.getEquipmentId())
+                .setName(lineCreationInfos.getEquipmentName())
+                .setVoltageLevel1(lineCreationInfos.getVoltageLevelId1())
+                .setVoltageLevel2(lineCreationInfos.getVoltageLevelId2())
+                .setR(lineCreationInfos.getR())
+                .setX(lineCreationInfos.getX())
+                .setG1(lineCreationInfos.getG1() != null ? lineCreationInfos.getG1() : 0.0)
+                .setB1(lineCreationInfos.getB1() != null ? lineCreationInfos.getB1() : 0.0)
+                .setG2(lineCreationInfos.getG2() != null ? lineCreationInfos.getG2() : 0.0)
+                .setB2(lineCreationInfos.getB2() != null ? lineCreationInfos.getB2() : 0.0);
 
         // lineAdder completion by topology
         setBranchAdderNodeOrBus(lineAdder, voltageLevel1, lineCreationInfos, ONE, withSwitch1);
@@ -466,7 +466,7 @@ public final class ModificationUtils {
     }
 
     public void setBranchAdderNodeOrBus(BranchAdder<?, ?> branchAdder, VoltageLevel voltageLevel, BranchCreationInfos branchCreationInfos,
-                                        TwoSides side, boolean withSwitch) {
+                                 TwoSides side, boolean withSwitch) {
         String busOrBusbarSectionId = (side == ONE) ? branchCreationInfos.getBusOrBusbarSectionId1() : branchCreationInfos.getBusOrBusbarSectionId2();
         if (voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {
             setBranchAdderBusBreaker(branchAdder, voltageLevel, side, busOrBusbarSectionId);
@@ -509,8 +509,8 @@ public final class ModificationUtils {
 
     public static void createReport(ReportNode reportNode, String reporterKey, Map<String, Object> values, TypedValue errorSeverity) {
         ReportNodeAdder adder = reportNode.newReportNode()
-            .withMessageTemplate(reporterKey)
-            .withSeverity(errorSeverity);
+                .withMessageTemplate(reporterKey)
+                .withSeverity(errorSeverity);
 
         for (Map.Entry<String, Object> valueEntry : values.entrySet()) {
             adder.withUntypedValue(valueEntry.getKey(), valueEntry.getValue().toString());
@@ -519,14 +519,14 @@ public final class ModificationUtils {
     }
 
     public static <T> Predicate<T> distinctByKey(
-        Function<? super T, ?> keyExtractor) {
+            Function<? super T, ?> keyExtractor) {
 
         Map<Object, Boolean> seen = new ConcurrentHashMap<>();
         return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 
     public <T> ReportNode applyElementaryModificationsAndReturnReport(Consumer<T> setter, Supplier<T> getter,
-                                                                      AttributeModification<T> modification, String fieldName) {
+                                                                  AttributeModification<T> modification, String fieldName) {
         if (modification != null) {
             T oldValue = getter.get();
             T newValue = modification.applyModification(oldValue);
@@ -539,11 +539,11 @@ public final class ModificationUtils {
 
     public ReportNode createEnabledDisabledReport(String key, boolean enabled) {
         return ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate(key)
-            .withUntypedValue("status", enabled ? "Enabled" : "Disabled")
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .build();
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate(key)
+                .withUntypedValue("status", enabled ? "Enabled" : "Disabled")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build();
     }
 
     public ReportNode reportModifications(ReportNode reportNode, List<ReportNode> reports, String subReportNodeKey) {
@@ -587,8 +587,8 @@ public final class ModificationUtils {
     }
 
     public <T> void applyElementaryModifications(Consumer<T> setter, Supplier<T> getter,
-                                                 AttributeModification<T> modification,
-                                                 ReportNode subReportNode, String fieldName) {
+            AttributeModification<T> modification,
+            ReportNode subReportNode, String fieldName) {
         if (modification != null) {
             T oldValue = getter.get();
             T newValue = modification.applyModification(oldValue);
@@ -613,18 +613,18 @@ public final class ModificationUtils {
 
     public static <T> ReportNode buildModificationReport(T oldValue, T newValue, String fieldName, TypedValue severity) {
         final String oldValueString = (oldValue == null || oldValue instanceof Double oldDouble && Double.isNaN(oldDouble))
-            ? NO_VALUE : oldValue.toString();
+                ? NO_VALUE : oldValue.toString();
         final String newValueString = (newValue == null || newValue instanceof Double newDouble && Double.isNaN(newDouble))
-            ? NO_VALUE : newValue.toString();
+                ? NO_VALUE : newValue.toString();
         return ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("network.modification.fieldModification")
-            .withUntypedValue("arrow", "→") // Workaround to use non-ISO-8859-1 characters in the internationalization file
-            .withUntypedValue("fieldName", fieldName)
-            .withUntypedValue("oldValue", oldValueString)
-            .withUntypedValue("newValue", newValueString)
-            .withSeverity(severity)
-            .build();
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("network.modification.fieldModification")
+                .withUntypedValue("arrow", "→") // Workaround to use non-ISO-8859-1 characters in the internationalization file
+                .withUntypedValue("fieldName", fieldName)
+                .withUntypedValue("oldValue", oldValueString)
+                .withUntypedValue("newValue", newValueString)
+                .withSeverity(severity)
+                .build();
     }
 
     public Terminal getTerminalFromIdentifiable(Network network, String equipmentId, String type, String voltageLevelId) {
@@ -653,19 +653,19 @@ public final class ModificationUtils {
     public List<Terminal> getTerminalsFromIdentifiable(Identifiable<?> identifiable) {
         if (identifiable instanceof Branch<?> branch) {
             return Stream.of(
-                branch.getTerminal1(),
-                branch.getTerminal2()
+                    branch.getTerminal1(),
+                    branch.getTerminal2()
             ).toList();
         } else if (identifiable instanceof ThreeWindingsTransformer w3t) {
             return Stream.of(
-                w3t.getLeg1().getTerminal(),
-                w3t.getLeg2().getTerminal(),
-                w3t.getLeg3().getTerminal()
+                    w3t.getLeg1().getTerminal(),
+                    w3t.getLeg2().getTerminal(),
+                    w3t.getLeg3().getTerminal()
             ).toList();
         } else if (identifiable instanceof HvdcLine hvdcLine) {
             return Stream.of(
-                hvdcLine.getConverterStation1().getTerminal(),
-                hvdcLine.getConverterStation2().getTerminal()
+                    hvdcLine.getConverterStation1().getTerminal(),
+                    hvdcLine.getConverterStation2().getTerminal()
             ).toList();
         }
         throw new NetworkModificationRunException("The equipment type : " + identifiable.getClass().getSimpleName() + " is not supported");
@@ -680,10 +680,10 @@ public final class ModificationUtils {
         if (!modificationInfos.isTerminalConnected()) {
             injection.getTerminal().disconnect();
             subReportNode.newReportNode()
-                .withMessageTemplate(EQUIPMENT_DISCONNECTED)
-                .withUntypedValue("id", modificationInfos.getEquipmentId())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
+                    .withMessageTemplate(EQUIPMENT_DISCONNECTED)
+                    .withUntypedValue("id", modificationInfos.getEquipmentId())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
         }
     }
 
@@ -710,10 +710,10 @@ public final class ModificationUtils {
         List<NetworkModificationRunException> exceptions = new ArrayList<>();
         // Pair for Side and Pair for update and terminal
         List<Pair<ThreeSides, Pair<AttributeModification<Boolean>, Terminal>>> modificationsBySides =
-            List.of(
-                Pair.create(ThreeSides.ONE, Pair.create(modificationInfos.getTerminal1Connected(), branch.getTerminal1())),
-                Pair.create(ThreeSides.TWO, Pair.create(modificationInfos.getTerminal2Connected(), branch.getTerminal2()))
-            );
+                List.of(
+                        Pair.create(ThreeSides.ONE, Pair.create(modificationInfos.getTerminal1Connected(), branch.getTerminal1())),
+                        Pair.create(ThreeSides.TWO, Pair.create(modificationInfos.getTerminal2Connected(), branch.getTerminal2()))
+                );
         // We want information for the both sides, not only the first in error
         for (Pair<ThreeSides, Pair<AttributeModification<Boolean>, Terminal>> side : modificationsBySides) {
             try {
@@ -775,9 +775,9 @@ public final class ModificationUtils {
     }
 
     private void modifyConnectablePosition(ConnectablePosition.Feeder feeder,
-                                           BasicEquipmentModificationInfos modificationInfos,
-                                           List<ReportNode> reports,
-                                           FeederSide feederSide) {
+                                        BasicEquipmentModificationInfos modificationInfos,
+                                        List<ReportNode> reports,
+                                        FeederSide feederSide) {
         if (feeder != null) {
             applyModifications(feeder, modificationInfos, reports, feederSide);
         }
@@ -788,23 +788,23 @@ public final class ModificationUtils {
                                     List<ReportNode> reports,
                                     FeederSide feederSide) {
         ReportNode connectionNameReport = applyElementaryModificationsAndReturnReport(feeder::setName,
-            feeder.getName()::get,
-            getConnectionName(modificationInfos, feederSide),
-            getConnectionNameField(feederSide));
+                feeder.getName()::get,
+                getConnectionName(modificationInfos, feederSide),
+                getConnectionNameField(feederSide));
         if (connectionNameReport != null) {
             reports.add(connectionNameReport);
         }
         ReportNode connectionDirectionReport = applyElementaryModificationsAndReturnReport(feeder::setDirection,
-            feeder::getDirection,
-            getConnectionDirection(modificationInfos, feederSide),
-            getConnectionDirectionField(feederSide));
+                feeder::getDirection,
+                getConnectionDirection(modificationInfos, feederSide),
+                getConnectionDirectionField(feederSide));
         if (connectionDirectionReport != null) {
             reports.add(connectionDirectionReport);
         }
         ReportNode connectionPositionReport = applyElementaryModificationsAndReturnReport(feeder::setOrder,
-            feeder.getOrder()::get,
-            getConnectionPosition(modificationInfos, feederSide),
-            getConnectionPositionField(feederSide));
+                feeder.getOrder()::get,
+                getConnectionPosition(modificationInfos, feederSide),
+                getConnectionPositionField(feederSide));
         if (connectionPositionReport != null) {
             reports.add(connectionPositionReport);
         }
@@ -835,22 +835,22 @@ public final class ModificationUtils {
             }
         }
         ReportNode connectionNameReport = applyConnectablePositionAttribute(
-            feeder::withName, connectionName, equipmentId, reports,
-            getConnectionNameField(feederSide), connectionDirection, connectionPosition
+                feeder::withName, connectionName, equipmentId, reports,
+                getConnectionNameField(feederSide), connectionDirection, connectionPosition
         );
 
         ReportNode connectionDirectionReport = applyConnectablePositionAttribute(
-            feeder::withDirection, connectionDirection,
-            new AttributeModification<>(ConnectablePosition.Direction.UNDEFINED, OperationType.SET),
-            reports, getConnectionDirectionField(feederSide),
-            connectionName, connectionPosition
+                feeder::withDirection, connectionDirection,
+                new AttributeModification<>(ConnectablePosition.Direction.UNDEFINED, OperationType.SET),
+                reports, getConnectionDirectionField(feederSide),
+                connectionName, connectionPosition
         );
 
         ReportNode connectionPositionReport = applyConnectablePositionAttribute(
-            feeder::withOrder, connectionPosition,
-            new AttributeModification<>(position, OperationType.SET),
-            reports, getConnectionPositionField(feederSide),
-            connectionName, connectionDirection
+                feeder::withOrder, connectionPosition,
+                new AttributeModification<>(position, OperationType.SET),
+                reports, getConnectionPositionField(feederSide),
+                connectionName, connectionDirection
         );
 
         if (connectionNameReport != null || connectionDirectionReport != null || connectionPositionReport != null) {
@@ -867,8 +867,8 @@ public final class ModificationUtils {
                                                              AttributeModification<?>... dependentAttributes) {
 
         AttributeModification<T> finalModification = (newValue == null && isAnyAttributesNonNull(dependentAttributes))
-            ? defaultValue
-            : newValue;
+                ? defaultValue
+                : newValue;
 
         ReportNode report = applyElementaryModificationsAndReturnReport(setter, () -> null, finalModification, fieldName);
         if (report != null) {
@@ -907,14 +907,14 @@ public final class ModificationUtils {
 
     private AttributeModification<String> getVoltageLevelId(BasicEquipmentModificationInfos modificationInfos, FeederSide feederSide) {
         return getConnectionDetail(modificationInfos, feederSide,
-            BranchModificationInfos::getVoltageLevelId1, BranchModificationInfos::getVoltageLevelId2,
-            InjectionModificationInfos::getVoltageLevelId);
+                BranchModificationInfos::getVoltageLevelId1, BranchModificationInfos::getVoltageLevelId2,
+                InjectionModificationInfos::getVoltageLevelId);
     }
 
     private AttributeModification<String> getBusOrBusbarSectionId(BasicEquipmentModificationInfos modificationInfos, FeederSide feederSide) {
         return getConnectionDetail(modificationInfos, feederSide,
-            BranchModificationInfos::getBusOrBusbarSectionId1, BranchModificationInfos::getBusOrBusbarSectionId2,
-            InjectionModificationInfos::getBusOrBusbarSectionId);
+                BranchModificationInfos::getBusOrBusbarSectionId1, BranchModificationInfos::getBusOrBusbarSectionId2,
+                InjectionModificationInfos::getBusOrBusbarSectionId);
     }
 
     private AttributeModification<String> getEquipmentId(BasicEquipmentModificationInfos modificationInfos) {
@@ -923,8 +923,8 @@ public final class ModificationUtils {
 
     private AttributeModification<String> getConnectionName(BasicEquipmentModificationInfos modificationInfos, FeederSide feederSide) {
         return getConnectionDetail(modificationInfos, feederSide,
-            BranchModificationInfos::getConnectionName1, BranchModificationInfos::getConnectionName2,
-            InjectionModificationInfos::getConnectionName);
+                BranchModificationInfos::getConnectionName1, BranchModificationInfos::getConnectionName2,
+                InjectionModificationInfos::getConnectionName);
     }
 
     private static String getConnectionNameField(FeederSide feederSide) {
@@ -941,14 +941,14 @@ public final class ModificationUtils {
 
     private AttributeModification<ConnectablePosition.Direction> getConnectionDirection(BasicEquipmentModificationInfos modificationInfos, FeederSide feederSide) {
         return getConnectionDetail(modificationInfos, feederSide,
-            BranchModificationInfos::getConnectionDirection1, BranchModificationInfos::getConnectionDirection2,
-            InjectionModificationInfos::getConnectionDirection);
+                BranchModificationInfos::getConnectionDirection1, BranchModificationInfos::getConnectionDirection2,
+                InjectionModificationInfos::getConnectionDirection);
     }
 
     private AttributeModification<Integer> getConnectionPosition(BasicEquipmentModificationInfos modificationInfos, FeederSide feederSide) {
         return getConnectionDetail(modificationInfos, feederSide,
-            BranchModificationInfos::getConnectionPosition1, BranchModificationInfos::getConnectionPosition2,
-            InjectionModificationInfos::getConnectionPosition);
+                BranchModificationInfos::getConnectionPosition1, BranchModificationInfos::getConnectionPosition2,
+                InjectionModificationInfos::getConnectionPosition);
     }
 
     public String getBusOrBusbarSection(Terminal terminal) {
@@ -974,19 +974,16 @@ public final class ModificationUtils {
         String equipmentValue = equipmentId.getValue();
         Terminal selectedTerminal = null;
         switch (feederSide) {
-            case INJECTION_SINGLE_SIDE ->
-                selectedTerminal = network.getIdentifiable(equipmentValue) instanceof Injection<?> injection ? injection.getTerminal() : null;
-            case BRANCH_SIDE_ONE ->
-                selectedTerminal = network.getIdentifiable(equipmentValue) instanceof Branch<?> branch ? branch.getTerminal1() : null;
-            case BRANCH_SIDE_TWO ->
-                selectedTerminal = network.getIdentifiable(equipmentValue) instanceof Branch<?> branch ? branch.getTerminal2() : null;
+            case INJECTION_SINGLE_SIDE -> selectedTerminal = network.getIdentifiable(equipmentValue) instanceof Injection<?> injection ? injection.getTerminal() : null;
+            case BRANCH_SIDE_ONE -> selectedTerminal = network.getIdentifiable(equipmentValue) instanceof Branch<?> branch ? branch.getTerminal1() : null;
+            case BRANCH_SIDE_TWO -> selectedTerminal = network.getIdentifiable(equipmentValue) instanceof Branch<?> branch ? branch.getTerminal2() : null;
         }
         String voltageLevel = (voltageLevelId != null && voltageLevelId.getValue() != null)
-            ? voltageLevelId.getValue()
-            : Optional.ofNullable(selectedTerminal).map(terminal -> terminal.getVoltageLevel().getId()).orElse(null);
+                ? voltageLevelId.getValue()
+                : Optional.ofNullable(selectedTerminal).map(terminal -> terminal.getVoltageLevel().getId()).orElse(null);
         String busOrBusbarSection = (busOrBusbarSectionId != null && busOrBusbarSectionId.getValue() != null)
-            ? busOrBusbarSectionId.getValue()
-            : Optional.ofNullable(selectedTerminal).map(this::getBusOrBusbarSection).orElse(null);
+                ? busOrBusbarSectionId.getValue()
+                : Optional.ofNullable(selectedTerminal).map(this::getBusOrBusbarSection).orElse(null);
         Integer connectionPositionValue = (connectionPosition != null) ? connectionPosition.getValue() : null;
         return getPosition(connectionPositionValue, busOrBusbarSection, network, getVoltageLevel(network, voltageLevel));
     }
@@ -1040,18 +1037,18 @@ public final class ModificationUtils {
         if (!modificationInfos.isConnected1()) {
             branch.getTerminal1().disconnect();
             subReportNode.newReportNode()
-                .withMessageTemplate("network.modification.terminal1Disconnected")
-                .withUntypedValue("id", modificationInfos.getEquipmentId())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
+                    .withMessageTemplate("network.modification.terminal1Disconnected")
+                    .withUntypedValue("id", modificationInfos.getEquipmentId())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
         }
         if (!modificationInfos.isConnected2()) {
             branch.getTerminal2().disconnect();
             subReportNode.newReportNode()
-                .withMessageTemplate("network.modification.terminal2Disconnected")
-                .withUntypedValue("id", modificationInfos.getEquipmentId())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
+                    .withMessageTemplate("network.modification.terminal2Disconnected")
+                    .withUntypedValue("id", modificationInfos.getEquipmentId())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
         }
     }
 
@@ -1080,10 +1077,10 @@ public final class ModificationUtils {
     }
 
     /**
-     * @param reportNode    Limit set report node
+     * @param reportNode Limit set report node
      * @param opLimitsGroup added current limits
-     * @param branch        branch to which limits are going to be added
-     * @param side          which side of the branch receives the limits
+     * @param branch branch to which limits are going to be added
+     * @param side which side of the branch receives the limits
      */
     public void setCurrentLimitsOnASide(ReportNode reportNode, OperationalLimitsGroupInfos opLimitsGroup, Branch<?> branch, TwoSides side) {
 
@@ -1095,43 +1092,43 @@ public final class ModificationUtils {
             return;
         }
         ReportNode limitSetReportDetail = reportNode.newReportNode()
-            .withMessageTemplate(OPERATIONAL_LIMITS_GROUP_ADDED_LOG_DETAIL)
-            .withUntypedValue(SIDE, applicabilityToString(side == ONE ? SIDE1 : SIDE2))
-            .withSeverity(TypedValue.DETAIL_SEVERITY).add();
+                .withMessageTemplate(OPERATIONAL_LIMITS_GROUP_ADDED_LOG_DETAIL)
+                .withUntypedValue(SIDE, applicabilityToString(side == ONE ? SIDE1 : SIDE2))
+                .withSeverity(TypedValue.DETAIL_SEVERITY).add();
 
         OperationalLimitsGroup opGroup = side == ONE
-            ? branch.newOperationalLimitsGroup1(opLimitsGroup.getId())
-            : branch.newOperationalLimitsGroup2(opLimitsGroup.getId());
+                ? branch.newOperationalLimitsGroup1(opLimitsGroup.getId())
+                : branch.newOperationalLimitsGroup2(opLimitsGroup.getId());
         List<ReportNode> detailsOnLimitSet = new ArrayList<>();
 
         CurrentLimitsAdder limitsAdder = opGroup.newCurrentLimits();
         if (hasPermanent) {
             limitsAdder.setPermanentLimit(opLimitsGroup.getCurrentLimits().getPermanentLimit());
             detailsOnLimitSet.add(ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("network.modification.permanentLimit")
-                .withUntypedValue(VALUE, opLimitsGroup.getCurrentLimits().getPermanentLimit())
-                .withSeverity(TypedValue.DETAIL_SEVERITY)
-                .build());
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                    .withMessageTemplate("network.modification.permanentLimit")
+                    .withUntypedValue(VALUE, opLimitsGroup.getCurrentLimits().getPermanentLimit())
+                    .withSeverity(TypedValue.DETAIL_SEVERITY)
+                    .build());
         }
         if (hasTemporary) {
             opLimitsGroup.getCurrentLimits().getTemporaryLimits().forEach(limit -> {
                 double value = limit.getValue() != null ? limit.getValue() : Double.MAX_VALUE;
                 int duration = limit.getAcceptableDuration() != null ? limit.getAcceptableDuration() : Integer.MAX_VALUE;
                 detailsOnLimitSet.add(ReportNode.newRootReportNode()
-                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                    .withMessageTemplate("network.modification.temporaryLimitModified.name")
-                    .withUntypedValue(AbstractBranchModification.NAME, limit.getName())
-                    .withUntypedValue(DURATION, duration)
-                    .withUntypedValue(AbstractBranchModification.VALUE, value)
-                    .withSeverity(TypedValue.DETAIL_SEVERITY)
-                    .build());
+                                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                                .withMessageTemplate("network.modification.temporaryLimitModified.name")
+                                .withUntypedValue(AbstractBranchModification.NAME, limit.getName())
+                                .withUntypedValue(DURATION, duration)
+                                .withUntypedValue(AbstractBranchModification.VALUE, value)
+                                .withSeverity(TypedValue.DETAIL_SEVERITY)
+                                .build());
 
                 limitsAdder.beginTemporaryLimit()
-                    .setName(limit.getName())
-                    .setValue(value)
-                    .setAcceptableDuration(duration)
-                    .endTemporaryLimit();
+                        .setName(limit.getName())
+                        .setValue(value)
+                        .setAcceptableDuration(duration)
+                        .endTemporaryLimit();
             });
         }
         limitsAdder.add();
@@ -1141,7 +1138,7 @@ public final class ModificationUtils {
             checkPropertiesUnicity(opLimitsGroup.getLimitsProperties(), detailsOnLimitSet)) {
             opLimitsGroup.getLimitsProperties().forEach(property -> {
                 detailsOnLimitSet.add(
-                    ReportNode.newRootReportNode().withSeverity(TypedValue.DETAIL_SEVERITY)
+                        ReportNode.newRootReportNode().withSeverity(TypedValue.DETAIL_SEVERITY)
                         .withMessageTemplate("network.modification.propertyAdded")
                         .withUntypedValue(NAME, property.name())
                         .withUntypedValue(VALUE, property.value()).build());
@@ -1173,12 +1170,12 @@ public final class ModificationUtils {
     public <T> ReportNode buildCreationReport(T value, String fieldName) {
         String newValueString = value == null ? NO_VALUE : value.toString();
         return ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("network.modification.creation.fieldName")
-            .withUntypedValue("fieldName", fieldName)
-            .withUntypedValue("value", newValueString)
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .build();
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("network.modification.creation.fieldName")
+                .withUntypedValue("fieldName", fieldName)
+                .withUntypedValue("value", newValueString)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build();
     }
 
     public <T> void reportElementaryCreation(ReportNode subReportNode, T value, String fieldName) {
@@ -1199,22 +1196,22 @@ public final class ModificationUtils {
         List<ReportNode> reports = new ArrayList<>();
         List<ReactiveCapabilityCurve.Point> equipementIdPoints = new ArrayList<>(points);
         IntStream.range(0, modificationPoints.size())
-            .forEach(i -> {
-                String fieldSuffix;
-                ReactiveCapabilityCurve.Point oldPoint = i < equipementIdPoints.size() - 1 ? equipementIdPoints.get(i) : null;
-                ReactiveCapabilityCurvePointsInfos newPoint = modificationPoints.get(i);
-                if (i == 0) {
-                    fieldSuffix = "min";
-                } else if (i == (modificationPoints.size() - 1)) {
-                    fieldSuffix = "max";
-                    if (!CollectionUtils.isEmpty(equipementIdPoints)) {
-                        oldPoint = equipementIdPoints.get(equipementIdPoints.size() - 1);
+                .forEach(i -> {
+                    String fieldSuffix;
+                    ReactiveCapabilityCurve.Point oldPoint = i < equipementIdPoints.size() - 1 ? equipementIdPoints.get(i) : null;
+                    ReactiveCapabilityCurvePointsInfos newPoint = modificationPoints.get(i);
+                    if (i == 0) {
+                        fieldSuffix = "min";
+                    } else if (i == (modificationPoints.size() - 1)) {
+                        fieldSuffix = "max";
+                        if (!CollectionUtils.isEmpty(equipementIdPoints)) {
+                            oldPoint = equipementIdPoints.get(equipementIdPoints.size() - 1);
+                        }
+                    } else {
+                        fieldSuffix = Integer.toString(i);
                     }
-                } else {
-                    fieldSuffix = Integer.toString(i);
-                }
-                createReactiveCapabilityCurvePoint(adder, newPoint, oldPoint, reports, fieldSuffix);
-            });
+                    createReactiveCapabilityCurvePoint(adder, newPoint, oldPoint, reports, fieldSuffix);
+                });
         adder.add();
         ReportNode subReportNodeReactiveLimits = null;
         ReportNode subReporterLimits2 = subReportNodeLimits;
@@ -1230,10 +1227,10 @@ public final class ModificationUtils {
     }
 
     public void createReactiveCapabilityCurvePoint(ReactiveCapabilityCurveAdder adder,
-                                                   ReactiveCapabilityCurvePointsInfos newPoint,
-                                                   ReactiveCapabilityCurve.Point oldPoint,
-                                                   List<ReportNode> reports,
-                                                   String fieldSuffix) {
+                                                    ReactiveCapabilityCurvePointsInfos newPoint,
+                                                    ReactiveCapabilityCurve.Point oldPoint,
+                                                    List<ReportNode> reports,
+                                                    String fieldSuffix) {
         Double oldMaxQ = Double.NaN;
         Double oldMinQ = Double.NaN;
         Double oldP = Double.NaN;
@@ -1247,10 +1244,10 @@ public final class ModificationUtils {
         var p = newPoint.getP() != null ? newPoint.getP() : oldP;
 
         adder.beginPoint()
-            .setMaxQ(maxQ)
-            .setMinQ(minQ)
-            .setP(p)
-            .endPoint();
+                .setMaxQ(maxQ)
+                .setMinQ(minQ)
+                .setP(p)
+                .endPoint();
         addToReports(reports, p, oldP, "P" + fieldSuffix);
         addToReports(reports, minQ, oldMinQ, "QminP" + fieldSuffix);
         addToReports(reports, maxQ, oldMaxQ, "QmaxP" + fieldSuffix);
@@ -1274,9 +1271,9 @@ public final class ModificationUtils {
             }
         }
         modifyMinMaxReactiveLimits(minMaxReactiveLimits,
-            newMinMaxReactiveLimitsAdder, subReportNode, subReportNodeLimits,
-            minimumReactivePower,
-            maximumReactivePower);
+                newMinMaxReactiveLimitsAdder, subReportNode, subReportNodeLimits,
+                minimumReactivePower,
+                maximumReactivePower);
     }
 
     public void modifyMinMaxReactiveLimits(MinMaxReactiveLimits minMaxReactiveLimits, MinMaxReactiveLimitsAdder newMinMaxReactiveLimits,
@@ -1284,41 +1281,41 @@ public final class ModificationUtils {
         List<ReportNode> reports = new ArrayList<>();
 
         if (minimumReactivePower != null
-            && maximumReactivePower != null) {
+                && maximumReactivePower != null) {
             newMinMaxReactiveLimits.setMinQ(minimumReactivePower.getValue())
-                .setMaxQ(maximumReactivePower.getValue())
-                .add();
+                    .setMaxQ(maximumReactivePower.getValue())
+                    .add();
             reports.add(ModificationUtils.getInstance().buildModificationReport(minMaxReactiveLimits != null ? minMaxReactiveLimits.getMinQ() : Double.NaN,
-                minimumReactivePower.getValue(),
-                MIN_REACTIVE_POWER_FIELDNAME));
+                    minimumReactivePower.getValue(),
+                    MIN_REACTIVE_POWER_FIELDNAME));
             reports.add(ModificationUtils.getInstance().buildModificationReport(minMaxReactiveLimits != null ? minMaxReactiveLimits.getMaxQ() : Double.NaN,
-                maximumReactivePower.getValue(),
-                MAX_REACTIVE_POWER_FIELDNAME));
+                    maximumReactivePower.getValue(),
+                    MAX_REACTIVE_POWER_FIELDNAME));
         } else if (minimumReactivePower != null) {
             newMinMaxReactiveLimits.setMinQ(minimumReactivePower.getValue())
-                .setMaxQ(minMaxReactiveLimits != null ? minMaxReactiveLimits.getMaxQ() : Double.MAX_VALUE)
-                .add();
+                    .setMaxQ(minMaxReactiveLimits != null ? minMaxReactiveLimits.getMaxQ() : Double.MAX_VALUE)
+                    .add();
             reports.add(ModificationUtils.getInstance().buildModificationReport(minMaxReactiveLimits != null ? minMaxReactiveLimits.getMinQ() : Double.NaN,
-                minimumReactivePower.getValue(),
-                MIN_REACTIVE_POWER_FIELDNAME));
+                    minimumReactivePower.getValue(),
+                    MIN_REACTIVE_POWER_FIELDNAME));
         } else if (maximumReactivePower != null) {
             newMinMaxReactiveLimits
-                .setMinQ(minMaxReactiveLimits != null ? minMaxReactiveLimits.getMinQ() : -Double.MAX_VALUE)
-                .setMaxQ(maximumReactivePower.getValue())
-                .add();
+                    .setMinQ(minMaxReactiveLimits != null ? minMaxReactiveLimits.getMinQ() : -Double.MAX_VALUE)
+                    .setMaxQ(maximumReactivePower.getValue())
+                    .add();
             reports.add(ModificationUtils.getInstance().buildModificationReport(minMaxReactiveLimits != null ? minMaxReactiveLimits.getMaxQ() : Double.NaN,
-                maximumReactivePower.getValue(),
-                MAX_REACTIVE_POWER_FIELDNAME));
+                    maximumReactivePower.getValue(),
+                    MAX_REACTIVE_POWER_FIELDNAME));
         } else if (minMaxReactiveLimits == null) {
             newMinMaxReactiveLimits.setMinQ(-Double.MAX_VALUE)
-                .setMaxQ(Double.MAX_VALUE)
-                .add();
+                    .setMaxQ(Double.MAX_VALUE)
+                    .add();
             reports.add(ModificationUtils.getInstance().buildModificationReport(Double.NaN,
-                -Double.MAX_VALUE,
-                MIN_REACTIVE_POWER_FIELDNAME));
+                    -Double.MAX_VALUE,
+                    MIN_REACTIVE_POWER_FIELDNAME));
             reports.add(ModificationUtils.getInstance().buildModificationReport(Double.NaN,
-                Double.MAX_VALUE,
-                MAX_REACTIVE_POWER_FIELDNAME));
+                    Double.MAX_VALUE,
+                    MAX_REACTIVE_POWER_FIELDNAME));
         }
         ReportNode subReportNodeReactiveLimits = null;
         ReportNode subReportNodeLimits2 = subReportNodeLimits;
@@ -1419,7 +1416,8 @@ public final class ModificationUtils {
             }
 
             if (maxQ < minQ) {
-                throw new NetworkModificationRunException(errorMessage + "maximum reactive power " + maxQ + " is expected to be greater than or equal to minimum reactive power " + minQ
+                throw new NetworkModificationRunException(
+                    errorMessage + "maximum reactive power " + maxQ + " is expected to be greater than or equal to minimum reactive power " + minQ
                 );
             }
         }
@@ -1438,7 +1436,7 @@ public final class ModificationUtils {
     public void checkReactiveLimit(ReactiveLimitsHolder reactiveLimitsHolder, AttributeModification<Double> minimumReactivePower, AttributeModification<Double> maximumReactivePower,
                                    List<ReactiveCapabilityCurvePointsInfos> modificationPoints, String errorMessage) {
         if (reactiveLimitsHolder.getReactiveLimits().getKind() == ReactiveLimitsKind.MIN_MAX
-            && (minimumReactivePower != null || maximumReactivePower != null)) {
+                && (minimumReactivePower != null || maximumReactivePower != null)) {
             MinMaxReactiveLimits minMaxReactiveLimits = reactiveLimitsHolder.getReactiveLimits(MinMaxReactiveLimits.class);
             ModificationUtils.getInstance().checkMaxReactivePowerGreaterThanMinReactivePower(minMaxReactiveLimits, minimumReactivePower, maximumReactivePower, errorMessage);
         }
@@ -1461,12 +1459,12 @@ public final class ModificationUtils {
         }
         boolean isRegulatingTerminalInfoMissing =
             (regulatingTerminalType == null || regulatingTerminalType.getValue() == null) &&
-                (regulatingTerminalVlId == null || regulatingTerminalVlId.getValue() == null) &&
-                (regulatingTerminalId == null || regulatingTerminalId.getValue() == null);
+            (regulatingTerminalVlId == null || regulatingTerminalVlId.getValue() == null) &&
+            (regulatingTerminalId == null || regulatingTerminalId.getValue() == null);
         boolean isRegulatingTerminalInfoIncomplete =
             regulatingTerminalType == null || regulatingTerminalType.getValue() == null
-                || regulatingTerminalVlId == null || regulatingTerminalVlId.getValue() == null
-                || regulatingTerminalId == null || regulatingTerminalId.getValue() == null;
+            || regulatingTerminalVlId == null || regulatingTerminalVlId.getValue() == null
+            || regulatingTerminalId == null || regulatingTerminalId.getValue() == null;
         if (isRegulatingTerminalInfoMissing) {
             if (oldRegulatingTerminal == null) {
                 // all modifications are null
@@ -1600,7 +1598,7 @@ public final class ModificationUtils {
     }
 
     public void createReactiveLimits(ReactiveLimitsHolderInfos creationInfos,
-                                     ReactiveLimitsHolder reactiveLimitsHolder,
+                                            ReactiveLimitsHolder reactiveLimitsHolder,
                                      ReportNode subReporter) {
         if (Boolean.TRUE.equals(creationInfos.getReactiveCapabilityCurve())) {
             createReactiveCapabilityCurve(creationInfos, reactiveLimitsHolder, subReporter);
@@ -1610,22 +1608,22 @@ public final class ModificationUtils {
     }
 
     public void createMinMaxReactiveLimits(ReactiveLimitsHolderInfos batteryCreationInfos,
-                                           ReactiveLimitsHolder reactiveLimitsHolder,
+                                                  ReactiveLimitsHolder reactiveLimitsHolder,
                                            ReportNode subReportNode) {
         List<ReportNode> minMaxReactiveLimitsReports = new ArrayList<>();
         if (batteryCreationInfos.getMinQ() != null && batteryCreationInfos.getMaxQ() != null) {
             reactiveLimitsHolder.newMinMaxReactiveLimits()
-                .setMinQ(batteryCreationInfos.getMinQ())
-                .setMaxQ(batteryCreationInfos.getMaxQ())
-                .add();
+                    .setMinQ(batteryCreationInfos.getMinQ())
+                    .setMaxQ(batteryCreationInfos.getMaxQ())
+                    .add();
 
             minMaxReactiveLimitsReports.add(ModificationUtils.getInstance().buildCreationReport(
-                batteryCreationInfos.getMinQ(),
-                MIN_REACTIVE_POWER_FIELDNAME));
+                    batteryCreationInfos.getMinQ(),
+                    MIN_REACTIVE_POWER_FIELDNAME));
 
             minMaxReactiveLimitsReports.add(ModificationUtils.getInstance().buildCreationReport(
-                batteryCreationInfos.getMaxQ(),
-                MAX_REACTIVE_POWER_FIELDNAME));
+                    batteryCreationInfos.getMaxQ(),
+                    MAX_REACTIVE_POWER_FIELDNAME));
 
             ReportNode subReporterReactiveLimits = subReportNode.newReportNode().withMessageTemplate(REACTIVE_LIMITS).add();
 
@@ -1634,38 +1632,38 @@ public final class ModificationUtils {
     }
 
     public void createReactiveCapabilityCurve(ReactiveLimitsHolderInfos creationInfos,
-                                              ReactiveLimitsHolder reactiveLimitsHolder,
+                                                     ReactiveLimitsHolder reactiveLimitsHolder,
                                               ReportNode subReportNode) {
         List<ReportNode> pointsReports = new ArrayList<>();
         ReactiveCapabilityCurveAdder adder = reactiveLimitsHolder.newReactiveCapabilityCurve();
         List<ReactiveCapabilityCurvePointsInfos> points = creationInfos.getReactiveCapabilityCurvePoints();
         IntStream.range(0, points.size())
-            .forEach(i -> {
-                String fieldSuffix;
-                ReactiveCapabilityCurvePointsInfos newPoint = points.get(i);
-                if (i == 0) {
-                    fieldSuffix = "min";
-                } else if (i == (points.size() - 1)) {
-                    fieldSuffix = "max";
-                } else {
-                    fieldSuffix = Integer.toString(i - 1);
-                }
-                createReactiveCapabilityCurvePoint(adder, newPoint, pointsReports, fieldSuffix);
-            });
+                .forEach(i -> {
+                    String fieldSuffix;
+                    ReactiveCapabilityCurvePointsInfos newPoint = points.get(i);
+                    if (i == 0) {
+                        fieldSuffix = "min";
+                    } else if (i == (points.size() - 1)) {
+                        fieldSuffix = "max";
+                    } else {
+                        fieldSuffix = Integer.toString(i - 1);
+                    }
+                    createReactiveCapabilityCurvePoint(adder, newPoint, pointsReports, fieldSuffix);
+                });
         adder.add();
         ReportNode subReporterReactiveLimits = subReportNode.newReportNode().withMessageTemplate(REACTIVE_LIMITS).add();
         ModificationUtils.getInstance().reportModifications(subReporterReactiveLimits, pointsReports, "network.modification.curveReactiveLimitsCreated");
     }
 
     private void createReactiveCapabilityCurvePoint(ReactiveCapabilityCurveAdder adder,
-                                                    ReactiveCapabilityCurvePointsInfos point,
-                                                    List<ReportNode> reports,
-                                                    String fieldSuffix) {
+                                                           ReactiveCapabilityCurvePointsInfos point,
+                                                           List<ReportNode> reports,
+                                                           String fieldSuffix) {
         adder.beginPoint()
-            .setMaxQ(point.getMaxQ())
-            .setMinQ(point.getMinQ())
-            .setP(point.getP())
-            .endPoint();
+                .setMaxQ(point.getMaxQ())
+                .setMinQ(point.getMinQ())
+                .setP(point.getP())
+                .endPoint();
         addToReports(reports, point.getP(), "P" + fieldSuffix);
         addToReports(reports, point.getMinQ(), "QminP" + fieldSuffix);
         addToReports(reports, point.getMaxQ(), "QmaxP" + fieldSuffix);
@@ -1674,7 +1672,7 @@ public final class ModificationUtils {
     public boolean isValidFilter(ReportNode subReportNode,
                                  Map<UUID, FilterEquipments> exportFilters) {
         boolean noValidEquipmentId = exportFilters.values().stream()
-            .allMatch(filterEquipments -> CollectionUtils.isEmpty(filterEquipments.getIdentifiableAttributes()));
+                .allMatch(filterEquipments -> CollectionUtils.isEmpty(filterEquipments.getIdentifiableAttributes()));
 
         if (noValidEquipmentId) {
             createReport(subReportNode, "network.modification.invalidFilters", Map.of(), TypedValue.ERROR_SEVERITY);
@@ -1686,16 +1684,16 @@ public final class ModificationUtils {
 
     public static Set<IdentifiableAttributes> getIdentifiableAttributes(Map<UUID, FilterEquipments> exportFilters, List<FilterInfos> filterInfos, ReportNode subReportNode) {
         filterInfos.stream()
-            .filter(f -> !exportFilters.containsKey(f.getId()))
-            .forEach(f -> createReport(subReportNode, "network.modification.filterNotFound", Map.of("name", f.getName()), TypedValue.WARN_SEVERITY));
+                .filter(f -> !exportFilters.containsKey(f.getId()))
+                .forEach(f -> createReport(subReportNode, "network.modification.filterNotFound", Map.of("name", f.getName()), TypedValue.WARN_SEVERITY));
 
         return filterInfos
-            .stream()
-            .filter(f -> exportFilters.containsKey(f.getId()))
-            .flatMap(f -> exportFilters.get(f.getId())
-                .getIdentifiableAttributes()
-                .stream())
-            .collect(Collectors.toCollection(LinkedHashSet::new));
+                .stream()
+                .filter(f -> exportFilters.containsKey(f.getId()))
+                .flatMap(f -> exportFilters.get(f.getId())
+                        .getIdentifiableAttributes()
+                        .stream())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Nullable
@@ -1709,14 +1707,14 @@ public final class ModificationUtils {
     public static void logWrongEquipmentsIdsFilters(ReportNode subReportNode, Map<UUID, FilterEquipments> exportFilters, Map<UUID, String> filters) {
         // collect logs for all filters with wrong equipments ids
         exportFilters.entrySet().stream()
-            .filter(e -> !CollectionUtils.isEmpty(e.getValue().getNotFoundEquipments()))
-            .forEach(f -> {
-                FilterEquipments filterEquipments = f.getValue();
-                var equipmentIds = String.join(", ", filterEquipments.getNotFoundEquipments());
-                createReport(subReportNode,
-                    "network.modification.filterEquipmentsNotFound.inFilter",
-                    Map.of("equipmentIds", equipmentIds, "filters", filters.get(filterEquipments.getFilterId())), TypedValue.WARN_SEVERITY);
-            });
+                .filter(e -> !CollectionUtils.isEmpty(e.getValue().getNotFoundEquipments()))
+                .forEach(f -> {
+                    FilterEquipments filterEquipments = f.getValue();
+                    var equipmentIds = String.join(", ", filterEquipments.getNotFoundEquipments());
+                    createReport(subReportNode,
+                            "network.modification.filterEquipmentsNotFound.inFilter",
+                            Map.of("equipmentIds", equipmentIds, "filters", filters.get(filterEquipments.getFilterId())), TypedValue.WARN_SEVERITY);
+                });
     }
 
     public static void insertReportNode(ReportNode parent, ReportNode child) {
@@ -1732,37 +1730,37 @@ public final class ModificationUtils {
     }
 
     public static void createInjectionInNodeBreaker(VoltageLevel voltageLevel, InjectionCreationInfos injectionCreationInfos,
-                                                    Network network, InjectionAdder<?, ?> injectionAdder, ReportNode subReportNode) {
+                                                         Network network, InjectionAdder<?, ?> injectionAdder, ReportNode subReportNode) {
         int position = ModificationUtils.getInstance().getPosition(injectionCreationInfos.getConnectionPosition(),
-            injectionCreationInfos.getBusOrBusbarSectionId(), network, voltageLevel);
+                injectionCreationInfos.getBusOrBusbarSectionId(), network, voltageLevel);
         CreateFeederBay algo = new CreateFeederBayBuilder()
-            .withBusOrBusbarSectionId(injectionCreationInfos.getBusOrBusbarSectionId())
-            .withInjectionDirection(injectionCreationInfos.getConnectionDirection())
-            .withInjectionFeederName(injectionCreationInfos.getConnectionName() != null
-                ? injectionCreationInfos.getConnectionName()
-                : injectionCreationInfos.getEquipmentId())
-            .withInjectionPositionOrder(position)
-            .withInjectionAdder(injectionAdder)
-            .withLogOrThrowIfIncorrectPositionOrder(false)
-            .build();
+                .withBusOrBusbarSectionId(injectionCreationInfos.getBusOrBusbarSectionId())
+                .withInjectionDirection(injectionCreationInfos.getConnectionDirection())
+                .withInjectionFeederName(injectionCreationInfos.getConnectionName() != null
+                        ? injectionCreationInfos.getConnectionName()
+                        : injectionCreationInfos.getEquipmentId())
+                .withInjectionPositionOrder(position)
+                .withInjectionAdder(injectionAdder)
+                .withLogOrThrowIfIncorrectPositionOrder(false)
+                .build();
         algo.apply(network, true, subReportNode);
     }
 
     public static void createBranchInNodeBreaker(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, BranchCreationInfos branchCreationInfos,
-                                                 Network network, BranchAdder<?, ?> branchAdder, ReportNode subReportNode) {
+                                                    Network network, BranchAdder<?, ?> branchAdder, ReportNode subReportNode) {
         var position1 = ModificationUtils.getInstance().getPosition(branchCreationInfos.getConnectionPosition1(), branchCreationInfos.getBusOrBusbarSectionId1(), network, voltageLevel1);
         var position2 = ModificationUtils.getInstance().getPosition(branchCreationInfos.getConnectionPosition2(), branchCreationInfos.getBusOrBusbarSectionId2(), network, voltageLevel2);
 
         CreateBranchFeederBays algo = new CreateBranchFeederBaysBuilder()
-            .withBusOrBusbarSectionId1(branchCreationInfos.getBusOrBusbarSectionId1())
-            .withBusOrBusbarSectionId2(branchCreationInfos.getBusOrBusbarSectionId2())
-            .withFeederName1(branchCreationInfos.getConnectionName1() != null ? branchCreationInfos.getConnectionName1() : branchCreationInfos.getEquipmentId())
-            .withFeederName2(branchCreationInfos.getConnectionName2() != null ? branchCreationInfos.getConnectionName2() : branchCreationInfos.getEquipmentId())
-            .withDirection1(branchCreationInfos.getConnectionDirection1())
-            .withDirection2(branchCreationInfos.getConnectionDirection2())
-            .withPositionOrder1(position1)
-            .withPositionOrder2(position2)
-            .withBranchAdder(branchAdder).build();
+                .withBusOrBusbarSectionId1(branchCreationInfos.getBusOrBusbarSectionId1())
+                .withBusOrBusbarSectionId2(branchCreationInfos.getBusOrBusbarSectionId2())
+                .withFeederName1(branchCreationInfos.getConnectionName1() != null ? branchCreationInfos.getConnectionName1() : branchCreationInfos.getEquipmentId())
+                .withFeederName2(branchCreationInfos.getConnectionName2() != null ? branchCreationInfos.getConnectionName2() : branchCreationInfos.getEquipmentId())
+                .withDirection1(branchCreationInfos.getConnectionDirection1())
+                .withDirection2(branchCreationInfos.getConnectionDirection2())
+                .withPositionOrder1(position1)
+                .withPositionOrder2(position2)
+                .withBranchAdder(branchAdder).build();
         algo.apply(network, true, subReportNode);
     }
 
@@ -1772,12 +1770,12 @@ public final class ModificationUtils {
         }
 
         List<ReportNode> connectivityReports = buildConnectivityReports(
-            injectionCreationInfos.getConnectionName(),
-            injectionCreationInfos.getConnectionDirection(),
-            injectionCreationInfos.getConnectionPosition(),
-            injectionCreationInfos.isTerminalConnected(),
-            injectionCreationInfos.getEquipmentId(),
-            FeederSide.INJECTION_SINGLE_SIDE
+                injectionCreationInfos.getConnectionName(),
+                injectionCreationInfos.getConnectionDirection(),
+                injectionCreationInfos.getConnectionPosition(),
+                injectionCreationInfos.isTerminalConnected(),
+                injectionCreationInfos.getEquipmentId(),
+                FeederSide.INJECTION_SINGLE_SIDE
         );
 
         if (!connectivityReports.isEmpty()) {
@@ -1792,12 +1790,12 @@ public final class ModificationUtils {
             return;
         }
         connectivityReports.addAll(buildConnectivityReports(
-            branchCreationInfos.getConnectionName1(),
-            branchCreationInfos.getConnectionDirection1(),
-            branchCreationInfos.getConnectionPosition1(),
-            branchCreationInfos.isConnected1(),
-            branchCreationInfos.getEquipmentId(),
-            FeederSide.BRANCH_SIDE_ONE
+                branchCreationInfos.getConnectionName1(),
+                branchCreationInfos.getConnectionDirection1(),
+                branchCreationInfos.getConnectionPosition1(),
+                branchCreationInfos.isConnected1(),
+                branchCreationInfos.getEquipmentId(),
+                FeederSide.BRANCH_SIDE_ONE
         ));
 
         if (Objects.isNull(branchCreationInfos.getVoltageLevelId2()) || Objects.isNull(branchCreationInfos.getBusOrBusbarSectionId2())) {
@@ -1805,12 +1803,12 @@ public final class ModificationUtils {
         }
         if (!Objects.isNull(branchCreationInfos.getVoltageLevelId2()) && !Objects.isNull(branchCreationInfos.getBusOrBusbarSectionId2())) {
             connectivityReports.addAll(buildConnectivityReports(
-                branchCreationInfos.getConnectionName2(),
-                branchCreationInfos.getConnectionDirection2(),
-                branchCreationInfos.getConnectionPosition2(),
-                branchCreationInfos.isConnected2(),
-                branchCreationInfos.getEquipmentId(),
-                FeederSide.BRANCH_SIDE_TWO
+                    branchCreationInfos.getConnectionName2(),
+                    branchCreationInfos.getConnectionDirection2(),
+                    branchCreationInfos.getConnectionPosition2(),
+                    branchCreationInfos.isConnected2(),
+                    branchCreationInfos.getEquipmentId(),
+                    FeederSide.BRANCH_SIDE_TWO
             ));
         }
 
@@ -1820,38 +1818,38 @@ public final class ModificationUtils {
     }
 
     private static List<ReportNode> buildConnectivityReports(
-        String connectionName,
-        ConnectablePosition.Direction connectionDirection,
-        Integer connectionPosition,
-        boolean isConnected,
-        String equipmentId,
-        FeederSide side) {
+            String connectionName,
+            ConnectablePosition.Direction connectionDirection,
+            Integer connectionPosition,
+            boolean isConnected,
+            String equipmentId,
+            FeederSide side) {
 
         List<ReportNode> reports = new ArrayList<>();
 
         if (connectionName != null || connectionDirection != null || connectionPosition != null) {
             if (connectionName != null) {
                 reports.add(ModificationUtils.getInstance()
-                    .buildCreationReport(connectionName, getConnectionNameField(side)));
+                        .buildCreationReport(connectionName, getConnectionNameField(side)));
             }
 
             if (connectionDirection != null) {
                 reports.add(ModificationUtils.getInstance()
-                    .buildCreationReport(connectionDirection, getConnectionDirectionField(side)));
+                        .buildCreationReport(connectionDirection, getConnectionDirectionField(side)));
             }
 
             if (connectionPosition != null) {
                 reports.add(ModificationUtils.getInstance()
-                    .buildCreationReport(connectionPosition, getConnectionPositionField(side)));
+                        .buildCreationReport(connectionPosition, getConnectionPositionField(side)));
             }
 
             if (!isConnected) {
                 reports.add(ReportNode.newRootReportNode()
-                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                    .withMessageTemplate(EQUIPMENT_DISCONNECTED)
-                    .withUntypedValue("id", equipmentId)
-                    .withSeverity(TypedValue.INFO_SEVERITY)
-                    .build());
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                        .withMessageTemplate(EQUIPMENT_DISCONNECTED)
+                        .withUntypedValue("id", equipmentId)
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .build());
             }
         }
 
@@ -1888,7 +1886,7 @@ public final class ModificationUtils {
     }
 
     public static List<OperationalLimitsGroupInfos> getOperationalLimitsGroupsOnSide(List<OperationalLimitsGroupInfos> operationalLimitsGroupInfos,
-                                                                                     OperationalLimitsGroupInfos.Applicability applicability) {
+                                                                               OperationalLimitsGroupInfos.Applicability applicability) {
         if (operationalLimitsGroupInfos == null || operationalLimitsGroupInfos.isEmpty()) {
             return List.of();
         }
@@ -1902,10 +1900,10 @@ public final class ModificationUtils {
     }
 
     private boolean isNotModificationVoltageLevelBusOrBusBarInfos(AttributeModification<String> voltageLevelId,
-                                                                  AttributeModification<String> busOrBusbarSectionId) {
+                                                                 AttributeModification<String> busOrBusbarSectionId) {
         return Optional.ofNullable(voltageLevelId).isEmpty() && Optional.ofNullable(busOrBusbarSectionId).isEmpty()
-            || Optional.ofNullable(voltageLevelId).map(AttributeModification::getValue).isEmpty() &&
-            Optional.ofNullable(busOrBusbarSectionId).map(AttributeModification::getValue).isEmpty();
+                || Optional.ofNullable(voltageLevelId).map(AttributeModification::getValue).isEmpty() &&
+                Optional.ofNullable(busOrBusbarSectionId).map(AttributeModification::getValue).isEmpty();
     }
 
     public void moveFeederBay(Connectable<?> connectable, Terminal terminal,
@@ -1919,24 +1917,24 @@ public final class ModificationUtils {
         Network network = connectable.getNetwork();
 
         String finalVoltageLevelId = voltageLevelId.getValue() != null ?
-            voltageLevelId.getValue() :
-            network.getVoltageLevel(terminal.getVoltageLevel().getId()).getId();
+                voltageLevelId.getValue() :
+                network.getVoltageLevel(terminal.getVoltageLevel().getId()).getId();
 
         String finalBusOrBusbarSectionId = busOrBusbarSectionId != null ?
-            busOrBusbarSectionId.getValue() :
-            ModificationUtils.getInstance().getBusOrBusbarSection(terminal);
+                busOrBusbarSectionId.getValue() :
+                ModificationUtils.getInstance().getBusOrBusbarSection(terminal);
 
         new MoveFeederBayBuilder().withConnectableId(connectable.getId())
-            .withTargetVoltageLevelId(finalVoltageLevelId)
-            .withTerminal(terminal)
-            .withTargetBusOrBusBarSectionId(finalBusOrBusbarSectionId)
-            .build().apply(network, true, subReportNode);
+                .withTargetVoltageLevelId(finalVoltageLevelId)
+                .withTerminal(terminal)
+                .withTargetBusOrBusBarSectionId(finalBusOrBusbarSectionId)
+                .build().apply(network, true, subReportNode);
     }
 
     public void checkVoltageLevelModification(Network network,
-                                              AttributeModification<String> voltageLevelId,
-                                              AttributeModification<String> busOrBusbarSectionId,
-                                              Terminal terminal) {
+                                               AttributeModification<String> voltageLevelId,
+                                               AttributeModification<String> busOrBusbarSectionId,
+                                               Terminal terminal) {
         Terminal targetTerminal = Objects.requireNonNull(terminal);
         if (checkAttributeModificationValue(voltageLevelId) && checkAttributeModificationValue(busOrBusbarSectionId)) {
             ModificationUtils.getInstance().controlBus(ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId.getValue()), busOrBusbarSectionId.getValue());
@@ -1944,7 +1942,7 @@ public final class ModificationUtils {
             ModificationUtils.getInstance().controlBus(targetTerminal.getVoltageLevel(), busOrBusbarSectionId.getValue());
         } else if (checkAttributeModificationValue(voltageLevelId) && !checkAttributeModificationValue(busOrBusbarSectionId)) {
             ModificationUtils.getInstance().controlBus(ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId.getValue()),
-                BusbarSectionFinderTraverser.findBusbarSectionId(terminal)
+                    BusbarSectionFinderTraverser.findBusbarSectionId(terminal)
             );
         }
     }
@@ -1971,23 +1969,23 @@ public final class ModificationUtils {
                 }
             } catch (PowsyblException e) {
                 shortCircuitReports.add(ReportNode.newRootReportNode()
-                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                    .withMessageTemplate("network.modification.ShortCircuitExtensionAddError")
-                    .withUntypedValue("id", equipmentId)
-                    .withUntypedValue("message", e.getMessage())
-                    .withUntypedValue("equipmentType", equipmentType)
-                    .withSeverity(TypedValue.ERROR_SEVERITY)
-                    .build());
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                        .withMessageTemplate("network.modification.ShortCircuitExtensionAddError")
+                        .withUntypedValue("id", equipmentId)
+                        .withUntypedValue("message", e.getMessage())
+                        .withUntypedValue("equipmentType", equipmentType)
+                        .withSeverity(TypedValue.ERROR_SEVERITY)
+                        .build());
             }
             reportModifications(subReportNode, shortCircuitReports, "network.modification.shortCircuitCreated");
         }
     }
 
     public void modifyShortCircuitExtension(AttributeModification<Double> directTransX,
-                                            AttributeModification<Double> stepUpTransformerX,
-                                            ShortCircuitExtension<?> shortCircuitExtension,
-                                            Supplier<ShortCircuitExtensionAdder<?, ?, ?>> shortCircuitExtensionAdderSupplier,
-                                            ReportNode subReportNode) {
+                                                   AttributeModification<Double> stepUpTransformerX,
+                                                   ShortCircuitExtension<?> shortCircuitExtension,
+                                                   Supplier<ShortCircuitExtensionAdder<?, ?, ?>> shortCircuitExtensionAdderSupplier,
+                                                   ReportNode subReportNode) {
         List<ReportNode> reports = new ArrayList<>();
         double oldTransientReactance = shortCircuitExtension != null ? shortCircuitExtension.getDirectTransX() : Double.NaN;
         double oldStepUpTransformerReactance = shortCircuitExtension != null ? shortCircuitExtension.getStepUpTransformerX() : Double.NaN;
@@ -1996,43 +1994,43 @@ public final class ModificationUtils {
         String stepUpTransformerXNewValue = stepUpTransformerX != null ? stepUpTransformerX.getValue().toString() : null;
         if (directTransX != null && stepUpTransformerX != null) {
             shortCircuitExtensionAdderSupplier.get()
-                .withDirectTransX(directTransX.getValue())
-                .withStepUpTransformerX(stepUpTransformerX.getValue())
-                .add();
+                    .withDirectTransX(directTransX.getValue())
+                    .withStepUpTransformerX(stepUpTransformerX.getValue())
+                    .add();
             reports.add(buildModificationReport(
-                oldTransientReactance,
-                directTransX.getValue(),
-                TRANSIENT_REACTANCE));
+                    oldTransientReactance,
+                    directTransX.getValue(),
+                    TRANSIENT_REACTANCE));
             reports.add(buildModificationReport(
-                oldStepUpTransformerReactance,
-                stepUpTransformerXNewValue,
-                TRANSFORMER_REACTANCE));
+                    oldStepUpTransformerReactance,
+                    stepUpTransformerXNewValue,
+                    TRANSFORMER_REACTANCE));
 
         } else if (directTransX != null) {
             shortCircuitExtensionAdderSupplier.get()
-                .withStepUpTransformerX(oldStepUpTransformerReactance)
-                .withDirectTransX(directTransX.getValue())
-                .add();
+                    .withStepUpTransformerX(oldStepUpTransformerReactance)
+                    .withDirectTransX(directTransX.getValue())
+                    .add();
             reports.add(buildModificationReport(
-                oldTransientReactance,
-                directTransX.getValue(),
-                TRANSIENT_REACTANCE));
+                    oldTransientReactance,
+                    directTransX.getValue(),
+                    TRANSIENT_REACTANCE));
         } else if (stepUpTransformerX != null) {
             if (Double.isNaN(stepUpTransformerX.getValue())) {
                 shortCircuitExtensionAdderSupplier.get()
-                    .withDirectTransX(oldTransientReactance)
-                    .add();
+                        .withDirectTransX(oldTransientReactance)
+                        .add();
                 stepUpTransformerXNewValue = NO_VALUE;
             } else {
                 shortCircuitExtensionAdderSupplier.get()
-                    .withStepUpTransformerX(stepUpTransformerX.getValue())
-                    .withDirectTransX(oldTransientReactance)
-                    .add();
+                        .withStepUpTransformerX(stepUpTransformerX.getValue())
+                        .withDirectTransX(oldTransientReactance)
+                        .add();
             }
             reports.add(buildModificationReport(
-                oldStepUpTransformerReactance,
-                stepUpTransformerXNewValue,
-                TRANSFORMER_REACTANCE));
+                    oldStepUpTransformerReactance,
+                    stepUpTransformerXNewValue,
+                    TRANSFORMER_REACTANCE));
         }
         if (subReportNode != null) {
             reportModifications(subReportNode, reports, "network.modification.shortCircuitAttributesModified");
