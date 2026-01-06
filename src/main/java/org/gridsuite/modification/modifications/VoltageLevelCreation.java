@@ -8,10 +8,8 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
 import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
-import org.gridsuite.modification.utils.PropertiesUtils;
 
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 
@@ -38,9 +36,6 @@ public class VoltageLevelCreation extends AbstractModification {
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         ModificationUtils.getInstance().createVoltageLevel(modificationInfos, subReportNode, network);
-        // properties
-        VoltageLevel voltageLevel = network.getVoltageLevel(modificationInfos.getEquipmentId());
-        PropertiesUtils.applyProperties(voltageLevel, subReportNode, modificationInfos.getProperties(), "network.modification.VlProperties");
     }
 
     @Override

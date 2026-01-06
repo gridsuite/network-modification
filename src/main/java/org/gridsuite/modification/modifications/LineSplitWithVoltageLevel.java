@@ -9,7 +9,7 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.ConnectVoltageLevelOnLine;
 import com.powsybl.iidm.modification.topology.ConnectVoltageLevelOnLineBuilder;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.error.NetworkModificationRunException;
 import org.gridsuite.modification.dto.LineSplitWithVoltageLevelInfos;
 import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
