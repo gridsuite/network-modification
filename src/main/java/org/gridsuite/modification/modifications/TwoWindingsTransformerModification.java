@@ -41,7 +41,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         String errorMessage = "Two windings transformer '" + modificationInfos.getEquipmentId() + "' : ";
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(modificationInfos.getEquipmentId());
         if (transformer == null) {
-            throw new NetworkModificationException(errorMessage + "does not exist in the network");
+            throw new NetworkModificationException(errorMessage + "it does not exist in the network");
         }
         ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId1(),
                 modificationInfos.getBusOrBusbarSectionId1(), transformer.getTerminal1());
