@@ -34,7 +34,7 @@ public class EquipmentDeletion extends AbstractModification {
     public void check(Network network) {
         Identifiable<?> identifiable = ModificationUtils.getInstance().getEquipmentByIdentifiableType(network, modificationInfos.getEquipmentType(), modificationInfos.getEquipmentId());
         if (identifiable == null) {
-            throw new NetworkModificationException(modificationInfos.getEquipmentType() + " with id :" + modificationInfos.getEquipmentId() + " not found");
+            throw new NetworkModificationException(modificationInfos.getEquipmentType() + " with id :" + modificationInfos.getEquipmentId() + " not found or of bad type");
         }
     }
 
