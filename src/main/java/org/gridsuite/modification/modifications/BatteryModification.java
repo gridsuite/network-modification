@@ -10,7 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.BatteryModificationInfos;
 import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
@@ -39,7 +39,7 @@ public class BatteryModification extends AbstractModification {
     @Override
     public void check(Network network) {
         if (modificationInfos == null) {
-            throw new NetworkModificationRunException("Missing required attributes to modify the equipment");
+            throw new NetworkModificationException("Missing required attributes to modify the equipment");
         }
         Battery battery = ModificationUtils.getInstance().getBattery(network, modificationInfos.getEquipmentId());
         String errorMessage = "Battery '" + modificationInfos.getEquipmentId() + "' : ";

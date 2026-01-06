@@ -12,7 +12,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRangeAdder;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ConverterStationCreationInfos;
 import org.gridsuite.modification.dto.VscCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -41,7 +41,7 @@ public class VscCreation extends AbstractModification {
     @Override
     public void check(Network network) {
         if (network.getHvdcLine(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationRunException("HVDC line already exists: " + modificationInfos.getEquipmentId());
+            throw new NetworkModificationException("HVDC line already exists: " + modificationInfos.getEquipmentId());
         }
         String errorMessage = "HVDC vsc '" + modificationInfos.getEquipmentId() + "' : ";
         checkConverterStation(network, modificationInfos.getConverterStation1());
@@ -69,7 +69,7 @@ public class VscCreation extends AbstractModification {
         }
         // at least one field is provided but not for the others => NOT OK
         if (isPresentAngleDroopActivePowerControl || isPresentDroop || isPresentP0) {
-            throw new NetworkModificationRunException(VscModification.ACTIVE_POWER_CONTROL_DROOP_P0_REQUIRED_ERROR_MSG);
+            throw new NetworkModificationException(VscModification.ACTIVE_POWER_CONTROL_DROOP_P0_REQUIRED_ERROR_MSG);
         }
         // otherwise, i.e. none of the fields is not provided => OK extension will not be created
     }
@@ -77,7 +77,7 @@ public class VscCreation extends AbstractModification {
     private void checkConverterStation(Network network,
                                        ConverterStationCreationInfos converterStation) {
         if (converterStation == null) {
-            throw new NetworkModificationRunException(modificationInfos.getEquipmentId() + "Missing required converter station");
+            throw new NetworkModificationException(modificationInfos.getEquipmentId() + "Missing required converter station");
         }
         // check connectivity
         ModificationUtils.getInstance().controlConnectivity(network,

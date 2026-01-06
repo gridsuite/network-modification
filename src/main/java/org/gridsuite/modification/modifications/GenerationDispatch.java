@@ -19,7 +19,7 @@ import lombok.Getter;
 import org.gridsuite.filter.AbstractFilter;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.CollectionUtils;
@@ -349,11 +349,11 @@ public class GenerationDispatch extends AbstractModification {
     public void check(Network network) {
         double lossCoefficient = generationDispatchInfos.getLossCoefficient();
         if (lossCoefficient < 0. || lossCoefficient > 100.) {
-            throw new NetworkModificationRunException("Generation dispatch error: the loss coefficient must be between 0 and 100");
+            throw new NetworkModificationException("Generation dispatch error: the loss coefficient must be between 0 and 100");
         }
         double defaultOutageRate = generationDispatchInfos.getDefaultOutageRate();
         if (defaultOutageRate < 0. || defaultOutageRate > 100.) {
-            throw new NetworkModificationRunException("Generation dispatch error: the default outage rate must be between 0 and 100");
+            throw new NetworkModificationException("Generation dispatch error: the default outage rate must be between 0 and 100");
         }
     }
 

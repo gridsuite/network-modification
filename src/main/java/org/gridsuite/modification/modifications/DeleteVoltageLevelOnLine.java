@@ -10,7 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.RevertConnectVoltageLevelOnLine;
 import com.powsybl.iidm.modification.topology.RevertConnectVoltageLevelOnLineBuilder;
 import com.powsybl.iidm.network.Network;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.DeleteVoltageLevelOnLineInfos;
 
 /**
@@ -28,14 +28,14 @@ public class DeleteVoltageLevelOnLine extends AbstractModification {
     public void check(Network network) {
         // check existing lines
         if (network.getLine(modificationInfos.getLineToAttachTo1Id()) == null) {
-            throw new NetworkModificationRunException("Line not found: " + modificationInfos.getLineToAttachTo1Id());
+            throw new NetworkModificationException("Line not found: " + modificationInfos.getLineToAttachTo1Id());
         }
         if (network.getLine(modificationInfos.getLineToAttachTo2Id()) == null) {
-            throw new NetworkModificationRunException("Line not found: " + modificationInfos.getLineToAttachTo2Id());
+            throw new NetworkModificationException("Line not found: " + modificationInfos.getLineToAttachTo2Id());
         }
         // check future line does not exist
         if (network.getLine(modificationInfos.getReplacingLine1Id()) != null) {
-            throw new NetworkModificationRunException("Line already exists: " + modificationInfos.getReplacingLine1Id());
+            throw new NetworkModificationException("Line already exists: " + modificationInfos.getReplacingLine1Id());
         }
     }
 

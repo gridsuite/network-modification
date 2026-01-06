@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuitAdder;
 import com.powsybl.network.store.iidm.impl.extensions.CoordinatedReactiveControlAdderImpl;
 import com.powsybl.network.store.iidm.impl.extensions.GeneratorStartupAdderImpl;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.GeneratorCreationInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -40,7 +40,7 @@ public class GeneratorCreation extends AbstractModification {
     @Override
     public void check(Network network) {
         if (network.getGenerator(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationRunException("Generator already exists: " + modificationInfos.getEquipmentId());
+            throw new NetworkModificationException("Generator already exists: " + modificationInfos.getEquipmentId());
         }
         String errorMessage = "Generator '" + modificationInfos.getEquipmentId() + "' : ";
 

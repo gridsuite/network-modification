@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.CreateVoltageLevelSectionInfos;
 
 import java.util.ArrayList;
@@ -38,11 +38,11 @@ public class CreateVoltageLevelSection extends AbstractModification {
     public void check(Network network) {
         var voltageLevel = network.getVoltageLevel(modificationInfos.getVoltageLevelId());
         if (voltageLevel == null) {
-            throw new NetworkModificationRunException("Voltage level not found: " + modificationInfos.getVoltageLevelId());
+            throw new NetworkModificationException("Voltage level not found: " + modificationInfos.getVoltageLevelId());
         }
         var bbs = network.getBusbarSection(modificationInfos.getBusbarSectionId());
         if (bbs == null) {
-            throw new NetworkModificationRunException(String.format("%s not found in voltage level %s",
+            throw new NetworkModificationException(String.format("%s not found in voltage level %s",
                      modificationInfos.getBusbarSectionId(),
                      voltageLevel.getId()));
         }
@@ -52,7 +52,7 @@ public class CreateVoltageLevelSection extends AbstractModification {
         }
         var busbarIndex = bbs.getExtension(BusbarSectionPosition.class).getBusbarIndex();
         if (busbarIndex != modificationInfos.getBusbarIndex()) {
-            throw new NetworkModificationRunException(String.format("%s is not the busbar index of the busbar section %s in voltage level %s",
+            throw new NetworkModificationException(String.format("%s is not the busbar index of the busbar section %s in voltage level %s",
                     modificationInfos.getBusbarIndex(),
                     bbs.getId(),
                     voltageLevel.getId()));

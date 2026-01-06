@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.CreateVoltageLevelTopologyInfos;
 
 import java.util.Comparator;
@@ -38,13 +38,13 @@ public class CreateVoltageLevelTopology extends AbstractModification {
             || createVoltageLevelTopologyInfos.getVoltageLevelId() == null
             || createVoltageLevelTopologyInfos.getSwitchKinds() == null
             || createVoltageLevelTopologyInfos.getSectionCount() == null) {
-            throw new NetworkModificationRunException("Missing required attributes to modify the equipment");
+            throw new NetworkModificationException("Missing required attributes to modify the equipment");
         }
         if (createVoltageLevelTopologyInfos.getSwitchKinds().size() != createVoltageLevelTopologyInfos.getSectionCount() - 1) {
-            throw new NetworkModificationRunException("The switch kinds list must have a size equal to the section count minus one");
+            throw new NetworkModificationException("The switch kinds list must have a size equal to the section count minus one");
         }
         if (network.getVoltageLevel(createVoltageLevelTopologyInfos.getVoltageLevelId()) == null) {
-            throw new NetworkModificationRunException("Voltage level " +
+            throw new NetworkModificationException("Voltage level " +
                 createVoltageLevelTopologyInfos.getVoltageLevelId() + " is not found");
         }
     }

@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.LoadCreationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -34,13 +34,13 @@ class LoadCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         LoadCreationInfos loadCreationInfos = (LoadCreationInfos) buildModification();
         // VoltageLevel not found
         loadCreationInfos.setVoltageLevelId("notFoundVoltageLevelId");
-        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> loadCreationInfos.toModification().check(getNetwork()));
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> loadCreationInfos.toModification().check(getNetwork()));
         assertEquals("Voltage level notFoundVoltageLevelId does not exist in network", exception.getMessage());
 
         loadCreationInfos.setEquipmentId("idLoad1");
         loadCreationInfos.setVoltageLevelId("v2");
         loadCreationInfos.setBusOrBusbarSectionId("notFoundBusbarSection");
-        exception = assertThrows(NetworkModificationRunException.class, () -> loadCreationInfos.toModification().check(getNetwork()));
+        exception = assertThrows(NetworkModificationException.class, () -> loadCreationInfos.toModification().check(getNetwork()));
         assertEquals("Busbar section notFoundBusbarSection does not exist in network", exception.getMessage());
 
         loadCreationInfos.setBusOrBusbarSectionId("1B");

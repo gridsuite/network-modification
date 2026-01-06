@@ -7,7 +7,7 @@
 
 package org.gridsuite.modification.modifications;
 
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ class ModificationUtilsTest {
                 "old KO, new OK: No exception should be thrown");
 
         var point2 = ReactiveCapabilityCurvePointsInfos.builder().minQ(20.0).maxQ(10.0).build();
-        var exception = (NetworkModificationRunException) catchRuntimeException(() -> ModificationUtils.getInstance().checkMaxQGreaterThanMinQ(
+        var exception = (NetworkModificationException) catchRuntimeException(() -> ModificationUtils.getInstance().checkMaxQGreaterThanMinQ(
                 Collections.singletonList(point2),
                 "old OK, new KO: ")
         );
@@ -39,7 +39,7 @@ class ModificationUtilsTest {
                 .hasMessageEndingWith("old OK, new KO: maximum reactive power 10.0 is expected to be greater than or equal to minimum reactive power 20.0");
 
         var point3 = ReactiveCapabilityCurvePointsInfos.builder().minQ(20.0).maxQ(10.0).build();
-        exception = (NetworkModificationRunException) catchRuntimeException(() -> ModificationUtils.getInstance().checkMaxQGreaterThanMinQ(
+        exception = (NetworkModificationException) catchRuntimeException(() -> ModificationUtils.getInstance().checkMaxQGreaterThanMinQ(
                 Collections.singletonList(point3),
                 "old null, new KO: ")
         );
@@ -57,7 +57,7 @@ class ModificationUtilsTest {
                 "old OK, new null: No exception should be thrown");
 
         var point6 = ReactiveCapabilityCurvePointsInfos.builder().minQ(20.0).maxQ(10.0).build();
-        exception = (NetworkModificationRunException) catchRuntimeException(() -> ModificationUtils.getInstance().checkMaxQGreaterThanMinQ(
+        exception = (NetworkModificationException) catchRuntimeException(() -> ModificationUtils.getInstance().checkMaxQGreaterThanMinQ(
                 Collections.singletonList(point6),
                 "old KO, new null: ")
         );

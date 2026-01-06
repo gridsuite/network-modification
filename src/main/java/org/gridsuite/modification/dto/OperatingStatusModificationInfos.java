@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.OperatingStatusModification;
 import java.util.HashMap;
@@ -69,7 +69,7 @@ public class OperatingStatusModificationInfos extends EquipmentModificationInfos
     public void check() {
         super.check();
         if (action == null) {
-            throw new NetworkModificationRunException("Empty operating action type");
+            throw new NetworkModificationException("Empty operating action type");
         }
     }
 

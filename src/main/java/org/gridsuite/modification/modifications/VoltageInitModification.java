@@ -11,7 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import lombok.AllArgsConstructor;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -45,7 +45,7 @@ public class VoltageInitModification extends AbstractModification {
     @Override
     public void check(Network network) {
         if (voltageInitModificationInfos == null) {
-            throw new NetworkModificationRunException("No voltage init modification to apply !!");
+            throw new NetworkModificationException("No voltage init modification to apply !!");
         }
     }
 

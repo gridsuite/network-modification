@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -122,7 +122,7 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         GeneratorModificationInfos generatorModificationInfos2 = (GeneratorModificationInfos) buildModification();
         generatorModificationInfos2.setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
         GeneratorModification generatorModification2 = (GeneratorModification) generatorModificationInfos2.toModification();
-        NetworkModificationRunException exception2 = assertThrows(NetworkModificationRunException.class,
+        NetworkModificationException exception2 = assertThrows(NetworkModificationException.class,
             () -> generatorModification2.check(network));
         assertEquals("Generator 'idGenerator' : Regulation is set to Distant but regulating terminal information are incomplete",
             exception2.getMessage());
@@ -133,7 +133,7 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         generatorModificationInfos3.setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
         generatorModificationInfos3.setRegulatingTerminalType(new AttributeModification<>(null, OperationType.UNSET));
         GeneratorModification generatorModification3 = (GeneratorModification) generatorModificationInfos3.toModification();
-        NetworkModificationRunException exception3 = assertThrows(NetworkModificationRunException.class,
+        NetworkModificationException exception3 = assertThrows(NetworkModificationException.class,
             () -> generatorModification3.check(network));
         assertEquals("Generator 'idGenerator' : Regulation is set to Distant but regulating terminal is local and there is no modification about regulating terminal",
             exception3.getMessage());
@@ -151,7 +151,7 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
             .droop(new AttributeModification<>(101f, OperationType.SET))
             .build();
         GeneratorModification generatorModification5 = (GeneratorModification) generatorModificationInfos5.toModification();
-        String message = assertThrows(NetworkModificationRunException.class,
+        String message = assertThrows(NetworkModificationException.class,
             () -> generatorModification5.check(network)).getMessage();
         assertEquals("Generator 'idGenerator' : must have Droop between 0 and 100", message);
 
@@ -160,7 +160,7 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
             .droop(new AttributeModification<>(-1f, OperationType.SET))
             .build();
         GeneratorModification generatorModification6 = (GeneratorModification) generatorModificationInfos6.toModification();
-        message = assertThrows(NetworkModificationRunException.class,
+        message = assertThrows(NetworkModificationException.class,
             () -> generatorModification6.check(network)).getMessage();
         assertEquals("Generator 'idGenerator' : must have Droop between 0 and 100", message);
 
@@ -169,7 +169,7 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
             .targetV(new AttributeModification<>(-100d, OperationType.SET))
             .build();
         GeneratorModification generatorModification7 = (GeneratorModification) generatorModificationInfos7.toModification();
-        message = assertThrows(NetworkModificationRunException.class,
+        message = assertThrows(NetworkModificationException.class,
             () -> generatorModification7.check(network)).getMessage();
         assertEquals("Generator 'idGenerator' : can not have a negative value for Target Voltage", message);
 
@@ -178,7 +178,7 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
             .ratedS(new AttributeModification<>(-100d, OperationType.SET))
             .build();
         GeneratorModification generatorModification8 = (GeneratorModification) generatorModificationInfos8.toModification();
-        message = assertThrows(NetworkModificationRunException.class,
+        message = assertThrows(NetworkModificationException.class,
             () -> generatorModification8.check(network)).getMessage();
         assertEquals("Generator 'idGenerator' : can not have a negative value for Rated apparent power", message);
     }
@@ -214,7 +214,7 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         }
         Network network = getNetwork();
         GeneratorModification generatorModification = (GeneratorModification) generatorModificationInfos.toModification();
-        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class,
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class,
                 () -> generatorModification.check(network));
         assertEquals("Generator 'idGenerator' : maximum reactive power 100.0 is expected to be greater than or equal to minimum reactive power 300.0",
                 exception.getMessage());
@@ -232,7 +232,7 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
 
         Network network = getNetwork();
         GeneratorModification generatorModification = (GeneratorModification) generatorModificationInfos.toModification();
-        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class,
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class,
                 () -> generatorModification.check(network));
         assertEquals("Generator 'idGenerator' : Active power 110.0 is expected to be equal to 0 or within the range of minimum active power and maximum active power: [0.0, 100.0]",
                 exception.getMessage());

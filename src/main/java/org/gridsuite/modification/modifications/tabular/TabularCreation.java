@@ -9,7 +9,7 @@ package org.gridsuite.modification.modifications.tabular;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentModificationInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorCreationInfos;
 import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
@@ -26,7 +26,7 @@ public class TabularCreation extends AbstractTabularModification {
     @Override
     public void check(Network network) {
         if (modificationInfos == null) {
-            throw new NetworkModificationRunException("No tabular creation to apply !!");
+            throw new NetworkModificationException("No tabular creation to apply !!");
         }
     }
 

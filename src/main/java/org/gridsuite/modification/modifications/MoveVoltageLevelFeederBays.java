@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 
@@ -45,7 +45,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
     private VoltageLevel getVoltageLevelOrThrow(Network network, String voltageLevelId) {
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
-            throw new NetworkModificationRunException(String.format(VOLTAGE_LEVEL_NOT_FOUND, voltageLevelId));
+            throw new NetworkModificationException(String.format(VOLTAGE_LEVEL_NOT_FOUND, voltageLevelId));
         }
         return voltageLevel;
     }
@@ -55,7 +55,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
                 ? voltageLevel.getNodeBreakerView().getBusbarSection(info.getBusbarSectionId()) != null
                 : voltageLevel.getBusBreakerView().getBus(info.getBusbarSectionId()) != null;
         if (!busOrBusbarSectionExists) {
-            throw new NetworkModificationRunException(String.format(BUSBAR_NOT_FOUND,
+            throw new NetworkModificationException(String.format(BUSBAR_NOT_FOUND,
                     info.getBusbarSectionId(), info.getEquipmentId(), modificationInfos.getVoltageLevelId()));
         }
     }
@@ -63,7 +63,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
     private void checkConnectable(Network network, MoveFeederBayInfos info) {
         Connectable<?> connectable = network.getConnectable(info.getEquipmentId());
         if (connectable instanceof BusbarSection || connectable instanceof ThreeWindingsTransformer) {
-            throw new NetworkModificationRunException(String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
+            throw new NetworkModificationException(String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
         }
     }
 
@@ -101,7 +101,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
                 BranchModificationInfos branchModificationInfos = buildBranchModificationInfos(newConnectablePositionInfos);
                 ModificationUtils.getInstance().modifyBranchConnectivityAttributes(oldConnectablePosition, connectablePositionAdder, branch, branchModificationInfos, subReportNode);
             }
-            default -> throw new NetworkModificationRunException(String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
+            default -> throw new NetworkModificationException(String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
         }
         moveFeederBay(network, connectable, newConnectablePositionInfos, subReportNode);
     }
@@ -129,7 +129,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
                     branchInfos::setConnectionName2,
                     branchInfos::setConnectionDirection2,
                     info);
-            default -> throw new NetworkModificationRunException(String.format(INVALID_CONNECTION_SIDE, info.getConnectionSide(), branchInfos.getEquipmentId()));
+            default -> throw new NetworkModificationException(String.format(INVALID_CONNECTION_SIDE, info.getConnectionSide(), branchInfos.getEquipmentId()));
         }
         return branchInfos;
     }
@@ -171,10 +171,10 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
                     TwoSides side = TwoSides.valueOf(info.getConnectionSide());
                     yield branch.getTerminal(side);
                 } catch (IllegalArgumentException e) {
-                    throw new NetworkModificationRunException(String.format(INVALID_CONNECTION_SIDE, info.getConnectionSide(), branch.getId()));
+                    throw new NetworkModificationException(String.format(INVALID_CONNECTION_SIDE, info.getConnectionSide(), branch.getId()));
                 }
             }
-            default -> throw new NetworkModificationRunException(String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
+            default -> throw new NetworkModificationException(String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
         };
     }
 }

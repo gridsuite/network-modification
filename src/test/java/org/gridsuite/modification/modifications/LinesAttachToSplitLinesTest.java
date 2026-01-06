@@ -8,7 +8,7 @@ package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LinesAttachToSplitLinesInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
@@ -63,17 +63,17 @@ class LinesAttachToSplitLinesTest extends AbstractNetworkModificationTest {
         // use an unexisting line
         LinesAttachToSplitLinesInfos linesAttachToSplitLinesInfos = (LinesAttachToSplitLinesInfos) buildModification();
         linesAttachToSplitLinesInfos.setLineToAttachTo1Id("absent_line_id");
-        Exception exception = assertThrows(NetworkModificationRunException.class, () -> linesAttachToSplitLinesInfos.toModification().check(getNetwork()));
+        Exception exception = assertThrows(NetworkModificationException.class, () -> linesAttachToSplitLinesInfos.toModification().check(getNetwork()));
         assertEquals("Line not found: absent_line_id", exception.getMessage());
         // try to create an already existing line
         LinesAttachToSplitLinesInfos linesAttachToSplitLinesInfos1 = (LinesAttachToSplitLinesInfos) buildModification();
         linesAttachToSplitLinesInfos1.setReplacingLine1Id("l1");
-        exception = assertThrows(NetworkModificationRunException.class, () -> linesAttachToSplitLinesInfos1.toModification().check(getNetwork()));
+        exception = assertThrows(NetworkModificationException.class, () -> linesAttachToSplitLinesInfos1.toModification().check(getNetwork()));
         assertEquals("Line already exists: l1", exception.getMessage());
         // same test on 'replacingLine2Id'
         LinesAttachToSplitLinesInfos linesAttachToSplitLinesInfos2 = (LinesAttachToSplitLinesInfos) buildModification();
         linesAttachToSplitLinesInfos2.setReplacingLine2Id("l1");
-        exception = assertThrows(NetworkModificationRunException.class, () -> linesAttachToSplitLinesInfos2.toModification().check(getNetwork()));
+        exception = assertThrows(NetworkModificationException.class, () -> linesAttachToSplitLinesInfos2.toModification().check(getNetwork()));
         assertEquals("Line already exists: l1", exception.getMessage());
     }
 

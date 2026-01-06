@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimated;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimatedAdder;
 import org.apache.commons.lang3.BooleanUtils;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -41,7 +41,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         String errorMessage = "Two windings transformer '" + modificationInfos.getEquipmentId() + "' : ";
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(modificationInfos.getEquipmentId());
         if (transformer == null) {
-            throw new NetworkModificationRunException(errorMessage + "does not exist in the network");
+            throw new NetworkModificationException(errorMessage + "does not exist in the network");
         }
         ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId1(),
                 modificationInfos.getBusOrBusbarSectionId1(), transformer.getTerminal1());
@@ -330,10 +330,10 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                     finalTargetDeadbandModification = new AttributeModification<>(0.0, OperationType.SET);
                 }
                 if (regulationValueModification == null) {
-                    throw new NetworkModificationRunException("Two winding transformer creation error: Regulation value is missing when creating tap phase changer with regulation enabled");
+                    throw new NetworkModificationException("Two winding transformer creation error: Regulation value is missing when creating tap phase changer with regulation enabled");
                 }
                 if (regulationModeModification == null) {
-                    throw new NetworkModificationRunException("Two winding transformer creation error: Regulation mode is missing when creating tap phase changer with regulation enabled");
+                    throw new NetworkModificationException("Two winding transformer creation error: Regulation mode is missing when creating tap phase changer with regulation enabled");
                 }
 
             } else {
@@ -342,10 +342,10 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 }
 
                 if (regulationValueModification == null && Double.isNaN(phaseTapChanger.getRegulationValue())) {
-                    throw new NetworkModificationRunException("Two winding transformer modification error: Regulation value is missing when modifying, phase tap changer can not regulate");
+                    throw new NetworkModificationException("Two winding transformer modification error: Regulation value is missing when modifying, phase tap changer can not regulate");
                 }
                 if (regulationModeModification == null && phaseTapChanger.getRegulationMode() == null) {
-                    throw new NetworkModificationRunException("Two winding transformer modification error: Regulation mode is missing when modifying, phase tap changer can not regulate");
+                    throw new NetworkModificationException("Two winding transformer modification error: Regulation mode is missing when modifying, phase tap changer can not regulate");
                 }
             }
         }

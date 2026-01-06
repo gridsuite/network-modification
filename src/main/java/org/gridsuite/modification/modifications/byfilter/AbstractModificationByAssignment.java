@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -122,15 +122,15 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     @Override
     public void check(Network network) {
         if (getModificationInfos() == null) {
-            throw new NetworkModificationRunException("Missing required attributes to modify the equipment");
+            throw new NetworkModificationException("Missing required attributes to modify the equipment");
         }
 
         if (CollectionUtils.isEmpty(getAssignmentInfosList())) {
-            throw new NetworkModificationRunException(String.format("At least one %s is required", getModificationTypeLabel()));
+            throw new NetworkModificationException(String.format("At least one %s is required", getModificationTypeLabel()));
         }
 
         if (getAssignmentInfosList().stream().anyMatch(modificationByFilterInfos -> CollectionUtils.isEmpty(modificationByFilterInfos.getFilters()))) {
-            throw new NetworkModificationRunException(String.format("Every %s must have at least one filter", getModificationTypeLabel()));
+            throw new NetworkModificationException(String.format("Every %s must have at least one filter", getModificationTypeLabel()));
         }
     }
 

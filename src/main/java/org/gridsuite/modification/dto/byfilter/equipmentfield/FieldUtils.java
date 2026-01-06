@@ -9,7 +9,7 @@ package org.gridsuite.modification.dto.byfilter.equipmentfield;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -42,7 +42,7 @@ public final class FieldUtils {
             case TWO_WINDINGS_TRANSFORMER ->
                     TwoWindingsTransformerField.getReferenceValue((TwoWindingsTransformer) equipment, equipmentField);
             case LINE -> LineField.getReferenceValue((Line) equipment, equipmentField);
-            default -> throw new NetworkModificationRunException("Unsupported getting value for equipment type : " + equipment.getType().name());
+            default -> throw new NetworkModificationException("Unsupported getting value for equipment type : " + equipment.getType().name());
         };
     }
 
@@ -55,7 +55,7 @@ public final class FieldUtils {
             case LOAD -> LoadField.setNewValue((Load) equipment, equipmentField, newValue);
             case TWO_WINDINGS_TRANSFORMER -> TwoWindingsTransformerField.setNewValue((TwoWindingsTransformer) equipment, equipmentField, newValue);
             case LINE -> LineField.setNewValue((Line) equipment, equipmentField, newValue);
-            default -> throw new NetworkModificationRunException("Unsupported setting value for equipment type : " + equipment.getType().name());
+            default -> throw new NetworkModificationException("Unsupported setting value for equipment type : " + equipment.getType().name());
         }
     }
 

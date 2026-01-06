@@ -11,7 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.StaticVarCompensatorCreationInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -37,7 +37,7 @@ public class StaticVarCompensatorCreation extends AbstractModification {
     @Override
     public void check(Network network) {
         if (network.getStaticVarCompensator(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationRunException("static var compensator already exists: " + modificationInfos.getEquipmentId());
+            throw new NetworkModificationException("static var compensator already exists: " + modificationInfos.getEquipmentId());
         }
         String errorMessage = "Static var compensator '" + modificationInfos.getEquipmentId() + "' : ";
 

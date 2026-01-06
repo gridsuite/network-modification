@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 import org.apache.commons.collections4.CollectionUtils;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -125,15 +125,15 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         LineModificationInfos lineModificationInfos = (LineModificationInfos) buildModification();
         lineModificationInfos.setEquipmentId("lineNotFound");
         LineModification lineModification = (LineModification) lineModificationInfos.toModification();
-        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> lineModification.check(network));
-        assertEquals(new NetworkModificationRunException("Line 'lineNotFound' : does not exist in network").getMessage(),
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lineModification.check(network));
+        assertEquals(new NetworkModificationException("Line 'lineNotFound' : does not exist in network").getMessage(),
                 exception.getMessage());
         LineModificationInfos lineModificationInfos1 = LineModificationInfos.builder()
             .equipmentId("line1")
             .r(new AttributeModification<>(-1d, OperationType.SET))
             .build();
         LineModification lineModification1 = (LineModification) lineModificationInfos1.toModification();
-        String message = assertThrows(NetworkModificationRunException.class,
+        String message = assertThrows(NetworkModificationException.class,
             () -> lineModification1.check(network)).getMessage();
         assertEquals("Line 'line1' : can not have a negative value for Resistance R", message);
 
@@ -142,7 +142,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
             .g1(new AttributeModification<>(-2d, OperationType.SET))
             .build();
         LineModification lineModification2 = (LineModification) lineModificationInfos2.toModification();
-        message = assertThrows(NetworkModificationRunException.class,
+        message = assertThrows(NetworkModificationException.class,
             () -> lineModification2.check(network)).getMessage();
         assertEquals("Line 'line1' : can not have a negative value for Conductance on side 1 G1", message);
 
@@ -151,7 +151,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
             .g2(new AttributeModification<>(-100d, OperationType.SET))
             .build();
         LineModification lineModification3 = (LineModification) lineModificationInfos3.toModification();
-        message = assertThrows(NetworkModificationRunException.class,
+        message = assertThrows(NetworkModificationException.class,
             () -> lineModification3.check(network)).getMessage();
         assertEquals("Line 'line1' : can not have a negative value for Conductance on side 2 G2", message);
     }
@@ -325,17 +325,17 @@ class LineModificationTest extends AbstractNetworkModificationTest {
     void testConnectWhenNoSwitchesOpened() {
         getNetwork().getSwitch("v3dl1").setOpen(true);
         getNetwork().getSwitch("v3bl1").setOpen(true);
-        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> changeLineConnectionState(getNetwork().getLine("line1"), true));
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> changeLineConnectionState(getNetwork().getLine("line1"), true));
         assertEquals("Could not connect equipment 'line1' on side 1", exception.getMessage());
         getNetwork().getSwitch("v3dl1").setOpen(false);
         getNetwork().getSwitch("v3bl1").setOpen(false);
         getNetwork().getSwitch("v4dl1").setOpen(true);
         getNetwork().getSwitch("v4bl1").setOpen(true);
-        exception = assertThrows(NetworkModificationRunException.class, () -> changeLineConnectionState(getNetwork().getLine("line1"), true));
+        exception = assertThrows(NetworkModificationException.class, () -> changeLineConnectionState(getNetwork().getLine("line1"), true));
         assertEquals("Could not connect equipment 'line1' on side 2", exception.getMessage());
         getNetwork().getSwitch("v3dl1").setOpen(true);
         getNetwork().getSwitch("v3bl1").setOpen(true);
-        exception = assertThrows(NetworkModificationRunException.class, () -> changeLineConnectionState(getNetwork().getLine("line1"), true));
+        exception = assertThrows(NetworkModificationException.class, () -> changeLineConnectionState(getNetwork().getLine("line1"), true));
         assertEquals("Could not connect equipment 'line1' on side 1 & 2", exception.getMessage());
     }
 

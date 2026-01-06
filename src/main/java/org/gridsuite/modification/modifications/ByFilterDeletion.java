@@ -19,7 +19,7 @@ import com.powsybl.iidm.network.Network;
 
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ByFilterDeletionInfos;
 import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.FilterInfos;
@@ -107,7 +107,7 @@ public class ByFilterDeletion extends AbstractModification {
         } else if (identifiableType == IdentifiableType.HVDC_LINE) {
             identifiableAttributes.forEach(identifiableAttribute -> removeHvdcLine(network, subReportNode, identifiableAttribute));
         } else {
-            throw new NetworkModificationRunException("The equipment type : " + identifiableType.name() + " is unknown");
+            throw new NetworkModificationException("The equipment type : " + identifiableType.name() + " is unknown");
         }
     }
 

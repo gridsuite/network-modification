@@ -10,7 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.SubstationModificationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -30,7 +30,7 @@ public class SubstationModification extends AbstractModification {
     public void check(Network network) {
         Substation station = network.getSubstation(modificationInfos.getEquipmentId());
         if (station == null) {
-            throw new NetworkModificationRunException("Substation " + modificationInfos.getEquipmentId() + " does not exist in network");
+            throw new NetworkModificationException("Substation " + modificationInfos.getEquipmentId() + " does not exist in network");
         }
     }
 

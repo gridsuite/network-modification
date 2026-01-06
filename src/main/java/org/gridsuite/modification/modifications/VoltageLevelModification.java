@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.VoltageLevelModificationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -45,18 +45,18 @@ public class VoltageLevelModification extends AbstractModification {
         if (Objects.nonNull(modificationInfos.getIpMin())) {
             ipMinSet = true;
             if (modificationInfos.getIpMin().getValue() < 0) {
-                throw new NetworkModificationRunException("IpMin must be positive");
+                throw new NetworkModificationException("IpMin must be positive");
             }
         }
         if (Objects.nonNull(modificationInfos.getIpMax())) {
             ipMaxSet = true;
             if (modificationInfos.getIpMax().getValue() < 0) {
-                throw new NetworkModificationRunException("IpMax must be positive");
+                throw new NetworkModificationException("IpMax must be positive");
             }
         }
         if (ipMinSet && ipMaxSet) {
             if (modificationInfos.getIpMin().getValue() > modificationInfos.getIpMax().getValue()) {
-                throw new NetworkModificationRunException("IpMin cannot be greater than IpMax");
+                throw new NetworkModificationException("IpMin cannot be greater than IpMax");
             }
         } else if (ipMinSet || ipMaxSet) {
             // only one Icc set: check with existing VL attributes
@@ -78,12 +78,12 @@ public class VoltageLevelModification extends AbstractModification {
         IdentifiableShortCircuit<VoltageLevel> identifiableShortCircuit = existingVoltageLevel.getExtension(IdentifiableShortCircuit.class);
         if (Objects.isNull(identifiableShortCircuit)) {
             if (ipMinSet) {
-                throw new NetworkModificationRunException("IpMax is required");
+                throw new NetworkModificationException("IpMax is required");
             }
         } else {
             if (ipMinSet && modificationInfos.getIpMin().getValue() > identifiableShortCircuit.getIpMax() ||
                     ipMaxSet && identifiableShortCircuit.getIpMin() > modificationInfos.getIpMax().getValue()) {
-                throw new NetworkModificationRunException("IpMin cannot be greater than IpMax");
+                throw new NetworkModificationException("IpMin cannot be greater than IpMax");
             }
         }
     }

@@ -7,7 +7,7 @@
 package org.gridsuite.modification.modifications;
 
 import com.powsybl.iidm.network.Network;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.GroovyScriptInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -44,12 +44,12 @@ class GroovyScriptTest extends AbstractNetworkModificationTest {
         GroovyScriptInfos groovyScriptInfos = (GroovyScriptInfos) buildModification();
         groovyScriptInfos.setScript("");
         // apply empty groovy script
-        Exception exception = assertThrows(NetworkModificationRunException.class, () -> groovyScriptInfos.toModification().check(getNetwork()));
+        Exception exception = assertThrows(NetworkModificationException.class, () -> groovyScriptInfos.toModification().check(getNetwork()));
         assertEquals("Groovy script empty", exception.getMessage());
 
         groovyScriptInfos.setScript("      ");
         // apply blank groovy script
-        exception = assertThrows(NetworkModificationRunException.class, () -> groovyScriptInfos.toModification().check(getNetwork()));
+        exception = assertThrows(NetworkModificationException.class, () -> groovyScriptInfos.toModification().check(getNetwork()));
         assertEquals("Groovy script empty",
                 exception.getMessage());
 

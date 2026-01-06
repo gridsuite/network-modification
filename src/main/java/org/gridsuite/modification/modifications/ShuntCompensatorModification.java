@@ -12,7 +12,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.ShuntCompensatorModificationInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorType;
@@ -41,7 +41,7 @@ public class ShuntCompensatorModification extends AbstractModification {
     public void check(Network network) {
         ShuntCompensator shuntCompensator = network.getShuntCompensator(modificationInfos.getEquipmentId());
         if (shuntCompensator == null) {
-            throw new NetworkModificationRunException(String.format("Shunt compensator %s does not exist in network", modificationInfos.getEquipmentId()));
+            throw new NetworkModificationException(String.format("Shunt compensator %s does not exist in network", modificationInfos.getEquipmentId()));
         }
         ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId(),
                 modificationInfos.getBusOrBusbarSectionId(), shuntCompensator.getTerminal());
@@ -54,11 +54,11 @@ public class ShuntCompensatorModification extends AbstractModification {
                 : shuntCompensator.getSectionCount();
 
         if (modificationInfos.getMaximumSectionCount() != null && modificationInfos.getMaximumSectionCount().getValue() < 1) {
-            throw new NetworkModificationRunException("Unable to modify shunt compensator: Maximum section count should be greater or equal to 1");
+            throw new NetworkModificationException("Unable to modify shunt compensator: Maximum section count should be greater or equal to 1");
         }
 
         if (sectionCount < 0 || maximumSectionCount < 1 || sectionCount > maximumSectionCount) {
-            throw new NetworkModificationRunException(String.format("Unable to modify shunt compensator: Section count should be between 0 and Maximum section count (%d), actual : %d", maximumSectionCount, sectionCount));
+            throw new NetworkModificationException(String.format("Unable to modify shunt compensator: Section count should be between 0 and Maximum section count (%d), actual : %d", maximumSectionCount, sectionCount));
         }
     }
 
@@ -192,7 +192,7 @@ public class ShuntCompensatorModification extends AbstractModification {
                                                        ShuntCompensatorLinearModel model,
                                                        ShuntCompensatorType shuntCompensatorType) {
         if (maxQAtNominalV.getValue() < 0) {
-            throw new NetworkModificationRunException("Unable to modify shunt compensator: Qmax at nominal voltage should be greater or equal to 0");
+            throw new NetworkModificationException("Unable to modify shunt compensator: Qmax at nominal voltage should be greater or equal to 0");
         }
         double newQatNominalV = maxQAtNominalV.getValue() / maximumSectionCount;
         double newSusceptancePerSection = newQatNominalV / Math.pow(voltageLevel.getNominalV(), 2);

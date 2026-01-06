@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.StaticVarCompensatorCreationInfos;
@@ -79,7 +79,7 @@ class StaticVarCompensatorCreationInBusBreakerTest extends AbstractNetworkModifi
     protected void checkModification() {
         StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos = (StaticVarCompensatorCreationInfos) buildModification();
         staticVarCompensatorCreationInfos.setBusOrBusbarSectionId("notFoundBus");
-        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> staticVarCompensatorCreationInfos.toModification().check(getNetwork()));
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreationInfos.toModification().check(getNetwork()));
         assertEquals("Bus notFoundBus does not exist in network", exception.getMessage());
 
         // CreateWithRegulatedTerminalError
@@ -88,7 +88,7 @@ class StaticVarCompensatorCreationInBusBreakerTest extends AbstractNetworkModifi
         staticVarCompensatorCreationInfos1.setRegulatingTerminalVlId("v1");
         staticVarCompensatorCreationInfos1.setRegulatingTerminalId("test");
         staticVarCompensatorCreationInfos1.setRegulatingTerminalType("STATIC_VAR_COMPENSATOR");
-        exception = assertThrows(NetworkModificationRunException.class, () -> staticVarCompensatorCreationInfos1.toModification().check(getNetwork()));
+        exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreationInfos1.toModification().check(getNetwork()));
         assertEquals("Equipment with id=test not found with type STATIC_VAR_COMPENSATOR", exception.getMessage());
     }
 

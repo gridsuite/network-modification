@@ -12,7 +12,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentAttributeModificationInfos;
 import org.gridsuite.modification.dto.VoltageLevelTopologyModificationInfos;
 
@@ -31,7 +31,7 @@ public class VoltageLevelTopologyModification extends AbstractModification {
     public void check(Network network) {
         VoltageLevel voltageLevel = network.getVoltageLevel(modificationInfos.getEquipmentId());
         if (voltageLevel == null) {
-            throw new NetworkModificationRunException("Voltage level not found: " + modificationInfos.getEquipmentId());
+            throw new NetworkModificationException("Voltage level not found: " + modificationInfos.getEquipmentId());
         }
         if (!modificationInfos.getEquipmentAttributeModificationList().isEmpty()) {
             for (EquipmentAttributeModificationInfos equipmentAttributeModificationInfos : modificationInfos.getEquipmentAttributeModificationList()) {
@@ -39,7 +39,7 @@ public class VoltageLevelTopologyModification extends AbstractModification {
                 equipmentAttributeModification.check(network);
             }
         } else {
-            throw new NetworkModificationRunException("Missing required switches to modify the voltage level topology");
+            throw new NetworkModificationException("Missing required switches to modify the voltage level topology");
         }
     }
 

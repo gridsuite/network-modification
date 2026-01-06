@@ -10,7 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.BranchModificationInfos;
 import org.gridsuite.modification.dto.LineModificationInfos;
@@ -38,7 +38,7 @@ public class LineModification extends AbstractBranchModification {
         Line line = network.getLine(modificationInfos.getEquipmentId());
         String errorMessage = "Line '" + modificationInfos.getEquipmentId() + "' : ";
         if (line == null) {
-            throw new NetworkModificationRunException(errorMessage + "does not exist in network");
+            throw new NetworkModificationException(errorMessage + "does not exist in network");
         }
         ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId1(),
                 modificationInfos.getBusOrBusbarSectionId1(), line.getTerminal1());

@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.SwitchKind;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -115,7 +115,7 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
     }
 
     private void tryToCreateLineWithExistingId(LineAttachToVoltageLevelInfos tryWithExistingLine, String existingLineId) {
-        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> tryWithExistingLine.toModification().check(getNetwork()));
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> tryWithExistingLine.toModification().check(getNetwork()));
         assertEquals("Line already exists: " + existingLineId, exception.getMessage());
     }
 
@@ -123,7 +123,7 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
     protected void checkModification() {
         LineAttachToVoltageLevelInfos lineAttachToAbsentLine = (LineAttachToVoltageLevelInfos) buildModification();
         lineAttachToAbsentLine.setLineToAttachToId("absent_line_id");
-        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> lineAttachToAbsentLine.toModification().check(getNetwork()));
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lineAttachToAbsentLine.toModification().check(getNetwork()));
         assertEquals("Line not found: absent_line_id", exception.getMessage());
     }
 
@@ -144,7 +144,7 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
         // try to create an already existing VL
         LineAttachToVoltageLevelInfos tryWithAttachmentPointId = (LineAttachToVoltageLevelInfos) buildModification();
         tryWithAttachmentPointId.setAttachmentPointId("v5");
-        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> tryWithAttachmentPointId.toModification().check(getNetwork()));
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> tryWithAttachmentPointId.toModification().check(getNetwork()));
         assertEquals("Voltage level already exists: v5", exception.getMessage());
     }
 

@@ -9,7 +9,7 @@ package org.gridsuite.modification.modifications;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorCreationInfos;
@@ -65,19 +65,19 @@ class ShuntCompensatorCreationInNodeBreakerTest extends AbstractNetworkModificat
         // try to create an existing equipment
         modificationToCreate.setEquipmentId("v5shunt");
         assertNotNull(getNetwork().getShuntCompensator("v5shunt"));
-        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> modificationToCreate.toModification().check(getNetwork()));
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> modificationToCreate.toModification().check(getNetwork()));
         assertEquals("Shunt compensator already exists: v5shunt", exception.getMessage());
 
         // CreateWithMaximumSectionCountError
         modificationToCreate.setEquipmentId("newShunt");
         modificationToCreate.setMaximumSectionCount(0);
-        exception = assertThrows(NetworkModificationRunException.class, () -> modificationToCreate.toModification().check(getNetwork()));
+        exception = assertThrows(NetworkModificationException.class, () -> modificationToCreate.toModification().check(getNetwork()));
         assertEquals("Maximum section count should be greater or equal to 1", exception.getMessage());
 
         // CreateWithSectionError
         modificationToCreate.setMaximumSectionCount(2);
         modificationToCreate.setSectionCount(3);
-        exception = assertThrows(NetworkModificationRunException.class, () -> modificationToCreate.toModification().check(getNetwork()));
+        exception = assertThrows(NetworkModificationException.class, () -> modificationToCreate.toModification().check(getNetwork()));
         assertEquals("Section count should be between 0 and Maximum section count (2), actual : 3", exception.getMessage());
     }
 

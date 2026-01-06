@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -176,7 +176,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         converterStationCreationInfos.setVoltageLevelId("notFoundVoltageLevelId");
         vscCreationInfos.setConverterStation2(converterStationCreationInfos);
         VscCreation vscCreation = (VscCreation) vscCreationInfos.toModification();
-        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> vscCreation.check(network));
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> vscCreation.check(network));
         assertEquals("Voltage level notFoundVoltageLevelId does not exist in network", exception.getMessage());
 
         // invalid min max reactive limit
@@ -188,8 +188,8 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         vscCreationInfos.setConverterStation1(converterStationCreationInfos);
 
         VscCreation vscCreation1 = (VscCreation) vscCreationInfos.toModification();
-        exception = assertThrows(NetworkModificationRunException.class, () -> vscCreation1.check(network));
-        assertEquals(new NetworkModificationRunException("Vsc 'vsc1' : minimum reactive power is not set").getMessage(), exception.getMessage());
+        exception = assertThrows(NetworkModificationException.class, () -> vscCreation1.check(network));
+        assertEquals(new NetworkModificationException("Vsc 'vsc1' : minimum reactive power is not set").getMessage(), exception.getMessage());
 
         vscCreationInfos = (VscCreationInfos) buildModification();
         converterStationCreationInfos = buildConverterStationWithMinMaxReactiveLimits();
@@ -199,8 +199,8 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         vscCreationInfos.setConverterStation1(converterStationCreationInfos);
 
         VscCreation vscCreation2 = (VscCreation) vscCreationInfos.toModification();
-        exception = assertThrows(NetworkModificationRunException.class, () -> vscCreation2.check(network));
-        assertEquals(new NetworkModificationRunException("Vsc 'vsc1' : maximum reactive power is not set").getMessage(), exception.getMessage());
+        exception = assertThrows(NetworkModificationException.class, () -> vscCreation2.check(network));
+        assertEquals(new NetworkModificationException("Vsc 'vsc1' : maximum reactive power is not set").getMessage(), exception.getMessage());
 
         vscCreationInfos = (VscCreationInfos) buildModification();
         converterStationCreationInfos = buildConverterStationWithMinMaxReactiveLimits();
@@ -211,8 +211,8 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         vscCreationInfos.setConverterStation1(converterStationCreationInfos);
 
         VscCreation vscCreation3 = (VscCreation) vscCreationInfos.toModification();
-        exception = assertThrows(NetworkModificationRunException.class, () -> vscCreation3.check(network));
-        assertEquals(new NetworkModificationRunException("Vsc 'vsc1' : maximum reactive power is expected to be greater than or equal to minimum reactive power").getMessage(), exception.getMessage());
+        exception = assertThrows(NetworkModificationException.class, () -> vscCreation3.check(network));
+        assertEquals(new NetworkModificationException("Vsc 'vsc1' : maximum reactive power is expected to be greater than or equal to minimum reactive power").getMessage(), exception.getMessage());
 
         // invalid reactive capability curve limit
         vscCreationInfos = (VscCreationInfos) buildModification();
@@ -222,14 +222,14 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         vscCreationInfos.setConverterStation1(converterStationCreationInfos);
 
         VscCreation vscCreation4 = (VscCreation) vscCreationInfos.toModification();
-        exception = assertThrows(NetworkModificationRunException.class, () -> vscCreation4.check(network));
-        assertEquals(new NetworkModificationRunException("Vsc 'vsc1' : P is not set in a reactive capability curve limits point").getMessage(), exception.getMessage());
+        exception = assertThrows(NetworkModificationException.class, () -> vscCreation4.check(network));
+        assertEquals(new NetworkModificationException("Vsc 'vsc1' : P is not set in a reactive capability curve limits point").getMessage(), exception.getMessage());
 
         // try to create an existing vsc
         vscCreationInfos = (VscCreationInfos) buildModification();
         vscCreationInfos.setEquipmentId("hvdcLine");
         VscCreation vscCreation5 = (VscCreation) vscCreationInfos.toModification();
-        exception = assertThrows(NetworkModificationRunException.class, () -> vscCreation5.check(network));
+        exception = assertThrows(NetworkModificationException.class, () -> vscCreation5.check(network));
         assertEquals("HVDC line already exists: hvdcLine", exception.getMessage());
 
         VscCreationInfos vscCreationInfos6 = VscCreationInfos.builder()
@@ -239,7 +239,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
             .r(-1d)
             .build();
         VscCreation vscCreation6 = (VscCreation) vscCreationInfos6.toModification();
-        String message = assertThrows(NetworkModificationRunException.class,
+        String message = assertThrows(NetworkModificationException.class,
             () -> vscCreation6.check(network)).getMessage();
         assertEquals("HVDC vsc 'hvdcLine2' : can not have a negative value for Resistance R", message);
 
@@ -254,7 +254,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
             .converterStation2(buildConverterStationWithReactiveCapabilityCurve())
             .build();
         VscCreation vscCreation7 = (VscCreation) vscCreationInfos7.toModification();
-        message = assertThrows(NetworkModificationRunException.class,
+        message = assertThrows(NetworkModificationException.class,
             () -> vscCreation7.check(network)).getMessage();
         assertEquals("HVDC vsc 'hvdcLine2' : can not have a negative value for voltage set point side 1", message);
 
@@ -269,7 +269,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
                 .build())
             .build();
         VscCreation vscCreation8 = (VscCreation) vscCreationInfos8.toModification();
-        message = assertThrows(NetworkModificationRunException.class,
+        message = assertThrows(NetworkModificationException.class,
             () -> vscCreation8.check(network)).getMessage();
         assertEquals("HVDC vsc 'hvdcLine2' : can not have a negative value for voltage set point side 2", message);
 
@@ -280,7 +280,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
             .converterStation2(buildConverterStationWithReactiveCapabilityCurve())
             .build();
         VscCreation vscCreation9 = (VscCreation) vscCreationInfos9.toModification();
-        message = assertThrows(NetworkModificationRunException.class,
+        message = assertThrows(NetworkModificationException.class,
             () -> vscCreation9.check(network)).getMessage();
         assertEquals("HVDC vsc 'hvdcLine2' : can not have a negative value for Nominal voltage", message);
 
@@ -295,7 +295,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
                 .build())
             .build();
         VscCreation vscCreation10 = (VscCreation) vscCreationInfos10.toModification();
-        message = assertThrows(NetworkModificationRunException.class,
+        message = assertThrows(NetworkModificationException.class,
             () -> vscCreation10.check(network)).getMessage();
         assertEquals("HVDC vsc 'hvdcLine2' : must have loss factor side 2 between 0 and 100", message);
 
@@ -310,7 +310,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
                 .build())
             .build();
         VscCreation vscCreation11 = (VscCreation) vscCreationInfos11.toModification();
-        message = assertThrows(NetworkModificationRunException.class,
+        message = assertThrows(NetworkModificationException.class,
             () -> vscCreation11.check(network)).getMessage();
         assertEquals("HVDC vsc 'hvdcLine2' : must have loss factor side 1 between 0 and 100", message);
     }
@@ -377,8 +377,8 @@ class VscCreationTest extends AbstractNetworkModificationTest {
     private void checkDroopWithAbsentInfos(VscCreationInfos vscCreationInfos) {
         Network network = getNetwork();
         VscCreation vscCreation = (VscCreation) vscCreationInfos.toModification();
-        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> vscCreation.check(network));
-        assertEquals(new NetworkModificationRunException(ACTIVE_POWER_CONTROL_DROOP_P0_REQUIRED_ERROR_MSG).getMessage(),
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> vscCreation.check(network));
+        assertEquals(new NetworkModificationException(ACTIVE_POWER_CONTROL_DROOP_P0_REQUIRED_ERROR_MSG).getMessage(),
                 exception.getMessage());
     }
 }

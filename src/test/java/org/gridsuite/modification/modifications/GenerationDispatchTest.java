@@ -15,7 +15,7 @@ import org.gridsuite.filter.identifierlistfilter.IdentifiableAttributes;
 import org.gridsuite.filter.identifierlistfilter.IdentifierListFilter;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.IFilterService;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.junit.jupiter.api.BeforeEach;
@@ -652,11 +652,11 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
 
         GenerationDispatchInfos modification = GenerationDispatchInfos.builder().lossCoefficient(150.).defaultOutageRate(0.).build();
         final GenerationDispatch generationDispatch1 = new GenerationDispatch(modification);
-        assertThrows(NetworkModificationRunException.class, () -> generationDispatch1.check(network), "GENERATION_DISPATCH_ERROR : The loss coefficient must be between 0 and 100");
+        assertThrows(NetworkModificationException.class, () -> generationDispatch1.check(network), "GENERATION_DISPATCH_ERROR : The loss coefficient must be between 0 and 100");
 
         modification = GenerationDispatchInfos.builder().lossCoefficient(20.).defaultOutageRate(140.).build();
         final GenerationDispatch generationDispatch2 = new GenerationDispatch(modification);
-        assertThrows(NetworkModificationRunException.class, () -> generationDispatch2.check(network), "GENERATION_DISPATCH_ERROR : The default outage rate must be between 0 and 100");
+        assertThrows(NetworkModificationException.class, () -> generationDispatch2.check(network), "GENERATION_DISPATCH_ERROR : The default outage rate must be between 0 and 100");
     }
 
     @Test
@@ -760,12 +760,12 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
     protected void checkModification() {
         GenerationDispatchInfos modification = buildModification();
         modification.setLossCoefficient(150.);
-        NetworkModificationRunException e = assertThrows(NetworkModificationRunException.class, () -> modification.toModification().check(getNetwork()));
+        NetworkModificationException e = assertThrows(NetworkModificationException.class, () -> modification.toModification().check(getNetwork()));
         assertEquals("Generation dispatch error: the loss coefficient must be between 0 and 100", e.getMessage());
 
         modification.setLossCoefficient(20.);
         modification.setDefaultOutageRate(140.);
-        e = assertThrows(NetworkModificationRunException.class, () -> modification.toModification().check(getNetwork()));
+        e = assertThrows(NetworkModificationException.class, () -> modification.toModification().check(getNetwork()));
         assertEquals("Generation dispatch error: the default outage rate must be between 0 and 100", e.getMessage());
     }
 

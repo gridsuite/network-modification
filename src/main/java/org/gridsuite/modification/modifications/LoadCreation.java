@@ -9,7 +9,7 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LoadCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -30,7 +30,7 @@ public class LoadCreation extends AbstractModification {
     @Override
     public void check(Network network) {
         if (network.getLoad(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationRunException("Load already exists: " + modificationInfos.getEquipmentId());
+            throw new NetworkModificationException("Load already exists: " + modificationInfos.getEquipmentId());
         }
         ModificationUtils.getInstance().controlConnectivity(network, modificationInfos.getVoltageLevelId(),
                 modificationInfos.getBusOrBusbarSectionId());

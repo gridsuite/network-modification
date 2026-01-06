@@ -10,7 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.olg.OperationalLimitsGroupsModification;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -257,7 +257,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
             errorTypes.add(Boolean.TRUE.equals(modificationInfos.getTerminal2Connected().getValue()) ? "connect" : "disconnect");
         }
         if (!errorSides.isEmpty()) {
-            throw new NetworkModificationRunException(String.format("Could not %s equipment '%s' on side %s",
+            throw new NetworkModificationException(String.format("Could not %s equipment '%s' on side %s",
                             errorTypes.stream().distinct().collect(Collectors.joining("/")),
                             branch.getId(),
                             errorSides.stream().map(Enum::toString).collect(Collectors.joining("/"))));

@@ -10,7 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.collections4.CollectionUtils;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LineCreationInfos;
 import org.gridsuite.modification.dto.OperationalLimitsGroupInfos;
 import org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability;
@@ -39,7 +39,7 @@ public class LineCreation extends AbstractModification {
     @Override
     public void check(Network network) {
         if (network.getLine(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationRunException("line already exists: " + modificationInfos.getEquipmentId());
+            throw new NetworkModificationException("line already exists: " + modificationInfos.getEquipmentId());
         }
         String errorMessage = "Line '" + modificationInfos.getEquipmentId() + "' : ";
         ModificationUtils.getInstance().controlBranchCreation(network,

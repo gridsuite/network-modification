@@ -9,7 +9,7 @@ package org.gridsuite.modification.modifications;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.SubstationCreationInfos;
@@ -63,47 +63,47 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
         vli.setSubstationId("absent_station");
 
         VoltageLevelCreation voltageLevelCreation = (VoltageLevelCreation) vli.toModification();
-        Exception exception = assertThrows(NetworkModificationRunException.class, () -> voltageLevelCreation.apply(network));
+        Exception exception = assertThrows(NetworkModificationException.class, () -> voltageLevelCreation.apply(network));
         assertEquals("Substation absent_station does not exist in network", exception.getMessage());
 
         VoltageLevelCreationInfos vli1 = (VoltageLevelCreationInfos) buildModification();
         vli1.getCouplingDevices().getFirst().setBusbarSectionId1("1.1");
         vli1.getCouplingDevices().getFirst().setBusbarSectionId2("1.1");
         VoltageLevelCreation voltageLevelCreation1 = (VoltageLevelCreation) vli1.toModification();
-        exception = assertThrows(NetworkModificationRunException.class, () -> voltageLevelCreation1.check(network));
+        exception = assertThrows(NetworkModificationException.class, () -> voltageLevelCreation1.check(network));
         assertEquals("Coupling between same bus bar section is not allowed", exception.getMessage());
 
         VoltageLevelCreationInfos vli2 = (VoltageLevelCreationInfos) buildModification();
         vli2.setIpMin(0.0);
         vli2.setIpMax(null);
         VoltageLevelCreation voltageLevelCreation2 = (VoltageLevelCreation) vli2.toModification();
-        exception = assertThrows(NetworkModificationRunException.class, () -> voltageLevelCreation2.check(network));
+        exception = assertThrows(NetworkModificationException.class, () -> voltageLevelCreation2.check(network));
         assertEquals("IpMax is required", exception.getMessage());
 
         // try to create an existing VL
         VoltageLevelCreationInfos vli3 = (VoltageLevelCreationInfos) buildModification();
         vli3.setEquipmentId("v1");
         VoltageLevelCreation voltageLevelCreation3 = (VoltageLevelCreation) vli3.toModification();
-        exception = assertThrows(NetworkModificationRunException.class, () -> voltageLevelCreation3.check(network));
+        exception = assertThrows(NetworkModificationException.class, () -> voltageLevelCreation3.check(network));
         assertEquals("Voltage level v1 already exists", exception.getMessage());
 
         // check values
         VoltageLevelCreationInfos vli4 = (VoltageLevelCreationInfos) buildModification();
         vli4.setNominalV(-400);
         VoltageLevelCreation voltageLevelCreation4 = (VoltageLevelCreation) vli4.toModification();
-        exception = assertThrows(NetworkModificationRunException.class, () -> voltageLevelCreation4.check(network));
+        exception = assertThrows(NetworkModificationException.class, () -> voltageLevelCreation4.check(network));
         assertEquals("Voltage level 'vlId' : can not have a negative value for Nominal Voltage", exception.getMessage());
 
         VoltageLevelCreationInfos vli5 = (VoltageLevelCreationInfos) buildModification();
         vli5.setLowVoltageLimit(-100d);
         VoltageLevelCreation voltageLevelCreation5 = (VoltageLevelCreation) vli5.toModification();
-        exception = assertThrows(NetworkModificationRunException.class, () -> voltageLevelCreation5.check(network));
+        exception = assertThrows(NetworkModificationException.class, () -> voltageLevelCreation5.check(network));
         assertEquals("Voltage level 'vlId' : can not have a negative value for Low voltage limit", exception.getMessage());
 
         VoltageLevelCreationInfos vli6 = (VoltageLevelCreationInfos) buildModification();
         vli6.setHighVoltageLimit(-50d);
         VoltageLevelCreation voltageLevelCreation6 = (VoltageLevelCreation) vli6.toModification();
-        exception = assertThrows(NetworkModificationRunException.class, () -> voltageLevelCreation6.check(network));
+        exception = assertThrows(NetworkModificationException.class, () -> voltageLevelCreation6.check(network));
         assertEquals("Voltage level 'vlId' : can not have a negative value for High voltage limit", exception.getMessage());
     }
 
@@ -172,10 +172,10 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
         vli.setIpMax(ipMax);
         Network network = getNetwork();
         VoltageLevelCreation voltageLevelCreation = (VoltageLevelCreation) vli.toModification();
-        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> voltageLevelCreation.check(network));
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelCreation.check(network));
         // VL could not have been created
         assertNull(getNetwork().getVoltageLevel("vl_ko"));
-        assertEquals(new NetworkModificationRunException(reportError).getMessage(), exception.getMessage());
+        assertEquals(new NetworkModificationException(reportError).getMessage(), exception.getMessage());
     }
 
     @Test

@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.VoltageLevel;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentAttributeModificationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.VoltageLevelTopologyModificationInfos;
@@ -114,7 +114,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
         VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationInfos);
         applyModification(voltageLevelTopologyModification);
         Network network = getNetwork();
-        assertThrows(NetworkModificationRunException.class, () -> voltageLevelTopologyModification.check(network));
+        assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(network));
     }
 
     private void testCheckWithEmptyEquipmentAttributeModifications() {
@@ -127,7 +127,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
 
         VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationInfos);
         Network network = getNetwork();
-        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> voltageLevelTopologyModification.check(network));
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(network));
         assertTrue(exception.getMessage().contains("Missing required switches"));
     }
 
@@ -149,7 +149,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
 
         VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationInfos);
         Network network = getNetwork();
-        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> voltageLevelTopologyModification.check(network));
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(network));
     }
 
     private void testCheckLogMessages() {

@@ -16,7 +16,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.EquipmentAttributeModification;
 import org.springframework.lang.NonNull;
@@ -81,11 +81,11 @@ public class EquipmentAttributeModificationInfos extends EquipmentModificationIn
 
     private void checkSwitchStatusModificationInfos() {
         if (!equipmentAttributeName.equals("open")) {
-            throw new NetworkModificationRunException("For switch status, the attribute name is only 'open'");
+            throw new NetworkModificationException("For switch status, the attribute name is only 'open'");
         }
         Set<Boolean> possibleValues = Set.of(true, false);
         if (!possibleValues.contains(equipmentAttributeValue)) {
-            throw new NetworkModificationRunException("For switch status, the attribute values are only " + possibleValues);
+            throw new NetworkModificationException("For switch status, the attribute values are only " + possibleValues);
         }
     }
 }

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.LineCreationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -36,13 +36,13 @@ class LineCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         lineCreationInfos.setEquipmentId("idLine4");
         lineCreationInfos.setVoltageLevelId1("notFoundVoltageLevelId1");
         LineCreation lineCreation = (LineCreation) lineCreationInfos.toModification();
-        Exception exception = assertThrows(NetworkModificationRunException.class, () -> lineCreation.check(network));
+        Exception exception = assertThrows(NetworkModificationException.class, () -> lineCreation.check(network));
         assertEquals("Voltage level notFoundVoltageLevelId1 does not exist in network", exception.getMessage());
 
         lineCreationInfos.setVoltageLevelId1("v1");
         lineCreationInfos.setBusOrBusbarSectionId1("notFoundBusbarSection1");
         LineCreation lineCreation1 = (LineCreation) lineCreationInfos.toModification();
-        exception = assertThrows(NetworkModificationRunException.class, () -> lineCreation1.check(network));
+        exception = assertThrows(NetworkModificationException.class, () -> lineCreation1.check(network));
         assertEquals("Busbar section notFoundBusbarSection1 does not exist in network", exception.getMessage());
 
         lineCreationInfos.setVoltageLevelId1("v1");
@@ -61,7 +61,7 @@ class LineCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         // try to create an existing line
         lineCreationInfos.setEquipmentId("line2");
         LineCreation lineCreation4 = (LineCreation) lineCreationInfos.toModification();
-        exception = assertThrows(NetworkModificationRunException.class, () -> lineCreation4.check(network));
+        exception = assertThrows(NetworkModificationException.class, () -> lineCreation4.check(network));
         assertEquals("line already exists: line2", exception.getMessage());
 
         LineCreationInfos lineCreationInfos1 = LineCreationInfos.builder()
@@ -73,7 +73,7 @@ class LineCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
             .r(-1d)
             .build();
         LineCreation lineCreation5 = (LineCreation) lineCreationInfos1.toModification();
-        String message = assertThrows(NetworkModificationRunException.class,
+        String message = assertThrows(NetworkModificationException.class,
             () -> lineCreation5.check(network)).getMessage();
         assertEquals("Line 'line8' : can not have a negative value for Resistance R", message);
 
@@ -86,7 +86,7 @@ class LineCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
             .g1(-2d)
             .build();
         LineCreation lineCreation6 = (LineCreation) lineCreationInfos2.toModification();
-        message = assertThrows(NetworkModificationRunException.class,
+        message = assertThrows(NetworkModificationException.class,
             () -> lineCreation6.check(network)).getMessage();
         assertEquals("Line 'line8' : can not have a negative value for Conductance on side 1 G1", message);
 
@@ -99,7 +99,7 @@ class LineCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
             .g2(-100d)
             .build();
         LineCreation lineCreation7 = (LineCreation) lineCreationInfos3.toModification();
-        message = assertThrows(NetworkModificationRunException.class,
+        message = assertThrows(NetworkModificationException.class,
             () -> lineCreation7.check(network)).getMessage();
         assertEquals("Line 'line8' : can not have a negative value for Conductance on side 2 G2", message);
     }

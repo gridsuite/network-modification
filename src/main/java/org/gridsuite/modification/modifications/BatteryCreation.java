@@ -11,7 +11,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.BatteryCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -36,7 +36,7 @@ public class BatteryCreation extends AbstractModification {
     @Override
     public void check(Network network) {
         if (network.getBattery(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationRunException("Battery already exists: " + modificationInfos.getEquipmentId());
+            throw new NetworkModificationException("Battery already exists: " + modificationInfos.getEquipmentId());
         }
         String errorMessage = "Battery '" + modificationInfos.getEquipmentId() + "' : ";
 

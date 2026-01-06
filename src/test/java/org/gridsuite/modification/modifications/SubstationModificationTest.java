@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import java.util.List;
@@ -68,7 +68,7 @@ class SubstationModificationTest extends AbstractNetworkModificationTest {
                 .equipmentId("unknown")
                 .country(new AttributeModification<>(Country.JP, OperationType.SET))
                 .build();
-        NetworkModificationRunException exception = assertThrows(NetworkModificationRunException.class, () -> infos.toModification().check(getNetwork()));
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> infos.toModification().check(getNetwork()));
         assertEquals("Substation unknown does not exist in network", exception.getMessage());
     }
 

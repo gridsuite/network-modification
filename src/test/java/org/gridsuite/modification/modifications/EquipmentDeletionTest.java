@@ -13,7 +13,7 @@ import com.powsybl.iidm.modification.topology.RemoveSubstation;
 import com.powsybl.iidm.modification.topology.RemoveSubstationBuilder;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentDeletionInfos;
 import org.gridsuite.modification.dto.HvdcLccDeletionInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -37,7 +37,7 @@ class EquipmentDeletionTest extends AbstractNetworkModificationTest {
     public void checkModification() {
         EquipmentDeletionInfos equipmentDeletionInfos = (EquipmentDeletionInfos) buildModification();
         equipmentDeletionInfos.setEquipmentId("notFoundLoad");
-        assertThrows(NetworkModificationRunException.class, () -> equipmentDeletionInfos.toModification().check(getNetwork()));
+        assertThrows(NetworkModificationException.class, () -> equipmentDeletionInfos.toModification().check(getNetwork()));
     }
 
     @Override

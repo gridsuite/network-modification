@@ -9,7 +9,7 @@ package org.gridsuite.modification.dto.byfilter.formula;
 
 import com.powsybl.iidm.network.Identifiable;
 import lombok.*;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils.getFieldValue;
 
@@ -30,7 +30,7 @@ public class ReferenceFieldOrValue {
 
     public Double getRefOrValue(Identifiable<?> identifiable) {
         if (value == null && equipmentField == null) {
-            throw new NetworkModificationRunException("By formula modification error: There is no value or reference to any of the equipment fields");
+            throw new NetworkModificationException("By formula modification error: There is no value or reference to any of the equipment fields");
         }
 
         if (value != null && !Double.isNaN(value)) {

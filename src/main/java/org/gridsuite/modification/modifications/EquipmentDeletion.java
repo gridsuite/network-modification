@@ -10,7 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentDeletionInfos;
 import org.gridsuite.modification.dto.HvdcLccDeletionInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -34,7 +34,7 @@ public class EquipmentDeletion extends AbstractModification {
     public void check(Network network) {
         Identifiable<?> identifiable = ModificationUtils.getInstance().getEquipmentByIdentifiableType(network, modificationInfos.getEquipmentType(), modificationInfos.getEquipmentId());
         if (identifiable == null) {
-            throw new NetworkModificationRunException(modificationInfos.getEquipmentType() + " with id :" + modificationInfos.getEquipmentId() + " not found");
+            throw new NetworkModificationException(modificationInfos.getEquipmentType() + " with id :" + modificationInfos.getEquipmentId() + " not found");
         }
     }
 

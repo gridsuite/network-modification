@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.CreateVoltageLevelSectionInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
@@ -52,22 +52,22 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
         AbstractModification modification = voltageLevelSectionInfos.toModification();
 
         assertEquals("CREATE_VOLTAGE_LEVEL_SECTION", modification.getName());
-        String message = assertThrows(NetworkModificationRunException.class, () -> modification.check(network)).getMessage();
+        String message = assertThrows(NetworkModificationException.class, () -> modification.check(network)).getMessage();
         assertEquals("1 is not the busbar index of the busbar section bbs1 in voltage level v1", message);
 
-        message = assertThrows(NetworkModificationRunException.class, () -> modification.check(network)).getMessage();
+        message = assertThrows(NetworkModificationException.class, () -> modification.check(network)).getMessage();
         assertEquals("1 is not the busbar index of the busbar section bbs1 in voltage level v1", message);
 
         voltageLevelSectionInfos.setVoltageLevelId("notFoundVoltageLevel");
         voltageLevelSectionInfos.setBusbarSectionId("bbs1");
         voltageLevelSectionInfos.setBusbarIndex(1);
-        message = assertThrows(NetworkModificationRunException.class,
+        message = assertThrows(NetworkModificationException.class,
                 () -> modification.check(network)).getMessage();
         assertEquals("Voltage level not found: notFoundVoltageLevel", message);
 
         voltageLevelSectionInfos.setVoltageLevelId("v1");
         voltageLevelSectionInfos.setBusbarSectionId("notFoundBusbar");
-        message = assertThrows(NetworkModificationRunException.class,
+        message = assertThrows(NetworkModificationException.class,
                 () -> modification.check(network)).getMessage();
         assertEquals("notFoundBusbar not found in voltage level v1", message);
     }

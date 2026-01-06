@@ -11,7 +11,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.filter.utils.expertfilter.RatioRegulationModeType;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -36,7 +36,7 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
     @Override
     public void check(Network network) {
         if (network.getTwoWindingsTransformer(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationRunException("Two winding transformer already exists: " + modificationInfos.getEquipmentId());
+            throw new NetworkModificationException("Two winding transformer already exists: " + modificationInfos.getEquipmentId());
         }
         String errorMessage = "Two windings transformer '" + modificationInfos.getEquipmentId() + "' : ";
         getInstance().controlBranchCreation(network,
@@ -97,7 +97,7 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         } else if (s2 != null) {
             branchAdder = s2.newTwoWindingsTransformer();
         } else {
-            throw new NetworkModificationRunException("The two windings transformer should belong to a substation");
+            throw new NetworkModificationException("The two windings transformer should belong to a substation");
         }
         // common settings
         TwoWindingsTransformerAdder twoWindingsTransformerAdder = branchAdder.setId(twoWindingsTransformerCreationInfos.getEquipmentId())
