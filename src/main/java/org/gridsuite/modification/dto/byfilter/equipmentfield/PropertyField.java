@@ -12,8 +12,9 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.TwoSides;
-import org.gridsuite.modification.error.NetworkModificationRunException;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -96,7 +97,7 @@ public enum PropertyField {
         } else {
             return switch (equipment.getType()) {
                 case LINE, TWO_WINDINGS_TRANSFORMER -> getReferenceValue((Branch<?>) equipment, field);
-                default -> throw new NetworkModificationRunException("Unsupported getting value for equipment type : " + " [" + field + "," + equipment.getType() + "]");
+                default -> throw unsupportedGettingField(equipment, field);
             };
         }
     }
@@ -105,7 +106,7 @@ public enum PropertyField {
         return switch (field) {
             case OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES -> branch.getSelectedOperationalLimitsGroupId1().orElse(null);
             case OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES -> branch.getSelectedOperationalLimitsGroupId2().orElse(null);
-            default -> throw new NetworkModificationRunException("Unsupported getting value for equipment type : " + " [" + field + "," + branch.getType() + "]");
+            default -> throw unsupportedGettingField(branch, field);
         };
     }
 
@@ -116,7 +117,7 @@ public enum PropertyField {
         } else {
             return switch (equipment.getType()) {
                 case LINE, TWO_WINDINGS_TRANSFORMER -> getNewValue((Branch<?>) equipment, field, propertyName, propertyValue);
-                default -> throw new NetworkModificationRunException("Unsupported getting value for equipment type : " + " [" + field + "," + equipment.getType() + "]");
+                default -> throw unsupportedGettingField(equipment, field);
             };
         }
     }
@@ -125,7 +126,7 @@ public enum PropertyField {
         return switch (field) {
             case OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES -> getNewValue(equipment, TwoSides.ONE, propertyName, propertyValue);
             case OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES -> getNewValue(equipment, TwoSides.TWO, propertyName, propertyValue);
-            default -> throw new NetworkModificationRunException("Unsupported getting value for equipment type : " + " [" + field + "," + equipment.getType() + "]");
+            default -> throw unsupportedGettingField(equipment, field);
         };
     }
 
@@ -149,7 +150,7 @@ public enum PropertyField {
         } else {
             switch (equipment.getType()) {
                 case LINE, TWO_WINDINGS_TRANSFORMER -> setNewValue((Branch<?>) equipment, field, newValue);
-                default -> throw new NetworkModificationRunException("Unsupported setting value for equipment type : " + " [" + field + "," + equipment.getType() + "]");
+                default -> throw unsupportedGettingField(equipment, field);
             }
         }
     }
@@ -158,7 +159,11 @@ public enum PropertyField {
         switch (field) {
             case OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES -> branch.setSelectedOperationalLimitsGroup1(newValue);
             case OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES -> branch.setSelectedOperationalLimitsGroup2(newValue);
-            default -> throw new NetworkModificationRunException("Unsupported setting value for equipment type : " + " [" + field + "," + branch.getType() + "]");
+            default -> throw unsupportedGettingField(branch, field);
         }
+    }
+
+    private static @NonNull NetworkModificationException unsupportedGettingField(Identifiable<?> equipment, PropertyField field) {
+        return new NetworkModificationException("Unsupported getting value for equipment type : " + " [" + field + "," + equipment.getType() + "]");
     }
 }
