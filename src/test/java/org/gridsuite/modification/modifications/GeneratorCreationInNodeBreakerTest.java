@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.EnergySource;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -88,6 +89,9 @@ class GeneratorCreationInNodeBreakerTest extends AbstractNetworkModificationTest
         assertEquals(1, getNetwork().getVoltageLevel("v2").getGeneratorStream()
                 .filter(transformer -> transformer.getId().equals("idGenerator1")).count());
         assertEquals(PROPERTY_VALUE, getNetwork().getGenerator("idGenerator1").getProperty(PROPERTY_NAME));
+        Generator generator = getNetwork().getGenerator("idGenerator1");
+        assertEquals(225.0, generator.getTargetV());
+        assertTrue(Double.isNaN(generator.getEquivalentLocalTargetV()));
     }
 
     @Override
@@ -226,5 +230,29 @@ class GeneratorCreationInNodeBreakerTest extends AbstractNetworkModificationTest
         assertEquals("GENERATOR_CREATION", modificationInfos.getMessageType());
         Map<String, String> updatedValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
         assertEquals("idGenerator1", updatedValues.get("equipmentId"));
+    }
+
+    @Test
+    void testCreatingWithLocalRegulation() {
+        GeneratorCreationInfos generatorCreationInfos = GeneratorCreationInfos.builder()
+                .equipmentId("idGenerator1")
+                .voltageLevelId("v2")
+                .busOrBusbarSectionId("1B")
+                .energySource(EnergySource.HYDRO)
+                .minP(100.0)
+                .maxP(600.0)
+                .ratedS(10.)
+                .voltageRegulationOn(true)
+                .targetV(42.)
+                .reactiveCapabilityCurve(true)
+                .reactiveCapabilityCurvePoints(Arrays.asList(new ReactiveCapabilityCurvePointsInfos(2.0, 3.0, 3.1),
+                        new ReactiveCapabilityCurvePointsInfos(5.6, 9.8, 10.8)))
+                .connectionName("top")
+                .connectionDirection(ConnectablePosition.Direction.TOP)
+                .build();
+        generatorCreationInfos.toModification().apply(getNetwork());
+        Generator generator = getNetwork().getGenerator("idGenerator1");
+        assertEquals(42.0, generator.getTargetV());
+        assertEquals(42.0, generator.getEquivalentLocalTargetV());
     }
 }
