@@ -36,7 +36,10 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
 
     @Override
     protected Network createNetwork(UUID networkUuid) {
-        return NetworkCreation.create(networkUuid, true);
+        Network network = NetworkCreation.create(networkUuid, true);
+        Generator generator = network.getGenerator("idGenerator");
+        generator.setTargetV(50, 40);
+        return network;
     }
 
     @Override
@@ -90,6 +93,7 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         assertEquals(80.0, modifiedGenerator.getTargetP());
         assertEquals(40.0, modifiedGenerator.getTargetQ());
         assertEquals(48.0, modifiedGenerator.getTargetV());
+        assertEquals(40.0, modifiedGenerator.getEquivalentLocalTargetV());
         assertFalse(modifiedGenerator.isVoltageRegulatorOn());
         assertEquals(0., modifiedGenerator.getMinP());
         assertEquals(100., modifiedGenerator.getMaxP());
@@ -295,5 +299,43 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         terminal = generator.getTerminal();
         assertEquals("v1", terminal.getVoltageLevel().getId());
         assertEquals("1.1", BusbarSectionFinderTraverser.findBusbarSectionId(terminal));
+    }
+
+    @Test
+    void testSettingTargetVWhenRegulationIsLocal() {
+        Network network = getNetwork();
+        Generator generator = network.getGenerator("idGenerator");
+        assertEquals(generator.getTerminal(), generator.getRegulatingTerminal());
+        assertEquals(40.0, generator.getEquivalentLocalTargetV());
+        assertEquals(50.0, generator.getTargetV());
+
+        GeneratorModificationInfos modificationInfos = GeneratorModificationInfos.builder()
+                .stashed(false)
+                .equipmentId("idGenerator")
+                .targetV(new AttributeModification<>(48.0, OperationType.SET))
+                .build();
+        modificationInfos.toModification().apply(network);
+        Generator modifiedGenerator = network.getGenerator("idGenerator");
+        assertEquals(48.0, modifiedGenerator.getEquivalentLocalTargetV());
+        assertEquals(48.0, modifiedGenerator.getTargetV());
+    }
+
+    @Test
+    void testSettingTargetVWhenRegulationIsRemote() {
+        Network network = getNetwork();
+        Generator generator = network.getGenerator("idGenerator");
+        generator.setRegulatingTerminal(network.getLoad("v1load").getTerminal());
+        assertEquals(40.0, generator.getEquivalentLocalTargetV());
+        assertEquals(50.0, generator.getTargetV());
+
+        GeneratorModificationInfos modificationInfos = GeneratorModificationInfos.builder()
+                .stashed(false)
+                .equipmentId("idGenerator")
+                .targetV(new AttributeModification<>(52.0, OperationType.SET))
+                .build();
+        modificationInfos.toModification().apply(network);
+        Generator modifiedGenerator = network.getGenerator("idGenerator");
+        assertEquals(40.0, modifiedGenerator.getEquivalentLocalTargetV());
+        assertEquals(52.0, modifiedGenerator.getTargetV());
     }
 }

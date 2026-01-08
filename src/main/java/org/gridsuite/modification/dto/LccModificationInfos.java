@@ -58,7 +58,7 @@ public class LccModificationInfos extends BasicEquipmentModificationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-            .withMessageTemplate(getType().name(), "Lcc modification ${lccId}")
+            .withMessageTemplate("network.modification.lcc.modification")
             .withUntypedValue("lccId", getEquipmentId())
             .add();
     }
