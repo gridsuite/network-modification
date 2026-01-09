@@ -21,6 +21,7 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import static org.gridsuite.modification.modifications.LineCreation.addLimits;
 
 /**
  * @author David Braquart <david.braquart at rte-france.com>
@@ -62,9 +63,6 @@ public class LineAttachToVoltageLevel extends AbstractModification {
         VoltageLevelCreationInfos mayNewVL = modificationInfos.getMayNewVoltageLevelInfos();
         if (mayNewVL != null) {
             ModificationUtils.getInstance().createVoltageLevel(mayNewVL, subReportNode, network);
-            // properties
-            VoltageLevel voltageLevel = network.getVoltageLevel(mayNewVL.getEquipmentId());
-            PropertiesUtils.applyProperties(voltageLevel, null, mayNewVL.getProperties(), null);
         }
 
         LineCreationInfos attachmentLineInfos = modificationInfos.getAttachmentLine();
@@ -97,6 +95,12 @@ public class LineAttachToVoltageLevel extends AbstractModification {
                 .build();
 
         algo.apply(network, true, subReportNode);
+
+        // add extra information on attachment line
+        Line createdAttachmentLine = network.getLine(attachmentLineInfos.getEquipmentId());
+        addLimits(attachmentLineInfos, subReportNode, createdAttachmentLine);
+        PropertiesUtils.applyProperties(createdAttachmentLine, subReportNode, attachmentLineInfos.getProperties(), "network.modification.LineProperties");
+
         // override attachment point
         if (modificationInfos.getAttachmentPointDetailInformation() != null) {
             // override voltage level
