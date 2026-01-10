@@ -17,8 +17,6 @@ import org.gridsuite.modification.dto.LineModificationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_LINE_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
@@ -36,11 +34,11 @@ public class LineModification extends AbstractBranchModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         Line line = network.getLine(modificationInfos.getEquipmentId());
         String errorMessage = "Line '" + modificationInfos.getEquipmentId() + "' : ";
         if (line == null) {
-            throw new NetworkModificationException(LINE_NOT_FOUND, errorMessage + "does not exist in network");
+            throw new NetworkModificationException(errorMessage + "does not exist in network");
         }
         ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId1(),
                 modificationInfos.getBusOrBusbarSectionId1(), line.getTerminal1());
@@ -48,13 +46,13 @@ public class LineModification extends AbstractBranchModification {
                 modificationInfos.getBusOrBusbarSectionId2(), line.getTerminal2());
         LineModificationInfos lineModificationInfos = (LineModificationInfos) modificationInfos;
         if (lineModificationInfos.getR() != null) {
-            checkIsNotNegativeValue(errorMessage, lineModificationInfos.getR().getValue(), MODIFY_LINE_ERROR, "Resistance R");
+            checkIsNotNegativeValue(errorMessage, lineModificationInfos.getR().getValue(), "Resistance R");
         }
         if (lineModificationInfos.getG1() != null) {
-            checkIsNotNegativeValue(errorMessage, lineModificationInfos.getG1().getValue(), MODIFY_LINE_ERROR, "Conductance on side 1 G1");
+            checkIsNotNegativeValue(errorMessage, lineModificationInfos.getG1().getValue(), "Conductance on side 1 G1");
         }
         if (lineModificationInfos.getG2() != null) {
-            checkIsNotNegativeValue(errorMessage, lineModificationInfos.getG2().getValue(), MODIFY_LINE_ERROR, "Conductance on side 2 G2");
+            checkIsNotNegativeValue(errorMessage, lineModificationInfos.getG2().getValue(), "Conductance on side 2 G2");
         }
     }
 

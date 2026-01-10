@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VscModification;
 
@@ -21,7 +20,6 @@ import org.gridsuite.modification.modifications.VscModification;
 @ToString(callSuper = true)
 @Schema(description = "VSC modification")
 @JsonTypeName("VSC_MODIFICATION")
-@ModificationErrorTypeName("MODIFY_VSC_ERROR")
 public class VscModificationInfos extends BasicEquipmentModificationInfos {
     @Schema(description = "DC nominal voltage")
     private AttributeModification<Double> nominalV;

@@ -15,8 +15,6 @@ import org.gridsuite.modification.utils.NetworkCreation;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BUSBAR_SECTION_NOT_FOUND;
-import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -58,30 +56,27 @@ class LineSplitWithVoltageLevelTest extends AbstractNetworkModificationTest {
         LineSplitWithVoltageLevelInfos tryWithNewLine1Id = (LineSplitWithVoltageLevelInfos) buildModification();
         tryWithNewLine1Id.setNewLine1Id("line1");
         Exception exception = assertThrows(NetworkModificationException.class, () -> tryWithNewLine1Id.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(LINE_ALREADY_EXISTS, "line1").getMessage(),
+        assertEquals("Line already exists: line1",
                 exception.getMessage());
 
         // same test with "newLine2Id"
         LineSplitWithVoltageLevelInfos tryWithNewLine2Id = (LineSplitWithVoltageLevelInfos) buildModification();
         tryWithNewLine2Id.setNewLine2Id("line1");
         exception = assertThrows(NetworkModificationException.class, () -> tryWithNewLine2Id.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(LINE_ALREADY_EXISTS, "line1").getMessage(),
-                exception.getMessage());
+        assertEquals("Line already exists: line1", exception.getMessage());
 
         // testCreateWithWrongBusBar
         // not existing busbar
         LineSplitWithVoltageLevelInfos tryWithBadId = (LineSplitWithVoltageLevelInfos) buildModification();
         tryWithBadId.setBbsOrBusId("999A");
         exception = assertThrows(NetworkModificationException.class, () -> tryWithBadId.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, "999A").getMessage(),
-                exception.getMessage());
+        assertEquals("Busbar section 999A does not exist in network", exception.getMessage());
 
         // try with a switch, not a busbar
         LineSplitWithVoltageLevelInfos tryWithSwitchId = (LineSplitWithVoltageLevelInfos) buildModification();
         tryWithSwitchId.setBbsOrBusId("v1d1");
         exception = assertThrows(NetworkModificationException.class, () -> tryWithSwitchId.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, "v1d1").getMessage(),
-                exception.getMessage());
+        assertEquals("Busbar section v1d1 does not exist in network", exception.getMessage());
     }
 
     @Override

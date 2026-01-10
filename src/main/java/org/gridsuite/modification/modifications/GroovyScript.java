@@ -17,7 +17,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.GroovyScriptInfos;
-import static org.gridsuite.modification.NetworkModificationException.Type.GROOVY_SCRIPT_EMPTY;
 
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
@@ -31,9 +30,9 @@ public class GroovyScript extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         if (StringUtils.isBlank(modificationInfos.getScript())) {
-            throw new NetworkModificationException(GROOVY_SCRIPT_EMPTY);
+            throw new NetworkModificationException("Groovy script empty");
         }
     }
 

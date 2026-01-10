@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 
 import java.util.List;
 
@@ -27,7 +26,6 @@ import java.util.List;
 @ToString(callSuper = true)
 @Schema(description = "Lcc converter station creation")
 @JsonTypeName("LCC_CONVERTER_STATION_CREATION")
-@ModificationErrorTypeName("LCC_CREATE_CONVERTER_STATION_ERROR")
 public class LccConverterStationCreationInfos extends InjectionCreationInfos {
     @Schema(description = "Loss Factor")
     private Float lossFactor;

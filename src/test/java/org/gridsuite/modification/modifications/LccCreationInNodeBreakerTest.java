@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.VOLTAGE_LEVEL_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -141,7 +140,7 @@ class LccCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         LccCreation lccCreation = (LccCreation) lccCreationInfos.toModification();
         Network network = getNetwork();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lccCreation.check(network));
-        assertEquals(new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, "notFoundVoltageLevelId").getMessage(), exception.getMessage());
+        assertEquals("Voltage level notFoundVoltageLevelId does not exist in network", exception.getMessage());
     }
 
 }

@@ -15,8 +15,6 @@ import org.gridsuite.modification.dto.EquipmentModificationInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorModificationInfos;
 import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.TABULAR_MODIFICATION_ERROR;
-
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
@@ -27,9 +25,9 @@ public class TabularModification extends AbstractTabularModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         if (modificationInfos == null) {
-            throw new NetworkModificationException(TABULAR_MODIFICATION_ERROR, "No tabular modification to apply !!");
+            throw new NetworkModificationException("No tabular modification to apply !!");
         }
     }
 

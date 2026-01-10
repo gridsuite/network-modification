@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.EQUIPMENT_NOT_FOUND;
-
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
  */
@@ -33,10 +31,10 @@ public class EquipmentDeletion extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         Identifiable<?> identifiable = ModificationUtils.getInstance().getEquipmentByIdentifiableType(network, modificationInfos.getEquipmentType(), modificationInfos.getEquipmentId());
         if (identifiable == null) {
-            throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, "Equipment with id=" + modificationInfos.getEquipmentId() + " not found or of bad type");
+            throw new NetworkModificationException("Equipment with id=" + modificationInfos.getEquipmentId() + " not found or of bad type");
         }
     }
 

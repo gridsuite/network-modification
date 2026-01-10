@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BUSBAR_SECTION_NOT_FOUND;
-import static org.gridsuite.modification.NetworkModificationException.Type.VOLTAGE_LEVEL_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -37,13 +35,13 @@ class LoadCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         // VoltageLevel not found
         loadCreationInfos.setVoltageLevelId("notFoundVoltageLevelId");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> loadCreationInfos.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, "notFoundVoltageLevelId").getMessage(), exception.getMessage());
+        assertEquals("Voltage level notFoundVoltageLevelId does not exist in network", exception.getMessage());
 
         loadCreationInfos.setEquipmentId("idLoad1");
         loadCreationInfos.setVoltageLevelId("v2");
         loadCreationInfos.setBusOrBusbarSectionId("notFoundBusbarSection");
         exception = assertThrows(NetworkModificationException.class, () -> loadCreationInfos.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, "notFoundBusbarSection").getMessage(), exception.getMessage());
+        assertEquals("Busbar section notFoundBusbarSection does not exist in network", exception.getMessage());
 
         loadCreationInfos.setBusOrBusbarSectionId("1B");
         loadCreationInfos.setP0(Double.NaN);

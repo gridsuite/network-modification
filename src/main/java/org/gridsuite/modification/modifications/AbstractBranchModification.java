@@ -19,7 +19,6 @@ import org.springframework.util.StringUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BRANCH_MODIFICATION_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.NO_VALUE;
 
 /**
@@ -258,8 +257,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
             errorTypes.add(Boolean.TRUE.equals(modificationInfos.getTerminal2Connected().getValue()) ? "connect" : "disconnect");
         }
         if (!errorSides.isEmpty()) {
-            throw new NetworkModificationException(BRANCH_MODIFICATION_ERROR,
-                    String.format("Could not %s equipment '%s' on side %s",
+            throw new NetworkModificationException(String.format("Could not %s equipment '%s' on side %s",
                             errorTypes.stream().distinct().collect(Collectors.joining("/")),
                             branch.getId(),
                             errorSides.stream().map(Enum::toString).collect(Collectors.joining("/"))));

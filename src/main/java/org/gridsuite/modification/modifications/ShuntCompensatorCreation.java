@@ -15,8 +15,6 @@ import org.gridsuite.modification.dto.ShuntCompensatorType;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_SHUNT_COMPENSATOR_ERROR;
-import static org.gridsuite.modification.NetworkModificationException.Type.SHUNT_COMPENSATOR_ALREADY_EXISTS;
 import static org.gridsuite.modification.utils.ModificationUtils.createInjectionInNodeBreaker;
 
 /**
@@ -31,17 +29,17 @@ public class ShuntCompensatorCreation extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         if (network.getShuntCompensator(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationException(SHUNT_COMPENSATOR_ALREADY_EXISTS, modificationInfos.getEquipmentId());
+            throw new NetworkModificationException("Shunt compensator already exists: " + modificationInfos.getEquipmentId());
         }
 
         if (modificationInfos.getMaximumSectionCount() < 1) {
-            throw new NetworkModificationException(CREATE_SHUNT_COMPENSATOR_ERROR, "Maximum section count should be greater or equal to 1");
+            throw new NetworkModificationException("Maximum section count should be greater or equal to 1");
         }
 
         if (modificationInfos.getSectionCount() < 0 || modificationInfos.getSectionCount() > modificationInfos.getMaximumSectionCount()) {
-            throw new NetworkModificationException(CREATE_SHUNT_COMPENSATOR_ERROR, String.format("Section count should be between 0 and Maximum section count (%d), actual : %d",
+            throw new NetworkModificationException(String.format("Section count should be between 0 and Maximum section count (%d), actual : %d",
                     modificationInfos.getMaximumSectionCount(),
                     modificationInfos.getSectionCount()));
         }

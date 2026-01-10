@@ -20,7 +20,6 @@ import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.*;
 import static org.gridsuite.modification.modifications.LineCreation.addLimits;
 
 /**
@@ -35,26 +34,26 @@ public class LineAttachToVoltageLevel extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         if (network.getLine(modificationInfos.getLineToAttachToId()) == null) {
-            throw new NetworkModificationException(LINE_NOT_FOUND, modificationInfos.getLineToAttachToId());
+            throw new NetworkModificationException("Line not found: " + modificationInfos.getLineToAttachToId());
         }
         LineCreationInfos attachmentLineInfos = modificationInfos.getAttachmentLine();
         ModificationUtils.getInstance().controlNewOrExistingVoltageLevel(modificationInfos.getMayNewVoltageLevelInfos(),
                 modificationInfos.getExistingVoltageLevelId(), modificationInfos.getBbsOrBusId(), network);
         // new fictitious VL
         if (network.getVoltageLevel(modificationInfos.getAttachmentPointId()) != null) {
-            throw new NetworkModificationException(VOLTAGE_LEVEL_ALREADY_EXISTS, modificationInfos.getAttachmentPointId());
+            throw new NetworkModificationException("Voltage level already exists: " + modificationInfos.getAttachmentPointId());
         }
         // check future lines don't exist
         if (network.getLine(attachmentLineInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationException(LINE_ALREADY_EXISTS, attachmentLineInfos.getEquipmentId());
+            throw new NetworkModificationException("Line already exists: " + attachmentLineInfos.getEquipmentId());
         }
         if (network.getLine(modificationInfos.getNewLine1Id()) != null) {
-            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationInfos.getNewLine1Id());
+            throw new NetworkModificationException("Line already exists: " + modificationInfos.getNewLine1Id());
         }
         if (network.getLine(modificationInfos.getNewLine2Id()) != null) {
-            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationInfos.getNewLine2Id());
+            throw new NetworkModificationException("Line already exists: " + modificationInfos.getNewLine2Id());
         }
     }
 

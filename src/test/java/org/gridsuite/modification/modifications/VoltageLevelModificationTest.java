@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_VOLTAGE_LEVEL_ERROR;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -111,7 +110,7 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
         Network network = getNetwork();
         VoltageLevelModification voltageLevelModification = (VoltageLevelModification) vli.toModification();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelModification.check(network));
-        assertEquals(new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, reportError).getMessage(), exception.getMessage());
+        assertEquals(new NetworkModificationException(reportError).getMessage(), exception.getMessage());
     }
 
     private void testIpMinGreaterThanIpMax() {
@@ -168,7 +167,7 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
         Network network = getNetwork();
         VoltageLevelModification voltageLevelModification = (VoltageLevelModification) vli.toModification();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelModification.check(network));
-        assertEquals(new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "IpMax is required").getMessage(), exception.getMessage());
+        assertEquals("IpMax is required", exception.getMessage());
     }
 
     private void testSetNominalVoltage() {
@@ -181,7 +180,7 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
         Network network = getNetwork();
         VoltageLevelModification voltageLevelModification = (VoltageLevelModification) vli.toModification();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelModification.check(network));
-        assertEquals(new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "Voltage level 'v2' : can not have a negative value for Nominal Voltage").getMessage(), exception.getMessage());
+        assertEquals(new NetworkModificationException("Voltage level 'v2' : can not have a negative value for Nominal Voltage").getMessage(), exception.getMessage());
     }
 
     private void testSetLowVoltageLimit() {
@@ -194,7 +193,7 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
         Network network = getNetwork();
         VoltageLevelModification voltageLevelModification = (VoltageLevelModification) vli.toModification();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelModification.check(network));
-        assertEquals(new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "Voltage level 'v2' : can not have a negative value for Low voltage limit").getMessage(), exception.getMessage());
+        assertEquals(new NetworkModificationException("Voltage level 'v2' : can not have a negative value for Low voltage limit").getMessage(), exception.getMessage());
     }
 
     private void testSetHighVoltageLimit() {
@@ -207,7 +206,7 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
         Network network = getNetwork();
         VoltageLevelModification voltageLevelModification = (VoltageLevelModification) vli.toModification();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelModification.check(network));
-        assertEquals(new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "Voltage level 'v2' : can not have a negative value for High voltage limit").getMessage(), exception.getMessage());
+        assertEquals(new NetworkModificationException("Voltage level 'v2' : can not have a negative value for High voltage limit").getMessage(), exception.getMessage());
     }
 
     @Test

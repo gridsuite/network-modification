@@ -13,7 +13,6 @@ import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.GROOVY_SCRIPT_EMPTY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -46,13 +45,12 @@ class GroovyScriptTest extends AbstractNetworkModificationTest {
         groovyScriptInfos.setScript("");
         // apply empty groovy script
         Exception exception = assertThrows(NetworkModificationException.class, () -> groovyScriptInfos.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(GROOVY_SCRIPT_EMPTY).getMessage(),
-                exception.getMessage());
+        assertEquals("Groovy script empty", exception.getMessage());
 
         groovyScriptInfos.setScript("      ");
         // apply blank groovy script
         exception = assertThrows(NetworkModificationException.class, () -> groovyScriptInfos.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(GROOVY_SCRIPT_EMPTY).getMessage(),
+        assertEquals("Groovy script empty",
                 exception.getMessage());
 
         groovyScriptInfos.setScript("network.getGenerator('there is no generator').targetP=12\n");

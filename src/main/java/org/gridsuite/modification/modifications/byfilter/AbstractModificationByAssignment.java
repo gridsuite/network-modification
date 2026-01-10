@@ -93,8 +93,6 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
 
     public abstract IdentifiableType getEquipmentType();
 
-    public abstract NetworkModificationException.Type getExceptionType();
-
     public abstract List<AbstractAssignmentInfos> getAssignmentInfosList();
 
     protected abstract boolean preCheckValue(Identifiable<?> equipment,
@@ -122,17 +120,17 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         if (getModificationInfos() == null) {
-            throw new NetworkModificationException(getExceptionType(), "Missing required attributes to modify the equipment");
+            throw new NetworkModificationException("Missing required attributes to modify the equipment");
         }
 
         if (CollectionUtils.isEmpty(getAssignmentInfosList())) {
-            throw new NetworkModificationException(getExceptionType(), String.format("At least one %s is required", getModificationTypeLabel()));
+            throw new NetworkModificationException(String.format("At least one %s is required", getModificationTypeLabel()));
         }
 
         if (getAssignmentInfosList().stream().anyMatch(modificationByFilterInfos -> CollectionUtils.isEmpty(modificationByFilterInfos.getFilters()))) {
-            throw new NetworkModificationException(getExceptionType(), String.format("Every %s must have at least one filter", getModificationTypeLabel()));
+            throw new NetworkModificationException(String.format("Every %s must have at least one filter", getModificationTypeLabel()));
         }
     }
 
@@ -141,7 +139,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
         // collect all filters from all variations
         Map<UUID, String> filters = getFilters();
 
-        Map<UUID, FilterEquipments> filterUuidEquipmentsMap = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, getModificationInfos().getErrorType());
+        Map<UUID, FilterEquipments> filterUuidEquipmentsMap = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters);
 
         if (filterUuidEquipmentsMap != null) {
             ReportNode subReporter = subReportNode.newReportNode()

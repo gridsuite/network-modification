@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -115,10 +114,9 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
 
     }
 
-    private void tryToCreateLineWithExistingId(LineAttachToVoltageLevelInfos tryWithExistingLine, String existingLineId) throws Exception {
+    private void tryToCreateLineWithExistingId(LineAttachToVoltageLevelInfos tryWithExistingLine, String existingLineId) {
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> tryWithExistingLine.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(LINE_ALREADY_EXISTS, existingLineId).getMessage(),
-                exception.getMessage());
+        assertEquals("Line already exists: " + existingLineId, exception.getMessage());
     }
 
     @Override
@@ -126,8 +124,7 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
         LineAttachToVoltageLevelInfos lineAttachToAbsentLine = (LineAttachToVoltageLevelInfos) buildModification();
         lineAttachToAbsentLine.setLineToAttachToId("absent_line_id");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lineAttachToAbsentLine.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(LINE_NOT_FOUND, "absent_line_id").getMessage(),
-                exception.getMessage());
+        assertEquals("Line not found: absent_line_id", exception.getMessage());
     }
 
     @Test
@@ -148,8 +145,7 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
         LineAttachToVoltageLevelInfos tryWithAttachmentPointId = (LineAttachToVoltageLevelInfos) buildModification();
         tryWithAttachmentPointId.setAttachmentPointId("v5");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> tryWithAttachmentPointId.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(VOLTAGE_LEVEL_ALREADY_EXISTS, "v5").getMessage(),
-                exception.getMessage());
+        assertEquals("Voltage level already exists: v5", exception.getMessage());
     }
 
     @Override

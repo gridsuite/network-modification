@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_LCC_ERROR;
-import static org.gridsuite.modification.NetworkModificationException.Type.HVDC_LINE_ALREADY_EXISTS;
 import static org.gridsuite.modification.utils.ModificationUtils.createInjectionInNodeBreaker;
 import static org.gridsuite.modification.utils.ModificationUtils.reportInjectionCreationConnectivity;
 
@@ -45,9 +43,9 @@ public class LccCreation extends AbstractModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         if (network.getHvdcLine(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationException(HVDC_LINE_ALREADY_EXISTS, modificationInfos.getEquipmentId());
+            throw new NetworkModificationException("HVDC line already exists: " + modificationInfos.getEquipmentId());
         }
         checkLccConverterStation(network, modificationInfos.getConverterStation1());
         checkLccConverterStation(network, modificationInfos.getConverterStation2());
@@ -55,10 +53,10 @@ public class LccCreation extends AbstractModification {
 
     private void checkLccConverterStation(Network network, LccConverterStationCreationInfos converterStation) {
         if (converterStation == null) {
-            throw new NetworkModificationException(CREATE_LCC_ERROR, modificationInfos.getEquipmentId() + "Missing required converter station");
+            throw new NetworkModificationException("Lcc creation error: Missing required converter station: " + modificationInfos.getEquipmentId());
         }
         if (converterStation.getPowerFactor() > 1) {
-            throw new NetworkModificationException(CREATE_LCC_ERROR, "Loss factor should be less or equal to 1");
+            throw new NetworkModificationException("Lcc creation error: Loss factor should be less or equal to 1");
         }
         // check connectivity
         ModificationUtils.getInstance().controlConnectivity(network,

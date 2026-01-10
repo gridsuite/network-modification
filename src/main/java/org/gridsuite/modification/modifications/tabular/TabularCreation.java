@@ -14,8 +14,6 @@ import org.gridsuite.modification.dto.EquipmentModificationInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorCreationInfos;
 import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.TABULAR_CREATION_ERROR;
-
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
@@ -26,9 +24,9 @@ public class TabularCreation extends AbstractTabularModification {
     }
 
     @Override
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         if (modificationInfos == null) {
-            throw new NetworkModificationException(TABULAR_CREATION_ERROR, "No tabular creation to apply !!");
+            throw new NetworkModificationException("No tabular creation to apply !!");
         }
     }
 

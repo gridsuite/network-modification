@@ -30,8 +30,7 @@ public class ReferenceFieldOrValue {
 
     public Double getRefOrValue(Identifiable<?> identifiable) {
         if (value == null && equipmentField == null) {
-            throw new NetworkModificationException(NetworkModificationException.Type.BY_FORMULA_MODIFICATION_ERROR,
-                    "There is no value or reference to any of the equipment fields");
+            throw new NetworkModificationException("By formula modification error: There is no value or reference to any of the equipment fields");
         }
 
         if (value != null && !Double.isNaN(value)) {

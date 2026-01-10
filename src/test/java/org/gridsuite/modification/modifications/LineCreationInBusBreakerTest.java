@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BUS_NOT_FOUND;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE1;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE2;
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,8 +44,7 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
         LineCreationInfos lineCreationInfos = (LineCreationInfos) buildModification();
         lineCreationInfos.setBusOrBusbarSectionId2("notFoundBus");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lineCreationInfos.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(BUS_NOT_FOUND, "notFoundBus").getMessage(),
-                exception.getMessage());
+        assertEquals("Bus notFoundBus does not exist in network", exception.getMessage());
     }
 
     @Test

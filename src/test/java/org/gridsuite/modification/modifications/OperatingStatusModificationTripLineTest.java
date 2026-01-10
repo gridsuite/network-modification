@@ -72,7 +72,7 @@ class OperatingStatusModificationTripLineTest extends AbstractNetworkModificatio
         OperatingStatusModificationInfos modification = (OperatingStatusModificationInfos) buildModification();
         modification.setEquipmentId("NotFoundEquipmentId");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> modification.toModification().check(getNetwork()));
-        assertEquals("EQUIPMENT_NOT_FOUND : NotFoundEquipmentId", exception.getMessage());
+        assertEquals("Equipment not found: NotFoundEquipmentId", exception.getMessage());
     }
 
     @Test

@@ -8,7 +8,6 @@ package org.gridsuite.modification.modifications;
 
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
-import org.gridsuite.modification.NetworkModificationException;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
@@ -26,7 +25,7 @@ public abstract class AbstractModification extends AbstractNetworkModification {
         apply(network, reportNode);
     }
 
-    public void check(Network network) throws NetworkModificationException {
+    public void check(Network network) {
         // To perform input data check before hypothesis apply. Nothing to check here
     }
 

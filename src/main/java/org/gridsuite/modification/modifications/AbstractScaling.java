@@ -52,7 +52,7 @@ public abstract class AbstractScaling extends AbstractModification {
                 .filter(distinctByKey(FilterInfos::getId))
                 .collect(Collectors.toMap(FilterInfos::getId, FilterInfos::getName));
 
-        Map<UUID, FilterEquipments> exportFilters = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, scalingInfos.getErrorType());
+        Map<UUID, FilterEquipments> exportFilters = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters);
         if (exportFilters != null) {
             ModificationUtils.logWrongEquipmentsIdsFilters(subReportNode, exportFilters, filters);
 
@@ -92,7 +92,7 @@ public abstract class AbstractScaling extends AbstractModification {
                 applyStackingUpVariation(network, subReportNode, identifiableAttributes, variation);
                 break;
             default:
-                throw new NetworkModificationException(scalingInfos.getErrorType(), String.format("This variation mode is not supported : %s", variation.getVariationMode().name()));
+                throw new NetworkModificationException(String.format("This variation mode is not supported : %s", variation.getVariationMode().name()));
         }
     }
 

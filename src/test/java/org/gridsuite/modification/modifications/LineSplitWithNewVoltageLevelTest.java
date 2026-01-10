@@ -9,8 +9,8 @@ package org.gridsuite.modification.modifications;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.VoltageLevel;
 import org.gridsuite.modification.NetworkModificationException;
+import com.powsybl.iidm.network.VoltageLevel;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import java.util.Arrays;
@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -31,8 +30,7 @@ class LineSplitWithNewVoltageLevelTest extends AbstractNetworkModificationTest {
         LineSplitWithVoltageLevelInfos lineSplitAbsentLine = (LineSplitWithVoltageLevelInfos) buildModification();
         lineSplitAbsentLine.setLineToSplitId("absent_line_id");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lineSplitAbsentLine.toModification().check(getNetwork()));
-        assertEquals(new NetworkModificationException(LINE_NOT_FOUND, "absent_line_id").getMessage(),
-                exception.getMessage());
+        assertEquals("Line not found: absent_line_id", exception.getMessage());
     }
 
     @Override

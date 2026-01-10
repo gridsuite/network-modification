@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.dto;
 
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.SubstationCreation;
 
@@ -31,7 +30,6 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 @Schema(description = "Substation creation")
 @JsonTypeName("SUBSTATION_CREATION")
-@ModificationErrorTypeName("CREATE_SUBSTATION_ERROR")
 public class SubstationCreationInfos extends EquipmentCreationInfos {
 
     @Schema(description = "Substation country")

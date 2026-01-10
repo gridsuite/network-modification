@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LoadScaling;
 
@@ -28,7 +27,6 @@ import org.gridsuite.modification.modifications.LoadScaling;
 @ToString(callSuper = true)
 @Schema(description = "Load scaling creation")
 @JsonTypeName("LOAD_SCALING")
-@ModificationErrorTypeName("LOAD_SCALING_ERROR")
 public class LoadScalingInfos extends ScalingInfos {
 
     @Override

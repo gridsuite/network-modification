@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BUS_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -118,7 +117,6 @@ class LccCreationInBusBreakerTest extends AbstractNetworkModificationTest {
         LccCreation lccCreation = (LccCreation) lccCreationInfos.toModification();
         Network network = getNetwork();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lccCreation.check(network));
-        assertEquals(BUS_NOT_FOUND, exception.getType());
-        assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
+        assertEquals("Bus notFoundBus does not exist in network", exception.getMessage());
     }
 }

@@ -86,7 +86,7 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
         batteryCreationInfos.setBusOrBusbarSectionId("notFoundBus");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class,
                 () -> batteryCreationInfos.toModification().apply(getNetwork()));
-        assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
+        assertEquals("Bus notFoundBus does not exist in network", exception.getMessage());
     }
 
     @Override

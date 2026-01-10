@@ -126,7 +126,7 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
                 .withMessageTemplate("test")
                 .build());
         byFilterDeletion.apply(getNetwork(), report);
-        assertLogMessage(byFilterDeletionInfos.getErrorType().name() + ": There is no valid equipment ID among the provided filter(s)",
+        assertLogMessage("There is no valid equipment ID among the provided filter(s)",
             "network.modification.invalidFilters", report);
     }
 

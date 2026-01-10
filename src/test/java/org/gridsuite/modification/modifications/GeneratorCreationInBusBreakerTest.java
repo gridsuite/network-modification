@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BUS_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -43,8 +42,7 @@ class GeneratorCreationInBusBreakerTest extends AbstractNetworkModificationTest 
         generatorCreationInfos.setBusOrBusbarSectionId("notFoundBus");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class,
                 () -> generatorCreationInfos.toModification().check(getNetwork()));
-        assertEquals(BUS_NOT_FOUND, exception.getType());
-        assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
+        assertEquals("Bus notFoundBus does not exist in network", exception.getMessage());
     }
 
     @Override
@@ -100,7 +98,7 @@ class GeneratorCreationInBusBreakerTest extends AbstractNetworkModificationTest 
         generatorCreationInfos.setBusOrBusbarSectionId("notFoundBus");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class,
                 () -> generatorCreationInfos.toModification().check(getNetwork()));
-        assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
+        assertEquals("Bus notFoundBus does not exist in network", exception.getMessage());
     }
 
     @Test
@@ -112,7 +110,7 @@ class GeneratorCreationInBusBreakerTest extends AbstractNetworkModificationTest 
 
         NetworkModificationException exception = assertThrows(NetworkModificationException.class,
                 () -> generatorCreationInfos.toModification().check(getNetwork()));
-        assertEquals("EQUIPMENT_NOT_FOUND : Equipment with id=titi not found with type LINE", exception.getMessage());
+        assertEquals("Equipment with id=titi not found with type LINE", exception.getMessage());
     }
 
     @Override

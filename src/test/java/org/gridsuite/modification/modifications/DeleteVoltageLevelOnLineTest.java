@@ -67,7 +67,7 @@ class DeleteVoltageLevelOnLineTest extends AbstractNetworkModificationTest {
                 .replacingLine1Id("replacementLineId")
                 .build();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> deleteVoltageLevelOnLineInfos.toModification().check(getNetwork()));
-        assertEquals("LINE_NOT_FOUND : ll", exception.getMessage());
+        assertEquals("Line not found: ll", exception.getMessage());
     }
 
     @Test
@@ -76,7 +76,7 @@ class DeleteVoltageLevelOnLineTest extends AbstractNetworkModificationTest {
         DeleteVoltageLevelOnLineInfos deleteVoltageLevelOnLineInfos = (DeleteVoltageLevelOnLineInfos) buildModification();
         deleteVoltageLevelOnLineInfos.setReplacingLine1Id("l2");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> deleteVoltageLevelOnLineInfos.toModification().check(getNetwork()));
-        assertEquals("LINE_ALREADY_EXISTS : l2", exception.getMessage());
+        assertEquals("Line already exists: l2", exception.getMessage());
     }
 
     @Override
