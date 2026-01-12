@@ -357,13 +357,6 @@ public class GeneratorModification extends AbstractModification {
                                                                Generator generator, ReportNode subReportNode, ReportNode subReportNodeSetpoints) {
         List<ReportNode> voltageRegulationReports = new ArrayList<>();
 
-        // We apply modifications to regulatingTerminal and QPercent
-        // we apply modifications to the reactivepower setpoint
-        modifyGeneratorRegulatingTerminal(modificationInfos, generator, voltageRegulationReports);
-
-        // must be done after setting regulatingTerminal,
-        // if the generator regulate to local it will change the EquivalentLocalTargetV to the new target V
-        // if it regulates in remote it will keep the old EquivalentLocalTargetV
         ReportNode reportVoltageSetpoint = modifyTargetV(generator, modificationInfos.getTargetV());
         if (reportVoltageSetpoint != null) {
             voltageRegulationReports.add(reportVoltageSetpoint);
@@ -374,6 +367,10 @@ public class GeneratorModification extends AbstractModification {
         if (voltageRegulationOn != null) {
             voltageRegulationReports.add(voltageRegulationOn);
         }
+
+        // We apply modifications to regulatingTerminal and QPercent
+        // we apply modifications to the reactivepower setpoint
+        modifyGeneratorRegulatingTerminal(modificationInfos, generator, voltageRegulationReports);
 
         if (modificationInfos.getQPercent() != null) {
             CoordinatedReactiveControl coordinatedReactiveControl = generator
@@ -411,9 +408,9 @@ public class GeneratorModification extends AbstractModification {
         ReportNode reportVoltageSetpoint = null;
         if (modifTargetV != null) {
             if (modifTargetV.getOp() == OperationType.SET) {
-                boolean isRemoteVoltageRegulation = generator.getRegulatingTerminal() != null && !generator.getRegulatingTerminal().equals(generator.getTerminal());
+                // we always keep the equivalent local target voltage in the network
                 reportVoltageSetpoint = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
-                        v -> generator.setTargetV(v, isRemoteVoltageRegulation ? generator.getEquivalentLocalTargetV() : v),
+                        v -> generator.setTargetV(v, generator.getEquivalentLocalTargetV()),
                         generator::getTargetV,
                         modifTargetV, "Target Voltage");
             } else {

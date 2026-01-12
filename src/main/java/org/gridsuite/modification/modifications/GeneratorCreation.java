@@ -119,14 +119,11 @@ public class GeneratorCreation extends AbstractModification {
             .setRatedS(nanIfNull(generatorCreationInfos.getRatedS()))
             .setTargetP(generatorCreationInfos.getTargetP())
             .setTargetQ(nanIfNull(generatorCreationInfos.getTargetQ()))
-            .setVoltageRegulatorOn(generatorCreationInfos.isVoltageRegulationOn());
+            .setVoltageRegulatorOn(generatorCreationInfos.isVoltageRegulationOn())
+            .setTargetV(nanIfNull(generatorCreationInfos.getTargetV()));
 
         if (terminal != null) {
             generatorAdder.setRegulatingTerminal(terminal);
-            generatorAdder.setTargetV(nanIfNull(generatorCreationInfos.getTargetV()));
-        } else {
-            // if the new generator is not regulating the targetV is the local targetV
-            generatorAdder.setTargetV(nanIfNull(generatorCreationInfos.getTargetV()), nanIfNull(generatorCreationInfos.getTargetV()));
         }
 
         return generatorAdder;
