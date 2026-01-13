@@ -27,6 +27,9 @@ public enum VoltageLevelField {
     LOW_SHORT_CIRCUIT_CURRENT_LIMIT,
     HIGH_SHORT_CIRCUIT_CURRENT_LIMIT;
 
+    private static final String LOW_VOLTAGE_LIMIT_LABEL = "Low voltage limit";
+    private static final String HIGH_VOLTAGE_LIMIT_LABEL = "High voltage limit";
+
     public static String getReferenceValue(VoltageLevel voltageLevel, String voltageLevelField) {
         IdentifiableShortCircuit<VoltageLevel> identifiableShortCircuit = voltageLevel.getExtension(IdentifiableShortCircuit.class);
         VoltageLevelField field = VoltageLevelField.valueOf(voltageLevelField);
@@ -50,14 +53,14 @@ public enum VoltageLevelField {
             }
             case LOW_VOLTAGE_LIMIT -> {
                 Double lowVoltageLimit = parseDoubleOrNaNIfNull(newValue);
-                checkIsNotNegativeValue(errorMessage, lowVoltageLimit, MODIFY_VOLTAGE_LEVEL_ERROR, "Low voltage limit");
-                checkIsValueInferior(errorMessage, lowVoltageLimit, voltageLevel.getHighVoltageLimit(), MODIFY_VOLTAGE_LEVEL_ERROR, "Low voltage limit", "High voltage limit");
+                checkIsNotNegativeValue(errorMessage, lowVoltageLimit, MODIFY_VOLTAGE_LEVEL_ERROR, LOW_VOLTAGE_LIMIT_LABEL);
+                checkIsValueInferior(errorMessage, lowVoltageLimit, voltageLevel.getHighVoltageLimit(), MODIFY_VOLTAGE_LEVEL_ERROR, LOW_VOLTAGE_LIMIT_LABEL, HIGH_VOLTAGE_LIMIT_LABEL);
                 modifLowVoltageLimit(voltageLevel, new AttributeModification<>(lowVoltageLimit, OperationType.SET), null);
             }
             case HIGH_VOLTAGE_LIMIT -> {
                 Double highVoltageLimit = parseDoubleOrNaNIfNull(newValue);
-                checkIsNotNegativeValue(errorMessage, highVoltageLimit, MODIFY_VOLTAGE_LEVEL_ERROR, "High voltage limit");
-                checkIsValueSuperior(errorMessage, voltageLevel.getLowVoltageLimit(), highVoltageLimit, MODIFY_VOLTAGE_LEVEL_ERROR, "Low voltage limit", "High voltage limit");
+                checkIsNotNegativeValue(errorMessage, highVoltageLimit, MODIFY_VOLTAGE_LEVEL_ERROR, HIGH_VOLTAGE_LIMIT_LABEL);
+                checkIsValueSuperior(errorMessage, voltageLevel.getLowVoltageLimit(), highVoltageLimit, MODIFY_VOLTAGE_LEVEL_ERROR, LOW_VOLTAGE_LIMIT_LABEL, HIGH_VOLTAGE_LIMIT_LABEL);
                 modifyHighVoltageLimit(voltageLevel, new AttributeModification<>(highVoltageLimit, OperationType.SET), null);
             }
             case LOW_SHORT_CIRCUIT_CURRENT_LIMIT -> {
