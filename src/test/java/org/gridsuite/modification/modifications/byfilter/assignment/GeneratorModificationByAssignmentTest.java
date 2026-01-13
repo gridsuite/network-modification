@@ -44,6 +44,7 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
     private static final String GENERATOR_ID_8 = "gen8";
     private static final String GENERATOR_ID_9 = "gen9";
     private static final String GENERATOR_ID_10 = "gen10";
+    private static final String GENERATOR_ID_11 = "gen11";
 
     @Test
     void testCreateWithWarning() {
@@ -79,9 +80,9 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
                 .setTargetQ(20)
                 .newExtension(GeneratorStartupAdder.class)
                 .withMarginalCost(30.)
-                .withPlannedOutageRate(25.)
+                .withPlannedOutageRate(0.25)
                 .withPlannedActivePowerSetpoint(40.)
-                .withForcedOutageRate(55.)
+                .withForcedOutageRate(0.55)
                 .add();
 
         getNetwork().getGenerator(GENERATOR_ID_2)
@@ -92,9 +93,9 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
                 .setTargetQ(20)
                 .newExtension(GeneratorStartupAdder.class)
                 .withMarginalCost(30.)
-                .withPlannedOutageRate(25.)
+                .withPlannedOutageRate(0.25)
                 .withPlannedActivePowerSetpoint(40.)
-                .withForcedOutageRate(55.)
+                .withForcedOutageRate(0.55)
                 .add();
 
         getNetwork().getGenerator(GENERATOR_ID_3)
@@ -136,6 +137,17 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
 
         createGenerator(getNetwork().getVoltageLevel("v5"), GENERATOR_ID_10, 10, 100, 1.0, "cn10", 17, ConnectablePosition.Direction.TOP, 500, 20);
         getNetwork().getGenerator(GENERATOR_ID_10).setRatedS(30.);
+
+        // use to get warning
+        createGenerator(getNetwork().getVoltageLevel("v5"), GENERATOR_ID_11, 12, 100, 1.0, "cn10", 19, ConnectablePosition.Direction.TOP, 500, 20);
+        getNetwork().getGenerator(GENERATOR_ID_11)
+                .setTargetV(10)
+                .newExtension(GeneratorStartupAdder.class)
+                .withMarginalCost(30.)
+                .withPlannedOutageRate(0.25)
+                .withPlannedActivePowerSetpoint(40.)
+                .withForcedOutageRate(0.55)
+                .add();
     }
 
     @Override
@@ -165,7 +177,11 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
             new IdentifiableAttributes(GENERATOR_ID_10, IdentifiableType.GENERATOR, 9.0)))
                 .build();
 
-        return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3, FILTER_ID_4, filter4, FILTER_ID_5, filter5);
+        FilterEquipments filter6 = FilterEquipments.builder().filterId(FILTER_ID_6).identifiableAttributes(List.of(
+                        new IdentifiableAttributes(GENERATOR_ID_11, IdentifiableType.GENERATOR, 1.0)))
+                .build();
+
+        return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3, FILTER_ID_4, filter4, FILTER_ID_5, filter5, FILTER_ID_6, filter6);
     }
 
     @Override
@@ -267,6 +283,24 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
                 .filters(List.of(filter1))
                 .build();
 
+        DoubleAssignmentInfos assignmentInfos17 = DoubleAssignmentInfos.builder()
+                .editedField(GeneratorField.PLANNED_OUTAGE_RATE.name())
+                .value(10.)
+                .filters(List.of(filter6))
+                .build();
+
+        DoubleAssignmentInfos assignmentInfos18 = DoubleAssignmentInfos.builder()
+                .editedField(GeneratorField.FORCED_OUTAGE_RATE.name())
+                .value(11.)
+                .filters(List.of(filter6))
+                .build();
+
+        DoubleAssignmentInfos assignmentInfos19 = DoubleAssignmentInfos.builder()
+                .editedField(GeneratorField.Q_PERCENT.name())
+                .value(120.)
+                .filters(List.of(filter6))
+                .build();
+
         List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
         infosList.addAll(List.of(
                 assignmentInfos1,
@@ -284,7 +318,10 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
                 assignmentInfos13,
                 assignmentInfos14,
                 assignmentInfos15,
-                assignmentInfos16
+                assignmentInfos16,
+                assignmentInfos17,
+                assignmentInfos18,
+                assignmentInfos19
         ));
 
         return infosList;
@@ -367,6 +404,25 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
 
         assertEquals(2, getNetwork().getGenerator(GENERATOR_ID_9).getRatedS(), 0);
         assertEquals(2, getNetwork().getGenerator(GENERATOR_ID_10).getRatedS(), 0);
+
+        // check failed with filter 6 and generator 11
+        assertEquals("Assignment on filters : filter6", reportNode.getChildren().getFirst().getChildren().get(17).getMessage());
+        assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(17).getChildren().getFirst().getMessage());
+        assertEquals("Edited field : PLANNED_OUTAGE_RATE", reportNode.getChildren().getFirst().getChildren().get(17).getChildren().get(1).getMessage());
+        assertEquals("Cannot modify equipment gen11 : MODIFY_GENERATOR_ERROR : Generator 'gen11' : must have PLANNED_OUTAGE_RATE between 0 and 1",
+                reportNode.getChildren().getFirst().getChildren().get(17).getChildren().get(2).getMessage());
+
+        assertEquals("Assignment on filters : filter6", reportNode.getChildren().getFirst().getChildren().get(18).getMessage());
+        assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(18).getChildren().getFirst().getMessage());
+        assertEquals("Edited field : FORCED_OUTAGE_RATE", reportNode.getChildren().getFirst().getChildren().get(18).getChildren().get(1).getMessage());
+        assertEquals("Cannot modify equipment gen11 : MODIFY_GENERATOR_ERROR : Generator 'gen11' : must have FORCED_OUTAGE_RATE between 0 and 1",
+                reportNode.getChildren().getFirst().getChildren().get(18).getChildren().get(2).getMessage());
+
+        assertEquals("Assignment on filters : filter6", reportNode.getChildren().getFirst().getChildren().get(19).getMessage());
+        assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(19).getChildren().getFirst().getMessage());
+        assertEquals("Edited field : Q_PERCENT", reportNode.getChildren().getFirst().getChildren().get(19).getChildren().get(1).getMessage());
+        assertEquals("Cannot modify equipment gen11 : MODIFY_GENERATOR_ERROR : Generator 'gen11' : must have Q_Percent between 0 and 100",
+                reportNode.getChildren().getFirst().getChildren().get(19).getChildren().get(2).getMessage());
     }
 
     @Override

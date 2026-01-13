@@ -127,7 +127,7 @@ class VoltageLevelModificationByAssignmentTest extends AbstractModificationByAss
 
         DoubleAssignmentInfos assignmentInfos5 = DoubleAssignmentInfos.builder()
                 .editedField(VoltageLevelField.HIGH_SHORT_CIRCUIT_CURRENT_LIMIT.name())
-                .value(5.)
+                .value(80.)
                 .filters(List.of(filter4, filter5))
                 .build();
 
@@ -155,21 +155,21 @@ class VoltageLevelModificationByAssignmentTest extends AbstractModificationByAss
         assertNotNull(identifiableShortCircuit4);
         assertEquals(10, voltageLevel4.getLowVoltageLimit(), 0);
         assertEquals(2, identifiableShortCircuit4.getIpMin(), 0);
-        assertEquals(5, identifiableShortCircuit4.getIpMax(), 0);
+        assertEquals(80, identifiableShortCircuit4.getIpMax(), 0);
 
         VoltageLevel voltageLevel5 = getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_5);
         IdentifiableShortCircuit<VoltageLevel> identifiableShortCircuit5 = voltageLevel5.getExtension(IdentifiableShortCircuit.class);
         assertNotNull(identifiableShortCircuit5);
         assertEquals(120, voltageLevel5.getHighVoltageLimit(), 0);
         assertEquals(150, voltageLevel5.getNominalV(), 0);
-        assertEquals(5, identifiableShortCircuit5.getIpMax(), 0);
+        assertEquals(80, identifiableShortCircuit5.getIpMax(), 0);
 
         VoltageLevel voltageLevel6 = getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_6);
         IdentifiableShortCircuit<VoltageLevel> identifiableShortCircuit6 = voltageLevel6.getExtension(IdentifiableShortCircuit.class);
         assertNotNull(identifiableShortCircuit6);
         assertEquals(120, voltageLevel6.getHighVoltageLimit(), 0);
         assertEquals(2, identifiableShortCircuit6.getIpMin(), 0);
-        assertEquals(5, identifiableShortCircuit6.getIpMax(), 0);
+        assertEquals(80, identifiableShortCircuit6.getIpMax(), 0);
     }
 
 }

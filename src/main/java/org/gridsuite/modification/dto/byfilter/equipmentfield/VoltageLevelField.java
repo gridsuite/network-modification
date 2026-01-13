@@ -13,10 +13,9 @@ import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_VOLTAGE_LEVEL_ERROR;
-import static org.gridsuite.modification.modifications.GeneratorModification.ERROR_MESSAGE;
+import static org.gridsuite.modification.modifications.VoltageLevelModification.ERROR_MESSAGE;
 import static org.gridsuite.modification.modifications.VoltageLevelModification.*;
-import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
-import static org.gridsuite.modification.utils.ModificationUtils.parseDoubleOrNaNIfNull;
+import static org.gridsuite.modification.utils.ModificationUtils.*;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -52,19 +51,37 @@ public enum VoltageLevelField {
             case LOW_VOLTAGE_LIMIT -> {
                 Double lowVoltageLimit = parseDoubleOrNaNIfNull(newValue);
                 checkIsNotNegativeValue(errorMessage, lowVoltageLimit, MODIFY_VOLTAGE_LEVEL_ERROR, "Low voltage limit");
+                checkIsValueInferior(errorMessage, lowVoltageLimit, voltageLevel.getHighVoltageLimit(), MODIFY_VOLTAGE_LEVEL_ERROR, "Low voltage limit", "High voltage limit");
                 modifLowVoltageLimit(voltageLevel, new AttributeModification<>(lowVoltageLimit, OperationType.SET), null);
             }
             case HIGH_VOLTAGE_LIMIT -> {
                 Double highVoltageLimit = parseDoubleOrNaNIfNull(newValue);
                 checkIsNotNegativeValue(errorMessage, highVoltageLimit, MODIFY_VOLTAGE_LEVEL_ERROR, "High voltage limit");
+                checkIsValueSuperior(errorMessage, voltageLevel.getLowVoltageLimit(), highVoltageLimit, MODIFY_VOLTAGE_LEVEL_ERROR, "Low voltage limit", "High voltage limit");
                 modifyHighVoltageLimit(voltageLevel, new AttributeModification<>(highVoltageLimit, OperationType.SET), null);
             }
-            case LOW_SHORT_CIRCUIT_CURRENT_LIMIT -> modifyVoltageLevelShortCircuit(
-                    new AttributeModification<>(parseDoubleOrNaNIfNull(newValue), OperationType.SET),
-                    null, null, voltageLevel);
-            case HIGH_SHORT_CIRCUIT_CURRENT_LIMIT -> modifyVoltageLevelShortCircuit(
-                    null, new AttributeModification<>(parseDoubleOrNaNIfNull(newValue), OperationType.SET),
-                    null, voltageLevel);
+            case LOW_SHORT_CIRCUIT_CURRENT_LIMIT -> {
+                Double lowShortCircuitCurrentLimit = parseDoubleOrNaNIfNull(newValue);
+                IdentifiableShortCircuit<VoltageLevel> identifiableShortCircuit = voltageLevel.getExtension(IdentifiableShortCircuit.class);
+                if (identifiableShortCircuit != null && !Double.isNaN(identifiableShortCircuit.getIpMax())) {
+                    checkIsValueInferior(errorMessage, lowShortCircuitCurrentLimit, identifiableShortCircuit.getIpMax(), MODIFY_VOLTAGE_LEVEL_ERROR,
+                            "Low short circuit current limit", "High short circuit current limit");
+                }
+                modifyVoltageLevelShortCircuit(
+                        new AttributeModification<>(lowShortCircuitCurrentLimit, OperationType.SET),
+                        null, null, voltageLevel);
+            }
+            case HIGH_SHORT_CIRCUIT_CURRENT_LIMIT -> {
+                Double highShortCircuitCurrentLimit = parseDoubleOrNaNIfNull(newValue);
+                IdentifiableShortCircuit<VoltageLevel> identifiableShortCircuit = voltageLevel.getExtension(IdentifiableShortCircuit.class);
+                if (identifiableShortCircuit != null && !Double.isNaN(identifiableShortCircuit.getIpMin())) {
+                    checkIsValueSuperior(errorMessage, identifiableShortCircuit.getIpMin(), highShortCircuitCurrentLimit, MODIFY_VOLTAGE_LEVEL_ERROR,
+                            "Low short circuit current limit", "High short circuit current limit");
+                }
+                modifyVoltageLevelShortCircuit(
+                        null, new AttributeModification<>(highShortCircuitCurrentLimit, OperationType.SET),
+                        null, voltageLevel);
+            }
         }
     }
 }
