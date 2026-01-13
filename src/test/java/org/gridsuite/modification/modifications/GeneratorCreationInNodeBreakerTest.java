@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.EnergySource;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -88,6 +89,9 @@ class GeneratorCreationInNodeBreakerTest extends AbstractNetworkModificationTest
         assertEquals(1, getNetwork().getVoltageLevel("v2").getGeneratorStream()
                 .filter(transformer -> transformer.getId().equals("idGenerator1")).count());
         assertEquals(PROPERTY_VALUE, getNetwork().getGenerator("idGenerator1").getProperty(PROPERTY_NAME));
+        Generator generator = getNetwork().getGenerator("idGenerator1");
+        assertEquals(225.0, generator.getTargetV());
+        assertTrue(Double.isNaN(generator.getEquivalentLocalTargetV()));
     }
 
     @Override

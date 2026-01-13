@@ -358,19 +358,20 @@ public class GeneratorModification extends AbstractModification {
         List<ReportNode> voltageRegulationReports = new ArrayList<>();
 
         ReportNode reportVoltageSetpoint = modifyTargetV(generator, modificationInfos.getTargetV());
-
+        if (reportVoltageSetpoint != null) {
+            voltageRegulationReports.add(reportVoltageSetpoint);
+        }
+        // must be done after setting targetV
         ReportNode voltageRegulationOn = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(generator::setVoltageRegulatorOn, generator::isVoltageRegulatorOn,
                 modificationInfos.getVoltageRegulationOn(), "VoltageRegulationOn");
         if (voltageRegulationOn != null) {
             voltageRegulationReports.add(voltageRegulationOn);
         }
-        if (reportVoltageSetpoint != null) {
-            voltageRegulationReports.add(reportVoltageSetpoint);
-        }
 
         // We apply modifications to regulatingTerminal and QPercent
         // we apply modifications to the reactivepower setpoint
         modifyGeneratorRegulatingTerminal(modificationInfos, generator, voltageRegulationReports);
+
         if (modificationInfos.getQPercent() != null) {
             CoordinatedReactiveControl coordinatedReactiveControl = generator
                     .getExtension(CoordinatedReactiveControl.class);
@@ -407,10 +408,13 @@ public class GeneratorModification extends AbstractModification {
         ReportNode reportVoltageSetpoint = null;
         if (modifTargetV != null) {
             if (modifTargetV.getOp() == OperationType.SET) {
-                reportVoltageSetpoint = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(generator::setTargetV, generator::getTargetV,
-                        modifTargetV, "Voltage");
+                // we always keep the equivalent local target voltage in the network
+                reportVoltageSetpoint = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
+                        v -> generator.setTargetV(v, generator.getEquivalentLocalTargetV()),
+                        generator::getTargetV,
+                        modifTargetV, "Target Voltage");
             } else {
-                reportVoltageSetpoint = ModificationUtils.getInstance().buildModificationReport(generator.getTargetV(), Double.NaN, "Voltage");
+                reportVoltageSetpoint = ModificationUtils.getInstance().buildModificationReport(generator.getTargetV(), Double.NaN, "Target Voltage");
             }
         }
         return reportVoltageSetpoint;
