@@ -32,6 +32,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
 
     public static final String MAGNETIZING_CONDUCTANCE_FIELD_NAME = "Magnetizing conductance";
     private static final String TARGET_DEADBAND = "Target deadband";
+    public static final String ERROR_MESSAGE = "Two windings transformer '%s' : ";
 
     public TwoWindingsTransformerModification(TwoWindingsTransformerModificationInfos modificationInfos) {
         super(modificationInfos);
@@ -39,7 +40,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        String errorMessage = "Two windings transformer '" + modificationInfos.getEquipmentId() + "' : ";
+        String errorMessage = String.format(ERROR_MESSAGE, modificationInfos.getEquipmentId());
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(modificationInfos.getEquipmentId());
         if (transformer == null) {
             throw new NetworkModificationException(TWO_WINDINGS_TRANSFORMER_NOT_FOUND, errorMessage + "it does not exist in the network");
@@ -334,6 +335,9 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 if (regulationValueModification == null) {
                     throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value is missing when creating tap phase changer with regulation enabled");
                 }
+                if (regulationValueModification.getValue() < 0) {
+                    throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value must be positive when creating tap phase changer with regulation enabled");
+                }
                 if (regulationModeModification == null) {
                     throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation mode is missing when creating tap phase changer with regulation enabled");
                 }
@@ -345,6 +349,9 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
 
                 if (regulationValueModification == null && Double.isNaN(phaseTapChanger.getRegulationValue())) {
                     throw new NetworkModificationException(MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value is missing when modifying, phase tap changer can not regulate");
+                }
+                if (regulationValueModification != null && regulationValueModification.getValue() < 0) {
+                    throw new NetworkModificationException(MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value must be positive when modifying, phase tap changer can not regulate");
                 }
                 if (regulationModeModification == null && phaseTapChanger.getRegulationMode() == null) {
                     throw new NetworkModificationException(MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation mode is missing when modifying, phase tap changer can not regulate");

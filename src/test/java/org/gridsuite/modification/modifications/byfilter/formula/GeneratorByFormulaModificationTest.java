@@ -78,9 +78,9 @@ class GeneratorByFormulaModificationTest extends AbstractByFormulaModificationTe
                 .setMinP(0)
                 .newExtension(GeneratorStartupAdder.class)
                 .withMarginalCost(30.)
-                .withPlannedOutageRate(25.)
+                .withPlannedOutageRate(0.25)
                 .withPlannedActivePowerSetpoint(40.)
-                .withForcedOutageRate(55.)
+                .withForcedOutageRate(0.55)
                 .add();
 
         getNetwork().getGenerator(GENERATOR_ID_2)
@@ -89,9 +89,9 @@ class GeneratorByFormulaModificationTest extends AbstractByFormulaModificationTe
                 .setMinP(50)
                 .newExtension(GeneratorStartupAdder.class)
                 .withMarginalCost(30.)
-                .withPlannedOutageRate(25.)
+                .withPlannedOutageRate(0.25)
                 .withPlannedActivePowerSetpoint(40.)
-                .withForcedOutageRate(55.)
+                .withForcedOutageRate(0.55)
                 .add();
 
         getNetwork().getGenerator(GENERATOR_ID_3)
@@ -219,7 +219,7 @@ class GeneratorByFormulaModificationTest extends AbstractByFormulaModificationTe
                 List.of(filter1),
                 Operator.DIVISION,
                 ReferenceFieldOrValue.builder().equipmentField(GeneratorField.FORCED_OUTAGE_RATE.name()).build(),
-                ReferenceFieldOrValue.builder().value(0.05).build());
+                ReferenceFieldOrValue.builder().value(10.).build());
 
         FormulaInfos formulaInfos10 = getFormulaInfo(GeneratorField.MAXIMUM_ACTIVE_POWER.name(),
                 List.of(filter1, filter2, filter3, filter4, filter5),
@@ -267,8 +267,8 @@ class GeneratorByFormulaModificationTest extends AbstractByFormulaModificationTe
         assertNotNull(generatorStartup1);
         assertEquals(50, generator1.getTargetP(), 0);
         assertEquals(15, generatorStartup1.getMarginalCost(), 0);
-        assertEquals(2.5, generatorStartup1.getPlannedOutageRate(), 0);
-        assertEquals(1100, generatorStartup1.getForcedOutageRate(), 0);
+        assertEquals(0.025, generatorStartup1.getPlannedOutageRate(), 0);
+        assertEquals(0.055, generatorStartup1.getForcedOutageRate(), 0);
         assertEquals(50, generatorStartup1.getPlannedActivePowerSetpoint(), 0);
         assertEquals(502, generator1.getMaxP(), 0);
         assertEquals(50, generator1.getMinP(), 0);
@@ -278,8 +278,8 @@ class GeneratorByFormulaModificationTest extends AbstractByFormulaModificationTe
         assertNotNull(generatorStartup2);
         assertEquals(100, generator2.getTargetP(), 0);
         assertEquals(15, generatorStartup2.getMarginalCost(), 0);
-        assertEquals(2.5, generatorStartup2.getPlannedOutageRate(), 0);
-        assertEquals(1100, generatorStartup2.getForcedOutageRate(), 0);
+        assertEquals(0.025, generatorStartup2.getPlannedOutageRate(), 0);
+        assertEquals(0.055, generatorStartup2.getForcedOutageRate(), 0);
         assertEquals(50, generatorStartup2.getPlannedActivePowerSetpoint(), 0);
         assertEquals(2002, generator2.getMaxP(), 0);
         assertEquals(100, generator2.getMinP(), 0);

@@ -32,6 +32,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
  */
 
 public class VoltageLevelModification extends AbstractModification {
+
+    public static final String ERROR_MESSAGE = "Voltage level '%s' : ";
     private final VoltageLevelModificationInfos modificationInfos;
 
     public VoltageLevelModification(VoltageLevelModificationInfos voltageLevelModificationInfos) {
@@ -42,7 +44,7 @@ public class VoltageLevelModification extends AbstractModification {
     public void check(Network network) throws NetworkModificationException {
         boolean ipMinSet = false;
         boolean ipMaxSet = false;
-        String errorMessage = "Voltage level '" + modificationInfos.getEquipmentId() + "' : ";
+        String errorMessage = String.format(ERROR_MESSAGE, modificationInfos.getEquipmentId());
         if (Objects.nonNull(modificationInfos.getIpMin())) {
             ipMinSet = true;
             if (modificationInfos.getIpMin().getValue() < 0) {

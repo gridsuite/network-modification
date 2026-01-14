@@ -99,11 +99,19 @@ public enum GeneratorField {
             case MARGINAL_COST -> modifyGeneratorStartUpAttributes(
                     null, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET),
                     null, null, generator, null, null);
-            case PLANNED_OUTAGE_RATE -> modifyGeneratorStartUpAttributes(
-                    null, null, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET),
-                    null, generator, null, null);
-            case FORCED_OUTAGE_RATE ->
-                    modifyGeneratorStartUpAttributes(null, null, null, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), generator, null, null);
+            case PLANNED_OUTAGE_RATE -> {
+                double plannedOutageRate = Double.parseDouble(newValue);
+                ModificationUtils.checkIsBetween0And1(errorMessage, plannedOutageRate, MODIFY_GENERATOR_ERROR, "PLANNED_OUTAGE_RATE");
+                modifyGeneratorStartUpAttributes(
+                        null, null, new AttributeModification<>(plannedOutageRate, OperationType.SET),
+                        null, generator, null, null);
+            }
+            case FORCED_OUTAGE_RATE -> {
+                double forcedOutageRate = Double.parseDouble(newValue);
+                ModificationUtils.checkIsBetween0And1(errorMessage, forcedOutageRate, MODIFY_GENERATOR_ERROR, "FORCED_OUTAGE_RATE");
+                modifyGeneratorStartUpAttributes(null, null, null,
+                        new AttributeModification<>(forcedOutageRate, OperationType.SET), generator, null, null);
+            }
             case DROOP -> {
                 Float droopValue = Float.parseFloat(newValue);
                 ModificationUtils.checkIsPercentage(errorMessage, droopValue, MODIFY_GENERATOR_ERROR, "Droop");
@@ -119,9 +127,13 @@ public enum GeneratorField {
             case STEP_UP_TRANSFORMER_REACTANCE -> ModificationUtils.getInstance().modifyShortCircuitExtension(null,
                     new AttributeModification<>(parseDoubleOrNaNIfNull(newValue), OperationType.SET), generator.getExtension(GeneratorShortCircuit.class),
                     () -> generator.newExtension(GeneratorShortCircuitAdder.class), null);
-            case Q_PERCENT -> generator.newExtension(CoordinatedReactiveControlAdderImpl.class)
-                    .withQPercent(Double.parseDouble(newValue))
-                    .add();
+            case Q_PERCENT -> {
+                double qPercent = Double.parseDouble(newValue);
+                ModificationUtils.checkIsPercentage(errorMessage, qPercent, MODIFY_GENERATOR_ERROR, "Q_Percent");
+                generator.newExtension(CoordinatedReactiveControlAdderImpl.class)
+                        .withQPercent(qPercent)
+                        .add();
+            }
             case VOLTAGE_REGULATOR_ON -> generator.setVoltageRegulatorOn(Boolean.parseBoolean(newValue));
         }
     }
