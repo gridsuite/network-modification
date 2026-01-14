@@ -1875,13 +1875,13 @@ public final class ModificationUtils {
 
     public static void checkIsValueInferior(String errorMessage, Double minValueToCheck, Double maxValue, NetworkModificationException.Type exceptionType, String minValueName, String maxValueName) throws NetworkModificationException {
         if (minValueToCheck != null && !Double.isNaN(minValueToCheck) && maxValue != null && !Double.isNaN(maxValue) && maxValue < minValueToCheck) {
-            throw new NetworkModificationException(exceptionType, String.format("%s %s (%f) must be inferior to %s (%f)", errorMessage, minValueName, minValueToCheck, maxValueName, maxValue));
+            throw new NetworkModificationException(exceptionType, errorMessage + " " + minValueName + " (" + minValueToCheck + ") must be inferior to " + maxValueName + " (" + maxValue + ")");
         }
     }
 
     public static void checkIsValueSuperior(String errorMessage, Double minValue, Double maxValueToCheck, NetworkModificationException.Type exceptionType, String minValueName, String maxValueName) throws NetworkModificationException {
         if (minValue != null && !Double.isNaN(minValue) && maxValueToCheck != null && !Double.isNaN(maxValueToCheck) && maxValueToCheck < minValue) {
-            throw new NetworkModificationException(exceptionType, String.format("%s %s (%f) must be superior to %s (%f)", errorMessage, maxValueName, maxValueToCheck, minValueName, minValue));
+            throw new NetworkModificationException(exceptionType, errorMessage + " " + maxValueName + " (" + maxValueToCheck + ") must be superior to " + minValueName + " (" + minValue + ")");
         }
     }
 
