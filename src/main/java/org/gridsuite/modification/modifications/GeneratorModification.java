@@ -31,6 +31,7 @@ public class GeneratorModification extends AbstractModification {
     private static final String LIMITS = "network.modification.limits";
     private static final String ACTIVE_LIMITS = "network.modification.ActiveLimits";
     private static final String SETPOINTS = "network.modification.Setpoints";
+    private static final String TARGET_VOLTAGE = "Target Voltage";
     public static final String ERROR_MESSAGE = "Generator '%s' : ";
 
     private final GeneratorModificationInfos modificationInfos;
@@ -70,7 +71,7 @@ public class GeneratorModification extends AbstractModification {
             checkIsPercentage(errorMessage, modificationInfos.getDroop().getValue(), MODIFY_GENERATOR_ERROR, "Droop");
         }
         if (modificationInfos.getTargetV() != null) {
-            checkIsNotNegativeValue(errorMessage, modificationInfos.getTargetV().getValue(), MODIFY_GENERATOR_ERROR, "Target Voltage");
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getTargetV().getValue(), MODIFY_GENERATOR_ERROR, TARGET_VOLTAGE);
         }
     }
 
@@ -412,9 +413,9 @@ public class GeneratorModification extends AbstractModification {
                 reportVoltageSetpoint = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
                         v -> generator.setTargetV(v, generator.getEquivalentLocalTargetV()),
                         generator::getTargetV,
-                        modifTargetV, "Target Voltage");
+                        modifTargetV, TARGET_VOLTAGE);
             } else {
-                reportVoltageSetpoint = ModificationUtils.getInstance().buildModificationReport(generator.getTargetV(), Double.NaN, "Target Voltage");
+                reportVoltageSetpoint = ModificationUtils.getInstance().buildModificationReport(generator.getTargetV(), Double.NaN, TARGET_VOLTAGE);
             }
         }
         return reportVoltageSetpoint;
