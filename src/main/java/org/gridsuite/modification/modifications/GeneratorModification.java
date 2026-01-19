@@ -31,6 +31,7 @@ public class GeneratorModification extends AbstractModification {
     private static final String LIMITS = "network.modification.limits";
     private static final String ACTIVE_LIMITS = "network.modification.ActiveLimits";
     private static final String SETPOINTS = "network.modification.Setpoints";
+    private static final String TARGET_VOLTAGE = "Target Voltage";
     public static final String ERROR_MESSAGE = "Generator '%s' : ";
 
     private final GeneratorModificationInfos modificationInfos;
@@ -70,7 +71,7 @@ public class GeneratorModification extends AbstractModification {
             checkIsPercentage(errorMessage, modificationInfos.getDroop().getValue(), MODIFY_GENERATOR_ERROR, "Droop");
         }
         if (modificationInfos.getTargetV() != null) {
-            checkIsNotNegativeValue(errorMessage, modificationInfos.getTargetV().getValue(), MODIFY_GENERATOR_ERROR, "Target Voltage");
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getTargetV().getValue(), MODIFY_GENERATOR_ERROR, TARGET_VOLTAGE);
         }
     }
 
@@ -358,19 +359,20 @@ public class GeneratorModification extends AbstractModification {
         List<ReportNode> voltageRegulationReports = new ArrayList<>();
 
         ReportNode reportVoltageSetpoint = modifyTargetV(generator, modificationInfos.getTargetV());
-
+        if (reportVoltageSetpoint != null) {
+            voltageRegulationReports.add(reportVoltageSetpoint);
+        }
+        // must be done after setting targetV
         ReportNode voltageRegulationOn = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(generator::setVoltageRegulatorOn, generator::isVoltageRegulatorOn,
                 modificationInfos.getVoltageRegulationOn(), "VoltageRegulationOn");
         if (voltageRegulationOn != null) {
             voltageRegulationReports.add(voltageRegulationOn);
         }
-        if (reportVoltageSetpoint != null) {
-            voltageRegulationReports.add(reportVoltageSetpoint);
-        }
 
         // We apply modifications to regulatingTerminal and QPercent
         // we apply modifications to the reactivepower setpoint
         modifyGeneratorRegulatingTerminal(modificationInfos, generator, voltageRegulationReports);
+
         if (modificationInfos.getQPercent() != null) {
             CoordinatedReactiveControl coordinatedReactiveControl = generator
                     .getExtension(CoordinatedReactiveControl.class);
@@ -407,10 +409,13 @@ public class GeneratorModification extends AbstractModification {
         ReportNode reportVoltageSetpoint = null;
         if (modifTargetV != null) {
             if (modifTargetV.getOp() == OperationType.SET) {
-                reportVoltageSetpoint = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(generator::setTargetV, generator::getTargetV,
-                        modifTargetV, "Voltage");
+                // we always keep the equivalent local target voltage in the network
+                reportVoltageSetpoint = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
+                        v -> generator.setTargetV(v, generator.getEquivalentLocalTargetV()),
+                        generator::getTargetV,
+                        modifTargetV, TARGET_VOLTAGE);
             } else {
-                reportVoltageSetpoint = ModificationUtils.getInstance().buildModificationReport(generator.getTargetV(), Double.NaN, "Voltage");
+                reportVoltageSetpoint = ModificationUtils.getInstance().buildModificationReport(generator.getTargetV(), Double.NaN, TARGET_VOLTAGE);
             }
         }
         return reportVoltageSetpoint;
