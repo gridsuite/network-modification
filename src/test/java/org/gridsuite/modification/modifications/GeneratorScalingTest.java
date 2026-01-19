@@ -9,7 +9,7 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
+import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.VariationMode;
 import org.gridsuite.modification.VariationType;

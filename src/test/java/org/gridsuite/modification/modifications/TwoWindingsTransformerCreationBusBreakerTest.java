@@ -172,6 +172,7 @@ class TwoWindingsTransformerCreationBusBreakerTest extends AbstractNetworkModifi
         PowsyblException exception = assertThrows(PowsyblException.class, () -> twoWindingsTransformerCreationInfos.toModification().apply(getNetwork()));
         assertEquals("Invalid id ''", exception.getMessage());
 
+        twoWindingsTransformerCreationInfos.setEquipmentId("new2wt");
         twoWindingsTransformerCreationInfos.setBusOrBusbarSectionId1("notFoundBus");
         exception = assertThrows(PowsyblException.class, () -> twoWindingsTransformerCreationInfos.toModification().check(getNetwork()));
         assertEquals(BUS_NOT_FOUND + " : notFoundBus", exception.getMessage());

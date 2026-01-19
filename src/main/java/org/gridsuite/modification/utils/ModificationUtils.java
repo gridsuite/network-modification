@@ -11,7 +11,6 @@ import com.powsybl.commons.report.*;
 import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
-import com.powsybl.network.store.iidm.impl.MinMaxReactiveLimitsImpl;
 import org.apache.commons.math3.util.Pair;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.NetworkModificationException;
@@ -1271,7 +1270,7 @@ public final class ModificationUtils {
         if (reactiveLimits != null) {
             ReactiveLimitsKind limitsKind = reactiveLimits.getKind();
             if (limitsKind == ReactiveLimitsKind.MIN_MAX) {
-                minMaxReactiveLimits = reactiveLimitsHolder.getReactiveLimits(MinMaxReactiveLimitsImpl.class);
+                minMaxReactiveLimits = reactiveLimitsHolder.getReactiveLimits(MinMaxReactiveLimits.class);
             }
         }
         modifyMinMaxReactiveLimits(minMaxReactiveLimits,

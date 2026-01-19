@@ -9,7 +9,7 @@ package org.gridsuite.modification.utils;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
-import com.powsybl.network.store.iidm.impl.NetworkFactoryImpl;
+import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 
 import java.util.UUID;
 
