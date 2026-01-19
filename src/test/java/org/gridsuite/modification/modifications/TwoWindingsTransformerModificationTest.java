@@ -985,5 +985,27 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertEquals("1.1", BusbarSectionFinderTraverser.findBusbarSectionId(terminal1));
         assertEquals("1A", BusbarSectionFinderTraverser.findBusbarSectionId(terminal2));
     }
+
+    @Test
+    void testProcessPhaseTapChangerRegulationModification() {
+        TwoWindingsTransformer twt = createTwoWindingsTransformer(getNetwork().getSubstation("s1"), "trf3", "trf3", 2.0, 14.745, 0.0, 3.2E-5, 400.0, 225.0,
+                41, 151, getNetwork().getVoltageLevel("v1").getId(), getNetwork().getVoltageLevel("v2").getId(),
+                "trf3", 1, ConnectablePosition.Direction.TOP,
+                "trf3", 2, ConnectablePosition.Direction.TOP);
+        PhaseTapChangerAdder adder = twt.newPhaseTapChanger();
+        preparePhaseTapChangerAdder(adder);
+        adder.add();
+        String message = assertThrows(NetworkModificationException.class, () -> processPhaseTapRegulation(null, adder, false,
+                new AttributeModification<>(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, OperationType.SET),
+                new AttributeModification<>(-10.0, OperationType.SET), null,
+                new AttributeModification<>(true, OperationType.SET), List.of())).getMessage();
+        assertEquals("CREATE_TWO_WINDINGS_TRANSFORMER_ERROR : Regulation value must be positive when creating tap phase changer with regulation enabled", message);
+        String message2 = assertThrows(NetworkModificationException.class, () -> processPhaseTapRegulation(twt.getPhaseTapChanger(), null, true,
+                new AttributeModification<>(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, OperationType.SET),
+                new AttributeModification<>(-10.0, OperationType.SET), null,
+                new AttributeModification<>(true, OperationType.SET), List.of())).getMessage();
+        assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Regulation value must be positive when modifying, phase tap changer can not regulate", message2);
+    }
+
 }
 
