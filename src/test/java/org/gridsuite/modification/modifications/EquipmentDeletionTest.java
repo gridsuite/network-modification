@@ -101,12 +101,12 @@ class EquipmentDeletionTest extends AbstractNetworkModificationTest {
 
     @CsvSource({"true,  1", "true,  2", "false, 1", "false, 2"})
     @ParameterizedTest(name = ParameterizedTest.ARGUMENTS_WITH_NAMES_PLACEHOLDER)
-    void testDeleteHvdcWithLCCWithShuntCompensator(final boolean selected, final int side) throws Exception {
+    void testDeleteHvdcWithLCCWithShuntCompensator(final boolean selected, final int side) {
         deleteHvdcLineWithShuntCompensator("v2shunt", selected, side, false);
     }
 
     @Test
-    void testDeleteHvdcWithLCCWithAlreadyDeletedShuntCompensator() throws Exception {
+    void testDeleteHvdcWithLCCWithAlreadyDeletedShuntCompensator() {
         // we select a nonexistent shunt: will produce a warning
         deleteHvdcLineWithShuntCompensator("deletedOrMissingShuntId", true, 1, true);
     }
