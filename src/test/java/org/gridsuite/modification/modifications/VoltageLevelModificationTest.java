@@ -228,7 +228,7 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
         assertNotNull(voltageLevelUpdated);
         IdentifiableShortCircuit<VoltageLevel> identifiableShortCircuit1 = voltageLevelUpdated.getExtension(IdentifiableShortCircuit.class);
         assertNotNull(identifiableShortCircuit1);
-        assertEquals(0, identifiableShortCircuit1.getIpMin(), 0);
+        assertEquals(Double.NaN, identifiableShortCircuit1.getIpMin(), 0);
         assertEquals(targetIpMax, identifiableShortCircuit1.getIpMax(), 0);
     }
 

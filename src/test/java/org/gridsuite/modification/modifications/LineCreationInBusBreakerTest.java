@@ -73,7 +73,7 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
                 .selectedOperationalLimitsGroupId1("limiSet1")
                 .build();
         ValidationException exception = assertThrows(ValidationException.class, () -> lineCreationInfosPermanentLimitNOK.toModification().apply(getNetwork()));
-        assertEquals("AC Line 'idLine2': permanent limit must be >= 0", exception.getMessage());
+        assertEquals("AC line 'idLine2': permanent limit must be >= 0", exception.getMessage());
     }
 
     @Test

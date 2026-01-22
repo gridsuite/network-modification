@@ -60,7 +60,7 @@ class EquipmentDeletionTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void testOkWhenRemovingIsolatedEquipment() throws Exception {
+    void testOkWhenRemovingIsolatedEquipment() {
 
         EquipmentDeletionInfos equipmentDeletionInfos = EquipmentDeletionInfos.builder()
                 .stashed(false)
@@ -71,10 +71,10 @@ class EquipmentDeletionTest extends AbstractNetworkModificationTest {
         // delete load with error removing dangling switches, because the load connection node is not linked to any other node
         equipmentDeletionInfos.toModification().apply(getNetwork());
         var v5 = getNetwork().getVoltageLevel("v5");
-        assertNull(v5.getNodeBreakerView().getTerminal(2));
+        assertThrows(PowsyblException.class, () -> v5.getNodeBreakerView().getTerminal(2));
     }
 
-    private void deleteHvdcLineWithShuntCompensator(String shuntNameToBeRemoved, boolean selected, int side, boolean warningCase) throws Exception {
+    private void deleteHvdcLineWithShuntCompensator(String shuntNameToBeRemoved, boolean selected, int side, boolean warningCase) {
         final String hvdcLineName = "hvdcLine"; // this line uses LCC converter stations
         assertNotNull(getNetwork().getHvdcLine(hvdcLineName));
         assertEquals(warningCase, getNetwork().getShuntCompensator(shuntNameToBeRemoved) == null);
@@ -101,12 +101,12 @@ class EquipmentDeletionTest extends AbstractNetworkModificationTest {
 
     @CsvSource({"true,  1", "true,  2", "false, 1", "false, 2"})
     @ParameterizedTest(name = ParameterizedTest.ARGUMENTS_WITH_NAMES_PLACEHOLDER)
-    void testDeleteHvdcWithLCCWithShuntCompensator(final boolean selected, final int side) throws Exception {
+    void testDeleteHvdcWithLCCWithShuntCompensator(final boolean selected, final int side) {
         deleteHvdcLineWithShuntCompensator("v2shunt", selected, side, false);
     }
 
     @Test
-    void testDeleteHvdcWithLCCWithAlreadyDeletedShuntCompensator() throws Exception {
+    void testDeleteHvdcWithLCCWithAlreadyDeletedShuntCompensator() {
         // we select a nonexistent shunt: will produce a warning
         deleteHvdcLineWithShuntCompensator("deletedOrMissingShuntId", true, 1, true);
     }

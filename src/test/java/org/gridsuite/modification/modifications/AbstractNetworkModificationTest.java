@@ -8,7 +8,6 @@ package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.network.store.iidm.impl.NetworkImpl;
 
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,10 +64,6 @@ public abstract class AbstractNetworkModificationTest {
 
     protected UUID getNetworkId() {
         return TEST_NETWORK_ID;
-    }
-
-    protected UUID getNetworkUuid() {
-        return ((NetworkImpl) network).getUuid();
     }
 
     protected abstract Network createNetwork(UUID networkUuid);

@@ -10,7 +10,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
-import com.powsybl.network.store.iidm.impl.extensions.CoordinatedReactiveControlAdderImpl;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -378,7 +377,7 @@ public class GeneratorModification extends AbstractModification {
                     .getExtension(CoordinatedReactiveControl.class);
             Double oldQPercent = coordinatedReactiveControl != null ? coordinatedReactiveControl.getQPercent()
                     : Double.NaN;
-            generator.newExtension(CoordinatedReactiveControlAdderImpl.class)
+            generator.newExtension(CoordinatedReactiveControlAdder.class)
                     .withQPercent(modificationInfos.getQPercent().getValue())
                     .add();
             voltageRegulationReports.add(ModificationUtils.getInstance().buildModificationReport(
