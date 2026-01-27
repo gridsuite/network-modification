@@ -19,7 +19,7 @@
 
     <groupId>org.gridsuite</groupId>
     <artifactId>gridsuite-network-modification</artifactId>
-    <version>0.61.0-SNAPSHOT</version>
+    <version>0.62.0-SNAPSHOT</version>
 
     <packaging>jar</packaging>
     <name>Network modification library</name>
@@ -44,6 +44,7 @@
     <properties>
         <powsybl-ws-dependencies.version>2.30.0</powsybl-ws-dependencies.version>
         <gridsuite-filter.version>1.19.0</gridsuite-filter.version>
+        <swagger-annotations.version>2.2.36</swagger-annotations.version>
         <sonar.organization>gridsuite</sonar.organization>
         <sonar.projectKey>org.gridsuite:network-modification</sonar.projectKey>
     </properties>
@@ -93,6 +94,15 @@
     <dependencies>
         <!-- Compilation dependencies -->
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations-jakarta</artifactId>
+            <version>${swagger-annotations.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.gridsuite</groupId>
             <artifactId>gridsuite-filter</artifactId>
         </dependency>
@@ -121,10 +131,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-modification</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-network-store-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

@@ -6,90 +6,60 @@
  */
 package org.gridsuite.modification;
 
-import com.powsybl.network.store.client.PreloadingStrategy;
-
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public enum ModificationType {
-    EQUIPMENT_ATTRIBUTE_MODIFICATION(PreloadingStrategy.NONE),
-    LOAD_CREATION(PreloadingStrategy.NONE),
-    LOAD_MODIFICATION(PreloadingStrategy.NONE),
-    BALANCES_ADJUSTMENT_MODIFICATION(PreloadingStrategy.ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW),
-    BATTERY_CREATION(PreloadingStrategy.NONE),
-    BATTERY_MODIFICATION(PreloadingStrategy.NONE),
-    GENERATOR_CREATION(PreloadingStrategy.NONE),
-    GENERATOR_MODIFICATION(PreloadingStrategy.NONE),
-    EQUIPMENT_DELETION(PreloadingStrategy.NONE),
-    BY_FILTER_DELETION(PreloadingStrategy.COLLECTION),
-    LINE_CREATION(PreloadingStrategy.NONE),
-    LINE_MODIFICATION(PreloadingStrategy.NONE),
-    TWO_WINDINGS_TRANSFORMER_CREATION(PreloadingStrategy.NONE),
-    TWO_WINDINGS_TRANSFORMER_MODIFICATION(PreloadingStrategy.NONE),
-    GROOVY_SCRIPT(PreloadingStrategy.COLLECTION),
-    SUBSTATION_CREATION(PreloadingStrategy.NONE),
-    SUBSTATION_MODIFICATION(PreloadingStrategy.NONE),
-    SHUNT_COMPENSATOR_CREATION(PreloadingStrategy.NONE),
-    SHUNT_COMPENSATOR_MODIFICATION(PreloadingStrategy.NONE),
-    STATIC_VAR_COMPENSATOR_CREATION(PreloadingStrategy.NONE),
-    VOLTAGE_LEVEL_CREATION(PreloadingStrategy.NONE),
-    VOLTAGE_LEVEL_MODIFICATION(PreloadingStrategy.NONE),
-    LINE_SPLIT_WITH_VOLTAGE_LEVEL(PreloadingStrategy.NONE),
-    LINE_ATTACH_TO_VOLTAGE_LEVEL(PreloadingStrategy.NONE),
-    LINES_ATTACH_TO_SPLIT_LINES(PreloadingStrategy.NONE),
-    GENERATOR_SCALING(PreloadingStrategy.COLLECTION),
-    LOAD_SCALING(PreloadingStrategy.COLLECTION),
-    OPERATING_STATUS_MODIFICATION(PreloadingStrategy.NONE),
-    DELETE_VOLTAGE_LEVEL_ON_LINE(PreloadingStrategy.NONE),
-    DELETE_ATTACHING_LINE(PreloadingStrategy.NONE),
-    GENERATION_DISPATCH(PreloadingStrategy.COLLECTION),
-    VOLTAGE_INIT_MODIFICATION(PreloadingStrategy.ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW),
-    VSC_CREATION(PreloadingStrategy.NONE),
-    VSC_MODIFICATION(PreloadingStrategy.NONE),
-    CONVERTER_STATION_CREATION(PreloadingStrategy.NONE),
-    CONVERTER_STATION_MODIFICATION(PreloadingStrategy.NONE),
-    TABULAR_MODIFICATION(PreloadingStrategy.COLLECTION),
-    TABULAR_CREATION(PreloadingStrategy.COLLECTION),
-    BY_FORMULA_MODIFICATION(PreloadingStrategy.COLLECTION),
-    MODIFICATION_BY_ASSIGNMENT(PreloadingStrategy.COLLECTION),
-    COMPOSITE_MODIFICATION(PreloadingStrategy.COLLECTION),
-    LCC_CONVERTER_STATION_CREATION(PreloadingStrategy.NONE),
-    LCC_CONVERTER_STATION_MODIFICATION(PreloadingStrategy.NONE),
-    LCC_CREATION(PreloadingStrategy.NONE),
-    LCC_MODIFICATION(PreloadingStrategy.NONE),
-    VOLTAGE_LEVEL_TOPOLOGY_MODIFICATION(PreloadingStrategy.NONE),
-    CREATE_COUPLING_DEVICE(PreloadingStrategy.NONE),
-    CREATE_VOLTAGE_LEVEL_TOPOLOGY(PreloadingStrategy.NONE),
-    LIMIT_SETS_TABULAR_MODIFICATION(PreloadingStrategy.COLLECTION),
-    CREATE_VOLTAGE_LEVEL_SECTION(PreloadingStrategy.NONE),
-    MOVE_VOLTAGE_LEVEL_FEEDER_BAYS(PreloadingStrategy.NONE);
-
-    private final PreloadingStrategy strategy;
-
-    ModificationType(PreloadingStrategy strategy) {
-        this.strategy = strategy;
-    }
-
-    public PreloadingStrategy getStrategy() {
-        return strategy;
-    }
-
-    public ModificationType maxStrategy(ModificationType other) {
-        return switch (strategy) {
-            case NONE -> {
-                if (other.strategy != PreloadingStrategy.NONE) {
-                    yield other;
-                }
-                yield this;
-            }
-            case COLLECTION -> {
-                if (other.strategy == PreloadingStrategy.ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW) {
-                    yield other;
-                }
-                yield this;
-            }
-            case ALL_COLLECTIONS_NEEDED_FOR_BUS_VIEW -> this;
-        };
-    }
+    EQUIPMENT_ATTRIBUTE_MODIFICATION,
+    LOAD_CREATION,
+    LOAD_MODIFICATION,
+    BALANCES_ADJUSTMENT_MODIFICATION,
+    BATTERY_CREATION,
+    BATTERY_MODIFICATION,
+    GENERATOR_CREATION,
+    GENERATOR_MODIFICATION,
+    EQUIPMENT_DELETION,
+    BY_FILTER_DELETION,
+    LINE_CREATION,
+    LINE_MODIFICATION,
+    TWO_WINDINGS_TRANSFORMER_CREATION,
+    TWO_WINDINGS_TRANSFORMER_MODIFICATION,
+    GROOVY_SCRIPT,
+    SUBSTATION_CREATION,
+    SUBSTATION_MODIFICATION,
+    SHUNT_COMPENSATOR_CREATION,
+    SHUNT_COMPENSATOR_MODIFICATION,
+    STATIC_VAR_COMPENSATOR_CREATION,
+    VOLTAGE_LEVEL_CREATION,
+    VOLTAGE_LEVEL_MODIFICATION,
+    LINE_SPLIT_WITH_VOLTAGE_LEVEL,
+    LINE_ATTACH_TO_VOLTAGE_LEVEL,
+    LINES_ATTACH_TO_SPLIT_LINES,
+    GENERATOR_SCALING,
+    LOAD_SCALING,
+    OPERATING_STATUS_MODIFICATION,
+    DELETE_VOLTAGE_LEVEL_ON_LINE,
+    DELETE_ATTACHING_LINE,
+    GENERATION_DISPATCH,
+    VOLTAGE_INIT_MODIFICATION,
+    VSC_CREATION,
+    VSC_MODIFICATION,
+    CONVERTER_STATION_CREATION,
+    CONVERTER_STATION_MODIFICATION,
+    TABULAR_MODIFICATION,
+    TABULAR_CREATION,
+    BY_FORMULA_MODIFICATION,
+    MODIFICATION_BY_ASSIGNMENT,
+    COMPOSITE_MODIFICATION,
+    LCC_CONVERTER_STATION_CREATION,
+    LCC_CONVERTER_STATION_MODIFICATION,
+    LCC_CREATION,
+    LCC_MODIFICATION,
+    VOLTAGE_LEVEL_TOPOLOGY_MODIFICATION,
+    CREATE_COUPLING_DEVICE,
+    CREATE_VOLTAGE_LEVEL_TOPOLOGY,
+    LIMIT_SETS_TABULAR_MODIFICATION,
+    CREATE_VOLTAGE_LEVEL_SECTION,
+    MOVE_VOLTAGE_LEVEL_FEEDER_BAYS
 }

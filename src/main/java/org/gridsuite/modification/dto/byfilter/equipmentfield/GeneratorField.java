@@ -9,7 +9,6 @@ package org.gridsuite.modification.dto.byfilter.equipmentfield;
 
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.*;
-import com.powsybl.network.store.iidm.impl.extensions.CoordinatedReactiveControlAdderImpl;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -130,7 +129,7 @@ public enum GeneratorField {
             case Q_PERCENT -> {
                 double qPercent = Double.parseDouble(newValue);
                 ModificationUtils.checkIsPercentage(errorMessage, qPercent, MODIFY_GENERATOR_ERROR, "Q_Percent");
-                generator.newExtension(CoordinatedReactiveControlAdderImpl.class)
+                generator.newExtension(CoordinatedReactiveControlAdder.class)
                         .withQPercent(qPercent)
                         .add();
             }

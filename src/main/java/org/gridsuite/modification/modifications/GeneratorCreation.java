@@ -11,9 +11,9 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
+import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuitAdder;
-import com.powsybl.network.store.iidm.impl.extensions.CoordinatedReactiveControlAdderImpl;
-import com.powsybl.network.store.iidm.impl.extensions.GeneratorStartupAdderImpl;
+import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.GeneratorCreationInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
@@ -208,7 +208,7 @@ public class GeneratorCreation extends AbstractModification {
         }
         if (generatorCreationInfos.getQPercent() != null) {
             try {
-                generator.newExtension(CoordinatedReactiveControlAdderImpl.class)
+                generator.newExtension(CoordinatedReactiveControlAdder.class)
                         .withQPercent(generatorCreationInfos.getQPercent()).add();
                 voltageReports.add(ModificationUtils.getInstance().buildCreationReport(generatorCreationInfos.getQPercent(), "Reactive percentage"));
             } catch (PowsyblException e) {
@@ -263,7 +263,7 @@ public class GeneratorCreation extends AbstractModification {
                 || generatorCreationInfos.getForcedOutageRate() != null) {
             List<ReportNode> startupReports = new ArrayList<>();
             try {
-                generator.newExtension(GeneratorStartupAdderImpl.class)
+                generator.newExtension(GeneratorStartupAdder.class)
                         .withPlannedActivePowerSetpoint(nanIfNull(generatorCreationInfos.getPlannedActivePowerSetPoint()))
                         .withMarginalCost(nanIfNull(generatorCreationInfos.getMarginalCost()))
                         .withPlannedOutageRate(nanIfNull(generatorCreationInfos.getPlannedOutageRate()))

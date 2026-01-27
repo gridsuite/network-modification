@@ -891,7 +891,6 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
 
         assertEquals("v3", ratioTapChanger.getRegulationTerminal().getVoltageLevel().getId());
         assertEquals("v3load", ratioTapChanger.getRegulationTerminal().getConnectable().getId());
-        assertEquals(ThreeSides.ONE, ratioTapChanger.getRegulationTerminal().getSide());
 
         // apply modification with loadTapChangingCapabilities set to false
         twoWindingsTransformerModificationInfos = TwoWindingsTransformerModificationInfos.builder()
@@ -933,7 +932,6 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertSame(RatioTapChanger.RegulationMode.VOLTAGE, ratioTapChanger.getRegulationMode());
         assertEquals("v3", ratioTapChanger.getRegulationTerminal().getVoltageLevel().getId());
         assertEquals("v3load", ratioTapChanger.getRegulationTerminal().getConnectable().getId());
-        assertEquals(ThreeSides.ONE, ratioTapChanger.getRegulationTerminal().getSide());
     }
 
     private TwoWindingsTransformerModificationInfos createRatioTapChangerInfos(String twtId) {

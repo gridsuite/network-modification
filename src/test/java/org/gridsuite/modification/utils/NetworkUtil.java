@@ -374,6 +374,7 @@ public final class NetworkUtil {
             .setBmin(bMin)
             .setBmax(bMax)
             .setNode(node)
+            .setRegulating(true)
             .add();
     }
 
