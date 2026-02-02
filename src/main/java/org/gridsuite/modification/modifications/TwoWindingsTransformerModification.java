@@ -21,6 +21,7 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
@@ -335,11 +336,11 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 if (regulationValueModification == null) {
                     throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value is missing when creating tap phase changer with regulation enabled");
                 }
-                if (regulationValueModification.getValue() < 0) {
-                    throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value must be positive when creating tap phase changer with regulation enabled");
-                }
                 if (regulationModeModification == null) {
                     throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation mode is missing when creating tap phase changer with regulation enabled");
+                }
+                if (regulationModeModification.getValue() == CURRENT_LIMITER && regulationValueModification.getValue() < 0) {
+                    throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value must be positive when creating tap phase changer with regulation enabled");
                 }
 
             } else {
@@ -350,11 +351,12 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 if (regulationValueModification == null && Double.isNaN(phaseTapChanger.getRegulationValue())) {
                     throw new NetworkModificationException(MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value is missing when modifying, phase tap changer can not regulate");
                 }
-                if (regulationValueModification != null && regulationValueModification.getValue() < 0) {
-                    throw new NetworkModificationException(MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value must be positive when modifying, phase tap changer can not regulate");
-                }
                 if (regulationModeModification == null && phaseTapChanger.getRegulationMode() == null) {
                     throw new NetworkModificationException(MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation mode is missing when modifying, phase tap changer can not regulate");
+                }
+                PhaseTapChanger.RegulationMode newRegulationMode = regulationModeModification == null ? phaseTapChanger.getRegulationMode() : regulationModeModification.getValue();
+                if (regulationValueModification != null && newRegulationMode == CURRENT_LIMITER && regulationValueModification.getValue() < 0) {
+                    throw new NetworkModificationException(MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value must be positive when modifying, phase tap changer can not regulate");
                 }
             }
         }
@@ -373,7 +375,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                                                         List<ReportNode> regulationReports) {
         // the order is important if regulation mode is set and regulation value or target dead band is null it will crash
         PhaseTapChanger.RegulationMode regulationMode = regulationModeModification == null ? null : regulationModeModification.getValue();
-        String fieldName = (regulationMode == PhaseTapChanger.RegulationMode.CURRENT_LIMITER) ? "Value" : "Flow set point";
+        String fieldName = (regulationMode == CURRENT_LIMITER) ? "Value" : "Flow set point";
         // Regulation value
         ReportNode regulationValueReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
             isModification ? phaseTapChanger::setRegulationValue : phaseTapChangerAdder::setRegulationValue,
