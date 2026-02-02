@@ -995,19 +995,20 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         adder.add();
         // for CURRENT_LIMITER mode, regulation value can not be negative
         // creation
+        PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
         String message = assertThrows(NetworkModificationException.class, () -> processPhaseTapRegulation(null, adder, false,
                 new AttributeModification<>(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, OperationType.SET),
                 new AttributeModification<>(-10.0, OperationType.SET), null,
                 new AttributeModification<>(true, OperationType.SET), List.of())).getMessage();
         assertEquals("CREATE_TWO_WINDINGS_TRANSFORMER_ERROR : Regulation value must be positive when creating tap phase changer with regulation enabled", message);
         // modification
-        String message2 = assertThrows(NetworkModificationException.class, () -> processPhaseTapRegulation(twt.getPhaseTapChanger(), null, true,
+        String message2 = assertThrows(NetworkModificationException.class, () -> processPhaseTapRegulation(phaseTapChanger, null, true,
                 new AttributeModification<>(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, OperationType.SET),
                 new AttributeModification<>(-10.0, OperationType.SET), null,
                 new AttributeModification<>(true, OperationType.SET), List.of())).getMessage();
         assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Regulation value must be positive when modifying, phase tap changer can not regulate", message2);
         // tap changer mode is initially CURRENT_LIMITER, so it must throw if a negative target value is set and the mode is not modified
-        String message3 = assertThrows(NetworkModificationException.class, () -> processPhaseTapRegulation(twt.getPhaseTapChanger(), null, true,
+        String message3 = assertThrows(NetworkModificationException.class, () -> processPhaseTapRegulation(phaseTapChanger, null, true,
                 null,
                 new AttributeModification<>(-10.0, OperationType.SET), null,
                 new AttributeModification<>(true, OperationType.SET), List.of())).getMessage();
@@ -1019,7 +1020,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 new AttributeModification<>(-10.0, OperationType.SET), null,
                 new AttributeModification<>(true, OperationType.SET), new ArrayList<>()));
         // modification
-        assertDoesNotThrow(() -> processPhaseTapRegulation(twt.getPhaseTapChanger(), null, true,
+        assertDoesNotThrow(() -> processPhaseTapRegulation(phaseTapChanger, null, true,
                 new AttributeModification<>(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, OperationType.SET),
                 new AttributeModification<>(-10.0, OperationType.SET), null,
                 new AttributeModification<>(true, OperationType.SET), new ArrayList<>()));
