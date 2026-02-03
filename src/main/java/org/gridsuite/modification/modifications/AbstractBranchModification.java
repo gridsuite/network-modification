@@ -226,23 +226,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
             if (requestedValidity != null) {
                 boolean oldValidity = m.isValid();
 
-                if (m.getProperty("validity") == null) {
-                    m.setValid(requestedValidity);
-                } else {
-                    if (requestedValidity) {
-                        switch (m.getProperty("validity")) {
-                            case "1": m.putProperty("validity", "0"); break;
-                            case "3": m.putProperty("validity", "2"); break;
-                            default: break;
-                        }
-                    } else {
-                        switch (m.getProperty("validity")) {
-                            case "0": m.putProperty("validity", "1"); break;
-                            case "2": m.putProperty("validity", "3"); break;
-                            default: break;
-                        }
-                    }
-                }
+                ModificationUtils.updateMeasurementValidity(m, requestedValidity);
                 reports.add(ModificationUtils.buildModificationReport(oldValidity, requestedValidity, measurementType + VALIDITY, TypedValue.INFO_SEVERITY));
             }
         } else { // add new measurement

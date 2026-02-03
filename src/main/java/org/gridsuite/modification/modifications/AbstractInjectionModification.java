@@ -75,23 +75,7 @@ public abstract class AbstractInjectionModification extends AbstractModification
             if (requestedValidity != null) {
                 boolean oldValidity = measurement.isValid();
 
-                if (measurement.getProperty("validity") == null) {
-                    measurement.setValid(requestedValidity);
-                } else {
-                    if (requestedValidity) {
-                        switch (measurement.getProperty("validity")) {
-                            case "1": measurement.putProperty("validity", "0"); break;
-                            case "3": measurement.putProperty("validity", "2"); break;
-                            default: break;
-                        }
-                    } else {
-                        switch (measurement.getProperty("validity")) {
-                            case "0": measurement.putProperty("validity", "1"); break;
-                            case "2": measurement.putProperty("validity", "3"); break;
-                            default: break;
-                        }
-                    }
-                }
+                ModificationUtils.updateMeasurementValidity(measurement, requestedValidity);
                 reports.add(ModificationUtils.buildModificationReport(oldValidity, requestedValidity, measurementType + VALIDITY, TypedValue.INFO_SEVERITY));
             }
         } else {

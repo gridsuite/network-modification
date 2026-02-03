@@ -71,6 +71,7 @@ public final class ModificationUtils {
     private static final String COULD_NOT_ACTION_EQUIPMENT_ON_SIDE = COULD_NOT_ACTION_EQUIPMENT + " on side %s";
     public static final String CONNECT = "connect";
     public static final String DISCONNECT = "disconnect";
+    private static final String MEASUREMENT_VALIDITY_PROPERTY = "validity";
 
     public static String applicabilityToString(OperationalLimitsGroupInfos.Applicability applicability) {
         return switch (applicability) {
@@ -2084,5 +2085,25 @@ public final class ModificationUtils {
         }
 
     }
-}
 
+    public static void updateMeasurementValidity(Measurement measurement, boolean requestedValidity) {
+        if (measurement.getProperty(MEASUREMENT_VALIDITY_PROPERTY) == null) {
+            measurement.setValid(requestedValidity);
+        } else {
+            if (requestedValidity) {
+                switch (measurement.getProperty(MEASUREMENT_VALIDITY_PROPERTY)) {
+                    case "1": measurement.putProperty(MEASUREMENT_VALIDITY_PROPERTY, "0"); break;
+                    case "3": measurement.putProperty(MEASUREMENT_VALIDITY_PROPERTY, "2"); break;
+                    default: break;
+                }
+            } else {
+                switch (measurement.getProperty(MEASUREMENT_VALIDITY_PROPERTY)) {
+                    case "0": measurement.putProperty(MEASUREMENT_VALIDITY_PROPERTY, "1"); break;
+                    case "2": measurement.putProperty(MEASUREMENT_VALIDITY_PROPERTY, "3"); break;
+                    default: break;
+                }
+            }
+        }
+    }
+
+}
