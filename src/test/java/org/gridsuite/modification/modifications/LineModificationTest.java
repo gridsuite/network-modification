@@ -591,4 +591,50 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         assertEquals(OLG_PROP3_VALUE, repLimitsGroup2.getProperty(OLG_PROP3_NAME));
     }
 
+    @Test
+    void testMeasurementValidityPropertyForLine() {
+        Line line = getNetwork().getLine("line1");
+        Measurements<?> measurements = (Measurements<?>) line.getExtension(Measurements.class);
+        assertNotNull(measurements);
+        Measurement activePowerMeasurement = measurements.getMeasurements(Measurement.Type.ACTIVE_POWER).stream()
+                .filter(m -> m.getSide() == ThreeSides.ONE)
+                .findFirst()
+                .orElseThrow();
+
+        activePowerMeasurement.putProperty("validity", "1");
+        LineModificationInfos modificationInfosTrueFromOne = LineModificationInfos.builder()
+                .equipmentId("line1")
+                .p1MeasurementValidity(new AttributeModification<>(true, OperationType.SET))
+                .build();
+        modificationInfosTrueFromOne.toModification().apply(getNetwork());
+        assertEquals("0", activePowerMeasurement.getProperty("validity"));
+
+        activePowerMeasurement.putProperty("validity", "3");
+        LineModificationInfos modificationInfosTrueFromThree = LineModificationInfos.builder()
+                .equipmentId("line1")
+                .p1MeasurementValidity(new AttributeModification<>(true, OperationType.SET))
+                .build();
+        modificationInfosTrueFromThree.toModification().apply(getNetwork());
+        assertEquals("2", activePowerMeasurement.getProperty("validity"));
+
+        Measurement reactivePowerMeasurement = measurements.getMeasurements(Measurement.Type.REACTIVE_POWER).stream()
+                .filter(m -> m.getSide() == ThreeSides.ONE)
+                .findFirst()
+                .orElseThrow();
+        reactivePowerMeasurement.putProperty("validity", "2");
+        LineModificationInfos modificationInfosFalseFromTwo = LineModificationInfos.builder()
+                .equipmentId("line1")
+                .q1MeasurementValidity(new AttributeModification<>(false, OperationType.SET))
+                .build();
+        modificationInfosFalseFromTwo.toModification().apply(getNetwork());
+        assertEquals("3", reactivePowerMeasurement.getProperty("validity"));
+
+        reactivePowerMeasurement.putProperty("validity", "0");
+        LineModificationInfos modificationInfosFalseFromZero = LineModificationInfos.builder()
+                .equipmentId("line1")
+                .q1MeasurementValidity(new AttributeModification<>(false, OperationType.SET))
+                .build();
+        modificationInfosFalseFromZero.toModification().apply(getNetwork());
+        assertEquals("1", reactivePowerMeasurement.getProperty("validity"));
+    }
 }

@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.dto.*;
@@ -112,5 +113,58 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
     @Test
     void testConnection() throws Exception {
         assertChangeConnectionState(getNetwork().getLoad("v1load"), true);
+    }
+
+    @Test
+    void testMeasurementUpsertCombinationsForLoad() {
+        Load load = getNetwork().getLoad("v1load");
+        Measurements<?> measurements = (Measurements<?>) load.getExtension(Measurements.class);
+        if (measurements == null) {
+            measurements = (Measurements<?>) load.newExtension(MeasurementsAdder.class).add();
+        }
+
+        Measurement activePowerMeasurement = measurements.newMeasurement()
+            .setId(UUID.randomUUID().toString())
+            .setType(Measurement.Type.ACTIVE_POWER)
+            .setValue(5.0)
+            .setValid(true)
+            .add();
+        activePowerMeasurement.putProperty("validity", "1");
+        LoadModificationInfos updateActiveValidityTrue = LoadModificationInfos.builder()
+            .equipmentId("v1load")
+            .pMeasurementValidity(new AttributeModification<>(true, OperationType.SET))
+            .build();
+        updateActiveValidityTrue.toModification().apply(getNetwork());
+        assertEquals("0", activePowerMeasurement.getProperty("validity"));
+
+        activePowerMeasurement.putProperty("validity", "3");
+        LoadModificationInfos updateActiveValidityTrueFromThree = LoadModificationInfos.builder()
+            .equipmentId("v1load")
+            .pMeasurementValidity(new AttributeModification<>(true, OperationType.SET))
+            .build();
+        updateActiveValidityTrueFromThree.toModification().apply(getNetwork());
+        assertEquals("2", activePowerMeasurement.getProperty("validity"));
+
+        Measurement reactivePowerMeasurement = measurements.newMeasurement()
+            .setId(UUID.randomUUID().toString())
+            .setType(Measurement.Type.REACTIVE_POWER)
+            .setValue(-5.0)
+            .setValid(false)
+            .add();
+        reactivePowerMeasurement.putProperty("validity", "0");
+        LoadModificationInfos updateReactiveValidityFalse = LoadModificationInfos.builder()
+            .equipmentId("v1load")
+            .qMeasurementValidity(new AttributeModification<>(false, OperationType.SET))
+            .build();
+        updateReactiveValidityFalse.toModification().apply(getNetwork());
+        assertEquals("1", reactivePowerMeasurement.getProperty("validity"));
+
+        reactivePowerMeasurement.putProperty("validity", "2");
+        LoadModificationInfos updateReactiveValidityFalseFromTwo = LoadModificationInfos.builder()
+            .equipmentId("v1load")
+            .qMeasurementValidity(new AttributeModification<>(false, OperationType.SET))
+            .build();
+        updateReactiveValidityFalseFromTwo.toModification().apply(getNetwork());
+        assertEquals("3", reactivePowerMeasurement.getProperty("validity"));
     }
 }
