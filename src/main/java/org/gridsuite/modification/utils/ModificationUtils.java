@@ -2092,12 +2092,16 @@ public final class ModificationUtils {
         } else {
             if (requestedValidity) {
                 switch (measurement.getProperty(MEASUREMENT_VALIDITY_PROPERTY)) {
+                    //validity = 1 →  TM non valid & not masked
+                    //validity = 3 →  TM non valid & masked
                     case "1": measurement.putProperty(MEASUREMENT_VALIDITY_PROPERTY, "0"); break;
                     case "3": measurement.putProperty(MEASUREMENT_VALIDITY_PROPERTY, "2"); break;
                     default: break;
                 }
             } else {
                 switch (measurement.getProperty(MEASUREMENT_VALIDITY_PROPERTY)) {
+                    //validity = 0 →  TM valid & not masked
+                    //validity = 2 →  TM valid & masked
                     case "0": measurement.putProperty(MEASUREMENT_VALIDITY_PROPERTY, "1"); break;
                     case "2": measurement.putProperty(MEASUREMENT_VALIDITY_PROPERTY, "3"); break;
                     default: break;
