@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
@@ -45,9 +44,10 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
 public abstract class AbstractModificationByAssignment extends AbstractModification {
     public static final String VALUE_KEY_FILTER_NAME = "filterName";
     public static final String VALUE_KEY_FIELD_NAME = "fieldName";
-    public static final String VALUE_KEY_FIELD2_NAME = "field2Name";
     public static final String VALUE_KEY_FIELD_VALUE = "fieldValue";
-    public static final String VALUE_KEY_FIELD2_VALUE = "field2Value";
+    public static final String VALUE_KEY_MIN_VALUE = "minValue";
+    public static final String VALUE_KEY_MAX_VALUE = "maxValue";
+    public static final String VALUE_KEY_TARGET_VALUE = "targetValue";
     public static final String VALUE_KEY_EQUIPMENT_NAME = "equipmentName";
     public static final String VALUE_KEY_EQUIPMENT_TYPE = "equipmentType";
     public static final String VALUE_KEY_EQUIPMENT_COUNT = "equipmentCount";
@@ -63,8 +63,6 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     public static final String VALUE_KEY_ARROW_VALUE = "→";
     public static final String REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO = "network.modification.equipmentModifiedError.zero";
     public static final String REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_NULL = "network.modification.equipmentModifiedError.null";
-    public static final String REPORT_KEY_GENERATOR_FIELD1_GREATER_FIELD2 = "network.modification.generator.generatorField1GreaterField2";
-    public static final String REPORT_KEY_GENERATOR_FIELD1_SMALLER_FIELD2 = "network.modification.generator.generatorField1SmallerField2";
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_SOME = "network.modification.byFilterModificationSome";
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_FAILED = "network.modification.byFilterModificationFailed";
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_SUCCESS = "network.modification.byFilterModificationSuccess";
@@ -115,14 +113,13 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
         if (equipment.getType() == IdentifiableType.GENERATOR) {
             Generator generator = (Generator) equipment;
             double newValue = Double.parseDouble(getNewValue(equipment, abstractAssignmentInfos));
-            GeneratorStartup generatorStartup = generator.getExtension(GeneratorStartup.class);
 
-            if (abstractAssignmentInfos.getEditedField().equals(PLANNED_ACTIVE_POWER_SET_POINT.name()) && generatorStartup != null) {
+            if (abstractAssignmentInfos.getEditedField().equals(PLANNED_ACTIVE_POWER_SET_POINT.name())) {
                 return validateActivePowerValue(generator, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, reports, newValue);
             } else if (abstractAssignmentInfos.getEditedField().equals(MINIMUM_ACTIVE_POWER.name())) {
-                return validateMinimumActivePower(generator, generatorStartup, reports, newValue);
+                return validateMinimumActivePower(generator, reports, newValue);
             } else if (abstractAssignmentInfos.getEditedField().equals(MAXIMUM_ACTIVE_POWER.name())) {
-                return validateMaximumActivePower(generator, generatorStartup, reports, newValue);
+                return validateMaximumActivePower(generator, reports, newValue);
             } else if (abstractAssignmentInfos.getEditedField().equals(ACTIVE_POWER_SET_POINT.name())) {
                 return validateActivePowerValue(generator, FIELD_ACTIVE_POWER_TARGET, reports, newValue);
             }

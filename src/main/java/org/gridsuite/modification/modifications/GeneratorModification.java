@@ -72,6 +72,12 @@ public class GeneratorModification extends AbstractModification {
         if (modificationInfos.getTargetV() != null) {
             checkIsNotNegativeValue(errorMessage, modificationInfos.getTargetV().getValue(), MODIFY_GENERATOR_ERROR, TARGET_VOLTAGE);
         }
+        GeneratorStartup generatorStartup = generator.getExtension(GeneratorStartup.class);
+        checkPowerValues(errorMessage, modificationInfos.getMinP().applyModification(generator.getMinP()),
+            modificationInfos.getMaxP().applyModification(generator.getMaxP()),
+            modificationInfos.getTargetP().applyModification(generator.getTargetP()),
+            modificationInfos.getPlannedActivePowerSetPoint().applyModification(generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) ? generatorStartup.getPlannedActivePowerSetpoint() : null),
+            MODIFY_GENERATOR_ERROR);
     }
 
     private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerGenerator(GeneratorModificationInfos modificationInfos, Generator generator, NetworkModificationException.Type exceptionType, String errorMessage) {

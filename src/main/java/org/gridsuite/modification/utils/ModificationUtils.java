@@ -1926,69 +1926,102 @@ public final class ModificationUtils {
         }
     }
 
+    public static void checkActivePowerValue(String errorMessage, String fieldName, double newValue, double minP, double maxP, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+        if (newValue > maxP || newValue < minP) {
+            String message = String.format("value %.2f field %s should be inside interval [%.2f; %.2f]", newValue, fieldName, minP, maxP);
+            throw new NetworkModificationException(exceptionType, errorMessage + message);
+        }
+    }
+
     public static boolean validateActivePowerValue(Generator generator, String fieldName, List<ReportNode> reports, double newValue) {
-        if (newValue > generator.getMaxP()) {
-            addWarningReportForFieldComparison(reports, generator.getId(), fieldName, newValue, FIELD_MAX_ACTIVE_POWER, generator.getMaxP(), true);
-            return false;
-        }
-        if (newValue < generator.getMinP()) {
-            addWarningReportForFieldComparison(reports, generator.getId(), fieldName, newValue, FIELD_MIN_ACTIVE_POWER, generator.getMinP(), false);
-            return false;
-        }
-        return true;
-    }
-
-    public static boolean validateMinimumActivePower(Generator generator, GeneratorStartup generatorStartup, List<ReportNode> reports, double newValue) {
-        if (generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) && newValue > generatorStartup.getPlannedActivePowerSetpoint()) {
-            addWarningReportForFieldComparison(reports, generator.getId(), FIELD_MIN_ACTIVE_POWER, newValue, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, generatorStartup.getPlannedActivePowerSetpoint(), true);
-            return false;
-        }
-        if (newValue > generator.getTargetP()) {
-            addWarningReportForFieldComparison(reports, generator.getId(), FIELD_MIN_ACTIVE_POWER, newValue, FIELD_ACTIVE_POWER_TARGET, generator.getTargetP(), true);
-            return false;
-        }
-        if (newValue > generator.getMaxP()) {
-            addWarningReportForFieldComparison(reports, generator.getId(), FIELD_MIN_ACTIVE_POWER, newValue, FIELD_MAX_ACTIVE_POWER, generator.getMaxP(), true);
+        if (newValue > generator.getMaxP() || newValue < generator.getMinP()) {
+            reports.add(ReportNode.newRootReportNode()
+                .withMessageTemplate("network.modification.generator.ValueShouldBeWithinInterval")
+                .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, generator.getId())
+                .withUntypedValue(VALUE_KEY_FIELD_NAME, fieldName)
+                .withUntypedValue(VALUE_KEY_FIELD_VALUE, newValue)
+                .withUntypedValue(VALUE_KEY_MIN_VALUE, generator.getMinP())
+                .withUntypedValue(VALUE_KEY_MAX_VALUE, generator.getMaxP())
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
             return false;
         }
         return true;
     }
 
-    public static boolean validateMaximumActivePower(Generator generator, GeneratorStartup generatorStartup, List<ReportNode> reports, double newValue) {
-        if (generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) && newValue < generatorStartup.getPlannedActivePowerSetpoint()) {
-            addWarningReportForFieldComparison(reports, generator.getId(), FIELD_MAX_ACTIVE_POWER, newValue, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, generatorStartup.getPlannedActivePowerSetpoint(), false);
-            return false;
+    public static void checkPowerValues(String errorMessage, double minP, double maxP, double targetP, Double pImp, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+        checkActivePowerValue(errorMessage, FIELD_ACTIVE_POWER_TARGET, targetP, minP, maxP, exceptionType);
+        if (pImp != null) {
+            checkActivePowerValue(errorMessage, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, pImp, minP, maxP, exceptionType);
         }
-        if (newValue < generator.getTargetP()) {
-            addWarningReportForFieldComparison(reports, generator.getId(), FIELD_MAX_ACTIVE_POWER, newValue, FIELD_ACTIVE_POWER_TARGET, generator.getTargetP(), false);
-            return false;
+        checkMinimumActivePower(errorMessage, maxP, targetP, pImp, minP, exceptionType);
+        checkMaximumActivePower(errorMessage, minP, targetP, pImp, maxP, exceptionType);
+    }
+
+    public static void checkMinimumActivePower(String errorMessage, double maxP, double targetP, Double pImp, double newValue, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+        double pMin = Math.min(targetP, maxP);
+        if (pImp != null) {
+            pMin = Math.min(pMin, pImp);
         }
-        if (newValue < generator.getMinP()) {
-            addWarningReportForFieldComparison(reports, generator.getId(), FIELD_MAX_ACTIVE_POWER, newValue, FIELD_MIN_ACTIVE_POWER, generator.getMinP(), false);
+        if (pMin < newValue) {
+            throw new NetworkModificationException(exceptionType, errorMessage + String.format("value %.2f of field %s should be be smaller or equal to %.2f", newValue, FIELD_MIN_ACTIVE_POWER, pMin));
+        }
+    }
+
+    public static void checkMaximumActivePower(String errorMessage, double minP, double targetP, Double pImp, double newValue, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+        double pMax = Math.max(targetP, minP);
+        if (pImp != null) {
+            pMax = Math.max(pMax, pImp);
+        }
+        if (pMax > newValue) {
+            throw new NetworkModificationException(exceptionType, errorMessage + String.format("value %.2f of field %s should be be greater or equal to %.2f", newValue, FIELD_MAX_ACTIVE_POWER, pMax));
+        }
+    }
+
+    public static boolean validateMinimumActivePower(Generator generator, List<ReportNode> reports, double newValue) {
+        GeneratorStartup generatorStartup = generator.getExtension(GeneratorStartup.class);
+        Double pImp = generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) ? generatorStartup.getPlannedActivePowerSetpoint() : null;
+
+        double minP = Math.min(generator.getTargetP(), generator.getMaxP());
+        if (pImp != null) {
+            minP = Math.min(minP, pImp);
+        }
+
+        if (minP < newValue) {
+            reports.add(ReportNode.newRootReportNode()
+                .withMessageTemplate("network.modification.generator.ValueShouldBeSmallerThan")
+                .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, generator.getId())
+                .withUntypedValue(VALUE_KEY_FIELD_NAME, FIELD_MIN_ACTIVE_POWER)
+                .withUntypedValue(VALUE_KEY_FIELD_VALUE, newValue)
+                .withUntypedValue(VALUE_KEY_TARGET_VALUE, minP)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
             return false;
         }
         return true;
     }
 
-    private static void addWarningReportForFieldComparison(List<ReportNode> reports,
-                                                           String equipmentName,
-                                                           String field1Name,
-                                                           double field1Value,
-                                                           String field2Name,
-                                                           double field2Value,
-                                                           boolean smaller) {
+    public static boolean validateMaximumActivePower(Generator generator, List<ReportNode> reports, double newValue) {
+        GeneratorStartup generatorStartup = generator.getExtension(GeneratorStartup.class);
+        Double pImp = generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) ? generatorStartup.getPlannedActivePowerSetpoint() : null;
 
-        String message = smaller ? REPORT_KEY_GENERATOR_FIELD1_SMALLER_FIELD2 : REPORT_KEY_GENERATOR_FIELD1_GREATER_FIELD2;
-        reports.add(ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate(message)
-            .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipmentName)
-            .withUntypedValue(VALUE_KEY_FIELD_NAME, field1Name)
-            .withUntypedValue(VALUE_KEY_FIELD_VALUE, field1Value)
-            .withUntypedValue(VALUE_KEY_FIELD2_NAME, field2Name)
-            .withUntypedValue(VALUE_KEY_FIELD2_VALUE, field2Value)
-            .withSeverity(TypedValue.WARN_SEVERITY)
-            .build());
+        double maxP = Math.max(generator.getTargetP(), generator.getMinP());
+        if (pImp != null) {
+            maxP = Math.min(maxP, pImp);
+        }
+
+        if (newValue < maxP) {
+            reports.add(ReportNode.newRootReportNode()
+                .withMessageTemplate("network.modification.generator.ValueShouldBeGreaterThan")
+                .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, generator.getId())
+                .withUntypedValue(VALUE_KEY_FIELD_NAME, FIELD_MAX_ACTIVE_POWER)
+                .withUntypedValue(VALUE_KEY_FIELD_VALUE, newValue)
+                .withUntypedValue(VALUE_KEY_TARGET_VALUE, maxP)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+            return false;
+        }
+        return true;
     }
 
     public static List<OperationalLimitsGroupInfos> getOperationalLimitsGroupsOnSide(List<OperationalLimitsGroupInfos> operationalLimitsGroupInfos,
