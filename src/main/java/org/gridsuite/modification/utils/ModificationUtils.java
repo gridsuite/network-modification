@@ -75,6 +75,7 @@ public final class ModificationUtils {
     public static final String FIELD_MAX_ACTIVE_POWER = "Maximum active power";
     public static final String FIELD_MIN_ACTIVE_POWER = "Minimum active power";
     public static final String FIELD_PLANNED_ACTIVE_POWER_SET_POINT = "Planned active power set point";
+    public static final String FIELD_ACTIVE_POWER_TARGET = "Active power target";
 
     public static String applicabilityToString(OperationalLimitsGroupInfos.Applicability applicability) {
         return switch (applicability) {
@@ -1925,13 +1926,13 @@ public final class ModificationUtils {
         }
     }
 
-    public static boolean validatePlannedActivePowerSetPoint(Generator generator, List<ReportNode> reports, double newValue) {
+    public static boolean validateActivePowerValue(Generator generator, String fieldName, List<ReportNode> reports, double newValue) {
         if (newValue > generator.getMaxP()) {
-            addWarningReportForFieldComparison(reports, generator.getId(), FIELD_PLANNED_ACTIVE_POWER_SET_POINT, newValue, FIELD_MAX_ACTIVE_POWER, generator.getMaxP(), true);
+            addWarningReportForFieldComparison(reports, generator.getId(), fieldName, newValue, FIELD_MAX_ACTIVE_POWER, generator.getMaxP(), true);
             return false;
         }
         if (newValue < generator.getMinP()) {
-            addWarningReportForFieldComparison(reports, generator.getId(), FIELD_PLANNED_ACTIVE_POWER_SET_POINT, newValue, FIELD_MIN_ACTIVE_POWER, generator.getMinP(), false);
+            addWarningReportForFieldComparison(reports, generator.getId(), fieldName, newValue, FIELD_MIN_ACTIVE_POWER, generator.getMinP(), false);
             return false;
         }
         return true;
@@ -1940,6 +1941,10 @@ public final class ModificationUtils {
     public static boolean validateMinimumActivePower(Generator generator, GeneratorStartup generatorStartup, List<ReportNode> reports, double newValue) {
         if (generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) && newValue > generatorStartup.getPlannedActivePowerSetpoint()) {
             addWarningReportForFieldComparison(reports, generator.getId(), FIELD_MIN_ACTIVE_POWER, newValue, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, generatorStartup.getPlannedActivePowerSetpoint(), true);
+            return false;
+        }
+        if (newValue > generator.getTargetP()) {
+            addWarningReportForFieldComparison(reports, generator.getId(), FIELD_MIN_ACTIVE_POWER, newValue, FIELD_ACTIVE_POWER_TARGET, generator.getTargetP(), true);
             return false;
         }
         if (newValue > generator.getMaxP()) {
@@ -1952,6 +1957,10 @@ public final class ModificationUtils {
     public static boolean validateMaximumActivePower(Generator generator, GeneratorStartup generatorStartup, List<ReportNode> reports, double newValue) {
         if (generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) && newValue < generatorStartup.getPlannedActivePowerSetpoint()) {
             addWarningReportForFieldComparison(reports, generator.getId(), FIELD_MAX_ACTIVE_POWER, newValue, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, generatorStartup.getPlannedActivePowerSetpoint(), false);
+            return false;
+        }
+        if (newValue < generator.getTargetP()) {
+            addWarningReportForFieldComparison(reports, generator.getId(), FIELD_MAX_ACTIVE_POWER, newValue, FIELD_ACTIVE_POWER_TARGET, generator.getTargetP(), false);
             return false;
         }
         if (newValue < generator.getMinP()) {

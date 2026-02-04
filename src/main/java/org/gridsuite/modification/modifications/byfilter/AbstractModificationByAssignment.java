@@ -118,11 +118,13 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
             GeneratorStartup generatorStartup = generator.getExtension(GeneratorStartup.class);
 
             if (abstractAssignmentInfos.getEditedField().equals(PLANNED_ACTIVE_POWER_SET_POINT.name()) && generatorStartup != null) {
-                return validatePlannedActivePowerSetPoint(generator, reports, newValue);
+                return validateActivePowerValue(generator, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, reports, newValue);
             } else if (abstractAssignmentInfos.getEditedField().equals(MINIMUM_ACTIVE_POWER.name())) {
                 return validateMinimumActivePower(generator, generatorStartup, reports, newValue);
             } else if (abstractAssignmentInfos.getEditedField().equals(MAXIMUM_ACTIVE_POWER.name())) {
                 return validateMaximumActivePower(generator, generatorStartup, reports, newValue);
+            } else if (abstractAssignmentInfos.getEditedField().equals(ACTIVE_POWER_SET_POINT.name())) {
+                return validateActivePowerValue(generator, FIELD_ACTIVE_POWER_TARGET, reports, newValue);
             }
         }
         return true;
