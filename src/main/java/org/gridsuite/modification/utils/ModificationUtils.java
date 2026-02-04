@@ -37,6 +37,7 @@ import static org.gridsuite.modification.NetworkModificationException.Type.*;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE1;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE2;
 import static org.gridsuite.modification.modifications.AbstractBranchModification.*;
+import static org.gridsuite.modification.modifications.byfilter.AbstractModificationByAssignment.*;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -71,6 +72,9 @@ public final class ModificationUtils {
     private static final String COULD_NOT_ACTION_EQUIPMENT_ON_SIDE = COULD_NOT_ACTION_EQUIPMENT + " on side %s";
     public static final String CONNECT = "connect";
     public static final String DISCONNECT = "disconnect";
+    public static final String FIELD_MAX_ACTIVE_POWER = "Maximum active power";
+    public static final String FIELD_MIN_ACTIVE_POWER = "Minimum active power";
+    public static final String FIELD_PLANNED_ACTIVE_POWER_SET_POINT = "Planned active power set point";
 
     public static String applicabilityToString(OperationalLimitsGroupInfos.Applicability applicability) {
         return switch (applicability) {
@@ -1919,6 +1923,63 @@ public final class ModificationUtils {
             throw new NetworkModificationException(exceptionType, errorMessage +
                 String.format("missing limit set %s applicable on side %d : equipment ignored", limitsGroupIdToSet, side));
         }
+    }
+
+    public static boolean validatePlannedActivePowerSetPoint(Generator generator, List<ReportNode> reports, double newValue) {
+        if (newValue > generator.getMaxP()) {
+            addWarningReportForFieldComparison(reports, generator.getId(), FIELD_PLANNED_ACTIVE_POWER_SET_POINT, newValue, FIELD_MAX_ACTIVE_POWER, generator.getMaxP(), true);
+            return false;
+        }
+        if (newValue < generator.getMinP()) {
+            addWarningReportForFieldComparison(reports, generator.getId(), FIELD_PLANNED_ACTIVE_POWER_SET_POINT, newValue, FIELD_MIN_ACTIVE_POWER, generator.getMinP(), false);
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean validateMinimumActivePower(Generator generator, GeneratorStartup generatorStartup, List<ReportNode> reports, double newValue) {
+        if (generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) && newValue > generatorStartup.getPlannedActivePowerSetpoint()) {
+            addWarningReportForFieldComparison(reports, generator.getId(), FIELD_MIN_ACTIVE_POWER, newValue, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, generatorStartup.getPlannedActivePowerSetpoint(), true);
+            return false;
+        }
+        if (newValue > generator.getMaxP()) {
+            addWarningReportForFieldComparison(reports, generator.getId(), FIELD_MIN_ACTIVE_POWER, newValue, FIELD_MAX_ACTIVE_POWER, generator.getMaxP(), true);
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean validateMaximumActivePower(Generator generator, GeneratorStartup generatorStartup, List<ReportNode> reports, double newValue) {
+        if (generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) && newValue < generatorStartup.getPlannedActivePowerSetpoint()) {
+            addWarningReportForFieldComparison(reports, generator.getId(), FIELD_MAX_ACTIVE_POWER, newValue, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, generatorStartup.getPlannedActivePowerSetpoint(), false);
+            return false;
+        }
+        if (newValue < generator.getMinP()) {
+            addWarningReportForFieldComparison(reports, generator.getId(), FIELD_MAX_ACTIVE_POWER, newValue, FIELD_MIN_ACTIVE_POWER, generator.getMinP(), false);
+            return false;
+        }
+        return true;
+    }
+
+    private static void addWarningReportForFieldComparison(List<ReportNode> reports,
+                                                           String equipmentName,
+                                                           String field1Name,
+                                                           double field1Value,
+                                                           String field2Name,
+                                                           double field2Value,
+                                                           boolean smaller) {
+
+        String message = smaller ? REPORT_KEY_GENERATOR_FIELD1_SMALLER_FIELD2 : REPORT_KEY_GENERATOR_FIELD1_GREATER_FIELD2;
+        reports.add(ReportNode.newRootReportNode()
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate(message)
+            .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipmentName)
+            .withUntypedValue(VALUE_KEY_FIELD_NAME, field1Name)
+            .withUntypedValue(VALUE_KEY_FIELD_VALUE, field1Value)
+            .withUntypedValue(VALUE_KEY_FIELD2_NAME, field2Name)
+            .withUntypedValue(VALUE_KEY_FIELD2_VALUE, field2Value)
+            .withSeverity(TypedValue.WARN_SEVERITY)
+            .build());
     }
 
     public static List<OperationalLimitsGroupInfos> getOperationalLimitsGroupsOnSide(List<OperationalLimitsGroupInfos> operationalLimitsGroupInfos,

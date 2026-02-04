@@ -91,6 +91,9 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
                     .build());
             return false;
         }
+        if (equipment.getType() == IdentifiableType.GENERATOR) {
+            return checkGeneratorsPowerValues(equipment, abstractAssignmentInfos, reports);
+        }
         return true;
     }
 
