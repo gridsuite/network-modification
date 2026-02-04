@@ -1005,15 +1005,15 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
         String message = assertThrows(NetworkModificationException.class, () -> processPhaseTapRegulation(null, adder, false,
                 regulationCurrentLimiterModeModification, regulationValueModification, null, regulatingModification, regulationReports)).getMessage();
-        assertEquals("CREATE_TWO_WINDINGS_TRANSFORMER_ERROR : Regulation value must be positive when creating tap phase changer with regulation enabled", message);
+        assertEquals("CREATE_TWO_WINDINGS_TRANSFORMER_ERROR : Regulation value must be positive if regulation mode is CURRENT_LIMITER when creating tap phase changer with regulation enabled", message);
         // modification
         String message2 = assertThrows(NetworkModificationException.class, () -> processPhaseTapRegulation(phaseTapChanger, null, true,
                 regulationCurrentLimiterModeModification, regulationValueModification, null, regulatingModification, regulationReports)).getMessage();
-        assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Regulation value must be positive when modifying, phase tap changer can not regulate", message2);
+        assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Regulation value must be positive if regulation mode is CURRENT_LIMITER when modifying, phase tap changer can not regulate", message2);
         // tap changer mode is initially CURRENT_LIMITER, so it must throw if a negative target value is set and the mode is not modified
         String message3 = assertThrows(NetworkModificationException.class, () -> processPhaseTapRegulation(phaseTapChanger, null, true,
                 null, regulationValueModification, null, regulatingModification, regulationReports)).getMessage();
-        assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Regulation value must be positive when modifying, phase tap changer can not regulate", message3);
+        assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Regulation value must be positive if regulation mode is CURRENT_LIMITER when modifying, phase tap changer can not regulate", message3);
         // for ACTIVE_POWER_CONTROL mode, regulation value can be negative
         // creation
         assertDoesNotThrow(() -> processPhaseTapRegulation(null, adder, false,
