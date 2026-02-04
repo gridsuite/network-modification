@@ -112,16 +112,14 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     protected boolean checkGeneratorsPowerValues(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos, List<ReportNode> reports) {
         if (equipment.getType() == IdentifiableType.GENERATOR) {
             Generator generator = (Generator) equipment;
-            double newValue = Double.parseDouble(getNewValue(equipment, abstractAssignmentInfos));
-
             if (abstractAssignmentInfos.getEditedField().equals(PLANNED_ACTIVE_POWER_SET_POINT.name())) {
-                return validateActivePowerValue(generator, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, reports, newValue);
+                return validateActivePowerValue(generator, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, reports, Double.parseDouble(getNewValue(equipment, abstractAssignmentInfos)));
             } else if (abstractAssignmentInfos.getEditedField().equals(MINIMUM_ACTIVE_POWER.name())) {
-                return validateMinimumActivePower(generator, reports, newValue);
+                return validateMinimumActivePower(generator, reports, Double.parseDouble(getNewValue(equipment, abstractAssignmentInfos)));
             } else if (abstractAssignmentInfos.getEditedField().equals(MAXIMUM_ACTIVE_POWER.name())) {
-                return validateMaximumActivePower(generator, reports, newValue);
+                return validateMaximumActivePower(generator, reports, Double.parseDouble(getNewValue(equipment, abstractAssignmentInfos)));
             } else if (abstractAssignmentInfos.getEditedField().equals(ACTIVE_POWER_SET_POINT.name())) {
-                return validateActivePowerValue(generator, FIELD_ACTIVE_POWER_TARGET, reports, newValue);
+                return validateActivePowerValue(generator, FIELD_ACTIVE_POWER_TARGET, reports, Double.parseDouble(getNewValue(equipment, abstractAssignmentInfos)));
             }
         }
         return true;

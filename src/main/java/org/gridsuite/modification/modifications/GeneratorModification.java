@@ -73,10 +73,11 @@ public class GeneratorModification extends AbstractModification {
             checkIsNotNegativeValue(errorMessage, modificationInfos.getTargetV().getValue(), MODIFY_GENERATOR_ERROR, TARGET_VOLTAGE);
         }
         GeneratorStartup generatorStartup = generator.getExtension(GeneratorStartup.class);
-        checkPowerValues(errorMessage, modificationInfos.getMinP().applyModification(generator.getMinP()),
-            modificationInfos.getMaxP().applyModification(generator.getMaxP()),
-            modificationInfos.getTargetP().applyModification(generator.getTargetP()),
-            modificationInfos.getPlannedActivePowerSetPoint().applyModification(generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) ? generatorStartup.getPlannedActivePowerSetpoint() : null),
+        double minP = modificationInfos.getMinP() != null ? modificationInfos.getMinP().getValue() : generator.getMinP();
+        double maxP = modificationInfos.getMaxP() != null ? modificationInfos.getMaxP().getValue() : generator.getMaxP();
+        double targetP = modificationInfos.getTargetP() != null ? modificationInfos.getTargetP().getValue() : generator.getTargetP();
+        checkPowerValues(errorMessage, minP, maxP, targetP,
+            generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) ? generatorStartup.getPlannedActivePowerSetpoint() : null,
             MODIFY_GENERATOR_ERROR);
     }
 
