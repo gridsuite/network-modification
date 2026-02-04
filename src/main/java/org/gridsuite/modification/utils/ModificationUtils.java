@@ -1933,22 +1933,6 @@ public final class ModificationUtils {
         }
     }
 
-    public static boolean validateActivePowerValue(Generator generator, String fieldName, List<ReportNode> reports, double newValue) {
-        if (newValue > generator.getMaxP() || newValue < generator.getMinP()) {
-            reports.add(ReportNode.newRootReportNode()
-                .withMessageTemplate("network.modification.generator.ValueShouldBeWithinInterval")
-                .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, generator.getId())
-                .withUntypedValue(VALUE_KEY_FIELD_NAME, fieldName)
-                .withUntypedValue(VALUE_KEY_FIELD_VALUE, newValue)
-                .withUntypedValue(VALUE_KEY_MIN_VALUE, generator.getMinP())
-                .withUntypedValue(VALUE_KEY_MAX_VALUE, generator.getMaxP())
-                .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
-            return false;
-        }
-        return true;
-    }
-
     public static void checkPowerValues(String errorMessage, double minP, double maxP, double targetP, Double pImp, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
         checkActivePowerValue(errorMessage, FIELD_ACTIVE_POWER_TARGET, targetP, minP, maxP, exceptionType);
         if (pImp != null) {
@@ -2017,6 +2001,22 @@ public final class ModificationUtils {
                 .withUntypedValue(VALUE_KEY_FIELD_NAME, FIELD_MAX_ACTIVE_POWER)
                 .withUntypedValue(VALUE_KEY_FIELD_VALUE, newValue)
                 .withUntypedValue(VALUE_KEY_TARGET_VALUE, maxP)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean validateActivePowerValue(Generator generator, String fieldName, List<ReportNode> reports, double newValue) {
+        if (newValue > generator.getMaxP() || newValue < generator.getMinP()) {
+            reports.add(ReportNode.newRootReportNode()
+                .withMessageTemplate("network.modification.generator.ValueShouldBeWithinInterval")
+                .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, generator.getId())
+                .withUntypedValue(VALUE_KEY_FIELD_NAME, fieldName)
+                .withUntypedValue(VALUE_KEY_FIELD_VALUE, newValue)
+                .withUntypedValue(VALUE_KEY_MIN_VALUE, generator.getMinP())
+                .withUntypedValue(VALUE_KEY_MAX_VALUE, generator.getMaxP())
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
             return false;
