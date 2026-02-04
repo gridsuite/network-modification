@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 
@@ -17,6 +18,7 @@ import org.gridsuite.modification.utils.NetworkCreation;
 import java.util.List;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
@@ -27,13 +29,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
 
     @Override
     public void checkModification() {
-    }
-
-    @Override
-    public void testApply() throws Exception {
-        CompositeModificationInfos compositeModificationInfos = (CompositeModificationInfos) buildModification();
-        compositeModificationInfos.getModifications().forEach(modificationInfos -> modificationInfos.toModification().apply(getNetwork()));
-        assertAfterNetworkModificationApplication();
+        // TODO
     }
 
     @Override
@@ -43,11 +39,28 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
 
     @Override
     protected ModificationInfos buildModification() {
+        CompositeModificationInfos subSubCompo = CompositeModificationInfos.builder()
+                .modifications(
+                        List.of(ModificationCreation.getModificationGenerator( "idGenerator", "other idGenerator name again"))
+                ).build();
+        CompositeModificationInfos subCompo1 = CompositeModificationInfos.builder()
+                .modifications(
+                        List.of(ModificationCreation.getModificationGenerator( "idGenerator", "other idGenerator name"))
+                ).build();
+        CompositeModificationInfos subCompo2 = CompositeModificationInfos.builder()
+                .modifications(
+                        List.of(
+                                subSubCompo,
+                                ModificationCreation.getModificationGenerator( "idGenerator", "even newer idGenerator name")
+                        )
+                ).build();
         List<ModificationInfos> modifications = List.of(
-                ModificationCreation.getCreationGenerator("v1", "idGenerator", "nameGenerator", "1B", "v2load", "LOAD",
-                        "v1"),
+                subCompo1,
+                ModificationCreation.getModificationGenerator( "idGenerator", "new idGenerator name"),
                 ModificationCreation.getCreationLoad("v1", "idLoad", "nameLoad", "1.1", LoadType.UNDEFINED),
-                ModificationCreation.getCreationBattery("v1", "idBattery", "nameBattry", "1.1"));
+                ModificationCreation.getCreationBattery("v1", "idBattery", "nameBattery", "1.1"),
+                subCompo2
+        );
         return CompositeModificationInfos.builder()
                 .modifications(modifications)
                 .stashed(false)
@@ -56,7 +69,9 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void assertAfterNetworkModificationApplication() {
-        assertNotNull(getNetwork().getGenerator("idGenerator"));
+        Generator gen = getNetwork().getGenerator("idGenerator");
+        assertNotNull(gen);
+        assertEquals("even newer idGenerator name", gen.getOptionalName().orElseThrow());
         assertNotNull(getNetwork().getLoad("idLoad"));
         assertNotNull(getNetwork().getBattery("idBattery"));
     }

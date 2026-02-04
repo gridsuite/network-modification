@@ -15,12 +15,20 @@ import org.gridsuite.modification.dto.CompositeModificationInfos;
  */
 public class CompositeModification extends AbstractModification {
 
+    private final CompositeModificationInfos compositeModificationInfos;
+
     public CompositeModification(CompositeModificationInfos compositeModificationInfos) {
+        this.compositeModificationInfos = compositeModificationInfos;
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        throw new UnsupportedOperationException();
+        // TODO : ajouer un log parent INFO structurant
+        compositeModificationInfos.getModifications().forEach(
+                modif ->
+                    // TODO : en cas d'erreur ne pas interrompre l'exécution de la composite en soit
+                    modif.toModification().apply(network, subReportNode)
+        );
     }
 
     @Override
