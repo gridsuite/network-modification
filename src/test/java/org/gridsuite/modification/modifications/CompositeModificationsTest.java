@@ -46,7 +46,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                                         ModificationCreation.getModificationGenerator("idGenerator", "other idGenerator name"),
                                         // this should throw an error but not stop the execution of the composite modification and all the other content
                                         ModificationCreation.getCreationGenerator(
-                                                "v1", "idGenerator", "nameGenerator", "1B", "v2load", "LOAD","v1")
+                                                "v1", "idGenerator", "nameGenerator", "1B", "v2load", "LOAD", "v1")
                                 )
                         ).build(),
                 ModificationCreation.getModificationGenerator("idGenerator", "new idGenerator name"),
