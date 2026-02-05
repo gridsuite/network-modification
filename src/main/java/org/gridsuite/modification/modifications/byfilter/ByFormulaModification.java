@@ -73,7 +73,7 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
             notEditableEquipments.add(equipment.getId());
             reports.add(ReportNode.newRootReportNode()
                     .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                    .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_NULL)
+                    .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_EMPTY)
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
                     .withSeverity(TypedValue.DETAIL_SEVERITY)
                     .build());
