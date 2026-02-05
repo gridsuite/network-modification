@@ -39,27 +39,25 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
 
     @Override
     protected ModificationInfos buildModification() {
-        CompositeModificationInfos subSubCompo = CompositeModificationInfos.builder()
-                .modifications(
-                        List.of(ModificationCreation.getModificationGenerator( "idGenerator", "other idGenerator name again"))
-                ).build();
-        CompositeModificationInfos subCompo1 = CompositeModificationInfos.builder()
-                .modifications(
-                        List.of(ModificationCreation.getModificationGenerator( "idGenerator", "other idGenerator name"))
-                ).build();
-        CompositeModificationInfos subCompo2 = CompositeModificationInfos.builder()
-                .modifications(
-                        List.of(
-                                subSubCompo,
-                                ModificationCreation.getModificationGenerator( "idGenerator", "even newer idGenerator name")
-                        )
-                ).build();
         List<ModificationInfos> modifications = List.of(
-                subCompo1,
-                ModificationCreation.getModificationGenerator( "idGenerator", "new idGenerator name"),
+                CompositeModificationInfos.builder()
+                        .modifications(
+                                List.of(ModificationCreation.getModificationGenerator("idGenerator", "other idGenerator name"))
+                        ).build(),
+                ModificationCreation.getModificationGenerator("idGenerator", "new idGenerator name"),
                 ModificationCreation.getCreationLoad("v1", "idLoad", "nameLoad", "1.1", LoadType.UNDEFINED),
                 ModificationCreation.getCreationBattery("v1", "idBattery", "nameBattery", "1.1"),
-                subCompo2
+                // test of a composite modification inside a composite modification inside a composite modification
+                CompositeModificationInfos.builder()
+                        .modifications(
+                                List.of(
+                                        CompositeModificationInfos.builder()
+                                                .modifications(
+                                                        List.of(ModificationCreation.getModificationGenerator("idGenerator", "other idGenerator name again"))
+                                                ).build(),
+                                        ModificationCreation.getModificationGenerator("idGenerator", "even newer idGenerator name")
+                                )
+                        ).build()
         );
         return CompositeModificationInfos.builder()
                 .modifications(modifications)
