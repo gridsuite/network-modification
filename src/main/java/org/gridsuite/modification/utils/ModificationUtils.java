@@ -1928,7 +1928,7 @@ public final class ModificationUtils {
 
     public static void checkActivePowerValue(String errorMessage, String fieldName, double newValue, double minP, double maxP, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
         if (newValue > maxP || newValue < minP) {
-            String message = String.format("value %.2f field %s should be inside interval [%.2f; %.2f]", newValue, fieldName, minP, maxP);
+            String message = String.format("Invalid value %.2f field %s should be inside interval [%.2f; %.2f]", newValue, fieldName, minP, maxP);
             throw new NetworkModificationException(exceptionType, errorMessage + message);
         }
     }
@@ -1948,7 +1948,7 @@ public final class ModificationUtils {
             pMin = Math.min(pMin, pImp);
         }
         if (pMin < newValue) {
-            throw new NetworkModificationException(exceptionType, errorMessage + String.format("value %.2f of field %s should be be smaller or equal to %.2f", newValue, FIELD_MIN_ACTIVE_POWER, pMin));
+            throw new NetworkModificationException(exceptionType, errorMessage + String.format("Invalid value %.2f of field %s should be be smaller or equal to %.2f", newValue, FIELD_MIN_ACTIVE_POWER, pMin));
         }
     }
 
@@ -1958,7 +1958,7 @@ public final class ModificationUtils {
             pMax = Math.max(pMax, pImp);
         }
         if (pMax > newValue) {
-            throw new NetworkModificationException(exceptionType, errorMessage + String.format("value %.2f of field %s should be be greater or equal to %.2f", newValue, FIELD_MAX_ACTIVE_POWER, pMax));
+            throw new NetworkModificationException(exceptionType, errorMessage + String.format("Invalid value %.2f of field %s should be be greater or equal to %.2f", newValue, FIELD_MAX_ACTIVE_POWER, pMax));
         }
     }
 
