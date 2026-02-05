@@ -7,17 +7,20 @@
 package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationCreation;
 import org.gridsuite.modification.utils.NetworkCreation;
 import java.util.List;
 import java.util.UUID;
 
+import static org.gridsuite.modification.utils.TestUtils.assertLogMessageWithoutRank;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -35,9 +38,19 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         GeneratorCreation throwingExceptionNetMod = (GeneratorCreation) buildThrowingModification().toModification();
         assertThrows(PowsyblException.class, () -> throwingExceptionNetMod.apply(network));
         // but doesn't throw once inside a composite modification
+        ReportNode report = compositeModificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build());
         compositeModificationInfos.setModifications(List.of(buildThrowingModification()));
         CompositeModification netmod = (CompositeModification) compositeModificationInfos.toModification();
-        assertDoesNotThrow(() -> netmod.apply(network));
+        assertDoesNotThrow(() -> netmod.apply(network, report));
+        // but the thrown message is inside the report :
+        assertLogMessageWithoutRank(
+                "Cannot execute GeneratorCreation : The network " + getNetwork().getId() + " already contains an object 'GeneratorImpl' with the id 'idGenerator'",
+                "network.modification.compositeReportException",
+                report
+        );
     }
 
     private GeneratorCreationInfos buildThrowingModification() {
@@ -97,6 +110,5 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         assertNotNull(ModificationType.COMPOSITE_MODIFICATION.name(), modificationInfos.getMessageType());
     }
 
-    // TODO : tester les messages
-    // TODO : tester qu'il y a bien un throw, choppé et passé et présent dans les messages
+    // TODO : tester les messages, en tout cas celui de la composite avec son nom
 }
