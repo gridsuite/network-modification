@@ -1928,7 +1928,7 @@ public final class ModificationUtils {
 
     public static void checkActivePowerValue(String errorMessage, String fieldName, double newValue, double minP, double maxP, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
         if (newValue > maxP || newValue < minP) {
-            String message = String.format("Invalid value %.2f field %s should be inside interval [%.2f; %.2f]", newValue, fieldName, minP, maxP);
+            String message = String.format("Invalid value %.2f field %s should be within interval [%.2f; %.2f]", newValue, fieldName, minP, maxP);
             throw new NetworkModificationException(exceptionType, errorMessage + message);
         }
     }

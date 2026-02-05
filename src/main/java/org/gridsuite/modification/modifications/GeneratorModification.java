@@ -91,7 +91,7 @@ public class GeneratorModification extends AbstractModification {
             checkMaximumActivePower(errorMessage, minP, targetP, pImp, maxP, MODIFY_GENERATOR_ERROR);
         }
         if (modificationInfos.getMinP() != null) {
-            checkMinimumActivePower(errorMessage, minP, targetP, pImp, maxP, MODIFY_GENERATOR_ERROR);
+            checkMinimumActivePower(errorMessage, maxP, targetP, pImp, minP, MODIFY_GENERATOR_ERROR);
         }
     }
 
