@@ -27,19 +27,15 @@ public class CompositeModification extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        ReportNode compositeNode = subReportNode.newReportNode()
-                .withMessageTemplate("network.modification.composite")
-                .withUntypedValue("modificationName", this.getName())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
         compositeModificationInfos.getModifications().forEach(
             modif -> {
+                ReportNode modifNode = modif.createSubReportNode(subReportNode);
                 try {
-                    modif.toModification().apply(network, compositeNode);
+                    modif.toModification().apply(network, modifNode);
                 } catch (Exception e) {
-                    // in case of error in a network modification, the composite modification doesn't interrupt its execution
+                    // in case of error in a network modification, the composite modification doesn't interrupt its execution :
                     // the following modifications will be carried out
-                    compositeNode.newReportNode()
+                    modifNode.newReportNode()
                             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                             .withMessageTemplate("network.modification.compositeReportException")
                             .withUntypedValue("modificationName", modif.toModification().getName())
