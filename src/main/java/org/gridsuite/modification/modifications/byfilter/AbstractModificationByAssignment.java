@@ -57,6 +57,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     public static final String VALUE_KEY_ARROW_VALUE = "→";
     public static final String REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO = "network.modification.equipmentModifiedError.zero";
     public static final String REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_EMPTY = "network.modification.equipmentModifiedError.empty";
+    public static final String REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_NAN = "network.modification.equipmentModifiedError.nan";
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_SOME = "network.modification.byFilterModificationSome";
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_FAILED = "network.modification.byFilterModificationFailed";
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_SUCCESS = "network.modification.byFilterModificationSuccess";

@@ -68,30 +68,30 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
         FormulaInfos formulaInfos = (FormulaInfos) abstractAssignmentInfos;
         Double value1 = formulaInfos.getFieldOrValue1().getRefOrValue(equipment);
         Double value2 = formulaInfos.getFieldOrValue2().getRefOrValue(equipment);
-        if (value1 == null || Double.isNaN(value1) || value2 == null || Double.isNaN(value2)) {
-            equipmentNotModifiedCount += 1;
-            notEditableEquipments.add(equipment.getId());
-            reports.add(ReportNode.newRootReportNode()
-                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                    .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_EMPTY)
-                    .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
-                    .withSeverity(TypedValue.DETAIL_SEVERITY)
-                    .build());
-            return false;
+        if (value1 == null || value2 == null) {
+            return reportErrorOnEquipment(equipment, notEditableEquipments, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_EMPTY, reports);
+        }
+
+        if (Double.isNaN(value1) || Double.isNaN(value2)) {
+            return reportErrorOnEquipment(equipment, notEditableEquipments, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_NAN, reports);
         }
 
         if (value2 == 0 && formulaInfos.getOperator() == Operator.DIVISION) {
-            equipmentNotModifiedCount += 1;
-            notEditableEquipments.add(equipment.getId());
-            reports.add(ReportNode.newRootReportNode()
-                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                    .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO)
-                    .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
-                    .withSeverity(TypedValue.DETAIL_SEVERITY)
-                    .build());
-            return false;
+            return reportErrorOnEquipment(equipment, notEditableEquipments, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO, reports);
         }
         return true;
+    }
+
+    private boolean reportErrorOnEquipment(Identifiable<?> equipment, List<String> notEditableEquipments, String reportKey, List<ReportNode> reports) {
+        equipmentNotModifiedCount += 1;
+        notEditableEquipments.add(equipment.getId());
+        reports.add(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate(reportKey)
+                .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
+                .withSeverity(TypedValue.DETAIL_SEVERITY)
+                .build());
+        return false;
     }
 
     @Override
