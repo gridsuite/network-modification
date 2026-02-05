@@ -6,20 +6,19 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.CompositeModificationInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationCreation;
 import org.gridsuite.modification.utils.NetworkCreation;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
@@ -29,7 +28,22 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
 
     @Override
     public void checkModification() {
-        // TODO
+        Network network = getNetwork();
+        CompositeModificationInfos compositeModificationInfos = (CompositeModificationInfos) buildModification();
+
+        // regular throwing exception netmod
+        GeneratorCreation throwingExceptionNetMod = (GeneratorCreation) buildThrowingModification().toModification();
+        assertThrows(PowsyblException.class, () -> throwingExceptionNetMod.apply(network));
+        // but doesn't throw once inside a composite modification
+        compositeModificationInfos.setModifications(List.of(buildThrowingModification()));
+        CompositeModification netmod = (CompositeModification) compositeModificationInfos.toModification();
+        assertDoesNotThrow(() -> netmod.apply(network));
+    }
+
+    private GeneratorCreationInfos buildThrowingModification() {
+        return ModificationCreation.getCreationGenerator(
+                "v1", "idGenerator", "nameGenerator", "1B", "v2load", "LOAD", "v1"
+        );
     }
 
     @Override
@@ -45,8 +59,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                                 List.of(
                                         ModificationCreation.getModificationGenerator("idGenerator", "other idGenerator name"),
                                         // this should throw an error but not stop the execution of the composite modification and all the other content
-                                        ModificationCreation.getCreationGenerator(
-                                                "v1", "idGenerator", "nameGenerator", "1B", "v2load", "LOAD", "v1")
+                                        buildThrowingModification()
                                 )
                         ).build(),
                 ModificationCreation.getModificationGenerator("idGenerator", "new idGenerator name"),

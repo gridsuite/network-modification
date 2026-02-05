@@ -37,7 +37,7 @@ public class CompositeModification extends AbstractModification {
                 try {
                     modif.toModification().apply(network, compositeNode);
                 } catch (Exception e) {
-                    // in case of error in a network modification, the composite modification doens't interrupt its execution
+                    // in case of error in a network modification, the composite modification doesn't interrupt its execution
                     // the following modifications will be carried out
                     compositeNode.newReportNode()
                             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
