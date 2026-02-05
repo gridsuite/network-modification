@@ -7,8 +7,12 @@
 package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.dto.CompositeModificationInfos;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
+
+import static org.gridsuite.modification.modifications.byfilter.AbstractModificationByAssignment.VALUE_KEY_ERROR_MESSAGE;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
@@ -23,11 +27,27 @@ public class CompositeModification extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        // TODO : ajouer un log parent INFO structurant
+        ReportNode compositeNode = subReportNode.newReportNode()
+                .withMessageTemplate("network.modification.composite")
+                .withUntypedValue("modificationName", this.getName())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
         compositeModificationInfos.getModifications().forEach(
-                modif ->
-                    // TODO : en cas d'erreur ne pas interrompre l'exécution de la composite en soit
-                    modif.toModification().apply(network, subReportNode)
+            modif -> {
+                try {
+                    modif.toModification().apply(network, compositeNode);
+                } catch (Exception e) {
+                    // in case of error in a network modification, the composite modification doens't interrupt its execution
+                    // the following modifications will be carried out
+                    compositeNode.newReportNode()
+                            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                            .withMessageTemplate("network.modification.compositeReportException")
+                            .withUntypedValue("modificationName", modif.toModification().getName())
+                            .withUntypedValue(VALUE_KEY_ERROR_MESSAGE, e.getMessage())
+                            .withSeverity(TypedValue.WARN_SEVERITY)
+                            .add();
+                }
+            }
         );
     }
 

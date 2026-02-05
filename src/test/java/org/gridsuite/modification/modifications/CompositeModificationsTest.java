@@ -42,7 +42,12 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         List<ModificationInfos> modifications = List.of(
                 CompositeModificationInfos.builder()
                         .modifications(
-                                List.of(ModificationCreation.getModificationGenerator("idGenerator", "other idGenerator name"))
+                                List.of(
+                                        ModificationCreation.getModificationGenerator("idGenerator", "other idGenerator name"),
+                                        // this should throw an error but not stop the execution of the composite modification and all the other content
+                                        ModificationCreation.getCreationGenerator(
+                                                "v1", "idGenerator", "nameGenerator", "1B", "v2load", "LOAD","v1")
+                                )
                         ).build(),
                 ModificationCreation.getModificationGenerator("idGenerator", "new idGenerator name"),
                 ModificationCreation.getCreationLoad("v1", "idLoad", "nameLoad", "1.1", LoadType.UNDEFINED),
@@ -78,4 +83,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
     protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
         assertNotNull(ModificationType.COMPOSITE_MODIFICATION.name(), modificationInfos.getMessageType());
     }
+
+    // TODO : tester les messages
+    // TODO : tester qu'il y a bien un throw, choppé et passé et présent dans les messages
 }
