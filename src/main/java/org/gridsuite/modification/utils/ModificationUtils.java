@@ -2087,9 +2087,8 @@ public final class ModificationUtils {
     }
 
     public static void updateMeasurementValidity(Measurement measurement, boolean requestedValidity) {
-        if (measurement.getProperty(MEASUREMENT_VALIDITY_PROPERTY) == null) {
-            measurement.setValid(requestedValidity);
-        } else {
+        measurement.setValid(requestedValidity);
+        if (measurement.getProperty(MEASUREMENT_VALIDITY_PROPERTY) != null) {
             if (requestedValidity) {
                 switch (measurement.getProperty(MEASUREMENT_VALIDITY_PROPERTY)) {
                     //validity = 1 →  TM non valid & not masked
@@ -2109,5 +2108,4 @@ public final class ModificationUtils {
             }
         }
     }
-
 }
