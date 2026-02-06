@@ -20,7 +20,7 @@ import org.gridsuite.modification.utils.NetworkCreation;
 import java.util.List;
 import java.util.UUID;
 
-import static org.gridsuite.modification.utils.TestUtils.assertLogMessageWithoutRank;
+import static org.gridsuite.modification.utils.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -34,17 +34,27 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         Network network = getNetwork();
         CompositeModificationInfos compositeModificationInfos = (CompositeModificationInfos) buildModification();
 
-        // regular throwing exception netmod
-        GeneratorCreation throwingExceptionNetMod = (GeneratorCreation) buildThrowingModification().toModification();
-        assertThrows(PowsyblException.class, () -> throwingExceptionNetMod.apply(network));
-        // but doesn't throw once inside a composite modification
+        // checks that the sub sub sub netmod is executed at the right depth
         ReportNode report = compositeModificationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
-        compositeModificationInfos.setModifications(List.of(buildThrowingModification()));
         CompositeModification netmod = (CompositeModification) compositeModificationInfos.toModification();
         assertDoesNotThrow(() -> netmod.apply(network, report));
+        assertLogMessageAtDepth(
+                "Generator with id=idGenerator modified :",
+                "network.modification.generatorModification",
+                report,
+                3
+        );
+
+        // regular throwing exception netmod
+        GeneratorCreation throwingExceptionNetMod = (GeneratorCreation) buildThrowingModification().toModification();
+        assertThrows(PowsyblException.class, () -> throwingExceptionNetMod.apply(network));
+        // but doesn't throw once inside a composite modification
+        compositeModificationInfos.setModifications(List.of(buildThrowingModification()));
+        CompositeModification netmodContainingError = (CompositeModification) compositeModificationInfos.toModification();
+        assertDoesNotThrow(() -> netmodContainingError.apply(network, report));
         // but the thrown message is inside the report :
         assertLogMessageWithoutRank(
                 "Cannot execute GeneratorCreation : The network " + getNetwork().getId() + " already contains an object 'GeneratorImpl' with the id 'idGenerator'",

@@ -58,6 +58,12 @@ public final class TestUtils {
         assertEquals(expectedMessage, message.get().trim());
     }
 
+    public static void assertLogMessageAtDepth(String expectedMessage, String reportKey, ReportNode reportNode, int depth) {
+        Optional<String> message = getMessageFromReporterAtDepth(reportKey, reportNode, 0, depth);
+        assertTrue(message.isPresent());
+        assertEquals(expectedMessage, message.get().trim());
+    }
+
     public static void assertLogMessage(String expectedMessage, String reportKey, ReportNode reportNode) {
         assertLogNthMessage(expectedMessage, reportKey, reportNode, 1);
     }
@@ -85,6 +91,30 @@ public final class TestUtils {
         return foundInSubReporters;
     }
 
+    private static Optional<String> getMessageFromReporterAtDepth(String reportKey, ReportNode reporterModel, int currentDepth, int expectedDepth) {
+        Optional<String> message = Optional.empty();
+
+        Iterator<ReportNode> reportersIterator = reporterModel.getChildren().iterator();
+        while (message.isEmpty() && reportersIterator.hasNext() && currentDepth < expectedDepth) {
+            message = getMessageFromReporterAtDepth(reportKey, reportersIterator.next(), currentDepth + 1, expectedDepth);
+        }
+
+        Iterator<ReportNode> reportsIterator = reporterModel.getChildren().iterator();
+        while (message.isEmpty() && reportsIterator.hasNext()) {
+            ReportNode report = reportsIterator.next();
+            if (currentDepth == expectedDepth) {
+                if (report.getMessageKey().equals(reportKey)) {
+                    message = Optional.of(formatReportMessage(report, reporterModel));
+                }
+            }
+        }
+
+        return message;
+    }
+
+    /**
+     * @param rank order position inside reporterModel
+     */
     private static Optional<String> getMessageFromReporter(String reportKey, ReportNode reporterModel, int rank) {
         Optional<String> message = Optional.empty();
 
