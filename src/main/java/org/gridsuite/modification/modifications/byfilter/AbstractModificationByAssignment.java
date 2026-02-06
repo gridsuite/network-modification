@@ -42,6 +42,7 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
 public abstract class AbstractModificationByAssignment extends AbstractModification {
     public static final String VALUE_KEY_FILTER_NAME = "filterName";
     public static final String VALUE_KEY_FIELD_NAME = "fieldName";
+    public static final String VALUE_KEY_NAME = "name";
     public static final String VALUE_KEY_EQUIPMENT_NAME = "equipmentName";
     public static final String VALUE_KEY_EQUIPMENT_TYPE = "equipmentType";
     public static final String VALUE_KEY_EQUIPMENT_COUNT = "equipmentCount";
@@ -298,6 +299,16 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                                          AbstractAssignmentInfos abstractAssignmentInfos,
                                          FilterInfos filterInfos) {
         FilterEquipments filterEquipments = filterUuidEquipmentsMap.get(filterInfos.getId());
+
+        if (filterEquipments == null) {
+            reports.add(ReportNode.newRootReportNode()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                    .withMessageTemplate("network.modification.filterNotFound")
+                    .withUntypedValue(VALUE_KEY_NAME, filterInfos.getName())
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build());
+            return;
+        }
 
         if (CollectionUtils.isEmpty(filterEquipments.getIdentifiableAttributes())) {
             reports.add(ReportNode.newRootReportNode()
