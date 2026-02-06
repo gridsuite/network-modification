@@ -59,7 +59,7 @@ public final class TestUtils {
     }
 
     public static void assertLogMessageAtDepth(String expectedMessage, String reportKey, ReportNode reportNode, int depth) {
-        Optional<String> message = getMessageFromReporterAtDepth(reportKey, reportNode, 0, depth);
+        Optional<String> message = getMessageFromReporterAtDepth(reportKey, reportNode, 1, depth);
         assertTrue(message.isPresent());
         assertEquals(expectedMessage, message.get().trim());
     }
@@ -102,10 +102,8 @@ public final class TestUtils {
         Iterator<ReportNode> reportsIterator = reporterModel.getChildren().iterator();
         while (message.isEmpty() && reportsIterator.hasNext()) {
             ReportNode report = reportsIterator.next();
-            if (currentDepth == expectedDepth) {
-                if (report.getMessageKey().equals(reportKey)) {
-                    message = Optional.of(formatReportMessage(report, reporterModel));
-                }
+            if (currentDepth == expectedDepth && report.getMessageKey().equals(reportKey)) {
+                message = Optional.of(formatReportMessage(report, reporterModel));
             }
         }
 

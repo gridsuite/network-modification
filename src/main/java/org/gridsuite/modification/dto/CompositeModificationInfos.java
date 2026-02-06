@@ -34,6 +34,9 @@ import java.util.List;
 @ModificationErrorTypeName("COMPOSITE_MODIFICATION_ERROR")
 public class CompositeModificationInfos extends ModificationInfos {
 
+    @Schema(description = "composite modification name")
+    private String compositeName;
+
     @Schema(description = "composite modification list")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<ModificationInfos> modifications;
@@ -47,7 +50,7 @@ public class CompositeModificationInfos extends ModificationInfos {
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.composite")
-                .withUntypedValue("modificationName", "nom bidon TODO") // TODO : ajouter un nom à CompositeModificationInfos
+                .withUntypedValue("modificationName", getCompositeName())
                 .add();
     }
 }

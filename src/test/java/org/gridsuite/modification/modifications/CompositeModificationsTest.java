@@ -45,7 +45,13 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                 "Generator with id=idGenerator modified :",
                 "network.modification.generatorModification",
                 report,
-                3
+                4
+        );
+        assertLogMessageAtDepth(
+                "Composite modification : 'sub sub composite'",
+                "network.modification.composite",
+                report,
+                2
         );
 
         // regular throwing exception netmod
@@ -78,6 +84,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
     protected ModificationInfos buildModification() {
         List<ModificationInfos> modifications = List.of(
                 CompositeModificationInfos.builder()
+                        .compositeName("sub composite 1")
                         .modifications(
                                 List.of(
                                         ModificationCreation.getModificationGenerator("idGenerator", "other idGenerator name"),
@@ -90,9 +97,11 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                 ModificationCreation.getCreationBattery("v1", "idBattery", "nameBattery", "1.1"),
                 // test of a composite modification inside a composite modification inside a composite modification
                 CompositeModificationInfos.builder()
+                        .compositeName("sub composite 2")
                         .modifications(
                                 List.of(
                                         CompositeModificationInfos.builder()
+                                                .compositeName("sub sub composite")
                                                 .modifications(
                                                         List.of(ModificationCreation.getModificationGenerator("idGenerator", "other idGenerator name again"))
                                                 ).build(),
@@ -101,6 +110,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                         ).build()
         );
         return CompositeModificationInfos.builder()
+                .compositeName("main composite")
                 .modifications(modifications)
                 .stashed(false)
                 .build();
@@ -119,6 +129,4 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
     protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
         assertNotNull(ModificationType.COMPOSITE_MODIFICATION.name(), modificationInfos.getMessageType());
     }
-
-    // TODO : tester les messages, en tout cas celui de la composite avec son nom
 }
