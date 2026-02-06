@@ -1023,5 +1023,42 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 regulationActivePowerControlModeModification, regulationValueModification, null, regulatingModification, regulationReports));
     }
 
+    @Test
+    void testProcessPhaseTapChangerRegulationModificationWithRegulating() {
+        TwoWindingsTransformer twt = createTwoWindingsTransformer(getNetwork().getSubstation("s1"), "trf3", "trf3", 2.0, 14.745, 0.0, 3.2E-5, 400.0, 225.0,
+                41, 151, getNetwork().getVoltageLevel("v1").getId(), getNetwork().getVoltageLevel("v2").getId(),
+                "trf3", 1, ConnectablePosition.Direction.TOP,
+                "trf3", 2, ConnectablePosition.Direction.TOP);
+        PhaseTapChangerAdder adder = twt.newPhaseTapChanger();
+        preparePhaseTapChangerAdder(adder);
+        adder.add();
+        PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
+
+        phaseTapChanger.setRegulationValue(100);
+        phaseTapChanger.setTargetDeadband(0);
+        phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
+        phaseTapChanger.setRegulating(true);
+
+        List<ReportNode> regulationReports = new ArrayList<>();
+        AttributeModification<PhaseTapChanger.RegulationMode> regulationActivePowerControlModeModification = new AttributeModification<>(
+                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, OperationType.SET);
+        AttributeModification<Double> regulationValueModification = new AttributeModification<>(-100.0, OperationType.SET);
+
+        processPhaseTapRegulation(phaseTapChanger, null, true,
+                regulationActivePowerControlModeModification, regulationValueModification, null, null, regulationReports);
+        assertEquals(-100.0, phaseTapChanger.getRegulationValue());
+        assertEquals(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, phaseTapChanger.getRegulationMode());
+        assertTrue(phaseTapChanger.isRegulating());
+
+        AttributeModification<PhaseTapChanger.RegulationMode> regulationCurrentLimiterModeModification = new AttributeModification<>(
+                PhaseTapChanger.RegulationMode.CURRENT_LIMITER, OperationType.SET);
+        AttributeModification<Double> regulationValueModification2 = new AttributeModification<>(100.0, OperationType.SET);
+        processPhaseTapRegulation(phaseTapChanger, null, true,
+                regulationCurrentLimiterModeModification, regulationValueModification2, null, null, regulationReports);
+        assertEquals(100.0, phaseTapChanger.getRegulationValue());
+        assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
+        assertTrue(phaseTapChanger.isRegulating());
+    }
+
 }
 
