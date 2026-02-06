@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications.byfilter.formula;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.filter.utils.EquipmentType;
@@ -19,6 +20,7 @@ import org.gridsuite.modification.dto.byfilter.formula.Operator;
 import org.gridsuite.modification.dto.byfilter.formula.ReferenceFieldOrValue;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,6 +54,10 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
     protected final FilterInfos filter6 = new FilterInfos(FILTER_ID_6, "filter6");
     protected final FilterInfos filter7 = new FilterInfos(FILTER_ID_7, "filter7");
     protected final FilterInfos filterWithOneWrongId = new FilterInfos(FILTER_WITH_ONE_WRONG_ID, "filterWithOneWrongId");
+    protected final ReportNode reportNode = ReportNode.newRootReportNode()
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test")
+            .build();
 
     @Mock
     protected IFilterService filterService;
@@ -70,7 +76,7 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(getTestFilters());
         AbstractModification modification = modificationInfo.toModification();
         modification.initApplicationContext(filterService, null);
-        modification.apply(getNetwork());
+        modification.apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication();
     }
 
