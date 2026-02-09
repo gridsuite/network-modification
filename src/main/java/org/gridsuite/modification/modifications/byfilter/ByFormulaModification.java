@@ -89,7 +89,7 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate(reportKey)
                 .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
-                .withSeverity(TypedValue.DETAIL_SEVERITY)
+                .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
         return false;
     }
