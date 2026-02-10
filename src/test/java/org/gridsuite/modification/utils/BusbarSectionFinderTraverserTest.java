@@ -2,7 +2,7 @@ package org.gridsuite.modification.utils;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
-import org.gridsuite.modification.modifications.BusbarSectionFinderTraverser;
+import com.powsybl.iidm.network.util.BusbarSectionFinderTraverser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringBootConfiguration;
