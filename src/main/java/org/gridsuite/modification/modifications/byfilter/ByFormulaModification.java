@@ -70,23 +70,23 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
         Double value2 = formulaInfos.getFieldOrValue2().getRefOrValue(equipment);
         // value 1 and value 2 cannot be null because getRefOrValue returns NaN if value is null
         if (Double.isNaN(value1) || Double.isNaN(value2)) {
-            return reportErrorOnEquipment(equipment, notEditableEquipments, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_MISSING, TypedValue.WARN_SEVERITY, reports);
+            return reportErrorOnEquipment(equipment, notEditableEquipments, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_MISSING, reports);
         }
 
         if (value2 == 0 && formulaInfos.getOperator() == Operator.DIVISION) {
-            return reportErrorOnEquipment(equipment, notEditableEquipments, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO, TypedValue.WARN_SEVERITY, reports);
+            return reportErrorOnEquipment(equipment, notEditableEquipments, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO, reports);
         }
         return true;
     }
 
-    private boolean reportErrorOnEquipment(Identifiable<?> equipment, List<String> notEditableEquipments, String reportKey, TypedValue severity, List<ReportNode> reports) {
+    private boolean reportErrorOnEquipment(Identifiable<?> equipment, List<String> notEditableEquipments, String reportKey, List<ReportNode> reports) {
         equipmentNotModifiedCount += 1;
         notEditableEquipments.add(equipment.getId());
         reports.add(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate(reportKey)
                 .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
-                .withSeverity(severity)
+                .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
         return false;
     }
