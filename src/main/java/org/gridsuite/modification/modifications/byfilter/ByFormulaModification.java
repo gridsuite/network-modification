@@ -68,28 +68,25 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
         FormulaInfos formulaInfos = (FormulaInfos) abstractAssignmentInfos;
         Double value1 = formulaInfos.getFieldOrValue1().getRefOrValue(equipment);
         Double value2 = formulaInfos.getFieldOrValue2().getRefOrValue(equipment);
-        if (value1 == null || value2 == null) {
-            return reportErrorOnEquipment(equipment, notEditableEquipments, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_EMPTY, reports);
-        }
-
+        // value 1 and value 2 cannot be null because getRefOrValue returns NaN if value is null
         if (Double.isNaN(value1) || Double.isNaN(value2)) {
-            return reportErrorOnEquipment(equipment, notEditableEquipments, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_NAN, reports);
+            return reportErrorOnEquipment(equipment, notEditableEquipments, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_MISSING, TypedValue.WARN_SEVERITY, reports);
         }
 
         if (value2 == 0 && formulaInfos.getOperator() == Operator.DIVISION) {
-            return reportErrorOnEquipment(equipment, notEditableEquipments, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO, reports);
+            return reportErrorOnEquipment(equipment, notEditableEquipments, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO, TypedValue.WARN_SEVERITY, reports);
         }
         return true;
     }
 
-    private boolean reportErrorOnEquipment(Identifiable<?> equipment, List<String> notEditableEquipments, String reportKey, List<ReportNode> reports) {
+    private boolean reportErrorOnEquipment(Identifiable<?> equipment, List<String> notEditableEquipments, String reportKey, TypedValue severity, List<ReportNode> reports) {
         equipmentNotModifiedCount += 1;
         notEditableEquipments.add(equipment.getId());
         reports.add(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate(reportKey)
                 .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
-                .withSeverity(TypedValue.WARN_SEVERITY)
+                .withSeverity(severity)
                 .build());
         return false;
     }
