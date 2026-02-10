@@ -1933,13 +1933,13 @@ public final class ModificationUtils {
         }
     }
 
-    public static void checkPowerValues(String errorMessage, double minP, double maxP, double targetP, Double pImp, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+    public static void checkPowerValues(String errorMessage, double minP, double maxP, double targetP, Double plannedActivePowerSetPoint, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
         checkActivePowerValue(errorMessage, FIELD_ACTIVE_POWER_TARGET, targetP, minP, maxP, exceptionType);
-        if (pImp != null) {
-            checkActivePowerValue(errorMessage, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, pImp, minP, maxP, exceptionType);
+        if (plannedActivePowerSetPoint != null) {
+            checkActivePowerValue(errorMessage, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, plannedActivePowerSetPoint, minP, maxP, exceptionType);
         }
-        checkMinimumActivePower(errorMessage, maxP, targetP, pImp, minP, exceptionType);
-        checkMaximumActivePower(errorMessage, minP, targetP, pImp, maxP, exceptionType);
+        checkMinimumActivePower(errorMessage, maxP, targetP, plannedActivePowerSetPoint, minP, exceptionType);
+        checkMaximumActivePower(errorMessage, minP, targetP, plannedActivePowerSetPoint, maxP, exceptionType);
     }
 
     public static void checkMinimumActivePower(String errorMessage, double maxP, double targetP, Double pImp, double newValue, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
