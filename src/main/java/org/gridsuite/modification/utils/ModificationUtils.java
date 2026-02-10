@@ -1934,7 +1934,9 @@ public final class ModificationUtils {
     }
 
     public static void checkPowerValues(String errorMessage, double minP, double maxP, double targetP, Double plannedActivePowerSetPoint, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
-        checkActivePowerValue(errorMessage, FIELD_ACTIVE_POWER_TARGET, targetP, minP, maxP, exceptionType);
+        if (targetP != 0) { // exception for the rule minP <= targetP <= maxP
+            checkActivePowerValue(errorMessage, FIELD_ACTIVE_POWER_TARGET, targetP, minP, maxP, exceptionType);
+        }
         if (plannedActivePowerSetPoint != null) {
             checkActivePowerValue(errorMessage, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, plannedActivePowerSetPoint, minP, maxP, exceptionType);
         }
