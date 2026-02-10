@@ -252,7 +252,7 @@ class VoltageLevelByFormulaModificationTest extends AbstractByFormulaModificatio
 
         // check logs
         List<String> allLogs = reportNode.getChildren().getFirst().getChildren().stream().flatMap(child -> child.getChildren().stream().map(ReportNode::getMessage)).toList();
-        assertTrue(allLogs.contains("Cannot modify equipment v7 : At least one of the value or referenced field is not a number"));
+        assertTrue(allLogs.contains("Cannot modify equipment v7 : At least one of the value or referenced field is missing"));
         assertTrue(allLogs.contains("Cannot modify equipment v8 : The value or referenced field of the second operand in the division operator is zero"));
 
     }
