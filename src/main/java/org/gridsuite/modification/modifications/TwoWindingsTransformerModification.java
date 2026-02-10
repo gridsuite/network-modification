@@ -21,6 +21,7 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
@@ -335,11 +336,11 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 if (regulationValueModification == null) {
                     throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value is missing when creating tap phase changer with regulation enabled");
                 }
-                if (regulationValueModification.getValue() < 0) {
-                    throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value must be positive when creating tap phase changer with regulation enabled");
-                }
                 if (regulationModeModification == null) {
                     throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation mode is missing when creating tap phase changer with regulation enabled");
+                }
+                if (regulationModeModification.getValue() == CURRENT_LIMITER && regulationValueModification.getValue() < 0) {
+                    throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value must be positive if regulation mode is CURRENT_LIMITER when creating tap phase changer with regulation enabled");
                 }
 
             } else {
@@ -350,11 +351,12 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 if (regulationValueModification == null && Double.isNaN(phaseTapChanger.getRegulationValue())) {
                     throw new NetworkModificationException(MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value is missing when modifying, phase tap changer can not regulate");
                 }
-                if (regulationValueModification != null && regulationValueModification.getValue() < 0) {
-                    throw new NetworkModificationException(MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value must be positive when modifying, phase tap changer can not regulate");
-                }
                 if (regulationModeModification == null && phaseTapChanger.getRegulationMode() == null) {
                     throw new NetworkModificationException(MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation mode is missing when modifying, phase tap changer can not regulate");
+                }
+                PhaseTapChanger.RegulationMode newRegulationMode = regulationModeModification == null ? phaseTapChanger.getRegulationMode() : regulationModeModification.getValue();
+                if (regulationValueModification != null && newRegulationMode == CURRENT_LIMITER && regulationValueModification.getValue() < 0) {
+                    throw new NetworkModificationException(MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value must be positive if regulation mode is CURRENT_LIMITER when modifying, phase tap changer can not regulate");
                 }
             }
         }
@@ -373,7 +375,15 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                                                         List<ReportNode> regulationReports) {
         // the order is important if regulation mode is set and regulation value or target dead band is null it will crash
         PhaseTapChanger.RegulationMode regulationMode = regulationModeModification == null ? null : regulationModeModification.getValue();
-        String fieldName = (regulationMode == PhaseTapChanger.RegulationMode.CURRENT_LIMITER) ? "Value" : "Flow set point";
+        String fieldName = (regulationMode == CURRENT_LIMITER) ? "Value" : "Flow set point";
+        // TODO implement some entity to modify all element at once in powsybl core/network store
+        // it is a fix to avoid to set regulation value to negative before setting regulation mode to ACTIVE_POWER_CONTROL
+        // so if a new mode is set, regulating is first set to false to pass all check and finally set to its true value
+        boolean previousRegulatingValue = isModification && phaseTapChanger.isRegulating();
+        if (isModification && phaseTapChanger.isRegulating()) {
+            phaseTapChanger.setRegulating(false);
+        }
+
         // Regulation value
         ReportNode regulationValueReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
             isModification ? phaseTapChanger::setRegulationValue : phaseTapChangerAdder::setRegulationValue,
@@ -403,10 +413,14 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         // Regulating
         ReportNode regulatingReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
             isModification ? phaseTapChanger::setRegulating : phaseTapChangerAdder::setRegulating,
-            isModification ? phaseTapChanger::isRegulating : () -> null,
+            isModification ? () -> previousRegulatingValue : () -> null,
             regulatingModification, "Phase tap regulating");
         if (regulationReports != null && regulatingReportNode != null) {
             regulationReports.add(regulatingReportNode);
+        }
+        // fix because can not modify several elements at once
+        if (isModification && regulatingModification == null && previousRegulatingValue) {
+            phaseTapChanger.setRegulating(true);
         }
     }
 
