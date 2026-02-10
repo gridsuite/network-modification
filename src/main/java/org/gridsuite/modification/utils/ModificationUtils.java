@@ -1945,7 +1945,8 @@ public final class ModificationUtils {
     }
 
     public static void checkMinimumActivePower(String errorMessage, double maxP, double targetP, Double pImp, double newValue, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
-        double pMin = Math.min(targetP, maxP);
+        // targetP = 0 is an exception to the rule
+        double pMin = targetP != 0 ? Math.min(targetP, maxP) : maxP;
         if (pImp != null) {
             pMin = Math.min(pMin, pImp);
         }
@@ -1954,10 +1955,11 @@ public final class ModificationUtils {
         }
     }
 
-    public static void checkMaximumActivePower(String errorMessage, double minP, double targetP, Double pImp, double newValue, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
-        double pMax = Math.max(targetP, minP);
-        if (pImp != null) {
-            pMax = Math.max(pMax, pImp);
+    public static void checkMaximumActivePower(String errorMessage, double minP, double targetP, Double plannedActivePowerSetPoint, double newValue, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+        // targetP = 0 is an exception to the rule
+        double pMax = targetP != 0 ? Math.max(targetP, minP) : minP;
+        if (plannedActivePowerSetPoint != null) {
+            pMax = Math.max(pMax, plannedActivePowerSetPoint);
         }
         if (pMax > newValue) {
             throw new NetworkModificationException(exceptionType, errorMessage + String.format("Invalid value %.2f of field %s should be be greater or equal to %.2f", newValue, FIELD_MAX_ACTIVE_POWER, pMax));
@@ -1966,11 +1968,12 @@ public final class ModificationUtils {
 
     public static boolean validateMinimumActivePower(Generator generator, List<ReportNode> reports, double newValue) {
         GeneratorStartup generatorStartup = generator.getExtension(GeneratorStartup.class);
-        Double pImp = generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) ? generatorStartup.getPlannedActivePowerSetpoint() : null;
+        Double plannedActivePowerSetPoint = generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) ? generatorStartup.getPlannedActivePowerSetpoint() : null;
 
-        double minP = Math.min(generator.getTargetP(), generator.getMaxP());
-        if (pImp != null) {
-            minP = Math.min(minP, pImp);
+        // targetP = 0 is an exception to the rule
+        double minP = generator.getTargetP() != 0 ? Math.min(generator.getTargetP(), generator.getMaxP()) : generator.getMaxP();
+        if (plannedActivePowerSetPoint != null) {
+            minP = Math.min(minP, plannedActivePowerSetPoint);
         }
 
         if (minP < newValue) {
@@ -1991,7 +1994,8 @@ public final class ModificationUtils {
         GeneratorStartup generatorStartup = generator.getExtension(GeneratorStartup.class);
         Double pImp = generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) ? generatorStartup.getPlannedActivePowerSetpoint() : null;
 
-        double maxP = Math.max(generator.getTargetP(), generator.getMinP());
+        // targetP = 0 is an exception to the rule
+        double maxP = generator.getTargetP() != 0 ? Math.max(generator.getTargetP(), generator.getMinP()) : generator.getMinP();
         if (pImp != null) {
             maxP = Math.min(maxP, pImp);
         }

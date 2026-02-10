@@ -119,7 +119,10 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
             } else if (abstractAssignmentInfos.getEditedField().equals(MAXIMUM_ACTIVE_POWER.name())) {
                 return validateMaximumActivePower(generator, reports, Double.parseDouble(getNewValue(equipment, abstractAssignmentInfos)));
             } else if (abstractAssignmentInfos.getEditedField().equals(ACTIVE_POWER_SET_POINT.name())) {
-                return validateActivePowerValue(generator, FIELD_ACTIVE_POWER_TARGET, reports, Double.parseDouble(getNewValue(equipment, abstractAssignmentInfos)));
+                double newValue = Double.parseDouble(getNewValue(equipment, abstractAssignmentInfos));
+                if (newValue != 0) { // 0 is an exception to the rule
+                    return validateActivePowerValue(generator, FIELD_ACTIVE_POWER_TARGET, reports, newValue);
+                }
             }
         }
         return true;
