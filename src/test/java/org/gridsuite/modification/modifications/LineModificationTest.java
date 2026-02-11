@@ -636,5 +636,51 @@ class LineModificationTest extends AbstractNetworkModificationTest {
                 .build();
         modificationInfosFalseFromZero.toModification().apply(getNetwork());
         assertEquals("1", reactivePowerMeasurement.getProperty("validity"));
+
+        // update validity on existing measurement without legacy property
+        reactivePowerMeasurement.removeProperty("validity");
+        LineModificationInfos modificationInfosTrueWithoutProperty = LineModificationInfos.builder()
+                .equipmentId("line1")
+                .q1MeasurementValidity(new AttributeModification<>(true, OperationType.SET))
+                .build();
+        modificationInfosTrueWithoutProperty.toModification().apply(getNetwork());
+        assertTrue(reactivePowerMeasurement.isValid());
+        assertNull(reactivePowerMeasurement.getProperty("validity"));
+
+        // add side 2 measurement by value only
+        assertTrue(measurements.getMeasurements(Measurement.Type.ACTIVE_POWER).stream().noneMatch(m -> m.getSide() == ThreeSides.TWO));
+        LineModificationInfos addSide2ActiveByValue = LineModificationInfos.builder()
+                .equipmentId("line1")
+                .p2MeasurementValue(new AttributeModification<>(42.0, OperationType.SET))
+                .build();
+        addSide2ActiveByValue.toModification().apply(getNetwork());
+        Measurement addedActiveSide2 = measurements.getMeasurements(Measurement.Type.ACTIVE_POWER).stream()
+                .filter(m -> m.getSide() == ThreeSides.TWO)
+                .findFirst()
+                .orElseThrow();
+        assertEquals(42.0, addedActiveSide2.getValue());
+
+        // add side 2 reactive measurement by validity only then update it
+        assertTrue(measurements.getMeasurements(Measurement.Type.REACTIVE_POWER).stream().noneMatch(m -> m.getSide() == ThreeSides.TWO));
+        LineModificationInfos addSide2ReactiveByValidity = LineModificationInfos.builder()
+                .equipmentId("line1")
+                .q2MeasurementValue(new AttributeModification<>(MEASUREMENT_Q_VALUE, OperationType.SET))
+                .q2MeasurementValidity(new AttributeModification<>(false, OperationType.SET))
+                .build();
+        addSide2ReactiveByValidity.toModification().apply(getNetwork());
+
+        Measurement addedReactiveSide2 = measurements.getMeasurements(Measurement.Type.REACTIVE_POWER).stream()
+                .filter(m -> m.getSide() == ThreeSides.TWO)
+                .findFirst()
+                .orElseThrow();
+        assertFalse(addedReactiveSide2.isValid());
+
+        LineModificationInfos updateSide2ReactiveValidity = LineModificationInfos.builder()
+                .equipmentId("line1")
+                .q2MeasurementValue(new AttributeModification<>(MEASUREMENT_Q_VALUE, OperationType.SET))
+                .q2MeasurementValidity(new AttributeModification<>(true, OperationType.SET))
+                .build();
+        updateSide2ReactiveValidity.toModification().apply(getNetwork());
+        assertTrue(addedReactiveSide2.isValid());
     }
 }
