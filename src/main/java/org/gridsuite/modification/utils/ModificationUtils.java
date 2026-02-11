@@ -37,6 +37,7 @@ import static org.gridsuite.modification.NetworkModificationException.Type.*;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE1;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE2;
 import static org.gridsuite.modification.modifications.AbstractBranchModification.*;
+import static org.gridsuite.modification.modifications.byfilter.AbstractModificationByAssignment.*;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -71,6 +72,10 @@ public final class ModificationUtils {
     private static final String COULD_NOT_ACTION_EQUIPMENT_ON_SIDE = COULD_NOT_ACTION_EQUIPMENT + " on side %s";
     public static final String CONNECT = "connect";
     public static final String DISCONNECT = "disconnect";
+    public static final String FIELD_MAX_ACTIVE_POWER = "Maximum active power";
+    public static final String FIELD_MIN_ACTIVE_POWER = "Minimum active power";
+    public static final String FIELD_PLANNED_ACTIVE_POWER_SET_POINT = "Planned active power set point";
+    public static final String FIELD_ACTIVE_POWER_TARGET = "Active power target";
 
     public static String applicabilityToString(OperationalLimitsGroupInfos.Applicability applicability) {
         return switch (applicability) {
@@ -1919,6 +1924,110 @@ public final class ModificationUtils {
             throw new NetworkModificationException(exceptionType, errorMessage +
                 String.format("missing limit set %s applicable on side %d : equipment ignored", limitsGroupIdToSet, side));
         }
+    }
+
+    public static void checkActivePowerValue(String errorMessage, String fieldName, double newValue, double minP, double maxP, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+        if (newValue > maxP || newValue < minP) {
+            String message = String.format("Invalid value %.2f field %s should be within interval [%.2f; %.2f]", newValue, fieldName, minP, maxP);
+            throw new NetworkModificationException(exceptionType, errorMessage + message);
+        }
+    }
+
+    public static void checkPowerValues(String errorMessage, double minP, double maxP, double targetP, Double plannedActivePowerSetPoint, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+        if (targetP != 0) { // exception for the rule minP <= targetP <= maxP
+            checkActivePowerValue(errorMessage, FIELD_ACTIVE_POWER_TARGET, targetP, minP, maxP, exceptionType);
+        }
+        if (plannedActivePowerSetPoint != null) {
+            checkActivePowerValue(errorMessage, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, plannedActivePowerSetPoint, minP, maxP, exceptionType);
+        }
+        checkMinimumActivePower(errorMessage, maxP, targetP, plannedActivePowerSetPoint, minP, exceptionType);
+        checkMaximumActivePower(errorMessage, minP, targetP, plannedActivePowerSetPoint, maxP, exceptionType);
+    }
+
+    public static void checkMinimumActivePower(String errorMessage, double maxP, double targetP, Double pImp, double newValue, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+        // targetP = 0 is an exception to the rule
+        double pMin = targetP != 0 ? Math.min(targetP, maxP) : maxP;
+        if (pImp != null) {
+            pMin = Math.min(pMin, pImp);
+        }
+        if (pMin < newValue) {
+            throw new NetworkModificationException(exceptionType, errorMessage + String.format("Invalid value %.2f of field %s should be be smaller or equal to %.2f", newValue, FIELD_MIN_ACTIVE_POWER, pMin));
+        }
+    }
+
+    public static void checkMaximumActivePower(String errorMessage, double minP, double targetP, Double plannedActivePowerSetPoint, double newValue, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+        // targetP = 0 is an exception to the rule
+        double pMax = targetP != 0 ? Math.max(targetP, minP) : minP;
+        if (plannedActivePowerSetPoint != null) {
+            pMax = Math.max(pMax, plannedActivePowerSetPoint);
+        }
+        if (pMax > newValue) {
+            throw new NetworkModificationException(exceptionType, errorMessage + String.format("Invalid value %.2f of field %s should be be greater or equal to %.2f", newValue, FIELD_MAX_ACTIVE_POWER, pMax));
+        }
+    }
+
+    public static boolean validateMinimumActivePower(Generator generator, List<ReportNode> reports, double newValue) {
+        GeneratorStartup generatorStartup = generator.getExtension(GeneratorStartup.class);
+        Double plannedActivePowerSetPoint = generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) ? generatorStartup.getPlannedActivePowerSetpoint() : null;
+
+        // targetP = 0 is an exception to the rule
+        double minP = generator.getTargetP() != 0 ? Math.min(generator.getTargetP(), generator.getMaxP()) : generator.getMaxP();
+        if (plannedActivePowerSetPoint != null) {
+            minP = Math.min(minP, plannedActivePowerSetPoint);
+        }
+
+        if (minP < newValue) {
+            reports.add(ReportNode.newRootReportNode()
+                .withMessageTemplate("network.modification.generator.ValueShouldBeSmallerThan")
+                .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, generator.getId())
+                .withUntypedValue(VALUE_KEY_FIELD_NAME, FIELD_MIN_ACTIVE_POWER)
+                .withUntypedValue(VALUE_KEY_FIELD_VALUE, newValue)
+                .withUntypedValue(VALUE_KEY_TARGET_VALUE, minP)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean validateMaximumActivePower(Generator generator, List<ReportNode> reports, double newValue) {
+        GeneratorStartup generatorStartup = generator.getExtension(GeneratorStartup.class);
+        Double pImp = generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) ? generatorStartup.getPlannedActivePowerSetpoint() : null;
+
+        // targetP = 0 is an exception to the rule
+        double maxP = generator.getTargetP() != 0 ? Math.max(generator.getTargetP(), generator.getMinP()) : generator.getMinP();
+        if (pImp != null) {
+            maxP = Math.min(maxP, pImp);
+        }
+
+        if (newValue < maxP) {
+            reports.add(ReportNode.newRootReportNode()
+                .withMessageTemplate("network.modification.generator.ValueShouldBeGreaterThan")
+                .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, generator.getId())
+                .withUntypedValue(VALUE_KEY_FIELD_NAME, FIELD_MAX_ACTIVE_POWER)
+                .withUntypedValue(VALUE_KEY_FIELD_VALUE, newValue)
+                .withUntypedValue(VALUE_KEY_TARGET_VALUE, maxP)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean validateActivePowerValue(Generator generator, String fieldName, List<ReportNode> reports, double newValue) {
+        if (newValue > generator.getMaxP() || newValue < generator.getMinP()) {
+            reports.add(ReportNode.newRootReportNode()
+                .withMessageTemplate("network.modification.generator.ValueShouldBeWithinInterval")
+                .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, generator.getId())
+                .withUntypedValue(VALUE_KEY_FIELD_NAME, fieldName)
+                .withUntypedValue(VALUE_KEY_FIELD_VALUE, newValue)
+                .withUntypedValue(VALUE_KEY_MIN_VALUE, generator.getMinP())
+                .withUntypedValue(VALUE_KEY_MAX_VALUE, generator.getMaxP())
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+            return false;
+        }
+        return true;
     }
 
     public static List<OperationalLimitsGroupInfos> getOperationalLimitsGroupsOnSide(List<OperationalLimitsGroupInfos> operationalLimitsGroupInfos,

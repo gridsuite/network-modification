@@ -76,6 +76,9 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
         if (value2 == 0 && formulaInfos.getOperator() == Operator.DIVISION) {
             return reportErrorOnEquipment(equipment, notEditableEquipments, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO, reports);
         }
+        if (equipment.getType() == IdentifiableType.GENERATOR) {
+            return checkGeneratorsPowerValues(equipment, abstractAssignmentInfos, reports);
+        }
         return true;
     }
 
