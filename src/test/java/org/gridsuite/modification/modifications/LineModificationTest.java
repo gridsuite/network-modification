@@ -601,6 +601,13 @@ class LineModificationTest extends AbstractNetworkModificationTest {
                 .findFirst()
                 .orElseThrow();
 
+        LineModificationInfos addSide1ActiveByValue = LineModificationInfos.builder()
+                .equipmentId("line1")
+                .p1MeasurementValue(new AttributeModification<>(79.0, OperationType.SET))
+                .build();
+        addSide1ActiveByValue.toModification().apply(getNetwork());
+        assertEquals(79.0, activePowerMeasurement.getValue());
+
         activePowerMeasurement.putProperty("validity", "1");
         LineModificationInfos modificationInfosTrueFromOne = LineModificationInfos.builder()
                 .equipmentId("line1")
@@ -647,7 +654,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         assertTrue(reactivePowerMeasurement.isValid());
         assertNull(reactivePowerMeasurement.getProperty("validity"));
 
-        // add side 2 measurement by value only
+        // add side 2 (new) measurement by value only
         assertTrue(measurements.getMeasurements(Measurement.Type.ACTIVE_POWER).stream().noneMatch(m -> m.getSide() == ThreeSides.TWO));
         LineModificationInfos addSide2ActiveByValue = LineModificationInfos.builder()
                 .equipmentId("line1")
