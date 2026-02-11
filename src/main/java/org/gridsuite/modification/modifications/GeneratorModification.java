@@ -72,6 +72,28 @@ public class GeneratorModification extends AbstractModification {
         if (modificationInfos.getTargetV() != null) {
             checkIsNotNegativeValue(errorMessage, modificationInfos.getTargetV().getValue(), MODIFY_GENERATOR_ERROR, TARGET_VOLTAGE);
         }
+        checkPowerValues(errorMessage, generator);
+    }
+
+    private void checkPowerValues(String errorMessage, Generator generator) {
+        GeneratorStartup generatorStartup = generator.getExtension(GeneratorStartup.class);
+        Double oldValue = generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint())
+            ? generatorStartup.getPlannedActivePowerSetpoint() : null;
+        double minP = modificationInfos.getMinP() != null ? modificationInfos.getMinP().getValue() : generator.getMinP();
+        double maxP = modificationInfos.getMaxP() != null ? modificationInfos.getMaxP().getValue() : generator.getMaxP();
+        double targetP = modificationInfos.getTargetP() != null ? modificationInfos.getTargetP().getValue() : generator.getTargetP();
+        Double plannedActivePowerSetPoint = modificationInfos.getPlannedActivePowerSetPoint() != null ?
+            modificationInfos.getPlannedActivePowerSetPoint().applyModification(oldValue) : null;
+
+        if (modificationInfos.getPlannedActivePowerSetPoint() != null) {
+            checkActivePowerValue(errorMessage, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, plannedActivePowerSetPoint, minP, maxP, MODIFY_GENERATOR_ERROR);
+        }
+        if (modificationInfos.getMaxP() != null) {
+            checkMaximumActivePower(errorMessage, minP, targetP, plannedActivePowerSetPoint, maxP, MODIFY_GENERATOR_ERROR);
+        }
+        if (modificationInfos.getMinP() != null) {
+            checkMinimumActivePower(errorMessage, maxP, targetP, plannedActivePowerSetPoint, minP, MODIFY_GENERATOR_ERROR);
+        }
     }
 
     private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerGenerator(GeneratorModificationInfos modificationInfos, Generator generator, NetworkModificationException.Type exceptionType, String errorMessage) {
