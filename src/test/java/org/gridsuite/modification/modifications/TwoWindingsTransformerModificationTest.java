@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimated;
+import com.powsybl.iidm.network.util.BusbarSectionFinderTraverser;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;

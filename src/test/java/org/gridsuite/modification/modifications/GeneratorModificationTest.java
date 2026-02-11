@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
+import com.powsybl.iidm.network.util.BusbarSectionFinderTraverser;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
