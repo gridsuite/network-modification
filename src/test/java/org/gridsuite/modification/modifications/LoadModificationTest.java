@@ -217,4 +217,70 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
         assertEquals(propertyState, reactivePowerMeasurement.getProperty("validity"));
         assertEquals(newValue, activePowerMeasurement.getValue());
     }
+
+    @Test
+    void testCreateMeasurementsExtensionWhenMissingOnlyWithValue() {
+        Load load = getNetwork().getLoad("v2load");
+        Measurements<?> measurements = (Measurements<?>) load.getExtension(Measurements.class);
+        assertNull(measurements);
+
+        // active power test
+        LoadModificationInfos updateActiveValue = LoadModificationInfos.builder()
+                .equipmentId("v2load")
+                .pMeasurementValue(new AttributeModification<>(66.5, OperationType.SET))
+                .build();
+        updateActiveValue.toModification().apply(getNetwork());
+
+        measurements = (Measurements<?>) load.getExtension(Measurements.class);
+        assertNotNull(measurements);
+        Measurement activePowerMeasurement = measurements.getMeasurements(Measurement.Type.ACTIVE_POWER).stream().findFirst().orElse(null);
+        assertNotNull(activePowerMeasurement);
+        assertEquals(66.5, activePowerMeasurement.getValue());
+        assertTrue(activePowerMeasurement.isValid());
+
+        // reactive power test
+        LoadModificationInfos updateReactiveValue = LoadModificationInfos.builder()
+                .equipmentId("v2load")
+                .qMeasurementValue(new AttributeModification<>(99.5, OperationType.SET))
+                .build();
+        updateReactiveValue.toModification().apply(getNetwork());
+
+        Measurement reactivePowerMeasurement = measurements.getMeasurements(Measurement.Type.REACTIVE_POWER).stream().findFirst().orElse(null);
+        assertNotNull(reactivePowerMeasurement);
+        assertEquals(99.5, reactivePowerMeasurement.getValue());
+        assertTrue(reactivePowerMeasurement.isValid());
+    }
+
+    @Test
+    void testCreateMeasurementsExtensionWhenMissingOnlyWithFalseValidity() {
+        Load load = getNetwork().getLoad("v2load");
+        Measurements<?> measurements = (Measurements<?>) load.getExtension(Measurements.class);
+        assertNull(measurements);
+
+        // active power test
+        LoadModificationInfos updateActiveValidity = LoadModificationInfos.builder()
+                .equipmentId("v2load")
+                .pMeasurementValidity(new AttributeModification<>(false, OperationType.SET))
+                .build();
+        updateActiveValidity.toModification().apply(getNetwork());
+
+        measurements = (Measurements<?>) load.getExtension(Measurements.class);
+        assertNotNull(measurements);
+        Measurement activePowerMeasurement = measurements.getMeasurements(Measurement.Type.ACTIVE_POWER).stream().findFirst().orElse(null);
+        assertNotNull(activePowerMeasurement);
+        assertTrue(Double.isNaN(activePowerMeasurement.getValue()));
+        assertFalse(activePowerMeasurement.isValid());
+
+        // reactive power test
+        LoadModificationInfos updateReactiveValidity = LoadModificationInfos.builder()
+                .equipmentId("v2load")
+                .qMeasurementValidity(new AttributeModification<>(false, OperationType.SET))
+                .build();
+        updateReactiveValidity.toModification().apply(getNetwork());
+
+        Measurement reactivePowerMeasurement = measurements.getMeasurements(Measurement.Type.REACTIVE_POWER).stream().findFirst().orElse(null);
+        assertNotNull(reactivePowerMeasurement);
+        assertTrue(Double.isNaN(reactivePowerMeasurement.getValue()));
+        assertFalse(reactivePowerMeasurement.isValid());
+    }
 }
