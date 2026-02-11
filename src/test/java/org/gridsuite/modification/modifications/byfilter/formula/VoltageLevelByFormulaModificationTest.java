@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications.byfilter.formula;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -194,8 +195,15 @@ class VoltageLevelByFormulaModificationTest extends AbstractByFormulaModificatio
             ReferenceFieldOrValue.builder().value(1000.).build(),
             ReferenceFieldOrValue.builder().value(3.).build());
 
+        // test error divide by 0
+        FormulaInfos formulaInfos12 = getFormulaInfo(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name(),
+                List.of(filter7),
+                Operator.DIVISION,
+                ReferenceFieldOrValue.builder().value(1000.).build(),
+                ReferenceFieldOrValue.builder().value(0.).build());
+
         return List.of(formulaInfos1, formulaInfos2, formulaInfos3, formulaInfos4, formulaInfos5,
-            formulaInfos6, formulaInfos7, formulaInfos8, formulaInfos9, formulaInfos10, formulaInfos11);
+            formulaInfos6, formulaInfos7, formulaInfos8, formulaInfos9, formulaInfos10, formulaInfos11, formulaInfos12);
     }
 
     @Override
@@ -241,5 +249,11 @@ class VoltageLevelByFormulaModificationTest extends AbstractByFormulaModificatio
         //Precision tests
         assertEquals(110., getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_8).getLowVoltageLimit(), 0.);
         assertEquals(333.3333333333, getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_8).getHighVoltageLimit(), 0.); //scale is defined in byFormulaModifcation (10)
+
+        // check logs
+        List<String> allLogs = reportNode.getChildren().getFirst().getChildren().stream().flatMap(child -> child.getChildren().stream().map(ReportNode::getMessage)).toList();
+        assertTrue(allLogs.contains("Cannot modify equipment v7 : At least one of the value or referenced field is missing"));
+        assertTrue(allLogs.contains("Cannot modify equipment v8 : The value or referenced field of the second operand in the division operator is zero"));
+
     }
 }

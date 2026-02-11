@@ -376,6 +376,14 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         // the order is important if regulation mode is set and regulation value or target dead band is null it will crash
         PhaseTapChanger.RegulationMode regulationMode = regulationModeModification == null ? null : regulationModeModification.getValue();
         String fieldName = (regulationMode == CURRENT_LIMITER) ? "Value" : "Flow set point";
+        // TODO implement some entity to modify all element at once in powsybl core/network store
+        // it is a fix to avoid to set regulation value to negative before setting regulation mode to ACTIVE_POWER_CONTROL
+        // so if a new mode is set, regulating is first set to false to pass all check and finally set to its true value
+        boolean previousRegulatingValue = isModification && phaseTapChanger.isRegulating();
+        if (isModification && phaseTapChanger.isRegulating()) {
+            phaseTapChanger.setRegulating(false);
+        }
+
         // Regulation value
         ReportNode regulationValueReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
             isModification ? phaseTapChanger::setRegulationValue : phaseTapChangerAdder::setRegulationValue,
@@ -405,10 +413,14 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         // Regulating
         ReportNode regulatingReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
             isModification ? phaseTapChanger::setRegulating : phaseTapChangerAdder::setRegulating,
-            isModification ? phaseTapChanger::isRegulating : () -> null,
+            isModification ? () -> previousRegulatingValue : () -> null,
             regulatingModification, "Phase tap regulating");
         if (regulationReports != null && regulatingReportNode != null) {
             regulationReports.add(regulatingReportNode);
+        }
+        // fix because can not modify several elements at once
+        if (isModification && regulatingModification == null && previousRegulatingValue) {
+            phaseTapChanger.setRegulating(true);
         }
     }
 
