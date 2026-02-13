@@ -72,6 +72,7 @@ public final class ModificationUtils {
     private static final String COULD_NOT_ACTION_EQUIPMENT_ON_SIDE = COULD_NOT_ACTION_EQUIPMENT + " on side %s";
     public static final String CONNECT = "connect";
     public static final String DISCONNECT = "disconnect";
+    private static final String MEASUREMENT_VALIDITY_PROPERTY = "validity";
     public static final String FIELD_MAX_ACTIVE_POWER = "Maximum active power";
     public static final String FIELD_MIN_ACTIVE_POWER = "Minimum active power";
     public static final String FIELD_PLANNED_ACTIVE_POWER_SET_POINT = "Planned active power set point";
@@ -2193,5 +2194,27 @@ public final class ModificationUtils {
         }
 
     }
-}
 
+    public static void updateMeasurementValidity(Measurement measurement, boolean requestedValidity) {
+        measurement.setValid(requestedValidity);
+        if (measurement.getProperty(MEASUREMENT_VALIDITY_PROPERTY) != null) {
+            if (requestedValidity) {
+                switch (measurement.getProperty(MEASUREMENT_VALIDITY_PROPERTY)) {
+                    //validity = 1 →  TM non valid & not masked
+                    //validity = 3 →  TM non valid & masked
+                    case "1": measurement.putProperty(MEASUREMENT_VALIDITY_PROPERTY, "0"); break;
+                    case "3": measurement.putProperty(MEASUREMENT_VALIDITY_PROPERTY, "2"); break;
+                    default: break;
+                }
+            } else {
+                switch (measurement.getProperty(MEASUREMENT_VALIDITY_PROPERTY)) {
+                    //validity = 0 →  TM valid & not masked
+                    //validity = 2 →  TM valid & masked
+                    case "0": measurement.putProperty(MEASUREMENT_VALIDITY_PROPERTY, "1"); break;
+                    case "2": measurement.putProperty(MEASUREMENT_VALIDITY_PROPERTY, "3"); break;
+                    default: break;
+                }
+            }
+        }
+    }
+}
