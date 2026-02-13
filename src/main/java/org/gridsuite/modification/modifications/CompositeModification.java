@@ -40,7 +40,7 @@ public class CompositeModification extends AbstractModification {
                             .withMessageTemplate("network.modification.compositeReportException")
                             .withUntypedValue("modificationName", modif.toModification().getName())
                             .withUntypedValue(VALUE_KEY_ERROR_MESSAGE, e.getMessage())
-                            .withSeverity(TypedValue.WARN_SEVERITY)
+                            .withSeverity(TypedValue.ERROR_SEVERITY)
                             .add();
                 }
             }
