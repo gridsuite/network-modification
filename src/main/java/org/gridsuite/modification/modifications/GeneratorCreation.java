@@ -69,6 +69,8 @@ public class GeneratorCreation extends AbstractModification {
         checkIsNotNegativeValue(errorMessage, modificationInfos.getTargetV(), CREATE_GENERATOR_ERROR, "Target Voltage");
         checkIsPercentage(errorMessage, modificationInfos.getDroop(), CREATE_GENERATOR_ERROR, "Droop");
         checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedS(), CREATE_GENERATOR_ERROR, "Rated apparent power");
+        checkPowerValues(errorMessage, modificationInfos.getMinP(), modificationInfos.getMaxP(), modificationInfos.getTargetP(),
+            modificationInfos.getPlannedActivePowerSetPoint(), CREATE_GENERATOR_ERROR);
     }
 
     @Override

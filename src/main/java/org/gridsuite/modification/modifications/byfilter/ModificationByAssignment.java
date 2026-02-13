@@ -78,6 +78,9 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
 
     @Override
     protected boolean preCheckValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos, List<ReportNode> reports, List<String> notEditableEquipments) {
+        if (equipment.getType() == IdentifiableType.GENERATOR) {
+            return checkGeneratorsPowerValues(equipment, abstractAssignmentInfos, reports);
+        }
         return true;
     }
 
