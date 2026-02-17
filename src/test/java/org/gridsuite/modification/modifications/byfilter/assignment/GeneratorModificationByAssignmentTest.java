@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.dto.FilterEquipments;
+import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
@@ -301,6 +302,12 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
                 .filters(List.of(filter6))
                 .build();
 
+        DoubleAssignmentInfos assignmentInfos20 = DoubleAssignmentInfos.builder()
+            .editedField(GeneratorField.Q_PERCENT.name())
+            .value(120.)
+            .filters(List.of(new FilterInfos(UUID.randomUUID(), "filterNotFound")))
+            .build();
+
         List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
         infosList.addAll(List.of(
                 assignmentInfos1,
@@ -321,7 +328,8 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
                 assignmentInfos16,
                 assignmentInfos17,
                 assignmentInfos18,
-                assignmentInfos19
+                assignmentInfos19,
+                assignmentInfos20
         ));
 
         return infosList;
