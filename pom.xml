@@ -43,7 +43,7 @@
 
     <properties>
         <powsybl-ws-dependencies.version>2.30.0</powsybl-ws-dependencies.version>
-        <gridsuite-filter.version>1.19.0</gridsuite-filter.version>
+        <gridsuite-filter.version>1.21.0</gridsuite-filter.version>
         <swagger-annotations.version>2.2.36</swagger-annotations.version>
         <sonar.organization>gridsuite</sonar.organization>
         <sonar.projectKey>org.gridsuite:network-modification</sonar.projectKey>
