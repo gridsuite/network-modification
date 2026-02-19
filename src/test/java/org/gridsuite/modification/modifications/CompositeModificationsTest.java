@@ -17,6 +17,8 @@ import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationCreation;
 import org.gridsuite.modification.utils.NetworkCreation;
+import org.junit.jupiter.api.Test;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -31,6 +33,11 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
 
     @Override
     public void checkModification() {
+        // nothing to check here
+    }
+
+    @Test
+    void checkCompositeExecutionDepth() {
         Network network = getNetwork();
         CompositeModificationInfos compositeModificationInfos = (CompositeModificationInfos) buildModification();
 
@@ -49,11 +56,21 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         );
         assertLogMessageAtDepth(
                 "Composite modification : 'sub sub composite'",
-                "network.modification.composite",
+                "network.modification.composite.apply",
                 report,
                 2
         );
+    }
 
+    @Test
+    void checkCompositeExecutionErrorHandling() {
+        Network network = getNetwork();
+        CompositeModificationInfos compositeModificationInfos = (CompositeModificationInfos) buildModification();
+
+        ReportNode report = compositeModificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build());
         // regular throwing exception netmod
         GeneratorCreation throwingExceptionNetMod = (GeneratorCreation) buildThrowingModification().toModification();
         assertThrows(PowsyblException.class, () -> throwingExceptionNetMod.apply(network));
@@ -63,10 +80,11 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         assertDoesNotThrow(() -> netmodContainingError.apply(network, report));
         // but the thrown message is inside the report :
         assertLogMessageWithoutRank(
-                "Cannot execute GeneratorCreation : The network " + getNetwork().getId() + " already contains an object 'GeneratorImpl' with the id 'idGenerator'",
-                "network.modification.compositeReportException",
+                "Cannot execute GeneratorCreation : GENERATOR_ALREADY_EXISTS : idGenerator",
+                "network.modification.composite.reportException",
                 report
         );
+
     }
 
     private GeneratorCreationInfos buildThrowingModification() {

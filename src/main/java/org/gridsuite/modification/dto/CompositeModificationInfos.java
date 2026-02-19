@@ -35,6 +35,7 @@ import java.util.List;
 public class CompositeModificationInfos extends ModificationInfos {
 
     @Schema(description = "composite modification name")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String compositeName;
 
     @Schema(description = "composite modification list")
@@ -49,7 +50,7 @@ public class CompositeModificationInfos extends ModificationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.composite")
+                .withMessageTemplate("network.modification.composite.apply")
                 .withUntypedValue("modificationName", getCompositeName())
                 .add();
     }

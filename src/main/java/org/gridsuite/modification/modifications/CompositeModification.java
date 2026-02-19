@@ -31,13 +31,15 @@ public class CompositeModification extends AbstractModification {
             modif -> {
                 ReportNode modifNode = modif.createSubReportNode(subReportNode);
                 try {
-                    modif.toModification().apply(network, modifNode);
+                    AbstractModification modification = modif.toModification();
+                    modification.check(network);
+                    modification.apply(network, modifNode);
                 } catch (Exception e) {
                     // in case of error in a network modification, the composite modification doesn't interrupt its execution :
                     // the following modifications will be carried out
                     modifNode.newReportNode()
                             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                            .withMessageTemplate("network.modification.compositeReportException")
+                            .withMessageTemplate("network.modification.composite.reportException")
                             .withUntypedValue("modificationName", modif.toModification().getName())
                             .withUntypedValue(VALUE_KEY_ERROR_MESSAGE, e.getMessage())
                             .withSeverity(TypedValue.ERROR_SEVERITY)
