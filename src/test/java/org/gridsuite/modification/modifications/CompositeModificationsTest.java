@@ -102,7 +102,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
     protected ModificationInfos buildModification() {
         List<ModificationInfos> modifications = List.of(
                 CompositeModificationInfos.builder()
-                        .compositeName("sub composite 1")
+                        .name("sub composite 1")
                         .modifications(
                                 List.of(
                                         ModificationCreation.getModificationGenerator("idGenerator", "other idGenerator name"),
@@ -115,11 +115,11 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                 ModificationCreation.getCreationBattery("v1", "idBattery", "nameBattery", "1.1"),
                 // test of a composite modification inside a composite modification inside a composite modification
                 CompositeModificationInfos.builder()
-                        .compositeName("sub composite 2")
+                        .name("sub composite 2")
                         .modifications(
                                 List.of(
                                         CompositeModificationInfos.builder()
-                                                .compositeName("sub sub composite")
+                                                .name("sub sub composite")
                                                 .modifications(
                                                         List.of(ModificationCreation.getModificationGenerator("idGenerator", "other idGenerator name again"))
                                                 ).build(),
@@ -128,7 +128,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                         ).build()
         );
         return CompositeModificationInfos.builder()
-                .compositeName("main composite")
+                .name("main composite")
                 .modifications(modifications)
                 .stashed(false)
                 .build();
