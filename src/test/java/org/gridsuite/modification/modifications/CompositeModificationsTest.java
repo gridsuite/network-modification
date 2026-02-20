@@ -81,7 +81,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         // but the thrown message is inside the report :
         assertLogMessageWithoutRank(
                 "Cannot execute GeneratorCreation : GENERATOR_ALREADY_EXISTS : idGenerator",
-                "network.modification.composite.reportException",
+                "network.modification.composite.exception.report",
                 report
         );
 

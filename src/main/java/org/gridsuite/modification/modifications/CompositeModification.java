@@ -39,7 +39,7 @@ public class CompositeModification extends AbstractModification {
                     // the following modifications will be carried out
                     modifNode.newReportNode()
                             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                            .withMessageTemplate("network.modification.composite.reportException")
+                            .withMessageTemplate("network.modification.composite.exception.report")
                             .withUntypedValue("modificationName", modif.toModification().getName())
                             .withUntypedValue(VALUE_KEY_ERROR_MESSAGE, e.getMessage())
                             .withSeverity(TypedValue.ERROR_SEVERITY)
