@@ -58,7 +58,7 @@ public enum TwoWindingsTransformerField {
         TwoWindingsTransformerField field = TwoWindingsTransformerField.valueOf(editedField);
 
         return switch (field) {
-            case TARGET_V, RATIO_LOW_TAP_POSITION, RATIO_HIGH_TAP_POSITION, RATIO_TAP_POSITION, RATIO_TARGET_DEADBAND -> {
+            case TARGET_V, RATIO_LOW_TAP_POSITION, RATIO_TAP_POSITION, RATIO_TARGET_DEADBAND -> {
                 boolean isEditable = twoWindingsTransformer.getRatioTapChanger() != null;
                 if (!isEditable) {
                     equipmentsReport.add(ReportNode.newRootReportNode()
@@ -71,7 +71,7 @@ public enum TwoWindingsTransformerField {
                 }
                 yield isEditable;
             }
-            case REGULATION_VALUE, PHASE_LOW_TAP_POSITION, PHASE_HIGH_TAP_POSITION, PHASE_TAP_POSITION, PHASE_TARGET_DEADBAND -> {
+            case REGULATION_VALUE, PHASE_LOW_TAP_POSITION, PHASE_TAP_POSITION, PHASE_TARGET_DEADBAND -> {
                 boolean isEditable = twoWindingsTransformer.getPhaseTapChanger() != null;
                 if (!isEditable) {
                     equipmentsReport.add(ReportNode.newRootReportNode()
@@ -84,6 +84,7 @@ public enum TwoWindingsTransformerField {
                 }
                 yield isEditable;
             }
+            case RATIO_HIGH_TAP_POSITION, PHASE_HIGH_TAP_POSITION -> false;
             default -> true;
         };
 
@@ -137,6 +138,8 @@ public enum TwoWindingsTransformerField {
                  PHASE_TARGET_DEADBAND -> setNewDoubleValue(transformer, field, newValue, errorMessage);
             case SELECTED_OPERATIONAL_LIMITS_GROUP_ID1, SELECTED_OPERATIONAL_LIMITS_GROUP_ID2 ->
                 setNewStringValue(transformer, field, newValue, errorMessage);
+            case RATIO_HIGH_TAP_POSITION, PHASE_HIGH_TAP_POSITION ->
+                throw new IllegalArgumentException(String.format("field %s is not editable", field));
         }
     }
 
