@@ -317,6 +317,20 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
             .value("")
             .build();
 
+        // High tap position is always equals to lowTapPosition + steps.size() - 1 and its modification is ignored
+        IntegerAssignmentInfos assignmentInfos20 = IntegerAssignmentInfos.builder()
+            .filters(List.of(filter1))
+            .editedField(TwoWindingsTransformerField.RATIO_HIGH_TAP_POSITION.name())
+            .value(10)
+            .build();
+
+        // High tap position is always equals to lowTapPosition + steps.size() - 1 and its modification is ignored
+        IntegerAssignmentInfos assignmentInfos21 = IntegerAssignmentInfos.builder()
+            .filters(List.of(filter3))
+            .editedField(TwoWindingsTransformerField.PHASE_HIGH_TAP_POSITION.name())
+            .value(10)
+            .build();
+
         List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
         infosList.addAll(List.of(assignmentInfos1,
                 assignmentInfos2,
@@ -336,7 +350,9 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
                 assignmentInfos16,
                 assignmentInfos17,
                 assignmentInfos18,
-                assignmentInfos19));
+                assignmentInfos19,
+                assignmentInfos20,
+                assignmentInfos21));
 
         return infosList;
     }
@@ -359,6 +375,7 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         assertEquals(2, ratioTapChanger1.getTargetV(), 0);
         assertEquals(4, ratioTapChanger1.getLowTapPosition());
         assertEquals(8, ratioTapChanger1.getTapPosition());
+        assertEquals(9, ratioTapChanger1.getHighTapPosition());
         assertEquals(5, ratioTapChanger1.getTargetDeadband(), 0);
         assertEquals(20, twt1.getX(), 0);
         assertEquals(2.5, twt1.getB(), 0);
@@ -378,6 +395,7 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         assertEquals(2, ratioTapChanger2.getTargetV(), 0);
         assertEquals(3, ratioTapChanger2.getLowTapPosition());
         assertEquals(4, ratioTapChanger2.getTapPosition());
+        assertEquals(8, ratioTapChanger2.getHighTapPosition());
         assertEquals(5, ratioTapChanger2.getTargetDeadband(), 0);
         assertEquals(20, twt2.getX(), 0);
         assertEquals(2.5, twt2.getB(), 0);
@@ -409,6 +427,7 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         assertEquals(2, phaseTapChanger4.getRegulationValue(), 0);
         assertEquals(2, phaseTapChanger4.getLowTapPosition());
         assertEquals(3, phaseTapChanger4.getTapPosition());
+        assertEquals(7, phaseTapChanger4.getHighTapPosition());
         assertEquals(10, phaseTapChanger4.getTargetDeadband(), 0);
         assertEquals(2, twt4.getR(), 0);
         assertEquals(20, twt4.getX(), 0);
@@ -422,9 +441,10 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
 
         TwoWindingsTransformer twt5 = getNetwork().getTwoWindingsTransformer(TWT_ID_5);
         PhaseTapChanger phaseTapChanger5 = twt5.getPhaseTapChanger();
-        assertNotNull(phaseTapChanger4);
+        assertNotNull(phaseTapChanger5);
         assertEquals(2, phaseTapChanger5.getLowTapPosition());
         assertEquals(2, phaseTapChanger5.getTapPosition());
+        assertEquals(7, phaseTapChanger5.getHighTapPosition());
         assertEquals(2, twt5.getR(), 0);
         assertEquals(2.5, twt5.getB(), 0);
         assertEquals(0.5, twt5.getRatedU2(), 0);
@@ -433,7 +453,7 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
 
         TwoWindingsTransformer twt6 = getNetwork().getTwoWindingsTransformer(TWT_ID_6);
         PhaseTapChanger phaseTapChanger6 = twt6.getPhaseTapChanger();
-        assertNotNull(phaseTapChanger4);
+        assertNotNull(phaseTapChanger6);
         assertEquals(2, phaseTapChanger6.getRegulationValue(), 0);
         assertEquals(10, phaseTapChanger6.getTargetDeadband(), 0);
         assertEquals(20, twt6.getX(), 0);
