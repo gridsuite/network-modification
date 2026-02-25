@@ -121,7 +121,7 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
     }
 
     @Test
-    void isEquipmentEditable_shouldBeFalseForHighTapPositions() {
+    void isEquipmentEditableShouldBeFalseForHighTapPositions() {
         TwoWindingsTransformer twtRatio = getNetwork().getTwoWindingsTransformer(TWT_ID_1);
         TwoWindingsTransformer twtPhase = getNetwork().getTwoWindingsTransformer(TWT_ID_4);
 
@@ -134,7 +134,7 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
     }
 
     @Test
-    void setNewValue_shouldThrowForNonEditableHighTapPositions() {
+    void setNewValueShouldThrowForNonEditableHighTapPositions() {
         TwoWindingsTransformer twtRatio = getNetwork().getTwoWindingsTransformer(TWT_ID_1);
         TwoWindingsTransformer twtPhase = getNetwork().getTwoWindingsTransformer(TWT_ID_4);
 
