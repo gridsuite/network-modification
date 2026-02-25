@@ -37,10 +37,12 @@ public enum TwoWindingsTransformerField {
     RATED_S,
     TARGET_V,
     RATIO_LOW_TAP_POSITION,
+    RATIO_HIGH_TAP_POSITION,
     RATIO_TAP_POSITION,
     RATIO_TARGET_DEADBAND,
     REGULATION_VALUE,
     PHASE_LOW_TAP_POSITION,
+    PHASE_HIGH_TAP_POSITION,
     PHASE_TAP_POSITION,
     PHASE_TARGET_DEADBAND,
     SELECTED_OPERATIONAL_LIMITS_GROUP_ID1,
@@ -82,6 +84,7 @@ public enum TwoWindingsTransformerField {
                 }
                 yield isEditable;
             }
+            case RATIO_HIGH_TAP_POSITION, PHASE_HIGH_TAP_POSITION -> false;
             default -> true;
         };
 
@@ -102,6 +105,8 @@ public enum TwoWindingsTransformerField {
             case TARGET_V -> ratioTapChanger != null ? String.valueOf(ratioTapChanger.getTargetV()) : null;
             case RATIO_LOW_TAP_POSITION ->
                 ratioTapChanger != null ? String.valueOf(ratioTapChanger.getLowTapPosition()) : null;
+            case RATIO_HIGH_TAP_POSITION ->
+                ratioTapChanger != null ? String.valueOf(ratioTapChanger.getHighTapPosition()) : null;
             case RATIO_TAP_POSITION ->
                 ratioTapChanger != null ? String.valueOf(ratioTapChanger.getTapPosition()) : null;
             case RATIO_TARGET_DEADBAND ->
@@ -110,6 +115,8 @@ public enum TwoWindingsTransformerField {
                 phaseTapChanger != null ? String.valueOf(phaseTapChanger.getRegulationValue()) : null;
             case PHASE_LOW_TAP_POSITION ->
                 phaseTapChanger != null ? String.valueOf(phaseTapChanger.getLowTapPosition()) : null;
+            case PHASE_HIGH_TAP_POSITION ->
+                phaseTapChanger != null ? String.valueOf(phaseTapChanger.getHighTapPosition()) : null;
             case PHASE_TAP_POSITION ->
                 phaseTapChanger != null ? String.valueOf(phaseTapChanger.getTapPosition()) : null;
             case PHASE_TARGET_DEADBAND ->
@@ -131,6 +138,8 @@ public enum TwoWindingsTransformerField {
                  PHASE_TARGET_DEADBAND -> setNewDoubleValue(transformer, field, newValue, errorMessage);
             case SELECTED_OPERATIONAL_LIMITS_GROUP_ID1, SELECTED_OPERATIONAL_LIMITS_GROUP_ID2 ->
                 setNewStringValue(transformer, field, newValue, errorMessage);
+            case RATIO_HIGH_TAP_POSITION, PHASE_HIGH_TAP_POSITION ->
+                throw new IllegalArgumentException(String.format("field %s is not editable", field));
         }
     }
 

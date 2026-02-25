@@ -17,6 +17,7 @@ import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.dto.byfilter.formula.Operator;
 import org.gridsuite.modification.dto.byfilter.formula.ReferenceFieldOrValue;
 import org.junit.jupiter.api.Test;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -195,7 +196,17 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
             new IdentifiableAttributes(TWT_ID_6, getIdentifiableType(), 7.0)
         )).build();
 
-        return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3, FILTER_ID_4, filter4);
+        FilterEquipments filter5 = FilterEquipments.builder().filterId(FILTER_ID_5).identifiableAttributes(List.of(
+            new IdentifiableAttributes(TWT_ID_2, getIdentifiableType(), 2.0)
+        )).build();
+
+        FilterEquipments filter6 = FilterEquipments.builder().filterId(FILTER_ID_6).identifiableAttributes(List.of(
+            new IdentifiableAttributes(TWT_ID_6, getIdentifiableType(), 7.0)
+        )).build();
+
+        return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3, FILTER_ID_4, filter4,
+            FILTER_ID_5, filter5, FILTER_ID_6, filter6);
+
     }
 
     @Override
@@ -290,6 +301,32 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
                 ReferenceFieldOrValue.builder().value(200.).build(),
                 ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATED_S.name()).build());
 
+        // High tap position is always equals to lowTapPosition + steps.size() - 1 and its modification is ignored
+        FormulaInfos formulaInfos16 = getFormulaInfo(TwoWindingsTransformerField.RATIO_HIGH_TAP_POSITION.name(),
+                List.of(filter1),
+                Operator.ADDITION,
+                ReferenceFieldOrValue.builder().value(2.).build(),
+                ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name()).build());
+
+        // High tap position is always equals to lowTapPosition + steps.size() - 1 and its modification is ignored
+        FormulaInfos formulaInfos17 = getFormulaInfo(TwoWindingsTransformerField.PHASE_HIGH_TAP_POSITION.name(),
+                List.of(filter3),
+                Operator.ADDITION,
+                ReferenceFieldOrValue.builder().value(2.).build(),
+                ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.PHASE_TAP_POSITION.name()).build());
+
+        FormulaInfos formulaInfos18 = getFormulaInfo(TwoWindingsTransformerField.RATIO_TAP_POSITION.name(),
+            List.of(filter5),
+            Operator.SUBTRACTION,
+            ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATIO_HIGH_TAP_POSITION.name()).build(),
+            ReferenceFieldOrValue.builder().value(2.).build());
+
+        FormulaInfos formulaInfos19 = getFormulaInfo(TwoWindingsTransformerField.PHASE_TAP_POSITION.name(),
+            List.of(filter6),
+            Operator.SUBTRACTION,
+            ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.PHASE_HIGH_TAP_POSITION.name()).build(),
+            ReferenceFieldOrValue.builder().value(2.).build());
+
         return List.of(formulaInfos1,
                 formulaInfos2,
                 formulaInfos3,
@@ -304,7 +341,11 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
                 formulaInfos12,
                 formulaInfos13,
                 formulaInfos14,
-                formulaInfos15);
+                formulaInfos15,
+                formulaInfos16,
+                formulaInfos17,
+                formulaInfos18,
+                formulaInfos19);
     }
 
     @Override
@@ -325,6 +366,7 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
         assertEquals(100, ratioTapChanger1.getTargetV(), 0);
         assertEquals(1, ratioTapChanger1.getLowTapPosition());
         assertEquals(5, ratioTapChanger1.getTapPosition());
+        assertEquals(6, ratioTapChanger1.getHighTapPosition());
         assertEquals(11, ratioTapChanger1.getTargetDeadband(), 0);
         assertEquals(60, twt1.getX(), 0);
         assertEquals(150, twt1.getB(), 0);
@@ -339,7 +381,8 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
         assertNotNull(ratioTapChanger2);
         assertEquals(106, ratioTapChanger2.getTargetV(), 0);
         assertEquals(3, ratioTapChanger2.getLowTapPosition());
-        assertEquals(4, ratioTapChanger2.getTapPosition());
+        assertEquals(6, ratioTapChanger2.getTapPosition());
+        assertEquals(8, ratioTapChanger2.getHighTapPosition());
         assertEquals(11.6, ratioTapChanger2.getTargetDeadband(), 0);
         assertEquals(65, twt2.getX(), 0);
         assertEquals(162.5, twt2.getB(), 0);
@@ -363,6 +406,7 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
         assertEquals(90, phaseTapChanger4.getRegulationValue(), 0);
         assertEquals(2, phaseTapChanger4.getLowTapPosition());
         assertEquals(5, phaseTapChanger4.getTapPosition());
+        assertEquals(7, phaseTapChanger4.getHighTapPosition());
         assertEquals(24, phaseTapChanger4.getTargetDeadband(), 0);
         assertEquals(90, twt4.getR(), 0);
         assertEquals(75, twt4.getX(), 0);
@@ -374,16 +418,18 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
 
         TwoWindingsTransformer twt5 = getNetwork().getTwoWindingsTransformer(TWT_ID_5);
         PhaseTapChanger phaseTapChanger5 = twt5.getPhaseTapChanger();
-        assertNotNull(phaseTapChanger4);
+        assertNotNull(phaseTapChanger5);
         assertEquals(4, phaseTapChanger5.getLowTapPosition());
         assertEquals(6, phaseTapChanger5.getTapPosition());
+        assertEquals(9, phaseTapChanger5.getHighTapPosition());
         assertEquals(100, twt5.getR(), 0);
         assertEquals(200, twt5.getB(), 0);
         assertEquals(20, twt5.getRatedU2(), 0);
 
         TwoWindingsTransformer twt6 = getNetwork().getTwoWindingsTransformer(TWT_ID_6);
         PhaseTapChanger phaseTapChanger6 = twt6.getPhaseTapChanger();
-        assertNotNull(phaseTapChanger4);
+        assertNotNull(phaseTapChanger6);
+        assertEquals(4, phaseTapChanger6.getTapPosition());
         assertEquals(94, phaseTapChanger6.getRegulationValue(), 0);
         assertEquals(26, phaseTapChanger6.getTargetDeadband(), 0);
         assertEquals(85, twt6.getX(), 0);
