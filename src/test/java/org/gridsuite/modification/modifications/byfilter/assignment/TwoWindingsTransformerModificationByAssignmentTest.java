@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications.byfilter.assignment;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
@@ -19,6 +20,7 @@ import org.gridsuite.modification.dto.byfilter.assignment.StringAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.TwoWindingsTransformerField;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -116,6 +118,32 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         assertEquals(4, getNetwork().getTwoWindingsTransformer(TWT_ID_2).getRatioTapChanger().getTapPosition());
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_4).getRatioTapChanger());
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_6).getRatioTapChanger());
+    }
+
+    @Test
+    void isEquipmentEditable_shouldBeFalseForHighTapPositions() {
+        TwoWindingsTransformer twtRatio = getNetwork().getTwoWindingsTransformer(TWT_ID_1);
+        TwoWindingsTransformer twtPhase = getNetwork().getTwoWindingsTransformer(TWT_ID_4);
+
+        List<ReportNode> equipReports = new ArrayList<>();
+        boolean editableRatioHigh = TwoWindingsTransformerField.isEquipmentEditable(twtRatio, TwoWindingsTransformerField.RATIO_HIGH_TAP_POSITION.name(), equipReports);
+        boolean editablePhaseHigh = TwoWindingsTransformerField.isEquipmentEditable(twtPhase, TwoWindingsTransformerField.PHASE_HIGH_TAP_POSITION.name(), equipReports);
+
+        assertFalse(editableRatioHigh);
+        assertFalse(editablePhaseHigh);
+    }
+
+    @Test
+    void setNewValue_shouldThrowForNonEditableHighTapPositions() {
+        TwoWindingsTransformer twtRatio = getNetwork().getTwoWindingsTransformer(TWT_ID_1);
+        TwoWindingsTransformer twtPhase = getNetwork().getTwoWindingsTransformer(TWT_ID_4);
+
+        assertThrows(IllegalArgumentException.class, () ->
+            TwoWindingsTransformerField.setNewValue(twtRatio, TwoWindingsTransformerField.RATIO_HIGH_TAP_POSITION.name(), "10")
+        );
+        assertThrows(IllegalArgumentException.class, () ->
+            TwoWindingsTransformerField.setNewValue(twtPhase, TwoWindingsTransformerField.PHASE_HIGH_TAP_POSITION.name(), "10")
+        );
     }
 
     @Override
