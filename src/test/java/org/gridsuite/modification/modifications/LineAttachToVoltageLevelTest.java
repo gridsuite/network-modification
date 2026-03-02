@@ -158,4 +158,38 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
         Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
         assertEquals("line3", createdValues.get("lineToAttachToId"));
     }
+
+    @Test
+    void testKeepingOriginalLimitsFromOldLine() {
+        Network network = getNetwork();
+        Line oldLine = network.getLine("line3");
+        oldLine.newOperationalLimitsGroup1("group1").newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(120.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        oldLine.newOperationalLimitsGroup1("group2").newCurrentLimits()
+                .setPermanentLimit(110.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(130.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        oldLine.setSelectedOperationalLimitsGroup1("group2");
+
+        LineAttachToVoltageLevelInfos modificationInfos = (LineAttachToVoltageLevelInfos) buildModification();
+        modificationInfos.toModification().apply(network);
+        Line nl1 = network.getLine("nl1");
+        assertFalse(nl1.getOperationalLimitsGroups1().isEmpty());
+        assertEquals(2, nl1.getOperationalLimitsGroups1().size());
+        assertTrue(nl1.getSelectedOperationalLimitsGroupId1().isPresent());
+        assertEquals("group2", nl1.getSelectedOperationalLimitsGroupId1().get());
+        Line nl2 = network.getLine("nl2");
+        assertFalse(nl2.getOperationalLimitsGroups1().isEmpty());
+        assertEquals(2, nl2.getOperationalLimitsGroups1().size());
+        assertTrue(nl2.getSelectedOperationalLimitsGroupId1().isPresent());
+        assertEquals("group2", nl2.getSelectedOperationalLimitsGroupId1().get());
+    }
 }

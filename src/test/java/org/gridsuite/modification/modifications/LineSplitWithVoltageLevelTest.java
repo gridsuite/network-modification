@@ -7,11 +7,14 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LineSplitWithVoltageLevelInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
+import org.junit.jupiter.api.Test;
+
 import java.util.Map;
 import java.util.UUID;
 
@@ -89,5 +92,32 @@ class LineSplitWithVoltageLevelTest extends AbstractNetworkModificationTest {
         assertEquals("LINE_SPLIT_WITH_VOLTAGE_LEVEL", modificationInfos.getMessageType());
         Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
         assertEquals("line2", createdValues.get("lineToSplitId"));
+    }
+
+    @Test
+    void testKeepingOriginalLimitsFromOldLine() {
+        Network network = getNetwork();
+        Line oldLine = network.getLine("line2");
+        oldLine.newOperationalLimitsGroup2("newGroup").newCurrentLimits()
+                .setPermanentLimit(110.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(130.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        oldLine.setSelectedOperationalLimitsGroup2("newGroup");
+
+        LineSplitWithVoltageLevelInfos modificationInfos = (LineSplitWithVoltageLevelInfos) buildModification();
+        modificationInfos.toModification().apply(network);
+        Line nl1 = network.getLine("nl1v");
+        assertFalse(nl1.getOperationalLimitsGroups2().isEmpty());
+        assertEquals(5, nl1.getOperationalLimitsGroups2().size());
+        assertTrue(nl1.getSelectedOperationalLimitsGroupId2().isPresent());
+        assertEquals("newGroup", nl1.getSelectedOperationalLimitsGroupId2().get());
+        Line nl2 = network.getLine("nl2v");
+        assertFalse(nl2.getOperationalLimitsGroups2().isEmpty());
+        assertEquals(5, nl2.getOperationalLimitsGroups2().size());
+        assertTrue(nl2.getSelectedOperationalLimitsGroupId2().isPresent());
+        assertEquals("newGroup", nl2.getSelectedOperationalLimitsGroupId2().get());
     }
 }

@@ -9,15 +9,21 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.ConnectVoltageLevelOnLine;
 import com.powsybl.iidm.modification.topology.ConnectVoltageLevelOnLineBuilder;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.OperationalLimitsGroup;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LineSplitWithVoltageLevelInfos;
 import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.lang.NonNull;
 
+import java.util.Collection;
+import java.util.Optional;
+
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
+import static org.gridsuite.modification.utils.ModificationUtils.copyOperationalLimits;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -52,7 +58,12 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
         if (mayNewVL != null) {
             ModificationUtils.getInstance().createVoltageLevel(mayNewVL, subReportNode, network);
         }
-
+        // copy limits from lineToAttach
+        Line line = network.getLine(modificationInfos.getLineToSplitId());
+        Optional<String> selectedOperationalLimitsGroup1 = line.getSelectedOperationalLimitsGroupId1();
+        Optional<String> selectedOperationalLimitsGroup2 = line.getSelectedOperationalLimitsGroupId2();
+        Collection<OperationalLimitsGroup> operationalLimitsGroups1 = line.getOperationalLimitsGroups1();
+        Collection<OperationalLimitsGroup> operationalLimitsGroups2 = line.getOperationalLimitsGroups2();
         ConnectVoltageLevelOnLine algo = new ConnectVoltageLevelOnLineBuilder()
                 .withPositionPercent(modificationInfos.getPercent())
                 .withBusbarSectionOrBusId(modificationInfos.getBbsOrBusId())
@@ -64,6 +75,22 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
                 .build();
 
         algo.apply(network, true, subReportNode);
+
+        // copy limits from previous line to line1 and line2
+        Line line1 = network.getLine(modificationInfos.getNewLine1Id());
+        line1.removeOperationalLimitsGroup1("DEFAULT");
+        line1.removeOperationalLimitsGroup2("DEFAULT");
+        copyOperationalLimits(operationalLimitsGroups1, line1::newOperationalLimitsGroup1);
+        copyOperationalLimits(operationalLimitsGroups2, line1::newOperationalLimitsGroup2);
+        selectedOperationalLimitsGroup1.ifPresent(line1::setSelectedOperationalLimitsGroup1);
+        selectedOperationalLimitsGroup2.ifPresent(line1::setSelectedOperationalLimitsGroup2);
+        Line line2 = network.getLine(modificationInfos.getNewLine2Id());
+        line2.removeOperationalLimitsGroup1("DEFAULT");
+        line2.removeOperationalLimitsGroup2("DEFAULT");
+        copyOperationalLimits(operationalLimitsGroups1, line2::newOperationalLimitsGroup1);
+        copyOperationalLimits(operationalLimitsGroups2, line2::newOperationalLimitsGroup2);
+        selectedOperationalLimitsGroup1.ifPresent(line2::setSelectedOperationalLimitsGroup1);
+        selectedOperationalLimitsGroup2.ifPresent(line2::setSelectedOperationalLimitsGroup2);
     }
 
     @Override

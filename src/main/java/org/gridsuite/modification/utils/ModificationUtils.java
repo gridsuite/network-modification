@@ -2217,4 +2217,14 @@ public final class ModificationUtils {
             }
         }
     }
+
+    public static void copyOperationalLimits(Collection<OperationalLimitsGroup> from,
+                                              Function<String, OperationalLimitsGroup> createGroup) {
+        from.forEach(groupToCopy -> {
+            OperationalLimitsGroup copy = createGroup.apply(groupToCopy.getId());
+            groupToCopy.getCurrentLimits().ifPresent(limit -> copy.newCurrentLimits(limit).add());
+            groupToCopy.getActivePowerLimits().ifPresent(limit -> copy.newActivePowerLimits(limit).add());
+            groupToCopy.getApparentPowerLimits().ifPresent(limit -> copy.newApparentPowerLimits(limit).add());
+        });
+    }
 }
