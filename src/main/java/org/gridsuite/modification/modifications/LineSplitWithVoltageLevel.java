@@ -58,7 +58,7 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
         if (mayNewVL != null) {
             ModificationUtils.getInstance().createVoltageLevel(mayNewVL, subReportNode, network);
         }
-        // copy limits from lineToAttach
+        // copy limits from lineToAttach TODO remove when powsybl core fixes it
         Line line = network.getLine(modificationInfos.getLineToSplitId());
         Optional<String> selectedOperationalLimitsGroup1 = line.getSelectedOperationalLimitsGroupId1();
         Optional<String> selectedOperationalLimitsGroup2 = line.getSelectedOperationalLimitsGroupId2();
@@ -76,7 +76,7 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
 
         algo.apply(network, true, subReportNode);
 
-        // copy limits from previous line to line1 and line2
+        // copy limits from previous line to line1 and line2 TODO remove when powsybl core fixes it
         Line line1 = network.getLine(modificationInfos.getNewLine1Id());
         line1.removeOperationalLimitsGroup1("DEFAULT");
         line1.removeOperationalLimitsGroup2("DEFAULT");

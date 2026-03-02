@@ -105,7 +105,7 @@ public class LineAttachToVoltageLevel extends AbstractModification {
 
         algo.apply(network, true, subReportNode);
 
-        // add extra information on attachment line
+        // add extra information on attachment line TODO remove when powsybl core fixes it
         Line createdAttachmentLine = network.getLine(attachmentLineInfos.getEquipmentId());
         addLimits(attachmentLineInfos, subReportNode, createdAttachmentLine);
         PropertiesUtils.applyProperties(createdAttachmentLine, subReportNode, attachmentLineInfos.getProperties(), "network.modification.LineProperties");
@@ -126,7 +126,7 @@ public class LineAttachToVoltageLevel extends AbstractModification {
         selectedOperationalLimitsGroup1.ifPresent(line1::setSelectedOperationalLimitsGroup1);
         selectedOperationalLimitsGroup2.ifPresent(line1::setSelectedOperationalLimitsGroup2);
         Line line2 = network.getLine(modificationInfos.getNewLine2Id());
-        // must remove before fix from powsybl core
+        // must remove before fix from powsybl core TODO remove when powsybl core fixes it
         line2.removeOperationalLimitsGroup1("DEFAULT");
         line2.removeOperationalLimitsGroup2("DEFAULT");
         copyOperationalLimits(operationalLimitsGroups1, line2::newOperationalLimitsGroup1);
