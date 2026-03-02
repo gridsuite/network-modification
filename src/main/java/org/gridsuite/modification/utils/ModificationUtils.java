@@ -2236,8 +2236,12 @@ public final class ModificationUtils {
                                                        Collection<OperationalLimitsGroup> operationalLimitsGroups2,
                                                        String selectedOperationalLimitsGroupId1,
                                                        String selectedOperationalLimitsGroupId2) {
-        line.removeOperationalLimitsGroup1("DEFAULT");
-        line.removeOperationalLimitsGroup2("DEFAULT");
+        if (line.getOperationalLimitsGroup1("DEFAULT").isPresent()) {
+            line.removeOperationalLimitsGroup1("DEFAULT");
+        }
+        if (line.getOperationalLimitsGroup2("DEFAULT").isPresent()) {
+            line.removeOperationalLimitsGroup2("DEFAULT");
+        }
         copyOperationalLimits(operationalLimitsGroups1, line::newOperationalLimitsGroup1);
         copyOperationalLimits(operationalLimitsGroups2, line::newOperationalLimitsGroup2);
         if (selectedOperationalLimitsGroupId1 != null) {
