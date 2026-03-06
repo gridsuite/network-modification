@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import static org.gridsuite.modification.utils.TestUtils.checkLimitsGroupOnLine;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -70,7 +71,39 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
 
     @Override
     protected Network createNetwork(UUID networkUuid) {
-        return NetworkCreation.create(networkUuid, true);
+        Network network = NetworkCreation.create(networkUuid, true);
+        Line oldLine = network.getLine("line3");
+        oldLine.newOperationalLimitsGroup1("group1").newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(120.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        oldLine.newOperationalLimitsGroup1("group2").newCurrentLimits()
+                .setPermanentLimit(110.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(130.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
+        oldLine.setSelectedOperationalLimitsGroup1("group2");
+        oldLine.newOperationalLimitsGroup2("group3").newCurrentLimits()
+                .setPermanentLimit(10.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(12.0)
+                .setAcceptableDuration(600)
+                .endTemporaryLimit()
+                .add();
+        oldLine.newOperationalLimitsGroup2("group4").newCurrentLimits()
+                .setPermanentLimit(11.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(13.0)
+                .setAcceptableDuration(600)
+                .endTemporaryLimit()
+                .add();
+        oldLine.setSelectedOperationalLimitsGroup2("group3");
+        return network;
     }
 
     @Override
@@ -94,15 +127,17 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void assertAfterNetworkModificationApplication() {
+        Network network = getNetwork();
+
         // new equipments in the network:
-        assertNotNull(getNetwork().getLine("nl1"));
-        assertNotNull(getNetwork().getLine("nl2"));
-        assertNotNull(getNetwork().getVoltageLevel("AttPointId"));
+        assertNotNull(network.getLine("nl1"));
+        assertNotNull(network.getLine("nl2"));
+        assertNotNull(network.getVoltageLevel("AttPointId"));
         // replaced line is gone
-        assertNull(getNetwork().getLine("line3"));
+        assertNull(network.getLine("line3"));
 
         // check attachment Line
-        Line attachmentLine = getNetwork().getLine("attachmentLine");
+        Line attachmentLine = network.getLine("attachmentLine");
         assertNotNull(attachmentLine);
         assertFalse(attachmentLine.getOperationalLimitsGroups1().isEmpty());
         Optional<OperationalLimitsGroup> operationalLimitsGroup = attachmentLine.getOperationalLimitsGroup1("groupId");
@@ -112,6 +147,12 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
         assertEquals(1.0, operationalLimitsGroup.get().getCurrentLimits().get().getPermanentLimit());
         assertFalse(attachmentLine.getPropertyNames().isEmpty());
         assertTrue(attachmentLine.getPropertyNames().contains("property"));
+
+        // check limits group are well copied
+        Line nl1 = network.getLine("nl1");
+        Line nl2 = network.getLine("nl2");
+        checkLimitsGroupOnLine(nl1, "group2", "group3", List.of("group1", "group2"), List.of("group3", "group4"));
+        checkLimitsGroupOnLine(nl2, "group2", "group3", List.of("group1", "group2"), List.of("group3", "group4"));
 
     }
 

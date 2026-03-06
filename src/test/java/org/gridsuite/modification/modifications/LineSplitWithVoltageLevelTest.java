@@ -7,16 +7,20 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LineSplitWithVoltageLevelInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
+
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.BUSBAR_SECTION_NOT_FOUND;
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
+import static org.gridsuite.modification.utils.TestUtils.checkLimitsGroupOnLine;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -50,6 +54,13 @@ class LineSplitWithVoltageLevelTest extends AbstractNetworkModificationTest {
         assertNull(getNetwork().getLine("line2"));
         assertNotNull(getNetwork().getLine("nl1v"));
         assertNotNull(getNetwork().getLine("nl2v"));
+
+        Network network = getNetwork();
+        // check limits group are well copied
+        Line nl1 = network.getLine("nl1v");
+        Line nl2 = network.getLine("nl2v");
+        checkLimitsGroupOnLine(nl1, "group0", "group0", List.of("group0", "group1", "group2"), List.of("group0", "group1", "group2", "group3"));
+        checkLimitsGroupOnLine(nl2, "group0", "group0", List.of("group0", "group1", "group2"), List.of("group0", "group1", "group2", "group3"));
     }
 
     @Override
