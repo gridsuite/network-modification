@@ -9,7 +9,9 @@ package org.gridsuite.modification.utils;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import org.apache.commons.text.StringSubstitutor;
@@ -140,4 +142,17 @@ public final class TestUtils {
         return new StringSubstitutor(reporterModel.getValues()).replace(new StringSubstitutor(report.getValues()).replace(report.getMessageTemplate()));
     }
 
+    public static void checkLimitsGroupOnLine(Line line, String side1SelectedGroupId, String side2SelectedGroupId,
+                                        List<String> side1GroupIds, List<String> side2GroupIds) {
+        assertFalse(line.getOperationalLimitsGroups1().isEmpty());
+        assertFalse(line.getOperationalLimitsGroups2().isEmpty());
+        assertEquals(side1GroupIds.size(), line.getOperationalLimitsGroups1().size());
+        assertEquals(side2GroupIds.size(), line.getOperationalLimitsGroups2().size());
+        assertTrue(line.getSelectedOperationalLimitsGroupId1().isPresent());
+        assertEquals(side1SelectedGroupId, line.getSelectedOperationalLimitsGroupId1().get());
+        assertTrue(line.getOperationalLimitsGroups1().stream().map(OperationalLimitsGroup::getId).toList().containsAll(side1GroupIds));
+        assertTrue(line.getSelectedOperationalLimitsGroupId2().isPresent());
+        assertEquals(side2SelectedGroupId, line.getSelectedOperationalLimitsGroupId2().get());
+        assertTrue(line.getOperationalLimitsGroups2().stream().map(OperationalLimitsGroup::getId).toList().containsAll(side2GroupIds));
+    }
 }

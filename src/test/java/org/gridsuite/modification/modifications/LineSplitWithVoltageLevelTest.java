@@ -13,13 +13,14 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LineSplitWithVoltageLevelInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
-import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.BUSBAR_SECTION_NOT_FOUND;
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
+import static org.gridsuite.modification.utils.TestUtils.checkLimitsGroupOnLine;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -53,6 +54,13 @@ class LineSplitWithVoltageLevelTest extends AbstractNetworkModificationTest {
         assertNull(getNetwork().getLine("line2"));
         assertNotNull(getNetwork().getLine("nl1v"));
         assertNotNull(getNetwork().getLine("nl2v"));
+
+        Network network = getNetwork();
+        // check limits group are well copied
+        Line nl1 = network.getLine("nl1v");
+        Line nl2 = network.getLine("nl2v");
+        checkLimitsGroupOnLine(nl1, "group0", "group0", List.of("group0", "group1", "group2"), List.of("group0", "group1", "group2", "group3"));
+        checkLimitsGroupOnLine(nl2, "group0", "group0", List.of("group0", "group1", "group2"), List.of("group0", "group1", "group2", "group3"));
     }
 
     @Override
@@ -92,32 +100,5 @@ class LineSplitWithVoltageLevelTest extends AbstractNetworkModificationTest {
         assertEquals("LINE_SPLIT_WITH_VOLTAGE_LEVEL", modificationInfos.getMessageType());
         Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
         assertEquals("line2", createdValues.get("lineToSplitId"));
-    }
-
-    @Test
-    void testKeepingOriginalLimitsFromOldLine() {
-        Network network = getNetwork();
-        Line oldLine = network.getLine("line2");
-        oldLine.newOperationalLimitsGroup2("newGroup").newCurrentLimits()
-                .setPermanentLimit(110.0)
-                .beginTemporaryLimit().setName("20'")
-                .setValue(130.0)
-                .setAcceptableDuration(1200)
-                .endTemporaryLimit()
-                .add();
-        oldLine.setSelectedOperationalLimitsGroup2("newGroup");
-
-        LineSplitWithVoltageLevelInfos modificationInfos = (LineSplitWithVoltageLevelInfos) buildModification();
-        modificationInfos.toModification().apply(network);
-        Line nl1 = network.getLine("nl1v");
-        assertFalse(nl1.getOperationalLimitsGroups2().isEmpty());
-        assertEquals(5, nl1.getOperationalLimitsGroups2().size());
-        assertTrue(nl1.getSelectedOperationalLimitsGroupId2().isPresent());
-        assertEquals("newGroup", nl1.getSelectedOperationalLimitsGroupId2().get());
-        Line nl2 = network.getLine("nl2v");
-        assertFalse(nl2.getOperationalLimitsGroups2().isEmpty());
-        assertEquals(5, nl2.getOperationalLimitsGroups2().size());
-        assertTrue(nl2.getSelectedOperationalLimitsGroupId2().isPresent());
-        assertEquals("newGroup", nl2.getSelectedOperationalLimitsGroupId2().get());
     }
 }
