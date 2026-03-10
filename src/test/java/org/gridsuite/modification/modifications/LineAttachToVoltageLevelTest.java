@@ -73,7 +73,8 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
     protected Network createNetwork(UUID networkUuid) {
         Network network = NetworkCreation.create(networkUuid, true);
         Line oldLine = network.getLine("line3");
-        oldLine.newOperationalLimitsGroup1("group1").newCurrentLimits()
+        oldLine.newOperationalLimitsGroup1("group1")
+                .newCurrentLimits()
                 .setPermanentLimit(100.0)
                 .beginTemporaryLimit().setName("20'")
                 .setValue(120.0)
@@ -87,6 +88,7 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
                 .setAcceptableDuration(1200)
                 .endTemporaryLimit()
                 .add();
+        oldLine.getOperationalLimitsGroup1("group2").ifPresent(olg -> olg.setProperty("prop", "propvalue"));
         oldLine.setSelectedOperationalLimitsGroup1("group2");
         oldLine.newOperationalLimitsGroup2("group3").newCurrentLimits()
                 .setPermanentLimit(10.0)
@@ -102,6 +104,7 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
                 .setAcceptableDuration(600)
                 .endTemporaryLimit()
                 .add();
+        oldLine.getOperationalLimitsGroup2("group4").ifPresent(olg -> olg.setProperty("prop1", "propvalue1"));
         oldLine.setSelectedOperationalLimitsGroup2("group3");
         return network;
     }
@@ -153,7 +156,15 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
         Line nl2 = network.getLine("nl2");
         checkLimitsGroupOnLine(nl1, "group2", "group3", List.of("group1", "group2"), List.of("group3", "group4"));
         checkLimitsGroupOnLine(nl2, "group2", "group3", List.of("group1", "group2"), List.of("group3", "group4"));
+        Optional<OperationalLimitsGroup> olg = nl1.getOperationalLimitsGroup1("group2");
+        assertTrue(olg.isPresent());
+        assertNotNull(olg.get().getProperty("prop"));
+        assertEquals("propvalue", olg.get().getProperty("prop"));
 
+        Optional<OperationalLimitsGroup> olg1 = nl1.getOperationalLimitsGroup2("group4");
+        assertTrue(olg1.isPresent());
+        assertNotNull(olg1.get().getProperty("prop1"));
+        assertEquals("propvalue1", olg1.get().getProperty("prop1"));
     }
 
     private void tryToCreateLineWithExistingId(LineAttachToVoltageLevelInfos tryWithExistingLine, String existingLineId) throws Exception {
