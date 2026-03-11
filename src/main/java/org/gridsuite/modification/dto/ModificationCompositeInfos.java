@@ -21,7 +21,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Builder
-public class ModificationsToCopyInfos {
+public class ModificationCompositeInfos {
     private UUID uuid;
 
     // only useful when the operation is the import of a composite as a complete composite
