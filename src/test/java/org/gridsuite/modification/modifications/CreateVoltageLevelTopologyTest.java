@@ -7,14 +7,12 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.CreateVoltageLevelTopologyInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.utils.DummyNamingStrategy;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -22,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.gridsuite.modification.utils.TestUtils.checkApplicationWithNamingStrategy;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -85,11 +84,6 @@ class CreateVoltageLevelTopologyTest extends AbstractNetworkModificationTest {
 
     @Test
     void testApplyWithNamingStrategy() {
-        Network network = getNetwork();
-        ReportNode report = ReportNode.newRootReportNode()
-                .withMessageTemplate("test")
-                .build();
-        buildModification().toModification().apply(network, new DummyNamingStrategy(), report);
-        Assertions.assertNotNull(network.getBusbarSection("BUSBAR_1_1"));
+        checkApplicationWithNamingStrategy(buildModification(), getNetwork(), "BUSBAR_1_1");
     }
 }

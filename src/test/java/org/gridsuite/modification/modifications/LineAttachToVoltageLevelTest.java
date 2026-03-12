@@ -7,21 +7,19 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.SwitchKind;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.utils.DummyNamingStrategy;
 import org.gridsuite.modification.utils.NetworkCreation;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import static org.gridsuite.modification.utils.TestUtils.checkApplicationWithNamingStrategy;
 import static org.gridsuite.modification.utils.TestUtils.checkLimitsGroupOnLine;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -216,10 +214,6 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
 
     @Test
     void testApplyWithNamingStrategy() {
-        ReportNode report = ReportNode.newRootReportNode()
-                .withMessageTemplate("test")
-                .build();
-        buildModification().toModification().apply(getNetwork(), new DummyNamingStrategy(), report);
-        Assertions.assertNotNull(getNetwork().getBusbarSection("BUSBAR_1_1"));
+        checkApplicationWithNamingStrategy(buildModification(), getNetwork(), "BUSBAR_1_1");
     }
 }

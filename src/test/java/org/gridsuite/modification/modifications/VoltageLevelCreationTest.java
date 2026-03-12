@@ -7,7 +7,6 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
@@ -15,10 +14,8 @@ import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.SubstationCreationInfos;
 import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
-import org.gridsuite.modification.utils.DummyNamingStrategy;
 import org.gridsuite.modification.utils.ModificationCreation;
 import org.gridsuite.modification.utils.NetworkCreation;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -26,6 +23,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import static org.gridsuite.modification.utils.TestUtils.checkApplicationWithNamingStrategy;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -213,10 +211,6 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
 
     @Test
     void testApplyWithNamingStrategy() {
-        ReportNode report = ReportNode.newRootReportNode()
-                .withMessageTemplate("test")
-                .build();
-        buildModification().toModification().apply(getNetwork(), new DummyNamingStrategy(), report);
-        Assertions.assertNotNull(getNetwork().getBusbarSection("BUSBAR_1_1"));
+        checkApplicationWithNamingStrategy(buildModification(), getNetwork(), "BUSBAR_1_1");
     }
 }
