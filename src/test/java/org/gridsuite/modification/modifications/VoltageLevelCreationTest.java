@@ -216,8 +216,7 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
         ReportNode report = ReportNode.newRootReportNode()
                 .withMessageTemplate("test")
                 .build();
-        VoltageLevelCreationInfos vli = (VoltageLevelCreationInfos) buildModification();
-        vli.toModification().apply(getNetwork(), new DummyNamingStrategy(), report);
+        buildModification().toModification().apply(getNetwork(), new DummyNamingStrategy(), report);
         Assertions.assertNotNull(getNetwork().getBusbarSection("BUSBAR_1_1"));
     }
 }

@@ -89,12 +89,7 @@ class CreateVoltageLevelTopologyTest extends AbstractNetworkModificationTest {
         ReportNode report = ReportNode.newRootReportNode()
                 .withMessageTemplate("test")
                 .build();
-        CreateVoltageLevelTopologyInfos.builder()
-                .stashed(false)
-                .voltageLevelId("v1")
-                .sectionCount(3)
-                .switchKinds(List.of(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR))
-                .build().toModification().apply(network, new DummyNamingStrategy(), report);
+        buildModification().toModification().apply(network, new DummyNamingStrategy(), report);
         Assertions.assertNotNull(network.getBusbarSection("BUSBAR_1_1"));
     }
 }

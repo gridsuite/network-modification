@@ -219,8 +219,7 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
         ReportNode report = ReportNode.newRootReportNode()
                 .withMessageTemplate("test")
                 .build();
-        LineAttachToVoltageLevelInfos modificationInfos = (LineAttachToVoltageLevelInfos) buildModification();
-        modificationInfos.toModification().apply(getNetwork(), new DummyNamingStrategy(), report);
+        buildModification().toModification().apply(getNetwork(), new DummyNamingStrategy(), report);
         Assertions.assertNotNull(getNetwork().getBusbarSection("BUSBAR_1_1"));
     }
 }
