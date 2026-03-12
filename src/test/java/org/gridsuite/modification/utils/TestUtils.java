@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import org.apache.commons.text.StringSubstitutor;
+import org.gridsuite.modification.dto.ModificationInfos;
+import org.junit.jupiter.api.Assertions;
 import org.junit.platform.commons.util.StringUtils;
 import java.io.IOException;
 import java.io.InputStream;
@@ -154,5 +156,13 @@ public final class TestUtils {
         assertTrue(line.getSelectedOperationalLimitsGroupId2().isPresent());
         assertEquals(side2SelectedGroupId, line.getSelectedOperationalLimitsGroupId2().get());
         assertTrue(line.getOperationalLimitsGroups2().stream().map(OperationalLimitsGroup::getId).toList().containsAll(side2GroupIds));
+    }
+
+    public static void checkApplicationWithNamingStrategy(ModificationInfos modificationInfos, Network network, String busbarId) {
+        ReportNode report = ReportNode.newRootReportNode()
+                .withMessageTemplate("test")
+                .build();
+        modificationInfos.toModification().apply(network, new DummyNamingStrategy(), report);
+        Assertions.assertNotNull(network.getBusbarSection(busbarId));
     }
 }
