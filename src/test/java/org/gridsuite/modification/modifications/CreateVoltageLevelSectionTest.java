@@ -144,7 +144,6 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
         assertTrue(busBarIds.containsAll(List.of("bbs1", "bbs2", "bbs3", "bbs4", "bbs1_2", "v1_0_1", "v1_1_1")));
     }
 
-
     @Test
     void testApplyWithNamingStrategy() {
         Network network = getNetwork();
