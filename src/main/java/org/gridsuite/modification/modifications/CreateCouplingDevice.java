@@ -8,8 +8,6 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.CreateCouplingDeviceBuilder;
-import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
-import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.CreateCouplingDeviceInfos;
@@ -30,16 +28,11 @@ public class CreateCouplingDevice extends AbstractModification {
      * @param subReportNode
      */
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode subReportNode) {
         new CreateCouplingDeviceBuilder()
             .withBusOrBusbarSectionId1(createCouplingDeviceInfos.getCouplingDeviceInfos().getBusbarSectionId1())
             .withBusOrBusbarSectionId2(createCouplingDeviceInfos.getCouplingDeviceInfos().getBusbarSectionId2())
-            .build().apply(network, namingStrategy, subReportNode);
-    }
-
-    @Override
-    public void apply(Network network, ReportNode subReportNode) {
-        apply(network, new DefaultNamingStrategy(), subReportNode);
+            .build().apply(network, false, subReportNode);
     }
 
     @Override
