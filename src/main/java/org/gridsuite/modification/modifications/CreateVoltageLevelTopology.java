@@ -8,6 +8,8 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -53,11 +55,16 @@ public class CreateVoltageLevelTopology extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        VoltageLevel voltageLevel = network.getVoltageLevel(createVoltageLevelTopologyInfos.getVoltageLevelId());
-        createVoltageLevelBusBarSection(network, subReportNode, voltageLevel);
+        apply(network, new DefaultNamingStrategy(), subReportNode);
     }
 
-    private void createVoltageLevelBusBarSection(Network network, ReportNode subReportNode, VoltageLevel voltageLevel) {
+    @Override
+    public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
+        VoltageLevel voltageLevel = network.getVoltageLevel(createVoltageLevelTopologyInfos.getVoltageLevelId());
+        createVoltageLevelBusBarSection(network, namingStrategy, subReportNode, voltageLevel);
+    }
+
+    private void createVoltageLevelBusBarSection(Network network, NamingStrategy namingStrategy, ReportNode subReportNode, VoltageLevel voltageLevel) {
         int lowBusOrBusbarIndex = findLowBusOrBusbarIndex(voltageLevel);
         new com.powsybl.iidm.modification.topology.CreateVoltageLevelTopologyBuilder()
             .withVoltageLevelId(createVoltageLevelTopologyInfos.getVoltageLevelId())
@@ -66,7 +73,7 @@ public class CreateVoltageLevelTopology extends AbstractModification {
             .withLowBusOrBusbarIndex(lowBusOrBusbarIndex)
             .withSwitchKinds(createVoltageLevelTopologyInfos.getSwitchKinds())
             .withConnectExistingConnectables(true)
-            .build().apply(network, true, subReportNode);
+            .build().apply(network, namingStrategy, true, subReportNode);
     }
 
     private int findLowBusOrBusbarIndex(VoltageLevel voltageLevel) {

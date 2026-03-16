@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import static org.gridsuite.modification.utils.TestUtils.checkApplicationWithNamingStrategy;
 import static org.gridsuite.modification.utils.TestUtils.checkLimitsGroupOnLine;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -209,5 +210,10 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
         assertEquals("LINE_ATTACH_TO_VOLTAGE_LEVEL", modificationInfos.getMessageType());
         Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
         assertEquals("line3", createdValues.get("lineToAttachToId"));
+    }
+
+    @Test
+    void testApplyWithNamingStrategy() {
+        checkApplicationWithNamingStrategy(buildModification(), getNetwork(), "BUSBAR_1_1");
     }
 }
