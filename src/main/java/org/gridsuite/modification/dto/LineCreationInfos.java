@@ -19,6 +19,8 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LineCreation;
 
+import java.util.List;
+
 /**
  * @author Sylvain Bouzols <sylvain.bouzols at rte-france.com>
  */
@@ -44,6 +46,9 @@ public class LineCreationInfos extends BranchCreationInfos {
 
     @Schema(description = "Shunt susceptance Side 2")
     private Double b2;
+
+    @Schema(description = "Segments used from catalogue")
+    private List<LineSegmentInfos> lineSegments;
 
     @Override
     public AbstractModification toModification() {
