@@ -1076,7 +1076,7 @@ public final class ModificationUtils {
             case BATTERY -> network.getBattery(equipmentId);
             case SHUNT_COMPENSATOR -> network.getShuntCompensator(equipmentId);
             case STATIC_VAR_COMPENSATOR -> network.getStaticVarCompensator(equipmentId);
-            case DANGLING_LINE -> network.getDanglingLine(equipmentId);
+            case BOUNDARY_LINE -> network.getBoundaryLine(equipmentId);
             case HVDC_CONVERTER_STATION -> network.getHvdcConverterStation(equipmentId);
             case SUBSTATION -> network.getSubstation(equipmentId);
             case VOLTAGE_LEVEL -> network.getVoltageLevel(equipmentId);
