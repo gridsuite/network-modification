@@ -47,7 +47,7 @@ public class LineCreationInfos extends BranchCreationInfos {
     @Schema(description = "Shunt susceptance Side 2")
     private Double b2;
 
-    @Schema(description = "Segments used from catalogue")
+    @Schema(description = "Segments used from catalog")
     private List<LineSegmentInfos> lineSegments;
 
     @Override
