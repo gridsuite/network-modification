@@ -9,14 +9,19 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.ReplaceTeePointByVoltageLevelOnLine;
 import com.powsybl.iidm.modification.topology.ReplaceTeePointByVoltageLevelOnLineBuilder;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LinesAttachToSplitLinesInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 
+import java.util.Collection;
+
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
+import static org.gridsuite.modification.utils.ModificationUtils.copyOperationalLimitsForOneLine;
 
 /**
  * @author David Braquart <david.braquart at rte-france.com>
@@ -54,6 +59,17 @@ public class LinesAttachToSplitLines extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
+        Line line1 = network.getLine(modificationInfos.getLineToAttachTo1Id());
+        String selectedOperationalLimitsGroup1Line1 = line1.getSelectedOperationalLimitsGroupId1().orElse(null);
+        String selectedOperationalLimitsGroup2Line1 = line1.getSelectedOperationalLimitsGroupId2().orElse(null);
+        Collection<OperationalLimitsGroup> operationalLimitsGroups1Line1 = line1.getOperationalLimitsGroups1();
+        Collection<OperationalLimitsGroup> operationalLimitsGroups2Line1 = line1.getOperationalLimitsGroups2();
+
+        Line line2 = network.getLine(modificationInfos.getLineToAttachTo2Id());
+        String selectedOperationalLimitsGroup1Line2 = line2.getSelectedOperationalLimitsGroupId1().orElse(null);
+        String selectedOperationalLimitsGroup2Line2 = line2.getSelectedOperationalLimitsGroupId2().orElse(null);
+        Collection<OperationalLimitsGroup> operationalLimitsGroups1Line2 = line2.getOperationalLimitsGroups1();
+        Collection<OperationalLimitsGroup> operationalLimitsGroups2Line2 = line2.getOperationalLimitsGroups2();
         ReplaceTeePointByVoltageLevelOnLine algo = new ReplaceTeePointByVoltageLevelOnLineBuilder()
                 .withTeePointLine1(modificationInfos.getLineToAttachTo1Id())
                 .withTeePointLine2(modificationInfos.getLineToAttachTo2Id())
@@ -65,6 +81,12 @@ public class LinesAttachToSplitLines extends AbstractModification {
                 .withNewLine2Name(modificationInfos.getReplacingLine2Name())
                 .build();
         algo.apply(network, true, subReportNode);
+        Line newLine1 = network.getLine(modificationInfos.getReplacingLine1Id());
+        copyOperationalLimitsForOneLine(newLine1, operationalLimitsGroups1Line1, operationalLimitsGroups2Line1,
+                selectedOperationalLimitsGroup1Line1, selectedOperationalLimitsGroup2Line1);
+        Line newLine2 = network.getLine(modificationInfos.getReplacingLine2Id());
+        copyOperationalLimitsForOneLine(newLine2, operationalLimitsGroups1Line2, operationalLimitsGroups2Line2,
+                selectedOperationalLimitsGroup1Line2, selectedOperationalLimitsGroup2Line2);
     }
 
     @Override
