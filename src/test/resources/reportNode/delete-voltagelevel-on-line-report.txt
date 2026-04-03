@@ -1,10 +1,10 @@
 + Delete voltage level on line
-   Template de message non trouvé pour la clé 'core.iidm.modification.lineRemoved'.
-   Template de message non trouvé pour la clé 'core.iidm.modification.lineRemoved'.
-   Template de message non trouvé pour la clé 'core.iidm.modification.lineCreated'.
-   Template de message non trouvé pour la clé 'core.iidm.modification.voltageLevelRemovingEquipmentsLeft'.
-   Template de message non trouvé pour la clé 'core.iidm.modification.voltageLevelRemoved'.
-   Template de message non trouvé pour la clé 'core.iidm.modification.substationRemoved'.
+   Line l1 removed
+   Line l2 removed
+   Line replacementLineId created
+   Voltage level v1 still contains equipments
+   Voltage level v1 removed
+   Substation s1 removed
    + Merging of limits
       Limit limitNotMerged with acceptable duration 100 in limit set group1 from l1 but missing from l2 : not included in replacing line replacementLineId
       Limit set group1 with property property2 with value value2 in l1 and value differentValue in l2 : not included in replacing line replacementLineId

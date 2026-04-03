@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.utils;
 
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -60,7 +61,7 @@ public final class MergingLimitsTest {
                 .endTemporaryLimit()
                 .add();
         ReportNode report = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
         modificationInfos.toModification().apply(network, report);
