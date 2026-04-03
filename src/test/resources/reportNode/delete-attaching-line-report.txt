@@ -1,0 +1,16 @@
++ Delete attaching line
+   Template de message non trouvé pour la clé 'core.iidm.modification.lineRemoved'.
+   Template de message non trouvé pour la clé 'core.iidm.modification.lineRemoved'.
+   Template de message non trouvé pour la clé 'core.iidm.modification.lineRemoved'.
+   Template de message non trouvé pour la clé 'core.iidm.modification.lineCreated'.
+   Template de message non trouvé pour la clé 'core.iidm.modification.voltageLevelRemovingEquipmentsLeft'.
+   Template de message non trouvé pour la clé 'core.iidm.modification.voltageLevelRemoved'.
+   Template de message non trouvé pour la clé 'core.iidm.modification.substationRemoved'.
+   Template de message non trouvé pour la clé 'core.iidm.modification.voltageLevelRemovingEquipmentsLeft'.
+   Template de message non trouvé pour la clé 'core.iidm.modification.voltageLevelRemoved'.
+   Template de message non trouvé pour la clé 'core.iidm.modification.substationRemoved'.
+   + Merging of limits
+      Limit limitNotMerged with acceptable duration 100 in limit set group1 from l1 but missing from l2 : not included in replacing line replacingLineId
+      Limit set group1 with property property2 with value value2 in l1 and value differentValue in l2 : not included in replacing line replacingLineId
+      Limit set groupNotMergedSide1 with applicability on ONE of l1 but missing from l2 : not included in replacing line replacingLineId
+      Limit set groupNotMergedSide2 with applicability on TWO of l2 but missing from l1 : not included in replacing line replacingLineId

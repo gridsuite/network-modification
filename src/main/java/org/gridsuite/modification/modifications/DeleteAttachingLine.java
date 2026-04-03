@@ -9,12 +9,18 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.RevertCreateLineOnLine;
 import com.powsybl.iidm.modification.topology.RevertCreateLineOnLineBuilder;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.OperationalLimitsGroup;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.DeleteAttachingLineInfos;
 
+import java.util.Collection;
+import java.util.Optional;
+
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
+import static org.gridsuite.modification.utils.ModificationLimitsUtils.setMergedOperationalLimitsGroups;
 
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
@@ -47,6 +53,21 @@ public class DeleteAttachingLine extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
+
+        // to be removed if powsybl integrate it
+        Line line1 = network.getLine(modificationInfos.getLineToAttachTo1Id());
+        String line1Id = line1.getId();
+        Optional<String> selectedGroupLine1Side1 = line1.getSelectedOperationalLimitsGroupId1();
+        Optional<String> selectedGroupLine1Side2 = line1.getSelectedOperationalLimitsGroupId2();
+        Collection<OperationalLimitsGroup> groupsLine1Side1 = line1.getOperationalLimitsGroups1();
+        Collection<OperationalLimitsGroup> groupsLine1Side2 = line1.getOperationalLimitsGroups2();
+        Line line2 = network.getLine(modificationInfos.getLineToAttachTo2Id());
+        String line2Id = line2.getId();
+        Optional<String> selectedGroupLine2Side1 = line2.getSelectedOperationalLimitsGroupId1();
+        Optional<String> selectedGroupLine2Side2 = line2.getSelectedOperationalLimitsGroupId2();
+        Collection<OperationalLimitsGroup> groupsLine2Side1 = line2.getOperationalLimitsGroups1();
+        Collection<OperationalLimitsGroup> groupsLine2Side2 = line2.getOperationalLimitsGroups2();
+
         RevertCreateLineOnLineBuilder builder = new RevertCreateLineOnLineBuilder();
         RevertCreateLineOnLine algo = builder.withLineToBeMerged1Id(modificationInfos.getLineToAttachTo1Id())
                 .withLineToBeMerged2Id(modificationInfos.getLineToAttachTo2Id())
@@ -55,6 +76,20 @@ public class DeleteAttachingLine extends AbstractModification {
                 .withMergedLineName(modificationInfos.getReplacingLine1Name())
                 .build();
         algo.apply(network, true, subReportNode);
+
+        // to be removed if powsybl integrate it
+        setMergedOperationalLimitsGroups(network.getLine(modificationInfos.getReplacingLine1Id()),
+                groupsLine1Side1,
+                groupsLine1Side2,
+                groupsLine2Side1,
+                groupsLine2Side2,
+                selectedGroupLine1Side1.orElse(null),
+                selectedGroupLine1Side2.orElse(null),
+                selectedGroupLine2Side1.orElse(null),
+                selectedGroupLine2Side2.orElse(null),
+                line1Id,
+                line2Id,
+                subReportNode);
     }
 
     @Override

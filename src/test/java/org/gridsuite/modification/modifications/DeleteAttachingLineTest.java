@@ -8,16 +8,21 @@ package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.OperationalLimitsGroup;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.DeleteAttachingLineInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
+import static org.gridsuite.modification.utils.MergingLimitsTest.testModificationMergedLimits;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -54,11 +59,23 @@ class DeleteAttachingLineTest extends AbstractNetworkModificationTest {
     protected void assertAfterNetworkModificationApplication() {
         assertNull(getNetwork().getLine("l1"));
         assertNull(getNetwork().getLine("l2"));
-        assertNotNull(getNetwork().getLine("replacingLineId"));
+        Line line = getNetwork().getLine("replacingLineId");
+        // side 1
+        assertNotNull(line);
+        assertNotNull(line.getOperationalLimitsGroups1());
+        assertEquals(3, line.getOperationalLimitsGroups1().size());
+        Optional<OperationalLimitsGroup> group2 = line.getOperationalLimitsGroup1("group2");
+        assertTrue(group2.isPresent());
+
+        // side 2
+        assertNotNull(line.getOperationalLimitsGroups2());
+        assertEquals(4, line.getOperationalLimitsGroups2().size());
+        Optional<OperationalLimitsGroup> group3 = line.getOperationalLimitsGroup2("group3");
+        assertTrue(group3.isPresent());
     }
 
     @Test
-    void createWithNoAttachmentPointTest() throws Exception {
+    void createWithNoAttachmentPointTest() {
         DeleteAttachingLineInfos deleteAttachingLineInfos = DeleteAttachingLineInfos.builder()
                 .stashed(false)
                 .lineToAttachTo1Id("l1")
@@ -72,7 +89,7 @@ class DeleteAttachingLineTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void createNewLineWithExistingIdTest() throws Exception {
+    void createNewLineWithExistingIdTest() {
         // try to create an already existing line
         DeleteAttachingLineInfos deleteAttachingLineInfos = (DeleteAttachingLineInfos) buildModification();
         deleteAttachingLineInfos.setReplacingLine1Id("l2");
@@ -87,5 +104,10 @@ class DeleteAttachingLineTest extends AbstractNetworkModificationTest {
         assertEquals("l3", createdValues.get("attachedLineId"));
         assertEquals("l1", createdValues.get("lineToAttachTo1Id"));
         assertEquals("l2", createdValues.get("lineToAttachTo2Id"));
+    }
+
+    @Test
+    void testMergedLimits() throws IOException {
+        testModificationMergedLimits(getNetwork(), buildModification(), "replacingLineId", "/reportNode/delete-attaching-line-report.txt");
     }
 }
