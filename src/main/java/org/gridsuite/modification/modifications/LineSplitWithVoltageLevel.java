@@ -9,6 +9,9 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.ConnectVoltageLevelOnLine;
 import com.powsybl.iidm.modification.topology.ConnectVoltageLevelOnLineBuilder;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LineSplitWithVoltageLevelInfos;
@@ -48,9 +51,14 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
+        apply(network, new DefaultNamingStrategy(), subReportNode);
+    }
+
+    @Override
+    public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
         VoltageLevelCreationInfos mayNewVL = modificationInfos.getMayNewVoltageLevelInfos();
         if (mayNewVL != null) {
-            ModificationUtils.getInstance().createVoltageLevel(mayNewVL, subReportNode, network);
+            ModificationUtils.getInstance().createVoltageLevel(mayNewVL, subReportNode, network, namingStrategy);
         }
         ConnectVoltageLevelOnLine algo = new ConnectVoltageLevelOnLineBuilder()
                 .withPositionPercent(modificationInfos.getPercent())

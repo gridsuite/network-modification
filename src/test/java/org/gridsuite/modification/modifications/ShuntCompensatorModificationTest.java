@@ -7,22 +7,25 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.Measurement;
+import com.powsybl.iidm.network.extensions.Measurements;
+import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
+
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.gridsuite.modification.utils.NetworkUtil.createShuntCompensator;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -31,6 +34,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class ShuntCompensatorModificationTest extends AbstractInjectionModificationTest {
     private static final String PROPERTY_NAME = "property-name";
     private static final String PROPERTY_VALUE = "property-value";
+    private static final Double MEASUREMENT_Q_VALUE = 10.0;
+    private static final Boolean MEASUREMENT_Q_VALID = true;
 
     @Override
     protected Network createNetwork(UUID networkUuid) {
@@ -211,6 +216,8 @@ class ShuntCompensatorModificationTest extends AbstractInjectionModificationTest
                 .maxQAtNominalV(new AttributeModification<>(15.0, OperationType.SET))
                 .maximumSectionCount(new AttributeModification<>(1, OperationType.SET))
                 .sectionCount(new AttributeModification<>(1, OperationType.SET))
+                .qMeasurementValue(new AttributeModification<>(MEASUREMENT_Q_VALUE, OperationType.SET))
+                .qMeasurementValidity(new AttributeModification<>(MEASUREMENT_Q_VALID, OperationType.SET))
                 .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
                 .build();
 
@@ -223,6 +230,7 @@ class ShuntCompensatorModificationTest extends AbstractInjectionModificationTest
         assertNotNull(model);
         assertEquals(2.9629E-4, model.getBPerSection(), 0.0001);
         assertEquals(PROPERTY_VALUE, getNetwork().getShuntCompensator("v7shunt").getProperty(PROPERTY_NAME));
+        assertMeasurements(shuntCompensator);
     }
 
     @Override
@@ -254,5 +262,13 @@ class ShuntCompensatorModificationTest extends AbstractInjectionModificationTest
                         .busOrBusbarSectionId(new AttributeModification<>("1B", OperationType.SET))
                         .build();
         assertChangeConnectionState(getNetwork().getShuntCompensator("v2shunt"), shuntModificationInfos, true);
+    }
+
+    private void assertMeasurements(ShuntCompensator shuntCompensator) {
+        Measurements<?> measurements = (Measurements<?>) shuntCompensator.getExtension(Measurements.class);
+        assertNotNull(measurements);
+        Collection<Measurement> reactivePowerMeasurements = measurements.getMeasurements(Measurement.Type.REACTIVE_POWER).stream().toList();
+        assertFalse(CollectionUtils.isEmpty(reactivePowerMeasurements));
+        assertThat(reactivePowerMeasurements).allMatch(m -> m.getValue() == MEASUREMENT_Q_VALUE && m.isValid() == MEASUREMENT_Q_VALID);
     }
 }

@@ -19,7 +19,9 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.CompositeModification;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
@@ -40,7 +42,7 @@ public class CompositeModificationInfos extends ModificationInfos {
 
     @Schema(description = "composite modification list")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<ModificationInfos> modifications;
+    private List<ModificationInfos> modificationsInfos;
 
     @Override
     public AbstractModification toModification() {
@@ -53,5 +55,12 @@ public class CompositeModificationInfos extends ModificationInfos {
                 .withMessageTemplate("network.modification.composite.apply")
                 .withUntypedValue("modificationName", getName())
                 .add();
+    }
+
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        Map<String, String> mapMessageValues = new HashMap<>();
+        mapMessageValues.put("name", getName());
+        return mapMessageValues;
     }
 }

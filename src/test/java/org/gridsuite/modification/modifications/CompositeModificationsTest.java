@@ -75,7 +75,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         GeneratorCreation throwingExceptionNetMod = (GeneratorCreation) buildThrowingModification().toModification();
         assertThrows(PowsyblException.class, () -> throwingExceptionNetMod.apply(network));
         // but doesn't throw once inside a composite modification
-        compositeModificationInfos.setModifications(List.of(buildThrowingModification()));
+        compositeModificationInfos.setModificationsInfos(List.of(buildThrowingModification()));
         CompositeModification netmodContainingError = (CompositeModification) compositeModificationInfos.toModification();
         assertDoesNotThrow(() -> netmodContainingError.apply(network, report));
         // but the thrown message is inside the report :
@@ -103,7 +103,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         List<ModificationInfos> modifications = List.of(
                 CompositeModificationInfos.builder()
                         .name("sub composite 1")
-                        .modifications(
+                        .modificationsInfos(
                                 List.of(
                                         ModificationCreation.getModificationGenerator("idGenerator", "other idGenerator name"),
                                         // this should throw an error but not stop the execution of the composite modification and all the other content
@@ -116,11 +116,11 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                 // test of a composite modification inside a composite modification inside a composite modification
                 CompositeModificationInfos.builder()
                         .name("sub composite 2")
-                        .modifications(
+                        .modificationsInfos(
                                 List.of(
                                         CompositeModificationInfos.builder()
                                                 .name("sub sub composite")
-                                                .modifications(
+                                                .modificationsInfos(
                                                         List.of(ModificationCreation.getModificationGenerator("idGenerator", "other idGenerator name again"))
                                                 ).build(),
                                         ModificationCreation.getModificationGenerator("idGenerator", "even newer idGenerator name")
@@ -129,7 +129,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         );
         return CompositeModificationInfos.builder()
                 .name("main composite")
-                .modifications(modifications)
+                .modificationsInfos(modifications)
                 .stashed(false)
                 .build();
     }
