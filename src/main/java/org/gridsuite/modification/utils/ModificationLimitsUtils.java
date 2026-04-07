@@ -79,8 +79,15 @@ public final class ModificationLimitsUtils {
                 .add();
 
         // remove all limitsGroups as the modification does not do as wanted
-        mergedLine.getOperationalLimitsGroups1().forEach(group -> mergedLine.removeOperationalLimitsGroup1(group.getId()));
-        mergedLine.getOperationalLimitsGroups2().forEach(group -> mergedLine.removeOperationalLimitsGroup2(group.getId()));
+        List<String> groupIds1 = mergedLine.getOperationalLimitsGroups1().stream()
+                                .map(OperationalLimitsGroup::getId)
+                                .toList();
+        groupIds1.forEach(mergedLine::removeOperationalLimitsGroup1);
+
+        List<String> groupIds2 = mergedLine.getOperationalLimitsGroups2().stream()
+                                .map(OperationalLimitsGroup::getId)
+                                .toList();
+        groupIds2.forEach(mergedLine::removeOperationalLimitsGroup2);
 
         // side one
         createMergedOperationalLimitsGroups(groupsLine1Side1, groupsLine2Side1, mergedLine::newOperationalLimitsGroup1, TwoSides.ONE,
