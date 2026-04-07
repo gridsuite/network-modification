@@ -8,6 +8,7 @@ package org.gridsuite.modification.utils;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
 
 import java.util.*;
@@ -21,6 +22,43 @@ public final class ModificationLimitsUtils {
 
     private ModificationLimitsUtils() {
 
+    }
+
+    public static void applyRevertModificationWithMergingOfLimits(Network network,
+                                                            String lineToAttachTo1Id,
+                                                            String lineToAttachTo2Id,
+                                                            String replacingLineId,
+                                                            AbstractNetworkModification algo,
+                                                            ReportNode subReportNode) {
+        // to be removed if powsybl integrate it
+        Line line1 = network.getLine(lineToAttachTo1Id);
+        String line1Id = line1.getId();
+        Optional<String> selectedGroupLine1Side1 = line1.getSelectedOperationalLimitsGroupId1();
+        Optional<String> selectedGroupLine1Side2 = line1.getSelectedOperationalLimitsGroupId2();
+        Collection<OperationalLimitsGroup> groupsLine1Side1 = line1.getOperationalLimitsGroups1();
+        Collection<OperationalLimitsGroup> groupsLine1Side2 = line1.getOperationalLimitsGroups2();
+        Line line2 = network.getLine(lineToAttachTo2Id);
+        String line2Id = line2.getId();
+        Optional<String> selectedGroupLine2Side1 = line2.getSelectedOperationalLimitsGroupId1();
+        Optional<String> selectedGroupLine2Side2 = line2.getSelectedOperationalLimitsGroupId2();
+        Collection<OperationalLimitsGroup> groupsLine2Side1 = line2.getOperationalLimitsGroups1();
+        Collection<OperationalLimitsGroup> groupsLine2Side2 = line2.getOperationalLimitsGroups2();
+
+        algo.apply(network, true, subReportNode);
+
+        // to be removed if powsybl integrate it
+        setMergedOperationalLimitsGroups(network.getLine(replacingLineId),
+                groupsLine1Side1,
+                groupsLine1Side2,
+                groupsLine2Side1,
+                groupsLine2Side2,
+                selectedGroupLine1Side1.orElse(null),
+                selectedGroupLine1Side2.orElse(null),
+                selectedGroupLine2Side1.orElse(null),
+                selectedGroupLine2Side2.orElse(null),
+                line1Id,
+                line2Id,
+                subReportNode);
     }
 
     public static void setMergedOperationalLimitsGroups(Line mergedLine,
