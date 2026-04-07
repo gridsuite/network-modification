@@ -86,11 +86,12 @@ public final class MergingLimitsTest {
         assertEquals("limit1", temporaryLimit.getName());
 
         // properties
-        assertEquals(1, group1.get().getPropertyNames().size());
+        assertEquals(3, group1.get().getPropertyNames().size());
         assertNotNull(group1.get().getProperty("property1"));
         assertEquals("value1", group1.get().getProperty("property1"));
         assertNull(group1.get().getProperty("property2"));
-        assertNull(group1.get().getProperty("property3"));
+        assertNotNull(group1.get().getProperty("property3"));
+        assertNotNull(group1.get().getProperty("property4"));
 
         // side 2
         assertNotNull(line.getOperationalLimitsGroups2());

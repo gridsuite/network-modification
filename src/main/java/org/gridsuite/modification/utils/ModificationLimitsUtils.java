@@ -164,6 +164,15 @@ public final class ModificationLimitsUtils {
                             .withSeverity(TypedValue.INFO_SEVERITY)
                             .add();
                 }
+            } else {
+                String valueLine1 = groupOnLine1.getProperty(propertyNameLine1);
+                newGroup.setProperty(propertyNameLine1, valueLine1);
+            }
+        });
+        groupOnLine2.getPropertyNames().forEach(propertyNameLine2 -> {
+            if (groupOnLine1.getProperty(propertyNameLine2) == null) {
+                String valueLine2 = groupOnLine2.getProperty(propertyNameLine2);
+                newGroup.setProperty(propertyNameLine2, valueLine2);
             }
         });
     }
@@ -195,13 +204,13 @@ public final class ModificationLimitsUtils {
                 .stream().collect(Collectors.toMap(LoadingLimits.TemporaryLimit::getName, Function.identity()));
         Map<String, LoadingLimits.TemporaryLimit> temporaryLimitsOnLine2 = currentLimitsLine2.getTemporaryLimits()
                 .stream().collect(Collectors.toMap(LoadingLimits.TemporaryLimit::getName, Function.identity()));
-        for (String temporaryLimitName : temporaryLimitsOnLine1.keySet()) {
-            if (!temporaryLimitsOnLine2.containsKey(temporaryLimitName)) {
-                LoadingLimits.TemporaryLimit removedTemporaryLimit = temporaryLimitsOnLine1.get(temporaryLimitName);
+        for (Map.Entry<String, LoadingLimits.TemporaryLimit> entry : temporaryLimitsOnLine1.entrySet()) {
+            if (!temporaryLimitsOnLine2.containsKey(entry.getKey())) {
+                LoadingLimits.TemporaryLimit removedTemporaryLimit = entry.getValue();
                 logDeletedTemporaryLimits(reportNode, removedTemporaryLimit, operationalLimitsGroupId, line1Id, line2Id, newLineId);
             } else {
-                LoadingLimits.TemporaryLimit temporaryLimitLine1 = temporaryLimitsOnLine1.get(temporaryLimitName);
-                LoadingLimits.TemporaryLimit temporaryLimitLine2 = temporaryLimitsOnLine2.get(temporaryLimitName);
+                LoadingLimits.TemporaryLimit temporaryLimitLine1 = entry.getValue();
+                LoadingLimits.TemporaryLimit temporaryLimitLine2 = temporaryLimitsOnLine2.get(entry.getKey());
                 if (temporaryLimitLine1.getAcceptableDuration() != temporaryLimitLine2.getAcceptableDuration()) {
                     logDeletedTemporaryLimits(reportNode, temporaryLimitLine1, operationalLimitsGroupId, line1Id, line2Id, newLineId);
                 } else {
