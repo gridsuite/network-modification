@@ -256,6 +256,7 @@ public final class ModificationLimitsUtils {
                 .withUntypedValue("line_with_limit", lineWithTemporaryLimit)
                 .withUntypedValue("line_without_limit", lineWithoutTemporaryLimit)
                 .withUntypedValue("replacing_line", newLineId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
 }
