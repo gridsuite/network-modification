@@ -179,9 +179,11 @@ public final class TestUtils {
         StringWriter sw = new StringWriter();
         reportNode.print(sw);
 
-        InputStream refStream = TestUtils.class.getResourceAsStream(reportsFile);
-        assertNotNull(refStream);
-        String expected = new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8);
+        String expected;
+        try (InputStream refStream = TestUtils.class.getResourceAsStream(reportsFile)) {
+            assertNotNull(refStream);
+            expected = new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8);
+        }
         String expectedStr = normalizeLineSeparator(expected);
         String actualStr = normalizeLineSeparator(sw.toString());
         assertEquals(expectedStr, actualStr);
