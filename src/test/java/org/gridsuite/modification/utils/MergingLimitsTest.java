@@ -31,6 +31,8 @@ public final class MergingLimitsTest {
         Line line1 = network.getLine("l1");
         line1.newOperationalLimitsGroup1("groupNotMergedSide1");
         assertTrue(line1.getOperationalLimitsGroup1("group1").isPresent());
+        assertNotNull(line1.getOperationalLimitsGroup1("group1").get().getProperty("property1"));
+        assertEquals("value1", line1.getOperationalLimitsGroup1("group1").get().getProperty("property1"));
         line1.getOperationalLimitsGroup1("group1").get().setProperty("property2", "value2");
         line1.getOperationalLimitsGroup1("group1").get().setProperty("property3", "value3");
         line1.getOperationalLimitsGroup1("group1").get().newCurrentLimits()
@@ -50,6 +52,8 @@ public final class MergingLimitsTest {
         Line line2 = network.getLine("l2");
         line2.newOperationalLimitsGroup2("groupNotMergedSide2");
         assertTrue(line2.getOperationalLimitsGroup1("group1").isPresent());
+        assertNotNull(line2.getOperationalLimitsGroup1("group1").get().getProperty("property1"));
+        assertEquals("value1", line2.getOperationalLimitsGroup1("group1").get().getProperty("property1"));
         line2.getOperationalLimitsGroup1("group1").get().setProperty("property2", "differentValue");
         line2.getOperationalLimitsGroup1("group1").get().setProperty("property4", "value4");
         line2.getOperationalLimitsGroup1("group1").get().newCurrentLimits()

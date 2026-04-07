@@ -7,6 +7,7 @@
 package org.gridsuite.modification.utils;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 
 import java.util.*;
@@ -34,7 +35,10 @@ public final class ModificationLimitsUtils {
                                                         String line1Id,
                                                         String line2Id,
                                                         ReportNode subReportNode) {
-        ReportNode mergingLimitsReportNode = subReportNode.newReportNode().withMessageTemplate("network.modification.mergeLimits").add();
+        ReportNode mergingLimitsReportNode = subReportNode.newReportNode()
+                .withMessageTemplate("network.modification.mergeLimits")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
 
         // remove all limitsGroups as the modification does not do as wanted
         mergedLine.getOperationalLimitsGroups1().forEach(group -> mergedLine.removeOperationalLimitsGroup1(group.getId()));
@@ -119,6 +123,7 @@ public final class ModificationLimitsUtils {
                             .withUntypedValue("property_value_B", valueLine2)
                             .withUntypedValue("line_B", line2Id)
                             .withUntypedValue("replacing_line", newLineId)
+                            .withSeverity(TypedValue.INFO_SEVERITY)
                             .add();
                 }
             }
@@ -134,6 +139,7 @@ public final class ModificationLimitsUtils {
                 .withUntypedValue("line_with_limitset", lineWithLimitSet)
                 .withUntypedValue("line_without_limitset", lineWithoutLimitSet)
                 .withUntypedValue("replacing_line", newLineId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
                 .add());
     }
 
