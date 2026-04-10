@@ -42,7 +42,7 @@ public class CompositeModificationInfos extends ModificationInfos {
 
     @Schema(description = "composite modification list")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<ModificationInfos> modifications;
+    private List<ModificationInfos> modificationsInfos;
 
     @Override
     public AbstractModification toModification() {
