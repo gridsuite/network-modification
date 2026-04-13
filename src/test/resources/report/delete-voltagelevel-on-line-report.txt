@@ -6,7 +6,7 @@
    Voltage level v1 removed
    Substation s1 removed
    + Merging of limits
+      Limit set groupNotMergedSide1 with applicability on ONE of l1 but missing from l2 : not included in replacing line replacementLineId
       Limit limitNotMerged with acceptable duration 100 in limit set group1 from l1 but missing from l2 : not included in replacing line replacementLineId
       Property property2 from the Limit set group1 with value value2 in l1 and value differentValue in l2 : not included in replacing line replacementLineId
-      Limit set groupNotMergedSide1 with applicability on ONE of l1 but missing from l2 : not included in replacing line replacementLineId
       Limit set groupNotMergedSide2 with applicability on TWO of l2 but missing from l1 : not included in replacing line replacementLineId
