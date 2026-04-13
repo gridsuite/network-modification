@@ -21,9 +21,9 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Etienne LESOT <etienne.lesot at rte-france.com>
  */
-public final class MergingLimitsTest {
+public final class MergingLimitsTestUtils {
 
-    private MergingLimitsTest() {
+    private MergingLimitsTestUtils() {
 
     }
 

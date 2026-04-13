@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.gridsuite.modification.utils.MergingLimitsTest.testModificationMergedLimits;
+import static org.gridsuite.modification.utils.MergingLimitsTestUtils.testModificationMergedLimits;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -108,6 +108,6 @@ class DeleteAttachingLineTest extends AbstractNetworkModificationTest {
 
     @Test
     void testMergedLimits() throws IOException {
-        testModificationMergedLimits(getNetwork(), buildModification(), "replacingLineId", "/reportNode/delete-attaching-line-report.txt");
+        testModificationMergedLimits(getNetwork(), buildModification(), "replacingLineId", "/report/delete-attaching-line-report.txt");
     }
 }

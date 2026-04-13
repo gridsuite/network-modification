@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.gridsuite.modification.utils.MergingLimitsTest.testModificationMergedLimits;
+import static org.gridsuite.modification.utils.MergingLimitsTestUtils.testModificationMergedLimits;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -101,6 +101,6 @@ class DeleteVoltageLevelOnLineTest extends AbstractNetworkModificationTest {
 
     @Test
     void testMergedLimits() throws IOException {
-        testModificationMergedLimits(getNetwork(), buildModification(), "replacementLineId", "/reportNode/delete-voltagelevel-on-line-report.txt");
+        testModificationMergedLimits(getNetwork(), buildModification(), "replacementLineId", "/report/delete-voltagelevel-on-line-report.txt");
     }
 }
