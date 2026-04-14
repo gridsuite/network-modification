@@ -49,26 +49,26 @@ public class CompositeModification extends AbstractModification {
                 .filter(modificationInfos -> Boolean.TRUE.equals(modificationInfos.getActivated())
                         && Boolean.FALSE.equals(modificationInfos.getStashed()))
                 .forEach(
-            modif -> {
-                ReportNode modifNode = modif.createSubReportNode(subReportNode);
-                AbstractModification modification = modif.toModification();
-                try {
-                    modification.check(network);
-                    modification.initApplicationContext(filterService, loadFlowService);
-                    modification.apply(network, namingStrategy, modifNode);
-                } catch (Exception e) {
-                    // in case of error in a network modification, the composite modification doesn't interrupt its execution :
-                    // the following modifications will be carried out
-                    modifNode.newReportNode()
-                            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                            .withMessageTemplate("network.modification.composite.exception.report")
-                            .withUntypedValue("modificationName", modif.toModification().getName())
-                            .withUntypedValue(VALUE_KEY_ERROR_MESSAGE, e.getMessage())
-                            .withSeverity(TypedValue.ERROR_SEVERITY)
-                            .add();
-                }
-            }
-        );
+                        modif -> {
+                            ReportNode modifNode = modif.createSubReportNode(subReportNode);
+                            AbstractModification modification = modif.toModification();
+                            try {
+                                modification.check(network);
+                                modification.initApplicationContext(filterService, loadFlowService);
+                                modification.apply(network, namingStrategy, modifNode);
+                            } catch (Exception e) {
+                                // in case of error in a network modification, the composite modification doesn't interrupt its execution :
+                                // the following modifications will be carried out
+                                modifNode.newReportNode()
+                                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                                        .withMessageTemplate("network.modification.composite.exception.report")
+                                        .withUntypedValue("modificationName", modif.toModification().getName())
+                                        .withUntypedValue(VALUE_KEY_ERROR_MESSAGE, e.getMessage())
+                                        .withSeverity(TypedValue.ERROR_SEVERITY)
+                                        .add();
+                            }
+                        }
+                );
     }
 
     @Override
