@@ -68,7 +68,7 @@ public class CompositeModification extends AbstractModification {
                                         .add();
                             }
                         }
-                );
+        );
     }
 
     @Override
