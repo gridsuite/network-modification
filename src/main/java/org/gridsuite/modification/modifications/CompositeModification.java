@@ -45,7 +45,9 @@ public class CompositeModification extends AbstractModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
-        compositeModificationInfos.getModificationsInfos().forEach(
+        compositeModificationInfos.getModificationsInfos().stream()
+                .filter(modificationInfos -> modificationInfos.getActivated() && !modificationInfos.getStashed())
+                .forEach(
             modif -> {
                 ReportNode modifNode = modif.createSubReportNode(subReportNode);
                 AbstractModification modification = modif.toModification();
