@@ -19,6 +19,8 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LineModification;
 
+import java.util.List;
+
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
@@ -44,6 +46,9 @@ public class LineModificationInfos extends BranchModificationInfos {
 
     @Schema(description = "Shunt susceptance Side 2")
     private AttributeModification<Double> b2;
+
+    @Schema(description = "segments used from catalog to generate limits")
+    private List<LineSegmentInfos> lineSegments;
 
     @Override
     public AbstractModification toModification() {
