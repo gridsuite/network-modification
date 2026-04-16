@@ -44,6 +44,10 @@ public class CompositeModificationInfos extends ModificationInfos {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<ModificationInfos> modificationsInfos;
 
+    @Schema(description = "composite modification max depth")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer maxDepth;
+
     @Override
     public AbstractModification toModification() {
         return new CompositeModification(this);
