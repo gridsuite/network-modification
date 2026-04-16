@@ -15,6 +15,7 @@ import org.gridsuite.modification.dto.DeleteAttachingLineInfos;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
+import static org.gridsuite.modification.utils.ModificationLimitsUtils.applyRevertModificationWithMergingOfLimits;
 
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
@@ -54,7 +55,13 @@ public class DeleteAttachingLine extends AbstractModification {
                 .withMergedLineId(modificationInfos.getReplacingLine1Id())
                 .withMergedLineName(modificationInfos.getReplacingLine1Name())
                 .build();
-        algo.apply(network, true, subReportNode);
+
+        applyRevertModificationWithMergingOfLimits(network,
+                modificationInfos.getLineToAttachTo1Id(),
+                modificationInfos.getLineToAttachTo2Id(),
+                modificationInfos.getReplacingLine1Id(),
+                algo,
+                subReportNode);
     }
 
     @Override
