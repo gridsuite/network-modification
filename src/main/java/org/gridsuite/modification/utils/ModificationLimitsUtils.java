@@ -7,6 +7,7 @@
 package org.gridsuite.modification.utils;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.ReportNodeAdder;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
@@ -126,8 +127,8 @@ public final class ModificationLimitsUtils {
                             .withUntypedValue(LIMITSET_NAME, operationalLimitsGroupId)
                             .withSeverity(TypedValue.INFO_SEVERITY)
                             .add();
-                    currentLimitsReportNodes.forEach(limitsGroupReport::include);
-                    propertiesLimitsReportNodes.forEach(limitsGroupReport::include);
+                    copyReportNodes(currentLimitsReportNodes, limitsGroupReport);
+                    copyReportNodes(propertiesLimitsReportNodes, limitsGroupReport);
                 }
 
             }
@@ -262,5 +263,15 @@ public final class ModificationLimitsUtils {
                 .withUntypedValue(REPLACING_LINE, newLineId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
+    }
+
+    private static void copyReportNodes(List<ReportNode> children, ReportNode parentReportNode) {
+        children.forEach(currentLimitsReportNode -> {
+            ReportNodeAdder reportNodeAdder = parentReportNode.newReportNode()
+                    .withMessageTemplate(currentLimitsReportNode.getMessageKey())
+                    .withSeverity(TypedValue.INFO_SEVERITY);
+            currentLimitsReportNode.getValues().forEach((key, value) -> reportNodeAdder.withUntypedValue(key, String.valueOf(value)));
+            reportNodeAdder.add();
+        });
     }
 }
