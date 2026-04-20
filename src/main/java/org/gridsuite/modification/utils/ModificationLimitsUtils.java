@@ -151,7 +151,6 @@ public final class ModificationLimitsUtils {
                     newGroup.setProperty(propertyNameLine1, valueLine1);
                 } else {
                     reportNodes.add(ReportNode.newRootReportNode()
-                            .withAllResourceBundlesFromClasspath()
                             .withMessageTemplate("network.modification.propertyOfLimitsGroupDeletedAfterMerge")
                             .withUntypedValue("property_name", propertyNameLine1)
                             .withUntypedValue("applicability", side.name())
@@ -235,7 +234,6 @@ public final class ModificationLimitsUtils {
                                                  String lineWithTemporaryLimit, String lineWithoutTemporaryLimit,
                                                  String newLineId, TwoSides side) {
         reportNodes.add(ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("network.modification.temporaryLimitsDeletedAfterMerge")
                 .withUntypedValue("limit_name", temporaryLimit.getName())
                 .withUntypedValue("tempo", temporaryLimit.getAcceptableDuration())
@@ -252,7 +250,6 @@ public final class ModificationLimitsUtils {
                                                                              String line2, Integer acceptableDuration2,
                                                                              String newLineId, TwoSides side) {
         reportNodes.add(ReportNode.newRootReportNode()
-                .withAllResourceBundlesFromClasspath()
                 .withMessageTemplate("network.modification.temporaryLimitsWithDifferentAcceptableDuration")
                 .withUntypedValue("limit_name", temporaryLimitName)
                 .withUntypedValue("applicability", side.name())
