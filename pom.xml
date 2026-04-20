@@ -19,7 +19,7 @@
 
     <groupId>org.gridsuite</groupId>
     <artifactId>gridsuite-network-modification</artifactId>
-    <version>0.77.0-SNAPSHOT</version>
+    <version>0.79.0-SNAPSHOT</version>
 
     <packaging>jar</packaging>
     <name>Network modification library</name>
@@ -55,6 +55,10 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <!-- Argument added to set the default locale as en_US for unit tests run to be independent of the JVM locale -->
+                        <argLine>@{argLine} -Duser.language=en -Duser.country=US -XX:+EnableDynamicAgentLoading</argLine>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

@@ -7,16 +7,21 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.OperationalLimitsGroup;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.DeleteVoltageLevelOnLineInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
+import static org.gridsuite.modification.utils.MergingLimitsTestUtils.testModificationMergedLimits;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -54,7 +59,14 @@ class DeleteVoltageLevelOnLineTest extends AbstractNetworkModificationTest {
         assertNull(getNetwork().getSubstation("s1"));
         assertNull(getNetwork().getLine("l1"));
         assertNull(getNetwork().getLine("l2"));
-        assertNotNull(getNetwork().getLine("replacementLineId"));
+        Line replacementLine = getNetwork().getLine("replacementLineId");
+        assertNotNull(replacementLine);
+        assertEquals(3, replacementLine.getOperationalLimitsGroups1().size());
+        Optional<OperationalLimitsGroup> group2 = replacementLine.getOperationalLimitsGroup1("group2");
+        assertTrue(group2.isPresent());
+        assertEquals(4, replacementLine.getOperationalLimitsGroups2().size());
+        Optional<OperationalLimitsGroup> group3 = replacementLine.getOperationalLimitsGroup2("group3");
+        assertTrue(group3.isPresent());
     }
 
     @Test
@@ -85,5 +97,10 @@ class DeleteVoltageLevelOnLineTest extends AbstractNetworkModificationTest {
         Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
         assertEquals("l1", createdValues.get("lineToAttachTo1Id"));
         assertEquals("l2", createdValues.get("lineToAttachTo2Id"));
+    }
+
+    @Test
+    void testMergedLimits() throws IOException {
+        testModificationMergedLimits(getNetwork(), buildModification(), "replacementLineId", "/report/delete-voltagelevel-on-line-report.txt");
     }
 }
