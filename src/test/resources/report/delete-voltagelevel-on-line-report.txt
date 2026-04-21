@@ -3,8 +3,6 @@
    Line l2 removed
    Line replacementLineId created
    Voltage level v1 still contains equipments
-   Voltage level v1 removed
-   Substation s1 removed
    + Merging of limits
       Limit set groupNotMergedSide1 with applicability on side ONE of l1 but missing from l2 : not included in replacing line replacementLineId
       + Merging of limits set group1
