@@ -87,6 +87,46 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
 
     }
 
+    @Test
+    void checkCompositeFiltersDeactivatedAndStashedModifications() {
+        Network network = getNetwork();
+        ModificationInfos renameModif = ModificationCreation.getModificationGenerator("idGenerator", "baseline name");
+        renameModif.setActivated(true);
+        renameModif.setStashed(false);
+
+        ModificationInfos deactivatedRenameModif = ModificationCreation.getModificationGenerator("idGenerator", "deactivated name");
+        deactivatedRenameModif.setActivated(false);
+        deactivatedRenameModif.setStashed(false);
+
+        ModificationInfos stashedRenameModif = ModificationCreation.getModificationGenerator("idGenerator", "stashed name");
+        stashedRenameModif.setActivated(true);
+        stashedRenameModif.setStashed(true);
+
+        ModificationInfos invalidModif = ModificationCreation.getModificationGenerator("idGenerator", "null activated name");
+        invalidModif.setActivated(null);
+        invalidModif.setStashed(null);
+
+        CompositeModificationInfos composite = CompositeModificationInfos.builder()
+                .name("filter test composite")
+                .modificationsInfos(List.of(renameModif, deactivatedRenameModif, stashedRenameModif, invalidModif))
+                .stashed(false)
+                .build();
+
+        ReportNode report = composite.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build());
+
+        CompositeModification netmod = (CompositeModification) composite.toModification();
+        assertDoesNotThrow(() -> netmod.apply(network, report));
+
+        // Only the baseline rename (activated=true, stashed=false) should have been applied;
+        // the deactivated, stashed, and null-activated renames must all have been skipped.
+        Generator gen = network.getGenerator("idGenerator");
+        assertNotNull(gen);
+        assertEquals("baseline name", gen.getOptionalName().orElseThrow());
+    }
+
     private GeneratorCreationInfos buildThrowingModification() {
         return ModificationCreation.getCreationGenerator(
                 "v1", "idGenerator", "nameGenerator", "1B", "v2load", "LOAD", "v1"
