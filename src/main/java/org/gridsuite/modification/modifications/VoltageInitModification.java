@@ -386,14 +386,6 @@ public class VoltageInitModification extends AbstractModification {
                                 .withSeverity(TypedValue.WARN_SEVERITY)
                                 .build());
                     } else {
-                        if (m.getSectionCount() == 0) {
-                            shuntCompensatorTerminal.disconnect();
-                            reportsShunt.add(ReportNode.newRootReportNode()
-                                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                                    .withMessageTemplate("network.modification.shuntCompensatorDisconnected")
-                                    .withSeverity(TypedValue.DETAIL_SEVERITY)
-                                    .build());
-                        }
                         if (m.getSectionCount() != currentSectionCount) {
                             shuntCompensator.setSectionCount(m.getSectionCount());
                             reportsShunt.add(ModificationUtils.buildModificationReport(currentSectionCount, m.getSectionCount(), SECTION_COUNT, TypedValue.DETAIL_SEVERITY));
