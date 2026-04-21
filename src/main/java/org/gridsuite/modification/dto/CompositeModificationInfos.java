@@ -44,6 +44,12 @@ public class CompositeModificationInfos extends ModificationInfos {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<ModificationInfos> modificationsInfos;
 
+    // While composite submodifications are lazy loaded we need an indicator to know if we allow depth sensitive operation
+    // added only to the DTO so it can be computed while retrieving composite metadata at runtime
+    @Schema(description = "composite modification max depth")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer maxDepth;
+
     @Override
     public AbstractModification toModification() {
         return new CompositeModification(this);
