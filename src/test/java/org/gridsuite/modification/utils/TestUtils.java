@@ -18,10 +18,16 @@ import org.apache.commons.text.StringSubstitutor;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.junit.jupiter.api.Assertions;
 import org.junit.platform.commons.util.StringUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -164,5 +170,27 @@ public final class TestUtils {
                 .build();
         modificationInfos.toModification().apply(network, new DummyNamingStrategy(), report);
         Assertions.assertNotNull(network.getBusbarSection(busbarId));
+    }
+
+    public static void testReportNode(ReportNode reportNode, String reportsFile) throws IOException {
+        Optional<ReportNode> report = reportNode.getChildren().stream().findFirst();
+        assertTrue(report.isPresent());
+
+        StringWriter sw = new StringWriter();
+        reportNode.print(sw);
+
+        String expected;
+        try (InputStream refStream = TestUtils.class.getResourceAsStream(reportsFile)) {
+            assertNotNull(refStream);
+            expected = new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8);
+        }
+        String expectedStr = normalizeLineSeparator(expected);
+        String actualStr = normalizeLineSeparator(sw.toString());
+        assertEquals(expectedStr, actualStr);
+    }
+
+    private static String normalizeLineSeparator(String str) {
+        return Objects.requireNonNull(str).replace("\r\n", "\n")
+                .replace("\r", "\n");
     }
 }

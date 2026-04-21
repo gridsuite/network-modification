@@ -92,6 +92,8 @@ class LineModificationTest extends AbstractNetworkModificationTest {
                 .enableOLGModification(false)
                 .selectedOperationalLimitsGroupId1(new AttributeModification<>("invalid_opLG", OperationType.SET))
                 .selectedOperationalLimitsGroupId2(new AttributeModification<>("invalid_opLG", OperationType.SET))
+                .lineSegments(List.of(new LineSegmentInfos(UUID.randomUUID().toString(), 1, "1", "50", null),
+                    new LineSegmentInfos(UUID.randomUUID().toString(), 1, "1", null, 0.95)))
                 .build();
     }
 
