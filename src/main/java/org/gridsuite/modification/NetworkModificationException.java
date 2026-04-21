@@ -132,7 +132,8 @@ public class NetworkModificationException extends PowsyblException {
         CREATE_COUPLING_DEVICE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),
         CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),
         CREATE_VOLTAGE_LEVEL_SECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),
-        MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),;
+        MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),
+        COMPOSITE_NESTED_LIMIT_REACHED_ERROR(HttpStatus.BAD_REQUEST),;
 
         public final HttpStatus status;
         private final String message;
