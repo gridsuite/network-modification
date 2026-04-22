@@ -16,7 +16,7 @@ import java.util.Optional;
 /**
  * @author Etienne LESOT <etienne.lesot at rte-france.com>
  */
-public class DeletingLinesLimits {
+public class DeletedLinesLimits {
     @Getter
     private final Collection<OperationalLimitsGroup> line1Side1Limits;
     @Getter
@@ -34,7 +34,7 @@ public class DeletingLinesLimits {
     @Getter
     private final String line2Id;
 
-    public DeletingLinesLimits(Line line1, Line line2) {
+    public DeletedLinesLimits(Line line1, Line line2) {
         line1Side1Limits = line1.getOperationalLimitsGroups1();
         line1Side2Limits = line1.getOperationalLimitsGroups2();
         line2Side1Limits = line2.getOperationalLimitsGroups1();
