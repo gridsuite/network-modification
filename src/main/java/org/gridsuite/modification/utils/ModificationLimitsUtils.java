@@ -11,7 +11,7 @@ import com.powsybl.commons.report.ReportNodeAdder;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
-import org.gridsuite.modification.modifications.DeletedLinesLimits;
+import org.gridsuite.modification.modifications.DeletedLineData;
 
 import java.util.*;
 import java.util.function.Function;
@@ -40,18 +40,19 @@ public final class ModificationLimitsUtils {
                                                                   AbstractNetworkModification algo,
                                                                   ReportNode subReportNode) {
         // to save lines limits infos because they are deleted
-        DeletedLinesLimits deletedLinesLimits = new DeletedLinesLimits(network.getLine(lineToAttachTo1Id), network.getLine(lineToAttachTo2Id));
+        DeletedLineData deletedLine1 = new DeletedLineData(network.getLine(lineToAttachTo1Id));
+        DeletedLineData deletedLine2 = new DeletedLineData(network.getLine(lineToAttachTo2Id));
 
         algo.apply(network, true, subReportNode);
 
         // to be removed if powsybl integrate it
         mergeOperationalLimitsGroups(network.getLine(replacingLineId),
-                deletedLinesLimits,
-                subReportNode);
+                deletedLine1, deletedLine2, subReportNode);
     }
 
     public static void mergeOperationalLimitsGroups(Line mergedLine,
-                                                    DeletedLinesLimits deletedLinesLimits,
+                                                    DeletedLineData deletedLine1,
+                                                    DeletedLineData deletedLine2,
                                                     ReportNode subReportNode) {
         ReportNode mergingLimitsReportNode = subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.mergeLimits")
@@ -71,24 +72,24 @@ public final class ModificationLimitsUtils {
         groupIds2.forEach(mergedLine::removeOperationalLimitsGroup2);
 
         // side one
-        createMergedOperationalLimitsGroups(deletedLinesLimits.getLine1Side1Limits(), deletedLinesLimits.getLine2Side1Limits(),
+        createMergedOperationalLimitsGroups(deletedLine1.getLimitsOnSide1(), deletedLine2.getLimitsOnSide1(),
                 mergedLine::newOperationalLimitsGroup1, TwoSides.ONE,
-                deletedLinesLimits.getLine1Id(), deletedLinesLimits.getLine2Id(), mergedLine.getId(), mergingLimitsReportNode);
+                deletedLine1.getLineId(), deletedLine2.getLineId(), mergedLine.getId(), mergingLimitsReportNode);
 
         // side two
-        createMergedOperationalLimitsGroups(deletedLinesLimits.getLine1Side2Limits(), deletedLinesLimits.getLine2Side2Limits(),
+        createMergedOperationalLimitsGroups(deletedLine1.getLimitsOnSide2(), deletedLine2.getLimitsOnSide2(),
                 mergedLine::newOperationalLimitsGroup2, TwoSides.TWO,
-                deletedLinesLimits.getLine1Id(), deletedLinesLimits.getLine2Id(), mergedLine.getId(), mergingLimitsReportNode);
+                deletedLine1.getLineId(), deletedLine2.getLineId(), mergedLine.getId(), mergingLimitsReportNode);
 
         // set selected
-        Optional<String> selectedOperationalLimitsGroupLine1Side1 = deletedLinesLimits.getSelectedLimitGroupLine1Side1();
-        Optional<String> selectedOperationalLimitsGroupLine2Side1 = deletedLinesLimits.getSelectedLimitGroupLine2Side1();
+        Optional<String> selectedOperationalLimitsGroupLine1Side1 = deletedLine1.getSelectedLimitGroupOnSide1();
+        Optional<String> selectedOperationalLimitsGroupLine2Side1 = deletedLine2.getSelectedLimitGroupOnSide1();
         if (selectedOperationalLimitsGroupLine1Side1.isPresent() && selectedOperationalLimitsGroupLine2Side1.isPresent() &&
                 selectedOperationalLimitsGroupLine1Side1.get().equals(selectedOperationalLimitsGroupLine2Side1.get())) {
             mergedLine.setSelectedOperationalLimitsGroup1(selectedOperationalLimitsGroupLine1Side1.get());
         }
-        Optional<String> selectedOperationalLimitsGroupLine1Side2 = deletedLinesLimits.getSelectedLimitGroupLine1Side2();
-        Optional<String> selectedOperationalLimitsGroupLine2Side2 = deletedLinesLimits.getSelectedLimitGroupLine2Side2();
+        Optional<String> selectedOperationalLimitsGroupLine1Side2 = deletedLine1.getSelectedLimitGroupOnSide2();
+        Optional<String> selectedOperationalLimitsGroupLine2Side2 = deletedLine2.getSelectedLimitGroupOnSide2();
         if (selectedOperationalLimitsGroupLine1Side2.isPresent() && selectedOperationalLimitsGroupLine2Side2.isPresent() &&
                 selectedOperationalLimitsGroupLine1Side2.get().equals(selectedOperationalLimitsGroupLine2Side2.get())) {
             mergedLine.setSelectedOperationalLimitsGroup2(selectedOperationalLimitsGroupLine1Side2.get());
