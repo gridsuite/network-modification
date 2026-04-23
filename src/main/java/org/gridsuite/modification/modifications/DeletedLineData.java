@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.OperationalLimitsGroup;
 import lombok.Getter;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -27,8 +28,8 @@ public class DeletedLineData {
     private final String lineId;
 
     public DeletedLineData(Line line) {
-        limitsOnSide1 = line.getOperationalLimitsGroups1();
-        limitsOnSide2 = line.getOperationalLimitsGroups2();
+        limitsOnSide1 = List.copyOf(line.getOperationalLimitsGroups1());
+        limitsOnSide2 = List.copyOf(line.getOperationalLimitsGroups2());
         selectedLimitGroupOnSide1 = line.getSelectedOperationalLimitsGroupId1().orElse(null);
         selectedLimitGroupOnSide2 = line.getSelectedOperationalLimitsGroupId2().orElse(null);
         lineId = line.getId();
