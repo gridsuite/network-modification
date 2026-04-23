@@ -24,6 +24,10 @@ public final class ModificationLimitsUtils {
 
     private static final String LIMITSET_NAME = "limitset_name";
     private static final String REPLACING_LINE = "replacing_line";
+    private static final String LINE1 = "line1";
+    private static final String LINE2 = "line2";
+    private static final String LIMIT_NAME = "limit_name";
+    private static final String APPLICABILITY = "applicability";
 
     private ModificationLimitsUtils() {
 
@@ -154,10 +158,10 @@ public final class ModificationLimitsUtils {
                     reportNodes.add(ReportNode.newRootReportNode()
                             .withMessageTemplate("network.modification.propertyOfLimitsGroupDeletedAfterMerge")
                             .withUntypedValue("property_name", propertyNameLine1)
-                            .withUntypedValue("property_value_A", valueLine1)
-                            .withUntypedValue("line_A", line1Id)
-                            .withUntypedValue("property_value_B", valueLine2)
-                            .withUntypedValue("line_B", line2Id)
+                            .withUntypedValue("property_value_1", valueLine1)
+                            .withUntypedValue(LINE1, line1Id)
+                            .withUntypedValue("property_value_2", valueLine2)
+                            .withUntypedValue(LINE2, line2Id)
                             .withUntypedValue(REPLACING_LINE, newLineId)
                             .withSeverity(TypedValue.INFO_SEVERITY)
                             .build());
@@ -181,7 +185,7 @@ public final class ModificationLimitsUtils {
         reportNode.newReportNode()
                 .withMessageTemplate("network.modification.limitGroupsDeletedAfterMerge")
                 .withUntypedValue(LIMITSET_NAME, deletedGroup)
-                .withUntypedValue("applicability", side.name())
+                .withUntypedValue(APPLICABILITY, side.name())
                 .withUntypedValue("line_with_limitset", lineWithLimitSet)
                 .withUntypedValue("line_without_limitset", lineWithoutLimitSet)
                 .withUntypedValue(REPLACING_LINE, newLineId)
@@ -237,9 +241,9 @@ public final class ModificationLimitsUtils {
                                                  String lineWithTemporaryLimit, String lineWithoutTemporaryLimit, TwoSides side) {
         reportNodes.add(ReportNode.newRootReportNode()
                 .withMessageTemplate("network.modification.temporaryLimitsDeletedAfterMerge")
-                .withUntypedValue("limit_name", temporaryLimit.getName())
+                .withUntypedValue(LIMIT_NAME, temporaryLimit.getName())
                 .withUntypedValue("tempo", temporaryLimit.getAcceptableDuration())
-                .withUntypedValue("applicability", side.name())
+                .withUntypedValue(APPLICABILITY, side.name())
                 .withUntypedValue("line_with_limit", lineWithTemporaryLimit)
                 .withUntypedValue("line_without_limit", lineWithoutTemporaryLimit)
                 .withSeverity(TypedValue.INFO_SEVERITY)
@@ -250,10 +254,10 @@ public final class ModificationLimitsUtils {
                                                  String line1Id, String line2Id) {
         reportNodes.add(ReportNode.newRootReportNode()
                 .withMessageTemplate("network.modification.mergingPermanentLimits")
-                .withUntypedValue("value_A", permanentLimit1)
-                .withUntypedValue("line_A", line1Id)
-                .withUntypedValue("value_B", permanentLimit2)
-                .withUntypedValue("line_B", line2Id)
+                .withUntypedValue("value1", permanentLimit1)
+                .withUntypedValue(LINE1, line1Id)
+                .withUntypedValue("value2", permanentLimit2)
+                .withUntypedValue(LINE2, line2Id)
                 .withUntypedValue("lowest_value", Math.min(permanentLimit1, permanentLimit2))
                 .withSeverity(TypedValue.DETAIL_SEVERITY)
                 .build());
@@ -263,12 +267,12 @@ public final class ModificationLimitsUtils {
                                                   Double temporaryLimitLine1, Double temporaryLimitLine2, String line1Id, String line2Id) {
         reportNodes.add(ReportNode.newRootReportNode()
                 .withMessageTemplate("network.modification.mergingTemporaryLimits")
-                .withUntypedValue("limit_name", limitName)
+                .withUntypedValue(LIMIT_NAME, limitName)
                 .withUntypedValue("tempo", acceptableDuration)
-                .withUntypedValue("value_A", temporaryLimitLine1)
-                .withUntypedValue("value_B", temporaryLimitLine2)
-                .withUntypedValue("line_A", line1Id)
-                .withUntypedValue("line_B", line2Id)
+                .withUntypedValue("value1", temporaryLimitLine1)
+                .withUntypedValue("value2", temporaryLimitLine2)
+                .withUntypedValue(LINE1, line1Id)
+                .withUntypedValue(LINE2, line2Id)
                 .withUntypedValue("lowest_value", Math.min(temporaryLimitLine1, temporaryLimitLine2))
                 .withSeverity(TypedValue.DETAIL_SEVERITY)
                 .build());
@@ -280,12 +284,12 @@ public final class ModificationLimitsUtils {
                                                                              TwoSides side) {
         reportNodes.add(ReportNode.newRootReportNode()
                 .withMessageTemplate("network.modification.temporaryLimitsWithDifferentAcceptableDuration")
-                .withUntypedValue("limit_name", temporaryLimitName)
-                .withUntypedValue("applicability", side.name())
+                .withUntypedValue(LIMIT_NAME, temporaryLimitName)
+                .withUntypedValue(APPLICABILITY, side.name())
                 .withUntypedValue("tempo1", acceptableDuration1)
-                .withUntypedValue("line1", line1)
+                .withUntypedValue(LINE1, line1)
                 .withUntypedValue("tempo2", acceptableDuration2)
-                .withUntypedValue("line2", line2)
+                .withUntypedValue(LINE2, line2)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
