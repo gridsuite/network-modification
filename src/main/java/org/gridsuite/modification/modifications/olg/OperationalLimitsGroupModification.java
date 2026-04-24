@@ -438,8 +438,10 @@ public class OperationalLimitsGroupModification {
      * @return true if the modification can proceed, false if it must be skipped.
      */
     private boolean preModificationCheck(CurrentTemporaryLimitModificationInfos limit, OperationalLimitsGroupInfos.Applicability applicability) {
-        // In case of addition, ensure that name is present (duration will be defaulted to MAX)
-        if (limit.getModificationType() == TemporaryLimitModificationType.ADD && !hasValue(limit.getName())) {
+        // In case of addition or replacement, ensure that name is present (duration will be defaulted to MAX)
+        if ((limit.getModificationType() == TemporaryLimitModificationType.ADD
+            || limit.getModificationType() == TemporaryLimitModificationType.REPLACE) &&
+            !hasValue(limit.getName())) {
             addToLogsOnSide(ReportNode.newRootReportNode()
                     .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate("network.modification.temporaryLimitsMissingName")
@@ -449,7 +451,9 @@ public class OperationalLimitsGroupModification {
             return false;
         }
         // In case of deletion or modification, ensure that name and duration are present (duration is the identifier)
-        if ((limit.getModificationType() == TemporaryLimitModificationType.DELETE || limit.getModificationType() == TemporaryLimitModificationType.MODIFY) &&
+        if ((limit.getModificationType() == TemporaryLimitModificationType.DELETE
+            || limit.getModificationType() == TemporaryLimitModificationType.MODIFY
+            || limit.getModificationType() == TemporaryLimitModificationType.MODIFY_OR_ADD) &&
             (!hasValue(limit.getName()) || !hasValue(limit.getAcceptableDuration()))) {
             addToLogsOnSide(ReportNode.newRootReportNode()
                     .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)

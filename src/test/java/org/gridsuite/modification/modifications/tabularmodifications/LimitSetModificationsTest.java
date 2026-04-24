@@ -25,9 +25,7 @@ import java.util.UUID;
 
 import static org.gridsuite.modification.dto.AttributeModification.toAttributeModification;
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessageWithoutRank;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Hugo Marcellin <hugo.marcelin at rte-france.com>
@@ -431,10 +429,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
     }
 
     /**
-     * Test MODIFY with a missing name: the limit must not be modified and a temporaryLimitsMissingInfo log must be emitted.
+     * Test ADD with a missing name: the limit must not be added and a temporaryLimitsMissingName log must be emitted.
      */
     @Test
-    void testModifyTemporaryLimitWithMissingName() {
+    void testAddTemporaryLimitWithMissingName() {
         ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
@@ -444,14 +442,14 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                 .id("DEFAULT")
                                                 .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.MODIFY)
-                                                .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY)
+                                            .temporaryLimitsModificationType(TemporaryLimitModificationType.ADD)
                                                 .currentLimits(CurrentLimitsModificationInfos.builder()
                                                         .temporaryLimits(List.of(
                                                                 CurrentTemporaryLimitModificationInfos.builder()
-                                                                        .modificationType(TemporaryLimitModificationType.MODIFY)
+                                                                    .modificationType(TemporaryLimitModificationType.ADD)
                                                                         .name(toAttributeModification(null, OperationType.SET))
-                                                                        .acceptableDuration(toAttributeModification(32, OperationType.SET))
-                                                                        .value(toAttributeModification(999., OperationType.SET))
+                                                                    .acceptableDuration(toAttributeModification(99, OperationType.SET))
+                                                                    .value(toAttributeModification(10., OperationType.SET))
                                                                         .build()
                                                         )).build())
                                                 .build()
@@ -468,17 +466,17 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
                 .getCurrentLimits().orElse(null);
         assertNotNull(limits);
-        // value is unchanged
-        assertEquals(15.0, limits.getTemporaryLimit(32).getValue(), 0.01);
-        assertLogMessageWithoutRank("Missing info (name or duration) to find temporary limit to MODIFY: ignored",
-                "network.modification.temporaryLimitsMissingInfo", reportNode);
+        // the limit was not added
+        assertNull(limits.getTemporaryLimit(99));
+        assertLogMessageWithoutRank("Missing name for temporary limit to ADD: ignored",
+            "network.modification.temporaryLimitsMissingName", reportNode);
     }
 
     /**
-     * Test MODIFY with a missing acceptableDuration: the limit must not be modified and a temporaryLimitsMissingInfo log must be emitted.
+     * Test REPLACE with a missing name: the limit must not be added and a temporaryLimitsMissingName log must be emitted.
      */
     @Test
-    void testModifyTemporaryLimitWithMissingDuration() {
+    void testReplaceTemporaryLimitWithMissingName() {
         ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
@@ -488,14 +486,14 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                 .id("DEFAULT")
                                                 .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.MODIFY)
-                                                .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY)
+                                            .temporaryLimitsModificationType(TemporaryLimitModificationType.REPLACE)
                                                 .currentLimits(CurrentLimitsModificationInfos.builder()
                                                         .temporaryLimits(List.of(
                                                                 CurrentTemporaryLimitModificationInfos.builder()
-                                                                        .modificationType(TemporaryLimitModificationType.MODIFY)
-                                                                        .name(toAttributeModification("name32", OperationType.SET))
-                                                                        .acceptableDuration(toAttributeModification(null, OperationType.SET))
-                                                                        .value(toAttributeModification(999., OperationType.SET))
+                                                                    .modificationType(TemporaryLimitModificationType.REPLACE)
+                                                                    .name(toAttributeModification(null, OperationType.SET))
+                                                                    .acceptableDuration(toAttributeModification(99, OperationType.SET))
+                                                                    .value(toAttributeModification(10., OperationType.SET))
                                                                         .build()
                                                         )).build())
                                                 .build()
@@ -512,10 +510,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
                 .getCurrentLimits().orElse(null);
         assertNotNull(limits);
-        // value is unchanged
-        assertEquals(15.0, limits.getTemporaryLimit(32).getValue(), 0.01);
-        assertLogMessageWithoutRank("Missing info (name or duration) to find temporary limit to MODIFY: ignored",
-                "network.modification.temporaryLimitsMissingInfo", reportNode);
+        // the limit was not added
+        assertNull(limits.getTemporaryLimit(99));
+        assertLogMessageWithoutRank("Missing name for temporary limit to ADD: ignored",
+            "network.modification.temporaryLimitsMissingName", reportNode);
     }
 
     /**
@@ -607,10 +605,98 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
     }
 
     /**
-     * Test ADD with a missing name: the limit must not be added and a temporaryLimitsMissingInfo log must be emitted.
+     * Test MODIFY with a missing name: the limit must not be modified and a temporaryLimitsMissingInfo log must be emitted.
      */
     @Test
-    void testAddTemporaryLimitWithMissingName() {
+    void testModifyTemporaryLimitWithMissingName() {
+        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+            .modificationType(ModificationType.LINE_MODIFICATION)
+            .modifications(List.of(
+                LineModificationInfos.builder().equipmentId("line1")
+                    .operationalLimitsGroups(List.of(
+                        OperationalLimitsGroupModificationInfos.builder()
+                            .id("DEFAULT")
+                            .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                            .modificationType(OperationalLimitsGroupModificationType.MODIFY)
+                            .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY)
+                            .currentLimits(CurrentLimitsModificationInfos.builder()
+                                .temporaryLimits(List.of(
+                                    CurrentTemporaryLimitModificationInfos.builder()
+                                        .modificationType(TemporaryLimitModificationType.MODIFY)
+                                        .name(toAttributeModification(null, OperationType.SET))
+                                        .acceptableDuration(toAttributeModification(32, OperationType.SET))
+                                        .value(toAttributeModification(999., OperationType.SET))
+                                        .build()
+                                )).build())
+                            .build()
+                    )).build()
+            ))
+            .build();
+
+        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test").build());
+        modificationInfos.toModification().apply(getNetwork(), reportNode);
+
+        CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
+                .getOperationalLimitsGroup1("DEFAULT").orElse(null))
+            .getCurrentLimits().orElse(null);
+        assertNotNull(limits);
+        // value is unchanged
+        assertEquals(15.0, limits.getTemporaryLimit(32).getValue(), 0.01);
+        assertLogMessageWithoutRank("Missing info (name or duration) to find temporary limit to MODIFY: ignored",
+            "network.modification.temporaryLimitsMissingInfo", reportNode);
+    }
+
+    /**
+     * Test MODIFY with a missing acceptableDuration: the limit must not be modified and a temporaryLimitsMissingInfo log must be emitted.
+     */
+    @Test
+    void testModifyTemporaryLimitWithMissingDuration() {
+        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+            .modificationType(ModificationType.LINE_MODIFICATION)
+            .modifications(List.of(
+                LineModificationInfos.builder().equipmentId("line1")
+                    .operationalLimitsGroups(List.of(
+                        OperationalLimitsGroupModificationInfos.builder()
+                            .id("DEFAULT")
+                            .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                            .modificationType(OperationalLimitsGroupModificationType.MODIFY)
+                            .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY)
+                            .currentLimits(CurrentLimitsModificationInfos.builder()
+                                .temporaryLimits(List.of(
+                                    CurrentTemporaryLimitModificationInfos.builder()
+                                        .modificationType(TemporaryLimitModificationType.MODIFY)
+                                        .name(toAttributeModification("name32", OperationType.SET))
+                                        .acceptableDuration(toAttributeModification(null, OperationType.SET))
+                                        .value(toAttributeModification(999., OperationType.SET))
+                                        .build()
+                                )).build())
+                            .build()
+                    )).build()
+            ))
+            .build();
+
+        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test").build());
+        modificationInfos.toModification().apply(getNetwork(), reportNode);
+
+        CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
+                .getOperationalLimitsGroup1("DEFAULT").orElse(null))
+            .getCurrentLimits().orElse(null);
+        assertNotNull(limits);
+        // value is unchanged
+        assertEquals(15.0, limits.getTemporaryLimit(32).getValue(), 0.01);
+        assertLogMessageWithoutRank("Missing info (name or duration) to find temporary limit to MODIFY: ignored",
+            "network.modification.temporaryLimitsMissingInfo", reportNode);
+    }
+
+    /**
+     * Test MODIFY_OR_ADD with a missing name: the limit must not be modified and a temporaryLimitsMissingInfo log must be emitted.
+     */
+    @Test
+    void testModifyOrAddTemporaryLimitWithMissingName() {
         ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
@@ -620,14 +706,14 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                 .id("DEFAULT")
                                                 .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.MODIFY)
-                                                .temporaryLimitsModificationType(TemporaryLimitModificationType.ADD)
+                                            .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY_OR_ADD)
                                                 .currentLimits(CurrentLimitsModificationInfos.builder()
                                                         .temporaryLimits(List.of(
                                                                 CurrentTemporaryLimitModificationInfos.builder()
-                                                                        .modificationType(TemporaryLimitModificationType.ADD)
+                                                                    .modificationType(TemporaryLimitModificationType.MODIFY_OR_ADD)
                                                                         .name(toAttributeModification(null, OperationType.SET))
-                                                                        .acceptableDuration(toAttributeModification(99, OperationType.SET))
-                                                                        .value(toAttributeModification(10., OperationType.SET))
+                                                                    .acceptableDuration(toAttributeModification(32, OperationType.SET))
+                                                                    .value(toAttributeModification(999., OperationType.SET))
                                                                         .build()
                                                         )).build())
                                                 .build()
@@ -644,10 +730,54 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
                 .getCurrentLimits().orElse(null);
         assertNotNull(limits);
-        // the limit was not added
-        assertNull(limits.getTemporaryLimit(99));
-        assertLogMessageWithoutRank("Missing name for temporary limit to ADD: ignored",
-                "network.modification.temporaryLimitsMissingName", reportNode);
+        // value is unchanged
+        assertEquals(15.0, limits.getTemporaryLimit(32).getValue(), 0.01);
+        assertLogMessageWithoutRank("Missing info (name or duration) to find temporary limit to MODIFY_OR_ADD: ignored",
+            "network.modification.temporaryLimitsMissingInfo", reportNode);
+    }
+
+    /**
+     * Test MODIFY_OR_ADD with a missing acceptableDuration: the limit must not be modified and a temporaryLimitsMissingInfo log must be emitted.
+     */
+    @Test
+    void testModifyOrAddTemporaryLimitWithMissingDuration() {
+        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+            .modificationType(ModificationType.LINE_MODIFICATION)
+            .modifications(List.of(
+                LineModificationInfos.builder().equipmentId("line1")
+                    .operationalLimitsGroups(List.of(
+                        OperationalLimitsGroupModificationInfos.builder()
+                            .id("DEFAULT")
+                            .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                            .modificationType(OperationalLimitsGroupModificationType.MODIFY)
+                            .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY_OR_ADD)
+                            .currentLimits(CurrentLimitsModificationInfos.builder()
+                                .temporaryLimits(List.of(
+                                    CurrentTemporaryLimitModificationInfos.builder()
+                                        .modificationType(TemporaryLimitModificationType.MODIFY_OR_ADD)
+                                        .name(toAttributeModification("name32", OperationType.SET))
+                                        .acceptableDuration(toAttributeModification(null, OperationType.SET))
+                                        .value(toAttributeModification(999., OperationType.SET))
+                                        .build()
+                                )).build())
+                            .build()
+                    )).build()
+            ))
+            .build();
+
+        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test").build());
+        modificationInfos.toModification().apply(getNetwork(), reportNode);
+
+        CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
+                .getOperationalLimitsGroup1("DEFAULT").orElse(null))
+            .getCurrentLimits().orElse(null);
+        assertNotNull(limits);
+        // value is unchanged
+        assertEquals(15.0, limits.getTemporaryLimit(32).getValue(), 0.01);
+        assertLogMessageWithoutRank("Missing info (name or duration) to find temporary limit to MODIFY_OR_ADD: ignored",
+            "network.modification.temporaryLimitsMissingInfo", reportNode);
     }
 
     /**
