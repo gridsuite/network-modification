@@ -465,7 +465,9 @@ public class OperationalLimitsGroupModification {
             return false;
         }
         // If we aren't modifying an existing limit set, temporary limit modification is necessarily of ADDED type
-        if (olgModifInfos.getModificationType() != OperationalLimitsGroupModificationType.MODIFY && limit.getModificationType() != TemporaryLimitModificationType.ADD) {
+        if ((olgModifInfos.getModificationType() == OperationalLimitsGroupModificationType.ADD
+            || olgModifInfos.getModificationType() == OperationalLimitsGroupModificationType.REPLACE) &&
+            limit.getModificationType() != TemporaryLimitModificationType.ADD) {
             addToLogsOnSide(ReportNode.newRootReportNode()
                     .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate("network.modification.temporaryLimitsWrongModification")

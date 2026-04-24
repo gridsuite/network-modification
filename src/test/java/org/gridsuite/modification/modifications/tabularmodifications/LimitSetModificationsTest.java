@@ -781,12 +781,12 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
     }
 
     /**
-     * Test that when the OLG modification type is not MODIFY (e.g. ADD) and the temporary limit
-     * modification type is not ADD (e.g. MODIFY), a temporaryLimitsWrongModification log is
-     * emitted and the temporary limit modification type is forced to ADD so the limit is created.
+     * Test that when the OLG modification type is ADD and the temporary limit modification
+     * type is not ADD (e.g. MODIFY), a temporaryLimitsWrongModification log is emitted and
+     * the temporary limit modification type is forced to ADD so the limit is created.
      */
     @Test
-    void testTemporaryLimitWrongModificationTypeIsForcedToAdd() {
+    void testTemporaryLimitWrongModificationTypeIsForcedToAddOnAdd() {
         ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
@@ -826,6 +826,56 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         assertNotNull(limits.getTemporaryLimit(1));
         assertEquals("test1", limits.getTemporaryLimit(1).getName());
         assertEquals(10.0, limits.getTemporaryLimit(1).getValue(), 0.01);
+        assertLogMessageWithoutRank(
+                "Temporary limit modification type can only be ADD when limit group modification type is not MODIFY: switched from MODIFY to ADD",
+                "network.modification.temporaryLimitsWrongModification", reportNode);
+    }
+
+    /**
+     * Test that when the OLG modification type is REPLACE and the temporary limit modification
+     * type is not ADD (e.g. MODIFY), a temporaryLimitsWrongModification log is emitted and
+     * the temporary limit modification type is forced to ADD so the limit is created.
+     */
+    @Test
+    void testTemporaryLimitWrongModificationTypeIsForcedToAddOnReplace() {
+        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+                .modificationType(ModificationType.LINE_MODIFICATION)
+                .modifications(List.of(
+                        LineModificationInfos.builder().equipmentId("line1")
+                                .operationalLimitsGroups(List.of(
+                                        OperationalLimitsGroupModificationInfos.builder()
+                                                .id("DEFAULT")
+                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .modificationType(OperationalLimitsGroupModificationType.REPLACE)
+                                                .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY)
+                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                        .permanentLimit(99.)
+                                                        .temporaryLimits(List.of(
+                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                        .modificationType(TemporaryLimitModificationType.MODIFY)
+                                                                        .name(toAttributeModification("test1", OperationType.SET))
+                                                                        .acceptableDuration(toAttributeModification(7, OperationType.SET))
+                                                                        .value(toAttributeModification(10., OperationType.SET))
+                                                                        .build()
+                                                        )).build())
+                                                .build()
+                                )).build()
+                ))
+                .build();
+
+        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+        modificationInfos.toModification().apply(getNetwork(), reportNode);
+
+        CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
+                        .getOperationalLimitsGroup1("DEFAULT").orElse(null))
+                .getCurrentLimits().orElse(null);
+        assertNotNull(limits);
+        // the limit was added (modification type forced to ADD)
+        assertNotNull(limits.getTemporaryLimit(7));
+        assertEquals("test1", limits.getTemporaryLimit(7).getName());
+        assertEquals(10.0, limits.getTemporaryLimit(7).getValue(), 0.01);
         assertLogMessageWithoutRank(
                 "Temporary limit modification type can only be ADD when limit group modification type is not MODIFY: switched from MODIFY to ADD",
                 "network.modification.temporaryLimitsWrongModification", reportNode);
