@@ -7,16 +7,20 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LinesAttachToSplitLinesInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
+
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
+import static org.gridsuite.modification.utils.TestUtils.checkLimitsGroupOnLine;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -49,15 +53,22 @@ class LinesAttachToSplitLinesTest extends AbstractNetworkModificationTest {
     @Override
     protected void assertAfterNetworkModificationApplication() {
         // 3 lines are gone
-        assertNull(getNetwork().getLine("l1"));
-        assertNull(getNetwork().getLine("l2"));
-        assertNull(getNetwork().getLine("l3"));
+        Network network = getNetwork();
+        assertNull(network.getLine("l1"));
+        assertNull(network.getLine("l2"));
+        assertNull(network.getLine("l3"));
         // v2 is gone
-        assertNull(getNetwork().getVoltageLevel("v2"));
+        assertNull(network.getVoltageLevel("v2"));
         assertEquals(3, getNetwork().getVoltageLevelCount());
         // new lines:
-        assertNotNull(getNetwork().getLine("nl1"));
-        assertNotNull(getNetwork().getLine("nl2"));
+        assertNotNull(network.getLine("nl1"));
+        assertNotNull(network.getLine("nl2"));
+
+        // check limits group are well copied
+        Line nl1 = network.getLine("nl1");
+        Line nl2 = network.getLine("nl2");
+        checkLimitsGroupOnLine(nl1, "group0", "group0", List.of("group0", "group1", "group2"), List.of("group0", "group1", "group2", "group3"));
+        checkLimitsGroupOnLine(nl2, "group0", "group0", List.of("group0", "group1", "group2"), List.of("group0", "group1", "group2", "group3"));
     }
 
     @Override
