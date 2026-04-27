@@ -25,7 +25,7 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
  */
-public class GeneratorModification extends AbstractModification {
+public class GeneratorModification extends AbstractInjectionModification {
 
     private static final String LIMITS = "network.modification.limits";
     private static final String ACTIVE_LIMITS = "network.modification.ActiveLimits";
@@ -33,10 +33,8 @@ public class GeneratorModification extends AbstractModification {
     private static final String TARGET_VOLTAGE = "Target Voltage";
     public static final String ERROR_MESSAGE = "Generator '%s' : ";
 
-    private final GeneratorModificationInfos modificationInfos;
-
     public GeneratorModification(GeneratorModificationInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
+        super(modificationInfos);
     }
 
     @Override
@@ -44,54 +42,56 @@ public class GeneratorModification extends AbstractModification {
         if (modificationInfos == null) {
             throw new NetworkModificationException(MODIFY_GENERATOR_ERROR, "Missing required attributes to modify the equipment");
         }
-        Generator generator = ModificationUtils.getInstance().getGenerator(network, modificationInfos.getEquipmentId());
+        GeneratorModificationInfos generatorModificationInfos = (GeneratorModificationInfos) modificationInfos;
+        Generator generator = ModificationUtils.getInstance().getGenerator(network, generatorModificationInfos.getEquipmentId());
         // check min max reactive limits
-        String errorMessage = "Generator '" + modificationInfos.getEquipmentId() + "' : ";
-        ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId(),
-                modificationInfos.getBusOrBusbarSectionId(), generator.getTerminal());
-        ModificationUtils.getInstance().checkReactiveLimit(generator, modificationInfos.getMinQ(), modificationInfos.getMaxQ(),
-                modificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_GENERATOR_ERROR, errorMessage);
+        String errorMessage = "Generator '" + generatorModificationInfos.getEquipmentId() + "' : ";
+        ModificationUtils.getInstance().checkVoltageLevelModification(network, generatorModificationInfos.getVoltageLevelId(),
+                generatorModificationInfos.getBusOrBusbarSectionId(), generator.getTerminal());
+        ModificationUtils.getInstance().checkReactiveLimit(generator, generatorModificationInfos.getMinQ(), generatorModificationInfos.getMaxQ(),
+                generatorModificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_GENERATOR_ERROR, errorMessage);
         // check regulated terminal
         ModificationUtils.getInstance().checkEnableRegulation(
-            modificationInfos.getVoltageRegulationType(),
-            modificationInfos.getRegulatingTerminalId(),
-            modificationInfos.getRegulatingTerminalType(),
-            modificationInfos.getRegulatingTerminalVlId(),
+            generatorModificationInfos.getVoltageRegulationType(),
+            generatorModificationInfos.getRegulatingTerminalId(),
+            generatorModificationInfos.getRegulatingTerminalType(),
+            generatorModificationInfos.getRegulatingTerminalVlId(),
             generator.getTerminal(),
             generator.getRegulatingTerminal(),
             network,
             MODIFY_GENERATOR_ERROR,
             errorMessage);
-        checkActivePowerZeroOrBetweenMinAndMaxActivePowerGenerator(modificationInfos, generator, MODIFY_GENERATOR_ERROR, errorMessage);
-        if (modificationInfos.getRatedS() != null) {
-            checkIsNotNegativeValue(errorMessage, modificationInfos.getRatedS().getValue(), MODIFY_GENERATOR_ERROR, "Rated apparent power");
+        checkActivePowerZeroOrBetweenMinAndMaxActivePowerGenerator(generatorModificationInfos, generator, MODIFY_GENERATOR_ERROR, errorMessage);
+        if (generatorModificationInfos.getRatedS() != null) {
+            checkIsNotNegativeValue(errorMessage, generatorModificationInfos.getRatedS().getValue(), MODIFY_GENERATOR_ERROR, "Rated apparent power");
         }
-        if (modificationInfos.getDroop() != null) {
-            checkIsPercentage(errorMessage, modificationInfos.getDroop().getValue(), MODIFY_GENERATOR_ERROR, "Droop");
+        if (generatorModificationInfos.getDroop() != null) {
+            checkIsPercentage(errorMessage, generatorModificationInfos.getDroop().getValue(), MODIFY_GENERATOR_ERROR, "Droop");
         }
-        if (modificationInfos.getTargetV() != null) {
-            checkIsNotNegativeValue(errorMessage, modificationInfos.getTargetV().getValue(), MODIFY_GENERATOR_ERROR, TARGET_VOLTAGE);
+        if (generatorModificationInfos.getTargetV() != null) {
+            checkIsNotNegativeValue(errorMessage, generatorModificationInfos.getTargetV().getValue(), MODIFY_GENERATOR_ERROR, TARGET_VOLTAGE);
         }
         checkPowerValues(errorMessage, generator);
     }
 
     private void checkPowerValues(String errorMessage, Generator generator) {
+        GeneratorModificationInfos generatorModificationInfos = (GeneratorModificationInfos) modificationInfos;
         GeneratorStartup generatorStartup = generator.getExtension(GeneratorStartup.class);
         Double oldValue = generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint())
             ? generatorStartup.getPlannedActivePowerSetpoint() : null;
-        double minP = modificationInfos.getMinP() != null ? modificationInfos.getMinP().getValue() : generator.getMinP();
-        double maxP = modificationInfos.getMaxP() != null ? modificationInfos.getMaxP().getValue() : generator.getMaxP();
-        double targetP = modificationInfos.getTargetP() != null ? modificationInfos.getTargetP().getValue() : generator.getTargetP();
-        Double plannedActivePowerSetPoint = modificationInfos.getPlannedActivePowerSetPoint() != null ?
-            modificationInfos.getPlannedActivePowerSetPoint().applyModification(oldValue) : null;
+        double minP = generatorModificationInfos.getMinP() != null ? generatorModificationInfos.getMinP().getValue() : generator.getMinP();
+        double maxP = generatorModificationInfos.getMaxP() != null ? generatorModificationInfos.getMaxP().getValue() : generator.getMaxP();
+        double targetP = generatorModificationInfos.getTargetP() != null ? generatorModificationInfos.getTargetP().getValue() : generator.getTargetP();
+        Double plannedActivePowerSetPoint = generatorModificationInfos.getPlannedActivePowerSetPoint() != null ?
+            generatorModificationInfos.getPlannedActivePowerSetPoint().applyModification(oldValue) : null;
 
-        if (modificationInfos.getPlannedActivePowerSetPoint() != null) {
+        if (generatorModificationInfos.getPlannedActivePowerSetPoint() != null) {
             checkActivePowerValue(errorMessage, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, plannedActivePowerSetPoint, minP, maxP, MODIFY_GENERATOR_ERROR);
         }
-        if (modificationInfos.getMaxP() != null) {
+        if (generatorModificationInfos.getMaxP() != null) {
             checkMaximumActivePower(errorMessage, minP, targetP, plannedActivePowerSetPoint, maxP, MODIFY_GENERATOR_ERROR);
         }
-        if (modificationInfos.getMinP() != null) {
+        if (generatorModificationInfos.getMinP() != null) {
             checkMinimumActivePower(errorMessage, maxP, targetP, plannedActivePowerSetPoint, minP, MODIFY_GENERATOR_ERROR);
         }
     }
@@ -113,7 +113,7 @@ public class GeneratorModification extends AbstractModification {
     public void apply(Network network, ReportNode subReportNode) {
         Generator generator = ModificationUtils.getInstance().getGenerator(network, modificationInfos.getEquipmentId());
         // modify the generator in the network
-        modifyGenerator(generator, modificationInfos, subReportNode);
+        modifyGenerator(generator, (GeneratorModificationInfos) modificationInfos, subReportNode);
     }
 
     @Override
@@ -142,6 +142,7 @@ public class GeneratorModification extends AbstractModification {
                 () -> generator.newExtension(GeneratorShortCircuitAdder.class),
                 subReportNode);
         modifyGeneratorStartUpAttributes(modificationInfos, generator, subReportNode);
+        updateMeasurements(generator, modificationInfos, subReportNode);
         PropertiesUtils.applyProperties(generator, subReportNode, modificationInfos.getProperties(), "network.modification.GeneratorProperties");
     }
 
