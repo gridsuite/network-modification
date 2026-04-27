@@ -5,10 +5,12 @@
    Line replacingLineId created
    Voltage level v2 still contains equipments
    Voltage level v4 still contains equipments
-   + Merging of limits
-      Limit set groupNotMergedSide1 with applicability on side ONE of l1 but missing from l2 : not included in replacing line replacingLineId
-      + Merging of limits set group1
-         Limit limitNotMerged with acceptable duration 100 with applicability on side ONE from l1 but missing from l2 : not included in replacing line replacingLineId
-         Limit limitWithDifferentDuration with applicability on side ONE is present on both lines but with different acceptable duration : 20 for l1 and 21 for l2 : not included in replacing line replacingLineId
-         Property property2 with applicability on side ONE with value value2 in l1 and value differentValue in l2 : not included in replacing line replacingLineId
-      Limit set groupNotMergedSide2 with applicability on side TWO of l2 but missing from l1 : not included in replacing line replacingLineId
+   + Merging of limits in replacing line replacingLineId
+      Limit set groupNotMergedSide1 with applicability on side ONE of l1 but missing from l2 : not included
+      + Merging of limits set group1 with applicability on side ONE
+         PATL with value 10.0 in l1 and value 12.0 in l2 : 10.0 selected
+         Limit limit1 with acceptable duration 10 with value 16.0 in l1 and value 13.0 in l2 : 13.0 selected
+         Limit limitNotMerged with acceptable duration 100 with applicability on side ONE from l1 but missing from l2 : not included
+         Limit limitWithDifferentDuration is present on both lines but with different acceptable duration : 20 for l1 and 21 for l2 : not included
+         Property property2 with value value2 in l1 and value differentValue in l2 : not included
+      Limit set groupNotMergedSide2 with applicability on side TWO of l2 but missing from l1 : not included

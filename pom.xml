@@ -42,7 +42,7 @@
     </developers>
 
     <properties>
-        <powsybl-ws-dependencies.version>2.32.0-SNAPSHOT</powsybl-ws-dependencies.version>
+        <powsybl-ws-dependencies.version>2.32.0</powsybl-ws-dependencies.version>
         <gridsuite-filter.version>1.22.0-SNAPSHOT</gridsuite-filter.version>
         <swagger-annotations.version>2.2.36</swagger-annotations.version>
         <sonar.organization>gridsuite</sonar.organization>
