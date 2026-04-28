@@ -1076,7 +1076,7 @@ public final class ModificationUtils {
             case BATTERY -> network.getBattery(equipmentId);
             case SHUNT_COMPENSATOR -> network.getShuntCompensator(equipmentId);
             case STATIC_VAR_COMPENSATOR -> network.getStaticVarCompensator(equipmentId);
-            case DANGLING_LINE -> network.getDanglingLine(equipmentId);
+            case BOUNDARY_LINE -> network.getBoundaryLine(equipmentId);
             case HVDC_CONVERTER_STATION -> network.getHvdcConverterStation(equipmentId);
             case SUBSTATION -> network.getSubstation(equipmentId);
             case VOLTAGE_LEVEL -> network.getVoltageLevel(equipmentId);
@@ -2216,50 +2216,5 @@ public final class ModificationUtils {
                 }
             }
         }
-    }
-
-    public static void copyOperationalLimitsFor2NewLines(Network network, String lineId1, String lineId2,
-                                                         Collection<OperationalLimitsGroup> operationalLimitsGroups1,
-                                                         Collection<OperationalLimitsGroup> operationalLimitsGroups2,
-                                                         String selectedOperationalLimitsGroupId1,
-                                                         String selectedOperationalLimitsGroupId2) {
-        Line line1 = network.getLine(lineId1);
-        Line line2 = network.getLine(lineId2);
-        copyOperationalLimitsForOneLine(line1, operationalLimitsGroups1, operationalLimitsGroups2,
-                selectedOperationalLimitsGroupId1, selectedOperationalLimitsGroupId2);
-        copyOperationalLimitsForOneLine(line2, operationalLimitsGroups1, operationalLimitsGroups2,
-                selectedOperationalLimitsGroupId1, selectedOperationalLimitsGroupId2);
-    }
-
-    public static void copyOperationalLimitsForOneLine(Line line,
-                                                       Collection<OperationalLimitsGroup> operationalLimitsGroups1,
-                                                       Collection<OperationalLimitsGroup> operationalLimitsGroups2,
-                                                       String selectedOperationalLimitsGroupId1,
-                                                       String selectedOperationalLimitsGroupId2) {
-        if (line.getOperationalLimitsGroup1("DEFAULT").isPresent()) {
-            line.removeOperationalLimitsGroup1("DEFAULT");
-        }
-        if (line.getOperationalLimitsGroup2("DEFAULT").isPresent()) {
-            line.removeOperationalLimitsGroup2("DEFAULT");
-        }
-        copyOperationalLimits(operationalLimitsGroups1, line::newOperationalLimitsGroup1);
-        copyOperationalLimits(operationalLimitsGroups2, line::newOperationalLimitsGroup2);
-        if (selectedOperationalLimitsGroupId1 != null) {
-            line.setSelectedOperationalLimitsGroup1(selectedOperationalLimitsGroupId1);
-        }
-        if (selectedOperationalLimitsGroupId2 != null) {
-            line.setSelectedOperationalLimitsGroup2(selectedOperationalLimitsGroupId2);
-        }
-    }
-
-    public static void copyOperationalLimits(Collection<OperationalLimitsGroup> from,
-                                              Function<String, OperationalLimitsGroup> createGroup) {
-        from.forEach(groupToCopy -> {
-            OperationalLimitsGroup copy = createGroup.apply(groupToCopy.getId());
-            groupToCopy.getCurrentLimits().ifPresent(limit -> copy.newCurrentLimits(limit).add());
-            groupToCopy.getActivePowerLimits().ifPresent(limit -> copy.newActivePowerLimits(limit).add());
-            groupToCopy.getApparentPowerLimits().ifPresent(limit -> copy.newApparentPowerLimits(limit).add());
-            groupToCopy.getPropertyNames().forEach(propertyName -> copy.setProperty(propertyName, groupToCopy.getProperty(propertyName)));
-        });
     }
 }

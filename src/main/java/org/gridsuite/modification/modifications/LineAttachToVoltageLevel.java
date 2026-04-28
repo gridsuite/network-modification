@@ -22,11 +22,8 @@ import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
-import java.util.Collection;
-
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
 import static org.gridsuite.modification.modifications.LineCreation.addLimits;
-import static org.gridsuite.modification.utils.ModificationUtils.copyOperationalLimitsFor2NewLines;
 
 /**
  * @author David Braquart <david.braquart at rte-france.com>
@@ -74,12 +71,6 @@ public class LineAttachToVoltageLevel extends AbstractModification {
         if (mayNewVL != null) {
             ModificationUtils.getInstance().createVoltageLevel(mayNewVL, subReportNode, network, namingStrategy);
         }
-        // copy limits from lineToAttach
-        Line line = network.getLine(modificationInfos.getLineToAttachToId());
-        String selectedOperationalLimitsGroup1 = line.getSelectedOperationalLimitsGroupId1().orElse(null);
-        String selectedOperationalLimitsGroup2 = line.getSelectedOperationalLimitsGroupId2().orElse(null);
-        Collection<OperationalLimitsGroup> operationalLimitsGroups1 = line.getOperationalLimitsGroups1();
-        Collection<OperationalLimitsGroup> operationalLimitsGroups2 = line.getOperationalLimitsGroups2();
         LineCreationInfos attachmentLineInfos = modificationInfos.getAttachmentLine();
         LineAdder lineAdder = network.newLine()
                 .setId(attachmentLineInfos.getEquipmentId())
@@ -121,16 +112,6 @@ public class LineAttachToVoltageLevel extends AbstractModification {
             // override voltage level
             updateAttachmentVoltageLevel(network, modificationInfos.getAttachmentPointDetailInformation());
         }
-
-        // copy limits from previous line to line1 and line2 TODO remove when powsybl core fixes it
-        // must remove before fix from powsybl core
-        copyOperationalLimitsFor2NewLines(network,
-                modificationInfos.getNewLine1Id(),
-                modificationInfos.getNewLine2Id(),
-                operationalLimitsGroups1,
-                operationalLimitsGroups2,
-                selectedOperationalLimitsGroup1,
-                selectedOperationalLimitsGroup2);
     }
 
     private void updateAttachmentVoltageLevel(Network network, @NotNull VoltageLevelCreationInfos attachmentPointDetailInformation) {
