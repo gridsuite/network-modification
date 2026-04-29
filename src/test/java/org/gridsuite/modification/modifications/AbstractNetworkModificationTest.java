@@ -45,8 +45,15 @@ public abstract class AbstractNetworkModificationTest {
 
     @Test
     public void testApply() throws Exception {
-        buildModification().toModification().apply(network);
+        AbstractModification modification = buildModification().toModification();
+        modification.check(network);
+        initApplicationContext(modification);
+        modification.apply(network);
         assertAfterNetworkModificationApplication();
+    }
+
+    protected void initApplicationContext(AbstractModification modification) {
+        // Nothing to init by default
     }
 
     @Test
