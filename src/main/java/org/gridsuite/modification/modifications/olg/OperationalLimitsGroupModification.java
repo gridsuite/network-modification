@@ -507,8 +507,8 @@ public class OperationalLimitsGroupModification {
             // Only flag a name collision with a different limit.
             durationConflict = false;
             nameConflict = existingByName != null
-                    && existingByName.getAcceptableDuration() != duration
-                    && !isThisLimitDeleted(batch, existingByName.getAcceptableDuration());
+                && existingByName.getAcceptableDuration() != duration // It needs to be a different limit, duration is the identifier.
+                && !isThisLimitDeleted(batch, existingByName.getAcceptableDuration());
         }
 
         if (durationConflict || nameConflict) {
@@ -627,17 +627,15 @@ public class OperationalLimitsGroupModification {
             int limitAcceptableDuration,
             OperationalLimitsGroupInfos.Applicability applicability) {
         boolean isReplace = limitModificationInfos.getModificationType() == TemporaryLimitModificationType.REPLACE;
-        // For REPLACE: take the input as-is (name is mandatory, value stays empty if not provided).
-        // For others: keep existing values for fields that are not explicitly modified.
-        String finalName = (isReplace || hasModification(limitModificationInfos.getName()))
-                ? limitModificationInfos.getName().getValue()
-                : limitToModify.getName();
 
-        double finalValue = isReplace
+        // The name and acceptable duration are mandatory at this point.
+        // For REPLACE: take the provided value, a missing value has already been converted to Double.MAX_VALUE.
+        // For others: keep the existing value when it is not explicitly modified.
+        String finalName = limitModificationInfos.getName().getValue();
+
+        double finalValue = (isReplace || hasModification(limitModificationInfos.getValue()))
                 ? limitValue
-                : (hasModification(limitModificationInfos.getValue())
-                        ? limitValue
-                        : limitToModify.getValue());
+                : limitToModify.getValue();
 
         // Check if there are any actual changes
         boolean nameChanged = !limitToModify.getName().equals(finalName);
