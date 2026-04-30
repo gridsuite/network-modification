@@ -606,6 +606,7 @@ public class OperationalLimitsGroupModification {
         return temporaryLimitsModification.stream()
                 .anyMatch(temporaryLimit -> temporaryLimit.getModificationType() == TemporaryLimitModificationType.DELETE
                         && hasValue(temporaryLimit.getAcceptableDuration())
+                        && hasValue(temporaryLimit.getName())
                         && temporaryLimit.getAcceptableDuration().getValue() == acceptableDuration);
     }
 
