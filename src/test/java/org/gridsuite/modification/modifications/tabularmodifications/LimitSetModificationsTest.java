@@ -1331,6 +1331,63 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         assertNotEquals(15.0, limits.getTemporaryLimit(32).getValue());
     }
 
+    /**
+     * Test that the duplicate check sees in-batch additions: when two ADD rows in the same batch
+     * target the same fresh duration (not present in the network), the second one must be rejected
+     * with a temporaryLimitsDuplicate WARN, because the working set already contains the first.
+     */
+    @Test
+    void testAddTemporaryLimitDuplicateWithEarlierInBatchAddIsSkipped() {
+        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+                .modificationType(ModificationType.LINE_MODIFICATION)
+                .modifications(List.of(
+                        LineModificationInfos.builder().equipmentId("line1")
+                                .operationalLimitsGroups(List.of(
+                                        OperationalLimitsGroupModificationInfos.builder()
+                                                .id("DEFAULT")
+                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .modificationType(OperationalLimitsGroupModificationType.MODIFY)
+                                                .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY_OR_ADD)
+                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                        .temporaryLimits(List.of(
+                                                                // first ADD: fresh duration 50, accepted and recorded in the working set
+                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                        .modificationType(TemporaryLimitModificationType.ADD)
+                                                                        .name(toAttributeModification("first_new", OperationType.SET))
+                                                                        .acceptableDuration(toAttributeModification(50, OperationType.SET))
+                                                                        .value(toAttributeModification(11., OperationType.SET))
+                                                                        .build(),
+                                                                // second ADD: same duration 50, must be rejected as duplicate
+                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                        .modificationType(TemporaryLimitModificationType.ADD)
+                                                                        .name(toAttributeModification("second_new", OperationType.SET))
+                                                                        .acceptableDuration(toAttributeModification(50, OperationType.SET))
+                                                                        .value(toAttributeModification(22., OperationType.SET))
+                                                                        .build()
+                                                        )).build())
+                                                .build()
+                                )).build()
+                ))
+                .build();
+
+        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+        modificationInfos.toModification().apply(getNetwork(), reportNode);
+
+        CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
+                        .getOperationalLimitsGroup1("DEFAULT").orElse(null))
+                .getCurrentLimits().orElse(null);
+        assertNotNull(limits);
+        // 2 pre-existing limits + 1 added (the second ADD was rejected)
+        assertEquals(3, limits.getTemporaryLimits().size());
+        // only the first ADD survived at duration 50
+        assertEquals("first_new", limits.getTemporaryLimit(50).getName());
+        assertEquals(11., limits.getTemporaryLimit(50).getValue(), 0.01);
+        assertLogMessageWithoutRank("Duplicate name or duration for temporary limit second_new (duration: 50) to ADD: ignored",
+                "network.modification.temporaryLimitsDuplicate", reportNode);
+    }
+
     @Override
     protected void assertAfterNetworkModificationApplication() {
         Line line1 = getNetwork().getLine("line1");

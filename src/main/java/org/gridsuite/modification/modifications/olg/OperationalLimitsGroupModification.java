@@ -17,8 +17,11 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.*;
@@ -402,6 +405,16 @@ public class OperationalLimitsGroupModification {
             unmodifiedTemporaryLimits.addAll(currentLimits.getTemporaryLimits());
         }
 
+        // Working set tracking the projected limits after the rows accepted so far (duration -> name).
+        // Seeded from the network snapshot so that subsequent rows in the same batch see the effects
+        // of earlier accepted rows (additions, renames, deletions).
+        Map<Integer, String> workingTemporaryLimits = new HashMap<>();
+        if (currentLimits != null) {
+            for (LoadingLimits.TemporaryLimit tl : currentLimits.getTemporaryLimits()) {
+                workingTemporaryLimits.put(tl.getAcceptableDuration(), tl.getName());
+            }
+        }
+
         if (currentLimitsInfos != null && currentLimitsInfos.getTemporaryLimits() != null) {
             for (CurrentTemporaryLimitModificationInfos limit : currentLimitsInfos.getTemporaryLimits()) {
                 applyTemporaryLimitModification(
@@ -409,6 +422,7 @@ public class OperationalLimitsGroupModification {
                         currentLimits,
                         limit,
                         unmodifiedTemporaryLimits,
+                        workingTemporaryLimits,
                         applicability
                 );
             }
@@ -471,12 +485,9 @@ public class OperationalLimitsGroupModification {
      * @return true if a duplicate has been detected (line must be skipped); false otherwise.
      */
     private boolean wouldCreateDuplicate(
-            CurrentLimits networkCurrentLimits,
+            Map<Integer, String> workingTemporaryLimits,
             CurrentTemporaryLimitModificationInfos limit,
             OperationalLimitsGroupInfos.Applicability applicability) {
-        if (networkCurrentLimits == null) {
-            return false;
-        }
         TemporaryLimitModificationType type = limit.getModificationType();
         if (type != TemporaryLimitModificationType.ADD
                 && type != TemporaryLimitModificationType.MODIFY
@@ -488,27 +499,26 @@ public class OperationalLimitsGroupModification {
         String name = limit.getName().getValue();
         List<CurrentTemporaryLimitModificationInfos> batch = olgModifInfos.getCurrentLimits().getTemporaryLimits();
 
-        LoadingLimits.TemporaryLimit existingByDuration = networkCurrentLimits.getTemporaryLimit(duration);
-        LoadingLimits.TemporaryLimit existingByName = networkCurrentLimits.getTemporaryLimits().stream()
-                .filter(tl -> tl.getName().equals(name))
-                .findFirst()
-                .orElse(null);
+        boolean existingByDuration = workingTemporaryLimits.containsKey(duration);
+        Optional<Map.Entry<Integer, String>> existingByName = workingTemporaryLimits.entrySet().stream()
+                .filter(e -> name.equals(e.getValue()))
+                .findFirst();
 
         boolean durationConflict;
         boolean nameConflict;
 
         if (type == TemporaryLimitModificationType.ADD) {
-            durationConflict = existingByDuration != null
+            durationConflict = existingByDuration
                     && !isThisLimitDeleted(batch, duration);
-            nameConflict = existingByName != null
-                    && !isThisLimitDeleted(batch, existingByName.getAcceptableDuration());
+            nameConflict = existingByName.isPresent()
+                    && !isThisLimitDeleted(batch, existingByName.get().getKey());
         } else {
             // MODIFY / MODIFY_OR_ADD: a limit with the same duration is the one being modified, not a duplicate.
             // Only flag a name collision with a different limit.
             durationConflict = false;
-            nameConflict = existingByName != null
-                && existingByName.getAcceptableDuration() != duration // It needs to be a different limit, duration is the identifier.
-                && !isThisLimitDeleted(batch, existingByName.getAcceptableDuration());
+            nameConflict = existingByName.isPresent()
+                && existingByName.get().getKey() != duration // It needs to be a different limit, duration is the identifier.
+                && !isThisLimitDeleted(batch, existingByName.get().getKey());
         }
 
         if (durationConflict || nameConflict) {
@@ -534,16 +544,17 @@ public class OperationalLimitsGroupModification {
      * @param unmodifiedTemporaryLimits list of all the unmodified limits that will be added at the end of the network modification
      */
     private void applyTemporaryLimitModification(
-            CurrentLimitsAdder limitsAdder,
-            CurrentLimits networkCurrentLimits,
-            CurrentTemporaryLimitModificationInfos limit,
-            List<LoadingLimits.TemporaryLimit> unmodifiedTemporaryLimits,
-            OperationalLimitsGroupInfos.Applicability applicability) {
+        CurrentLimitsAdder limitsAdder,
+        CurrentLimits networkCurrentLimits,
+        CurrentTemporaryLimitModificationInfos limit,
+        List<LoadingLimits.TemporaryLimit> unmodifiedTemporaryLimits,
+        Map<Integer, String> workingTemporaryLimits,
+        OperationalLimitsGroupInfos.Applicability applicability) {
         CurrentLimitsModificationInfos currentLimitsInfos = olgModifInfos.getCurrentLimits();
         if (!preModificationCheck(limit, applicability)) {
             return;
         }
-        if (wouldCreateDuplicate(networkCurrentLimits, limit, applicability)) {
+        if (wouldCreateDuplicate(workingTemporaryLimits, limit, applicability)) {
             return;
         }
         int limitAcceptableDuration = limit.getAcceptableDuration().getValue();
@@ -558,6 +569,7 @@ public class OperationalLimitsGroupModification {
         }
         if (limitToModify == null && mayCreateLimit(limit.getModificationType())) {
             createTemporaryLimit(limitsAdder, limit, limitDurationToReport, limitValueToReport, limitValue, limitAcceptableDuration, applicability);
+            workingTemporaryLimits.put(limitAcceptableDuration, limit.getName().getValue());
         } else if (limitToModify != null) {
             // the limit already exists
             if (limit.getModificationType() == TemporaryLimitModificationType.DELETE) {
@@ -570,8 +582,10 @@ public class OperationalLimitsGroupModification {
                         .withSeverity(TypedValue.DETAIL_SEVERITY)
                         .build(),
                         applicability);
+                workingTemporaryLimits.remove(limitAcceptableDuration);
             } else {
                 modifyTemporaryLimit(limitsAdder, limit, limitToModify, limitValue, limitDurationToReport, limitAcceptableDuration, applicability);
+                workingTemporaryLimits.put(limitAcceptableDuration, limit.getName().getValue());
             }
         } else if (limit.getModificationType() == TemporaryLimitModificationType.MODIFY) {
             // invalid modification
