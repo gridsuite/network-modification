@@ -9,22 +9,17 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.ConnectVoltageLevelOnLine;
 import com.powsybl.iidm.modification.topology.ConnectVoltageLevelOnLineBuilder;
-import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.OperationalLimitsGroup;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LineSplitWithVoltageLevelInfos;
 import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.lang.NonNull;
 
-import java.util.Collection;
-
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
-import static org.gridsuite.modification.utils.ModificationUtils.copyOperationalLimitsFor2NewLines;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -64,12 +59,6 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
         if (mayNewVL != null) {
             ModificationUtils.getInstance().createVoltageLevel(mayNewVL, subReportNode, network, namingStrategy);
         }
-        // copy limits from lineToAttach TODO remove when powsybl core fixes it
-        Line line = network.getLine(modificationInfos.getLineToSplitId());
-        String selectedOperationalLimitsGroup1 = line.getSelectedOperationalLimitsGroupId1().orElse(null);
-        String selectedOperationalLimitsGroup2 = line.getSelectedOperationalLimitsGroupId2().orElse(null);
-        Collection<OperationalLimitsGroup> operationalLimitsGroups1 = line.getOperationalLimitsGroups1();
-        Collection<OperationalLimitsGroup> operationalLimitsGroups2 = line.getOperationalLimitsGroups2();
         ConnectVoltageLevelOnLine algo = new ConnectVoltageLevelOnLineBuilder()
                 .withPositionPercent(modificationInfos.getPercent())
                 .withBusbarSectionOrBusId(modificationInfos.getBbsOrBusId())
@@ -81,15 +70,6 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
                 .build();
 
         algo.apply(network, true, subReportNode);
-
-        // copy limits from previous line to line1 and line2 TODO remove when powsybl core fixes it
-        copyOperationalLimitsFor2NewLines(network,
-                modificationInfos.getNewLine1Id(),
-                modificationInfos.getNewLine2Id(),
-                operationalLimitsGroups1,
-                operationalLimitsGroups2,
-                selectedOperationalLimitsGroup1,
-                selectedOperationalLimitsGroup2);
     }
 
     @Override
