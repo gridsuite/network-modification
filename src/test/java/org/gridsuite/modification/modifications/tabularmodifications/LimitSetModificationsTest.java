@@ -506,6 +506,58 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
     }
 
     /**
+     * Verify that a temporary limit modification with a null {@code modificationType} is skipped
+     * and emits a {@code temporaryLimitsMissingModificationType} log when the OLG modification
+     * type requires per-row processing (MODIFY / MODIFY_OR_ADD).
+     */
+    @ParameterizedTest(name = "[{index}] null modification type with OLG {0} should log temporaryLimitsMissingModificationType and skip the change")
+    @MethodSource("nullModificationTypeOlgCases")
+    void testTemporaryLimitNullModificationTypeIsSkipped(OperationalLimitsGroupModificationType olgType) {
+        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+                .modificationType(ModificationType.LINE_MODIFICATION)
+                .modifications(List.of(
+                        LineModificationInfos.builder().equipmentId("line1")
+                                .operationalLimitsGroups(List.of(
+                                        OperationalLimitsGroupModificationInfos.builder()
+                                                .id("DEFAULT")
+                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .modificationType(olgType)
+                                                .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY)
+                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                        .temporaryLimits(List.of(
+                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                        .modificationType(null)
+                                                                        .name(toAttributeModification("name32", OperationType.SET))
+                                                                        .acceptableDuration(toAttributeModification(32, OperationType.SET))
+                                                                        .value(toAttributeModification(10., OperationType.SET))
+                                                                        .build()
+                                                        )).build())
+                                                .build()
+                                )).build()
+                )).build();
+
+        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+        modificationInfos.toModification().apply(getNetwork(), reportNode);
+
+        CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
+                        .getOperationalLimitsGroup1("DEFAULT").orElse(null))
+                .getCurrentLimits().orElse(null);
+        assertNotNull(limits);
+        assertEquals(2, limits.getTemporaryLimits().size());
+        assertLogMessageWithoutRank(
+                "Missing modification type for temporary limit: ignored",
+                "network.modification.temporaryLimitsMissingModificationType", reportNode);
+    }
+
+    static Stream<Arguments> nullModificationTypeOlgCases() {
+        return Stream.of(
+                Arguments.of(OperationalLimitsGroupModificationType.MODIFY),
+                Arguments.of(OperationalLimitsGroupModificationType.MODIFY_OR_ADD));
+    }
+
+    /**
      * Test that when the OLG modification type is ADD and the temporary limit modification
      * type is not ADD (e.g. MODIFY), a temporaryLimitsWrongModification log is emitted and
      * the temporary limit modification type is forced to ADD so the limit is created.
