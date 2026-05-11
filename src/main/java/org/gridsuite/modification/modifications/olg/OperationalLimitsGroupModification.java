@@ -483,7 +483,7 @@ public class OperationalLimitsGroupModification {
             addToLogsOnSide(ReportNode.newRootReportNode()
                     .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                     .withMessageTemplate("network.modification.temporaryLimitsMissingInfo")
-                    .withUntypedValue("modificationType", limit.getModificationType() != null ? limit.getModificationType().name() : null)
+                    .withUntypedValue("modificationType", limit.getModificationType() != null ? limit.getModificationType().name() : "null")
                     .withSeverity(TypedValue.WARN_SEVERITY)
                     .build(),
                 applicability);
