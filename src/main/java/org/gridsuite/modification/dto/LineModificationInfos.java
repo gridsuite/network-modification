@@ -50,6 +50,9 @@ public class LineModificationInfos extends BranchModificationInfos {
     @Schema(description = "segments used from catalog to generate limits")
     private List<LineSegmentInfos> lineSegments;
 
+    @Schema(description = "apply limits from catalog segments")
+    private boolean applySegmentsLimits;
+
     @Override
     public AbstractModification toModification() {
         return new LineModification(this);
