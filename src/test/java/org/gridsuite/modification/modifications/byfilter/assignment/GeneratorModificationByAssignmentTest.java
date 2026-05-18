@@ -305,7 +305,7 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
         DoubleAssignmentInfos assignmentInfos20 = DoubleAssignmentInfos.builder()
             .editedField(GeneratorField.Q_PERCENT.name())
             .value(120.)
-            .filters(List.of(new FilterInfos(UUID.randomUUID(), "filterNotFound")))
+            .filters(List.of(new FilterInfos(UUID.randomUUID(), "filterNotFound", null)))
             .build();
 
         List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
