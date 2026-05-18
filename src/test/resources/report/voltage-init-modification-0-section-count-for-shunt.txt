@@ -1,0 +1,5 @@
++ Voltage init modification
+   + Shunt compensators
+      Shunt compensator with id=v2shunt modified :
+      Section count : 1 → 0
+   1 shunt compensator(s) have been modified.

@@ -9,15 +9,25 @@ package org.gridsuite.modification.utils;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import org.apache.commons.text.StringSubstitutor;
+import org.gridsuite.modification.dto.ModificationInfos;
+import org.junit.jupiter.api.Assertions;
 import org.junit.platform.commons.util.StringUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -58,6 +68,12 @@ public final class TestUtils {
         assertEquals(expectedMessage, message.get().trim());
     }
 
+    public static void assertLogMessageAtDepth(String expectedMessage, String reportKey, ReportNode reportNode, int depth) {
+        Optional<String> message = getMessageFromReporterAtDepth(reportKey, reportNode, 1, depth);
+        assertTrue(message.isPresent());
+        assertEquals(expectedMessage, message.get().trim());
+    }
+
     public static void assertLogMessage(String expectedMessage, String reportKey, ReportNode reportNode) {
         assertLogNthMessage(expectedMessage, reportKey, reportNode, 1);
     }
@@ -85,6 +101,28 @@ public final class TestUtils {
         return foundInSubReporters;
     }
 
+    private static Optional<String> getMessageFromReporterAtDepth(String reportKey, ReportNode reporterModel, int currentDepth, int expectedDepth) {
+        Optional<String> message = Optional.empty();
+
+        Iterator<ReportNode> reportersIterator = reporterModel.getChildren().iterator();
+        while (message.isEmpty() && reportersIterator.hasNext() && currentDepth < expectedDepth) {
+            message = getMessageFromReporterAtDepth(reportKey, reportersIterator.next(), currentDepth + 1, expectedDepth);
+        }
+
+        Iterator<ReportNode> reportsIterator = reporterModel.getChildren().iterator();
+        while (message.isEmpty() && reportsIterator.hasNext()) {
+            ReportNode report = reportsIterator.next();
+            if (currentDepth == expectedDepth && report.getMessageKey().equals(reportKey)) {
+                message = Optional.of(formatReportMessage(report, reporterModel));
+            }
+        }
+
+        return message;
+    }
+
+    /**
+     * @param rank order position inside reporterModel
+     */
     private static Optional<String> getMessageFromReporter(String reportKey, ReportNode reporterModel, int rank) {
         Optional<String> message = Optional.empty();
 
@@ -112,4 +150,47 @@ public final class TestUtils {
         return new StringSubstitutor(reporterModel.getValues()).replace(new StringSubstitutor(report.getValues()).replace(report.getMessageTemplate()));
     }
 
+    public static void checkLimitsGroupOnLine(Line line, String side1SelectedGroupId, String side2SelectedGroupId,
+                                        List<String> side1GroupIds, List<String> side2GroupIds) {
+        assertFalse(line.getOperationalLimitsGroups1().isEmpty());
+        assertFalse(line.getOperationalLimitsGroups2().isEmpty());
+        assertEquals(side1GroupIds.size(), line.getOperationalLimitsGroups1().size());
+        assertEquals(side2GroupIds.size(), line.getOperationalLimitsGroups2().size());
+        assertTrue(line.getSelectedOperationalLimitsGroupId1().isPresent());
+        assertEquals(side1SelectedGroupId, line.getSelectedOperationalLimitsGroupId1().get());
+        assertTrue(line.getOperationalLimitsGroups1().stream().map(OperationalLimitsGroup::getId).toList().containsAll(side1GroupIds));
+        assertTrue(line.getSelectedOperationalLimitsGroupId2().isPresent());
+        assertEquals(side2SelectedGroupId, line.getSelectedOperationalLimitsGroupId2().get());
+        assertTrue(line.getOperationalLimitsGroups2().stream().map(OperationalLimitsGroup::getId).toList().containsAll(side2GroupIds));
+    }
+
+    public static void checkApplicationWithNamingStrategy(ModificationInfos modificationInfos, Network network, String busbarId) {
+        ReportNode report = ReportNode.newRootReportNode()
+                .withMessageTemplate("test")
+                .build();
+        modificationInfos.toModification().apply(network, new DummyNamingStrategy(), report);
+        Assertions.assertNotNull(network.getBusbarSection(busbarId));
+    }
+
+    public static void testReportNode(ReportNode reportNode, String reportsFile) throws IOException {
+        Optional<ReportNode> report = reportNode.getChildren().stream().findFirst();
+        assertTrue(report.isPresent());
+
+        StringWriter sw = new StringWriter();
+        reportNode.print(sw);
+
+        String expected;
+        try (InputStream refStream = TestUtils.class.getResourceAsStream(reportsFile)) {
+            assertNotNull(refStream);
+            expected = new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8);
+        }
+        String expectedStr = normalizeLineSeparator(expected);
+        String actualStr = normalizeLineSeparator(sw.toString());
+        assertEquals(expectedStr, actualStr);
+    }
+
+    private static String normalizeLineSeparator(String str) {
+        return Objects.requireNonNull(str).replace("\r\n", "\n")
+                .replace("\r", "\n");
+    }
 }

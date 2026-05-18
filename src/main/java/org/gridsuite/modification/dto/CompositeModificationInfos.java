@@ -8,6 +8,7 @@ package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,9 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.CompositeModification;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
@@ -33,12 +36,37 @@ import java.util.List;
 @ModificationErrorTypeName("COMPOSITE_MODIFICATION_ERROR")
 public class CompositeModificationInfos extends ModificationInfos {
 
+    @Schema(description = "composite modification name")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String name;
+
     @Schema(description = "composite modification list")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<ModificationInfos> modifications;
+    private List<ModificationInfos> modificationsInfos;
+
+    // While composite submodifications are lazy loaded we need an indicator to know if we allow depth sensitive operation
+    // added only to the DTO so it can be computed while retrieving composite metadata at runtime
+    @Schema(description = "composite modification max depth")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer maxDepth;
 
     @Override
     public AbstractModification toModification() {
         return new CompositeModification(this);
+    }
+
+    @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.composite.apply")
+                .withUntypedValue("modificationName", getName())
+                .add();
+    }
+
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        Map<String, String> mapMessageValues = new HashMap<>();
+        mapMessageValues.put("name", getName());
+        return mapMessageValues;
     }
 }

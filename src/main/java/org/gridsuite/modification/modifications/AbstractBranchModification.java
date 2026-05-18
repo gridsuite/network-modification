@@ -211,8 +211,8 @@ public abstract class AbstractBranchModification extends AbstractModification {
         return estimSubReportNode;
     }
 
-    private void upsertMeasurement(Measurements<?> measurements, Measurement.Type type, ThreeSides side, Double value, Boolean validity, List<ReportNode> reports) {
-        if (value == null && validity == null) {
+    private void upsertMeasurement(Measurements<?> measurements, Measurement.Type type, ThreeSides side, Double value, Boolean requestedValidity, List<ReportNode> reports) {
+        if (value == null && requestedValidity == null) {
             return;
         }
         String measurementType = (type == Measurement.Type.ACTIVE_POWER ? "Active power" : "Reactive power") + " measurement ";
@@ -223,10 +223,11 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 m.setValue(value);
                 reports.add(ModificationUtils.buildModificationReport(oldValue, value, measurementType + VALUE, TypedValue.INFO_SEVERITY));
             }
-            if (validity != null) {
+            if (requestedValidity != null) {
                 boolean oldValidity = m.isValid();
-                m.setValid(validity);
-                reports.add(ModificationUtils.buildModificationReport(oldValidity, validity, measurementType + VALIDITY, TypedValue.INFO_SEVERITY));
+
+                ModificationUtils.updateMeasurementValidity(m, requestedValidity);
+                reports.add(ModificationUtils.buildModificationReport(oldValidity, requestedValidity, measurementType + VALIDITY, TypedValue.INFO_SEVERITY));
             }
         } else { // add new measurement
             var mAdder = measurements.newMeasurement().setId(UUID.randomUUID().toString()).setType(type).setSide(side);
@@ -234,9 +235,9 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 mAdder.setValue(value);
                 reports.add(ModificationUtils.buildModificationReport(null, value, measurementType + VALUE, TypedValue.INFO_SEVERITY));
             }
-            if (validity != null) {
-                mAdder.setValid(validity);
-                reports.add(ModificationUtils.buildModificationReport(null, validity, measurementType + VALIDITY, TypedValue.INFO_SEVERITY));
+            if (requestedValidity != null) {
+                mAdder.setValid(requestedValidity);
+                reports.add(ModificationUtils.buildModificationReport(null, requestedValidity, measurementType + VALIDITY, TypedValue.INFO_SEVERITY));
             }
             mAdder.add();
         }

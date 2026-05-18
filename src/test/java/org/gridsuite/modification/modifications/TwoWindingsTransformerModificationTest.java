@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimated;
 import com.powsybl.iidm.network.util.BusbarSectionFinderTraverser;
+import com.powsybl.iidm.network.extensions.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
@@ -1061,5 +1062,59 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertTrue(phaseTapChanger.isRegulating());
     }
 
+    @Test
+    void testMeasurementValidityPropertyForTransformer() {
+        TwoWindingsTransformer transformer = getNetwork().getTwoWindingsTransformer("trf1");
+        Measurements<?> measurements = (Measurements<?>) transformer.getExtension(Measurements.class);
+        if (measurements == null) {
+            measurements = (Measurements<?>) transformer.newExtension(MeasurementsAdder.class).add();
+        }
+        Measurement activePowerMeasurement = measurements.newMeasurement()
+                .setId(UUID.randomUUID().toString())
+                .setType(Measurement.Type.ACTIVE_POWER)
+                .setSide(ThreeSides.ONE)
+                .setValue(11.0)
+                .setValid(true)
+                .add();
+
+        activePowerMeasurement.putProperty("validity", "1");
+        TwoWindingsTransformerModificationInfos modificationInfosTrueFromOne = TwoWindingsTransformerModificationInfos.builder()
+                .equipmentId("trf1")
+                .p1MeasurementValidity(new AttributeModification<>(true, OperationType.SET))
+                .build();
+        modificationInfosTrueFromOne.toModification().apply(getNetwork());
+        assertEquals("0", activePowerMeasurement.getProperty("validity"));
+
+        activePowerMeasurement.putProperty("validity", "3");
+        TwoWindingsTransformerModificationInfos modificationInfosTrueFromThree = TwoWindingsTransformerModificationInfos.builder()
+                .equipmentId("trf1")
+                .p1MeasurementValidity(new AttributeModification<>(true, OperationType.SET))
+                .build();
+        modificationInfosTrueFromThree.toModification().apply(getNetwork());
+        assertEquals("2", activePowerMeasurement.getProperty("validity"));
+
+        Measurement reactivePowerMeasurement = measurements.newMeasurement()
+                .setId(UUID.randomUUID().toString())
+                .setType(Measurement.Type.REACTIVE_POWER)
+                .setSide(ThreeSides.ONE)
+                .setValue(-11.0)
+                .setValid(false)
+                .add();
+        reactivePowerMeasurement.putProperty("validity", "2");
+        TwoWindingsTransformerModificationInfos modificationInfosFalseFromTwo = TwoWindingsTransformerModificationInfos.builder()
+                .equipmentId("trf1")
+                .q1MeasurementValidity(new AttributeModification<>(false, OperationType.SET))
+                .build();
+        modificationInfosFalseFromTwo.toModification().apply(getNetwork());
+        assertEquals("3", reactivePowerMeasurement.getProperty("validity"));
+
+        reactivePowerMeasurement.putProperty("validity", "0");
+        TwoWindingsTransformerModificationInfos modificationInfosFalseFromZero = TwoWindingsTransformerModificationInfos.builder()
+                .equipmentId("trf1")
+                .q1MeasurementValidity(new AttributeModification<>(false, OperationType.SET))
+                .build();
+        modificationInfosFalseFromZero.toModification().apply(getNetwork());
+        assertEquals("1", reactivePowerMeasurement.getProperty("validity"));
+    }
 }
 

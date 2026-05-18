@@ -15,10 +15,12 @@ import org.gridsuite.modification.dto.CreateVoltageLevelTopologyInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.gridsuite.modification.utils.TestUtils.checkApplicationWithNamingStrategy;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -80,4 +82,8 @@ class CreateVoltageLevelTopologyTest extends AbstractNetworkModificationTest {
         assertEquals("v1", updatedValues.get("voltageLevelId"));
     }
 
+    @Test
+    void testApplyWithNamingStrategy() {
+        checkApplicationWithNamingStrategy(buildModification(), getNetwork(), "BUSBAR_1_1");
+    }
 }

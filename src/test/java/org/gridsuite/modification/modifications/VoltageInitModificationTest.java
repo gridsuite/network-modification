@@ -22,6 +22,7 @@ import java.util.UUID;
 import static org.gridsuite.modification.utils.NetworkUtil.createGenerator;
 import static org.gridsuite.modification.utils.NetworkUtil.createSwitch;
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
+import static org.gridsuite.modification.utils.TestUtils.testReportNode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -247,8 +248,8 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
 
     @Test
     void testVoltageInitConnectedCurrentSection0Section0() throws Exception {
-        ReportNode report = testVoltageInitShunt("v2shunt", 0, 0, false);
-        assertLogMessage("Shunt compensator disconnected", "network.modification.shuntCompensatorDisconnected", report);
+        ReportNode report = testVoltageInitShunt("v2shunt", 1, 0, false);
+        testReportNode(report, "/report/voltage-init-modification-0-section-count-for-shunt.txt");
     }
 
     @Test

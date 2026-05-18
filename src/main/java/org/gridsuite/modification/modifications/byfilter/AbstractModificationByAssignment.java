@@ -9,6 +9,7 @@ package org.gridsuite.modification.modifications.byfilter;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
 
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils.getFieldValue;
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils.setFieldValue;
+import static org.gridsuite.modification.dto.byfilter.equipmentfield.GeneratorField.*;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
 /**
@@ -42,6 +44,11 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
 public abstract class AbstractModificationByAssignment extends AbstractModification {
     public static final String VALUE_KEY_FILTER_NAME = "filterName";
     public static final String VALUE_KEY_FIELD_NAME = "fieldName";
+    public static final String VALUE_KEY_NAME = "name";
+    public static final String VALUE_KEY_FIELD_VALUE = "fieldValue";
+    public static final String VALUE_KEY_MIN_VALUE = "minValue";
+    public static final String VALUE_KEY_MAX_VALUE = "maxValue";
+    public static final String VALUE_KEY_TARGET_VALUE = "targetValue";
     public static final String VALUE_KEY_EQUIPMENT_NAME = "equipmentName";
     public static final String VALUE_KEY_EQUIPMENT_TYPE = "equipmentType";
     public static final String VALUE_KEY_EQUIPMENT_COUNT = "equipmentCount";
@@ -102,6 +109,25 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                                              List<ReportNode> reports, List<String> notEditableEquipments);
 
     protected abstract String getNewValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos);
+
+    protected boolean checkGeneratorsPowerValues(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos, List<ReportNode> reports) {
+        if (equipment.getType() == IdentifiableType.GENERATOR) {
+            Generator generator = (Generator) equipment;
+            if (abstractAssignmentInfos.getEditedField().equals(PLANNED_ACTIVE_POWER_SET_POINT.name())) {
+                return validateActivePowerValue(generator, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, reports, Double.parseDouble(getNewValue(equipment, abstractAssignmentInfos)));
+            } else if (abstractAssignmentInfos.getEditedField().equals(MINIMUM_ACTIVE_POWER.name())) {
+                return validateMinimumActivePower(generator, reports, Double.parseDouble(getNewValue(equipment, abstractAssignmentInfos)));
+            } else if (abstractAssignmentInfos.getEditedField().equals(MAXIMUM_ACTIVE_POWER.name())) {
+                return validateMaximumActivePower(generator, reports, Double.parseDouble(getNewValue(equipment, abstractAssignmentInfos)));
+            } else if (abstractAssignmentInfos.getEditedField().equals(ACTIVE_POWER_SET_POINT.name())) {
+                double newValue = Double.parseDouble(getNewValue(equipment, abstractAssignmentInfos));
+                if (newValue != 0) { // 0 is an exception to the rule
+                    return validateActivePowerValue(generator, FIELD_ACTIVE_POWER_TARGET, reports, newValue);
+                }
+            }
+        }
+        return true;
+    }
 
     protected String getOldValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos) {
         return getFieldValue(equipment, abstractAssignmentInfos.getEditedField());
@@ -297,6 +323,16 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                                          AbstractAssignmentInfos abstractAssignmentInfos,
                                          FilterInfos filterInfos) {
         FilterEquipments filterEquipments = filterUuidEquipmentsMap.get(filterInfos.getId());
+
+        if (filterEquipments == null) {
+            reports.add(ReportNode.newRootReportNode()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                    .withMessageTemplate("network.modification.filterNotFound")
+                    .withUntypedValue(VALUE_KEY_NAME, filterInfos.getName())
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build());
+            return;
+        }
 
         if (CollectionUtils.isEmpty(filterEquipments.getIdentifiableAttributes())) {
             reports.add(ReportNode.newRootReportNode()

@@ -7,12 +7,17 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.utils.DummyNamingStrategy;
 import org.gridsuite.modification.utils.NetworkCreation;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -42,26 +47,7 @@ class LineSplitWithNewVoltageLevelTest extends AbstractNetworkModificationTest {
 
     @Override
     protected ModificationInfos buildModification() {
-        VoltageLevelCreationInfos vl1 = VoltageLevelCreationInfos.builder()
-                .stashed(false)
-                .equipmentId("newVoltageLevel")
-                .equipmentName("NewVoltageLevel")
-                .nominalV(379.3)
-                .substationId("s1")
-                .lowVoltageLimit(0.0)
-                .highVoltageLimit(10.0)
-                .ipMin(0.0)
-                .ipMax(10.0)
-                .busbarCount(2)
-                .sectionCount(2)
-                .switchKinds(Arrays.asList(SwitchKind.BREAKER))
-                .couplingDevices(Arrays.asList(CouplingDeviceInfos.builder().busbarSectionId1("1A").busbarSectionId2("1B").build()))
-                .properties(List.of(FreePropertyInfos.builder()
-                        .added(true)
-                        .name("voltageLevelProp")
-                        .value("valueVoltageLevel")
-                        .build()))
-                .build();
+        VoltageLevelCreationInfos vl1 = createVoltageLevel();
 
         return LineSplitWithVoltageLevelInfos.builder()
             .stashed(false)
@@ -93,5 +79,51 @@ class LineSplitWithNewVoltageLevelTest extends AbstractNetworkModificationTest {
         assertEquals("LINE_SPLIT_WITH_VOLTAGE_LEVEL", modificationInfos.getMessageType());
         Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
         assertEquals("line2", createdValues.get("lineToSplitId"));
+    }
+
+    private VoltageLevelCreationInfos createVoltageLevel() {
+        return VoltageLevelCreationInfos.builder()
+                .stashed(false)
+                .equipmentId("newVoltageLevel")
+                .equipmentName("NewVoltageLevel")
+                .nominalV(379.3)
+                .substationId("s1")
+                .lowVoltageLimit(0.0)
+                .highVoltageLimit(10.0)
+                .ipMin(0.0)
+                .ipMax(10.0)
+                .busbarCount(2)
+                .sectionCount(2)
+                .switchKinds(Arrays.asList(SwitchKind.BREAKER))
+                .couplingDevices(Arrays.asList(CouplingDeviceInfos.builder().busbarSectionId1("1A").busbarSectionId2("1B").build()))
+                .properties(List.of(FreePropertyInfos.builder()
+                        .added(true)
+                        .name("voltageLevelProp")
+                        .value("valueVoltageLevel")
+                        .build()))
+                .build();
+    }
+
+    @Test
+    void testApplyWithNamingStrategy() {
+        ReportNode report = ReportNode.newRootReportNode()
+                .withMessageTemplate("test")
+                .build();
+        VoltageLevelCreationInfos vl1 = createVoltageLevel();
+
+        LineSplitWithVoltageLevelInfos modificationInfos = LineSplitWithVoltageLevelInfos.builder()
+                .stashed(false)
+                .lineToSplitId("line2")
+                .percent(10.0)
+                .mayNewVoltageLevelInfos(vl1)
+                .existingVoltageLevelId(null)
+                .bbsOrBusId("BUSBAR_1_1")
+                .newLine1Id("nl1v")
+                .newLine1Name("NewLine1")
+                .newLine2Id("nl2v")
+                .newLine2Name("NewLine2")
+                .build();
+        modificationInfos.toModification().apply(getNetwork(), new DummyNamingStrategy(), report);
+        Assertions.assertNotNull(getNetwork().getBusbarSection("BUSBAR_1_2"));
     }
 }

@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import static org.gridsuite.modification.utils.TestUtils.checkApplicationWithNamingStrategy;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -206,5 +207,10 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
         assertEquals("VOLTAGE_LEVEL_CREATION", modificationInfos.getMessageType());
         Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
         assertEquals("vlId", createdValues.get("equipmentId"));
+    }
+
+    @Test
+    void testApplyWithNamingStrategy() {
+        checkApplicationWithNamingStrategy(buildModification(), getNetwork(), "BUSBAR_1_1");
     }
 }
