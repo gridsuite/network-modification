@@ -13,6 +13,8 @@ import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
+import com.powsybl.iidm.network.extensions.Measurement;
+import com.powsybl.iidm.network.extensions.Measurements;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -23,6 +25,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -32,6 +35,10 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
 
     private static final String PROPERTY_NAME = "property-name";
     private static final String PROPERTY_VALUE = "property-value";
+    private static final Double MEASUREMENT_P_VALUE = 10.0;
+    private static final Boolean MEASUREMENT_P_VALID = false;
+    private static final Double MEASUREMENT_Q_VALUE = 0.5;
+    private static final Boolean MEASUREMENT_Q_VALID = true;
 
     @Override
     public void checkModification() {
@@ -90,8 +97,12 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
             .stepUpTransformerX(new AttributeModification<>(0.2, OperationType.SET))
             .participate(new AttributeModification<>(true, OperationType.SET))
             .reactiveCapabilityCurve(new AttributeModification<>(true, OperationType.SET))
+            .pMeasurementValue(new AttributeModification<>(MEASUREMENT_P_VALUE, OperationType.SET))
+            .pMeasurementValidity(new AttributeModification<>(MEASUREMENT_P_VALID, OperationType.SET))
+            .qMeasurementValue(new AttributeModification<>(MEASUREMENT_Q_VALUE, OperationType.SET))
+            .qMeasurementValidity(new AttributeModification<>(MEASUREMENT_Q_VALID, OperationType.SET))
             .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME)
-                            .value(PROPERTY_VALUE).build()))
+            .value(PROPERTY_VALUE).build()))
             .build();
     }
 
@@ -129,6 +140,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         assertNotNull(batteryShortCircuit);
         assertEquals(0.1, batteryShortCircuit.getDirectTransX());
         assertEquals(0.2, batteryShortCircuit.getStepUpTransformerX());
+        assertMeasurements(modifiedBattery);
     }
 
     @Test
@@ -223,5 +235,16 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         batteryModificationInfos.setTerminalConnected(new AttributeModification<>(true, OperationType.SET));
         String message = assertThrows(NetworkModificationException.class, () -> batteryModificationInfos.toModification().apply(getNetwork())).getMessage();
         assertEquals("INJECTION_MODIFICATION_ERROR : Could not connect equipment 'v3Battery'", message);
+    }
+
+    private void assertMeasurements(Battery battery) {
+        Measurements<?> measurements = (Measurements<?>) battery.getExtension(Measurements.class);
+        assertNotNull(measurements);
+        Collection<Measurement> activePowerMeasurements = measurements.getMeasurements(Measurement.Type.ACTIVE_POWER).stream().toList();
+        Collection<Measurement> reactivePowerMeasurements = measurements.getMeasurements(Measurement.Type.REACTIVE_POWER).stream().toList();
+        assertThat(activePowerMeasurements).isNotEmpty();
+        assertThat(reactivePowerMeasurements).isNotEmpty();
+        assertThat(activePowerMeasurements).allMatch(m -> m.getValue() == MEASUREMENT_P_VALUE && m.isValid() == MEASUREMENT_P_VALID);
+        assertThat(reactivePowerMeasurements).allMatch(m -> m.getValue() == MEASUREMENT_Q_VALUE && m.isValid() == MEASUREMENT_Q_VALID);
     }
 }

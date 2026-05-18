@@ -27,14 +27,12 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
  */
-public class BatteryModification extends AbstractModification {
-
-    private final BatteryModificationInfos modificationInfos;
+public class BatteryModification extends AbstractInjectionModification {
 
     public static final String ERROR_MESSAGE = "Battery '%s' : ";
 
     public BatteryModification(BatteryModificationInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
+        super(modificationInfos);
     }
 
     @Override
@@ -42,15 +40,17 @@ public class BatteryModification extends AbstractModification {
         if (modificationInfos == null) {
             throw new NetworkModificationException(MODIFY_BATTERY_ERROR, "Missing required attributes to modify the equipment");
         }
-        Battery battery = ModificationUtils.getInstance().getBattery(network, modificationInfos.getEquipmentId());
-        String errorMessage = "Battery '" + modificationInfos.getEquipmentId() + "' : ";
-        ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId(),
-                modificationInfos.getBusOrBusbarSectionId(), battery.getTerminal());
-        ModificationUtils.getInstance().checkReactiveLimit(battery, modificationInfos.getMinQ(), modificationInfos.getMaxQ(),
-                modificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_BATTERY_ERROR, errorMessage);
-        checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(modificationInfos, battery, MODIFY_BATTERY_ERROR, errorMessage);
-        if (modificationInfos.getDroop() != null) {
-            checkIsPercentage(errorMessage, modificationInfos.getDroop().getValue(), MODIFY_BATTERY_ERROR, "Droop");
+
+        BatteryModificationInfos batteryModificationInfos = (BatteryModificationInfos) modificationInfos;
+        Battery battery = ModificationUtils.getInstance().getBattery(network, batteryModificationInfos.getEquipmentId());
+        String errorMessage = "Battery '" + batteryModificationInfos.getEquipmentId() + "' : ";
+        ModificationUtils.getInstance().checkVoltageLevelModification(network, batteryModificationInfos.getVoltageLevelId(),
+                batteryModificationInfos.getBusOrBusbarSectionId(), battery.getTerminal());
+        ModificationUtils.getInstance().checkReactiveLimit(battery, batteryModificationInfos.getMinQ(), batteryModificationInfos.getMaxQ(),
+                batteryModificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_BATTERY_ERROR, errorMessage);
+        checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(batteryModificationInfos, battery, MODIFY_BATTERY_ERROR, errorMessage);
+        if (batteryModificationInfos.getDroop() != null) {
+            checkIsPercentage(errorMessage, batteryModificationInfos.getDroop().getValue(), MODIFY_BATTERY_ERROR, "Droop");
         }
     }
 
@@ -71,7 +71,7 @@ public class BatteryModification extends AbstractModification {
     public void apply(Network network, ReportNode subReportNode) {
         Battery battery = ModificationUtils.getInstance().getBattery(network, modificationInfos.getEquipmentId());
         // modify the battery in the network
-        modifyBattery(battery, modificationInfos, subReportNode);
+        modifyBattery(battery, subReportNode);
     }
 
     @Override
@@ -79,29 +79,31 @@ public class BatteryModification extends AbstractModification {
         return "BatteryModification";
     }
 
-    private void modifyBattery(Battery battery, BatteryModificationInfos modificationInfos, ReportNode subReportNode) {
+    private void modifyBattery(Battery battery, ReportNode subReportNode) {
+        BatteryModificationInfos batteryModificationInfos = (BatteryModificationInfos) modificationInfos;
         subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.batteryModification")
-                .withUntypedValue("id", modificationInfos.getEquipmentId())
+                .withUntypedValue("id", batteryModificationInfos.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
 
-        if (modificationInfos.getEquipmentName() != null && modificationInfos.getEquipmentName().getValue() != null) {
-            ModificationUtils.getInstance().applyElementaryModifications(battery::setName, () -> battery.getOptionalName().orElse("No value"), modificationInfos.getEquipmentName(), subReportNode, "Name");
+        if (batteryModificationInfos.getEquipmentName() != null && batteryModificationInfos.getEquipmentName().getValue() != null) {
+            ModificationUtils.getInstance().applyElementaryModifications(battery::setName, () -> battery.getOptionalName().orElse("No value"), batteryModificationInfos.getEquipmentName(), subReportNode, "Name");
         }
-        modifyBatteryVoltageLevelBusOrBusBarSectionAttributes(modificationInfos, battery, subReportNode);
-        modifyBatteryLimitsAttributes(modificationInfos, battery, subReportNode);
+        modifyBatteryVoltageLevelBusOrBusBarSectionAttributes(batteryModificationInfos, battery, subReportNode);
+        modifyBatteryLimitsAttributes(batteryModificationInfos, battery, subReportNode);
         modifyBatterySetpointsAttributes(
-                modificationInfos.getTargetP(), modificationInfos.getTargetQ(),
-                modificationInfos.getParticipate(), modificationInfos.getDroop(),
+                batteryModificationInfos.getTargetP(), batteryModificationInfos.getTargetQ(),
+                batteryModificationInfos.getParticipate(), batteryModificationInfos.getDroop(),
                 battery, subReportNode);
-        modifyBatteryConnectivityAttributes(modificationInfos, battery, subReportNode);
-        ModificationUtils.getInstance().modifyShortCircuitExtension(modificationInfos.getDirectTransX(),
-                modificationInfos.getStepUpTransformerX(),
+        modifyBatteryConnectivityAttributes(batteryModificationInfos, battery, subReportNode);
+        updateMeasurements(battery, batteryModificationInfos, subReportNode);
+        ModificationUtils.getInstance().modifyShortCircuitExtension(batteryModificationInfos.getDirectTransX(),
+                batteryModificationInfos.getStepUpTransformerX(),
                 battery.getExtension(BatteryShortCircuit.class),
                 () -> battery.newExtension(BatteryShortCircuitAdder.class),
                 subReportNode);
-        PropertiesUtils.applyProperties(battery, subReportNode, modificationInfos.getProperties(), "network.modification.BatteryProperties");
+        PropertiesUtils.applyProperties(battery, subReportNode, batteryModificationInfos.getProperties(), "network.modification.BatteryProperties");
     }
 
     public static void modifyBatterySetpointsAttributes(AttributeModification<Double> targetP,
