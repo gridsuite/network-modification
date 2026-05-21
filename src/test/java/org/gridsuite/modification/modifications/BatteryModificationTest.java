@@ -7,12 +7,15 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
+import com.powsybl.iidm.network.extensions.Measurement;
+import com.powsybl.iidm.network.extensions.Measurements;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -23,6 +26,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -32,6 +36,10 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
 
     private static final String PROPERTY_NAME = "property-name";
     private static final String PROPERTY_VALUE = "property-value";
+    private static final Double MEASUREMENT_P_VALUE = 10.0;
+    private static final Boolean MEASUREMENT_P_VALID = false;
+    private static final Double MEASUREMENT_Q_VALUE = 0.5;
+    private static final Boolean MEASUREMENT_Q_VALID = true;
 
     @Override
     public void checkModification() {
@@ -90,8 +98,11 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
             .stepUpTransformerX(new AttributeModification<>(0.2, OperationType.SET))
             .participate(new AttributeModification<>(true, OperationType.SET))
             .reactiveCapabilityCurve(new AttributeModification<>(true, OperationType.SET))
-            .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME)
-                            .value(PROPERTY_VALUE).build()))
+            .pMeasurementValue(new AttributeModification<>(MEASUREMENT_P_VALUE, OperationType.SET))
+            .pMeasurementValidity(new AttributeModification<>(MEASUREMENT_P_VALID, OperationType.SET))
+            .qMeasurementValue(new AttributeModification<>(MEASUREMENT_Q_VALUE, OperationType.SET))
+            .qMeasurementValidity(new AttributeModification<>(MEASUREMENT_Q_VALID, OperationType.SET))
+            .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
             .build();
     }
 
@@ -129,6 +140,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         assertNotNull(batteryShortCircuit);
         assertEquals(0.1, batteryShortCircuit.getDirectTransX());
         assertEquals(0.2, batteryShortCircuit.getStepUpTransformerX());
+        assertMeasurements(modifiedBattery, MEASUREMENT_P_VALUE, MEASUREMENT_P_VALID, MEASUREMENT_Q_VALUE, MEASUREMENT_Q_VALID);
     }
 
     @Test
@@ -199,6 +211,32 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
     }
 
     @Test
+    void testMeasurementsUpdatedWithNewMeasurements() {
+        Network network = getNetwork();
+        Double newPMeasurementValue = 100.0D;
+        Boolean newPMeasurementValidity = true;
+        Double newQMeasurementValue = 5.0;
+        Boolean newQMeasurementValidity = false;
+        ReportNode rootNode = ReportNode.newRootReportNode()
+                .withMessageTemplate("test")
+                .build();
+        buildModification().toModification().apply(network);
+        assertMeasurements(network.getBattery("v3Battery"), MEASUREMENT_P_VALUE, MEASUREMENT_P_VALID, MEASUREMENT_Q_VALUE, MEASUREMENT_Q_VALID);
+
+        BatteryModificationInfos batteryModificationInfos = BatteryModificationInfos.builder()
+                .equipmentId("v3Battery")
+                .pMeasurementValue(new AttributeModification<>(newPMeasurementValue, OperationType.SET))
+                .pMeasurementValidity(new AttributeModification<>(newPMeasurementValidity, OperationType.SET))
+                .qMeasurementValue(new AttributeModification<>(newQMeasurementValue, OperationType.SET))
+                .qMeasurementValidity(new AttributeModification<>(newQMeasurementValidity, OperationType.SET))
+                .build();
+        batteryModificationInfos.toModification().apply(network, rootNode);
+
+        assertMeasurements(network.getBattery("v3Battery"), newPMeasurementValue, newPMeasurementValidity, newQMeasurementValue, newQMeasurementValidity);
+        assertMeasurementsReportNodes(rootNode, MEASUREMENT_P_VALUE, newPMeasurementValue, MEASUREMENT_P_VALID, newPMeasurementValidity, MEASUREMENT_Q_VALUE, newQMeasurementValue, MEASUREMENT_Q_VALID, newQMeasurementValidity);
+    }
+
+    @Test
     void testDisconnection() throws Exception {
         assertChangeConnectionState(getNetwork().getBattery("v3Battery"), false);
     }
@@ -223,5 +261,47 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         batteryModificationInfos.setTerminalConnected(new AttributeModification<>(true, OperationType.SET));
         String message = assertThrows(NetworkModificationException.class, () -> batteryModificationInfos.toModification().apply(getNetwork())).getMessage();
         assertEquals("INJECTION_MODIFICATION_ERROR : Could not connect equipment 'v3Battery'", message);
+    }
+
+    private void assertMeasurements(Battery battery, double expectedP, boolean expectedPValidity, double expectedQ, boolean expectedQValidity) {
+        Measurements<?> measurements = (Measurements<?>) battery.getExtension(Measurements.class);
+        assertNotNull(measurements);
+        Collection<Measurement> activePowerMeasurements = measurements.getMeasurements(Measurement.Type.ACTIVE_POWER).stream().toList();
+        Collection<Measurement> reactivePowerMeasurements = measurements.getMeasurements(Measurement.Type.REACTIVE_POWER).stream().toList();
+        assertThat(activePowerMeasurements).isNotEmpty();
+        assertThat(reactivePowerMeasurements).isNotEmpty();
+        assertThat(activePowerMeasurements).allSatisfy(m -> {
+            assertThat(m.getValue()).isEqualTo(expectedP);
+            assertThat(m.isValid()).isEqualTo(expectedPValidity);
+        });
+        assertThat(reactivePowerMeasurements).allSatisfy(m -> {
+            assertThat(m.getValue()).isEqualTo(expectedQ);
+            assertThat(m.isValid()).isEqualTo(expectedQValidity);
+        });
+    }
+
+    private void assertMeasurementsReportNodes(ReportNode rootNode, Double measurementPValue, Double newPMeasurementValue, Boolean measurementPValid, Boolean newPMeasurementValidity, Double measurementQValue, Double newQMeasurementValue, Boolean measurementQValid, Boolean newQMeasurementValidity) {
+        Optional<ReportNode> stateEstimationDataNode = rootNode.getChildren().stream()
+                .filter(node -> node.getMessageKey().equals("network.modification.stateEstimationData"))
+                .findFirst();
+        assertThat(stateEstimationDataNode).isPresent();
+        Optional<ReportNode> expectedMeasurementsNodeOpt = stateEstimationDataNode.get().getChildren().stream()
+                .filter(node -> node.getMessageKey().equals("network.modification.measurements"))
+                .findFirst();
+        assertThat(expectedMeasurementsNodeOpt).isPresent();
+        ReportNode expectedMeasurementsNode = expectedMeasurementsNodeOpt.get();
+        assertThat(expectedMeasurementsNode.getChildren()).hasSize(4);
+        assertMeasurementReportNode(expectedMeasurementsNode, measurementPValue, newPMeasurementValue);
+        assertMeasurementReportNode(expectedMeasurementsNode, measurementQValue, newQMeasurementValue);
+        assertMeasurementReportNode(expectedMeasurementsNode, measurementPValid, newPMeasurementValidity);
+        assertMeasurementReportNode(expectedMeasurementsNode, measurementQValid, newQMeasurementValidity);
+    }
+
+    private void assertMeasurementReportNode(ReportNode rootNode, Object expectedOldValue, Object expectedNewValue) {
+        assertThat(rootNode.getChildren()).anySatisfy(node -> {
+            assertThat(node.getMessageKey()).isEqualTo("network.modification.fieldModification");
+            assertThat(node.getValues().get("oldValue")).hasToString(expectedOldValue.toString());
+            assertThat(node.getValues().get("newValue")).hasToString(expectedNewValue.toString());
+        });
     }
 }
