@@ -437,8 +437,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
     /**
      * Verify that a temporary limit modification with either {@code name} or {@code acceptableDuration}
      * missing is skipped and emits a {@code temporaryLimitsMissingInfo} log, for every supported
-     * {@link TemporaryLimitModificationType}. When the temporary-limit-level type is REPLACE, pre-existing
-     * limits are dropped by REPLACE semantics; otherwise they remain untouched.
+     * {@link TemporaryLimitModificationType}.
      */
     @ParameterizedTest(name = "[{index}] {0} with missing {1} should log temporaryLimitsMissingInfo and skip the change")
     @MethodSource("missingTemporaryLimitFieldCases")
@@ -454,8 +453,9 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
                 .getCurrentLimits().orElse(null);
         assertNotNull(limits);
-        int expectedSize = (op == TemporaryLimitModificationType.REPLACE) ? 0 : 2;
-        assertEquals(expectedSize, limits.getTemporaryLimits().size());
+        // the only input is invalid, so nothing is applied and the existing temporary limits
+        // are kept, including in REPLACE mode
+        assertEquals(2, limits.getTemporaryLimits().size());
         assertLogMessageWithoutRank(
                 "Missing info (name or duration) to find temporary limit to " + op + ": ignored",
                 "network.modification.temporaryLimitsMissingInfo", reportNode);
@@ -1105,7 +1105,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         assertLogMessageWithoutRank("Limit set DEFAULT has been modified on side 1", "network.modification.operationalLimitsGroupModified", reportNode);
         assertLogMessageWithoutRank("Previous temporary limits were removed", "network.modification.temporaryLimitsReplaced", reportNode);
         assertLogMessageWithoutRank("Cannot add DEFAULT operational limit group, one with the given name already exists", "network.modification.tabular.modification.exception", reportNode);
-        assertLogMessageWithoutRank("No existing temporary limit found with acceptableDuration = 3 matching is based on acceptableDuration if that helps", "network.modification.temporaryLimitsNoMatch", reportNode);
+        assertLogMessageWithoutRank("No existing temporary limit found with acceptableDuration=3: ignored", "network.modification.temporaryLimitsNoMatch", reportNode);
         assertLogMessageWithoutRank("limit set selected on side 2 : group0", "network.modification.limitSetSelectedOnSide2", reportNode);
         assertLogMessageWithoutRank("Limit set group0 has replaced the existing limit sets on side 2", "network.modification.operationalLimitsGroupReplaced", reportNode);
         assertLogMessageWithoutRank("Limit set DEFAULT added on side 1", "network.modification.operationalLimitsGroupAdded", reportNode);

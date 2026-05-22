@@ -415,9 +415,13 @@ public class OperationalLimitsGroupModification {
             }
         }
 
+        // tracks whether at least one input actually applied a change (created / modified /
+        // deleted a temporary limit); limits ignored by validation (missing fields, duplicates,
+        // no match...) do not count
+        boolean atLeastOneLimitApplied = false;
         if (currentLimitsInfos != null && currentLimitsInfos.getTemporaryLimits() != null) {
             for (CurrentTemporaryLimitModificationInfos limit : currentLimitsInfos.getTemporaryLimits()) {
-                applyTemporaryLimitModification(
+                atLeastOneLimitApplied |= applyTemporaryLimitModification(
                         limitsAdder,
                         currentLimits,
                         limit,
@@ -429,7 +433,7 @@ public class OperationalLimitsGroupModification {
         }
 
         if (!unmodifiedTemporaryLimits.isEmpty()) {
-            if (areLimitsReplaced) {
+            if (areLimitsReplaced && atLeastOneLimitApplied) {
                 // this needs to be logged only if there are unmodifiedTemporaryLimits left.
                 // which means that they are going to be removed by the REPLACE mode
                 addToLogsOnSide(ReportNode.newRootReportNode()
@@ -489,6 +493,28 @@ public class OperationalLimitsGroupModification {
                 applicability);
             return false;
         }
+        return true;
+    }
+
+    /**
+     * A MODIFY row can only update an existing temporary limit, it cannot create one. Reject the row
+     * when no existing temporary limit matches its acceptable duration.
+     * @return true if the row must be skipped because it targets no existing temporary limit; false otherwise.
+     */
+    private boolean isModifyWithoutMatch(
+            CurrentTemporaryLimitModificationInfos limit,
+            LoadingLimits.TemporaryLimit limitToModify,
+            OperationalLimitsGroupInfos.Applicability applicability) {
+        if (limit.getModificationType() != TemporaryLimitModificationType.MODIFY || limitToModify != null) {
+            return false;
+        }
+        addToLogsOnSide(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("network.modification.temporaryLimitsNoMatch")
+                .withUntypedValue(LIMIT_ACCEPTABLE_DURATION, limit.getAcceptableDuration().getValue())
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build(),
+                applicability);
         return true;
     }
 
@@ -556,7 +582,7 @@ public class OperationalLimitsGroupModification {
      * @param limit modification to be applied to the limit
      * @param unmodifiedTemporaryLimits list of all the unmodified limits that will be added at the end of the network modification
      */
-    private void applyTemporaryLimitModification(
+    private boolean applyTemporaryLimitModification(
         CurrentLimitsAdder limitsAdder,
         CurrentLimits networkCurrentLimits,
         CurrentTemporaryLimitModificationInfos limit,
@@ -565,24 +591,29 @@ public class OperationalLimitsGroupModification {
         OperationalLimitsGroupInfos.Applicability applicability) {
         CurrentLimitsModificationInfos currentLimitsInfos = olgModifInfos.getCurrentLimits();
         if (!preModificationCheck(limit, applicability)) {
-            return;
+            return false;
+        }
+        LoadingLimits.TemporaryLimit limitToModify = networkCurrentLimits != null
+                ? getTemporaryLimitToModify(networkCurrentLimits, limit, currentLimitsInfos)
+                : null;
+        if (isModifyWithoutMatch(limit, limitToModify, applicability)) {
+            return false;
         }
         if (wouldCreateDuplicate(workingTemporaryLimits, limit, applicability)) {
-            return;
+            return false;
         }
         int limitAcceptableDuration = limit.getAcceptableDuration().getValue();
         double limitValue = hasValue(limit.getValue()) ? limit.getValue().getValue() : Double.MAX_VALUE;
         String limitDurationToReport = String.valueOf(limitAcceptableDuration);
         String limitValueToReport = limitValue == Double.MAX_VALUE ? NO_VALUE : String.valueOf(limitValue);
-        LoadingLimits.TemporaryLimit limitToModify = null;
         if (networkCurrentLimits != null) {
-            limitToModify = getTemporaryLimitToModify(networkCurrentLimits, limit, currentLimitsInfos);
             // this limit is modified by the network modification so we remove it from the list of unmodified temporary limits
             unmodifiedTemporaryLimits.removeIf(temporaryLimit -> temporaryLimit.getAcceptableDuration() == limitAcceptableDuration);
         }
         if (limitToModify == null && mayCreateLimit(limit.getModificationType())) {
             createTemporaryLimit(limitsAdder, limit, limitDurationToReport, limitValueToReport, limitValue, limitAcceptableDuration, applicability);
             workingTemporaryLimits.put(limitAcceptableDuration, limit.getName().getValue());
+            return true;
         } else if (limitToModify != null) {
             // the limit already exists
             if (limit.getModificationType() == TemporaryLimitModificationType.DELETE) {
@@ -600,16 +631,9 @@ public class OperationalLimitsGroupModification {
                 modifyTemporaryLimit(limitsAdder, limit, limitToModify, limitValue, limitDurationToReport, limitAcceptableDuration, applicability);
                 workingTemporaryLimits.put(limitAcceptableDuration, limit.getName().getValue());
             }
-        } else if (limit.getModificationType() == TemporaryLimitModificationType.MODIFY) {
-            // invalid modification
-            addToLogsOnSide(ReportNode.newRootReportNode()
-                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                    .withMessageTemplate("network.modification.temporaryLimitsNoMatch")
-                    .withUntypedValue(LIMIT_ACCEPTABLE_DURATION, limitAcceptableDuration)
-                    .withSeverity(TypedValue.WARN_SEVERITY)
-                    .build(),
-                    applicability);
+            return true;
         }
+        return false;
     }
 
     /**
@@ -668,10 +692,10 @@ public class OperationalLimitsGroupModification {
         // Check if there are any actual changes
         boolean nameChanged = !limitToModify.getName().equals(finalName);
         boolean valueChanged = Double.compare(limitToModify.getValue(), finalValue) != 0;
+        String finalValueToReport = finalValue == Double.MAX_VALUE ? NO_VALUE : String.valueOf(finalValue);
 
         if (valueChanged && !nameChanged) {
             // only the value changes
-            String finalValueToReport = finalValue == Double.MAX_VALUE ? NO_VALUE : String.valueOf(finalValue);
             addToLogsOnSide(ReportNode.newRootReportNode()
                             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                             .withMessageTemplate("network.modification.temporaryLimitValueModified.name")
@@ -690,7 +714,7 @@ public class OperationalLimitsGroupModification {
                             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                             .withMessageTemplate("network.modification.temporaryLimitModified.name")
                             .withUntypedValue(NAME, finalName)
-                            .withUntypedValue(VALUE, finalValue)
+                            .withUntypedValue(VALUE, finalValueToReport)
                             .withUntypedValue(DURATION, limitAcceptableDuration)
                             .withSeverity(TypedValue.DETAIL_SEVERITY)
                             .build(),
