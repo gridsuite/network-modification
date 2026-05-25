@@ -456,6 +456,7 @@ public class OperationalLimitsGroupModification {
      * @return true if the modification can proceed, false if it must be skipped.
      */
     private boolean preModificationCheck(CurrentTemporaryLimitModificationInfos limit, OperationalLimitsGroupInfos.Applicability applicability) {
+        boolean valid = true;
         if (olgModifInfos.getModificationType() == OperationalLimitsGroupModificationType.ADD
                 || olgModifInfos.getModificationType() == OperationalLimitsGroupModificationType.REPLACE) {
             // If we aren't modifying or deleting an existing limit set, temporary limit modification is necessarily of ADD type
@@ -479,21 +480,31 @@ public class OperationalLimitsGroupModification {
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .build(),
                     applicability);
-                return false;
+                valid = false;
             }
         }
         // Ensure that name and duration are present (duration is the identifier)
-        if (!hasValue(limit.getName()) || !hasValue(limit.getAcceptableDuration())) {
+        if (!hasValue(limit.getName())) {
             addToLogsOnSide(ReportNode.newRootReportNode()
                     .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                    .withMessageTemplate("network.modification.temporaryLimitsMissingInfo")
+                    .withMessageTemplate("network.modification.temporaryLimitsMissingName")
                     .withUntypedValue("modificationType", limit.getModificationType() != null ? limit.getModificationType().name() : "null")
                     .withSeverity(TypedValue.WARN_SEVERITY)
                     .build(),
                 applicability);
-            return false;
+            valid = false;
         }
-        return true;
+        if (!hasValue(limit.getAcceptableDuration())) {
+            addToLogsOnSide(ReportNode.newRootReportNode()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                    .withMessageTemplate("network.modification.temporaryLimitsMissingDuration")
+                    .withUntypedValue("modificationType", limit.getModificationType() != null ? limit.getModificationType().name() : "null")
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build(),
+                applicability);
+            valid = false;
+        }
+        return valid;
     }
 
     /**
@@ -560,19 +571,29 @@ public class OperationalLimitsGroupModification {
                 && !isThisLimitDeleted(batch, existingByName.get().getKey());
         }
 
-        if (durationConflict || nameConflict) {
+        if (durationConflict) {
             addToLogsOnSide(ReportNode.newRootReportNode()
                     .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                    .withMessageTemplate("network.modification.temporaryLimitsDuplicate")
+                    .withMessageTemplate("network.modification.temporaryLimitsDuplicateDuration")
                     .withUntypedValue("modificationType", type.name())
                     .withUntypedValue(NAME, name)
                     .withUntypedValue(DURATION, String.valueOf(duration))
                     .withSeverity(TypedValue.WARN_SEVERITY)
                     .build(),
                 applicability);
-            return true;
         }
-        return false;
+        if (nameConflict) {
+            addToLogsOnSide(ReportNode.newRootReportNode()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                    .withMessageTemplate("network.modification.temporaryLimitsDuplicateName")
+                    .withUntypedValue("modificationType", type.name())
+                    .withUntypedValue(NAME, name)
+                    .withUntypedValue(DURATION, String.valueOf(duration))
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build(),
+                applicability);
+        }
+        return durationConflict || nameConflict;
     }
 
     /**
