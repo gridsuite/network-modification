@@ -405,9 +405,9 @@ public class OperationalLimitsGroupModification {
             unmodifiedTemporaryLimits.addAll(currentLimits.getTemporaryLimits());
         }
 
-        // Working set tracking the projected limits after the rows accepted so far (duration -> name).
-        // Seeded from the network snapshot so that subsequent rows in the same batch see the effects
-        // of earlier accepted rows (additions, renames, deletions).
+        // Working set tracking the projected limits after the inputs accepted so far (duration -> name).
+        // Seeded from the network snapshot so that subsequent inputs in the same batch see the effects
+        // of earlier accepted inputs (additions, renames, deletions).
         Map<Integer, String> workingTemporaryLimits = new HashMap<>();
         if (currentLimits != null) {
             for (LoadingLimits.TemporaryLimit tl : currentLimits.getTemporaryLimits()) {
@@ -419,6 +419,8 @@ public class OperationalLimitsGroupModification {
         // deleted a temporary limit); limits ignored by validation (missing fields, duplicates,
         // no match...) do not count
         boolean atLeastOneLimitApplied = false;
+
+        // APPLY MODIFICATIONS
         if (currentLimitsInfos != null && currentLimitsInfos.getTemporaryLimits() != null) {
             for (CurrentTemporaryLimitModificationInfos limit : currentLimitsInfos.getTemporaryLimits()) {
                 atLeastOneLimitApplied |= applyTemporaryLimitModification(
@@ -432,21 +434,33 @@ public class OperationalLimitsGroupModification {
             }
         }
 
-        if (!unmodifiedTemporaryLimits.isEmpty()) {
-            if (areLimitsReplaced && atLeastOneLimitApplied) {
-                // this needs to be logged only if there are unmodifiedTemporaryLimits left.
-                // which means that they are going to be removed by the REPLACE mode
-                addToLogsOnSide(ReportNode.newRootReportNode()
-                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                        .withMessageTemplate("network.modification.temporaryLimitsReplaced")
-                        .withSeverity(TypedValue.DETAIL_SEVERITY)
-                        .build(),
-                        applicability);
-            } else {
-                // we add (back) the temporary limits that have not been modified
-                for (LoadingLimits.TemporaryLimit limit : unmodifiedTemporaryLimits) {
-                    addTemporaryLimit(limitsAdder, limit.getName(), limit.getValue(), limit.getAcceptableDuration());
-                }
+        // ADD BACK LIMITS (if necessary)
+        handleUnmodifiedTemporaryLimits(limitsAdder, unmodifiedTemporaryLimits, areLimitsReplaced, atLeastOneLimitApplied, applicability);
+    }
+
+    /**
+     * In REPLACE mode with at least one applied input, the untouched limits are intentionally dropped and a log is emitted.
+     * Otherwise the untouched limits are re-added so they survive the modification.
+     */
+    private void handleUnmodifiedTemporaryLimits(
+            CurrentLimitsAdder limitsAdder,
+            List<LoadingLimits.TemporaryLimit> unmodifiedTemporaryLimits,
+            boolean areLimitsReplaced,
+            boolean atLeastOneLimitApplied,
+            OperationalLimitsGroupInfos.Applicability applicability) {
+        if (unmodifiedTemporaryLimits.isEmpty()) {
+            return;
+        }
+        if (areLimitsReplaced && atLeastOneLimitApplied) {
+            addToLogsOnSide(ReportNode.newRootReportNode()
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                    .withMessageTemplate("network.modification.temporaryLimitsReplaced")
+                    .withSeverity(TypedValue.DETAIL_SEVERITY)
+                    .build(),
+                    applicability);
+        } else {
+            for (LoadingLimits.TemporaryLimit limit : unmodifiedTemporaryLimits) {
+                addTemporaryLimit(limitsAdder, limit.getName(), limit.getValue(), limit.getAcceptableDuration());
             }
         }
     }
@@ -456,7 +470,18 @@ public class OperationalLimitsGroupModification {
      * @return true if the modification can proceed, false if it must be skipped.
      */
     private boolean preModificationCheck(CurrentTemporaryLimitModificationInfos limit, OperationalLimitsGroupInfos.Applicability applicability) {
-        boolean valid = true;
+        boolean validModificationType = checkTemporaryLimitModificationType(limit, applicability);
+        boolean validMandatoryFields = checkTemporaryLimitMandatoryFields(limit, applicability);
+        return validModificationType && validMandatoryFields;
+    }
+
+    /**
+     * Ensure that the per-limit {@code modificationType} is consistent with the enclosing limit group modification type.
+     * When the limit group is ADD or REPLACE, a non-ADD limit is auto-fixed to ADD (a detail log is emitted).
+     * When the limit group is MODIFY or MODIFY_OR_ADD, a missing per-limit {@code modificationType} rejects the limit.
+     * @return true if the limit may proceed, false if it must be skipped.
+     */
+    private boolean checkTemporaryLimitModificationType(CurrentTemporaryLimitModificationInfos limit, OperationalLimitsGroupInfos.Applicability applicability) {
         if (olgModifInfos.getModificationType() == OperationalLimitsGroupModificationType.ADD
                 || olgModifInfos.getModificationType() == OperationalLimitsGroupModificationType.REPLACE) {
             // If we aren't modifying or deleting an existing limit set, temporary limit modification is necessarily of ADD type
@@ -480,10 +505,19 @@ public class OperationalLimitsGroupModification {
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .build(),
                     applicability);
-                valid = false;
+                return false;
             }
         }
-        // Ensure that name and duration are present (duration is the identifier)
+        return true;
+    }
+
+    /**
+     * Ensure that name and duration are present on the limit (duration is the identifier).
+     * Each missing field emits its own log so a limit missing both is reported twice.
+     * @return true if both fields are present, false otherwise.
+     */
+    private boolean checkTemporaryLimitMandatoryFields(CurrentTemporaryLimitModificationInfos limit, OperationalLimitsGroupInfos.Applicability applicability) {
+        boolean valid = true;
         if (!hasValue(limit.getName())) {
             addToLogsOnSide(ReportNode.newRootReportNode()
                     .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
@@ -508,9 +542,9 @@ public class OperationalLimitsGroupModification {
     }
 
     /**
-     * A MODIFY row can only update an existing temporary limit, it cannot create one. Reject the row
+     * A MODIFY input can only update an existing temporary limit, it cannot create one. Reject the input
      * when no existing temporary limit matches its acceptable duration.
-     * @return true if the row must be skipped because it targets no existing temporary limit; false otherwise.
+     * @return true if the input must be skipped because it targets no existing temporary limit; false otherwise.
      */
     private boolean isModifyWithoutMatch(
             CurrentTemporaryLimitModificationInfos limit,
