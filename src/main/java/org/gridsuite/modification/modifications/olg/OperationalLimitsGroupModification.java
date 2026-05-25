@@ -729,7 +729,7 @@ public class OperationalLimitsGroupModification {
                             .withSeverity(TypedValue.DETAIL_SEVERITY)
                             .build(),
                     applicability);
-        } else if (nameChanged || valueChanged) {
+        } else if (nameChanged) {
             // log only if there is at least one actual modification
             addToLogsOnSide(ReportNode.newRootReportNode()
                             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
