@@ -423,6 +423,9 @@ public class OperationalLimitsGroupModification {
         // APPLY MODIFICATIONS
         if (currentLimitsInfos != null && currentLimitsInfos.getTemporaryLimits() != null) {
             for (CurrentTemporaryLimitModificationInfos limit : currentLimitsInfos.getTemporaryLimits()) {
+                if (limit == null) {
+                    continue;
+                }
                 atLeastOneLimitApplied |= applyTemporaryLimitModification(
                         limitsAdder,
                         currentLimits,
