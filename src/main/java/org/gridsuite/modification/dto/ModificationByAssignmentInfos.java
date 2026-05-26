@@ -16,11 +16,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.filter.AbstractFilter;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.modifications.byfilter.ModificationByAssignment;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
@@ -48,5 +53,30 @@ public class ModificationByAssignmentInfos extends ModificationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode().withMessageTemplate("network.modification.modificationByAssignment").add();
+    }
+
+    @Override
+    public List<UUID> getReferencedFilterUuids() {
+        return assignmentInfosList == null
+                ? List.of()
+                : assignmentInfosList.stream()
+                .flatMap(a -> a.getFilters() == null ? Stream.empty() : a.getFilters().stream())
+                .map(FilterInfos::getId)
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    @Override
+    public void embedReferencedData(Map<UUID, AbstractFilter> filters, Map<UUID, LoadFlowParametersInfos> lfParams) {
+        if (assignmentInfosList == null) {
+            return;
+        }
+        assignmentInfosList.stream()
+                .flatMap(a -> a.getFilters() == null ? Stream.empty() : a.getFilters().stream())
+                .forEach(ref -> {
+                    if (ref.getId() != null) {
+                        ref.setFilterContent(filters.get(ref.getId()));
+                    }
+                });
     }
 }
