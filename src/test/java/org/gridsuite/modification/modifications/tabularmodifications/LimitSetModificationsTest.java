@@ -469,10 +469,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         ).flatMap(op -> Stream.of(
                 Arguments.of(op, MissingField.NAME,
                         "network.modification.temporaryLimitsMissingName",
-                        "Missing name to find temporary limit to " + op + ": ignored"),
+                        "Missing name for temporary limit to " + op + ": ignored"),
                 Arguments.of(op, MissingField.DURATION,
                         "network.modification.temporaryLimitsMissingDuration",
-                        "Missing acceptable duration to find temporary limit to " + op + ": ignored")));
+                        "Missing acceptable duration for temporary limit to " + op + ": ignored")));
     }
 
     private static ModificationInfos buildMissingFieldModification(TemporaryLimitModificationType op, MissingField missing) {
