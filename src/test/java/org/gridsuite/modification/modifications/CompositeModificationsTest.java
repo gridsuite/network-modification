@@ -142,6 +142,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
     protected ModificationInfos buildModification() {
         List<ModificationInfos> modifications = List.of(
                 CompositeModificationInfos.builder()
+                        .activated(true)
                         .name("sub composite 1")
                         .modificationsInfos(
                                 List.of(
@@ -155,10 +156,12 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                 ModificationCreation.getCreationBattery("v1", "idBattery", "nameBattery", "1.1"),
                 // test of a composite modification inside a composite modification inside a composite modification
                 CompositeModificationInfos.builder()
+                        .activated(true)
                         .name("sub composite 2")
                         .modificationsInfos(
                                 List.of(
                                         CompositeModificationInfos.builder()
+                                                .activated(true)
                                                 .name("sub sub composite")
                                                 .modificationsInfos(
                                                         List.of(ModificationCreation.getModificationGenerator("idGenerator", "other idGenerator name again"))
