@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class ModificationInfosTest {
 
-    private static class TestModificationInfos extends ModificationInfos {
+    private static final class TestModificationInfos extends ModificationInfos {
         // Intentionally does not override createSubReportNode() or toModification()
         // to test the UnsupportedOperationException throwing behavior
     }

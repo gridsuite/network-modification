@@ -115,9 +115,8 @@ public class ModificationInfos {
     @Schema(description = "Message values")
     private String messageValues;
 
-    @Schema(description = "Modification activated")
-    @Builder.Default
-    private Boolean activated = true;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
     @Schema(description = "User description")
     private String description;
