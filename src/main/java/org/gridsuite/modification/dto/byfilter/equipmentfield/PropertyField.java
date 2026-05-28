@@ -41,9 +41,9 @@ public enum PropertyField {
             return switch (equipment.getType()) {
                 case LINE, TWO_WINDINGS_TRANSFORMER -> switch (field) {
                     case OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES ->
-                            isEditableOperationalLimitsGroupPropertyValue((Branch<?>) equipment, propertyName, propertyValue, TwoSides.ONE, equipmentsReport);
+                        isEditableOperationalLimitsGroupPropertyValue((Branch<?>) equipment, propertyName, propertyValue, TwoSides.ONE, equipmentsReport);
                     case OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES ->
-                            isEditableOperationalLimitsGroupPropertyValue((Branch<?>) equipment, propertyName, propertyValue, TwoSides.TWO, equipmentsReport);
+                        isEditableOperationalLimitsGroupPropertyValue((Branch<?>) equipment, propertyName, propertyValue, TwoSides.TWO, equipmentsReport);
                     default -> true;
                 };
                 default -> true;
