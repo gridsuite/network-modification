@@ -54,9 +54,9 @@ public enum BatteryField {
         String errorMessage = String.format(ERROR_MESSAGE, battery.getId());
         switch (field) {
             case MINIMUM_ACTIVE_POWER ->
-                    modifyBatteryActiveLimitsAttributes(null, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), battery, null);
+                modifyBatteryActiveLimitsAttributes(null, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), battery, null);
             case MAXIMUM_ACTIVE_POWER ->
-                    modifyBatteryActiveLimitsAttributes(new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null, battery, null);
+                modifyBatteryActiveLimitsAttributes(new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null, battery, null);
             case ACTIVE_POWER_SET_POINT -> {
                 ModificationUtils.getInstance().checkActivePowerZeroOrBetweenMinAndMaxActivePower(
                         new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null, null, battery.getMinP(),
