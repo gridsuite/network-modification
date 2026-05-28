@@ -68,9 +68,9 @@ public class OperatingStatusModification extends AbstractModification {
             case TRIP -> applyTripEquipment(subReportNode, equipment, equipmentType, network);
             case SWITCH_ON -> applySwitchOnEquipment(subReportNode, equipment, equipmentType);
             case ENERGISE_END_ONE ->
-                    applyEnergiseEquipmentEnd(subReportNode, equipment, equipmentType, TwoSides.ONE);
+                applyEnergiseEquipmentEnd(subReportNode, equipment, equipmentType, TwoSides.ONE);
             case ENERGISE_END_TWO ->
-                    applyEnergiseEquipmentEnd(subReportNode, equipment, equipmentType, TwoSides.TWO);
+                applyEnergiseEquipmentEnd(subReportNode, equipment, equipmentType, TwoSides.TWO);
             default ->
                     throw NetworkModificationException.createOperatingActionTypeUnsupported(modificationInfos.getAction());
         }
