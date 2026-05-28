@@ -7,6 +7,7 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,18 +79,17 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
         assertEquals(0.8, identifiableShortCircuit.getIpMax(), 0);
         assertEquals(0.7, identifiableShortCircuit.getIpMin(), 0);
         assertEquals(PROPERTY_VALUE, getNetwork().getVoltageLevel("v1").getProperty(PROPERTY_NAME));
-        assertBusbarSectionMeasurement(getNetwork().getBusbarSection("1.1"));
+        assertBusbarSectionMeasurement(getNetwork().getBusbarSection("1.1"), MEASUREMENT_V_VALUE, MEASUREMENT_V_VALID);
     }
 
-    private void assertBusbarSectionMeasurement(BusbarSection bbs) {
+    private void assertBusbarSectionMeasurement(BusbarSection bbs, double expectedValue, boolean expectedValid) {
         assertNotNull(bbs);
         Measurements<?> measurements = (Measurements<?>) bbs.getExtension(Measurements.class);
         assertNotNull(measurements);
         Collection<Measurement> voltageMeasurements = measurements.getMeasurements(Measurement.Type.VOLTAGE).stream().toList();
-        assertThat(voltageMeasurements).isNotEmpty();
-        assertThat(voltageMeasurements).allSatisfy(m -> {
-            assertThat(m.getValue()).isEqualTo(MEASUREMENT_V_VALUE);
-            assertThat(m.isValid()).isEqualTo(MEASUREMENT_V_VALID);
+        assertThat(voltageMeasurements).isNotEmpty().allSatisfy(m -> {
+            assertThat(m.getValue()).isEqualTo(expectedValue);
+            assertThat(m.isValid()).isEqualTo(expectedValid);
         });
     }
 
@@ -262,11 +263,14 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
     void testBusbarSectionMeasurementUpdateExistingPath() {
         // Apply first modification: adds a new voltage measurement to the BBS (add path)
         applyModification((VoltageLevelModificationInfos) buildModification());
-        assertBusbarSectionMeasurement(getNetwork().getBusbarSection("1.1"));
+        assertBusbarSectionMeasurement(getNetwork().getBusbarSection("1.1"), MEASUREMENT_V_VALUE, MEASUREMENT_V_VALID);
 
         // Apply second modification: updates the existing voltage measurement (update/upsert path)
         final double updatedValue = 380.0;
         final boolean updatedValidity = false;
+        ReportNode rootNode = ReportNode.newRootReportNode()
+                .withMessageTemplate("test")
+                .build();
         VoltageLevelModificationInfos updateModif = VoltageLevelModificationInfos.builder()
                 .stashed(false)
                 .equipmentId("v1")
@@ -277,17 +281,32 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
                         .vMeasurementValidity(new AttributeModification<>(updatedValidity, OperationType.SET))
                         .build()))
                 .build();
-        applyModification(updateModif);
+        updateModif.toModification().apply(getNetwork(), rootNode);
 
-        BusbarSection bbs = getNetwork().getBusbarSection("1.1");
-        assertNotNull(bbs);
-        Measurements<?> measurements = (Measurements<?>) bbs.getExtension(Measurements.class);
-        assertNotNull(measurements);
-        Collection<Measurement> voltageMeasurements = measurements.getMeasurements(Measurement.Type.VOLTAGE).stream().toList();
-        assertThat(voltageMeasurements).hasSize(1);
-        assertThat(voltageMeasurements).allSatisfy(m -> {
-            assertThat(m.getValue()).isEqualTo(updatedValue);
-            assertThat(m.isValid()).isEqualTo(updatedValidity);
+        assertBusbarSectionMeasurement(getNetwork().getBusbarSection("1.1"), updatedValue, updatedValidity);
+        assertVoltageMeasurementReportNodes(rootNode, MEASUREMENT_V_VALUE, updatedValue, MEASUREMENT_V_VALID, updatedValidity);
+    }
+
+    private void assertVoltageMeasurementReportNodes(ReportNode rootNode, Double oldValue, Double newValue, Boolean oldValidity, Boolean newValidity) {
+        Optional<ReportNode> stateEstimationDataNode = rootNode.getChildren().stream()
+                .filter(node -> node.getMessageKey().equals("network.modification.busbarSection.stateEstimationData"))
+                .findFirst();
+        assertThat(stateEstimationDataNode).isPresent();
+        Optional<ReportNode> measurementsNodeOpt = stateEstimationDataNode.get().getChildren().stream()
+                .filter(node -> node.getMessageKey().equals("network.modification.measurements"))
+                .findFirst();
+        assertThat(measurementsNodeOpt).isPresent();
+        ReportNode measurementsNode = measurementsNodeOpt.get();
+        assertThat(measurementsNode.getChildren()).hasSize(2);
+        assertMeasurementReportNode(measurementsNode, oldValue, newValue);
+        assertMeasurementReportNode(measurementsNode, oldValidity, newValidity);
+    }
+
+    private void assertMeasurementReportNode(ReportNode rootNode, Object expectedOldValue, Object expectedNewValue) {
+        assertThat(rootNode.getChildren()).anySatisfy(node -> {
+            assertThat(node.getMessageKey()).isEqualTo("network.modification.fieldModification");
+            assertThat(node.getValues().get("oldValue")).hasToString(expectedOldValue.toString());
+            assertThat(node.getValues().get("newValue")).hasToString(expectedNewValue.toString());
         });
     }
 
