@@ -27,6 +27,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -117,16 +118,23 @@ public class VoltageLevelModification extends AbstractModification {
         PropertiesUtils.applyProperties(voltageLevel, subReportNode, modificationInfos.getProperties(), "network.modification.VlProperties");
         // busbar section voltage measurements
         if (!CollectionUtils.isEmpty(modificationInfos.getBusbarSectionVMeasurements())) {
+            ReportNode bbsReportNode = subReportNode.newReportNode()
+                    .withMessageTemplate("network.modification.stateEstimationData")
+                    .add();
             modificationInfos.getBusbarSectionVMeasurements().forEach(vMeas -> {
                 BusbarSection bbs = network.getBusbarSection(vMeas.getBusbarSectionId());
                 if (bbs != null) {
-                    applyBusbarSectionVoltageMeasurement(bbs, vMeas, subReportNode);
+                    List<ReportNode> measurementReports = new ArrayList<>();
+                    applyBusbarSectionVoltageMeasurement(bbs, vMeas, measurementReports);
+                    if (!measurementReports.isEmpty()) {
+                        ModificationUtils.getInstance().reportModifications(bbsReportNode, measurementReports, "network.modification.voltageLevel.busbarSection.measurements", Map.of("id", bbs.getId()));
+                    }
                 }
             });
         }
     }
 
-    private void applyBusbarSectionVoltageMeasurement(BusbarSection bbs, BusbarSectionVMeasurementInfos vMeasInfo, ReportNode subReportNode) {
+    private void applyBusbarSectionVoltageMeasurement(BusbarSection bbs, BusbarSectionVMeasurementInfos vMeasInfo, List<ReportNode> reports) {
         Double vValue = vMeasInfo.getVMeasurementValue() != null ? vMeasInfo.getVMeasurementValue().getValue() : null;
         Boolean vValidity = vMeasInfo.getVMeasurementValidity() != null ? vMeasInfo.getVMeasurementValidity().getValue() : null;
         if (vValue == null && vValidity == null) {
@@ -136,15 +144,7 @@ public class VoltageLevelModification extends AbstractModification {
         if (measurements == null) {
             measurements = (Measurements<?>) bbs.newExtension(MeasurementsAdder.class).add();
         }
-        List<ReportNode> reports = new ArrayList<>();
         upsertVoltageMeasurement(measurements, vValue, vValidity, reports);
-        if (!reports.isEmpty()) {
-            ReportNode bbsReportNode = subReportNode.newReportNode()
-                    .withMessageTemplate("network.modification.busbarSection.stateEstimationData")
-                    .withUntypedValue("id", bbs.getId())
-                    .add();
-            ModificationUtils.getInstance().reportModifications(bbsReportNode, reports, "network.modification.measurements");
-        }
     }
 
     private void upsertVoltageMeasurement(Measurements<?> measurements, Double value, Boolean requestedValidity, List<ReportNode> reports) {
