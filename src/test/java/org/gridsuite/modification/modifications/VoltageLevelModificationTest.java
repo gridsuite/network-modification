@@ -289,11 +289,11 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
 
     private void assertVoltageMeasurementReportNodes(ReportNode rootNode, Double oldValue, Double newValue, Boolean oldValidity, Boolean newValidity) {
         Optional<ReportNode> stateEstimationDataNode = rootNode.getChildren().stream()
-                .filter(node -> node.getMessageKey().equals("network.modification.busbarSection.stateEstimationData"))
+                .filter(node -> node.getMessageKey().equals("network.modification.stateEstimationData"))
                 .findFirst();
         assertThat(stateEstimationDataNode).isPresent();
         Optional<ReportNode> measurementsNodeOpt = stateEstimationDataNode.get().getChildren().stream()
-                .filter(node -> node.getMessageKey().equals("network.modification.measurements"))
+                .filter(node -> node.getMessageKey().equals("network.modification.voltageLevel.busbarSection.measurements"))
                 .findFirst();
         assertThat(measurementsNodeOpt).isPresent();
         ReportNode measurementsNode = measurementsNodeOpt.get();
