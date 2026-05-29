@@ -11,19 +11,17 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.MoveFeederBayInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.dto.MoveFeederBayInfos;
 import org.gridsuite.modification.dto.MoveVoltageLevelFeederBaysInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 import static org.gridsuite.modification.ModificationType.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS;
 import static org.gridsuite.modification.utils.NetworkUtil.createBusBarSection;
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;

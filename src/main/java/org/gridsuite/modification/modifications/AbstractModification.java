@@ -6,15 +6,14 @@
  */
 package org.gridsuite.modification.modifications;
 
-import org.gridsuite.modification.IFilterService;
-import org.gridsuite.modification.ILoadFlowService;
-import org.gridsuite.modification.NetworkModificationException;
-
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
+import org.gridsuite.modification.IFilterService;
+import org.gridsuite.modification.ILoadFlowService;
+import org.gridsuite.modification.NetworkModificationException;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>

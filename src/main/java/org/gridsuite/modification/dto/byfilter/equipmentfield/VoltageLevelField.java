@@ -11,10 +11,9 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
-
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_VOLTAGE_LEVEL_ERROR;
-import static org.gridsuite.modification.modifications.VoltageLevelModification.ERROR_MESSAGE;
 import static org.gridsuite.modification.modifications.VoltageLevelModification.*;
+import static org.gridsuite.modification.modifications.VoltageLevelModification.ERROR_MESSAGE;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
 /**

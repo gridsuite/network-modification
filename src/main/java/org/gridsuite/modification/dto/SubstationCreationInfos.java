@@ -6,10 +6,6 @@
  */
 package org.gridsuite.modification.dto;
 
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.SubstationCreation;
-
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Country;
@@ -19,6 +15,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
+import org.gridsuite.modification.modifications.AbstractModification;
+import org.gridsuite.modification.modifications.SubstationCreation;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>

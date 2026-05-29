@@ -155,7 +155,8 @@ public class LineCreation extends AbstractModification {
         return "LineCreation";
     }
 
-    private void addLine(Network network, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, LineCreationInfos lineCreationInfos, boolean withSwitch1, boolean withSwitch2, ReportNode subReportNode) {
+    private void addLine(Network network, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, LineCreationInfos lineCreationInfos, boolean withSwitch1, boolean withSwitch2,
+            ReportNode subReportNode) {
         ModificationUtils.getInstance().createLineAdder(network, voltageLevel1, voltageLevel2, lineCreationInfos, withSwitch1, withSwitch2).add();
 
         subReportNode.newReportNode()
