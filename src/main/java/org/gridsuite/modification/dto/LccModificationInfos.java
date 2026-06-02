@@ -17,8 +17,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.LccModification;
 
 @SuperBuilder
 @NoArgsConstructor
@@ -49,11 +47,6 @@ public class LccModificationInfos extends BasicEquipmentModificationInfos {
 
     @Schema(description = "Converter station 2")
     private LccConverterStationModificationInfos converterStation2;
-
-    @Override
-    public AbstractModification toModification() {
-        return new LccModification(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

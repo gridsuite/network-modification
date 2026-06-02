@@ -129,7 +129,7 @@ public class ModificationInfos {
 
     @JsonIgnore
     public AbstractModification toModification() {
-        throw new UnsupportedOperationException("Method toModification must be implemented in subclass " + this.getClass().getSimpleName());
+        return org.gridsuite.modification.mapper.ModificationModelMapper.INSTANCE.toModel(this).toModification();
     }
 
     @JsonIgnore

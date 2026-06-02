@@ -14,8 +14,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.BalancesAdjustmentModification;
 
 import java.util.Collections;
 import java.util.List;
@@ -65,11 +63,6 @@ public class BalancesAdjustmentModificationInfos extends ModificationInfos {
 
     @Builder.Default
     private boolean subtractLoadFlowBalancing = DEFAULT_SUBTRACT_LOAD_FLOW_BALANCING;
-
-    @Override
-    public AbstractModification toModification() {
-        return new BalancesAdjustmentModification(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

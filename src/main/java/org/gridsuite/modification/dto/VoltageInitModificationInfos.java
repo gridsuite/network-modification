@@ -14,8 +14,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.VoltageInitModification;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -59,11 +57,6 @@ public class VoltageInitModificationInfos extends ModificationInfos {
 
     @Schema(description = "computation date")
     private Instant computationDate;
-
-    @Override
-    public AbstractModification toModification() {
-        return new VoltageInitModification(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

@@ -20,10 +20,10 @@ import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.ByFilterDeletionInfos;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.FilterInfos;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
+import org.gridsuite.modification.model.ByFilterDeletionModel;
+import org.gridsuite.modification.model.FilterEquipments;
+import org.gridsuite.modification.model.FilterModel;
+import org.gridsuite.modification.model.IdentifiableAttributes;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  */
 public class ByFilterDeletion extends AbstractModification {
 
-    private final ByFilterDeletionInfos modificationInfos;
+    private final ByFilterDeletionModel modificationInfos;
 
     protected IFilterService filterService;
 
@@ -54,7 +54,7 @@ public class ByFilterDeletion extends AbstractModification {
             IdentifiableType.STATIC_VAR_COMPENSATOR
             );
 
-    public ByFilterDeletion(ByFilterDeletionInfos modificationInfos) {
+    public ByFilterDeletion(ByFilterDeletionModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 
@@ -66,8 +66,8 @@ public class ByFilterDeletion extends AbstractModification {
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         var filters = modificationInfos.getFilters().stream()
-                .filter(distinctByKey(FilterInfos::getId))
-                .collect(Collectors.toMap(FilterInfos::getId, FilterInfos::getName));
+                .filter(distinctByKey(FilterModel::getId))
+                .collect(Collectors.toMap(FilterModel::getId, FilterModel::getName));
 
         Map<UUID, FilterEquipments> exportFilters = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, modificationInfos.getErrorType());
         if (exportFilters != null) {
@@ -75,7 +75,7 @@ public class ByFilterDeletion extends AbstractModification {
             Set<IdentifiableAttributes> identifiableAttributes = ModificationUtils.getIdentifiableAttributes(exportFilters, modificationInfos.getFilters(), subReportNode);
 
             if (CollectionUtils.isEmpty(identifiableAttributes)) {
-                String filterNames = modificationInfos.getFilters().stream().map(FilterInfos::getName).collect(Collectors.joining(", "));
+                String filterNames = modificationInfos.getFilters().stream().map(FilterModel::getName).collect(Collectors.joining(", "));
                 createReport(subReportNode, "network.modification.allFiltersWrong", Map.of("filterNames", filterNames), TypedValue.WARN_SEVERITY);
             } else {
                 subReportNode.newReportNode()

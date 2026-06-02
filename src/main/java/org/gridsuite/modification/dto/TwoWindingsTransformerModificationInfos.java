@@ -13,8 +13,6 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.TwoWindingsTransformerModification;
 
 /**
  * @author Florent MILLOT <florent.millot at rte-france.com>
@@ -57,11 +55,6 @@ public class TwoWindingsTransformerModificationInfos extends BranchModificationI
 
     @Schema(description = "Phase tap changer to be estimated status")
     private AttributeModification<Boolean> phaseTapChangerToBeEstimated;
-
-    @Override
-    public AbstractModification toModification() {
-        return new TwoWindingsTransformerModification(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

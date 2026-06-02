@@ -14,8 +14,8 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.AttributeModification;
-import org.gridsuite.modification.dto.VoltageLevelModificationInfos;
+import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.model.VoltageLevelModificationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -34,9 +34,9 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
 public class VoltageLevelModification extends AbstractModification {
 
     public static final String ERROR_MESSAGE = "Voltage level '%s' : ";
-    private final VoltageLevelModificationInfos modificationInfos;
+    private final VoltageLevelModificationModel modificationInfos;
 
-    public VoltageLevelModification(VoltageLevelModificationInfos voltageLevelModificationInfos) {
+    public VoltageLevelModification(VoltageLevelModificationModel voltageLevelModificationInfos) {
         this.modificationInfos = voltageLevelModificationInfos;
     }
 

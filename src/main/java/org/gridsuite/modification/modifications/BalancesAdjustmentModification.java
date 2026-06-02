@@ -22,7 +22,7 @@ import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import lombok.SneakyThrows;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,11 +39,11 @@ import static org.gridsuite.modification.utils.LoadFlowParametersUtils.mapLoadFl
 public class BalancesAdjustmentModification extends AbstractModification {
     private static final Logger LOGGER = LoggerFactory.getLogger(BalancesAdjustmentModification.class);
 
-    private final BalancesAdjustmentModificationInfos balancesAdjustmentModificationInfos;
+    private final BalancesAdjustmentModificationModel balancesAdjustmentModificationInfos;
 
     protected ILoadFlowService loadFlowService;
 
-    public BalancesAdjustmentModification(BalancesAdjustmentModificationInfos balancesAdjustmentModificationInfos) {
+    public BalancesAdjustmentModification(BalancesAdjustmentModificationModel balancesAdjustmentModificationInfos) {
         this.balancesAdjustmentModificationInfos = balancesAdjustmentModificationInfos;
     }
 
@@ -66,7 +66,7 @@ public class BalancesAdjustmentModification extends AbstractModification {
             return parameters;
         }
 
-        LoadFlowParametersInfos loadFlowParametersInfos = getLoadFlowParametersInfos(reportNode);
+        LoadFlowParametersModel loadFlowParametersInfos = getLoadFlowParametersInfos(reportNode);
 
         if (loadFlowParametersInfos != null &&
                 loadFlowParametersInfos.getProvider().equals("OpenLoadFlow")) {
@@ -79,13 +79,13 @@ public class BalancesAdjustmentModification extends AbstractModification {
         return parameters;
     }
 
-    private LoadFlowParametersInfos getLoadFlowParametersInfos(ReportNode reportNode) {
+    private LoadFlowParametersModel getLoadFlowParametersInfos(ReportNode reportNode) {
         if (balancesAdjustmentModificationInfos.getLoadFlowParametersId() == null) {
             reportUsingDefaultParameters(reportNode, "Load flow parameters ID is null");
             return null;
         }
 
-        LoadFlowParametersInfos loadFlowParametersInfos = loadFlowService.getLoadFlowParametersInfos(
+        LoadFlowParametersModel loadFlowParametersInfos = loadFlowService.getLoadFlowParametersInfos(
                 balancesAdjustmentModificationInfos.getLoadFlowParametersId()
         );
 
@@ -160,7 +160,7 @@ public class BalancesAdjustmentModification extends AbstractModification {
                 .toList();
     }
 
-    private Scalable createScalable(BalancesAdjustmentAreaInfos balancesAdjustmentAreaInfos, Network network, ReportNode reportNode) {
+    private Scalable createScalable(BalancesAdjustmentAreaModel balancesAdjustmentAreaInfos, Network network, ReportNode reportNode) {
         return createScalable(
             balancesAdjustmentAreaInfos.getShiftEquipmentType(),
             balancesAdjustmentAreaInfos.getShiftType(),

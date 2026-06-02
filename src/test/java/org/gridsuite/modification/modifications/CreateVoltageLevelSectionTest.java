@@ -54,23 +54,23 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
         AbstractModification modification = voltageLevelSectionInfos.toModification();
 
         assertEquals("CREATE_VOLTAGE_LEVEL_SECTION", modification.getName());
-        String message = assertThrows(NetworkModificationException.class, () -> modification.check(network)).getMessage();
+        String message = assertThrows(NetworkModificationException.class, () -> voltageLevelSectionInfos.toModification().check(network)).getMessage();
         assertEquals("BUSBAR_SECTION_NOT_FOUND : 1 is not the busbar index of the busbar section bbs1 in voltage level v1", message);
 
-        message = assertThrows(NetworkModificationException.class, () -> modification.check(network)).getMessage();
+        message = assertThrows(NetworkModificationException.class, () -> voltageLevelSectionInfos.toModification().check(network)).getMessage();
         assertEquals("BUSBAR_SECTION_NOT_FOUND : 1 is not the busbar index of the busbar section bbs1 in voltage level v1", message);
 
         voltageLevelSectionInfos.setVoltageLevelId("notFoundVoltageLevel");
         voltageLevelSectionInfos.setBusbarSectionId("bbs1");
         voltageLevelSectionInfos.setBusbarIndex(1);
         message = assertThrows(NetworkModificationException.class,
-                () -> modification.check(network)).getMessage();
+                () -> voltageLevelSectionInfos.toModification().check(network)).getMessage();
         assertEquals("CREATE_VOLTAGE_LEVEL_ERROR : Voltage level not found: notFoundVoltageLevel", message);
 
         voltageLevelSectionInfos.setVoltageLevelId("v1");
         voltageLevelSectionInfos.setBusbarSectionId("notFoundBusbar");
         message = assertThrows(NetworkModificationException.class,
-                () -> modification.check(network)).getMessage();
+                () -> voltageLevelSectionInfos.toModification().check(network)).getMessage();
         assertEquals("BUSBAR_SECTION_NOT_FOUND : notFoundBusbar not found in voltage level v1", message);
     }
 

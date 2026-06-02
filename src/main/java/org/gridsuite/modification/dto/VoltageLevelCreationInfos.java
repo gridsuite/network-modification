@@ -16,8 +16,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.VoltageLevelCreation;
 
 import java.util.HashMap;
 import java.util.List;
@@ -68,11 +66,6 @@ public class VoltageLevelCreationInfos extends EquipmentCreationInfos {
 
     @Schema(description = "substation Creation infos")
     private SubstationCreationInfos substationCreation;
-
-    @Override
-    public AbstractModification toModification() {
-        return new VoltageLevelCreation(this);
-    }
 
     @Override
     public Map<String, String> getMapMessageValues() {

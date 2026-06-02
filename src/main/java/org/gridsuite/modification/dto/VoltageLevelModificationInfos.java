@@ -16,8 +16,6 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.VoltageLevelModification;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -45,11 +43,6 @@ public class VoltageLevelModificationInfos extends BasicEquipmentModificationInf
 
     @Schema(description = "high short-circuit current limit in A")
     private AttributeModification<Double> ipMax;
-
-    @Override
-    public AbstractModification toModification() {
-        return new VoltageLevelModification(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

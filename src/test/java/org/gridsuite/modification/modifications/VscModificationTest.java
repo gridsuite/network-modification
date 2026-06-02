@@ -185,7 +185,7 @@ class VscModificationTest extends AbstractNetworkModificationTest {
         Network networkWithoutExt = NetworkCreation.createWithVSC(networkuuid, false);
         VscModificationInfos modificationInfos = (VscModificationInfos) buildModification();
         modificationInfos.setAngleDroopActivePowerControl(new AttributeModification<>(true, OperationType.SET));
-        VscModification vscModification = new VscModification(modificationInfos);
+        VscModification vscModification = (VscModification) modificationInfos.toModification();
         ReportNode subReporter = ReportNode.NO_OP;
         ComputationManager computationManager = new LocalComputationManager();
         assertDoesNotThrow(() -> vscModification.check(networkWithoutExt));
@@ -237,7 +237,7 @@ class VscModificationTest extends AbstractNetworkModificationTest {
     }
 
     private static void checkDroopWithAbsentInfos(VscModificationInfos modificationInfos, Network networkWithoutExt) {
-        VscModification vscModification = new VscModification(modificationInfos);
+        VscModification vscModification = (VscModification) modificationInfos.toModification();
         String message = assertThrows(NetworkModificationException.class,
                 () -> vscModification.check(networkWithoutExt))
             .getMessage();
@@ -253,7 +253,7 @@ class VscModificationTest extends AbstractNetworkModificationTest {
         modificationInfos.setAngleDroopActivePowerControl(null);
         modificationInfos.setDroop(null);
         modificationInfos.setP0(null);
-        VscModification vscModification = new VscModification(modificationInfos);
+        VscModification vscModification = (VscModification) modificationInfos.toModification();
         ReportNode subReporter = ReportNode.NO_OP;
         ComputationManager computationManager = new LocalComputationManager();
         assertDoesNotThrow(() -> vscModification.check(networkWithExt));
@@ -272,7 +272,7 @@ class VscModificationTest extends AbstractNetworkModificationTest {
         modificationInfos.setAngleDroopActivePowerControl(null);
         modificationInfos.setDroop(null);
         modificationInfos.setP0(null);
-        VscModification vscModification = new VscModification(modificationInfos);
+        VscModification vscModification = (VscModification) modificationInfos.toModification();
         ReportNode subReporter = ReportNode.NO_OP;
         ComputationManager computationManager = new LocalComputationManager();
         assertDoesNotThrow(() -> vscModification.check(networkWithExt));
@@ -293,7 +293,7 @@ class VscModificationTest extends AbstractNetworkModificationTest {
         modificationInfos.setAngleDroopActivePowerControl(new AttributeModification<>(false, OperationType.SET));
         modificationInfos.setDroop(new AttributeModification<>(2.F, OperationType.SET));
         modificationInfos.setP0(new AttributeModification<>(6F, OperationType.SET));
-        VscModification vscModification = new VscModification(modificationInfos);
+        VscModification vscModification = (VscModification) modificationInfos.toModification();
         ReportNode subReporter = ReportNode.NO_OP;
         ComputationManager computationManager = new LocalComputationManager();
         assertDoesNotThrow(() -> vscModification.check(networkWithExt));
@@ -315,7 +315,7 @@ class VscModificationTest extends AbstractNetworkModificationTest {
 
         var networkuuid = UUID.randomUUID();
         Network networkWitoutExt = NetworkCreation.createWithVSC(networkuuid, true);
-        VscModification vscModification = new VscModification(modificationInfos);
+        VscModification vscModification = (VscModification) modificationInfos.toModification();
         assertThrows(NetworkModificationException.class, () -> vscModification.check(networkWitoutExt));
     }
 
@@ -339,7 +339,7 @@ class VscModificationTest extends AbstractNetworkModificationTest {
                 .add();
         ReportNode subReporter = ReportNode.NO_OP;
         ComputationManager computationManager = new LocalComputationManager();
-        VscModification vscModification = new VscModification(modificationInfos);
+        VscModification vscModification = (VscModification) modificationInfos.toModification();
         assertDoesNotThrow(() -> vscModification.check(networkWithExt));
         vscModification.apply(networkWithExt, true, computationManager, subReporter);
         var hvdcOperatorActivePowerRange = hvdcLine.getExtension(HvdcOperatorActivePowerRange.class);
@@ -354,7 +354,7 @@ class VscModificationTest extends AbstractNetworkModificationTest {
         Network networkWithExt = NetworkCreation.createWithVSC(networkuuid, true);
         VscModificationInfos modificationInfos = (VscModificationInfos) buildModification();
         modificationInfos.setConverterStation1(emptyConverterStation); // no change on converter station
-        VscModification vscModification = new VscModification(modificationInfos);
+        VscModification vscModification = (VscModification) modificationInfos.toModification();
         ReportNode subReporter = ReportNode.NO_OP;
         ComputationManager computationManager = new LocalComputationManager();
         assertDoesNotThrow(() -> vscModification.check(networkWithExt));

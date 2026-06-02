@@ -10,8 +10,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.BatteryModification;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -68,11 +66,6 @@ public class BatteryModificationInfos extends InjectionModificationInfos {
 
     @Schema(description = "Reactive capability curve")
     private AttributeModification<Boolean> reactiveCapabilityCurve;
-
-    @Override
-    public AbstractModification toModification() {
-        return new BatteryModification(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

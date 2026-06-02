@@ -18,7 +18,6 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
-import org.gridsuite.modification.modifications.byfilter.ModificationByAssignment;
 
 import java.util.List;
 
@@ -39,11 +38,6 @@ public class ModificationByAssignmentInfos extends ModificationInfos {
 
     @Schema(description = "list of modifications")
     private List<? extends AssignmentInfos<?>> assignmentInfosList;
-
-    @Override
-    public ModificationByAssignment toModification() {
-        return new ModificationByAssignment(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.EquipmentAttributeModificationInfos;
+import org.gridsuite.modification.model.EquipmentAttributeModificationModel;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.EQUIPMENT_NOT_FOUND;
 import static org.gridsuite.modification.NetworkModificationException.Type.WRONG_EQUIPMENT_TYPE;
@@ -22,9 +22,9 @@ import static org.gridsuite.modification.NetworkModificationException.Type.WRONG
  */
 public class EquipmentAttributeModification extends AbstractModification {
 
-    private final EquipmentAttributeModificationInfos modificationInfos;
+    private final EquipmentAttributeModificationModel modificationInfos;
 
-    public EquipmentAttributeModification(EquipmentAttributeModificationInfos modificationInfos) {
+    public EquipmentAttributeModification(EquipmentAttributeModificationModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 

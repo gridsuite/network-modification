@@ -16,8 +16,6 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.LineCreation;
 
 import java.util.List;
 
@@ -49,11 +47,6 @@ public class LineCreationInfos extends BranchCreationInfos {
 
     @Schema(description = "Segments used from catalog")
     private List<LineSegmentInfos> lineSegments;
-
-    @Override
-    public AbstractModification toModification() {
-        return new LineCreation(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

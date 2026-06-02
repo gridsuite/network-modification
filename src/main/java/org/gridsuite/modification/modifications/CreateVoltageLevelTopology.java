@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.CreateVoltageLevelTopologyInfos;
+import org.gridsuite.modification.model.CreateVoltageLevelTopologyModel;
 
 import java.util.Comparator;
 import java.util.List;
@@ -30,9 +30,9 @@ import static org.gridsuite.modification.NetworkModificationException.Type.CREAT
  */
 public class CreateVoltageLevelTopology extends AbstractModification {
 
-    private final CreateVoltageLevelTopologyInfos createVoltageLevelTopologyInfos;
+    private final CreateVoltageLevelTopologyModel createVoltageLevelTopologyInfos;
 
-    public CreateVoltageLevelTopology(CreateVoltageLevelTopologyInfos createVoltageLevelTopology) {
+    public CreateVoltageLevelTopology(CreateVoltageLevelTopologyModel createVoltageLevelTopology) {
         this.createVoltageLevelTopologyInfos = createVoltageLevelTopology;
     }
 

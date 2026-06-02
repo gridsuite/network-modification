@@ -17,8 +17,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.StaticVarCompensatorCreation;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
@@ -93,11 +91,6 @@ public class StaticVarCompensatorCreationInfos extends InjectionCreationInfos {
 
     @Schema(description = "High voltage threshold")
     private Double highVoltageThreshold;
-
-    @Override
-    public AbstractModification toModification() {
-        return new StaticVarCompensatorCreation(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

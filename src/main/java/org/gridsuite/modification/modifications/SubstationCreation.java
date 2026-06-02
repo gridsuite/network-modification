@@ -3,15 +3,15 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
-import org.gridsuite.modification.dto.SubstationCreationInfos;
+import org.gridsuite.modification.model.SubstationCreationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 public class SubstationCreation extends AbstractModification {
 
-    private final SubstationCreationInfos modificationInfos;
+    private final SubstationCreationModel modificationInfos;
 
-    public SubstationCreation(SubstationCreationInfos modificationInfos) {
+    public SubstationCreation(SubstationCreationModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 

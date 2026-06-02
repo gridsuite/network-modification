@@ -18,8 +18,6 @@ import lombok.experimental.SuperBuilder;
 
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.EquipmentAttributeModification;
 import org.springframework.lang.NonNull;
 
 import java.util.HashMap;
@@ -49,11 +47,6 @@ public class EquipmentAttributeModificationInfos extends EquipmentModificationIn
     @Schema(description = "Equipment type")
     @NonNull
     private IdentifiableType equipmentType;
-
-    @Override
-    public AbstractModification toModification() {
-        return new EquipmentAttributeModification(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

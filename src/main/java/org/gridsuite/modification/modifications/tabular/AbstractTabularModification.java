@@ -9,8 +9,8 @@ package org.gridsuite.modification.modifications.tabular;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
-import org.gridsuite.modification.dto.EquipmentModificationInfos;
-import org.gridsuite.modification.dto.tabular.TabularBaseInfos;
+import org.gridsuite.modification.model.EquipmentModificationModel;
+import org.gridsuite.modification.model.tabular.TabularBaseModel;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,13 +24,13 @@ public abstract class AbstractTabularModification extends AbstractModification {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractTabularModification.class);
 
-    protected final TabularBaseInfos modificationInfos;
+    protected final TabularBaseModel modificationInfos;
 
-    protected AbstractTabularModification(TabularBaseInfos modificationInfos) {
+    protected AbstractTabularModification(TabularBaseModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 
-    public abstract void specificCheck(EquipmentModificationInfos equipmentModificationInfos, Network network, ReportNode subReportNode);
+    public abstract void specificCheck(EquipmentModificationModel equipmentModificationInfos, Network network, ReportNode subReportNode);
 
     public abstract String defaultMessage();
 
@@ -40,7 +40,7 @@ public abstract class AbstractTabularModification extends AbstractModification {
     public void apply(Network network, ReportNode subReportNode) {
         int applicationFailuresCount = 0;
         for (var modifInfos : modificationInfos.getModifications()) {
-            EquipmentModificationInfos equipmentModificationInfos = (EquipmentModificationInfos) modifInfos;
+            EquipmentModificationModel equipmentModificationInfos = (EquipmentModificationModel) modifInfos;
             ReportNode modifReportNode = subReportNode.newReportNode()
                     .withMessageTemplate(baseTemplateMessage() + ".equipmentId")
                     .withUntypedValue("equipmentId", equipmentModificationInfos.getEquipmentId())

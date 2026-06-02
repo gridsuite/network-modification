@@ -16,8 +16,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.DeleteAttachingLine;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,11 +48,6 @@ public class DeleteAttachingLineInfos extends ModificationInfos {
 
     @Schema(description = "replacing line 1 name")
     private String replacingLine1Name;
-
-    @Override
-    public AbstractModification toModification() {
-        return new DeleteAttachingLine(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

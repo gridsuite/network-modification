@@ -15,8 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.GenerationDispatch;
 
 import java.util.List;
 
@@ -48,11 +46,6 @@ public class GenerationDispatchInfos extends ModificationInfos {
 
     @Schema(description = "substations hierarchy for ordering generators with marginal cost")
     private List<SubstationsGeneratorsOrderingInfos> substationsGeneratorsOrdering;
-
-    @Override
-    public AbstractModification toModification() {
-        return new GenerationDispatch(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

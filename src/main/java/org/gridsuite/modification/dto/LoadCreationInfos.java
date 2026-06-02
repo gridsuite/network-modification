@@ -16,8 +16,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.LoadCreation;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -40,11 +38,6 @@ public class LoadCreationInfos extends InjectionCreationInfos {
 
     @Schema(description = "Reactive power")
     private double q0;
-
-    @Override
-    public AbstractModification toModification() {
-        return new LoadCreation(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

@@ -15,8 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.CreateVoltageLevelTopology;
 
 import java.util.HashMap;
 import java.util.List;
@@ -55,10 +53,5 @@ public class CreateVoltageLevelTopologyInfos extends ModificationInfos {
         Map<String, String> mapMessageValues = new HashMap<>();
         mapMessageValues.put("voltageLevelId", getVoltageLevelId());
         return mapMessageValues;
-    }
-
-    @Override
-    public AbstractModification toModification() {
-        return new CreateVoltageLevelTopology(this);
     }
 }

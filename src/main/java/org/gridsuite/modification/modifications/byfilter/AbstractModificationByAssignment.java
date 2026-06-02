@@ -17,11 +17,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.FilterInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils;
+import org.gridsuite.modification.model.FilterEquipments;
+import org.gridsuite.modification.model.FilterModel;
+import org.gridsuite.modification.model.ModificationModel;
+import org.gridsuite.modification.model.byfilter.AbstractAssignmentModel;
+import org.gridsuite.modification.model.byfilter.equipmentfield.FieldUtils;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -33,9 +33,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils.getFieldValue;
-import static org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils.setFieldValue;
-import static org.gridsuite.modification.dto.byfilter.equipmentfield.GeneratorField.*;
+import static org.gridsuite.modification.model.byfilter.equipmentfield.FieldUtils.getFieldValue;
+import static org.gridsuite.modification.model.byfilter.equipmentfield.FieldUtils.setFieldValue;
+import static org.gridsuite.modification.model.byfilter.equipmentfield.GeneratorField.*;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
 /**
@@ -92,25 +92,25 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
 
     public abstract String getModificationTypeLabel();
 
-    private String getEditedFieldLabel(AbstractAssignmentInfos modificationByFilterInfos) {
+    private String getEditedFieldLabel(AbstractAssignmentModel modificationByFilterInfos) {
         return modificationByFilterInfos.getEditedFieldLabel();
     }
 
-    public abstract ModificationInfos getModificationInfos();
+    public abstract ModificationModel getModificationInfos();
 
     public abstract IdentifiableType getEquipmentType();
 
     public abstract NetworkModificationException.Type getExceptionType();
 
-    public abstract List<AbstractAssignmentInfos> getAssignmentInfosList();
+    public abstract List<AbstractAssignmentModel> getAssignmentInfosList();
 
     protected abstract boolean preCheckValue(Identifiable<?> equipment,
-                                             AbstractAssignmentInfos abstractAssignmentInfos,
+                                             AbstractAssignmentModel abstractAssignmentInfos,
                                              List<ReportNode> reports, List<String> notEditableEquipments);
 
-    protected abstract String getNewValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos);
+    protected abstract String getNewValue(Identifiable<?> equipment, AbstractAssignmentModel abstractAssignmentInfos);
 
-    protected boolean checkGeneratorsPowerValues(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos, List<ReportNode> reports) {
+    protected boolean checkGeneratorsPowerValues(Identifiable<?> equipment, AbstractAssignmentModel abstractAssignmentInfos, List<ReportNode> reports) {
         if (equipment.getType() == IdentifiableType.GENERATOR) {
             Generator generator = (Generator) equipment;
             if (abstractAssignmentInfos.getEditedField().equals(PLANNED_ACTIVE_POWER_SET_POINT.name())) {
@@ -129,11 +129,11 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
         return true;
     }
 
-    protected String getOldValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos) {
+    protected String getOldValue(Identifiable<?> equipment, AbstractAssignmentModel abstractAssignmentInfos) {
         return getFieldValue(equipment, abstractAssignmentInfos.getEditedField());
     }
 
-    protected String applyValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos) {
+    protected String applyValue(Identifiable<?> equipment, AbstractAssignmentModel abstractAssignmentInfos) {
         // get new value
         String newValue = getNewValue(equipment, abstractAssignmentInfos);
 
@@ -181,7 +181,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                 ReportNode eachAssignmentReporter = subReporter.newReportNode()
                         .withMessageTemplate(REPORT_KEY_APPLIED_ASSIGNMENT)
                         .withUntypedValue(VALUE_KEY_MODIFICATION_TYPE_LABEL, StringUtils.capitalize(getModificationTypeLabel()))
-                        .withUntypedValue(VALUE_KEY_FILTERS_EACH_ASSIGNMENT, abstractAssignmentInfos.getFilters().stream().map(FilterInfos::getName)
+                        .withUntypedValue(VALUE_KEY_FILTERS_EACH_ASSIGNMENT, abstractAssignmentInfos.getFilters().stream().map(FilterModel::getName)
                                 .collect(Collectors.joining(", ")))
                         .add();
                 abstractAssignmentInfos.getFilters().forEach(filterInfos -> applyOnFilterEquipments(network, filterUuidEquipmentsMap, reports, abstractAssignmentInfos, filterInfos));
@@ -211,7 +211,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     }
 
     protected boolean isEquipmentEditable(Identifiable<?> equipment,
-                                          AbstractAssignmentInfos abstractAssignmentInfos,
+                                          AbstractAssignmentModel abstractAssignmentInfos,
                                           List<ReportNode> equipmentsReport) {
         if (abstractAssignmentInfos.getEditedField() == null) {
             return false;
@@ -219,8 +219,8 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
         return FieldUtils.isEquipmentEditable(equipment, abstractAssignmentInfos.getEditedField(), equipmentsReport);
     }
 
-    private void createAssignmentReports(List<ReportNode> reports, AbstractAssignmentInfos abstractAssignmentInfos,
-                                         FilterInfos filterInfos, FilterEquipments filterEquipments, List<String> notEditableEquipments) {
+    private void createAssignmentReports(List<ReportNode> reports, AbstractAssignmentModel abstractAssignmentInfos,
+                                         FilterModel filterInfos, FilterEquipments filterEquipments, List<String> notEditableEquipments) {
         if (notEditableEquipments.size() == filterEquipments.getIdentifiableAttributes().size()) {
             reports.add(ReportNode.newRootReportNode()
                     .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
@@ -273,7 +273,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     }
 
     private void applyModification(Identifiable<?> equipment,
-                                   AbstractAssignmentInfos abstractAssignmentInfos,
+                                   AbstractAssignmentModel abstractAssignmentInfos,
                                    List<ReportNode> reports,
                                    List<String> notEditableEquipments) {
 
@@ -313,15 +313,15 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     private Map<UUID, String> getFilters() {
         return getAssignmentInfosList().stream()
                 .flatMap(v -> v.getFilters().stream())
-                .filter(distinctByKey(FilterInfos::getId))
-                .collect(Collectors.toMap(FilterInfos::getId, FilterInfos::getName));
+                .filter(distinctByKey(FilterModel::getId))
+                .collect(Collectors.toMap(FilterModel::getId, FilterModel::getName));
     }
 
     private void applyOnFilterEquipments(Network network,
                                          Map<UUID, FilterEquipments> filterUuidEquipmentsMap,
                                          List<ReportNode> reports,
-                                         AbstractAssignmentInfos abstractAssignmentInfos,
-                                         FilterInfos filterInfos) {
+                                         AbstractAssignmentModel abstractAssignmentInfos,
+                                         FilterModel filterInfos) {
         FilterEquipments filterEquipments = filterUuidEquipmentsMap.get(filterInfos.getId());
 
         if (filterEquipments == null) {

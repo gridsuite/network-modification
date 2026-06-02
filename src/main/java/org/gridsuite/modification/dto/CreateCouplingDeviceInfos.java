@@ -15,8 +15,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.CreateCouplingDevice;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,11 +37,6 @@ public class CreateCouplingDeviceInfos extends ModificationInfos {
 
     @Schema(description = "Coupling device information")
     private CouplingDeviceInfos couplingDeviceInfos;
-
-    @Override
-    public AbstractModification toModification() {
-        return new CreateCouplingDevice(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

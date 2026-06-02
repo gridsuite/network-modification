@@ -10,14 +10,14 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import jakarta.validation.constraints.NotNull;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.*;
 
 import java.util.*;
 import java.util.stream.Stream;
 
-import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.*;
-import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.EQUIPMENT;
-import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.DELETE;
+import static org.gridsuite.modification.model.OperationalLimitsGroupModel.Applicability.*;
+import static org.gridsuite.modification.model.OperationalLimitsGroupModel.Applicability.EQUIPMENT;
+import static org.gridsuite.modification.model.OperationalLimitsGroupModificationType.DELETE;
 import static org.gridsuite.modification.modifications.AbstractBranchModification.*;
 
 /**
@@ -27,12 +27,12 @@ import static org.gridsuite.modification.modifications.AbstractBranchModificatio
  */
 public class OperationalLimitsGroupsModification {
     private final Branch<?> modifiedBranch; // branch modified by the network modification
-    private final List<OperationalLimitsGroupModificationInfos> olgModificationInfos;
+    private final List<OperationalLimitsGroupModificationModel> olgModificationInfos;
     private final ReportNode olgsReportNode;
 
     public OperationalLimitsGroupsModification(
             Branch<?> branch,
-            List<OperationalLimitsGroupModificationInfos> operationalLimitsInfos,
+            List<OperationalLimitsGroupModificationModel> operationalLimitsInfos,
             ReportNode limitSetsReportNode) {
         modifiedBranch = branch;
         olgModificationInfos = operationalLimitsInfos != null ? operationalLimitsInfos : new ArrayList<>();
@@ -47,7 +47,7 @@ public class OperationalLimitsGroupsModification {
             deleteOlgsUnspecifiedInTheModification();
         }
 
-        for (OperationalLimitsGroupModificationInfos opLGModifInfos : olgModificationInfos) {
+        for (OperationalLimitsGroupModificationModel opLGModifInfos : olgModificationInfos) {
             if (opLGModifInfos.getModificationType() == null) {
                 continue;
             }
@@ -67,7 +67,7 @@ public class OperationalLimitsGroupsModification {
     }
 
     private void deleteOlgsUnspecifiedInTheModification() {
-        Map<String, OperationalLimitsGroupInfos.Applicability> olgsToBeDeleted = new HashMap<>();
+        Map<String, OperationalLimitsGroupModel.Applicability> olgsToBeDeleted = new HashMap<>();
 
         // get the deletions on side 1
         getDeletableOperationalLimitsGroupStream(modifiedBranch.getOperationalLimitsGroups1(), SIDE1)
@@ -83,10 +83,10 @@ public class OperationalLimitsGroupsModification {
                     }
                 });
 
-        for (Map.Entry<String, OperationalLimitsGroupInfos.Applicability> deletedOlg : olgsToBeDeleted.entrySet()) {
+        for (Map.Entry<String, OperationalLimitsGroupModel.Applicability> deletedOlg : olgsToBeDeleted.entrySet()) {
             new OperationalLimitsGroupModification(
                     modifiedBranch,
-                    OperationalLimitsGroupModificationInfos.builder()
+                    OperationalLimitsGroupModificationModel.builder()
                             .id(deletedOlg.getKey())
                             .applicability(deletedOlg.getValue())
                             .build(),
@@ -96,7 +96,7 @@ public class OperationalLimitsGroupsModification {
     }
 
     @NotNull
-    private Stream<OperationalLimitsGroup> getDeletableOperationalLimitsGroupStream(Collection<OperationalLimitsGroup> modifiedOlgs, OperationalLimitsGroupInfos.Applicability side) {
+    private Stream<OperationalLimitsGroup> getDeletableOperationalLimitsGroupStream(Collection<OperationalLimitsGroup> modifiedOlgs, OperationalLimitsGroupModel.Applicability side) {
         return modifiedOlgs.stream().filter(
                 operationalLimitsGroup ->
                         olgModificationInfos.stream().noneMatch(
@@ -109,7 +109,7 @@ public class OperationalLimitsGroupsModification {
         );
     }
 
-    private void logApplicabilityChange(List<ReportNode> olgReports, String groupId, OperationalLimitsGroupInfos.Applicability applicability) {
+    private void logApplicabilityChange(List<ReportNode> olgReports, String groupId, OperationalLimitsGroupModel.Applicability applicability) {
         olgReports.add(ReportNode.newRootReportNode().withMessageTemplate("network.modification.applicabilityChanged")
                 .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, groupId)
                 .withUntypedValue(APPLICABILITY, applicability.toString())
@@ -117,7 +117,7 @@ public class OperationalLimitsGroupsModification {
                 .build());
     }
 
-    private boolean shouldDeletedOtherSide(Branch<?> branch, OperationalLimitsGroupModificationInfos limitsModifInfos) {
+    private boolean shouldDeletedOtherSide(Branch<?> branch, OperationalLimitsGroupModificationModel limitsModifInfos) {
         boolean hasModificationOnSideOne = !olgModificationInfos.stream().filter(opLimitModifInfo ->
                         opLimitModifInfo.getId().equals(limitsModifInfos.getId()) && opLimitModifInfo.getApplicability().equals(SIDE1))
                 .toList().isEmpty();
@@ -140,7 +140,7 @@ public class OperationalLimitsGroupsModification {
     }
 
     // If we are changing applicability we may not find operational limits group where we should so check both sides
-    private void detectApplicabilityChange(OperationalLimitsGroupModificationInfos modifiedLimitSetInfos, List<ReportNode> olgReports) {
+    private void detectApplicabilityChange(OperationalLimitsGroupModificationModel modifiedLimitSetInfos, List<ReportNode> olgReports) {
 
         OperationalLimitsGroup limitsGroup1 = modifiedBranch.getOperationalLimitsGroup1(modifiedLimitSetInfos.getId()).orElse(null);
         OperationalLimitsGroup limitsGroup2 = modifiedBranch.getOperationalLimitsGroup2(modifiedLimitSetInfos.getId()).orElse(null);

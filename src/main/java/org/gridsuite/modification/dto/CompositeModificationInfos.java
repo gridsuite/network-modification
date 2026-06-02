@@ -16,8 +16,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.CompositeModification;
 
 import java.util.HashMap;
 import java.util.List;
@@ -49,11 +47,6 @@ public class CompositeModificationInfos extends ModificationInfos {
     @Schema(description = "composite modification max depth")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer maxDepth;
-
-    @Override
-    public AbstractModification toModification() {
-        return new CompositeModification(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

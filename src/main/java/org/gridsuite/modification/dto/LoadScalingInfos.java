@@ -15,8 +15,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.LoadScaling;
 
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
@@ -30,11 +28,6 @@ import org.gridsuite.modification.modifications.LoadScaling;
 @JsonTypeName("LOAD_SCALING")
 @ModificationErrorTypeName("LOAD_SCALING_ERROR")
 public class LoadScalingInfos extends ScalingInfos {
-
-    @Override
-    public AbstractModification toModification() {
-        return new LoadScaling(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

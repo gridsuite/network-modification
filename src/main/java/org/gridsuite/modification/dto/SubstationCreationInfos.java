@@ -7,8 +7,6 @@
 package org.gridsuite.modification.dto;
 
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.SubstationCreation;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
@@ -36,11 +34,6 @@ public class SubstationCreationInfos extends EquipmentCreationInfos {
 
     @Schema(description = "Substation country")
     private Country country;
-
-    @Override
-    public AbstractModification toModification() {
-        return new SubstationCreation(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

@@ -12,6 +12,7 @@ import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
+import org.gridsuite.modification.model.LoadFlowParametersModel;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
@@ -148,7 +149,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
             .build();
 
         when(loadFlowService.getLoadFlowParametersInfos(LOADFLOW_PARAMETERS_UUID))
-                .thenReturn(LoadFlowParametersInfos.builder()
+                .thenReturn(LoadFlowParametersModel.builder()
                         .provider("OpenLoadFlow")
                         .commonParameters(LoadFlowParameters.load())
                         .specificParametersPerProvider(Map.of("OpenLoadFlow", Map.of(
@@ -229,7 +230,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
                 .build();
 
         when(loadFlowService.getLoadFlowParametersInfos(LOADFLOW_PARAMETERS_UUID))
-                .thenReturn(LoadFlowParametersInfos.builder()
+                .thenReturn(LoadFlowParametersModel.builder()
                         .provider(null) // No provider specified
                         .commonParameters(LoadFlowParameters.load())
                         .specificParametersPerProvider(Map.of())

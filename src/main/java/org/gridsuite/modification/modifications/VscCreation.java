@@ -13,8 +13,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRangeAdder;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.ConverterStationCreationInfos;
-import org.gridsuite.modification.dto.VscCreationInfos;
+import org.gridsuite.modification.model.ConverterStationCreationModel;
+import org.gridsuite.modification.model.VscCreationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -33,9 +33,9 @@ public class VscCreation extends AbstractModification {
     public static final String VSC_SETPOINTS = "network.modification.vscSetPoints";
     public static final String VSC_CHARACTERISTICS = "network.modification.vscCharacteristics";
 
-    private final VscCreationInfos modificationInfos;
+    private final VscCreationModel modificationInfos;
 
-    public VscCreation(VscCreationInfos modificationInfos) {
+    public VscCreation(VscCreationModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 
@@ -76,7 +76,7 @@ public class VscCreation extends AbstractModification {
     }
 
     private void checkConverterStation(Network network,
-                                       ConverterStationCreationInfos converterStation) {
+                                       ConverterStationCreationModel converterStation) {
         if (converterStation == null) {
             throw new NetworkModificationException(CREATE_VSC_ERROR, modificationInfos.getEquipmentId() + "Missing required converter station");
         }
@@ -184,7 +184,7 @@ public class VscCreation extends AbstractModification {
     }
 
     private VscConverterStation createConverterStation(Network network,
-                                                       ConverterStationCreationInfos converterStationCreationInfos,
+                                                       ConverterStationCreationModel converterStationCreationInfos,
                                                        ReportNode subReportNode,
                                                        String logFieldName) {
         ReportNode converterStationReporter = subReportNode.newReportNode()
@@ -206,7 +206,7 @@ public class VscCreation extends AbstractModification {
 
     private VscConverterStation createConverterStationInNodeBreaker(Network network,
                                                                     VoltageLevel voltageLevel,
-                                                                    ConverterStationCreationInfos converterStationCreationInfos,
+                                                                    ConverterStationCreationModel converterStationCreationInfos,
                                                                     ReportNode subReportNode) {
         VscConverterStationAdder converterStationAdder = voltageLevel.newVscConverterStation()
                 .setId(converterStationCreationInfos.getEquipmentId())
@@ -237,7 +237,7 @@ public class VscCreation extends AbstractModification {
     }
 
     private VscConverterStation createConverterStationInBusBreaker(VoltageLevel voltageLevel,
-                                                                   ConverterStationCreationInfos converterStationCreationInfos,
+                                                                   ConverterStationCreationModel converterStationCreationInfos,
                                                                    ReportNode subReportNode) {
         Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, converterStationCreationInfos.getBusOrBusbarSectionId());
         VscConverterStation vscConverterStation = voltageLevel.newVscConverterStation()
@@ -256,7 +256,7 @@ public class VscCreation extends AbstractModification {
     }
 
     private void addExtensionsAndReports(VscConverterStation vscConverterStation,
-                                         ConverterStationCreationInfos converterStationCreationInfos,
+                                         ConverterStationCreationModel converterStationCreationInfos,
                                          ReportNode subReporter) {
         reportInjectionCreationConnectivity(converterStationCreationInfos, subReporter);
 
@@ -269,7 +269,7 @@ public class VscCreation extends AbstractModification {
         reportConverterStationSetPoints(converterStationCreationInfos, subReporter);
     }
 
-    private void reportConverterStationSetPoints(ConverterStationCreationInfos converterStationCreationInfos, ReportNode subReportNode) {
+    private void reportConverterStationSetPoints(ConverterStationCreationModel converterStationCreationInfos, ReportNode subReportNode) {
         ReportNode setPointReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.converterStationSetPoint").add();
 
         if (converterStationCreationInfos.getReactivePowerSetpoint() != null) {

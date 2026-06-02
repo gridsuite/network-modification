@@ -13,9 +13,9 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.AttributeModification;
-import org.gridsuite.modification.dto.ShuntCompensatorModificationInfos;
-import org.gridsuite.modification.dto.ShuntCompensatorType;
+import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.model.ShuntCompensatorModificationModel;
+import org.gridsuite.modification.model.ShuntCompensatorType;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -33,13 +33,13 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
 public class ShuntCompensatorModification extends AbstractInjectionModification {
     private static final String SWITCHED_ON_Q_AT_NOMINALV_LOG_MESSAGE = "Switched-on Q at nominal voltage";
 
-    public ShuntCompensatorModification(ShuntCompensatorModificationInfos shuntCompensatorModificationInfos) {
+    public ShuntCompensatorModification(ShuntCompensatorModificationModel shuntCompensatorModificationInfos) {
         super(shuntCompensatorModificationInfos);
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        ShuntCompensatorModificationInfos shuntCompensatorModificationInfos = (ShuntCompensatorModificationInfos) modificationInfos;
+        ShuntCompensatorModificationModel shuntCompensatorModificationInfos = (ShuntCompensatorModificationModel) modificationInfos;
         ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorModificationInfos.getEquipmentId());
         if (shuntCompensator == null) {
             throw new NetworkModificationException(SHUNT_COMPENSATOR_NOT_FOUND,
@@ -66,7 +66,7 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        ShuntCompensatorModificationInfos shuntCompensatorModificationInfos = (ShuntCompensatorModificationInfos) modificationInfos;
+        ShuntCompensatorModificationModel shuntCompensatorModificationInfos = (ShuntCompensatorModificationModel) modificationInfos;
         ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorModificationInfos.getEquipmentId());
         VoltageLevel voltageLevel = shuntCompensator.getTerminal().getVoltageLevel();
 
@@ -121,7 +121,7 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
     }
 
     private void applyModificationOnLinearModel(ReportNode subReportNode, ShuntCompensator shuntCompensator, VoltageLevel voltageLevel) {
-        ShuntCompensatorModificationInfos shuntCompensatorModificationInfos = (ShuntCompensatorModificationInfos) modificationInfos;
+        ShuntCompensatorModificationModel shuntCompensatorModificationInfos = (ShuntCompensatorModificationModel) modificationInfos;
         List<ReportNode> reports = new ArrayList<>();
         ShuntCompensatorLinearModel model = shuntCompensator.getModel(ShuntCompensatorLinearModel.class);
         var shuntCompensatorType = model.getBPerSection() > 0 ? ShuntCompensatorType.CAPACITOR : ShuntCompensatorType.REACTOR;
@@ -213,7 +213,7 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
     }
 
     private void reportSwitchedOnAndPerSectionValues(List<ReportNode> reports, double oldQAtNominalV, double oldSwitchedOnQAtNominalV, double oldSusceptancePerSection, double oldSwitchedOnSusceptance, double oldMaxQAtNominalV, int sectionCount, int maximumSectionCount) {
-        ShuntCompensatorModificationInfos shuntCompensatorModificationInfos = (ShuntCompensatorModificationInfos) modificationInfos;
+        ShuntCompensatorModificationModel shuntCompensatorModificationInfos = (ShuntCompensatorModificationModel) modificationInfos;
         if (shuntCompensatorModificationInfos.getMaxQAtNominalV() != null) {
             double newQatNominalV = shuntCompensatorModificationInfos.getMaxQAtNominalV().getValue() / maximumSectionCount;
             double newSwitchedOnQAtNominalV = newQatNominalV * sectionCount;
@@ -235,7 +235,7 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
         }
     }
 
-    private void modifyShuntCompensatorVoltageLevelBusOrBusBarSectionAttributes(ShuntCompensatorModificationInfos modificationInfos,
+    private void modifyShuntCompensatorVoltageLevelBusOrBusBarSectionAttributes(ShuntCompensatorModificationModel modificationInfos,
                                                                                 ShuntCompensator shuntCompensator, ReportNode subReportNode) {
         ModificationUtils.getInstance().moveFeederBay(
                 shuntCompensator, shuntCompensator.getTerminal(),
@@ -245,7 +245,7 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
         );
     }
 
-    private ReportNode modifyShuntCompensatorConnectivityAttributes(ShuntCompensatorModificationInfos modificationInfos,
+    private ReportNode modifyShuntCompensatorConnectivityAttributes(ShuntCompensatorModificationModel modificationInfos,
                                                         ShuntCompensator shuntCompensator, ReportNode subReportNode) {
         ConnectablePosition<ShuntCompensator> connectablePosition = shuntCompensator.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<ShuntCompensator> connectablePositionAdder = shuntCompensator.newExtension(ConnectablePositionAdder.class);

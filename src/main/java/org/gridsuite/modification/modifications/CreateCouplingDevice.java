@@ -10,16 +10,16 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.CreateCouplingDeviceBuilder;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.CreateCouplingDeviceInfos;
+import org.gridsuite.modification.model.CreateCouplingDeviceModel;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
 public class CreateCouplingDevice extends AbstractModification {
 
-    private final CreateCouplingDeviceInfos createCouplingDeviceInfos;
+    private final CreateCouplingDeviceModel createCouplingDeviceInfos;
 
-    public CreateCouplingDevice(CreateCouplingDeviceInfos createCouplingDeviceInfos) {
+    public CreateCouplingDevice(CreateCouplingDeviceModel createCouplingDeviceInfos) {
         this.createCouplingDeviceInfos = createCouplingDeviceInfos;
     }
 

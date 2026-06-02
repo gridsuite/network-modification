@@ -18,8 +18,6 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.SubstationModification;
 
 /**
  * @author David Braquart <david.braquart at rte-france.com>
@@ -36,11 +34,6 @@ import org.gridsuite.modification.modifications.SubstationModification;
 public class SubstationModificationInfos extends BasicEquipmentModificationInfos {
     @Schema(description = "country modification")
     private AttributeModification<Country> country;
-
-    @Override
-    public AbstractModification toModification() {
-        return new SubstationModification(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

@@ -13,7 +13,7 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
-import org.gridsuite.modification.dto.CompositeModificationInfos;
+import org.gridsuite.modification.model.CompositeModificationModel;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 
 import static org.gridsuite.modification.modifications.byfilter.AbstractModificationByAssignment.VALUE_KEY_ERROR_MESSAGE;
@@ -23,12 +23,12 @@ import static org.gridsuite.modification.modifications.byfilter.AbstractModifica
  */
 public class CompositeModification extends AbstractModification {
 
-    private final CompositeModificationInfos compositeModificationInfos;
+    private final CompositeModificationModel compositeModificationInfos;
 
     protected IFilterService filterService;
     protected ILoadFlowService loadFlowService;
 
-    public CompositeModification(CompositeModificationInfos compositeModificationInfos) {
+    public CompositeModification(CompositeModificationModel compositeModificationInfos) {
         this.compositeModificationInfos = compositeModificationInfos;
     }
 
@@ -45,9 +45,8 @@ public class CompositeModification extends AbstractModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
+        // Activation/stash filtering happens in the dto -> model mapping; the model only carries the modifications to apply.
         compositeModificationInfos.getModificationsInfos().stream()
-                .filter(modificationInfos -> Boolean.TRUE.equals(modificationInfos.getActivated())
-                        && Boolean.FALSE.equals(modificationInfos.getStashed()))
                 .forEach(
                         modif -> {
                             ReportNode modifNode = modif.createSubReportNode(subReportNode);

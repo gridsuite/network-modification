@@ -12,7 +12,7 @@ import com.powsybl.iidm.modification.topology.ReplaceTeePointByVoltageLevelOnLin
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.LinesAttachToSplitLinesInfos;
+import org.gridsuite.modification.model.LinesAttachToSplitLinesModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
@@ -23,9 +23,9 @@ import static org.gridsuite.modification.NetworkModificationException.Type.LINE_
  */
 public class LinesAttachToSplitLines extends AbstractModification {
 
-    private final LinesAttachToSplitLinesInfos modificationInfos;
+    private final LinesAttachToSplitLinesModel modificationInfos;
 
-    public LinesAttachToSplitLines(LinesAttachToSplitLinesInfos modificationInfos) {
+    public LinesAttachToSplitLines(LinesAttachToSplitLinesModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 

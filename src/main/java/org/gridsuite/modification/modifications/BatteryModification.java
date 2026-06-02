@@ -11,9 +11,9 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.AttributeModification;
-import org.gridsuite.modification.dto.BatteryModificationInfos;
-import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
+import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.model.BatteryModificationModel;
+import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -29,11 +29,11 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
  */
 public class BatteryModification extends AbstractModification {
 
-    private final BatteryModificationInfos modificationInfos;
+    private final BatteryModificationModel modificationInfos;
 
     public static final String ERROR_MESSAGE = "Battery '%s' : ";
 
-    public BatteryModification(BatteryModificationInfos modificationInfos) {
+    public BatteryModification(BatteryModificationModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 
@@ -54,7 +54,7 @@ public class BatteryModification extends AbstractModification {
         }
     }
 
-    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(BatteryModificationInfos modificationInfos, Battery battery, NetworkModificationException.Type exceptionType, String errorMessage) {
+    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(BatteryModificationModel modificationInfos, Battery battery, NetworkModificationException.Type exceptionType, String errorMessage) {
         ModificationUtils.getInstance().checkActivePowerZeroOrBetweenMinAndMaxActivePower(
                 modificationInfos.getTargetP(),
                 modificationInfos.getMinP(),
@@ -79,7 +79,7 @@ public class BatteryModification extends AbstractModification {
         return "BatteryModification";
     }
 
-    private void modifyBattery(Battery battery, BatteryModificationInfos modificationInfos, ReportNode subReportNode) {
+    private void modifyBattery(Battery battery, BatteryModificationModel modificationInfos, ReportNode subReportNode) {
         subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.batteryModification")
                 .withUntypedValue("id", modificationInfos.getEquipmentId())
@@ -125,7 +125,7 @@ public class BatteryModification extends AbstractModification {
         modifyBatteryActivePowerControlAttributes(participate, droop, battery, subReportNode, subReporterSetpoints);
     }
 
-    private void modifyBatteryVoltageLevelBusOrBusBarSectionAttributes(BatteryModificationInfos modificationInfos,
+    private void modifyBatteryVoltageLevelBusOrBusBarSectionAttributes(BatteryModificationModel modificationInfos,
                                                                        Battery battery, ReportNode subReportNode) {
         ModificationUtils.getInstance().moveFeederBay(
                 battery, battery.getTerminal(),
@@ -135,17 +135,17 @@ public class BatteryModification extends AbstractModification {
         );
     }
 
-    private void modifyBatteryLimitsAttributes(BatteryModificationInfos modificationInfos,
+    private void modifyBatteryLimitsAttributes(BatteryModificationModel modificationInfos,
                                                Battery battery, ReportNode subReportNode) {
         ReportNode subReportNodeLimits = modifyBatteryActiveLimitsAttributes(modificationInfos.getMaxP(), modificationInfos.getMinP(), battery, subReportNode);
         modifyBatteryReactiveLimitsAttributes(modificationInfos, battery, subReportNode, subReportNodeLimits);
     }
 
-    private void modifyBatteryReactiveCapabilityCurvePoints(BatteryModificationInfos modificationInfos,
+    private void modifyBatteryReactiveCapabilityCurvePoints(BatteryModificationModel modificationInfos,
                                                             Battery battery, ReportNode subReportNode, ReportNode subReportNodeLimits) {
 
         ReactiveCapabilityCurveAdder adder = battery.newReactiveCapabilityCurve();
-        List<ReactiveCapabilityCurvePointsInfos> modificationPoints = modificationInfos.getReactiveCapabilityCurvePoints();
+        List<ReactiveCapabilityCurvePointsModel> modificationPoints = modificationInfos.getReactiveCapabilityCurvePoints();
         Collection<ReactiveCapabilityCurve.Point> points = battery.getReactiveLimits().getKind() == ReactiveLimitsKind.CURVE ? battery.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints() : List.of();
         ModificationUtils.getInstance().modifyReactiveCapabilityCurvePoints(points, modificationPoints, adder, subReportNode, subReportNodeLimits);
     }
@@ -169,7 +169,7 @@ public class BatteryModification extends AbstractModification {
         return subReportNodeLimits;
     }
 
-    private void modifyBatteryReactiveLimitsAttributes(BatteryModificationInfos modificationInfos,
+    private void modifyBatteryReactiveLimitsAttributes(BatteryModificationModel modificationInfos,
                                                        Battery battery, ReportNode subReportNode, ReportNode subReportNodeLimits) {
 
         if (modificationInfos.getReactiveCapabilityCurve() != null) {
@@ -194,7 +194,7 @@ public class BatteryModification extends AbstractModification {
             participate, droop, subReportNode, subReportNodeSetpoints, MODIFY_BATTERY_ERROR, String.format(ERROR_MESSAGE, battery.getId()));
     }
 
-    private ReportNode modifyBatteryConnectivityAttributes(BatteryModificationInfos modificationInfos,
+    private ReportNode modifyBatteryConnectivityAttributes(BatteryModificationModel modificationInfos,
                                                                  Battery battery, ReportNode subReportNode) {
         ConnectablePosition<Battery> connectablePosition = battery.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<Battery> connectablePositionAdder = battery.newExtension(ConnectablePositionAdder.class);

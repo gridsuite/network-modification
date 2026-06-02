@@ -13,8 +13,6 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.LineSplitWithVoltageLevel;
 
 import java.util.Map;
 
@@ -58,11 +56,6 @@ public class LineSplitWithVoltageLevelInfos extends ModificationInfos {
 
     @Schema(description = "new line 2 name")
     private String newLine2Name;
-
-    @Override
-    public AbstractModification toModification() {
-        return new LineSplitWithVoltageLevel(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

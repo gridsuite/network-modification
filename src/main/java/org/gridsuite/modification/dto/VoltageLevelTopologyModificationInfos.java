@@ -15,8 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.VoltageLevelTopologyModification;
 
 import java.util.List;
 
@@ -35,11 +33,6 @@ public class VoltageLevelTopologyModificationInfos extends EquipmentModification
 
     @Schema(description = "Switch attribute modification list")
     private List<EquipmentAttributeModificationInfos> equipmentAttributeModificationList;
-
-    @Override
-    public AbstractModification toModification() {
-        return new VoltageLevelTopologyModification(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

@@ -15,8 +15,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.BatteryCreation;
 
 import java.util.List;
 
@@ -69,11 +67,6 @@ public class BatteryCreationInfos extends InjectionCreationInfos implements Reac
 
     @Schema(description = "Reactive capability curve")
     private Boolean reactiveCapabilityCurve;
-
-    @Override
-    public AbstractModification toModification() {
-        return new BatteryCreation(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

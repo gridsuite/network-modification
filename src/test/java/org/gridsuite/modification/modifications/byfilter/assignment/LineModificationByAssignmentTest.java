@@ -10,14 +10,14 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
+import org.gridsuite.modification.model.FilterEquipments;
+import org.gridsuite.modification.model.IdentifiableAttributes;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.IntegerAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.StringAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.equipmentfield.LineField;
+import org.gridsuite.modification.dto.byfilter.assignment.EnumAssignmentInfos;
+import org.gridsuite.modification.model.byfilter.equipmentfield.LineField;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -165,25 +165,25 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
                 .value(90)
                 .build();
 
-        StringAssignmentInfos assignmentInfos7 = StringAssignmentInfos.builder()
+        EnumAssignmentInfos assignmentInfos7 = EnumAssignmentInfos.builder()
             .filters(List.of(filter1))
             .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID1.name())
             .value("group1")
             .build();
 
-        StringAssignmentInfos assignmentInfos8 = StringAssignmentInfos.builder()
+        EnumAssignmentInfos assignmentInfos8 = EnumAssignmentInfos.builder()
             .filters(List.of(filter2))
             .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID2.name())
             .value("group2")
             .build();
 
-        StringAssignmentInfos assignmentInfos9 = StringAssignmentInfos.builder()
+        EnumAssignmentInfos assignmentInfos9 = EnumAssignmentInfos.builder()
             .filters(List.of(filter3))
             .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID1.name())
             .value(null)
             .build();
 
-        StringAssignmentInfos assignmentInfos10 = StringAssignmentInfos.builder()
+        EnumAssignmentInfos assignmentInfos10 = EnumAssignmentInfos.builder()
             .filters(List.of(filter3))
             .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID2.name())
             .value("")

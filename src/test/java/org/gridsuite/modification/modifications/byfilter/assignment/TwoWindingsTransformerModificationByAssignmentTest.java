@@ -10,14 +10,14 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
+import org.gridsuite.modification.model.FilterEquipments;
+import org.gridsuite.modification.model.IdentifiableAttributes;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.IntegerAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.StringAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.equipmentfield.TwoWindingsTransformerField;
+import org.gridsuite.modification.dto.byfilter.assignment.EnumAssignmentInfos;
+import org.gridsuite.modification.model.byfilter.equipmentfield.TwoWindingsTransformerField;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -321,25 +321,25 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
                 .value(2.)
                 .build();
 
-        StringAssignmentInfos assignmentInfos16 = StringAssignmentInfos.builder()
+        EnumAssignmentInfos assignmentInfos16 = EnumAssignmentInfos.builder()
             .filters(List.of(filter1))
             .editedField(TwoWindingsTransformerField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID1.name())
             .value("group1")
             .build();
 
-        StringAssignmentInfos assignmentInfos17 = StringAssignmentInfos.builder()
+        EnumAssignmentInfos assignmentInfos17 = EnumAssignmentInfos.builder()
             .filters(List.of(filter2))
             .editedField(TwoWindingsTransformerField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID2.name())
             .value("group2")
             .build();
 
-        StringAssignmentInfos assignmentInfos18 = StringAssignmentInfos.builder()
+        EnumAssignmentInfos assignmentInfos18 = EnumAssignmentInfos.builder()
             .filters(List.of(filter3))
             .editedField(TwoWindingsTransformerField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID1.name())
             .value(null)
             .build();
 
-        StringAssignmentInfos assignmentInfos19 = StringAssignmentInfos.builder()
+        EnumAssignmentInfos assignmentInfos19 = EnumAssignmentInfos.builder()
             .filters(List.of(filter3))
             .editedField(TwoWindingsTransformerField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID2.name())
             .value("")

@@ -15,8 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.GeneratorScaling;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -30,11 +28,6 @@ import org.gridsuite.modification.modifications.GeneratorScaling;
 @ModificationErrorTypeName("GENERATOR_SCALING_ERROR")
 @Schema(description = "Generator scaling creation")
 public class GeneratorScalingInfos extends ScalingInfos {
-
-    @Override
-    public AbstractModification toModification() {
-        return new GeneratorScaling(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

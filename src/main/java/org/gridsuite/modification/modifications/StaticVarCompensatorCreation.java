@@ -12,7 +12,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.StaticVarCompensatorCreationInfos;
+import org.gridsuite.modification.model.StaticVarCompensatorCreationModel;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -30,9 +30,9 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
  */
 public class StaticVarCompensatorCreation extends AbstractModification {
 
-    private final StaticVarCompensatorCreationInfos modificationInfos;
+    private final StaticVarCompensatorCreationModel modificationInfos;
 
-    public StaticVarCompensatorCreation(StaticVarCompensatorCreationInfos modificationInfos) {
+    public StaticVarCompensatorCreation(StaticVarCompensatorCreationModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 
@@ -90,7 +90,7 @@ public class StaticVarCompensatorCreation extends AbstractModification {
         return "StaticVarCompensatorCreation";
     }
 
-    private void createStaticVarCompensatorInNodeBreaker(VoltageLevel voltageLevel, StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos,
+    private void createStaticVarCompensatorInNodeBreaker(VoltageLevel voltageLevel, StaticVarCompensatorCreationModel staticVarCompensatorCreationInfos,
             Network network, ReportNode subReportNode) {
         StaticVarCompensatorAdder staticVarCompensatorAdder = createStaticVarCompensatorAdderInNodeBreaker(voltageLevel, staticVarCompensatorCreationInfos);
         createInjectionInNodeBreaker(voltageLevel, staticVarCompensatorCreationInfos, network, staticVarCompensatorAdder, subReportNode);
@@ -98,7 +98,7 @@ public class StaticVarCompensatorCreation extends AbstractModification {
         addExtensionsToStaticVarCompensator(staticVarCompensatorCreationInfos, staticVarCompensator, voltageLevel, subReportNode);
     }
 
-    private StaticVarCompensatorAdder createStaticVarCompensatorAdderInNodeBreaker(VoltageLevel voltageLevel, StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos) {
+    private StaticVarCompensatorAdder createStaticVarCompensatorAdderInNodeBreaker(VoltageLevel voltageLevel, StaticVarCompensatorCreationModel staticVarCompensatorCreationInfos) {
         Terminal terminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
                 staticVarCompensatorCreationInfos.getRegulatingTerminalId(),
                 staticVarCompensatorCreationInfos.getRegulatingTerminalType(),
@@ -126,7 +126,7 @@ public class StaticVarCompensatorCreation extends AbstractModification {
         return staticVarCompensatorAdder;
     }
 
-    private void addExtensionsToStaticVarCompensator(StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos,
+    private void addExtensionsToStaticVarCompensator(StaticVarCompensatorCreationModel staticVarCompensatorCreationInfos,
                                                      StaticVarCompensator staticVarCompensator,
                                                      VoltageLevel voltageLevel,
                                                      ReportNode subReportNode) {
@@ -139,7 +139,7 @@ public class StaticVarCompensatorCreation extends AbstractModification {
         reportStaticVarCompensatorStandbyAutomaton(staticVarCompensatorCreationInfos, staticVarCompensator, voltageLevel, subReportNode);
     }
 
-    private void reportStaticVarCompensatorStandbyAutomaton(StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos,
+    private void reportStaticVarCompensatorStandbyAutomaton(StaticVarCompensatorCreationModel staticVarCompensatorCreationInfos,
                                                             StaticVarCompensator staticVarCompensator, VoltageLevel voltageLevel, ReportNode subReportNode) {
         if (Boolean.TRUE.equals(staticVarCompensatorCreationInfos.isStandbyAutomatonOn())) {
             List<ReportNode> standbyAutomatonReports = new ArrayList<>();
@@ -192,7 +192,7 @@ public class StaticVarCompensatorCreation extends AbstractModification {
         }
     }
 
-    private void createStaticVarCompensatorInBusBreaker(VoltageLevel voltageLevel, StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos,
+    private void createStaticVarCompensatorInBusBreaker(VoltageLevel voltageLevel, StaticVarCompensatorCreationModel staticVarCompensatorCreationInfos,
                ReportNode subReportNode) {
 
         Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, staticVarCompensatorCreationInfos.getBusOrBusbarSectionId());
@@ -219,7 +219,7 @@ public class StaticVarCompensatorCreation extends AbstractModification {
         addExtensionsToStaticVarCompensator(staticVarCompensatorCreationInfos, staticVarCompensator, voltageLevel, subReportNode);
     }
 
-    private void reportStaticVarCompensatorLimitsAndSetpoints(StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos,
+    private void reportStaticVarCompensatorLimitsAndSetpoints(StaticVarCompensatorCreationModel staticVarCompensatorCreationInfos,
                                                               StaticVarCompensator staticVarCompensator, VoltageLevel voltageLevel, ReportNode subReportNode) {
         List<ReportNode> voltageReports = new ArrayList<>();
         if (Objects.nonNull(staticVarCompensatorCreationInfos.getMinSusceptance())) {
@@ -259,7 +259,7 @@ public class StaticVarCompensatorCreation extends AbstractModification {
         ModificationUtils.getInstance().reportModifications(subReportNode, voltageReports, "network.modification.LimitsAndSetpointsCreated");
     }
 
-    private void updateCompensatorRegulatingTerminal(StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos, StaticVarCompensator staticVarCompensator,
+    private void updateCompensatorRegulatingTerminal(StaticVarCompensatorCreationModel staticVarCompensatorCreationInfos, StaticVarCompensator staticVarCompensator,
                                                    Terminal terminal, List<ReportNode> voltageReports) {
         if (staticVarCompensatorCreationInfos.getRegulatingTerminalId() != null
                 && staticVarCompensatorCreationInfos.getRegulatingTerminalType() != null

@@ -11,9 +11,9 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.EquipmentModificationInfos;
-import org.gridsuite.modification.dto.ShuntCompensatorModificationInfos;
-import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
+import org.gridsuite.modification.model.EquipmentModificationModel;
+import org.gridsuite.modification.model.ShuntCompensatorModificationModel;
+import org.gridsuite.modification.model.tabular.TabularModificationModel;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.TABULAR_MODIFICATION_ERROR;
 
@@ -22,7 +22,7 @@ import static org.gridsuite.modification.NetworkModificationException.Type.TABUL
  */
 public class TabularModification extends AbstractTabularModification {
 
-    public TabularModification(TabularModificationInfos modificationInfos) {
+    public TabularModification(TabularModificationModel modificationInfos) {
         super(modificationInfos);
     }
 
@@ -49,8 +49,8 @@ public class TabularModification extends AbstractTabularModification {
     }
 
     @Override
-    public void specificCheck(EquipmentModificationInfos equipmentModificationInfos, Network network, ReportNode subReportNode) {
-        if (equipmentModificationInfos instanceof ShuntCompensatorModificationInfos shuntCompensatorModificationInfos) {
+    public void specificCheck(EquipmentModificationModel equipmentModificationInfos, Network network, ReportNode subReportNode) {
+        if (equipmentModificationInfos instanceof ShuntCompensatorModificationModel shuntCompensatorModificationInfos) {
             var shuntCompensator = network.getShuntCompensator(shuntCompensatorModificationInfos.getEquipmentId());
             if (shuntCompensator.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
                 subReportNode.newReportNode()

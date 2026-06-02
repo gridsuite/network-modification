@@ -17,8 +17,6 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.ShuntCompensatorModification;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -48,11 +46,6 @@ public class ShuntCompensatorModificationInfos extends InjectionModificationInfo
 
     @Schema(description = "Shunt Compensator Type")
     private AttributeModification<ShuntCompensatorType> shuntCompensatorType;
-
-    @Override
-    public AbstractModification toModification() {
-        return new ShuntCompensatorModification(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

@@ -11,9 +11,9 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.LineCreationInfos;
-import org.gridsuite.modification.dto.OperationalLimitsGroupInfos;
-import org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability;
+import org.gridsuite.modification.model.LineCreationModel;
+import org.gridsuite.modification.model.OperationalLimitsGroupModel;
+import org.gridsuite.modification.model.OperationalLimitsGroupModel.Applicability;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -32,9 +32,9 @@ import static org.gridsuite.modification.utils.ModificationUtils.createBranchInN
  */
 public class LineCreation extends AbstractModification {
 
-    private final LineCreationInfos modificationInfos;
+    private final LineCreationModel modificationInfos;
 
-    public LineCreation(LineCreationInfos modificationInfos) {
+    public LineCreation(LineCreationModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 
@@ -74,17 +74,17 @@ public class LineCreation extends AbstractModification {
         PropertiesUtils.applyProperties(line, characteristicsReporter, modificationInfos.getProperties(), "network.modification.LineProperties");
     }
 
-    public static void addLimits(LineCreationInfos modificationInfos, ReportNode subReportNode, Line line) {
+    public static void addLimits(LineCreationModel modificationInfos, ReportNode subReportNode, Line line) {
         // Set permanent and temporary current limits
         ReportNode limitsReporter = null;
-        List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE1);
-        List<OperationalLimitsGroupInfos> opLimitsGroupSide2 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE2);
+        List<OperationalLimitsGroupModel> opLimitsGroupSide1 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE1);
+        List<OperationalLimitsGroupModel> opLimitsGroupSide2 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE2);
         ReportNode reportNode;
         if (!CollectionUtils.isEmpty(modificationInfos.getOperationalLimitsGroups())) {
             limitsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.limitsCreated").add();
             reportNode = addLimitSetReportNode(limitsReporter);
 
-            for (OperationalLimitsGroupInfos olgInfos : modificationInfos.getOperationalLimitsGroups()) {
+            for (OperationalLimitsGroupModel olgInfos : modificationInfos.getOperationalLimitsGroups()) {
                 ReportNode limitSetNode = reportNode.newReportNode()
                         .withMessageTemplate("network.modification.limitSetAdded")
                         .withUntypedValue("name", olgInfos.getId())
@@ -155,7 +155,7 @@ public class LineCreation extends AbstractModification {
         return "LineCreation";
     }
 
-    private void addLine(Network network, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, LineCreationInfos lineCreationInfos, boolean withSwitch1, boolean withSwitch2, ReportNode subReportNode) {
+    private void addLine(Network network, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, LineCreationModel lineCreationInfos, boolean withSwitch1, boolean withSwitch2, ReportNode subReportNode) {
         ModificationUtils.getInstance().createLineAdder(network, voltageLevel1, voltageLevel2, lineCreationInfos, withSwitch1, withSwitch2).add();
 
         subReportNode.newReportNode()

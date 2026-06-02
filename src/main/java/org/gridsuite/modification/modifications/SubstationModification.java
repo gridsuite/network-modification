@@ -11,7 +11,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.SubstationModificationInfos;
+import org.gridsuite.modification.model.SubstationModificationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -22,9 +22,9 @@ import static org.gridsuite.modification.NetworkModificationException.Type.SUBST
  */
 public class SubstationModification extends AbstractModification {
 
-    private final SubstationModificationInfos modificationInfos;
+    private final SubstationModificationModel modificationInfos;
 
-    public SubstationModification(SubstationModificationInfos modificationInfos) {
+    public SubstationModification(SubstationModificationModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 

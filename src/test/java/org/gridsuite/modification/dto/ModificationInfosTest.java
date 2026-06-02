@@ -48,7 +48,7 @@ class ModificationInfosTest {
                 "toModification should throw UnsupportedOperationException when not implemented"
         );
 
-        String expectedMessage = "Method toModification must be implemented in subclass TestModificationInfos";
+        String expectedMessage = "Method toModification must be implemented in subclass ModificationModel";
         assertEquals(expectedMessage, exception.getMessage(),
                 "Exception message should indicate which method and class need implementation");
     }

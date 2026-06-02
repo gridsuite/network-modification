@@ -18,8 +18,6 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.GeneratorCreation;
 
 import java.util.List;
 
@@ -110,11 +108,6 @@ public class GeneratorCreationInfos extends InjectionCreationInfos implements Re
 
     @Schema(description = "Reactive capability curve")
     private Boolean reactiveCapabilityCurve;
-
-    @Override
-    public AbstractModification toModification() {
-        return new GeneratorCreation(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

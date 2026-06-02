@@ -16,7 +16,7 @@ import groovy.lang.GroovyShell;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.GroovyScriptInfos;
+import org.gridsuite.modification.model.GroovyScriptModel;
 import static org.gridsuite.modification.NetworkModificationException.Type.GROOVY_SCRIPT_EMPTY;
 
 /**
@@ -24,9 +24,9 @@ import static org.gridsuite.modification.NetworkModificationException.Type.GROOV
  */
 public class GroovyScript extends AbstractModification {
 
-    private final GroovyScriptInfos modificationInfos;
+    private final GroovyScriptModel modificationInfos;
 
-    public GroovyScript(GroovyScriptInfos modificationInfos) {
+    public GroovyScript(GroovyScriptModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 

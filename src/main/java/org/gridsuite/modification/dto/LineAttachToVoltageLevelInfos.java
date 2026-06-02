@@ -12,8 +12,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.LineAttachToVoltageLevel;
 import java.util.Map;
 
 /**
@@ -68,11 +66,6 @@ public class LineAttachToVoltageLevelInfos extends ModificationInfos {
 
     @Schema(description = "new line 2 name")
     private String newLine2Name;
-
-    @Override
-    public AbstractModification toModification() {
-        return new LineAttachToVoltageLevel(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

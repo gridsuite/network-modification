@@ -12,8 +12,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.DeleteVoltageLevelOnLine;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,11 +42,6 @@ public class DeleteVoltageLevelOnLineInfos extends ModificationInfos {
 
     @Schema(description = "replacing line 1 name")
     private String replacingLine1Name;
-
-    @Override
-    public AbstractModification toModification() {
-        return new DeleteVoltageLevelOnLine(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

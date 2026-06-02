@@ -8,8 +8,6 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.VscModification;
 
 /**
  * @author jamal kheyyad <jamal.kheyyad at rte-france.com>
@@ -58,11 +56,6 @@ public class VscModificationInfos extends BasicEquipmentModificationInfos {
 
     @Schema(description = "Converter station 2")
     private ConverterStationModificationInfos converterStation2;
-
-    @Override
-    public AbstractModification toModification() {
-        return new VscModification(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

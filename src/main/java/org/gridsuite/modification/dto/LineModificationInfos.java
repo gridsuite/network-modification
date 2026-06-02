@@ -16,8 +16,6 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.LineModification;
 
 import java.util.List;
 
@@ -52,11 +50,6 @@ public class LineModificationInfos extends BranchModificationInfos {
 
     @Schema(description = "apply limits from catalog segments")
     private boolean applySegmentsLimits;
-
-    @Override
-    public AbstractModification toModification() {
-        return new LineModification(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

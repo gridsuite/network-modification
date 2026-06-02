@@ -10,9 +10,9 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.EquipmentModificationInfos;
-import org.gridsuite.modification.dto.ShuntCompensatorCreationInfos;
-import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
+import org.gridsuite.modification.model.EquipmentModificationModel;
+import org.gridsuite.modification.model.ShuntCompensatorCreationModel;
+import org.gridsuite.modification.model.tabular.TabularCreationModel;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.TABULAR_CREATION_ERROR;
 
@@ -21,7 +21,7 @@ import static org.gridsuite.modification.NetworkModificationException.Type.TABUL
  */
 public class TabularCreation extends AbstractTabularModification {
 
-    public TabularCreation(TabularCreationInfos modificationInfos) {
+    public TabularCreation(TabularCreationModel modificationInfos) {
         super(modificationInfos);
     }
 
@@ -48,8 +48,8 @@ public class TabularCreation extends AbstractTabularModification {
     }
 
     @Override
-    public void specificCheck(EquipmentModificationInfos equipmentModificationInfos, Network network, ReportNode subReportNode) {
-        if (equipmentModificationInfos instanceof ShuntCompensatorCreationInfos shuntCompensatorCreationInfos && shuntCompensatorCreationInfos.getMaxSusceptance() != null) {
+    public void specificCheck(EquipmentModificationModel equipmentModificationInfos, Network network, ReportNode subReportNode) {
+        if (equipmentModificationInfos instanceof ShuntCompensatorCreationModel shuntCompensatorCreationInfos && shuntCompensatorCreationInfos.getMaxSusceptance() != null) {
             if (shuntCompensatorCreationInfos.getShuntCompensatorType() != null && shuntCompensatorCreationInfos.getMaxQAtNominalV() != null) {
                 subReportNode.newReportNode()
                         .withMessageTemplate("network.modification.tabular.creation.shuntCompensator.maxSusceptanceIgnored.1")

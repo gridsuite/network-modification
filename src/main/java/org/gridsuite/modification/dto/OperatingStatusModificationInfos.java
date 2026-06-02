@@ -16,8 +16,6 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.OperatingStatusModification;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,11 +45,6 @@ public class OperatingStatusModificationInfos extends EquipmentModificationInfos
         SWITCH_ON,
         ENERGISE_END_ONE,
         ENERGISE_END_TWO
-    }
-
-    @Override
-    public AbstractModification toModification() {
-        return new OperatingStatusModification(this);
     }
 
     @Override

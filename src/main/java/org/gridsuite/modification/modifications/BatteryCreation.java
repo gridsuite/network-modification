@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.BatteryCreationInfos;
+import org.gridsuite.modification.model.BatteryCreationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -29,9 +29,9 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
  */
 public class BatteryCreation extends AbstractModification {
 
-    private final BatteryCreationInfos modificationInfos;
+    private final BatteryCreationModel modificationInfos;
 
-    public BatteryCreation(BatteryCreationInfos modificationInfos) {
+    public BatteryCreation(BatteryCreationModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 
@@ -80,14 +80,14 @@ public class BatteryCreation extends AbstractModification {
         return "BatteryCreation";
     }
 
-    private void createBatteryInNodeBreaker(VoltageLevel voltageLevel, BatteryCreationInfos batteryCreationInfos, Network network, ReportNode subReportNode) {
+    private void createBatteryInNodeBreaker(VoltageLevel voltageLevel, BatteryCreationModel batteryCreationInfos, Network network, ReportNode subReportNode) {
         BatteryAdder batteryAdder = createBatteryAdderInNodeBreaker(voltageLevel, batteryCreationInfos);
         createInjectionInNodeBreaker(voltageLevel, batteryCreationInfos, network, batteryAdder, subReportNode);
         var battery = ModificationUtils.getInstance().getBattery(network, batteryCreationInfos.getEquipmentId());
         addExtensionsToBattery(batteryCreationInfos, battery, subReportNode);
     }
 
-    private BatteryAdder createBatteryAdderInNodeBreaker(VoltageLevel voltageLevel, BatteryCreationInfos batteryCreationInfos) {
+    private BatteryAdder createBatteryAdderInNodeBreaker(VoltageLevel voltageLevel, BatteryCreationModel batteryCreationInfos) {
 
         return voltageLevel.newBattery()
                 .setId(batteryCreationInfos.getEquipmentId())
@@ -98,7 +98,7 @@ public class BatteryCreation extends AbstractModification {
                 .setTargetQ(nanIfNull(batteryCreationInfos.getTargetQ()));
     }
 
-    private void createBatteryInBusBreaker(VoltageLevel voltageLevel, BatteryCreationInfos batteryCreationInfos, ReportNode subReportNode) {
+    private void createBatteryInBusBreaker(VoltageLevel voltageLevel, BatteryCreationModel batteryCreationInfos, ReportNode subReportNode) {
         Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, batteryCreationInfos.getBusOrBusbarSectionId());
 
         // creating the battery
@@ -122,7 +122,7 @@ public class BatteryCreation extends AbstractModification {
                 .add();
     }
 
-    private void addExtensionsToBattery(BatteryCreationInfos batteryCreationInfos, Battery battery, ReportNode subReportNode) {
+    private void addExtensionsToBattery(BatteryCreationModel batteryCreationInfos, Battery battery, ReportNode subReportNode) {
         if (batteryCreationInfos.getEquipmentName() != null) {
             ModificationUtils.getInstance().reportElementaryCreation(subReportNode, batteryCreationInfos.getEquipmentName(), "Name");
         }
@@ -139,7 +139,7 @@ public class BatteryCreation extends AbstractModification {
                 battery.newExtension(BatteryShortCircuitAdder.class), subReportNode, "battery");
     }
 
-    private ReportNode reportBatterySetPoints(BatteryCreationInfos batteryCreationInfos, ReportNode subReportNode) {
+    private ReportNode reportBatterySetPoints(BatteryCreationModel batteryCreationInfos, ReportNode subReportNode) {
         List<ReportNode> setPointReports = new ArrayList<>();
         setPointReports.add(ModificationUtils.getInstance()
                 .buildCreationReport(batteryCreationInfos.getTargetP(), "Active power"));
@@ -150,7 +150,7 @@ public class BatteryCreation extends AbstractModification {
         return ModificationUtils.getInstance().reportModifications(subReportNode, setPointReports, "network.modification.SetPointCreated");
     }
 
-    private ReportNode reportBatteryActiveLimits(BatteryCreationInfos batteryCreationInfos, ReportNode subReportNode) {
+    private ReportNode reportBatteryActiveLimits(BatteryCreationModel batteryCreationInfos, ReportNode subReportNode) {
         ReportNode subReportNodeLimits = subReportNode.newReportNode().withMessageTemplate("network.modification.limits").add();
         List<ReportNode> limitsReports = new ArrayList<>();
         limitsReports.add(ModificationUtils.getInstance().buildCreationReport(

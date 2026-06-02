@@ -10,7 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.LoadCreationInfos;
+import org.gridsuite.modification.model.LoadCreationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -22,9 +22,9 @@ import static org.gridsuite.modification.utils.ModificationUtils.createInjection
  */
 public class LoadCreation extends AbstractModification {
 
-    private final LoadCreationInfos modificationInfos;
+    private final LoadCreationModel modificationInfos;
 
-    public LoadCreation(LoadCreationInfos modificationInfos) {
+    public LoadCreation(LoadCreationModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 
@@ -83,7 +83,7 @@ public class LoadCreation extends AbstractModification {
                 .reportElementaryCreation(subReportNode, modificationInfos.getQ0(), "Reactive power");
     }
 
-    private LoadAdder createLoadAdderInNodeBreaker(VoltageLevel voltageLevel, LoadCreationInfos loadCreationInfos) {
+    private LoadAdder createLoadAdderInNodeBreaker(VoltageLevel voltageLevel, LoadCreationModel loadCreationInfos) {
         // creating the load adder
         return voltageLevel.newLoad()
             .setId(loadCreationInfos.getEquipmentId())
@@ -93,7 +93,7 @@ public class LoadCreation extends AbstractModification {
             .setQ0(loadCreationInfos.getQ0());
     }
 
-    private Load createLoadInBusBreaker(VoltageLevel voltageLevel, LoadCreationInfos loadCreationInfos) {
+    private Load createLoadInBusBreaker(VoltageLevel voltageLevel, LoadCreationModel loadCreationInfos) {
         Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, loadCreationInfos.getBusOrBusbarSectionId());
 
         // creating the load

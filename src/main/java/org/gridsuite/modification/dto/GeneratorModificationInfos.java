@@ -12,8 +12,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.GeneratorModification;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.iidm.network.EnergySource;
@@ -112,11 +110,6 @@ public class GeneratorModificationInfos extends InjectionModificationInfos {
 
     @Schema(description = "Reactive capability curve")
     private AttributeModification<Boolean> reactiveCapabilityCurve;
-
-    @Override
-    public AbstractModification toModification() {
-        return new GeneratorModification(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

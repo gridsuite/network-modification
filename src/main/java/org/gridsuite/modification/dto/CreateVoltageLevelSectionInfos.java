@@ -15,8 +15,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.CreateVoltageLevelSection;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,11 +54,6 @@ public class CreateVoltageLevelSectionInfos extends ModificationInfos {
 
     @Schema(description = "Switch Open")
     private boolean isSwitchOpen;
-
-    @Override
-    public AbstractModification toModification() {
-        return new CreateVoltageLevelSection(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

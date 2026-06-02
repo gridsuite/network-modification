@@ -10,8 +10,8 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.ShuntCompensatorCreationInfos;
-import org.gridsuite.modification.dto.ShuntCompensatorType;
+import org.gridsuite.modification.model.ShuntCompensatorCreationModel;
+import org.gridsuite.modification.model.ShuntCompensatorType;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -24,9 +24,9 @@ import static org.gridsuite.modification.utils.ModificationUtils.createInjection
  */
 public class ShuntCompensatorCreation extends AbstractModification {
 
-    private final ShuntCompensatorCreationInfos modificationInfos;
+    private final ShuntCompensatorCreationModel modificationInfos;
 
-    public ShuntCompensatorCreation(ShuntCompensatorCreationInfos modificationInfos) {
+    public ShuntCompensatorCreation(ShuntCompensatorCreationModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 
@@ -82,7 +82,7 @@ public class ShuntCompensatorCreation extends AbstractModification {
         return "ShuntCompensatorCreation";
     }
 
-    private ShuntCompensatorAdder createShuntAdderInNodeBreaker(VoltageLevel voltageLevel, ShuntCompensatorCreationInfos shuntCompensatorInfos) {
+    private ShuntCompensatorAdder createShuntAdderInNodeBreaker(VoltageLevel voltageLevel, ShuntCompensatorCreationModel shuntCompensatorInfos) {
         // creating the shunt compensator
         ShuntCompensatorAdder shuntAdder = voltageLevel.newShuntCompensator()
                 .setId(shuntCompensatorInfos.getEquipmentId())
@@ -98,7 +98,7 @@ public class ShuntCompensatorCreation extends AbstractModification {
         return shuntAdder;
     }
 
-    private void createShuntInBusBreaker(VoltageLevel voltageLevel, ShuntCompensatorCreationInfos shuntCompensatorInfos) {
+    private void createShuntInBusBreaker(VoltageLevel voltageLevel, ShuntCompensatorCreationModel shuntCompensatorInfos) {
         Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, shuntCompensatorInfos.getBusOrBusbarSectionId());
         /* creating the shunt compensator */
         voltageLevel.newShuntCompensator()

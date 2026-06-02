@@ -112,7 +112,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
                 .equipmentAttributeModificationList(List.of())
                 .build();
 
-        VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationInfos);
+        VoltageLevelTopologyModification voltageLevelTopologyModification = (VoltageLevelTopologyModification) modificationInfos.toModification();
         applyModification(voltageLevelTopologyModification);
         Network network = getNetwork();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(network));
@@ -128,7 +128,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
                 .equipmentAttributeModificationList(emptyEquipmentAttributeModifications)
                 .build();
 
-        VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationInfos);
+        VoltageLevelTopologyModification voltageLevelTopologyModification = (VoltageLevelTopologyModification) modificationInfos.toModification();
         Network network = getNetwork();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(network));
 
@@ -152,7 +152,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
                 .equipmentAttributeModificationList(equipmentAttributeModifications)
                 .build();
 
-        VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationInfos);
+        VoltageLevelTopologyModification voltageLevelTopologyModification = (VoltageLevelTopologyModification) modificationInfos.toModification();
         Network network = getNetwork();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(network));
 

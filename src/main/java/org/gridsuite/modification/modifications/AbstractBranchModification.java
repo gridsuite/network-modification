@@ -11,7 +11,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.*;
 import org.gridsuite.modification.modifications.olg.OperationalLimitsGroupsModification;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.StringUtils;
@@ -36,13 +36,13 @@ public abstract class AbstractBranchModification extends AbstractModification {
     public static final String SIDE = "side";
     public static final String APPLICABILITY = "applicability";
 
-    protected final BranchModificationInfos modificationInfos;
+    protected final BranchModificationModel modificationInfos;
 
-    protected AbstractBranchModification(BranchModificationInfos modificationInfos) {
+    protected AbstractBranchModification(BranchModificationModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 
-    protected void modifyBranch(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode, String reporterKey) {
+    protected void modifyBranch(Branch<?> branch, BranchModificationModel branchModificationInfos, ReportNode subReportNode, String reporterKey) {
         subReportNode.newReportNode()
                 .withMessageTemplate(reporterKey)
                 .withUntypedValue("id", branchModificationInfos.getEquipmentId())
@@ -171,7 +171,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
     }
 
-    public ReportNode updateMeasurements(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode) {
+    public ReportNode updateMeasurements(Branch<?> branch, BranchModificationModel branchModificationInfos, ReportNode subReportNode) {
         Double p1Value = branchModificationInfos.getP1MeasurementValue() != null ? branchModificationInfos.getP1MeasurementValue().getValue() : null;
         Double q1Value = branchModificationInfos.getQ1MeasurementValue() != null ? branchModificationInfos.getQ1MeasurementValue().getValue() : null;
         Double p2Value = branchModificationInfos.getP2MeasurementValue() != null ? branchModificationInfos.getP2MeasurementValue().getValue() : null;
@@ -247,7 +247,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
         return measurements.getMeasurements(type).stream().filter(m -> m.getSide() == side).findFirst().orElse(null);
     }
 
-    private void updateConnections(Branch<?> branch, BranchModificationInfos branchModificationInfos) {
+    private void updateConnections(Branch<?> branch, BranchModificationModel branchModificationInfos) {
         List<TwoSides> errorSides = new ArrayList<>();
         List<String> errorTypes = new ArrayList<>();
         if (branchModificationInfos.getTerminal1Connected() != null && !updateConnection(branch, TwoSides.ONE, modificationInfos.getTerminal1Connected().getValue())) {
@@ -298,24 +298,24 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 .endTemporaryLimit();
     }
 
-    protected boolean characteristicsModified(BranchModificationInfos branchModificationInfos) {
+    protected boolean characteristicsModified(BranchModificationModel branchModificationInfos) {
         return branchModificationInfos.getX() != null
                 && branchModificationInfos.getX().getValue() != null
                 || branchModificationInfos.getR() != null
                 && branchModificationInfos.getR().getValue() != null;
     }
 
-    protected abstract void modifyCharacteristics(Branch<?> branch, BranchModificationInfos branchModificationInfos,
+    protected abstract void modifyCharacteristics(Branch<?> branch, BranchModificationModel branchModificationInfos,
                                                   ReportNode subReportNode);
 
-    private ReportNode modifyBranchConnectivityAttributes(BranchModificationInfos branchModificationInfos,
+    private ReportNode modifyBranchConnectivityAttributes(BranchModificationModel branchModificationInfos,
                                                           Branch<?> branch, ReportNode subReportNode) {
         ConnectablePosition<?> connectablePosition = (ConnectablePosition<?>) branch.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<?> connectablePositionAdder = branch.newExtension(ConnectablePositionAdder.class);
         return ModificationUtils.getInstance().modifyBranchConnectivityAttributes(connectablePosition, connectablePositionAdder, branch, branchModificationInfos, subReportNode);
     }
 
-    private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide1(BranchModificationInfos modificationInfos,
+    private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide1(BranchModificationModel modificationInfos,
                                                                            Branch<?> branch, ReportNode subReportNode) {
         ModificationUtils.getInstance().moveFeederBay(
                 (Connectable<?>) branch, branch.getTerminal1(),
@@ -325,7 +325,7 @@ public abstract class AbstractBranchModification extends AbstractModification {
         );
     }
 
-    private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide2(BranchModificationInfos modificationInfos,
+    private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide2(BranchModificationModel modificationInfos,
                                                                            Branch<?> branch, ReportNode subReportNode) {
         ModificationUtils.getInstance().moveFeederBay(
                 (Connectable<?>) branch, branch.getTerminal2(),

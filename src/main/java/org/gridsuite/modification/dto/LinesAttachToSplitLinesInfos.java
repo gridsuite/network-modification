@@ -12,8 +12,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.LinesAttachToSplitLines;
 import java.util.Map;
 
 
@@ -57,11 +55,6 @@ public class LinesAttachToSplitLinesInfos extends ModificationInfos {
 
     @Schema(description = "replacing line 2 name")
     private String replacingLine2Name;
-
-    @Override
-    public AbstractModification toModification() {
-        return new LinesAttachToSplitLines(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {

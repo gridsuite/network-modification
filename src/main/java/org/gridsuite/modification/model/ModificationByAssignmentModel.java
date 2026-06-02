@@ -1,0 +1,48 @@
+/**
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+package org.gridsuite.modification.model;
+
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.IdentifiableType;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
+import org.gridsuite.modification.model.byfilter.assignment.AssignmentModel;
+import org.gridsuite.modification.modifications.byfilter.ModificationByAssignment;
+
+import java.util.List;
+
+/**
+ * @author Thang PHAM <quyet-thang.pham at rte-france.com>
+ */
+@SuperBuilder
+@NoArgsConstructor
+@Getter
+@Setter
+@JsonTypeName("MODIFICATION_BY_ASSIGNMENT")
+@ModificationErrorTypeName("MODIFICATION_BY_ASSIGNMENT_ERROR")
+@ToString(callSuper = true)
+public class ModificationByAssignmentModel extends ModificationModel {
+    private IdentifiableType equipmentType;
+
+    private List<? extends AssignmentModel<?>> assignmentInfosList;
+
+    @Override
+    public ModificationByAssignment toModification() {
+        return new ModificationByAssignment(this);
+    }
+
+    @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode().withMessageTemplate("network.modification.modificationByAssignment").add();
+    }
+}

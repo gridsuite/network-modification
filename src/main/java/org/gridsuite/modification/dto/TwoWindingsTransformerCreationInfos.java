@@ -16,8 +16,6 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.TwoWindingsTransformerCreation;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -53,11 +51,6 @@ public class TwoWindingsTransformerCreationInfos extends BranchCreationInfos {
 
     @Schema(description = "Phase tap changer")
     private PhaseTapChangerCreationInfos phaseTapChanger;
-
-    @Override
-    public AbstractModification toModification() {
-        return new TwoWindingsTransformerCreation(this);
-    }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
