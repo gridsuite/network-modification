@@ -12,11 +12,11 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.ByFormulaModificationInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
-import org.gridsuite.modification.dto.byfilter.formula.Operator;
+import org.gridsuite.modification.model.ByFormulaModificationModel;
+import org.gridsuite.modification.model.ModificationModel;
+import org.gridsuite.modification.model.byfilter.AbstractAssignmentModel;
+import org.gridsuite.modification.model.byfilter.formula.FormulaModel;
+import org.gridsuite.modification.model.byfilter.formula.Operator;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 
 import javax.annotation.Nonnull;
@@ -31,11 +31,11 @@ import static org.gridsuite.modification.NetworkModificationException.Type.BY_FO
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
  */
 public class ByFormulaModification extends AbstractModificationByAssignment {
-    private final ByFormulaModificationInfos modificationInfos;
+    private final ByFormulaModificationModel modificationModel;
 
-    public ByFormulaModification(ByFormulaModificationInfos modificationInfos) {
+    public ByFormulaModification(ByFormulaModificationModel modificationModel) {
         super();
-        this.modificationInfos = modificationInfos;
+        this.modificationModel = modificationModel;
     }
 
     @Override
@@ -44,18 +44,18 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
     }
 
     @Override
-    public ModificationInfos getModificationInfos() {
-        return modificationInfos;
+    public ModificationModel getModificationModel() {
+        return modificationModel;
     }
 
     @Override
     public IdentifiableType getEquipmentType() {
-        return modificationInfos.getIdentifiableType();
+        return modificationModel.getIdentifiableType();
     }
 
     @Override
-    public List<AbstractAssignmentInfos> getAssignmentInfosList() {
-        return Collections.unmodifiableList(modificationInfos.getFormulaInfosList());
+    public List<AbstractAssignmentModel> getAssignmentModelList() {
+        return Collections.unmodifiableList(modificationModel.getFormulaModelList());
     }
 
     @Override
@@ -64,20 +64,20 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
     }
 
     @Override
-    protected boolean preCheckValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos, List<ReportNode> reports, List<String> notEditableEquipments) {
-        FormulaInfos formulaInfos = (FormulaInfos) abstractAssignmentInfos;
-        Double value1 = formulaInfos.getFieldOrValue1().getRefOrValue(equipment);
-        Double value2 = formulaInfos.getFieldOrValue2().getRefOrValue(equipment);
+    protected boolean preCheckValue(Identifiable<?> equipment, AbstractAssignmentModel abstractAssignmentModel, List<ReportNode> reports, List<String> notEditableEquipments) {
+        FormulaModel formulaModel = (FormulaModel) abstractAssignmentModel;
+        Double value1 = formulaModel.getFieldOrValue1().getRefOrValue(equipment);
+        Double value2 = formulaModel.getFieldOrValue2().getRefOrValue(equipment);
         // value 1 and value 2 cannot be null because getRefOrValue returns NaN if value is null
         if (Double.isNaN(value1) || Double.isNaN(value2)) {
             return reportErrorOnEquipment(equipment, notEditableEquipments, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_MISSING, reports);
         }
 
-        if (value2 == 0 && formulaInfos.getOperator() == Operator.DIVISION) {
+        if (value2 == 0 && formulaModel.getOperator() == Operator.DIVISION) {
             return reportErrorOnEquipment(equipment, notEditableEquipments, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO, reports);
         }
         if (equipment.getType() == IdentifiableType.GENERATOR) {
-            return checkGeneratorsPowerValues(equipment, abstractAssignmentInfos, reports);
+            return checkGeneratorsPowerValues(equipment, abstractAssignmentModel, reports);
         }
         return true;
     }
@@ -95,11 +95,11 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
     }
 
     @Override
-    protected String getNewValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos) {
-        FormulaInfos formulaInfos = (FormulaInfos) abstractAssignmentInfos;
-        Double value1 = formulaInfos.getFieldOrValue1().getRefOrValue(equipment);
-        Double value2 = formulaInfos.getFieldOrValue2().getRefOrValue(equipment);
-        return applyOperation(formulaInfos.getOperator(), value1, value2).toString();
+    protected String getNewValue(Identifiable<?> equipment, AbstractAssignmentModel abstractAssignmentModel) {
+        FormulaModel formulaModel = (FormulaModel) abstractAssignmentModel;
+        Double value1 = formulaModel.getFieldOrValue1().getRefOrValue(equipment);
+        Double value2 = formulaModel.getFieldOrValue2().getRefOrValue(equipment);
+        return applyOperation(formulaModel.getOperator(), value1, value2).toString();
     }
 
     static final int MAX_SCALE = 10;

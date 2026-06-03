@@ -11,9 +11,9 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.EquipmentModificationInfos;
-import org.gridsuite.modification.dto.ShuntCompensatorModificationInfos;
-import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
+import org.gridsuite.modification.model.EquipmentModificationModel;
+import org.gridsuite.modification.model.ShuntCompensatorModificationModel;
+import org.gridsuite.modification.model.tabular.TabularModificationModel;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.TABULAR_MODIFICATION_ERROR;
 
@@ -22,13 +22,13 @@ import static org.gridsuite.modification.NetworkModificationException.Type.TABUL
  */
 public class TabularModification extends AbstractTabularModification {
 
-    public TabularModification(TabularModificationInfos modificationInfos) {
-        super(modificationInfos);
+    public TabularModification(TabularModificationModel modificationModel) {
+        super(modificationModel);
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (modificationInfos == null) {
+        if (modificationModel == null) {
             throw new NetworkModificationException(TABULAR_MODIFICATION_ERROR, "No tabular modification to apply !!");
         }
     }
@@ -40,7 +40,7 @@ public class TabularModification extends AbstractTabularModification {
 
     @Override
     public String defaultMessage() {
-        return modificationInfos.formatEquipmentTypeName() + " have been modified";
+        return modificationModel.formatEquipmentTypeName() + " have been modified";
     }
 
     @Override
@@ -49,29 +49,29 @@ public class TabularModification extends AbstractTabularModification {
     }
 
     @Override
-    public void specificCheck(EquipmentModificationInfos equipmentModificationInfos, Network network, ReportNode subReportNode) {
-        if (equipmentModificationInfos instanceof ShuntCompensatorModificationInfos shuntCompensatorModificationInfos) {
-            var shuntCompensator = network.getShuntCompensator(shuntCompensatorModificationInfos.getEquipmentId());
+    public void specificCheck(EquipmentModificationModel equipmentModificationModel, Network network, ReportNode subReportNode) {
+        if (equipmentModificationModel instanceof ShuntCompensatorModificationModel shuntCompensatorModificationModel) {
+            var shuntCompensator = network.getShuntCompensator(shuntCompensatorModificationModel.getEquipmentId());
             if (shuntCompensator.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
                 subReportNode.newReportNode()
                         .withMessageTemplate("network.modification.tabular.shuntCompensator.modifyImpossible")
                         .withUntypedValue("id", shuntCompensator.getId())
                         .withSeverity(TypedValue.ERROR_SEVERITY)
                         .add();
-            } else if (shuntCompensatorModificationInfos.getMaxSusceptance() != null) {
-                if (shuntCompensatorModificationInfos.getShuntCompensatorType() != null && shuntCompensatorModificationInfos.getMaxQAtNominalV() != null) {
+            } else if (shuntCompensatorModificationModel.getMaxSusceptance() != null) {
+                if (shuntCompensatorModificationModel.getShuntCompensatorType() != null && shuntCompensatorModificationModel.getMaxQAtNominalV() != null) {
                     subReportNode.newReportNode()
                             .withMessageTemplate("network.modification.tabular.modification.shuntCompensator.maxSusceptanceIgnored.1")
                             .withUntypedValue("id", shuntCompensator.getId())
                             .withSeverity(TypedValue.WARN_SEVERITY)
                             .add();
-                } else if (shuntCompensatorModificationInfos.getShuntCompensatorType() != null) {
+                } else if (shuntCompensatorModificationModel.getShuntCompensatorType() != null) {
                     subReportNode.newReportNode()
                             .withMessageTemplate("network.modification.tabular.modification.shuntCompensator.maxSusceptanceIgnored.2")
                             .withUntypedValue("id", shuntCompensator.getId())
                             .withSeverity(TypedValue.WARN_SEVERITY)
                             .add();
-                } else if (shuntCompensatorModificationInfos.getMaxQAtNominalV() != null) {
+                } else if (shuntCompensatorModificationModel.getMaxQAtNominalV() != null) {
                     subReportNode.newReportNode()
                             .withMessageTemplate("network.modification.tabular.modification.shuntCompensator.maxSusceptanceIgnored.3")
                             .withUntypedValue("id", shuntCompensator.getId())

@@ -12,9 +12,9 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 
-import org.gridsuite.modification.dto.FreePropertyInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.SubstationCreationInfos;
+import org.gridsuite.modification.model.FreePropertyModel;
+import org.gridsuite.modification.model.ModificationModel;
+import org.gridsuite.modification.model.SubstationCreationModel;
 import org.gridsuite.modification.utils.NetworkCreation;
 import java.util.List;
 import java.util.Map;
@@ -33,13 +33,13 @@ class SubstationCreationTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        return SubstationCreationInfos.builder()
+    protected ModificationModel buildModification() {
+        return SubstationCreationModel.builder()
                 .stashed(false)
                 .equipmentId("SubstationId")
                 .equipmentName("SubstationName")
                 .country(Country.AF)
-                .properties(List.of(FreePropertyInfos.builder().name("DEMO").value("DemoC").build()))
+                .properties(List.of(FreePropertyModel.builder().name("DEMO").value("DemoC").build()))
                 .build();
     }
 
@@ -52,16 +52,16 @@ class SubstationCreationTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void checkModification() {
-        SubstationCreationInfos substationCreationInfos = (SubstationCreationInfos) buildModification();
-        substationCreationInfos.setEquipmentId("");
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> substationCreationInfos.toModification().apply(getNetwork()));
+        SubstationCreationModel substationCreationModel = (SubstationCreationModel) buildModification();
+        substationCreationModel.setEquipmentId("");
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> substationCreationModel.toModification().apply(getNetwork()));
         assertEquals("Invalid id ''", exception.getMessage());
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("SUBSTATION_CREATION", modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals("SUBSTATION_CREATION", modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
         assertEquals("SubstationId", createdValues.get("equipmentId"));
     }
 }

@@ -11,10 +11,10 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.FreePropertyInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.StaticVarCompensatorCreationInfos;
-import org.gridsuite.modification.dto.VoltageRegulationType;
+import org.gridsuite.modification.model.FreePropertyModel;
+import org.gridsuite.modification.model.ModificationModel;
+import org.gridsuite.modification.model.StaticVarCompensatorCreationModel;
+import org.gridsuite.modification.model.constants.VoltageRegulationType;
 import org.gridsuite.modification.utils.NetworkCreation;
 import java.util.List;
 import java.util.Map;
@@ -36,8 +36,8 @@ class StaticVarCompensatorCreationInBusBreakerTest extends AbstractNetworkModifi
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        return StaticVarCompensatorCreationInfos.builder()
+    protected ModificationModel buildModification() {
+        return StaticVarCompensatorCreationModel.builder()
                 .stashed(false)
                 .equipmentId("idStaticVarCompensator2")
                 .equipmentName("nameStaticVarCompensator2")
@@ -63,7 +63,7 @@ class StaticVarCompensatorCreationInBusBreakerTest extends AbstractNetworkModifi
                 .highVoltageSetpoint(400.0)
                 .lowVoltageThreshold(250.0)
                 .highVoltageThreshold(300.0)
-                .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+                .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
                 .build();
     }
 
@@ -77,25 +77,25 @@ class StaticVarCompensatorCreationInBusBreakerTest extends AbstractNetworkModifi
 
     @Override
     protected void checkModification() {
-        StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos = (StaticVarCompensatorCreationInfos) buildModification();
-        staticVarCompensatorCreationInfos.setBusOrBusbarSectionId("notFoundBus");
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreationInfos.toModification().check(getNetwork()));
+        StaticVarCompensatorCreationModel staticVarCompensatorCreationModel = (StaticVarCompensatorCreationModel) buildModification();
+        staticVarCompensatorCreationModel.setBusOrBusbarSectionId("notFoundBus");
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreationModel.toModification().check(getNetwork()));
         assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
 
         // CreateWithRegulatedTerminalError
-        StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos1 = (StaticVarCompensatorCreationInfos) buildModification();
-        staticVarCompensatorCreationInfos1.setVoltageRegulationType(VoltageRegulationType.DISTANT);
-        staticVarCompensatorCreationInfos1.setRegulatingTerminalVlId("v1");
-        staticVarCompensatorCreationInfos1.setRegulatingTerminalId("test");
-        staticVarCompensatorCreationInfos1.setRegulatingTerminalType("STATIC_VAR_COMPENSATOR");
-        exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreationInfos1.toModification().check(getNetwork()));
+        StaticVarCompensatorCreationModel staticVarCompensatorCreationModel1 = (StaticVarCompensatorCreationModel) buildModification();
+        staticVarCompensatorCreationModel1.setVoltageRegulationType(VoltageRegulationType.DISTANT);
+        staticVarCompensatorCreationModel1.setRegulatingTerminalVlId("v1");
+        staticVarCompensatorCreationModel1.setRegulatingTerminalId("test");
+        staticVarCompensatorCreationModel1.setRegulatingTerminalType("STATIC_VAR_COMPENSATOR");
+        exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreationModel1.toModification().check(getNetwork()));
         assertEquals("EQUIPMENT_NOT_FOUND : Equipment with id=test not found with type STATIC_VAR_COMPENSATOR", exception.getMessage());
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("STATIC_VAR_COMPENSATOR_CREATION", modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals("STATIC_VAR_COMPENSATOR_CREATION", modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
         assertEquals("idStaticVarCompensator2", createdValues.get("equipmentId"));
     }
 }

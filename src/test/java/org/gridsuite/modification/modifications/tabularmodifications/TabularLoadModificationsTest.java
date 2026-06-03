@@ -10,8 +10,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
+import org.gridsuite.modification.model.*;
+import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.model.LoadModificationModel;
+import org.gridsuite.modification.model.ModificationModel;
+import org.gridsuite.modification.model.constants.OperationType;
+import org.gridsuite.modification.model.tabular.TabularModificationModel;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -36,13 +40,13 @@ class TabularLoadModificationsTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        List<ModificationInfos> modifications = List.of(
-                LoadModificationInfos.builder().equipmentId("v1load").q0(new AttributeModification<>(300., OperationType.SET)).build(),
-                LoadModificationInfos.builder().equipmentId("v2load").q0(new AttributeModification<>(300., OperationType.SET)).build(),
-                LoadModificationInfos.builder().equipmentId("v3load").q0(new AttributeModification<>(300., OperationType.SET)).build()
+    protected ModificationModel buildModification() {
+        List<ModificationModel> modifications = List.of(
+                LoadModificationModel.builder().equipmentId("v1load").q0(new AttributeModification<>(300., OperationType.SET)).build(),
+                LoadModificationModel.builder().equipmentId("v2load").q0(new AttributeModification<>(300., OperationType.SET)).build(),
+                LoadModificationModel.builder().equipmentId("v3load").q0(new AttributeModification<>(300., OperationType.SET)).build()
         );
-        return TabularModificationInfos.builder()
+        return TabularModificationModel.builder()
                 .modificationType(ModificationType.LOAD_MODIFICATION)
                 .modifications(modifications)
                 .stashed(false)
@@ -52,11 +56,11 @@ class TabularLoadModificationsTest extends AbstractNetworkModificationTest {
     @Test
     @Override
     public void testApply() {
-        ModificationInfos modificationInfos = buildModification();
-        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ModificationModel modificationModel = buildModification();
+        ReportNode reportNode = modificationModel.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationModel.toModification().apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication(reportNode);
     }
 
@@ -76,9 +80,9 @@ class TabularLoadModificationsTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
         assertEquals(ModificationType.LOAD_MODIFICATION.name(), createdValues.get("tabularModificationType"));
     }
 

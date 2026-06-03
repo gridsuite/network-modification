@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -31,12 +31,12 @@ import java.util.stream.Collectors;
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
  */
 public abstract class AbstractScaling extends AbstractModification {
-    protected final ScalingInfos scalingInfos;
+    protected final ScalingModel scalingModel;
 
     protected IFilterService filterService;
 
-    protected AbstractScaling(ScalingInfos scalingInfos) {
-        this.scalingInfos = scalingInfos;
+    protected AbstractScaling(ScalingModel scalingModel) {
+        this.scalingModel = scalingModel;
     }
 
     @Override
@@ -47,21 +47,21 @@ public abstract class AbstractScaling extends AbstractModification {
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         // collect all filters from all variations
-        var filters = scalingInfos.getVariations().stream()
+        var filters = scalingModel.getVariations().stream()
                 .flatMap(v -> v.getFilters().stream())
-                .filter(distinctByKey(FilterInfos::getId))
-                .collect(Collectors.toMap(FilterInfos::getId, FilterInfos::getName));
+                .filter(distinctByKey(FilterModel::getId))
+                .collect(Collectors.toMap(FilterModel::getId, FilterModel::getName));
 
-        Map<UUID, FilterEquipments> exportFilters = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, scalingInfos.getErrorType());
+        Map<UUID, FilterEquipments> exportFilters = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, scalingModel.getErrorType());
         if (exportFilters != null) {
             ModificationUtils.logWrongEquipmentsIdsFilters(subReportNode, exportFilters, filters);
 
             // apply variations
-            scalingInfos.getVariations().forEach(variation -> {
+            scalingModel.getVariations().forEach(variation -> {
                 Set<IdentifiableAttributes> identifiableAttributes = ModificationUtils.getIdentifiableAttributes(exportFilters, variation.getFilters(), subReportNode);
 
                 if (CollectionUtils.isEmpty(identifiableAttributes)) {
-                    String filterNames = variation.getFilters().stream().map(FilterInfos::getName).collect(Collectors.joining(", "));
+                    String filterNames = variation.getFilters().stream().map(FilterModel::getName).collect(Collectors.joining(", "));
                     createReport(subReportNode, "network.modification.allFiltersWrong.variation", Map.of("filterNames", filterNames), TypedValue.WARN_SEVERITY);
                 } else {
                     applyVariation(network, subReportNode, identifiableAttributes, variation);
@@ -74,7 +74,7 @@ public abstract class AbstractScaling extends AbstractModification {
     private void applyVariation(Network network,
                                 ReportNode subReportNode,
                                 Set<IdentifiableAttributes> identifiableAttributes,
-                                ScalingVariationInfos variation) {
+                                ScalingVariationModel variation) {
         switch (variation.getVariationMode()) {
             case PROPORTIONAL:
                 applyProportionalVariation(network, subReportNode, identifiableAttributes, variation);
@@ -92,7 +92,7 @@ public abstract class AbstractScaling extends AbstractModification {
                 applyStackingUpVariation(network, subReportNode, identifiableAttributes, variation);
                 break;
             default:
-                throw new NetworkModificationException(scalingInfos.getErrorType(), String.format("This variation mode is not supported : %s", variation.getVariationMode().name()));
+                throw new NetworkModificationException(scalingModel.getErrorType(), String.format("This variation mode is not supported : %s", variation.getVariationMode().name()));
         }
     }
 
@@ -108,17 +108,17 @@ public abstract class AbstractScaling extends AbstractModification {
         return distributionKeys;
     }
 
-    protected abstract void applyStackingUpVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos);
+    protected abstract void applyStackingUpVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationModel scalingVariationModel);
 
-    protected abstract void applyVentilationVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos, Double distributionKeys);
+    protected abstract void applyVentilationVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationModel scalingVariationModel, Double distributionKeys);
 
-    protected abstract void applyRegularDistributionVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos);
+    protected abstract void applyRegularDistributionVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationModel scalingVariationModel);
 
-    protected abstract void applyProportionalToPmaxVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos);
+    protected abstract void applyProportionalToPmaxVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationModel scalingVariationModel);
 
-    protected abstract void applyProportionalVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos);
+    protected abstract void applyProportionalVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationModel scalingVariationModel);
 
-    protected abstract double getAsked(ScalingVariationInfos variationInfos, AtomicReference<Double> sum);
+    protected abstract double getAsked(ScalingVariationModel variationModel, AtomicReference<Double> sum);
 
     protected abstract Scalable getScalable(String id);
 

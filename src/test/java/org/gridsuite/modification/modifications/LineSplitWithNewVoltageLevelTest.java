@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.*;
 import org.gridsuite.modification.utils.DummyNamingStrategy;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Assertions;
@@ -33,7 +33,7 @@ class LineSplitWithNewVoltageLevelTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void checkModification() {
-        LineSplitWithVoltageLevelInfos lineSplitAbsentLine = (LineSplitWithVoltageLevelInfos) buildModification();
+        LineSplitWithVoltageLevelModel lineSplitAbsentLine = (LineSplitWithVoltageLevelModel) buildModification();
         lineSplitAbsentLine.setLineToSplitId("absent_line_id");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lineSplitAbsentLine.toModification().check(getNetwork()));
         assertEquals(new NetworkModificationException(LINE_NOT_FOUND, "absent_line_id").getMessage(),
@@ -46,10 +46,10 @@ class LineSplitWithNewVoltageLevelTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        VoltageLevelCreationInfos vl1 = createVoltageLevel();
+    protected ModificationModel buildModification() {
+        VoltageLevelCreationModel vl1 = createVoltageLevel();
 
-        return LineSplitWithVoltageLevelInfos.builder()
+        return LineSplitWithVoltageLevelModel.builder()
             .stashed(false)
             .lineToSplitId("line2")
             .percent(10.0)
@@ -75,14 +75,14 @@ class LineSplitWithNewVoltageLevelTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("LINE_SPLIT_WITH_VOLTAGE_LEVEL", modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals("LINE_SPLIT_WITH_VOLTAGE_LEVEL", modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
         assertEquals("line2", createdValues.get("lineToSplitId"));
     }
 
-    private VoltageLevelCreationInfos createVoltageLevel() {
-        return VoltageLevelCreationInfos.builder()
+    private VoltageLevelCreationModel createVoltageLevel() {
+        return VoltageLevelCreationModel.builder()
                 .stashed(false)
                 .equipmentId("newVoltageLevel")
                 .equipmentName("NewVoltageLevel")
@@ -95,8 +95,8 @@ class LineSplitWithNewVoltageLevelTest extends AbstractNetworkModificationTest {
                 .busbarCount(2)
                 .sectionCount(2)
                 .switchKinds(Arrays.asList(SwitchKind.BREAKER))
-                .couplingDevices(Arrays.asList(CouplingDeviceInfos.builder().busbarSectionId1("1A").busbarSectionId2("1B").build()))
-                .properties(List.of(FreePropertyInfos.builder()
+                .couplingDevices(Arrays.asList(CouplingDeviceModel.builder().busbarSectionId1("1A").busbarSectionId2("1B").build()))
+                .properties(List.of(FreePropertyModel.builder()
                         .added(true)
                         .name("voltageLevelProp")
                         .value("valueVoltageLevel")
@@ -109,9 +109,9 @@ class LineSplitWithNewVoltageLevelTest extends AbstractNetworkModificationTest {
         ReportNode report = ReportNode.newRootReportNode()
                 .withMessageTemplate("test")
                 .build();
-        VoltageLevelCreationInfos vl1 = createVoltageLevel();
+        VoltageLevelCreationModel vl1 = createVoltageLevel();
 
-        LineSplitWithVoltageLevelInfos modificationInfos = LineSplitWithVoltageLevelInfos.builder()
+        LineSplitWithVoltageLevelModel modificationModel = LineSplitWithVoltageLevelModel.builder()
                 .stashed(false)
                 .lineToSplitId("line2")
                 .percent(10.0)
@@ -123,7 +123,7 @@ class LineSplitWithNewVoltageLevelTest extends AbstractNetworkModificationTest {
                 .newLine2Id("nl2v")
                 .newLine2Name("NewLine2")
                 .build();
-        modificationInfos.toModification().apply(getNetwork(), new DummyNamingStrategy(), report);
+        modificationModel.toModification().apply(getNetwork(), new DummyNamingStrategy(), report);
         Assertions.assertNotNull(getNetwork().getBusbarSection("BUSBAR_1_2"));
     }
 }

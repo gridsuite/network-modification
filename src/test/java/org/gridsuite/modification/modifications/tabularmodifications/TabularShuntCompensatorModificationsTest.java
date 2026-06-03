@@ -14,8 +14,10 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
+import org.gridsuite.modification.model.*;
+import org.gridsuite.modification.model.constants.OperationType;
+import org.gridsuite.modification.model.constants.ShuntCompensatorType;
+import org.gridsuite.modification.model.tabular.TabularModificationModel;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.modifications.tabular.TabularModification;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
@@ -58,12 +60,12 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        List<ModificationInfos> modifications = List.of(
-                ShuntCompensatorModificationInfos.builder().equipmentId("v2shunt").maximumSectionCount(new AttributeModification<>(100, OperationType.SET)).sectionCount(new AttributeModification<>(10, OperationType.SET)).build(),
-                ShuntCompensatorModificationInfos.builder().equipmentId("v5shunt").maximumSectionCount(new AttributeModification<>(200, OperationType.SET)).sectionCount(new AttributeModification<>(20, OperationType.SET)).build()
+    protected ModificationModel buildModification() {
+        List<ModificationModel> modifications = List.of(
+                ShuntCompensatorModificationModel.builder().equipmentId("v2shunt").maximumSectionCount(new AttributeModification<>(100, OperationType.SET)).sectionCount(new AttributeModification<>(10, OperationType.SET)).build(),
+                ShuntCompensatorModificationModel.builder().equipmentId("v5shunt").maximumSectionCount(new AttributeModification<>(200, OperationType.SET)).sectionCount(new AttributeModification<>(20, OperationType.SET)).build()
         );
-        return TabularModificationInfos.builder()
+        return TabularModificationModel.builder()
                 .modificationType(ModificationType.SHUNT_COMPENSATOR_MODIFICATION)
                 .modifications(modifications)
                 .stashed(false)
@@ -73,11 +75,11 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
     @Test
     @Override
     public void testApply() {
-        ModificationInfos modificationInfos = buildModification();
-        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ModificationModel modificationModel = buildModification();
+        ReportNode reportNode = modificationModel.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationModel.toModification().apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication(reportNode);
     }
 
@@ -97,28 +99,28 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
         assertEquals(ModificationType.SHUNT_COMPENSATOR_MODIFICATION.name(), createdValues.get("tabularModificationType"));
     }
 
     @Test
     void testCheckModificationConflict() {
-        var shuntModification = ShuntCompensatorModificationInfos
+        var shuntModification = ShuntCompensatorModificationModel
                 .builder()
                 .equipmentId("id")
                 .maxQAtNominalV(AttributeModification.toAttributeModification(1.0, OperationType.SET))
                 .maxSusceptance(AttributeModification.toAttributeModification(10.0, OperationType.SET))
                 .build();
 
-        var tabularModificationInfos = TabularModificationInfos
+        var tabularModificationModel = TabularModificationModel
                 .builder()
                 .modificationType(ModificationType.SHUNT_COMPENSATOR_MODIFICATION)
                 .modifications(Collections.singletonList(shuntModification))
                 .build();
 
-        var tabularModification = (TabularModification) tabularModificationInfos.toModification();
+        var tabularModification = (TabularModification) tabularModificationModel.toModification();
 
         when(network.getShuntCompensator("id")).thenReturn(shuntCompensator);
         when(shuntCompensator.getModelType()).thenReturn(ShuntCompensatorModelType.LINEAR);
@@ -141,19 +143,19 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
 
     @Test
     void testCheckModificationNonLinear() {
-        var shuntModification = ShuntCompensatorModificationInfos
+        var shuntModification = ShuntCompensatorModificationModel
                 .builder()
                 .equipmentId("id")
                 .maxQAtNominalV(AttributeModification.toAttributeModification(1.0, OperationType.SET))
                 .build();
 
-        var tabularModificationInfos = TabularModificationInfos
+        var tabularModificationModel = TabularModificationModel
                 .builder()
                 .modificationType(ModificationType.SHUNT_COMPENSATOR_MODIFICATION)
                 .modifications(Collections.singletonList(shuntModification))
                 .build();
 
-        var tabularModification = (TabularModification) tabularModificationInfos.toModification();
+        var tabularModification = (TabularModification) tabularModificationModel.toModification();
 
         when(network.getShuntCompensator("id")).thenReturn(shuntCompensator);
         when(shuntCompensator.getModelType()).thenReturn(ShuntCompensatorModelType.NON_LINEAR);
@@ -171,19 +173,19 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
 
     @Test
     void testCheckModificationOK() {
-        var shuntModification = ShuntCompensatorModificationInfos
+        var shuntModification = ShuntCompensatorModificationModel
                 .builder()
                 .equipmentId("id")
                 .maxQAtNominalV(AttributeModification.toAttributeModification(1.0, OperationType.SET))
                 .build();
 
-        var tabularModificationInfos = TabularModificationInfos
+        var tabularModificationModel = TabularModificationModel
                 .builder()
                 .modificationType(ModificationType.SHUNT_COMPENSATOR_MODIFICATION)
                 .modifications(Collections.singletonList(shuntModification))
                 .build();
 
-        var tabularModification = (TabularModification) tabularModificationInfos.toModification();
+        var tabularModification = (TabularModification) tabularModificationModel.toModification();
 
         when(network.getShuntCompensator("id")).thenReturn(shuntCompensator);
         when(shuntCompensator.getModelType()).thenReturn(ShuntCompensatorModelType.LINEAR);

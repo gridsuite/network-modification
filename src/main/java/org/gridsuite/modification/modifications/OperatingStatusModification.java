@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.OperatingStatusModificationInfos;
+import org.gridsuite.modification.model.OperatingStatusModificationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,18 +36,18 @@ import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
  */
 public class OperatingStatusModification extends AbstractModification {
 
-    private final OperatingStatusModificationInfos modificationInfos;
+    private final OperatingStatusModificationModel modificationModel;
     private static final Logger LOGGER = LoggerFactory.getLogger(OperatingStatusModification.class);
 
     private static final String EQUIPMENT_TYPE = "equipmentType";
 
-    public OperatingStatusModification(OperatingStatusModificationInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
+    public OperatingStatusModification(OperatingStatusModificationModel modificationModel) {
+        this.modificationModel = modificationModel;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        String equipmentId = modificationInfos.getEquipmentId();
+        String equipmentId = modificationModel.getEquipmentId();
         Identifiable<?> equipment = network.getIdentifiable(equipmentId);
         if (equipment == null) {
             throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, equipmentId);
@@ -56,14 +56,14 @@ public class OperatingStatusModification extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        String equipmentId = modificationInfos.getEquipmentId();
+        String equipmentId = modificationModel.getEquipmentId();
         Identifiable<?> equipment = network.getIdentifiable(equipmentId);
         if (equipment == null) {
             throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, equipmentId);
         }
 
         String equipmentType = String.valueOf(equipment.getType());
-        switch (modificationInfos.getAction()) {
+        switch (modificationModel.getAction()) {
             case LOCKOUT -> applyLockoutEquipment(subReportNode, equipment, equipmentType);
             case TRIP -> applyTripEquipment(subReportNode, equipment, equipmentType, network);
             case SWITCH_ON -> applySwitchOnEquipment(subReportNode, equipment, equipmentType);
@@ -72,7 +72,7 @@ public class OperatingStatusModification extends AbstractModification {
             case ENERGISE_END_TWO ->
                 applyEnergiseEquipmentEnd(subReportNode, equipment, equipmentType, TwoSides.TWO);
             default ->
-                    throw NetworkModificationException.createOperatingActionTypeUnsupported(modificationInfos.getAction());
+                    throw NetworkModificationException.createOperatingActionTypeUnsupported(modificationModel.getAction());
         }
     }
 

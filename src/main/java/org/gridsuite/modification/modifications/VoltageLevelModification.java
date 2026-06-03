@@ -18,9 +18,9 @@ import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.AttributeModification;
-import org.gridsuite.modification.dto.BusbarSectionVMeasurementInfos;
-import org.gridsuite.modification.dto.VoltageLevelModificationInfos;
+import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.model.BusbarSectionVMeasurementModel;
+import org.gridsuite.modification.model.VoltageLevelModificationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 import org.springframework.util.CollectionUtils;
@@ -42,58 +42,58 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
 public class VoltageLevelModification extends AbstractModification {
 
     public static final String ERROR_MESSAGE = "Voltage level '%s' : ";
-    private final VoltageLevelModificationInfos modificationInfos;
+    private final VoltageLevelModificationModel modificationModel;
 
-    public VoltageLevelModification(VoltageLevelModificationInfos voltageLevelModificationInfos) {
-        this.modificationInfos = voltageLevelModificationInfos;
+    public VoltageLevelModification(VoltageLevelModificationModel voltageLevelModificationModel) {
+        this.modificationModel = voltageLevelModificationModel;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
         boolean ipMinSet = false;
         boolean ipMaxSet = false;
-        String errorMessage = String.format(ERROR_MESSAGE, modificationInfos.getEquipmentId());
-        if (Objects.nonNull(modificationInfos.getIpMin())) {
+        String errorMessage = String.format(ERROR_MESSAGE, modificationModel.getEquipmentId());
+        if (Objects.nonNull(modificationModel.getIpMin())) {
             ipMinSet = true;
-            if (modificationInfos.getIpMin().getValue() < 0) {
+            if (modificationModel.getIpMin().getValue() < 0) {
                 throw new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "IpMin must be positive");
             }
         }
-        if (Objects.nonNull(modificationInfos.getIpMax())) {
+        if (Objects.nonNull(modificationModel.getIpMax())) {
             ipMaxSet = true;
-            if (modificationInfos.getIpMax().getValue() < 0) {
+            if (modificationModel.getIpMax().getValue() < 0) {
                 throw new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "IpMax must be positive");
             }
         }
         if (ipMinSet && ipMaxSet) {
-            if (modificationInfos.getIpMin().getValue() > modificationInfos.getIpMax().getValue()) {
+            if (modificationModel.getIpMin().getValue() > modificationModel.getIpMax().getValue()) {
                 throw new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "IpMin cannot be greater than IpMax");
             }
         } else if (ipMinSet || ipMaxSet) {
             // only one Icc set: check with existing VL attributes
             checkIccValuesAgainstEquipmentInNetwork(network, ipMinSet, ipMaxSet);
         }
-        if (modificationInfos.getNominalV() != null) {
-            checkIsNotNegativeValue(errorMessage, modificationInfos.getNominalV().getValue(), MODIFY_VOLTAGE_LEVEL_ERROR, "Nominal Voltage");
+        if (modificationModel.getNominalV() != null) {
+            checkIsNotNegativeValue(errorMessage, modificationModel.getNominalV().getValue(), MODIFY_VOLTAGE_LEVEL_ERROR, "Nominal Voltage");
         }
-        if (modificationInfos.getLowVoltageLimit() != null) {
-            checkIsNotNegativeValue(errorMessage, modificationInfos.getLowVoltageLimit().getValue(), MODIFY_VOLTAGE_LEVEL_ERROR, "Low voltage limit");
+        if (modificationModel.getLowVoltageLimit() != null) {
+            checkIsNotNegativeValue(errorMessage, modificationModel.getLowVoltageLimit().getValue(), MODIFY_VOLTAGE_LEVEL_ERROR, "Low voltage limit");
         }
-        if (modificationInfos.getHighVoltageLimit() != null) {
-            checkIsNotNegativeValue(errorMessage, modificationInfos.getHighVoltageLimit().getValue(), MODIFY_VOLTAGE_LEVEL_ERROR, "High voltage limit");
+        if (modificationModel.getHighVoltageLimit() != null) {
+            checkIsNotNegativeValue(errorMessage, modificationModel.getHighVoltageLimit().getValue(), MODIFY_VOLTAGE_LEVEL_ERROR, "High voltage limit");
         }
     }
 
     private void checkIccValuesAgainstEquipmentInNetwork(Network network, boolean ipMinSet, boolean ipMaxSet) {
-        VoltageLevel existingVoltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getEquipmentId());
+        VoltageLevel existingVoltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationModel.getEquipmentId());
         IdentifiableShortCircuit<VoltageLevel> identifiableShortCircuit = existingVoltageLevel.getExtension(IdentifiableShortCircuit.class);
         if (Objects.isNull(identifiableShortCircuit)) {
             if (ipMinSet) {
                 throw new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "IpMax is required");
             }
         } else {
-            if (ipMinSet && modificationInfos.getIpMin().getValue() > identifiableShortCircuit.getIpMax() ||
-                    ipMaxSet && identifiableShortCircuit.getIpMin() > modificationInfos.getIpMax().getValue()) {
+            if (ipMinSet && modificationModel.getIpMin().getValue() > identifiableShortCircuit.getIpMax() ||
+                    ipMaxSet && identifiableShortCircuit.getIpMin() > modificationModel.getIpMax().getValue()) {
                 throw new NetworkModificationException(MODIFY_VOLTAGE_LEVEL_ERROR, "IpMin cannot be greater than IpMax");
             }
         }
@@ -101,27 +101,27 @@ public class VoltageLevelModification extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getEquipmentId());
+        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationModel.getEquipmentId());
 
         subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.voltageLevelModification")
-                .withUntypedValue("id", modificationInfos.getEquipmentId())
+                .withUntypedValue("id", modificationModel.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
 
-        ModificationUtils.getInstance().applyElementaryModifications(voltageLevel::setName, () -> voltageLevel.getOptionalName().orElse("No value"), modificationInfos.getEquipmentName(), subReportNode, "Name");
-        modifyNominalV(voltageLevel, modificationInfos.getNominalV(), subReportNode);
-        modifLowVoltageLimit(voltageLevel, modificationInfos.getLowVoltageLimit(), subReportNode);
-        modifyHighVoltageLimit(voltageLevel, modificationInfos.getHighVoltageLimit(), subReportNode);
+        ModificationUtils.getInstance().applyElementaryModifications(voltageLevel::setName, () -> voltageLevel.getOptionalName().orElse("No value"), modificationModel.getEquipmentName(), subReportNode, "Name");
+        modifyNominalV(voltageLevel, modificationModel.getNominalV(), subReportNode);
+        modifLowVoltageLimit(voltageLevel, modificationModel.getLowVoltageLimit(), subReportNode);
+        modifyHighVoltageLimit(voltageLevel, modificationModel.getHighVoltageLimit(), subReportNode);
 
-        modifyVoltageLevelShortCircuit(modificationInfos.getIpMin(), modificationInfos.getIpMax(), subReportNode, voltageLevel);
-        PropertiesUtils.applyProperties(voltageLevel, subReportNode, modificationInfos.getProperties(), "network.modification.VlProperties");
+        modifyVoltageLevelShortCircuit(modificationModel.getIpMin(), modificationModel.getIpMax(), subReportNode, voltageLevel);
+        PropertiesUtils.applyProperties(voltageLevel, subReportNode, modificationModel.getProperties(), "network.modification.VlProperties");
         // busbar section voltage measurements
-        if (!CollectionUtils.isEmpty(modificationInfos.getBusbarSectionVMeasurements())) {
+        if (!CollectionUtils.isEmpty(modificationModel.getBusbarSectionVMeasurements())) {
             ReportNode bbsReportNode = subReportNode.newReportNode()
                     .withMessageTemplate("network.modification.stateEstimationData")
                     .add();
-            modificationInfos.getBusbarSectionVMeasurements().forEach(vMeas -> {
+            modificationModel.getBusbarSectionVMeasurements().forEach(vMeas -> {
                 BusbarSection bbs = network.getBusbarSection(vMeas.getBusbarSectionId());
                 if (bbs != null) {
                     List<ReportNode> measurementReports = new ArrayList<>();
@@ -134,7 +134,7 @@ public class VoltageLevelModification extends AbstractModification {
         }
     }
 
-    private void applyBusbarSectionVoltageMeasurement(BusbarSection bbs, BusbarSectionVMeasurementInfos vMeasInfo, List<ReportNode> reports) {
+    private void applyBusbarSectionVoltageMeasurement(BusbarSection bbs, BusbarSectionVMeasurementModel vMeasInfo, List<ReportNode> reports) {
         Double vValue = vMeasInfo.getVMeasurementValue() != null ? vMeasInfo.getVMeasurementValue().getValue() : null;
         Boolean vValidity = vMeasInfo.getVMeasurementValidity() != null ? vMeasInfo.getVMeasurementValidity().getValue() : null;
         if (vValue == null && vValidity == null) {

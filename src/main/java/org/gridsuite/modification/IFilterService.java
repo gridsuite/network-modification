@@ -12,7 +12,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.gridsuite.filter.AbstractFilter;
-import org.gridsuite.modification.dto.FilterEquipments;
+import org.gridsuite.modification.model.FilterEquipments;
 
 import com.powsybl.iidm.network.Network;
 

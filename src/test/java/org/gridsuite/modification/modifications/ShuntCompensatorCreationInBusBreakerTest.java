@@ -10,9 +10,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.FreePropertyInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.ShuntCompensatorCreationInfos;
+import org.gridsuite.modification.model.FreePropertyModel;
+import org.gridsuite.modification.model.ModificationModel;
+import org.gridsuite.modification.model.ShuntCompensatorCreationModel;
 import org.gridsuite.modification.utils.NetworkCreation;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -31,7 +31,7 @@ class ShuntCompensatorCreationInBusBreakerTest extends AbstractNetworkModificati
 
     @Override
     protected void checkModification() {
-        ShuntCompensatorCreationInfos shunt = (ShuntCompensatorCreationInfos) buildModification();
+        ShuntCompensatorCreationModel shunt = (ShuntCompensatorCreationModel) buildModification();
         shunt.setBusOrBusbarSectionId("notFoundBus");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> shunt.toModification().check(getNetwork()));
         assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
@@ -43,8 +43,8 @@ class ShuntCompensatorCreationInBusBreakerTest extends AbstractNetworkModificati
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        return ShuntCompensatorCreationInfos.builder()
+    protected ModificationModel buildModification() {
+        return ShuntCompensatorCreationModel.builder()
             .stashed(false)
             .date(Instant.now().truncatedTo(ChronoUnit.MICROS))
             .equipmentId("shuntOneId")
@@ -56,7 +56,7 @@ class ShuntCompensatorCreationInBusBreakerTest extends AbstractNetworkModificati
             .busOrBusbarSectionId("bus2")
             .connectionName("cn2")
             .connectionDirection(ConnectablePosition.Direction.UNDEFINED)
-            .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+            .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
                 .build();
     }
 
@@ -68,9 +68,9 @@ class ShuntCompensatorCreationInBusBreakerTest extends AbstractNetworkModificati
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("SHUNT_COMPENSATOR_CREATION", modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals("SHUNT_COMPENSATOR_CREATION", modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
         assertEquals("shuntOneId", createdValues.get("equipmentId"));
     }
 }

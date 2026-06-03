@@ -12,11 +12,11 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
-import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.equipmentfield.VoltageLevelField;
+import org.gridsuite.modification.model.FilterEquipments;
+import org.gridsuite.modification.model.IdentifiableAttributes;
+import org.gridsuite.modification.model.byfilter.assignment.AssignmentModel;
+import org.gridsuite.modification.model.byfilter.assignment.DoubleAssignmentModel;
+import org.gridsuite.modification.model.byfilter.equipmentfield.VoltageLevelField;
 
 import java.util.List;
 import java.util.Map;
@@ -118,63 +118,63 @@ class VoltageLevelModificationByAssignmentTest extends AbstractModificationByAss
     }
 
     @Override
-    protected List<AssignmentInfos<?>> getAssignmentInfos() {
-        DoubleAssignmentInfos assignmentInfos1 = DoubleAssignmentInfos.builder()
+    protected List<AssignmentModel<?>> getAssignmentModel() {
+        DoubleAssignmentModel assignmentModel1 = DoubleAssignmentModel.builder()
             .editedField(VoltageLevelField.LOW_VOLTAGE_LIMIT.name())
             .value(10.)
             .filters(List.of(filter1, filter2))
             .build();
 
-        DoubleAssignmentInfos assignmentInfos2 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentModel2 = DoubleAssignmentModel.builder()
             .editedField(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name())
             .value(120.)
             .filters(List.of(filter3))
             .build();
 
-        DoubleAssignmentInfos assignmentInfos3 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentModel3 = DoubleAssignmentModel.builder()
             .editedField(VoltageLevelField.NOMINAL_VOLTAGE.name())
             .value(150.)
             .filters(List.of(filter4))
             .build();
 
-        DoubleAssignmentInfos assignmentInfos4 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentModel4 = DoubleAssignmentModel.builder()
                 .editedField(VoltageLevelField.LOW_SHORT_CIRCUIT_CURRENT_LIMIT.name())
                 .value(2.)
                 .filters(List.of(filter5))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos5 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentModel5 = DoubleAssignmentModel.builder()
                 .editedField(VoltageLevelField.HIGH_SHORT_CIRCUIT_CURRENT_LIMIT.name())
                 .value(80.)
                 .filters(List.of(filter4, filter5))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos6 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentModel6 = DoubleAssignmentModel.builder()
                 .editedField(VoltageLevelField.LOW_VOLTAGE_LIMIT.name())
                 .value(440.)
                 .filters(List.of(filter6))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos7 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentModel7 = DoubleAssignmentModel.builder()
                 .editedField(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name())
                 .value(360.)
                 .filters(List.of(filter6))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos8 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentModel8 = DoubleAssignmentModel.builder()
                 .editedField(VoltageLevelField.LOW_SHORT_CIRCUIT_CURRENT_LIMIT.name())
                 .value(220.)
                 .filters(List.of(filter6))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos9 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentModel9 = DoubleAssignmentModel.builder()
                 .editedField(VoltageLevelField.HIGH_SHORT_CIRCUIT_CURRENT_LIMIT.name())
                 .value(80.)
                 .filters(List.of(filter6))
                 .build();
 
-        return List.of(assignmentInfos1, assignmentInfos2, assignmentInfos3, assignmentInfos4, assignmentInfos5,
-                assignmentInfos6, assignmentInfos7, assignmentInfos8, assignmentInfos9);
+        return List.of(assignmentModel1, assignmentModel2, assignmentModel3, assignmentModel4, assignmentModel5,
+                assignmentModel6, assignmentModel7, assignmentModel8, assignmentModel9);
     }
 
     @Override

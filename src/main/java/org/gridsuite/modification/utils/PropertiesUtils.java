@@ -8,7 +8,7 @@ package org.gridsuite.modification.utils;
 
 import com.powsybl.commons.report.*;
 import com.powsybl.iidm.network.Identifiable;
-import org.gridsuite.modification.dto.FreePropertyInfos;
+import org.gridsuite.modification.model.FreePropertyModel;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 
 import java.util.*;
@@ -21,11 +21,11 @@ public final class PropertiesUtils {
         // Should not be instantiated
     }
 
-    public static void applyProperties(Identifiable<?> identifiable, @Nullable List<FreePropertyInfos> properties) {
+    public static void applyProperties(Identifiable<?> identifiable, @Nullable List<FreePropertyModel> properties) {
         applyProperties(identifiable, null, properties, null);
     }
 
-    public static void applyProperties(Identifiable<?> identifiable, ReportNode subReportNode, @Nullable List<FreePropertyInfos> properties, String propertiesLabelKey) {
+    public static void applyProperties(Identifiable<?> identifiable, ReportNode subReportNode, @Nullable List<FreePropertyModel> properties, String propertiesLabelKey) {
         List<ReportNode> reportNodes = new ArrayList<>();
         Optional.ofNullable(properties).ifPresent(props ->
             props.forEach(prop ->
@@ -38,7 +38,7 @@ public final class PropertiesUtils {
         }
     }
 
-    private static ReportNode applyProperty(Identifiable<?> identifiable, FreePropertyInfos prop) {
+    private static ReportNode applyProperty(Identifiable<?> identifiable, FreePropertyModel prop) {
         ReportNodeBuilder builder = ReportNode.newRootReportNode().withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME);
         if (prop.isDeletionMark()) {
             if (identifiable.removeProperty(prop.getName())) {
@@ -58,14 +58,14 @@ public final class PropertiesUtils {
         return null;
     }
 
-    private static void reportPropertyCreation(ReportNodeAdderOrBuilder<?> adderOrBuilder, FreePropertyInfos prop) {
+    private static void reportPropertyCreation(ReportNodeAdderOrBuilder<?> adderOrBuilder, FreePropertyModel prop) {
         adderOrBuilder.withMessageTemplate("network.modification.propertyAdded")
             .withUntypedValue("name", prop.getName())
             .withUntypedValue("value", prop.getValue())
             .withSeverity(TypedValue.INFO_SEVERITY);
     }
 
-    private static void reportPropertyModification(ReportNodeAdderOrBuilder<?> adderOrBuilder, FreePropertyInfos prop) {
+    private static void reportPropertyModification(ReportNodeAdderOrBuilder<?> adderOrBuilder, FreePropertyModel prop) {
         adderOrBuilder.withMessageTemplate("network.modification.propertyChanged")
             .withUntypedValue("name", prop.getName())
             .withUntypedValue("to", prop.getValue())
@@ -73,7 +73,7 @@ public final class PropertiesUtils {
             .withSeverity(TypedValue.INFO_SEVERITY);
     }
 
-    private static void reportPropertyDeletion(ReportNodeAdderOrBuilder<?> adderOrBuilder, FreePropertyInfos prop) {
+    private static void reportPropertyDeletion(ReportNodeAdderOrBuilder<?> adderOrBuilder, FreePropertyModel prop) {
         adderOrBuilder.withMessageTemplate("network.modification.propertyDeleted")
             .withUntypedValue("name", prop.getName())
             .withSeverity(TypedValue.INFO_SEVERITY);

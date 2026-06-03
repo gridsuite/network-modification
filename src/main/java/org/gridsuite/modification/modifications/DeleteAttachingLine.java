@@ -11,7 +11,7 @@ import com.powsybl.iidm.modification.topology.RevertCreateLineOnLine;
 import com.powsybl.iidm.modification.topology.RevertCreateLineOnLineBuilder;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.DeleteAttachingLineInfos;
+import org.gridsuite.modification.model.DeleteAttachingLineModel;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
@@ -22,44 +22,44 @@ import static org.gridsuite.modification.utils.ModificationLimitsUtils.applyReve
  */
 public class DeleteAttachingLine extends AbstractModification {
 
-    private final DeleteAttachingLineInfos modificationInfos;
+    private final DeleteAttachingLineModel modificationModel;
 
-    public DeleteAttachingLine(DeleteAttachingLineInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
+    public DeleteAttachingLine(DeleteAttachingLineModel modificationModel) {
+        this.modificationModel = modificationModel;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
         // check existing lines
-        if (network.getLine(modificationInfos.getLineToAttachTo1Id()) == null) {
-            throw new NetworkModificationException(LINE_NOT_FOUND, modificationInfos.getLineToAttachTo1Id());
+        if (network.getLine(modificationModel.getLineToAttachTo1Id()) == null) {
+            throw new NetworkModificationException(LINE_NOT_FOUND, modificationModel.getLineToAttachTo1Id());
         }
-        if (network.getLine(modificationInfos.getLineToAttachTo2Id()) == null) {
-            throw new NetworkModificationException(LINE_NOT_FOUND, modificationInfos.getLineToAttachTo2Id());
+        if (network.getLine(modificationModel.getLineToAttachTo2Id()) == null) {
+            throw new NetworkModificationException(LINE_NOT_FOUND, modificationModel.getLineToAttachTo2Id());
         }
-        if (network.getLine(modificationInfos.getAttachedLineId()) == null) {
-            throw new NetworkModificationException(LINE_NOT_FOUND, modificationInfos.getAttachedLineId());
+        if (network.getLine(modificationModel.getAttachedLineId()) == null) {
+            throw new NetworkModificationException(LINE_NOT_FOUND, modificationModel.getAttachedLineId());
         }
         // check future line does not exist
-        if (network.getLine(modificationInfos.getReplacingLine1Id()) != null) {
-            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationInfos.getReplacingLine1Id());
+        if (network.getLine(modificationModel.getReplacingLine1Id()) != null) {
+            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationModel.getReplacingLine1Id());
         }
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         RevertCreateLineOnLineBuilder builder = new RevertCreateLineOnLineBuilder();
-        RevertCreateLineOnLine algo = builder.withLineToBeMerged1Id(modificationInfos.getLineToAttachTo1Id())
-                .withLineToBeMerged2Id(modificationInfos.getLineToAttachTo2Id())
-                .withLineToBeDeletedId(modificationInfos.getAttachedLineId())
-                .withMergedLineId(modificationInfos.getReplacingLine1Id())
-                .withMergedLineName(modificationInfos.getReplacingLine1Name())
+        RevertCreateLineOnLine algo = builder.withLineToBeMerged1Id(modificationModel.getLineToAttachTo1Id())
+                .withLineToBeMerged2Id(modificationModel.getLineToAttachTo2Id())
+                .withLineToBeDeletedId(modificationModel.getAttachedLineId())
+                .withMergedLineId(modificationModel.getReplacingLine1Id())
+                .withMergedLineName(modificationModel.getReplacingLine1Name())
                 .build();
 
         applyRevertModificationWithMergingOfLimits(network,
-                modificationInfos.getLineToAttachTo1Id(),
-                modificationInfos.getLineToAttachTo2Id(),
-                modificationInfos.getReplacingLine1Id(),
+                modificationModel.getLineToAttachTo1Id(),
+                modificationModel.getLineToAttachTo2Id(),
+                modificationModel.getReplacingLine1Id(),
                 algo,
                 subReportNode);
     }

@@ -10,10 +10,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.FreePropertyInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.SubstationCreationInfos;
-import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
+import org.gridsuite.modification.model.FreePropertyModel;
+import org.gridsuite.modification.model.ModificationModel;
+import org.gridsuite.modification.model.SubstationCreationModel;
+import org.gridsuite.modification.model.VoltageLevelCreationModel;
 import org.gridsuite.modification.utils.ModificationCreation;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -40,10 +40,10 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        VoltageLevelCreationInfos voltageLevelInfos = ModificationCreation.getCreationVoltageLevel("s2", "vlId", "vlName");
-        voltageLevelInfos.setProperties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()));
-        return voltageLevelInfos;
+    protected ModificationModel buildModification() {
+        VoltageLevelCreationModel voltageLevelModel = ModificationCreation.getCreationVoltageLevel("s2", "vlId", "vlName");
+        voltageLevelModel.setProperties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()));
+        return voltageLevelModel;
     }
 
     @Override
@@ -61,7 +61,7 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
     @Override
     protected void checkModification() {
         Network network = getNetwork();
-        VoltageLevelCreationInfos vli = (VoltageLevelCreationInfos) buildModification();
+        VoltageLevelCreationModel vli = (VoltageLevelCreationModel) buildModification();
         vli.setSubstationId("absent_station");
 
         VoltageLevelCreation voltageLevelCreation = (VoltageLevelCreation) vli.toModification();
@@ -69,7 +69,7 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
         assertEquals(new NetworkModificationException(SUBSTATION_NOT_FOUND, "absent_station").getMessage(),
                 exception.getMessage());
 
-        VoltageLevelCreationInfos vli1 = (VoltageLevelCreationInfos) buildModification();
+        VoltageLevelCreationModel vli1 = (VoltageLevelCreationModel) buildModification();
         vli1.getCouplingDevices().getFirst().setBusbarSectionId1("1.1");
         vli1.getCouplingDevices().getFirst().setBusbarSectionId2("1.1");
         VoltageLevelCreation voltageLevelCreation1 = (VoltageLevelCreation) vli1.toModification();
@@ -77,7 +77,7 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
         assertEquals(new NetworkModificationException(CREATE_VOLTAGE_LEVEL_ERROR, "Coupling between same bus bar section is not allowed").getMessage(),
                 exception.getMessage());
 
-        VoltageLevelCreationInfos vli2 = (VoltageLevelCreationInfos) buildModification();
+        VoltageLevelCreationModel vli2 = (VoltageLevelCreationModel) buildModification();
         vli2.setIpMin(0.0);
         vli2.setIpMax(null);
         VoltageLevelCreation voltageLevelCreation2 = (VoltageLevelCreation) vli2.toModification();
@@ -86,7 +86,7 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
                 exception.getMessage());
 
         // try to create an existing VL
-        VoltageLevelCreationInfos vli3 = (VoltageLevelCreationInfos) buildModification();
+        VoltageLevelCreationModel vli3 = (VoltageLevelCreationModel) buildModification();
         vli3.setEquipmentId("v1");
         VoltageLevelCreation voltageLevelCreation3 = (VoltageLevelCreation) vli3.toModification();
         exception = assertThrows(NetworkModificationException.class, () -> voltageLevelCreation3.check(network));
@@ -94,21 +94,21 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
                 exception.getMessage());
 
         // check values
-        VoltageLevelCreationInfos vli4 = (VoltageLevelCreationInfos) buildModification();
+        VoltageLevelCreationModel vli4 = (VoltageLevelCreationModel) buildModification();
         vli4.setNominalV(-400);
         VoltageLevelCreation voltageLevelCreation4 = (VoltageLevelCreation) vli4.toModification();
         exception = assertThrows(NetworkModificationException.class, () -> voltageLevelCreation4.check(network));
         assertEquals(new NetworkModificationException(CREATE_VOLTAGE_LEVEL_ERROR, "Voltage level 'vlId' : can not have a negative value for Nominal Voltage").getMessage(),
             exception.getMessage());
 
-        VoltageLevelCreationInfos vli5 = (VoltageLevelCreationInfos) buildModification();
+        VoltageLevelCreationModel vli5 = (VoltageLevelCreationModel) buildModification();
         vli5.setLowVoltageLimit(-100d);
         VoltageLevelCreation voltageLevelCreation5 = (VoltageLevelCreation) vli5.toModification();
         exception = assertThrows(NetworkModificationException.class, () -> voltageLevelCreation5.check(network));
         assertEquals(new NetworkModificationException(CREATE_VOLTAGE_LEVEL_ERROR, "Voltage level 'vlId' : can not have a negative value for Low voltage limit").getMessage(),
             exception.getMessage());
 
-        VoltageLevelCreationInfos vli6 = (VoltageLevelCreationInfos) buildModification();
+        VoltageLevelCreationModel vli6 = (VoltageLevelCreationModel) buildModification();
         vli6.setHighVoltageLimit(-50d);
         VoltageLevelCreation voltageLevelCreation6 = (VoltageLevelCreation) vli6.toModification();
         exception = assertThrows(NetworkModificationException.class, () -> voltageLevelCreation6.check(network));
@@ -118,7 +118,7 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
 
     @Test
     void testCreateWithBbsNotExist() {
-        VoltageLevelCreationInfos vli = (VoltageLevelCreationInfos) buildModification();
+        VoltageLevelCreationModel vli = (VoltageLevelCreationModel) buildModification();
         vli.setEquipmentId("vl_1");
         vli.getCouplingDevices().getFirst().setBusbarSectionId1("1.1");
         vli.getCouplingDevices().getFirst().setBusbarSectionId2("bbs");
@@ -134,15 +134,15 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
 
     @Test
     void testCreateWithSubstationCreation() {
-        SubstationCreationInfos substationCreationInfos = SubstationCreationInfos.builder()
+        SubstationCreationModel substationCreationModel = SubstationCreationModel.builder()
                 .stashed(false)
                 .equipmentId("newSubstationId")
                 .equipmentName("newSubstationName")
                 .country(Country.AF)
                 .build();
-        VoltageLevelCreationInfos vli = (VoltageLevelCreationInfos) buildModification();
-        vli.setSubstationId(substationCreationInfos.getEquipmentId());
-        vli.setSubstationCreation(substationCreationInfos);
+        VoltageLevelCreationModel vli = (VoltageLevelCreationModel) buildModification();
+        vli.setSubstationId(substationCreationModel.getEquipmentId());
+        vli.setSubstationCreation(substationCreationModel);
         vli.toModification().apply(getNetwork());
         assertNotNull(getNetwork().getVoltageLevel("vlId"));
         assertNotNull(getNetwork().getSubstation("newSubstationId"));
@@ -154,7 +154,7 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
 
     @Test
     void testIpMinEqualsIpMax() {
-        VoltageLevelCreationInfos vli = (VoltageLevelCreationInfos) buildModification();
+        VoltageLevelCreationModel vli = (VoltageLevelCreationModel) buildModification();
         vli.setEquipmentId("vl_ok");
         vli.setIpMin(25.0);
         vli.setIpMax(25.0);
@@ -165,7 +165,7 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
 
     @Test
     void testCreateWithIpMinNull() {
-        VoltageLevelCreationInfos vli = (VoltageLevelCreationInfos) buildModification();
+        VoltageLevelCreationModel vli = (VoltageLevelCreationModel) buildModification();
         vli.setEquipmentId("vl_ok");
         vli.setIpMin(null);
         vli.setIpMax(25.0);
@@ -175,7 +175,7 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
     }
 
     private void testIccWithError(Double ipMin, Double ipMax, String reportError) {
-        VoltageLevelCreationInfos vli = (VoltageLevelCreationInfos) buildModification();
+        VoltageLevelCreationModel vli = (VoltageLevelCreationModel) buildModification();
         vli.setEquipmentId("vl_ko");
         vli.setIpMin(ipMin);
         vli.setIpMax(ipMax);
@@ -203,9 +203,9 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("VOLTAGE_LEVEL_CREATION", modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals("VOLTAGE_LEVEL_CREATION", modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
         assertEquals("vlId", createdValues.get("equipmentId"));
     }
 

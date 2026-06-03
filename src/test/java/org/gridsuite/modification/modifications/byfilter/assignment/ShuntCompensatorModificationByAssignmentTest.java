@@ -11,13 +11,13 @@ import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
-import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.IntegerAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.equipmentfield.ShuntCompensatorField;
+import org.gridsuite.modification.model.FilterEquipments;
+import org.gridsuite.modification.model.IdentifiableAttributes;
+import org.gridsuite.modification.model.ModificationByAssignmentModel;
+import org.gridsuite.modification.model.byfilter.assignment.AssignmentModel;
+import org.gridsuite.modification.model.byfilter.assignment.DoubleAssignmentModel;
+import org.gridsuite.modification.model.byfilter.assignment.IntegerAssignmentModel;
+import org.gridsuite.modification.model.byfilter.equipmentfield.ShuntCompensatorField;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -48,18 +48,18 @@ class ShuntCompensatorModificationByAssignmentTest extends AbstractModificationB
                 .notFoundEquipments(List.of("wrongId"))
                 .build();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_WITH_ONE_WRONG_ID, filter));
-        IntegerAssignmentInfos assignmentInfos = IntegerAssignmentInfos.builder()
+        IntegerAssignmentModel assignmentModel = IntegerAssignmentModel.builder()
                 .editedField(ShuntCompensatorField.MAXIMUM_SECTION_COUNT.name())
                 .value(2)
                 .filters(List.of(filterWithOneWrongId))
                 .build();
 
-        ModificationByAssignmentInfos modificationInfos = ModificationByAssignmentInfos.builder()
+        ModificationByAssignmentModel modificationModel = ModificationByAssignmentModel.builder()
                 .equipmentType(getIdentifiableType())
-                .assignmentInfosList(List.of(assignmentInfos))
+                .assignmentModelList(List.of(assignmentModel))
                 .stashed(false)
                 .build();
-        apply(modificationInfos);
+        apply(modificationModel);
         assertEquals(2, getNetwork().getShuntCompensator(SHUNT_COMPENSATOR_ID_1).getMaximumSectionCount(), 0);
     }
 
@@ -96,33 +96,33 @@ class ShuntCompensatorModificationByAssignmentTest extends AbstractModificationB
     }
 
     @Override
-    protected List<AssignmentInfos<?>> getAssignmentInfos() {
-        IntegerAssignmentInfos assignmentInfos1 = IntegerAssignmentInfos.builder()
+    protected List<AssignmentModel<?>> getAssignmentModel() {
+        IntegerAssignmentModel assignmentModel1 = IntegerAssignmentModel.builder()
                 .editedField(ShuntCompensatorField.MAXIMUM_SECTION_COUNT.name())
                 .value(8)
                 .filters(List.of(filter1, filter2))
                 .build();
 
-        IntegerAssignmentInfos assignmentInfos2 = IntegerAssignmentInfos.builder()
+        IntegerAssignmentModel assignmentModel2 = IntegerAssignmentModel.builder()
                 .editedField(ShuntCompensatorField.SECTION_COUNT.name())
                 .value(2)
                 .filters(List.of(filter3))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos3 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentModel3 = DoubleAssignmentModel.builder()
                 .editedField(ShuntCompensatorField.MAX_SUSCEPTANCE.name())
                 .value(5.)
                 .filters(List.of(filter4))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos4 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentModel4 = DoubleAssignmentModel.builder()
                 .editedField(ShuntCompensatorField.MAX_Q_AT_NOMINAL_V.name())
                 .value(10.)
                 .filters(List.of(filter5))
                 .build();
 
-        List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
-        infosList.addAll(List.of(assignmentInfos1, assignmentInfos2, assignmentInfos3, assignmentInfos4));
+        List<AssignmentModel<?>> infosList = super.getAssignmentModel();
+        infosList.addAll(List.of(assignmentModel1, assignmentModel2, assignmentModel3, assignmentModel4));
 
         return infosList;
     }

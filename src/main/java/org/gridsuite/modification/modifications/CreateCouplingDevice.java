@@ -10,17 +10,17 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.CreateCouplingDeviceBuilder;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.CreateCouplingDeviceInfos;
+import org.gridsuite.modification.model.CreateCouplingDeviceModel;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
 public class CreateCouplingDevice extends AbstractModification {
 
-    private final CreateCouplingDeviceInfos createCouplingDeviceInfos;
+    private final CreateCouplingDeviceModel createCouplingDeviceModel;
 
-    public CreateCouplingDevice(CreateCouplingDeviceInfos createCouplingDeviceInfos) {
-        this.createCouplingDeviceInfos = createCouplingDeviceInfos;
+    public CreateCouplingDevice(CreateCouplingDeviceModel createCouplingDeviceModel) {
+        this.createCouplingDeviceModel = createCouplingDeviceModel;
     }
 
     /**
@@ -30,8 +30,8 @@ public class CreateCouplingDevice extends AbstractModification {
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         new CreateCouplingDeviceBuilder()
-            .withBusOrBusbarSectionId1(createCouplingDeviceInfos.getCouplingDeviceInfos().getBusbarSectionId1())
-            .withBusOrBusbarSectionId2(createCouplingDeviceInfos.getCouplingDeviceInfos().getBusbarSectionId2())
+            .withBusOrBusbarSectionId1(createCouplingDeviceModel.getCouplingDeviceInfos().getBusbarSectionId1())
+            .withBusOrBusbarSectionId2(createCouplingDeviceModel.getCouplingDeviceInfos().getBusbarSectionId2())
             .build().apply(network, false, subReportNode);
     }
 

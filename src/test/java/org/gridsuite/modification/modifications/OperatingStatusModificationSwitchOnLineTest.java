@@ -11,8 +11,8 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
-import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.OperatingStatusModificationInfos;
+import org.gridsuite.modification.model.ModificationModel;
+import org.gridsuite.modification.model.OperatingStatusModificationModel;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -40,12 +40,12 @@ class OperatingStatusModificationSwitchOnLineTest extends AbstractNetworkModific
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        return OperatingStatusModificationInfos.builder()
+    protected ModificationModel buildModification() {
+        return OperatingStatusModificationModel.builder()
                 .stashed(false)
                 .equipmentId(TARGET_LINE_ID)
                 .energizedVoltageLevelId("energizedVoltageLevelId")
-                .action(OperatingStatusModificationInfos.ActionType.SWITCH_ON).build();
+                .action(OperatingStatusModificationModel.ActionType.SWITCH_ON).build();
     }
 
     @Override
@@ -57,9 +57,9 @@ class OperatingStatusModificationSwitchOnLineTest extends AbstractNetworkModific
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("OPERATING_STATUS_MODIFICATION", modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals("OPERATING_STATUS_MODIFICATION", modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
         assertEquals("energizedVoltageLevelId", createdValues.get("energizedVoltageLevelId"));
         assertEquals("SWITCH_ON", createdValues.get("action"));
         assertEquals("line2", createdValues.get("equipmentId"));
@@ -76,7 +76,7 @@ class OperatingStatusModificationSwitchOnLineTest extends AbstractNetworkModific
                 .withMessageTemplate("test")
                 .build();
 
-        OperatingStatusModificationInfos modification = (OperatingStatusModificationInfos) buildModification();
+        OperatingStatusModificationModel modification = (OperatingStatusModificationModel) buildModification();
 
         modification.createSubReportNode(reportNode);
         assertLogMessage("Switch on " + TARGET_LINE_ID, "network.modification.OPERATING_STATUS_MODIFICATION_SWITCH_ON", reportNode);

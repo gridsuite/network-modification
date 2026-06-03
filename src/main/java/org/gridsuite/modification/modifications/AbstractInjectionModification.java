@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
-import org.gridsuite.modification.dto.InjectionModificationInfos;
+import org.gridsuite.modification.model.InjectionModificationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.ArrayList;
@@ -26,17 +26,17 @@ public abstract class AbstractInjectionModification extends AbstractModification
 
     private static final String VALUE = "value";
     private static final String VALIDITY = "validity";
-    protected final InjectionModificationInfos modificationInfos;
+    protected final InjectionModificationModel modificationModel;
 
-    protected AbstractInjectionModification(InjectionModificationInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
+    protected AbstractInjectionModification(InjectionModificationModel modificationModel) {
+        this.modificationModel = modificationModel;
     }
 
-    protected ReportNode updateMeasurements(Injection<?> injection, InjectionModificationInfos injectionModificationInfos, ReportNode subReportNode) {
-        Double pValue = injectionModificationInfos.getPMeasurementValue() != null ? injectionModificationInfos.getPMeasurementValue().getValue() : null;
-        Double qValue = injectionModificationInfos.getQMeasurementValue() != null ? injectionModificationInfos.getQMeasurementValue().getValue() : null;
-        Boolean pValidity = injectionModificationInfos.getPMeasurementValidity() != null ? injectionModificationInfos.getPMeasurementValidity().getValue() : null;
-        Boolean qValidity = injectionModificationInfos.getQMeasurementValidity() != null ? injectionModificationInfos.getQMeasurementValidity().getValue() : null;
+    protected ReportNode updateMeasurements(Injection<?> injection, InjectionModificationModel injectionModificationModel, ReportNode subReportNode) {
+        Double pValue = injectionModificationModel.getPMeasurementValue() != null ? injectionModificationModel.getPMeasurementValue().getValue() : null;
+        Double qValue = injectionModificationModel.getQMeasurementValue() != null ? injectionModificationModel.getQMeasurementValue().getValue() : null;
+        Boolean pValidity = injectionModificationModel.getPMeasurementValidity() != null ? injectionModificationModel.getPMeasurementValidity().getValue() : null;
+        Boolean qValidity = injectionModificationModel.getQMeasurementValidity() != null ? injectionModificationModel.getQMeasurementValidity().getValue() : null;
 
         if (pValue == null && pValidity == null && qValue == null && qValidity == null) {
             // no measurement modification requested

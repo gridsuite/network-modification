@@ -15,9 +15,9 @@ import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.VariationMode;
 import org.gridsuite.modification.VariationType;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
-import org.gridsuite.modification.dto.LoadScalingInfos;
-import org.gridsuite.modification.dto.ScalingVariationInfos;
+import org.gridsuite.modification.model.IdentifiableAttributes;
+import org.gridsuite.modification.model.LoadScalingModel;
+import org.gridsuite.modification.model.ScalingVariationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.*;
@@ -29,12 +29,12 @@ import java.util.stream.Collectors;
  */
 public class LoadScaling extends AbstractScaling {
 
-    public LoadScaling(LoadScalingInfos loadScalableInfos) {
-        super(loadScalableInfos);
+    public LoadScaling(LoadScalingModel loadScalableModel) {
+        super(loadScalableModel);
     }
 
     @Override
-    protected void applyVentilationVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos, Double distributionKeys) {
+    protected void applyVentilationVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationModel scalingVariationModel, Double distributionKeys) {
         if (distributionKeys != null) {
             AtomicReference<Double> sum = new AtomicReference<>(0D);
             List<Double> percentages = new ArrayList<>();
@@ -49,14 +49,14 @@ public class LoadScaling extends AbstractScaling {
                 }
             });
             Scalable ventilationScalable = Scalable.proportional(percentages, scalables);
-            var asked = getAsked(scalingVariationInfos, sum);
-            var done = scale(network, scalingVariationInfos, asked, ventilationScalable);
-            reportScaling(subReportNode, scalingVariationInfos.getVariationMode(), asked, done);
+            var asked = getAsked(scalingVariationModel, sum);
+            var done = scale(network, scalingVariationModel, asked, ventilationScalable);
+            reportScaling(subReportNode, scalingVariationModel.getVariationMode(), asked, done);
         }
     }
 
     @Override
-    protected void applyRegularDistributionVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos) {
+    protected void applyRegularDistributionVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationModel scalingVariationModel) {
         List<Load> loads = identifiableAttributes
                 .stream()
                 .map(attribute -> network.getLoad(attribute.getId()))
@@ -73,13 +73,13 @@ public class LoadScaling extends AbstractScaling {
 
         List<Double> percentages = new ArrayList<>(Collections.nCopies(scalables.size(), 100.0 / scalables.size()));
         Scalable regularDistributionScalable = Scalable.proportional(percentages, scalables);
-        var asked = getAsked(scalingVariationInfos, sum);
-        var done = scale(network, scalingVariationInfos, asked, regularDistributionScalable);
-        reportScaling(subReportNode, scalingVariationInfos.getVariationMode(), asked, done);
+        var asked = getAsked(scalingVariationModel, sum);
+        var done = scale(network, scalingVariationModel, asked, regularDistributionScalable);
+        reportScaling(subReportNode, scalingVariationModel.getVariationMode(), asked, done);
     }
 
     @Override
-    protected void applyProportionalVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos) {
+    protected void applyProportionalVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationModel scalingVariationModel) {
         List<Load> loads = identifiableAttributes.stream()
                 .map(attribute -> network.getLoad(attribute.getId()))
                 .filter(ModificationUtils::isInjectionConnected)
@@ -98,25 +98,25 @@ public class LoadScaling extends AbstractScaling {
         });
 
         Scalable proportionalScalable = Scalable.proportional(percentages, scalables);
-        var asked = getAsked(scalingVariationInfos, sum);
-        var done = scale(network, scalingVariationInfos, asked, proportionalScalable);
-        reportScaling(subReportNode, scalingVariationInfos.getVariationMode(), asked, done);
+        var asked = getAsked(scalingVariationModel, sum);
+        var done = scale(network, scalingVariationModel, asked, proportionalScalable);
+        reportScaling(subReportNode, scalingVariationModel.getVariationMode(), asked, done);
     }
 
     @Override
-    protected void applyProportionalToPmaxVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos) {
+    protected void applyProportionalToPmaxVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationModel scalingVariationModel) {
         // no implementation for load scaling
-        throw new NetworkModificationException(scalingInfos.getErrorType(), String.format("This variation mode is not supported : %s", scalingVariationInfos.getVariationMode().name()));
+        throw new NetworkModificationException(scalingModel.getErrorType(), String.format("This variation mode is not supported : %s", scalingVariationModel.getVariationMode().name()));
     }
 
     @Override
-    protected void applyStackingUpVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos) {
+    protected void applyStackingUpVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationModel scalingVariationModel) {
         // no implementation for load scaling
-        throw new NetworkModificationException(scalingInfos.getErrorType(), String.format("This variation mode is not supported : %s", scalingVariationInfos.getVariationMode().name()));
+        throw new NetworkModificationException(scalingModel.getErrorType(), String.format("This variation mode is not supported : %s", scalingVariationModel.getVariationMode().name()));
     }
 
-    private double scale(Network network, ScalingVariationInfos scalingVariationInfos, double asked, Scalable proportionalScalable) {
-        return switch (scalingVariationInfos.getReactiveVariationMode()) {
+    private double scale(Network network, ScalingVariationModel scalingVariationModel, double asked, Scalable proportionalScalable) {
+        return switch (scalingVariationModel.getReactiveVariationMode()) {
             case CONSTANT_Q ->
                 proportionalScalable.scale(network, asked, new ScalingParameters().setScalingConvention(Scalable.ScalingConvention.LOAD));
             case TAN_PHI_FIXED ->
@@ -125,10 +125,10 @@ public class LoadScaling extends AbstractScaling {
     }
 
     @Override
-    public double getAsked(ScalingVariationInfos scalingVariationInfos, AtomicReference<Double> sum) {
-        return scalingInfos.getVariationType() == VariationType.DELTA_P
-                ? scalingVariationInfos.getVariationValue()
-                : scalingVariationInfos.getVariationValue() - sum.get();
+    public double getAsked(ScalingVariationModel scalingVariationModel, AtomicReference<Double> sum) {
+        return scalingModel.getVariationType() == VariationType.DELTA_P
+                ? scalingVariationModel.getVariationValue()
+                : scalingVariationModel.getVariationValue() - sum.get();
     }
 
     @Override

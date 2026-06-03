@@ -9,12 +9,12 @@ package org.gridsuite.modification.modifications.byfilter.assignment;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.LoadType;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
-import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.EnumAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.equipmentfield.LoadField;
+import org.gridsuite.modification.model.FilterEquipments;
+import org.gridsuite.modification.model.IdentifiableAttributes;
+import org.gridsuite.modification.model.byfilter.assignment.AssignmentModel;
+import org.gridsuite.modification.model.byfilter.assignment.DoubleAssignmentModel;
+import org.gridsuite.modification.model.byfilter.assignment.EnumAssignmentModel;
+import org.gridsuite.modification.model.byfilter.equipmentfield.LoadField;
 
 import java.util.List;
 import java.util.Map;
@@ -58,27 +58,27 @@ class LoadModificationByAssignmentTest extends AbstractModificationByAssignmentT
     }
 
     @Override
-    protected List<AssignmentInfos<?>> getAssignmentInfos() {
-        DoubleAssignmentInfos assignmentInfos1 = DoubleAssignmentInfos.builder()
+    protected List<AssignmentModel<?>> getAssignmentModel() {
+        DoubleAssignmentModel assignmentModel1 = DoubleAssignmentModel.builder()
                 .editedField(LoadField.ACTIVE_POWER_SET_POINT.name())
                 .value(25.)
                 .filters(List.of(filter1))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos2 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentModel2 = DoubleAssignmentModel.builder()
                 .editedField(LoadField.REACTIVE_POWER_SET_POINT.name())
                 .value(2.5)
                 .filters(List.of(filter2))
                 .build();
 
-        EnumAssignmentInfos assignmentInfos3 = EnumAssignmentInfos.builder()
+        EnumAssignmentModel assignmentModel3 = EnumAssignmentModel.builder()
                 .editedField(LoadField.LOAD_TYPE.name())
                 .value(LoadType.AUXILIARY.name())
                 .filters(List.of(filter1))
                 .build();
 
-        List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
-        infosList.addAll(List.of(assignmentInfos1, assignmentInfos2, assignmentInfos3));
+        List<AssignmentModel<?>> infosList = super.getAssignmentModel();
+        infosList.addAll(List.of(assignmentModel1, assignmentModel2, assignmentModel3));
 
         return infosList;
     }

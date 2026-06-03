@@ -16,7 +16,8 @@ import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.*;
+import org.gridsuite.modification.model.constants.OperationType;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -49,8 +50,8 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        return LoadModificationInfos.builder()
+    protected ModificationModel buildModification() {
+        return LoadModificationModel.builder()
             .stashed(false)
             .equipmentId("v1load")
             .equipmentName(new AttributeModification<>("nameLoad1", OperationType.SET))
@@ -63,7 +64,7 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
             .pMeasurementValidity(new AttributeModification<>(MEASUREMENT_P_VALID, OperationType.SET))
             .qMeasurementValue(new AttributeModification<>(MEASUREMENT_Q_VALUE, OperationType.SET))
             .qMeasurementValidity(new AttributeModification<>(MEASUREMENT_Q_VALID, OperationType.SET))
-            .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+            .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
             .build();
     }
 
@@ -93,19 +94,19 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
     @Override
     protected void checkModification() {
         // Unset an attribute that should not be null
-        LoadModificationInfos loadModificationInfos = LoadModificationInfos.builder()
+        LoadModificationModel loadModificationModel = LoadModificationModel.builder()
                 .stashed(false)
                 .equipmentId("v1load")
                 .loadType(new AttributeModification<>(null, OperationType.UNSET))
                 .build();
-        ValidationException exception = assertThrows(ValidationException.class, () -> loadModificationInfos.toModification().apply(getNetwork()));
+        ValidationException exception = assertThrows(ValidationException.class, () -> loadModificationModel.toModification().apply(getNetwork()));
         assertEquals("Load 'v1load': load type is null", exception.getMessage());
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("LOAD_MODIFICATION", modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals("LOAD_MODIFICATION", modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
         assertEquals("v1load", createdValues.get("equipmentId"));
     }
 
@@ -136,7 +137,7 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
                 .setValid(true)
                 .add();
         activePowerMeasurement.putProperty("validity", actualPropertyState);
-        LoadModificationInfos activePowerModification = LoadModificationInfos.builder()
+        LoadModificationModel activePowerModification = LoadModificationModel.builder()
                 .equipmentId("v1load")
                 .pMeasurementValidity(new AttributeModification<>(modificationValidity, OperationType.SET))
                 .build();
@@ -152,7 +153,7 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
                 .setValid(false)
                 .add();
         reactivePowerMeasurement.putProperty("validity", actualPropertyState);
-        LoadModificationInfos reactivePowerModification = LoadModificationInfos.builder()
+        LoadModificationModel reactivePowerModification = LoadModificationModel.builder()
                 .equipmentId("v1load")
                 .qMeasurementValidity(new AttributeModification<>(modificationValidity, OperationType.SET))
                 .build();
@@ -193,7 +194,7 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
                 .setValid(true)
                 .add();
         activePowerMeasurement.putProperty("validity", propertyState);
-        LoadModificationInfos updateActiveValidityTrue = LoadModificationInfos.builder()
+        LoadModificationModel updateActiveValidityTrue = LoadModificationModel.builder()
                 .equipmentId("v1load")
                 .pMeasurementValue(new AttributeModification<>(newValue, OperationType.SET))
                 .build();
@@ -209,7 +210,7 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
                 .setValid(false)
                 .add();
         reactivePowerMeasurement.putProperty("validity", propertyState);
-        LoadModificationInfos updateReactiveValidityFalse = LoadModificationInfos.builder()
+        LoadModificationModel updateReactiveValidityFalse = LoadModificationModel.builder()
                 .equipmentId("v1load")
                 .qMeasurementValue(new AttributeModification<>(newValue, OperationType.SET))
                 .build();
@@ -225,7 +226,7 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
         assertNull(measurements);
 
         // active power test
-        LoadModificationInfos updateActiveValue = LoadModificationInfos.builder()
+        LoadModificationModel updateActiveValue = LoadModificationModel.builder()
                 .equipmentId("v2load")
                 .pMeasurementValue(new AttributeModification<>(66.5, OperationType.SET))
                 .build();
@@ -239,7 +240,7 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
         assertTrue(activePowerMeasurement.isValid());
 
         // reactive power test
-        LoadModificationInfos updateReactiveValue = LoadModificationInfos.builder()
+        LoadModificationModel updateReactiveValue = LoadModificationModel.builder()
                 .equipmentId("v2load")
                 .qMeasurementValue(new AttributeModification<>(99.5, OperationType.SET))
                 .build();
@@ -258,7 +259,7 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
         assertNull(measurements);
 
         // active power test
-        LoadModificationInfos updateActiveValidity = LoadModificationInfos.builder()
+        LoadModificationModel updateActiveValidity = LoadModificationModel.builder()
                 .equipmentId("v2load")
                 .pMeasurementValidity(new AttributeModification<>(false, OperationType.SET))
                 .build();
@@ -272,7 +273,7 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
         assertFalse(activePowerMeasurement.isValid());
 
         // reactive power test
-        LoadModificationInfos updateReactiveValidity = LoadModificationInfos.builder()
+        LoadModificationModel updateReactiveValidity = LoadModificationModel.builder()
                 .equipmentId("v2load")
                 .qMeasurementValidity(new AttributeModification<>(false, OperationType.SET))
                 .build();

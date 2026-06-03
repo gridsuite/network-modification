@@ -11,9 +11,9 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.LineCreationInfos;
-import org.gridsuite.modification.dto.OperationalLimitsGroupInfos;
-import org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability;
+import org.gridsuite.modification.model.LineCreationModel;
+import org.gridsuite.modification.model.OperationalLimitsGroupModel;
+import org.gridsuite.modification.model.OperationalLimitsGroupModel.Applicability;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -32,103 +32,103 @@ import static org.gridsuite.modification.utils.ModificationUtils.createBranchInN
  */
 public class LineCreation extends AbstractModification {
 
-    private final LineCreationInfos modificationInfos;
+    private final LineCreationModel modificationModel;
 
-    public LineCreation(LineCreationInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
+    public LineCreation(LineCreationModel modificationModel) {
+        this.modificationModel = modificationModel;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (network.getLine(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationInfos.getEquipmentId());
+        if (network.getLine(modificationModel.getEquipmentId()) != null) {
+            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationModel.getEquipmentId());
         }
-        String errorMessage = "Line '" + modificationInfos.getEquipmentId() + "' : ";
+        String errorMessage = "Line '" + modificationModel.getEquipmentId() + "' : ";
         ModificationUtils.getInstance().controlBranchCreation(network,
-                modificationInfos.getVoltageLevelId1(), modificationInfos.getBusOrBusbarSectionId1(),
-                modificationInfos.getVoltageLevelId2(), modificationInfos.getBusOrBusbarSectionId2());
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getR(), CREATE_LINE_ERROR, "Resistance R");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getG1(), CREATE_LINE_ERROR, "Conductance on side 1 G1");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getG2(), CREATE_LINE_ERROR, "Conductance on side 2 G2");
+                modificationModel.getVoltageLevelId1(), modificationModel.getBusOrBusbarSectionId1(),
+                modificationModel.getVoltageLevelId2(), modificationModel.getBusOrBusbarSectionId2());
+        checkIsNotNegativeValue(errorMessage, modificationModel.getR(), CREATE_LINE_ERROR, "Resistance R");
+        checkIsNotNegativeValue(errorMessage, modificationModel.getG1(), CREATE_LINE_ERROR, "Conductance on side 1 G1");
+        checkIsNotNegativeValue(errorMessage, modificationModel.getG2(), CREATE_LINE_ERROR, "Conductance on side 2 G2");
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        VoltageLevel voltageLevel1 = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId1());
-        VoltageLevel voltageLevel2 = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId2());
+        VoltageLevel voltageLevel1 = ModificationUtils.getInstance().getVoltageLevel(network, modificationModel.getVoltageLevelId1());
+        VoltageLevel voltageLevel2 = ModificationUtils.getInstance().getVoltageLevel(network, modificationModel.getVoltageLevelId2());
 
         ReportNode characteristicsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.Characteristics").add();
         if (voltageLevel1.getTopologyKind() == TopologyKind.NODE_BREAKER &&
                 voltageLevel2.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            LineAdder lineAdder = ModificationUtils.getInstance().createLineAdder(network, voltageLevel1, voltageLevel2, modificationInfos, false, false);
-            createBranchInNodeBreaker(voltageLevel1, voltageLevel2, modificationInfos, network, lineAdder, characteristicsReporter);
+            LineAdder lineAdder = ModificationUtils.getInstance().createLineAdder(network, voltageLevel1, voltageLevel2, modificationModel, false, false);
+            createBranchInNodeBreaker(voltageLevel1, voltageLevel2, modificationModel, network, lineAdder, characteristicsReporter);
         } else {
-            addLine(network, voltageLevel1, voltageLevel2, modificationInfos, true, true, characteristicsReporter);
+            addLine(network, voltageLevel1, voltageLevel2, modificationModel, true, true, characteristicsReporter);
         }
-        ModificationUtils.getInstance().disconnectBranch(modificationInfos, network.getLine(modificationInfos.getEquipmentId()), characteristicsReporter);
-        Line line = network.getLine(modificationInfos.getEquipmentId());
+        ModificationUtils.getInstance().disconnectBranch(modificationModel, network.getLine(modificationModel.getEquipmentId()), characteristicsReporter);
+        Line line = network.getLine(modificationModel.getEquipmentId());
 
-        addLimits(modificationInfos, subReportNode, line);
+        addLimits(modificationModel, subReportNode, line);
 
         // properties
-        PropertiesUtils.applyProperties(line, characteristicsReporter, modificationInfos.getProperties(), "network.modification.LineProperties");
+        PropertiesUtils.applyProperties(line, characteristicsReporter, modificationModel.getProperties(), "network.modification.LineProperties");
     }
 
-    public static void addLimits(LineCreationInfos modificationInfos, ReportNode subReportNode, Line line) {
+    public static void addLimits(LineCreationModel modificationModel, ReportNode subReportNode, Line line) {
         // Set permanent and temporary current limits
         ReportNode limitsReporter = null;
-        List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE1);
-        List<OperationalLimitsGroupInfos> opLimitsGroupSide2 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE2);
+        List<OperationalLimitsGroupModel> opLimitsGroupSide1 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationModel.getOperationalLimitsGroups(), Applicability.SIDE1);
+        List<OperationalLimitsGroupModel> opLimitsGroupSide2 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationModel.getOperationalLimitsGroups(), Applicability.SIDE2);
         ReportNode reportNode;
-        if (!CollectionUtils.isEmpty(modificationInfos.getOperationalLimitsGroups())) {
+        if (!CollectionUtils.isEmpty(modificationModel.getOperationalLimitsGroups())) {
             limitsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.limitsCreated").add();
             reportNode = addLimitSetReportNode(limitsReporter);
 
-            for (OperationalLimitsGroupInfos olgInfos : modificationInfos.getOperationalLimitsGroups()) {
+            for (OperationalLimitsGroupModel olgModel : modificationModel.getOperationalLimitsGroups()) {
                 ReportNode limitSetNode = reportNode.newReportNode()
                         .withMessageTemplate("network.modification.limitSetAdded")
-                        .withUntypedValue("name", olgInfos.getId())
+                        .withUntypedValue("name", olgModel.getId())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add();
 
-                if (olgInfos.getApplicability() == Applicability.SIDE1 || olgInfos.getApplicability() == Applicability.EQUIPMENT) {
-                    ModificationUtils.getInstance().setCurrentLimitsOnASide(limitSetNode, olgInfos, line, ONE);
+                if (olgModel.getApplicability() == Applicability.SIDE1 || olgModel.getApplicability() == Applicability.EQUIPMENT) {
+                    ModificationUtils.getInstance().setCurrentLimitsOnASide(limitSetNode, olgModel, line, ONE);
                 }
-                if (olgInfos.getApplicability() == Applicability.SIDE2 || olgInfos.getApplicability() == Applicability.EQUIPMENT) {
-                    ModificationUtils.getInstance().setCurrentLimitsOnASide(limitSetNode, olgInfos, line, TWO);
+                if (olgModel.getApplicability() == Applicability.SIDE2 || olgModel.getApplicability() == Applicability.EQUIPMENT) {
+                    ModificationUtils.getInstance().setCurrentLimitsOnASide(limitSetNode, olgModel, line, TWO);
                 }
             }
         }
 
         List<ReportNode> limitSetsOnSideReportNodes = new ArrayList<>();
-        if (modificationInfos.getSelectedOperationalLimitsGroupId1() != null) {
-            if (!ModificationUtils.hasLimitSet(opLimitsGroupSide1, modificationInfos.getSelectedOperationalLimitsGroupId1())) {
+        if (modificationModel.getSelectedOperationalLimitsGroupId1() != null) {
+            if (!ModificationUtils.hasLimitSet(opLimitsGroupSide1, modificationModel.getSelectedOperationalLimitsGroupId1())) {
                 limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
                         .withMessageTemplate("network.modification.limitSetAbsentOnSide1")
-                        .withUntypedValue("selectedOperationalLimitsGroup", modificationInfos.getSelectedOperationalLimitsGroupId1())
+                        .withUntypedValue("selectedOperationalLimitsGroup", modificationModel.getSelectedOperationalLimitsGroupId1())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .build());
             } else {
-                line.setSelectedOperationalLimitsGroup1(modificationInfos.getSelectedOperationalLimitsGroupId1());
+                line.setSelectedOperationalLimitsGroup1(modificationModel.getSelectedOperationalLimitsGroupId1());
                 limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
                         .withMessageTemplate("network.modification.limitSetSelectedOnSide1")
-                        .withUntypedValue("selectedOperationalLimitsGroup1", modificationInfos.getSelectedOperationalLimitsGroupId1())
+                        .withUntypedValue("selectedOperationalLimitsGroup1", modificationModel.getSelectedOperationalLimitsGroupId1())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .build());
             }
         }
-        if (modificationInfos.getSelectedOperationalLimitsGroupId2() != null) {
-            if (!ModificationUtils.hasLimitSet(opLimitsGroupSide2, modificationInfos.getSelectedOperationalLimitsGroupId2())) {
+        if (modificationModel.getSelectedOperationalLimitsGroupId2() != null) {
+            if (!ModificationUtils.hasLimitSet(opLimitsGroupSide2, modificationModel.getSelectedOperationalLimitsGroupId2())) {
                 limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
                         .withMessageTemplate("network.modification.limitSetAbsentOnSide2")
-                        .withUntypedValue("selectedOperationalLimitsGroup", modificationInfos.getSelectedOperationalLimitsGroupId2())
+                        .withUntypedValue("selectedOperationalLimitsGroup", modificationModel.getSelectedOperationalLimitsGroupId2())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .build());
             } else {
-                line.setSelectedOperationalLimitsGroup2(modificationInfos.getSelectedOperationalLimitsGroupId2());
+                line.setSelectedOperationalLimitsGroup2(modificationModel.getSelectedOperationalLimitsGroupId2());
                 limitSetsOnSideReportNodes.add(ReportNode.newRootReportNode()
                         .withMessageTemplate("network.modification.limitSetSelectedOnSide2")
-                        .withUntypedValue("selectedOperationalLimitsGroup2", modificationInfos.getSelectedOperationalLimitsGroupId2())
+                        .withUntypedValue("selectedOperationalLimitsGroup2", modificationModel.getSelectedOperationalLimitsGroupId2())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .build());
             }
@@ -155,12 +155,12 @@ public class LineCreation extends AbstractModification {
         return "LineCreation";
     }
 
-    private void addLine(Network network, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, LineCreationInfos lineCreationInfos, boolean withSwitch1, boolean withSwitch2, ReportNode subReportNode) {
-        ModificationUtils.getInstance().createLineAdder(network, voltageLevel1, voltageLevel2, lineCreationInfos, withSwitch1, withSwitch2).add();
+    private void addLine(Network network, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, LineCreationModel lineCreationModel, boolean withSwitch1, boolean withSwitch2, ReportNode subReportNode) {
+        ModificationUtils.getInstance().createLineAdder(network, voltageLevel1, voltageLevel2, lineCreationModel, withSwitch1, withSwitch2).add();
 
         subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.lineCreated")
-                .withUntypedValue("id", lineCreationInfos.getEquipmentId())
+                .withUntypedValue("id", lineCreationModel.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }

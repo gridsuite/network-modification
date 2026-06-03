@@ -13,8 +13,8 @@ import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.LineSplitWithVoltageLevelInfos;
-import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
+import org.gridsuite.modification.model.LineSplitWithVoltageLevelModel;
+import org.gridsuite.modification.model.VoltageLevelCreationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.lang.NonNull;
 
@@ -26,25 +26,25 @@ import static org.gridsuite.modification.NetworkModificationException.Type.LINE_
  */
 public class LineSplitWithVoltageLevel extends AbstractModification {
 
-    private final LineSplitWithVoltageLevelInfos modificationInfos;
+    private final LineSplitWithVoltageLevelModel modificationModel;
 
-    public LineSplitWithVoltageLevel(LineSplitWithVoltageLevelInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
+    public LineSplitWithVoltageLevel(LineSplitWithVoltageLevelModel modificationModel) {
+        this.modificationModel = modificationModel;
     }
 
     @Override
     public void check(@NonNull Network network) throws NetworkModificationException {
-        if (network.getLine(modificationInfos.getLineToSplitId()) == null) {
-            throw new NetworkModificationException(LINE_NOT_FOUND, modificationInfos.getLineToSplitId());
+        if (network.getLine(modificationModel.getLineToSplitId()) == null) {
+            throw new NetworkModificationException(LINE_NOT_FOUND, modificationModel.getLineToSplitId());
         }
-        ModificationUtils.getInstance().controlNewOrExistingVoltageLevel(modificationInfos.getMayNewVoltageLevelInfos(),
-                modificationInfos.getExistingVoltageLevelId(), modificationInfos.getBbsOrBusId(), network);
+        ModificationUtils.getInstance().controlNewOrExistingVoltageLevel(modificationModel.getMayNewVoltageLevelInfos(),
+                modificationModel.getExistingVoltageLevelId(), modificationModel.getBbsOrBusId(), network);
         // check future lines don't exist
-        if (network.getLine(modificationInfos.getNewLine1Id()) != null) {
-            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationInfos.getNewLine1Id());
+        if (network.getLine(modificationModel.getNewLine1Id()) != null) {
+            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationModel.getNewLine1Id());
         }
-        if (network.getLine(modificationInfos.getNewLine2Id()) != null) {
-            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationInfos.getNewLine2Id());
+        if (network.getLine(modificationModel.getNewLine2Id()) != null) {
+            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationModel.getNewLine2Id());
         }
     }
 
@@ -55,18 +55,18 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
-        VoltageLevelCreationInfos mayNewVL = modificationInfos.getMayNewVoltageLevelInfos();
+        VoltageLevelCreationModel mayNewVL = modificationModel.getMayNewVoltageLevelInfos();
         if (mayNewVL != null) {
             ModificationUtils.getInstance().createVoltageLevel(mayNewVL, subReportNode, network, namingStrategy);
         }
         ConnectVoltageLevelOnLine algo = new ConnectVoltageLevelOnLineBuilder()
-                .withPositionPercent(modificationInfos.getPercent())
-                .withBusbarSectionOrBusId(modificationInfos.getBbsOrBusId())
-                .withLine1Id(modificationInfos.getNewLine1Id())
-                .withLine1Name(modificationInfos.getNewLine1Name())
-                .withLine2Id(modificationInfos.getNewLine2Id())
-                .withLine2Name(modificationInfos.getNewLine2Name())
-                .withLine(network.getLine(modificationInfos.getLineToSplitId()))
+                .withPositionPercent(modificationModel.getPercent())
+                .withBusbarSectionOrBusId(modificationModel.getBbsOrBusId())
+                .withLine1Id(modificationModel.getNewLine1Id())
+                .withLine1Name(modificationModel.getNewLine1Name())
+                .withLine2Id(modificationModel.getNewLine2Id())
+                .withLine2Name(modificationModel.getNewLine2Name())
+                .withLine(network.getLine(modificationModel.getLineToSplitId()))
                 .build();
 
         algo.apply(network, true, subReportNode);

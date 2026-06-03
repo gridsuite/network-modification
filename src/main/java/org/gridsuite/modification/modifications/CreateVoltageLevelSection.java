@@ -20,7 +20,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.CreateVoltageLevelSectionInfos;
+import org.gridsuite.modification.model.CreateVoltageLevelSectionModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,34 +33,34 @@ import static org.gridsuite.modification.NetworkModificationException.Type.CREAT
  */
 public class CreateVoltageLevelSection extends AbstractModification {
 
-    private final CreateVoltageLevelSectionInfos modificationInfos;
+    private final CreateVoltageLevelSectionModel modificationModel;
 
-    public CreateVoltageLevelSection(CreateVoltageLevelSectionInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
+    public CreateVoltageLevelSection(CreateVoltageLevelSectionModel modificationModel) {
+        this.modificationModel = modificationModel;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        var voltageLevel = network.getVoltageLevel(modificationInfos.getVoltageLevelId());
+        var voltageLevel = network.getVoltageLevel(modificationModel.getVoltageLevelId());
         if (voltageLevel == null) {
-            throw new NetworkModificationException(CREATE_VOLTAGE_LEVEL_ERROR, "Voltage level not found: " + modificationInfos.getVoltageLevelId());
+            throw new NetworkModificationException(CREATE_VOLTAGE_LEVEL_ERROR, "Voltage level not found: " + modificationModel.getVoltageLevelId());
         }
-        var bbs = network.getBusbarSection(modificationInfos.getBusbarSectionId());
+        var bbs = network.getBusbarSection(modificationModel.getBusbarSectionId());
         if (bbs == null) {
             throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND,
                  String.format("%s not found in voltage level %s",
-                     modificationInfos.getBusbarSectionId(),
+                     modificationModel.getBusbarSectionId(),
                      voltageLevel.getId()));
         }
         if (bbs.getExtension(BusbarSectionPosition.class) == null) {
             throw new PowsyblException(String.format("busbar section position extension are not available on this busbar section %s, can not create a new busbar section",
-                modificationInfos.getBusbarSectionId()));
+                modificationModel.getBusbarSectionId()));
         }
         var busbarIndex = bbs.getExtension(BusbarSectionPosition.class).getBusbarIndex();
-        if (busbarIndex != modificationInfos.getBusbarIndex()) {
+        if (busbarIndex != modificationModel.getBusbarIndex()) {
             throw new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND,
                 String.format("%s is not the busbar index of the busbar section %s in voltage level %s",
-                    modificationInfos.getBusbarIndex(),
+                    modificationModel.getBusbarIndex(),
                     bbs.getId(),
                     voltageLevel.getId()));
         }
@@ -73,25 +73,25 @@ public class CreateVoltageLevelSection extends AbstractModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
-        VoltageLevel voltageLevel = network.getVoltageLevel(modificationInfos.getVoltageLevelId());
-        BusbarSection busbarSection = network.getBusbarSection(modificationInfos.getBusbarSectionId());
+        VoltageLevel voltageLevel = network.getVoltageLevel(modificationModel.getVoltageLevelId());
+        BusbarSection busbarSection = network.getBusbarSection(modificationModel.getBusbarSectionId());
         List<String> busBarIds = new ArrayList<>();
         voltageLevel.getNodeBreakerView().getBusbarSections().forEach(bbs -> busBarIds.add(bbs.getId()));
 
         CreateVoltageLevelSections modification = new CreateVoltageLevelSectionsBuilder()
                 .withReferenceBusbarSectionId(busbarSection.getId())
-                .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(modificationInfos.isAfterBusbarSectionId())
-                .withAllBusbars(modificationInfos.isAllBusbars())
-                .withLeftSwitchOpen(modificationInfos.isSwitchOpen())
-                .withRightSwitchOpen(modificationInfos.isSwitchOpen())
-                .withLeftSwitchKind(modificationInfos.getLeftSwitchKind() != null ? SwitchKind.valueOf(modificationInfos.getLeftSwitchKind()) : SwitchKind.DISCONNECTOR)
-                .withRightSwitchKind(modificationInfos.getRightSwitchKind() != null ? SwitchKind.valueOf(modificationInfos.getRightSwitchKind()) : SwitchKind.DISCONNECTOR)
+                .withCreateTheBusbarSectionsAfterTheReferenceBusbarSection(modificationModel.isAfterBusbarSectionId())
+                .withAllBusbars(modificationModel.isAllBusbars())
+                .withLeftSwitchOpen(modificationModel.isSwitchOpen())
+                .withRightSwitchOpen(modificationModel.isSwitchOpen())
+                .withLeftSwitchKind(modificationModel.getLeftSwitchKind() != null ? SwitchKind.valueOf(modificationModel.getLeftSwitchKind()) : SwitchKind.DISCONNECTOR)
+                .withRightSwitchKind(modificationModel.getRightSwitchKind() != null ? SwitchKind.valueOf(modificationModel.getRightSwitchKind()) : SwitchKind.DISCONNECTOR)
                 .withSwitchPrefixId(voltageLevel.getId())
                 .withBusbarSectionPrefixId(voltageLevel.getId())
                 .build();
         modification.apply(network, namingStrategy, true, subReportNode);
 
-        if (modificationInfos.isAllBusbars()) {
+        if (modificationModel.isAllBusbars()) {
             List<BusbarSection> newBusbarSections = new ArrayList<>();
             for (BusbarSection bbs : voltageLevel.getNodeBreakerView().getBusbarSections()) {
                 if (!busBarIds.contains(bbs.getId())) {

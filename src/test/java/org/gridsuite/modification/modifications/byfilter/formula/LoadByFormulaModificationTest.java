@@ -8,12 +8,12 @@ package org.gridsuite.modification.modifications.byfilter.formula;
 
 import com.powsybl.iidm.network.IdentifiableType;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
-import org.gridsuite.modification.dto.byfilter.equipmentfield.LoadField;
-import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
-import org.gridsuite.modification.dto.byfilter.formula.Operator;
-import org.gridsuite.modification.dto.byfilter.formula.ReferenceFieldOrValue;
+import org.gridsuite.modification.model.FilterEquipments;
+import org.gridsuite.modification.model.IdentifiableAttributes;
+import org.gridsuite.modification.model.byfilter.equipmentfield.LoadField;
+import org.gridsuite.modification.model.byfilter.formula.FormulaModel;
+import org.gridsuite.modification.model.byfilter.formula.Operator;
+import org.gridsuite.modification.model.byfilter.formula.ReferenceFieldOrValue;
 
 import java.util.List;
 import java.util.Map;
@@ -56,21 +56,21 @@ class LoadByFormulaModificationTest extends AbstractByFormulaModificationTest {
     }
 
     @Override
-    protected List<FormulaInfos> getFormulaInfos() {
-        FormulaInfos formulaInfos1 = getFormulaInfo(LoadField.ACTIVE_POWER_SET_POINT.name(),
+    protected List<FormulaModel> getFormulaModel() {
+        FormulaModel formulaModel1 = getFormulaInfo(LoadField.ACTIVE_POWER_SET_POINT.name(),
                 List.of(filter1),
                 Operator.ADDITION,
                 ReferenceFieldOrValue.builder().equipmentField(LoadField.ACTIVE_POWER_SET_POINT.name()).build(),
                 ReferenceFieldOrValue.builder().value(25.).build()
         );
 
-        FormulaInfos formulaInfos2 = getFormulaInfo(LoadField.REACTIVE_POWER_SET_POINT.name(),
+        FormulaModel formulaModel2 = getFormulaInfo(LoadField.REACTIVE_POWER_SET_POINT.name(),
                 List.of(filter2),
                 Operator.MULTIPLICATION,
                 ReferenceFieldOrValue.builder().equipmentField(LoadField.REACTIVE_POWER_SET_POINT.name()).build(),
                 ReferenceFieldOrValue.builder().value(2.5).build()
         );
-        return List.of(formulaInfos1, formulaInfos2);
+        return List.of(formulaModel1, formulaModel2);
     }
 
     @Override

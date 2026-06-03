@@ -10,7 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.IdentifiableType;
 import lombok.NonNull;
 
-import org.gridsuite.modification.dto.OperatingStatusModificationInfos;
+import org.gridsuite.modification.model.OperatingStatusModificationModel;
 import org.springframework.http.HttpStatus;
 
 import java.util.Objects;
@@ -180,7 +180,7 @@ public class NetworkModificationException extends PowsyblException {
         return new NetworkModificationException(Type.EQUIPMENT_TYPE_UNSUPPORTED, "The equipment type : " + type + " is not supported");
     }
 
-    public static NetworkModificationException createOperatingActionTypeUnsupported(@NonNull OperatingStatusModificationInfos.ActionType type) {
+    public static NetworkModificationException createOperatingActionTypeUnsupported(@NonNull OperatingStatusModificationModel.ActionType type) {
         return new NetworkModificationException(Type.OPERATING_ACTION_TYPE_UNSUPPORTED, "The operating action type : " + type + " is unsupported");
     }
 

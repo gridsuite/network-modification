@@ -13,7 +13,10 @@ import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.*;
+import org.gridsuite.modification.model.CompositeModificationModel;
+import org.gridsuite.modification.model.GeneratorCreationModel;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationCreation;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -39,14 +42,14 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
     @Test
     void checkCompositeExecutionDepth() {
         Network network = getNetwork();
-        CompositeModificationInfos compositeModificationInfos = (CompositeModificationInfos) buildModification();
+        CompositeModificationModel compositeModificationModel = (CompositeModificationModel) buildModification();
 
         // checks that the sub sub sub netmod is executed at the right depth
-        ReportNode report = compositeModificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = compositeModificationModel.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
-        CompositeModification netmod = (CompositeModification) compositeModificationInfos.toModification();
+        CompositeModification netmod = (CompositeModification) compositeModificationModel.toModification();
         assertDoesNotThrow(() -> netmod.apply(network, report));
         assertLogMessageAtDepth(
                 "Generator with id=idGenerator modified :",
@@ -65,9 +68,9 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
     @Test
     void checkCompositeExecutionErrorHandling() {
         Network network = getNetwork();
-        CompositeModificationInfos compositeModificationInfos = (CompositeModificationInfos) buildModification();
+        CompositeModificationModel compositeModificationModel = (CompositeModificationModel) buildModification();
 
-        ReportNode report = compositeModificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = compositeModificationModel.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
@@ -75,8 +78,8 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         GeneratorCreation throwingExceptionNetMod = (GeneratorCreation) buildThrowingModification().toModification();
         assertThrows(PowsyblException.class, () -> throwingExceptionNetMod.apply(network));
         // but doesn't throw once inside a composite modification
-        compositeModificationInfos.setModificationsInfos(List.of(buildThrowingModification()));
-        CompositeModification netmodContainingError = (CompositeModification) compositeModificationInfos.toModification();
+        compositeModificationModel.setModificationsInfos(List.of(buildThrowingModification()));
+        CompositeModification netmodContainingError = (CompositeModification) compositeModificationModel.toModification();
         assertDoesNotThrow(() -> netmodContainingError.apply(network, report));
         // but the thrown message is inside the report :
         assertLogMessageWithoutRank(
@@ -90,23 +93,23 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
     @Test
     void checkCompositeFiltersDeactivatedAndStashedModifications() {
         Network network = getNetwork();
-        ModificationInfos renameModif = ModificationCreation.getModificationGenerator("idGenerator", "baseline name");
+        ModificationModel renameModif = ModificationCreation.getModificationGenerator("idGenerator", "baseline name");
         renameModif.setActivated(true);
         renameModif.setStashed(false);
 
-        ModificationInfos deactivatedRenameModif = ModificationCreation.getModificationGenerator("idGenerator", "deactivated name");
+        ModificationModel deactivatedRenameModif = ModificationCreation.getModificationGenerator("idGenerator", "deactivated name");
         deactivatedRenameModif.setActivated(false);
         deactivatedRenameModif.setStashed(false);
 
-        ModificationInfos stashedRenameModif = ModificationCreation.getModificationGenerator("idGenerator", "stashed name");
+        ModificationModel stashedRenameModif = ModificationCreation.getModificationGenerator("idGenerator", "stashed name");
         stashedRenameModif.setActivated(true);
         stashedRenameModif.setStashed(true);
 
-        ModificationInfos invalidModif = ModificationCreation.getModificationGenerator("idGenerator", "null activated name");
+        ModificationModel invalidModif = ModificationCreation.getModificationGenerator("idGenerator", "null activated name");
         invalidModif.setActivated(null);
         invalidModif.setStashed(null);
 
-        CompositeModificationInfos composite = CompositeModificationInfos.builder()
+        CompositeModificationModel composite = CompositeModificationModel.builder()
                 .name("filter test composite")
                 .modificationsInfos(List.of(renameModif, deactivatedRenameModif, stashedRenameModif, invalidModif))
                 .stashed(false)
@@ -127,7 +130,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         assertEquals("baseline name", gen.getOptionalName().orElseThrow());
     }
 
-    private GeneratorCreationInfos buildThrowingModification() {
+    private GeneratorCreationModel buildThrowingModification() {
         return ModificationCreation.getCreationGenerator(
                 "v1", "idGenerator", "nameGenerator", "1B", "v2load", "LOAD", "v1"
         );
@@ -139,9 +142,9 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        List<ModificationInfos> modifications = List.of(
-                CompositeModificationInfos.builder()
+    protected ModificationModel buildModification() {
+        List<ModificationModel> modifications = List.of(
+                CompositeModificationModel.builder()
                         .activated(true)
                         .name("sub composite 1")
                         .modificationsInfos(
@@ -155,12 +158,12 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                 ModificationCreation.getCreationLoad("v1", "idLoad", "nameLoad", "1.1", LoadType.UNDEFINED),
                 ModificationCreation.getCreationBattery("v1", "idBattery", "nameBattery", "1.1"),
                 // test of a composite modification inside a composite modification inside a composite modification
-                CompositeModificationInfos.builder()
+                CompositeModificationModel.builder()
                         .activated(true)
                         .name("sub composite 2")
                         .modificationsInfos(
                                 List.of(
-                                        CompositeModificationInfos.builder()
+                                        CompositeModificationModel.builder()
                                                 .activated(true)
                                                 .name("sub sub composite")
                                                 .modificationsInfos(
@@ -170,7 +173,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                                 )
                         ).build()
         );
-        return CompositeModificationInfos.builder()
+        return CompositeModificationModel.builder()
                 .name("main composite")
                 .modificationsInfos(modifications)
                 .stashed(false)
@@ -187,7 +190,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertNotNull(ModificationType.COMPOSITE_MODIFICATION.name(), modificationInfos.getMessageType());
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertNotNull(ModificationType.COMPOSITE_MODIFICATION.name(), modificationModel.getMessageType());
     }
 }

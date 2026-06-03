@@ -12,9 +12,9 @@ import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.LoadCreationInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
+import org.gridsuite.modification.model.LoadCreationModel;
+import org.gridsuite.modification.model.ModificationModel;
+import org.gridsuite.modification.model.tabular.TabularCreationModel;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -38,40 +38,40 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        List<ModificationInfos> creations = List.of(
-            LoadCreationInfos.builder()
+    protected ModificationModel buildModification() {
+        List<ModificationModel> creations = List.of(
+            LoadCreationModel.builder()
                 .equipmentId("id1").equipmentName("name1").voltageLevelId("v1").busOrBusbarSectionId("1.1")
                 .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
                 .loadType(LoadType.AUXILIARY).p0(0).q0(100)
                 .build(),
-            LoadCreationInfos.builder()
+            LoadCreationModel.builder()
                 .equipmentId("id2").equipmentName("name2").voltageLevelId("v2").busOrBusbarSectionId("1A")
                 .connectionName("feederId2").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false)
                 .loadType(LoadType.FICTITIOUS).p0(0).q0(500)
                 .build(),
-            LoadCreationInfos.builder()
+            LoadCreationModel.builder()
                 .equipmentId("id3").voltageLevelId("v3").busOrBusbarSectionId("3A")
                 .connectionName("feederId3").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .loadType(LoadType.UNDEFINED).p0(0).q0(200)
                 .build(),
-            LoadCreationInfos.builder()
+            LoadCreationModel.builder()
                 .equipmentId("id4").equipmentName("name4").voltageLevelId("v4").busOrBusbarSectionId("1.A")
                 .connectionName("feederId4").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false)
                 .loadType(LoadType.AUXILIARY).p0(0).q0(800)
                 .build(),
-            LoadCreationInfos.builder()
+            LoadCreationModel.builder()
                 .equipmentId("id5").voltageLevelId("v5").busOrBusbarSectionId("1A1")
                 .connectionName("name5").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .loadType(LoadType.FICTITIOUS).p0(0).q0(200)
                 .build(),
-            LoadCreationInfos.builder()
+            LoadCreationModel.builder()
                 .equipmentId("v5load").voltageLevelId("v5").busOrBusbarSectionId("1A1")
                 .connectionName("v5load").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .loadType(LoadType.UNDEFINED).p0(0).q0(200)
                 .build()
         );
-        return TabularCreationInfos.builder()
+        return TabularCreationModel.builder()
             .modificationType(ModificationType.LOAD_CREATION)
             .modifications(creations)
             .stashed(false)
@@ -90,61 +90,61 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
 
     @Test
     void testAllModificationsHaveSucceeded() {
-        List<ModificationInfos> creations = List.of(
-            LoadCreationInfos.builder()
+        List<ModificationModel> creations = List.of(
+            LoadCreationModel.builder()
                 .equipmentId("id1").equipmentName("name1").voltageLevelId("v1").busOrBusbarSectionId("1.1")
                 .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
                 .loadType(LoadType.UNDEFINED).p0(0).q0(100)
                 .build()
         );
 
-        ModificationInfos creationInfos = TabularCreationInfos.builder()
+        ModificationModel creationModel = TabularCreationModel.builder()
             .modificationType(ModificationType.LOAD_CREATION)
             .modifications(creations)
             .build();
-        ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = creationModel.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        creationInfos.toModification().apply(getNetwork(), reportNode);
+        creationModel.toModification().apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: 1 load have been created", "network.modification.tabular.creation", reportNode);
         assertLogMessage("Creation of id1", "network.modification.tabular.creation.equipmentId", reportNode);
     }
 
     @Test
     void testAllModificationsHaveFailed() {
-        List<ModificationInfos> creations = List.of(
-            LoadCreationInfos.builder()
+        List<ModificationModel> creations = List.of(
+            LoadCreationModel.builder()
                 .equipmentId("id1").equipmentName("name1").voltageLevelId("unknown_vl").busOrBusbarSectionId("1.1")
                 .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
                 .loadType(LoadType.UNDEFINED).p0(0).q0(100)
                 .build(),
-            LoadCreationInfos.builder()
+            LoadCreationModel.builder()
                 .equipmentId("id2").equipmentName("name2").voltageLevelId("v1").busOrBusbarSectionId("unknown_bbs")
                 .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
                 .loadType(LoadType.UNDEFINED).p0(0).q0(100)
                 .build(),
-            LoadCreationInfos.builder()
+            LoadCreationModel.builder()
                 .equipmentId("id3").equipmentName("name3").voltageLevelId("v1").busOrBusbarSectionId("1.1")
                 .connectionName("feederId3").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
                 .loadType(LoadType.AUXILIARY).p0(Double.NaN).q0(-100)
                 .build()
         );
-        ModificationInfos creationInfos = TabularCreationInfos.builder()
+        ModificationModel creationModel = TabularCreationModel.builder()
                 .modificationType(ModificationType.LOAD_CREATION)
                 .modifications(creations)
                 .build();
-        ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = creationModel.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        creationInfos.toModification().apply(getNetwork(), reportNode);
+        creationModel.toModification().apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: No loads have been created", "network.modification.tabular.creation.error", reportNode);
         assertLogMessage("Creation errors", "network.modification.tabular.creation.error.equipmentError", reportNode);
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals(ModificationType.TABULAR_CREATION.name(), modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals(ModificationType.TABULAR_CREATION.name(), modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
         assertEquals(ModificationType.LOAD_CREATION.name(), createdValues.get("tabularCreationType"));
     }
 

@@ -17,7 +17,10 @@ import com.powsybl.iidm.network.util.BusbarSectionFinderTraverser;
 import com.powsybl.iidm.network.extensions.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.*;
+import org.gridsuite.modification.model.constants.OperationType;
+import org.gridsuite.modification.model.constants.RegulationSide;
+import org.gridsuite.modification.model.constants.VoltageRegulationType;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -26,7 +29,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.ADD;
+import static org.gridsuite.modification.model.constants.OperationalLimitsGroupModificationType.ADD;
 import static org.gridsuite.modification.modifications.TwoWindingsTransformerModification.processPhaseTapRegulation;
 import static org.gridsuite.modification.utils.NetworkUtil.createTwoWindingsTransformer;
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,8 +52,8 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        return TwoWindingsTransformerModificationInfos.builder()
+    protected ModificationModel buildModification() {
+        return TwoWindingsTransformerModificationModel.builder()
                 .equipmentId("trf1")
                 .stashed(false)
                 .equipmentName(new AttributeModification<>("2wt modified name", OperationType.SET))
@@ -77,7 +80,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 .q1MeasurementValidity(new AttributeModification<>(MEASUREMENT_Q_VALID, OperationType.SET))
                 .ratioTapChangerToBeEstimated(new AttributeModification<>(true, OperationType.SET))
                 .phaseTapChangerToBeEstimated(new AttributeModification<>(false, OperationType.SET))
-                .ratioTapChanger(RatioTapChangerModificationInfos.builder()
+                .ratioTapChanger(RatioTapChangerModificationModel.builder()
                         .enabled(new AttributeModification<>(true, OperationType.SET))
                         .loadTapChangingCapabilities(new AttributeModification<>(true, OperationType.SET))
                         .regulating(new AttributeModification<>(false, OperationType.SET))
@@ -88,7 +91,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                         .terminalRefConnectableId(new AttributeModification<>("trf1", OperationType.SET))
                         .terminalRefConnectableType(new AttributeModification<>("TWO_WINDINGS_TRANSFORMER", OperationType.SET))
                         .terminalRefConnectableVlId(new AttributeModification<>("v1", OperationType.SET))
-                        .steps(List.of(TapChangerStepCreationInfos.builder()
+                        .steps(List.of(TapChangerStepCreationModel.builder()
                                 .index(0)
                                 .r(0)
                                 .g(0)
@@ -96,7 +99,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                                 .x(0)
                                 .rho(1)
                                 .build(),
-                                TapChangerStepCreationInfos.builder()
+                                TapChangerStepCreationModel.builder()
                                 .index(1)
                                 .r(0)
                                 .g(0)
@@ -106,7 +109,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                                 .build()
                                 ))
                         .build())
-                .phaseTapChanger(PhaseTapChangerModificationInfos.builder()
+                .phaseTapChanger(PhaseTapChangerModificationModel.builder()
                     .enabled(new AttributeModification<>(true, OperationType.SET))
                     .regulationMode(new AttributeModification<>(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, OperationType.SET))
                     .regulationValue(new AttributeModification<>(100., OperationType.SET))
@@ -116,7 +119,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                     .terminalRefConnectableId(new AttributeModification<>("trf1", OperationType.SET))
                     .terminalRefConnectableType(new AttributeModification<>("TWO_WINDINGS_TRANSFORMER", OperationType.SET))
                     .terminalRefConnectableVlId(new AttributeModification<>("v1", OperationType.SET))
-                    .steps(List.of(TapChangerStepCreationInfos.builder()
+                    .steps(List.of(TapChangerStepCreationModel.builder()
                         .index(0)
                         .r(0)
                         .g(0)
@@ -125,7 +128,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                         .rho(1)
                         .alpha(1.)
                         .build(),
-                        TapChangerStepCreationInfos.builder()
+                        TapChangerStepCreationModel.builder()
                             .index(1)
                             .r(0)
                             .g(0)
@@ -136,23 +139,23 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                             .build()
                         ))
                     .build())
-                .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+                .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
                 .enableOLGModification(true)
                 .operationalLimitsGroups(List.of(
-                        OperationalLimitsGroupModificationInfos.builder()
+                        OperationalLimitsGroupModificationModel.builder()
                                 .id("ETE")
-                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                 .modificationType(ADD)
-                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                .currentLimits(CurrentLimitsModificationModel.builder()
                                         .permanentLimit(800.0)
                                         .build()
                                         )
                                 .build(),
-                        OperationalLimitsGroupModificationInfos.builder()
+                        OperationalLimitsGroupModificationModel.builder()
                                 .id("ETE")
-                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE2)
+                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE2)
                                 .modificationType(ADD)
-                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                .currentLimits(CurrentLimitsModificationModel.builder()
                                         .permanentLimit(800.0)
                                         .build()
                                         )
@@ -216,104 +219,104 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
     @Override
     protected void checkModification() {
         Network network = getNetwork();
-        TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos = (TwoWindingsTransformerModificationInfos) buildModification();
-        twoWindingsTransformerModificationInfos.setEquipmentId("2wt_not_existing");
-        TwoWindingsTransformerModification twoWindingsTransformerModification = (TwoWindingsTransformerModification) twoWindingsTransformerModificationInfos.toModification();
+        TwoWindingsTransformerModificationModel twoWindingsTransformerModificationModel = (TwoWindingsTransformerModificationModel) buildModification();
+        twoWindingsTransformerModificationModel.setEquipmentId("2wt_not_existing");
+        TwoWindingsTransformerModification twoWindingsTransformerModification = (TwoWindingsTransformerModification) twoWindingsTransformerModificationModel.toModification();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> twoWindingsTransformerModification.check(network));
         assertEquals("TWO_WINDINGS_TRANSFORMER_NOT_FOUND : Two windings transformer '2wt_not_existing' : it does not exist in the network", exception.getMessage());
 
         // no phase tap changer on this transformer
         // ratio tap changer check regulating terminal
-        TwoWindingsTransformerModificationInfos twtModificationInfos2 = (TwoWindingsTransformerModificationInfos) buildModification();
-        twtModificationInfos2.getRatioTapChanger().setTerminalRefConnectableId(new AttributeModification<>(null, OperationType.UNSET));
-        twtModificationInfos2.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
-        TwoWindingsTransformerModification twoWindingsTransformerModification2 = (TwoWindingsTransformerModification) twtModificationInfos2.toModification();
+        TwoWindingsTransformerModificationModel twtModificationModel2 = (TwoWindingsTransformerModificationModel) buildModification();
+        twtModificationModel2.getRatioTapChanger().setTerminalRefConnectableId(new AttributeModification<>(null, OperationType.UNSET));
+        twtModificationModel2.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
+        TwoWindingsTransformerModification twoWindingsTransformerModification2 = (TwoWindingsTransformerModification) twtModificationModel2.toModification();
         NetworkModificationException exception2 = assertThrows(NetworkModificationException.class,
             () -> twoWindingsTransformerModification2.check(network));
         assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : Regulation is set to Distant but regulating terminal information are incomplete",
             exception2.getMessage());
 
         // ratio tap changer check regulating terminal
-        TwoWindingsTransformerModificationInfos twtModificationInfos4 = (TwoWindingsTransformerModificationInfos) buildModification();
-        twtModificationInfos4.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
-        twtModificationInfos4.getRatioTapChanger().setTerminalRefConnectableId(new AttributeModification<>("test", OperationType.UNSET));
-        TwoWindingsTransformerModification twoWindingsTransformerModification4 = (TwoWindingsTransformerModification) twtModificationInfos4.toModification();
+        TwoWindingsTransformerModificationModel twtModificationModel4 = (TwoWindingsTransformerModificationModel) buildModification();
+        twtModificationModel4.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
+        twtModificationModel4.getRatioTapChanger().setTerminalRefConnectableId(new AttributeModification<>("test", OperationType.UNSET));
+        TwoWindingsTransformerModification twoWindingsTransformerModification4 = (TwoWindingsTransformerModification) twtModificationModel4.toModification();
         NetworkModificationException exception4 = assertThrows(NetworkModificationException.class,
             () -> twoWindingsTransformerModification4.check(network));
         assertEquals("EQUIPMENT_NOT_FOUND : Equipment with id=test not found with type TWO_WINDINGS_TRANSFORMER", exception4.getMessage());
 
         // ratio tap changer check regulating terminal
-        TwoWindingsTransformerModificationInfos twtModificationInfos5 = (TwoWindingsTransformerModificationInfos) buildModification();
-        twtModificationInfos5.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
-        twtModificationInfos5.getRatioTapChanger().setTerminalRefConnectableVlId(new AttributeModification<>("test", OperationType.UNSET));
-        TwoWindingsTransformerModification twoWindingsTransformerModification5 = (TwoWindingsTransformerModification) twtModificationInfos5.toModification();
+        TwoWindingsTransformerModificationModel twtModificationModel5 = (TwoWindingsTransformerModificationModel) buildModification();
+        twtModificationModel5.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
+        twtModificationModel5.getRatioTapChanger().setTerminalRefConnectableVlId(new AttributeModification<>("test", OperationType.UNSET));
+        TwoWindingsTransformerModification twoWindingsTransformerModification5 = (TwoWindingsTransformerModification) twtModificationModel5.toModification();
         NetworkModificationException exception5 = assertThrows(NetworkModificationException.class,
             () -> twoWindingsTransformerModification5.check(network));
         assertEquals("VOLTAGE_LEVEL_NOT_FOUND : Voltage level with id=test not found", exception5.getMessage());
 
         // do not throw
-        TwoWindingsTransformerModificationInfos twtModificationInfos6 = (TwoWindingsTransformerModificationInfos) buildModification();
-        twtModificationInfos6.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
-        twtModificationInfos6.getRatioTapChanger().setTerminalRefConnectableId(new AttributeModification<>(null, OperationType.UNSET));
-        twtModificationInfos6.getRatioTapChanger().setTerminalRefConnectableVlId(new AttributeModification<>(null, OperationType.UNSET));
-        twtModificationInfos6.getRatioTapChanger().setTerminalRefConnectableType(new AttributeModification<>(null, OperationType.UNSET));
-        assertDoesNotThrow(() -> twtModificationInfos6.toModification().check(getNetwork()));
-        assertTrue(((TwoWindingsTransformerModification) twtModificationInfos6.toModification()).characteristicsModified(twtModificationInfos6));
+        TwoWindingsTransformerModificationModel twtModificationModel6 = (TwoWindingsTransformerModificationModel) buildModification();
+        twtModificationModel6.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
+        twtModificationModel6.getRatioTapChanger().setTerminalRefConnectableId(new AttributeModification<>(null, OperationType.UNSET));
+        twtModificationModel6.getRatioTapChanger().setTerminalRefConnectableVlId(new AttributeModification<>(null, OperationType.UNSET));
+        twtModificationModel6.getRatioTapChanger().setTerminalRefConnectableType(new AttributeModification<>(null, OperationType.UNSET));
+        assertDoesNotThrow(() -> twtModificationModel6.toModification().check(getNetwork()));
+        assertTrue(((TwoWindingsTransformerModification) twtModificationModel6.toModification()).characteristicsModified(twtModificationModel6));
 
         // do not throw
-        TwoWindingsTransformerModificationInfos twtModificationInfos7 = (TwoWindingsTransformerModificationInfos) buildModification();
-        twtModificationInfos7.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
-        assertDoesNotThrow(() -> twtModificationInfos7.toModification().check(getNetwork()));
+        TwoWindingsTransformerModificationModel twtModificationModel7 = (TwoWindingsTransformerModificationModel) buildModification();
+        twtModificationModel7.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.UNSET));
+        assertDoesNotThrow(() -> twtModificationModel7.toModification().check(getNetwork()));
 
-        TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos1 = TwoWindingsTransformerModificationInfos.builder()
+        TwoWindingsTransformerModificationModel twoWindingsTransformerModificationModel1 = TwoWindingsTransformerModificationModel.builder()
             .equipmentId("trf1")
             .r(new AttributeModification<>(-1d, OperationType.SET))
             .build();
-        TwoWindingsTransformerModification twoWindingsTransformerModification6 = (TwoWindingsTransformerModification) twoWindingsTransformerModificationInfos1.toModification();
+        TwoWindingsTransformerModification twoWindingsTransformerModification6 = (TwoWindingsTransformerModification) twoWindingsTransformerModificationModel1.toModification();
         String message = assertThrows(NetworkModificationException.class,
             () -> twoWindingsTransformerModification6.check(network)).getMessage();
         assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : can not have a negative value for Resistance R", message);
 
-        TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos2 = TwoWindingsTransformerModificationInfos.builder()
+        TwoWindingsTransformerModificationModel twoWindingsTransformerModificationModel2 = TwoWindingsTransformerModificationModel.builder()
             .equipmentId("trf1")
             .g(new AttributeModification<>(-2d, OperationType.SET))
             .build();
-        TwoWindingsTransformerModification twoWindingsTransformerModification7 = (TwoWindingsTransformerModification) twoWindingsTransformerModificationInfos2.toModification();
+        TwoWindingsTransformerModification twoWindingsTransformerModification7 = (TwoWindingsTransformerModification) twoWindingsTransformerModificationModel2.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> twoWindingsTransformerModification7.check(network)).getMessage();
         assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : can not have a negative value for Conductance G", message);
 
-        TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos3 = TwoWindingsTransformerModificationInfos.builder()
+        TwoWindingsTransformerModificationModel twoWindingsTransformerModificationModel3 = TwoWindingsTransformerModificationModel.builder()
             .equipmentId("trf1")
             .ratedU1(new AttributeModification<>(-100d, OperationType.SET))
             .build();
-        TwoWindingsTransformerModification twoWindingsTransformerModification8 = (TwoWindingsTransformerModification) twoWindingsTransformerModificationInfos3.toModification();
+        TwoWindingsTransformerModification twoWindingsTransformerModification8 = (TwoWindingsTransformerModification) twoWindingsTransformerModificationModel3.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> twoWindingsTransformerModification8.check(network)).getMessage();
         assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : can not have a negative value for Rated Voltage on side 1", message);
 
-        TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos4 = TwoWindingsTransformerModificationInfos.builder()
+        TwoWindingsTransformerModificationModel twoWindingsTransformerModificationModel4 = TwoWindingsTransformerModificationModel.builder()
             .equipmentId("trf1")
             .ratedU2(new AttributeModification<>(-100d, OperationType.SET))
             .build();
-        TwoWindingsTransformerModification twoWindingsTransformerModification9 = (TwoWindingsTransformerModification) twoWindingsTransformerModificationInfos4.toModification();
+        TwoWindingsTransformerModification twoWindingsTransformerModification9 = (TwoWindingsTransformerModification) twoWindingsTransformerModificationModel4.toModification();
         message = assertThrows(NetworkModificationException.class, () -> twoWindingsTransformerModification9.check(network)).getMessage();
         assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : can not have a negative value for Rated Voltage on side 2", message);
 
-        TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos5 = TwoWindingsTransformerModificationInfos.builder()
+        TwoWindingsTransformerModificationModel twoWindingsTransformerModificationModel5 = TwoWindingsTransformerModificationModel.builder()
             .equipmentId("trf1")
-            .ratioTapChanger(RatioTapChangerModificationInfos.builder()
+            .ratioTapChanger(RatioTapChangerModificationModel.builder()
                 .targetV(new AttributeModification<>(-100d, OperationType.SET)).build())
             .build();
-        TwoWindingsTransformerModification twoWindingsTransformerModification10 = (TwoWindingsTransformerModification) twoWindingsTransformerModificationInfos5.toModification();
+        TwoWindingsTransformerModification twoWindingsTransformerModification10 = (TwoWindingsTransformerModification) twoWindingsTransformerModificationModel5.toModification();
         message = assertThrows(NetworkModificationException.class, () -> twoWindingsTransformerModification10.check(network)).getMessage();
         assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : can not have a negative value for Target voltage for ratio tap changer", message);
 
-        TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos6 = TwoWindingsTransformerModificationInfos.builder()
+        TwoWindingsTransformerModificationModel twoWindingsTransformerModificationModel6 = TwoWindingsTransformerModificationModel.builder()
             .equipmentId("trf1")
             .ratedS(new AttributeModification<>(-200d, OperationType.SET))
             .build();
-        TwoWindingsTransformerModification twoWindingsTransformerModification11 = (TwoWindingsTransformerModification) twoWindingsTransformerModificationInfos6.toModification();
+        TwoWindingsTransformerModification twoWindingsTransformerModification11 = (TwoWindingsTransformerModification) twoWindingsTransformerModificationModel6.toModification();
         message = assertThrows(NetworkModificationException.class, () -> twoWindingsTransformerModification11.check(network)).getMessage();
         assertEquals("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR : Two windings transformer 'trf1' : can not have a negative value for Rated nominal power", message);
     }
@@ -354,29 +357,29 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
 
     @Test
     void testTerminalRefConnectableModification() {
-        TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos = (TwoWindingsTransformerModificationInfos) buildModification();
+        TwoWindingsTransformerModificationModel twoWindingsTransformerModificationModel = (TwoWindingsTransformerModificationModel) buildModification();
         for (int i = 1; i <= 3; i++) {
-            TapChangerModificationInfos phaseTapChangerModificationInfos = twoWindingsTransformerModificationInfos.getPhaseTapChanger();
+            TapChangerModificationModel phaseTapChangerModificationModel = twoWindingsTransformerModificationModel.getPhaseTapChanger();
             switch (i) {
                 case 3:
-                    phaseTapChangerModificationInfos.setTerminalRefConnectableId(new AttributeModification<>("test", OperationType.SET));
-                    phaseTapChangerModificationInfos.setTerminalRefConnectableType(new AttributeModification<>(null, OperationType.UNSET));
-                    phaseTapChangerModificationInfos.setTerminalRefConnectableVlId(new AttributeModification<>(null, OperationType.UNSET));
+                    phaseTapChangerModificationModel.setTerminalRefConnectableId(new AttributeModification<>("test", OperationType.SET));
+                    phaseTapChangerModificationModel.setTerminalRefConnectableType(new AttributeModification<>(null, OperationType.UNSET));
+                    phaseTapChangerModificationModel.setTerminalRefConnectableVlId(new AttributeModification<>(null, OperationType.UNSET));
                     break;
                 case 2:
-                    phaseTapChangerModificationInfos.setTerminalRefConnectableId(new AttributeModification<>(null, OperationType.UNSET));
-                    phaseTapChangerModificationInfos.setTerminalRefConnectableType(new AttributeModification<>(null, OperationType.UNSET));
-                    phaseTapChangerModificationInfos.setTerminalRefConnectableVlId(new AttributeModification<>("test", OperationType.SET));
+                    phaseTapChangerModificationModel.setTerminalRefConnectableId(new AttributeModification<>(null, OperationType.UNSET));
+                    phaseTapChangerModificationModel.setTerminalRefConnectableType(new AttributeModification<>(null, OperationType.UNSET));
+                    phaseTapChangerModificationModel.setTerminalRefConnectableVlId(new AttributeModification<>("test", OperationType.SET));
                     break;
                 case 1:
-                    phaseTapChangerModificationInfos.setTerminalRefConnectableId(new AttributeModification<>(null, OperationType.UNSET));
-                    phaseTapChangerModificationInfos.setTerminalRefConnectableType(new AttributeModification<>("test", OperationType.SET));
-                    phaseTapChangerModificationInfos.setTerminalRefConnectableVlId(new AttributeModification<>(null, OperationType.UNSET));
+                    phaseTapChangerModificationModel.setTerminalRefConnectableId(new AttributeModification<>(null, OperationType.UNSET));
+                    phaseTapChangerModificationModel.setTerminalRefConnectableType(new AttributeModification<>("test", OperationType.SET));
+                    phaseTapChangerModificationModel.setTerminalRefConnectableVlId(new AttributeModification<>(null, OperationType.UNSET));
                     break;
                 default:
             }
-            TwoWindingsTransformerModification twoWindingsTransformerModification = (TwoWindingsTransformerModification) twoWindingsTransformerModificationInfos.toModification();
-            Boolean value = ReflectionTestUtils.invokeMethod(twoWindingsTransformerModification, "commonTapChangerAttributesModified", phaseTapChangerModificationInfos);
+            TwoWindingsTransformerModification twoWindingsTransformerModification = (TwoWindingsTransformerModification) twoWindingsTransformerModificationModel.toModification();
+            Boolean value = ReflectionTestUtils.invokeMethod(twoWindingsTransformerModification, "commonTapChangerAttributesModified", phaseTapChangerModificationModel);
             assertNotNull(value);
             assertTrue(value);
         }
@@ -387,12 +390,12 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         TwoWindingsTransformer twt3 = createPhaseTapChanger();
         String twtId = "trf3";
         // modification 1
-        TwoWindingsTransformerModificationInfos phaseTapChangerCreation = TwoWindingsTransformerModificationInfos.builder()
+        TwoWindingsTransformerModificationModel phaseTapChangerCreation = TwoWindingsTransformerModificationModel.builder()
             .stashed(false)
             .equipmentId(twtId)
-            .ratioTapChanger(RatioTapChangerModificationInfos.builder()
+            .ratioTapChanger(RatioTapChangerModificationModel.builder()
                 .build())
-            .phaseTapChanger(PhaseTapChangerModificationInfos.builder()
+            .phaseTapChanger(PhaseTapChangerModificationModel.builder()
                 .enabled(new AttributeModification<>(true, OperationType.SET))
                 .regulationMode(new AttributeModification<>(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, OperationType.SET))
                 .regulationValue(new AttributeModification<>(10.0, OperationType.SET))
@@ -455,12 +458,12 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         String twtId = "trf3";
 
         // modification 1 : settings
-        TwoWindingsTransformerModificationInfos phaseTapChangerCreation = TwoWindingsTransformerModificationInfos.builder()
+        TwoWindingsTransformerModificationModel phaseTapChangerCreation = TwoWindingsTransformerModificationModel.builder()
             .stashed(false)
             .equipmentId(twtId)
-            .ratioTapChanger(RatioTapChangerModificationInfos.builder()
+            .ratioTapChanger(RatioTapChangerModificationModel.builder()
                 .build())
-            .phaseTapChanger(PhaseTapChangerModificationInfos.builder()
+            .phaseTapChanger(PhaseTapChangerModificationModel.builder()
                 .enabled(new AttributeModification<>(true, OperationType.SET))
                 .regulating(new AttributeModification<>(true, OperationType.SET))
                 .build())
@@ -494,9 +497,9 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("TWO_WINDINGS_TRANSFORMER_MODIFICATION", modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals("TWO_WINDINGS_TRANSFORMER_MODIFICATION", modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
         assertEquals("trf1", createdValues.get("equipmentId"));
     }
 
@@ -516,8 +519,8 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         Terminal terminal = existingEquipment.getTerminal(side);
         assertThat(terminal.isConnected()).isEqualTo(actualState);
 
-        TwoWindingsTransformerModificationInfos modificationInfos =
-                TwoWindingsTransformerModificationInfos.builder()
+        TwoWindingsTransformerModificationModel modificationModel =
+                TwoWindingsTransformerModificationModel.builder()
                         .stashed(false)
                         .equipmentId(existingEquipment.getId())
                         .terminal1Connected(side == TwoSides.ONE ? new AttributeModification<>(expectedState, OperationType.SET) : null)
@@ -526,18 +529,18 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
 
         if (!Objects.isNull(errorMessage)) {
             Network network = getNetwork();
-            TwoWindingsTransformerModification twoWindingsTransformerModification = (TwoWindingsTransformerModification) modificationInfos.toModification();
+            TwoWindingsTransformerModification twoWindingsTransformerModification = (TwoWindingsTransformerModification) modificationModel.toModification();
             NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> twoWindingsTransformerModification.apply(network));
             // change not applied
             assertThat(terminal.isConnected()).isNotEqualTo(expectedState);
             assertThat(exception.getMessage()).isEqualTo(errorMessage);
-            assertFalse(twoWindingsTransformerModification.characteristicsModified(modificationInfos));
+            assertFalse(twoWindingsTransformerModification.characteristicsModified(modificationModel));
         } else {
-            modificationInfos.toModification().apply(getNetwork());
+            modificationModel.toModification().apply(getNetwork());
             // connection state has changed as expected
             assertThat(terminal.isConnected()).isEqualTo(expectedState);
             // try to modify again => no change on connection state
-            modificationInfos.toModification().apply(getNetwork());
+            modificationModel.toModification().apply(getNetwork());
             assertThat(terminal.isConnected()).isEqualTo(expectedState);
         }
     }
@@ -662,12 +665,12 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
             "trf3", 1, ConnectablePosition.Direction.TOP,
             "trf3", 2, ConnectablePosition.Direction.TOP);
         // creation 1 : CURRENT_LIMITER
-        TwoWindingsTransformerModificationInfos phaseTapChangerCreation = TwoWindingsTransformerModificationInfos.builder()
+        TwoWindingsTransformerModificationModel phaseTapChangerCreation = TwoWindingsTransformerModificationModel.builder()
             .stashed(false)
             .equipmentId(twtId)
-            .ratioTapChanger(RatioTapChangerModificationInfos.builder()
+            .ratioTapChanger(RatioTapChangerModificationModel.builder()
                 .build())
-            .phaseTapChanger(PhaseTapChangerModificationInfos.builder()
+            .phaseTapChanger(PhaseTapChangerModificationModel.builder()
                 .enabled(new AttributeModification<>(true, OperationType.SET))
                 .regulationMode(new AttributeModification<>(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, OperationType.SET))
                 .regulating(new AttributeModification<>(true, OperationType.SET))
@@ -677,7 +680,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 .terminalRefConnectableId(new AttributeModification<>("v3load", OperationType.SET))
                 .terminalRefConnectableType(new AttributeModification<>("LOAD", OperationType.SET))
                 .terminalRefConnectableVlId(new AttributeModification<>("v3", OperationType.SET))
-                .steps(List.of(TapChangerStepCreationInfos.builder()
+                .steps(List.of(TapChangerStepCreationModel.builder()
                         .index(0)
                         .r(0)
                         .g(0)
@@ -685,7 +688,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                         .x(0)
                         .rho(1)
                         .build(),
-                    TapChangerStepCreationInfos.builder()
+                    TapChangerStepCreationModel.builder()
                         .index(1)
                         .r(0)
                         .g(0)
@@ -708,12 +711,12 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
 
         // creation 2 : FIXED_TAP
         twt3.getPhaseTapChanger().remove();
-        phaseTapChangerCreation = TwoWindingsTransformerModificationInfos.builder()
+        phaseTapChangerCreation = TwoWindingsTransformerModificationModel.builder()
             .stashed(false)
             .equipmentId(twtId)
-            .ratioTapChanger(RatioTapChangerModificationInfos.builder()
+            .ratioTapChanger(RatioTapChangerModificationModel.builder()
                 .build())
-            .phaseTapChanger(PhaseTapChangerModificationInfos.builder()
+            .phaseTapChanger(PhaseTapChangerModificationModel.builder()
                 .enabled(new AttributeModification<>(true, OperationType.SET))
                 .regulationMode(new AttributeModification<>(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, OperationType.SET))
                 .lowTapPosition(new AttributeModification<>(0, OperationType.SET))
@@ -721,7 +724,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 .terminalRefConnectableId(new AttributeModification<>("v3load", OperationType.SET))
                 .terminalRefConnectableType(new AttributeModification<>("LOAD", OperationType.SET))
                 .terminalRefConnectableVlId(new AttributeModification<>("v3", OperationType.SET))
-                .steps(List.of(TapChangerStepCreationInfos.builder()
+                .steps(List.of(TapChangerStepCreationModel.builder()
                         .index(0)
                         .r(0)
                         .g(0)
@@ -729,7 +732,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                         .x(0)
                         .rho(1)
                         .build(),
-                    TapChangerStepCreationInfos.builder()
+                    TapChangerStepCreationModel.builder()
                         .index(1)
                         .r(0)
                         .g(0)
@@ -760,17 +763,17 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
             "trf3", 1, ConnectablePosition.Direction.TOP,
             "trf3", 2, ConnectablePosition.Direction.TOP);
 
-        TwoWindingsTransformerModificationInfos ratioTapChangerCreation = createRatioTapChangerInfos(twtId);
+        TwoWindingsTransformerModificationModel ratioTapChangerCreation = createRatioTapChangerModel(twtId);
 
         ratioTapChangerCreation.toModification().apply(getNetwork());
         RatioTapChanger ratioTapChanger = twt3.getRatioTapChanger();
         assertFalse(ratioTapChanger.isRegulating());
         assertNull(ratioTapChanger.getRegulationMode());
 
-        TwoWindingsTransformerModificationInfos ratioTapChangerModification = TwoWindingsTransformerModificationInfos.builder()
+        TwoWindingsTransformerModificationModel ratioTapChangerModification = TwoWindingsTransformerModificationModel.builder()
             .stashed(false)
             .equipmentId(twtId)
-            .ratioTapChanger(RatioTapChangerModificationInfos.builder()
+            .ratioTapChanger(RatioTapChangerModificationModel.builder()
                 .regulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.SET))
                 .regulating(new AttributeModification<>(true, OperationType.SET))
                 .targetV(new AttributeModification<>(10.0, OperationType.SET))
@@ -793,7 +796,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
             "trf3", 1, ConnectablePosition.Direction.TOP,
             "trf3", 2, ConnectablePosition.Direction.TOP);
 
-        TwoWindingsTransformerModificationInfos ratioTapChangerCreation = createRatioTapChangerInfos(twtId);
+        TwoWindingsTransformerModificationModel ratioTapChangerCreation = createRatioTapChangerModel(twtId);
         ratioTapChangerCreation.toModification().apply(getNetwork());
         RatioTapChanger ratioTapChanger = twt3.getRatioTapChanger();
 
@@ -805,10 +808,10 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertTrue(Double.isNaN(ratioTapChanger.getTargetDeadband()));
 
         // set regulation without target deadband it will set target deadband to 0
-        TwoWindingsTransformerModificationInfos ratioTapChangerModification = TwoWindingsTransformerModificationInfos.builder()
+        TwoWindingsTransformerModificationModel ratioTapChangerModification = TwoWindingsTransformerModificationModel.builder()
             .stashed(false)
             .equipmentId(twtId)
-            .ratioTapChanger(RatioTapChangerModificationInfos.builder()
+            .ratioTapChanger(RatioTapChangerModificationModel.builder()
                 .regulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.SET))
                 .regulating(new AttributeModification<>(true, OperationType.SET))
                 .targetV(new AttributeModification<>(10.0, OperationType.SET))
@@ -833,17 +836,17 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
             "trf3", 1, ConnectablePosition.Direction.TOP,
             "trf3", 2, ConnectablePosition.Direction.TOP);
 
-        TwoWindingsTransformerModificationInfos ratioTapChangerCreation = createRatioTapChangerInfos(twtId);
+        TwoWindingsTransformerModificationModel ratioTapChangerCreation = createRatioTapChangerModel(twtId);
         ratioTapChangerCreation.toModification().apply(getNetwork());
         RatioTapChanger ratioTapChanger = twt3.getRatioTapChanger();
 
         assertFalse(ratioTapChanger.isRegulating());
         assertNull(ratioTapChanger.getRegulationMode());
 
-        TwoWindingsTransformerModificationInfos ratioTapChangerModification = TwoWindingsTransformerModificationInfos.builder()
+        TwoWindingsTransformerModificationModel ratioTapChangerModification = TwoWindingsTransformerModificationModel.builder()
             .stashed(false)
             .equipmentId(twtId)
-            .ratioTapChanger(RatioTapChangerModificationInfos.builder()
+            .ratioTapChanger(RatioTapChangerModificationModel.builder()
                 .regulating(new AttributeModification<>(true, OperationType.SET))
                 .targetV(new AttributeModification<>(10.0, OperationType.SET))
                 .loadTapChangingCapabilities(new AttributeModification<>(true, OperationType.SET))
@@ -856,10 +859,10 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertEquals(10.0, ratioTapChanger.getTargetV());
 
         // applying another modification on others attributes does not change regulation
-        ratioTapChangerModification = TwoWindingsTransformerModificationInfos.builder()
+        ratioTapChangerModification = TwoWindingsTransformerModificationModel.builder()
             .stashed(false)
             .equipmentId(twtId)
-            .ratioTapChanger(RatioTapChangerModificationInfos.builder()
+            .ratioTapChanger(RatioTapChangerModificationModel.builder()
                 .targetV(new AttributeModification<>(120.0, OperationType.SET))
                 .build())
             .build();
@@ -881,8 +884,8 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
             "trf3", 1, ConnectablePosition.Direction.TOP,
             "trf3", 2, ConnectablePosition.Direction.TOP);
 
-        TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos = createRatioTapChangerInfos(twtId);
-        twoWindingsTransformerModificationInfos.toModification().apply(getNetwork());
+        TwoWindingsTransformerModificationModel twoWindingsTransformerModificationModel = createRatioTapChangerModel(twtId);
+        twoWindingsTransformerModificationModel.toModification().apply(getNetwork());
 
         RatioTapChanger ratioTapChanger = twt3.getRatioTapChanger();
         ratioTapChanger.setLoadTapChangingCapabilities(true);
@@ -895,16 +898,16 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertEquals("v3load", ratioTapChanger.getRegulationTerminal().getConnectable().getId());
 
         // apply modification with loadTapChangingCapabilities set to false
-        twoWindingsTransformerModificationInfos = TwoWindingsTransformerModificationInfos.builder()
+        twoWindingsTransformerModificationModel = TwoWindingsTransformerModificationModel.builder()
             .stashed(false)
             .equipmentId("trf3")
-            .ratioTapChanger(RatioTapChangerModificationInfos.builder()
+            .ratioTapChanger(RatioTapChangerModificationModel.builder()
                 .enabled(new AttributeModification<>(true, OperationType.SET))
                 .loadTapChangingCapabilities(new AttributeModification<>(false, OperationType.SET))
                 .build())
             .build();
 
-        twoWindingsTransformerModificationInfos.toModification().apply(getNetwork());
+        twoWindingsTransformerModificationModel.toModification().apply(getNetwork());
         assertFalse(ratioTapChanger.isRegulating());
         assertFalse(ratioTapChanger.hasLoadTapChangingCapabilities());
         assertEquals(Double.NaN, ratioTapChanger.getRegulationValue());
@@ -920,13 +923,13 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
             "trf3", 1, ConnectablePosition.Direction.TOP,
             "trf3", 2, ConnectablePosition.Direction.TOP);
 
-        TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos = createRatioTapChangerInfos(twtId);
-        // modify 'twoWindingsTransformerModificationInfos' in order to test the creation of a ratio tap changer immediately regulating
-        twoWindingsTransformerModificationInfos.getRatioTapChanger().setRegulating(new AttributeModification<>(true, OperationType.SET));
-        twoWindingsTransformerModificationInfos.getRatioTapChanger().setLoadTapChangingCapabilities(new AttributeModification<>(true, OperationType.SET));
-        twoWindingsTransformerModificationInfos.getRatioTapChanger().setTargetV(new AttributeModification<>(200.0, OperationType.SET));
-        twoWindingsTransformerModificationInfos.getRatioTapChanger().setTargetDeadband(new AttributeModification<>(2.0, OperationType.SET));
-        twoWindingsTransformerModificationInfos.toModification().apply(getNetwork());
+        TwoWindingsTransformerModificationModel twoWindingsTransformerModificationModel = createRatioTapChangerModel(twtId);
+        // modify 'twoWindingsTransformerModificationModel' in order to test the creation of a ratio tap changer immediately regulating
+        twoWindingsTransformerModificationModel.getRatioTapChanger().setRegulating(new AttributeModification<>(true, OperationType.SET));
+        twoWindingsTransformerModificationModel.getRatioTapChanger().setLoadTapChangingCapabilities(new AttributeModification<>(true, OperationType.SET));
+        twoWindingsTransformerModificationModel.getRatioTapChanger().setTargetV(new AttributeModification<>(200.0, OperationType.SET));
+        twoWindingsTransformerModificationModel.getRatioTapChanger().setTargetDeadband(new AttributeModification<>(2.0, OperationType.SET));
+        twoWindingsTransformerModificationModel.toModification().apply(getNetwork());
 
         RatioTapChanger ratioTapChanger = twt3.getRatioTapChanger();
 
@@ -936,11 +939,11 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertEquals("v3load", ratioTapChanger.getRegulationTerminal().getConnectable().getId());
     }
 
-    private TwoWindingsTransformerModificationInfos createRatioTapChangerInfos(String twtId) {
-        return TwoWindingsTransformerModificationInfos.builder()
+    private TwoWindingsTransformerModificationModel createRatioTapChangerModel(String twtId) {
+        return TwoWindingsTransformerModificationModel.builder()
             .stashed(false)
             .equipmentId(twtId)
-            .ratioTapChanger(RatioTapChangerModificationInfos.builder()
+            .ratioTapChanger(RatioTapChangerModificationModel.builder()
                 .enabled(new AttributeModification<>(true, OperationType.SET))
                 .lowTapPosition(new AttributeModification<>(0, OperationType.SET))
                 .tapPosition(new AttributeModification<>(1, OperationType.SET))
@@ -949,7 +952,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 .terminalRefConnectableVlId(new AttributeModification<>("v3", OperationType.SET))
                 .regulating(new AttributeModification<>(false, OperationType.SET))
                 .regulationType(new AttributeModification<>(VoltageRegulationType.LOCAL, OperationType.SET))
-                .steps(List.of(TapChangerStepCreationInfos.builder()
+                .steps(List.of(TapChangerStepCreationModel.builder()
                         .index(0)
                         .r(0)
                         .g(0)
@@ -957,7 +960,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                         .x(0)
                         .rho(1)
                         .build(),
-                    TapChangerStepCreationInfos.builder()
+                    TapChangerStepCreationModel.builder()
                         .index(1)
                         .r(0)
                         .g(0)
@@ -972,11 +975,11 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
 
     @Test
     void testMoveFeederBay() {
-        TwoWindingsTransformerModificationInfos transformerModificationInfos = (TwoWindingsTransformerModificationInfos) buildModification();
+        TwoWindingsTransformerModificationModel transformerModificationModel = (TwoWindingsTransformerModificationModel) buildModification();
         // Change busbar section only on terminal 2
-        transformerModificationInfos.setBusOrBusbarSectionId2(new AttributeModification<>("1A", OperationType.SET));
+        transformerModificationModel.setBusOrBusbarSectionId2(new AttributeModification<>("1A", OperationType.SET));
 
-        transformerModificationInfos.toModification().apply(getNetwork());
+        transformerModificationModel.toModification().apply(getNetwork());
         TwoWindingsTransformer twoWindingsTransformer = getNetwork().getTwoWindingsTransformer("trf1");
         Terminal terminal1 = twoWindingsTransformer.getTerminal1();
         Terminal terminal2 = twoWindingsTransformer.getTerminal2();
@@ -1078,19 +1081,19 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 .add();
 
         activePowerMeasurement.putProperty("validity", "1");
-        TwoWindingsTransformerModificationInfos modificationInfosTrueFromOne = TwoWindingsTransformerModificationInfos.builder()
+        TwoWindingsTransformerModificationModel modificationModelTrueFromOne = TwoWindingsTransformerModificationModel.builder()
                 .equipmentId("trf1")
                 .p1MeasurementValidity(new AttributeModification<>(true, OperationType.SET))
                 .build();
-        modificationInfosTrueFromOne.toModification().apply(getNetwork());
+        modificationModelTrueFromOne.toModification().apply(getNetwork());
         assertEquals("0", activePowerMeasurement.getProperty("validity"));
 
         activePowerMeasurement.putProperty("validity", "3");
-        TwoWindingsTransformerModificationInfos modificationInfosTrueFromThree = TwoWindingsTransformerModificationInfos.builder()
+        TwoWindingsTransformerModificationModel modificationModelTrueFromThree = TwoWindingsTransformerModificationModel.builder()
                 .equipmentId("trf1")
                 .p1MeasurementValidity(new AttributeModification<>(true, OperationType.SET))
                 .build();
-        modificationInfosTrueFromThree.toModification().apply(getNetwork());
+        modificationModelTrueFromThree.toModification().apply(getNetwork());
         assertEquals("2", activePowerMeasurement.getProperty("validity"));
 
         Measurement reactivePowerMeasurement = measurements.newMeasurement()
@@ -1101,19 +1104,19 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 .setValid(false)
                 .add();
         reactivePowerMeasurement.putProperty("validity", "2");
-        TwoWindingsTransformerModificationInfos modificationInfosFalseFromTwo = TwoWindingsTransformerModificationInfos.builder()
+        TwoWindingsTransformerModificationModel modificationModelFalseFromTwo = TwoWindingsTransformerModificationModel.builder()
                 .equipmentId("trf1")
                 .q1MeasurementValidity(new AttributeModification<>(false, OperationType.SET))
                 .build();
-        modificationInfosFalseFromTwo.toModification().apply(getNetwork());
+        modificationModelFalseFromTwo.toModification().apply(getNetwork());
         assertEquals("3", reactivePowerMeasurement.getProperty("validity"));
 
         reactivePowerMeasurement.putProperty("validity", "0");
-        TwoWindingsTransformerModificationInfos modificationInfosFalseFromZero = TwoWindingsTransformerModificationInfos.builder()
+        TwoWindingsTransformerModificationModel modificationModelFalseFromZero = TwoWindingsTransformerModificationModel.builder()
                 .equipmentId("trf1")
                 .q1MeasurementValidity(new AttributeModification<>(false, OperationType.SET))
                 .build();
-        modificationInfosFalseFromZero.toModification().apply(getNetwork());
+        modificationModelFalseFromZero.toModification().apply(getNetwork());
         assertEquals("1", reactivePowerMeasurement.getProperty("validity"));
     }
 }

@@ -20,10 +20,10 @@ import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.ByFilterDeletionInfos;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.FilterInfos;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
+import org.gridsuite.modification.model.ByFilterDeletionModel;
+import org.gridsuite.modification.model.FilterEquipments;
+import org.gridsuite.modification.model.FilterModel;
+import org.gridsuite.modification.model.IdentifiableAttributes;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  */
 public class ByFilterDeletion extends AbstractModification {
 
-    private final ByFilterDeletionInfos modificationInfos;
+    private final ByFilterDeletionModel modificationModel;
 
     protected IFilterService filterService;
 
@@ -54,8 +54,8 @@ public class ByFilterDeletion extends AbstractModification {
             IdentifiableType.STATIC_VAR_COMPENSATOR
             );
 
-    public ByFilterDeletion(ByFilterDeletionInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
+    public ByFilterDeletion(ByFilterDeletionModel modificationModel) {
+        this.modificationModel = modificationModel;
     }
 
     @Override
@@ -65,23 +65,23 @@ public class ByFilterDeletion extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        var filters = modificationInfos.getFilters().stream()
-                .filter(distinctByKey(FilterInfos::getId))
-                .collect(Collectors.toMap(FilterInfos::getId, FilterInfos::getName));
+        var filters = modificationModel.getFilters().stream()
+                .filter(distinctByKey(FilterModel::getId))
+                .collect(Collectors.toMap(FilterModel::getId, FilterModel::getName));
 
-        Map<UUID, FilterEquipments> exportFilters = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, modificationInfos.getErrorType());
+        Map<UUID, FilterEquipments> exportFilters = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, modificationModel.getErrorType());
         if (exportFilters != null) {
             ModificationUtils.logWrongEquipmentsIdsFilters(subReportNode, exportFilters, filters);
-            Set<IdentifiableAttributes> identifiableAttributes = ModificationUtils.getIdentifiableAttributes(exportFilters, modificationInfos.getFilters(), subReportNode);
+            Set<IdentifiableAttributes> identifiableAttributes = ModificationUtils.getIdentifiableAttributes(exportFilters, modificationModel.getFilters(), subReportNode);
 
             if (CollectionUtils.isEmpty(identifiableAttributes)) {
-                String filterNames = modificationInfos.getFilters().stream().map(FilterInfos::getName).collect(Collectors.joining(", "));
+                String filterNames = modificationModel.getFilters().stream().map(FilterModel::getName).collect(Collectors.joining(", "));
                 createReport(subReportNode, "network.modification.allFiltersWrong", Map.of("filterNames", filterNames), TypedValue.WARN_SEVERITY);
             } else {
                 subReportNode.newReportNode()
                         .withMessageTemplate("network.modification.equipmentByFilterDeleted")
                         .withUntypedValue("nbEquipments", (long) identifiableAttributes.size())
-                        .withUntypedValue("type", modificationInfos.getEquipmentType().name())
+                        .withUntypedValue("type", modificationModel.getEquipmentType().name())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add();
                 // Report node is pushed to network instance to allow deletion logs from other libraries to be added
@@ -97,7 +97,7 @@ public class ByFilterDeletion extends AbstractModification {
     }
 
     private void applyFilterDeletion(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes) {
-        IdentifiableType identifiableType = modificationInfos.getEquipmentType();
+        IdentifiableType identifiableType = modificationModel.getEquipmentType();
         if (CONNECTABLE_TYPES.contains(identifiableType)) {
             identifiableAttributes.forEach(identifiableAttribute -> new RemoveFeederBay(identifiableAttribute.getId()).apply(network, true, subReportNode));
         } else if (identifiableType == IdentifiableType.VOLTAGE_LEVEL) {
@@ -112,7 +112,7 @@ public class ByFilterDeletion extends AbstractModification {
     }
 
     private void removeHvdcLine(Network network, ReportNode subReportNode, IdentifiableAttributes identifiableAttribute) {
-        HvdcLine hvdcLine = (HvdcLine) ModificationUtils.getInstance().getEquipmentByIdentifiableType(network, modificationInfos.getEquipmentType(), identifiableAttribute.getId());
+        HvdcLine hvdcLine = (HvdcLine) ModificationUtils.getInstance().getEquipmentByIdentifiableType(network, modificationModel.getEquipmentType(), identifiableAttribute.getId());
         if (hvdcLine != null) {
             HvdcConverterStation<?> converterStation1 = hvdcLine.getConverterStation1();
             HvdcConverterStation<?> converterStation2 = hvdcLine.getConverterStation2();

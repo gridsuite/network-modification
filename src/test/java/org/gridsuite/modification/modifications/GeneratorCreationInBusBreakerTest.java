@@ -11,10 +11,10 @@ import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.FreePropertyInfos;
-import org.gridsuite.modification.dto.GeneratorCreationInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
+import org.gridsuite.modification.model.FreePropertyModel;
+import org.gridsuite.modification.model.GeneratorCreationModel;
+import org.gridsuite.modification.model.ModificationModel;
+import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsModel;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 import java.util.Arrays;
@@ -39,17 +39,17 @@ class GeneratorCreationInBusBreakerTest extends AbstractNetworkModificationTest 
 
     @Override
     protected void checkModification() {
-        GeneratorCreationInfos generatorCreationInfos = (GeneratorCreationInfos) buildModification();
-        generatorCreationInfos.setBusOrBusbarSectionId("notFoundBus");
+        GeneratorCreationModel generatorCreationModel = (GeneratorCreationModel) buildModification();
+        generatorCreationModel.setBusOrBusbarSectionId("notFoundBus");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class,
-                () -> generatorCreationInfos.toModification().check(getNetwork()));
+                () -> generatorCreationModel.toModification().check(getNetwork()));
         assertEquals(BUS_NOT_FOUND, exception.getType());
         assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        return GeneratorCreationInfos.builder()
+    protected ModificationModel buildModification() {
+        return GeneratorCreationModel.builder()
                 .stashed(false)
                 .equipmentId("idGenerator2")
                 .equipmentName("nameGenerator2")
@@ -78,11 +78,11 @@ class GeneratorCreationInBusBreakerTest extends AbstractNetworkModificationTest 
                 .regulatingTerminalVlId("v1")
                 .qPercent(25.)
                 .reactiveCapabilityCurve(true)
-                .reactiveCapabilityCurvePoints(Arrays.asList(new ReactiveCapabilityCurvePointsInfos(2.0, 3.0, 3.1),
-                        new ReactiveCapabilityCurvePointsInfos(5.6, 9.8, 10.8)))
+                .reactiveCapabilityCurvePoints(Arrays.asList(new ReactiveCapabilityCurvePointsModel(2.0, 3.0, 3.1),
+                        new ReactiveCapabilityCurvePointsModel(5.6, 9.8, 10.8)))
                 .connectionName("top")
                 .connectionDirection(ConnectablePosition.Direction.TOP)
-                .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+                .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
                 .build();
     }
 
@@ -96,29 +96,29 @@ class GeneratorCreationInBusBreakerTest extends AbstractNetworkModificationTest 
 
     @Test
     void testCreateWithBusbarSectionErrors() throws Exception {
-        GeneratorCreationInfos generatorCreationInfos = (GeneratorCreationInfos) buildModification();
-        generatorCreationInfos.setBusOrBusbarSectionId("notFoundBus");
+        GeneratorCreationModel generatorCreationModel = (GeneratorCreationModel) buildModification();
+        generatorCreationModel.setBusOrBusbarSectionId("notFoundBus");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class,
-                () -> generatorCreationInfos.toModification().check(getNetwork()));
+                () -> generatorCreationModel.toModification().check(getNetwork()));
         assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
     }
 
     @Test
     void testCreateWithRegulatedTerminalError() throws Exception {
          // invalid regulating terminal id <---> regulation terminal type
-        GeneratorCreationInfos generatorCreationInfos = (GeneratorCreationInfos) buildModification();
-        generatorCreationInfos.setRegulatingTerminalType("LINE");
-        generatorCreationInfos.setRegulatingTerminalId("titi");
+        GeneratorCreationModel generatorCreationModel = (GeneratorCreationModel) buildModification();
+        generatorCreationModel.setRegulatingTerminalType("LINE");
+        generatorCreationModel.setRegulatingTerminalId("titi");
 
         NetworkModificationException exception = assertThrows(NetworkModificationException.class,
-                () -> generatorCreationInfos.toModification().check(getNetwork()));
+                () -> generatorCreationModel.toModification().check(getNetwork()));
         assertEquals("EQUIPMENT_NOT_FOUND : Equipment with id=titi not found with type LINE", exception.getMessage());
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("GENERATOR_CREATION", modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals("GENERATOR_CREATION", modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
         assertEquals("idGenerator2", createdValues.get("equipmentId"));
     }
 }

@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.BatteryCreationInfos;
+import org.gridsuite.modification.model.BatteryCreationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -29,50 +29,50 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
  */
 public class BatteryCreation extends AbstractModification {
 
-    private final BatteryCreationInfos modificationInfos;
+    private final BatteryCreationModel modificationModel;
 
-    public BatteryCreation(BatteryCreationInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
+    public BatteryCreation(BatteryCreationModel modificationModel) {
+        this.modificationModel = modificationModel;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (network.getBattery(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationException(BATTERY_ALREADY_EXISTS, modificationInfos.getEquipmentId());
+        if (network.getBattery(modificationModel.getEquipmentId()) != null) {
+            throw new NetworkModificationException(BATTERY_ALREADY_EXISTS, modificationModel.getEquipmentId());
         }
-        String errorMessage = "Battery '" + modificationInfos.getEquipmentId() + "' : ";
+        String errorMessage = "Battery '" + modificationModel.getEquipmentId() + "' : ";
 
         // check connectivity
         ModificationUtils.getInstance()
-                .controlConnectivity(network, modificationInfos.getVoltageLevelId(),
-                modificationInfos.getBusOrBusbarSectionId());
+                .controlConnectivity(network, modificationModel.getVoltageLevelId(),
+                modificationModel.getBusOrBusbarSectionId());
 
         // check reactive limits
-        ModificationUtils.getInstance().checkReactiveLimitsCreation(modificationInfos,
-                modificationInfos.getErrorType(),
-                modificationInfos.getEquipmentId(),
+        ModificationUtils.getInstance().checkReactiveLimitsCreation(modificationModel,
+                modificationModel.getErrorType(),
+                modificationModel.getEquipmentId(),
                 "Battery");
 
-        ModificationUtils.getInstance().checkActivePowerControl(modificationInfos.getParticipate(),
-            modificationInfos.getDroop(), CREATE_BATTERY_ERROR, String.format(ERROR_MESSAGE, modificationInfos.getEquipmentId()));
-        checkIsPercentage(errorMessage, modificationInfos.getDroop(), CREATE_BATTERY_ERROR, "Droop");
+        ModificationUtils.getInstance().checkActivePowerControl(modificationModel.getParticipate(),
+            modificationModel.getDroop(), CREATE_BATTERY_ERROR, String.format(ERROR_MESSAGE, modificationModel.getEquipmentId()));
+        checkIsPercentage(errorMessage, modificationModel.getDroop(), CREATE_BATTERY_ERROR, "Droop");
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         // create the battery in the network
-        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId());
+        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationModel.getVoltageLevelId());
         if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            createBatteryInNodeBreaker(voltageLevel, modificationInfos, network, subReportNode);
+            createBatteryInNodeBreaker(voltageLevel, modificationModel, network, subReportNode);
         } else {
-            createBatteryInBusBreaker(voltageLevel, modificationInfos, subReportNode);
+            createBatteryInBusBreaker(voltageLevel, modificationModel, subReportNode);
         }
-        if (!modificationInfos.isTerminalConnected()) {
-            network.getBattery(modificationInfos.getEquipmentId()).getTerminal().disconnect();
+        if (!modificationModel.isTerminalConnected()) {
+            network.getBattery(modificationModel.getEquipmentId()).getTerminal().disconnect();
         }
         // properties
-        Battery battery = network.getBattery(modificationInfos.getEquipmentId());
-        PropertiesUtils.applyProperties(battery, subReportNode, modificationInfos.getProperties(), "network.modification.BatteryProperties");
+        Battery battery = network.getBattery(modificationModel.getEquipmentId());
+        PropertiesUtils.applyProperties(battery, subReportNode, modificationModel.getProperties(), "network.modification.BatteryProperties");
     }
 
     @Override
@@ -80,83 +80,83 @@ public class BatteryCreation extends AbstractModification {
         return "BatteryCreation";
     }
 
-    private void createBatteryInNodeBreaker(VoltageLevel voltageLevel, BatteryCreationInfos batteryCreationInfos, Network network, ReportNode subReportNode) {
-        BatteryAdder batteryAdder = createBatteryAdderInNodeBreaker(voltageLevel, batteryCreationInfos);
-        createInjectionInNodeBreaker(voltageLevel, batteryCreationInfos, network, batteryAdder, subReportNode);
-        var battery = ModificationUtils.getInstance().getBattery(network, batteryCreationInfos.getEquipmentId());
-        addExtensionsToBattery(batteryCreationInfos, battery, subReportNode);
+    private void createBatteryInNodeBreaker(VoltageLevel voltageLevel, BatteryCreationModel batteryCreationModel, Network network, ReportNode subReportNode) {
+        BatteryAdder batteryAdder = createBatteryAdderInNodeBreaker(voltageLevel, batteryCreationModel);
+        createInjectionInNodeBreaker(voltageLevel, batteryCreationModel, network, batteryAdder, subReportNode);
+        var battery = ModificationUtils.getInstance().getBattery(network, batteryCreationModel.getEquipmentId());
+        addExtensionsToBattery(batteryCreationModel, battery, subReportNode);
     }
 
-    private BatteryAdder createBatteryAdderInNodeBreaker(VoltageLevel voltageLevel, BatteryCreationInfos batteryCreationInfos) {
+    private BatteryAdder createBatteryAdderInNodeBreaker(VoltageLevel voltageLevel, BatteryCreationModel batteryCreationModel) {
 
         return voltageLevel.newBattery()
-                .setId(batteryCreationInfos.getEquipmentId())
-                .setName(batteryCreationInfos.getEquipmentName())
-                .setMinP(batteryCreationInfos.getMinP())
-                .setMaxP(batteryCreationInfos.getMaxP())
-                .setTargetP(batteryCreationInfos.getTargetP())
-                .setTargetQ(nanIfNull(batteryCreationInfos.getTargetQ()));
+                .setId(batteryCreationModel.getEquipmentId())
+                .setName(batteryCreationModel.getEquipmentName())
+                .setMinP(batteryCreationModel.getMinP())
+                .setMaxP(batteryCreationModel.getMaxP())
+                .setTargetP(batteryCreationModel.getTargetP())
+                .setTargetQ(nanIfNull(batteryCreationModel.getTargetQ()));
     }
 
-    private void createBatteryInBusBreaker(VoltageLevel voltageLevel, BatteryCreationInfos batteryCreationInfos, ReportNode subReportNode) {
-        Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, batteryCreationInfos.getBusOrBusbarSectionId());
+    private void createBatteryInBusBreaker(VoltageLevel voltageLevel, BatteryCreationModel batteryCreationModel, ReportNode subReportNode) {
+        Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, batteryCreationModel.getBusOrBusbarSectionId());
 
         // creating the battery
         Battery battery = voltageLevel.newBattery()
                 .setBus(bus.getId())
                 .setConnectableBus(bus.getId())
-                .setId(batteryCreationInfos.getEquipmentId())
-                .setName(batteryCreationInfos.getEquipmentName())
-                .setMinP(batteryCreationInfos.getMinP())
-                .setMaxP(batteryCreationInfos.getMaxP())
-                .setTargetP(batteryCreationInfos.getTargetP())
-                .setTargetQ(nanIfNull(batteryCreationInfos.getTargetQ()))
+                .setId(batteryCreationModel.getEquipmentId())
+                .setName(batteryCreationModel.getEquipmentName())
+                .setMinP(batteryCreationModel.getMinP())
+                .setMaxP(batteryCreationModel.getMaxP())
+                .setTargetP(batteryCreationModel.getTargetP())
+                .setTargetQ(nanIfNull(batteryCreationModel.getTargetQ()))
                 .add();
 
-        addExtensionsToBattery(batteryCreationInfos, battery, subReportNode);
+        addExtensionsToBattery(batteryCreationModel, battery, subReportNode);
 
         subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.batteryCreated")
-                .withUntypedValue("id", modificationInfos.getEquipmentId())
+                .withUntypedValue("id", modificationModel.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
 
-    private void addExtensionsToBattery(BatteryCreationInfos batteryCreationInfos, Battery battery, ReportNode subReportNode) {
-        if (batteryCreationInfos.getEquipmentName() != null) {
-            ModificationUtils.getInstance().reportElementaryCreation(subReportNode, batteryCreationInfos.getEquipmentName(), "Name");
+    private void addExtensionsToBattery(BatteryCreationModel batteryCreationModel, Battery battery, ReportNode subReportNode) {
+        if (batteryCreationModel.getEquipmentName() != null) {
+            ModificationUtils.getInstance().reportElementaryCreation(subReportNode, batteryCreationModel.getEquipmentName(), "Name");
         }
-        reportInjectionCreationConnectivity(batteryCreationInfos, subReportNode);
-        ReportNode subReportNodeLimits = reportBatteryActiveLimits(batteryCreationInfos, subReportNode);
-        ModificationUtils.getInstance().createReactiveLimits(batteryCreationInfos, battery, subReportNodeLimits);
-        ReportNode subReportNodeSetpoints = reportBatterySetPoints(batteryCreationInfos, subReportNode);
+        reportInjectionCreationConnectivity(batteryCreationModel, subReportNode);
+        ReportNode subReportNodeLimits = reportBatteryActiveLimits(batteryCreationModel, subReportNode);
+        ModificationUtils.getInstance().createReactiveLimits(batteryCreationModel, battery, subReportNodeLimits);
+        ReportNode subReportNodeSetpoints = reportBatterySetPoints(batteryCreationModel, subReportNode);
         ModificationUtils.getInstance().createNewActivePowerControlForInjectionCreation(battery.newExtension(ActivePowerControlAdder.class),
-                batteryCreationInfos.getParticipate(),
-                batteryCreationInfos.getDroop(),
+                batteryCreationModel.getParticipate(),
+                batteryCreationModel.getDroop(),
                 subReportNodeSetpoints);
-        ModificationUtils.getInstance().createShortCircuitExtension(batteryCreationInfos.getStepUpTransformerX(),
-                batteryCreationInfos.getDirectTransX(), batteryCreationInfos.getEquipmentId(),
+        ModificationUtils.getInstance().createShortCircuitExtension(batteryCreationModel.getStepUpTransformerX(),
+                batteryCreationModel.getDirectTransX(), batteryCreationModel.getEquipmentId(),
                 battery.newExtension(BatteryShortCircuitAdder.class), subReportNode, "battery");
     }
 
-    private ReportNode reportBatterySetPoints(BatteryCreationInfos batteryCreationInfos, ReportNode subReportNode) {
+    private ReportNode reportBatterySetPoints(BatteryCreationModel batteryCreationModel, ReportNode subReportNode) {
         List<ReportNode> setPointReports = new ArrayList<>();
         setPointReports.add(ModificationUtils.getInstance()
-                .buildCreationReport(batteryCreationInfos.getTargetP(), "Active power"));
-        if (batteryCreationInfos.getTargetQ() != null) {
+                .buildCreationReport(batteryCreationModel.getTargetP(), "Active power"));
+        if (batteryCreationModel.getTargetQ() != null) {
             setPointReports.add(ModificationUtils.getInstance()
-                .buildCreationReport(batteryCreationInfos.getTargetQ(), "Reactive power"));
+                .buildCreationReport(batteryCreationModel.getTargetQ(), "Reactive power"));
         }
         return ModificationUtils.getInstance().reportModifications(subReportNode, setPointReports, "network.modification.SetPointCreated");
     }
 
-    private ReportNode reportBatteryActiveLimits(BatteryCreationInfos batteryCreationInfos, ReportNode subReportNode) {
+    private ReportNode reportBatteryActiveLimits(BatteryCreationModel batteryCreationModel, ReportNode subReportNode) {
         ReportNode subReportNodeLimits = subReportNode.newReportNode().withMessageTemplate("network.modification.limits").add();
         List<ReportNode> limitsReports = new ArrayList<>();
         limitsReports.add(ModificationUtils.getInstance().buildCreationReport(
-            batteryCreationInfos.getMinP(), "Min active power"));
+            batteryCreationModel.getMinP(), "Min active power"));
         limitsReports.add(ModificationUtils.getInstance().buildCreationReport(
-            batteryCreationInfos.getMaxP(), "Max active power"));
+            batteryCreationModel.getMaxP(), "Max active power"));
         ModificationUtils.getInstance().reportModifications(subReportNodeLimits, limitsReports, "network.modification.ActiveLimitsCreated");
         return subReportNodeLimits;
     }

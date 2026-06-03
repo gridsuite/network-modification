@@ -13,12 +13,12 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
-import org.gridsuite.modification.dto.byfilter.equipmentfield.VoltageLevelField;
-import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
-import org.gridsuite.modification.dto.byfilter.formula.Operator;
-import org.gridsuite.modification.dto.byfilter.formula.ReferenceFieldOrValue;
+import org.gridsuite.modification.model.FilterEquipments;
+import org.gridsuite.modification.model.IdentifiableAttributes;
+import org.gridsuite.modification.model.byfilter.equipmentfield.VoltageLevelField;
+import org.gridsuite.modification.model.byfilter.formula.FormulaModel;
+import org.gridsuite.modification.model.byfilter.formula.Operator;
+import org.gridsuite.modification.model.byfilter.formula.ReferenceFieldOrValue;
 
 import java.util.List;
 import java.util.Map;
@@ -119,91 +119,91 @@ class VoltageLevelByFormulaModificationTest extends AbstractByFormulaModificatio
     }
 
     @Override
-    protected List<FormulaInfos> getFormulaInfos() {
-        FormulaInfos formulaInfos1 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
+    protected List<FormulaModel> getFormulaModel() {
+        FormulaModel formulaModel1 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
             List.of(filter1, filter2),
             Operator.ADDITION,
             ReferenceFieldOrValue.builder().equipmentField(VoltageLevelField.LOW_VOLTAGE_LIMIT.name()).build(),
             ReferenceFieldOrValue.builder().value(10.).build()
         );
 
-        FormulaInfos formulaInfos2 = getFormulaInfo(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name(),
+        FormulaModel formulaModel2 = getFormulaInfo(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name(),
             List.of(filter3),
             Operator.MULTIPLICATION,
             ReferenceFieldOrValue.builder().equipmentField(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name()).build(),
             ReferenceFieldOrValue.builder().value(2.).build()
         );
 
-        FormulaInfos formulaInfos3 = getFormulaInfo(VoltageLevelField.NOMINAL_VOLTAGE.name(),
+        FormulaModel formulaModel3 = getFormulaInfo(VoltageLevelField.NOMINAL_VOLTAGE.name(),
             List.of(filter4),
             Operator.PERCENTAGE,
             ReferenceFieldOrValue.builder().value(150.).build(),
             ReferenceFieldOrValue.builder().equipmentField(VoltageLevelField.LOW_VOLTAGE_LIMIT.name()).build()
         );
 
-        FormulaInfos formulaInfos4 = getFormulaInfo(VoltageLevelField.LOW_SHORT_CIRCUIT_CURRENT_LIMIT.name(),
+        FormulaModel formulaModel4 = getFormulaInfo(VoltageLevelField.LOW_SHORT_CIRCUIT_CURRENT_LIMIT.name(),
             List.of(filter5),
             Operator.DIVISION,
             ReferenceFieldOrValue.builder().equipmentField(VoltageLevelField.LOW_SHORT_CIRCUIT_CURRENT_LIMIT.name()).build(),
             ReferenceFieldOrValue.builder().value(2.).build()
         );
 
-        FormulaInfos formulaInfos5 = getFormulaInfo(VoltageLevelField.HIGH_SHORT_CIRCUIT_CURRENT_LIMIT.name(),
+        FormulaModel formulaModel5 = getFormulaInfo(VoltageLevelField.HIGH_SHORT_CIRCUIT_CURRENT_LIMIT.name(),
             List.of(filter4, filter5),
             Operator.SUBTRACTION,
             ReferenceFieldOrValue.builder().equipmentField(VoltageLevelField.HIGH_SHORT_CIRCUIT_CURRENT_LIMIT.name()).build(),
             ReferenceFieldOrValue.builder().value(5.).build()
         );
 
-        FormulaInfos formulaInfos6 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
+        FormulaModel formulaModel6 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
             List.of(filter6),
             Operator.ADDITION,
             ReferenceFieldOrValue.builder().equipmentField(VoltageLevelField.LOW_VOLTAGE_LIMIT.name()).build(),
             ReferenceFieldOrValue.builder().value(10.).build()
         );
 
-        FormulaInfos formulaInfos7 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
+        FormulaModel formulaModel7 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
             List.of(filter6),
             Operator.ADDITION,
             ReferenceFieldOrValue.builder().value(100.).build(),
             ReferenceFieldOrValue.builder().equipmentField(VoltageLevelField.LOW_VOLTAGE_LIMIT.name()).build()
         );
 
-        FormulaInfos formulaInfos8 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
+        FormulaModel formulaModel8 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
             List.of(filter6),
             Operator.ADDITION,
             ReferenceFieldOrValue.builder().equipmentField(VoltageLevelField.LOW_SHORT_CIRCUIT_CURRENT_LIMIT.name()).build(),
             ReferenceFieldOrValue.builder().value(100.).build()
         );
 
-        FormulaInfos formulaInfos9 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
+        FormulaModel formulaModel9 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
             List.of(filter6),
             Operator.ADDITION,
             ReferenceFieldOrValue.builder().value(100.).build(),
             ReferenceFieldOrValue.builder().equipmentField(VoltageLevelField.LOW_SHORT_CIRCUIT_CURRENT_LIMIT.name()).build()
         );
 
-        FormulaInfos formulaInfos10 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
+        FormulaModel formulaModel10 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
             List.of(filter7),
             Operator.MULTIPLICATION,
             ReferenceFieldOrValue.builder().value(100.).build(),
             ReferenceFieldOrValue.builder().value(1.1).build());
 
-        FormulaInfos formulaInfos11 = getFormulaInfo(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name(),
+        FormulaModel formulaModel11 = getFormulaInfo(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name(),
             List.of(filter7),
             Operator.DIVISION,
             ReferenceFieldOrValue.builder().value(1000.).build(),
             ReferenceFieldOrValue.builder().value(3.).build());
 
         // test error divide by 0
-        FormulaInfos formulaInfos12 = getFormulaInfo(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name(),
+        FormulaModel formulaModel12 = getFormulaInfo(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name(),
                 List.of(filter7),
                 Operator.DIVISION,
                 ReferenceFieldOrValue.builder().value(1000.).build(),
                 ReferenceFieldOrValue.builder().value(0.).build());
 
-        return List.of(formulaInfos1, formulaInfos2, formulaInfos3, formulaInfos4, formulaInfos5,
-            formulaInfos6, formulaInfos7, formulaInfos8, formulaInfos9, formulaInfos10, formulaInfos11, formulaInfos12);
+        return List.of(formulaModel1, formulaModel2, formulaModel3, formulaModel4, formulaModel5,
+            formulaModel6, formulaModel7, formulaModel8, formulaModel9, formulaModel10, formulaModel11, formulaModel12);
     }
 
     @Override

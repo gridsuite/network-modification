@@ -10,14 +10,14 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
-import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.IntegerAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.StringAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.equipmentfield.LineField;
+import org.gridsuite.modification.model.FilterEquipments;
+import org.gridsuite.modification.model.IdentifiableAttributes;
+import org.gridsuite.modification.model.ModificationByAssignmentModel;
+import org.gridsuite.modification.model.byfilter.assignment.AssignmentModel;
+import org.gridsuite.modification.model.byfilter.assignment.DoubleAssignmentModel;
+import org.gridsuite.modification.model.byfilter.assignment.IntegerAssignmentModel;
+import org.gridsuite.modification.model.byfilter.assignment.StringAssignmentModel;
+import org.gridsuite.modification.model.byfilter.equipmentfield.LineField;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -51,19 +51,19 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
 
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_ID_1, filterLine1, FILTER_ID_4, filterLine2));
 
-        IntegerAssignmentInfos assignmentInfos = IntegerAssignmentInfos.builder()
+        IntegerAssignmentModel assignmentModel = IntegerAssignmentModel.builder()
                 .filters(List.of(filter1, filter4))
                 .editedField(LineField.R.name())
                 .value(4)
                 .build();
 
-        ModificationByAssignmentInfos modificationInfos = ModificationByAssignmentInfos.builder()
+        ModificationByAssignmentModel modificationModel = ModificationByAssignmentModel.builder()
                 .equipmentType(getIdentifiableType())
-                .assignmentInfosList(List.of(assignmentInfos))
+                .assignmentModelList(List.of(assignmentModel))
                 .stashed(false)
                 .build();
 
-        apply(modificationInfos);
+        apply(modificationModel);
 
         assertEquals(4, getNetwork().getLine(LINE_ID_1).getR());
         assertEquals(4, getNetwork().getLine(LINE_ID_2).getR());
@@ -128,78 +128,78 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
     }
 
     @Override
-    protected List<AssignmentInfos<?>> getAssignmentInfos() {
-        DoubleAssignmentInfos assignmentInfos1 = DoubleAssignmentInfos.builder()
+    protected List<AssignmentModel<?>> getAssignmentModel() {
+        DoubleAssignmentModel assignmentModel1 = DoubleAssignmentModel.builder()
                 .filters(List.of(filter1))
                 .editedField(LineField.X.name())
                 .value(20.)
                 .build();
 
-        IntegerAssignmentInfos assignmentInfos2 = IntegerAssignmentInfos.builder()
+        IntegerAssignmentModel assignmentModel2 = IntegerAssignmentModel.builder()
                 .filters(List.of(filter2))
                 .editedField(LineField.R.name())
                 .value(40)
                 .build();
 
-        IntegerAssignmentInfos assignmentInfos3 = IntegerAssignmentInfos.builder()
+        IntegerAssignmentModel assignmentModel3 = IntegerAssignmentModel.builder()
                 .filters(List.of(filter2))
                 .editedField(LineField.G1.name())
                 .value(35)
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos4 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentModel4 = DoubleAssignmentModel.builder()
                 .filters(List.of(filter1))
                 .editedField(LineField.G2.name())
                 .value(10.)
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos5 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentModel5 = DoubleAssignmentModel.builder()
                 .filters(List.of(filter4))
                 .editedField(LineField.B1.name())
                 .value(21.)
                 .build();
 
-        IntegerAssignmentInfos assignmentInfos6 = IntegerAssignmentInfos.builder()
+        IntegerAssignmentModel assignmentModel6 = IntegerAssignmentModel.builder()
                 .filters(List.of(filter3))
                 .editedField(LineField.B2.name())
                 .value(90)
                 .build();
 
-        StringAssignmentInfos assignmentInfos7 = StringAssignmentInfos.builder()
+        StringAssignmentModel assignmentModel7 = StringAssignmentModel.builder()
             .filters(List.of(filter1))
             .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID1.name())
             .value("group1")
             .build();
 
-        StringAssignmentInfos assignmentInfos8 = StringAssignmentInfos.builder()
+        StringAssignmentModel assignmentModel8 = StringAssignmentModel.builder()
             .filters(List.of(filter2))
             .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID2.name())
             .value("group2")
             .build();
 
-        StringAssignmentInfos assignmentInfos9 = StringAssignmentInfos.builder()
+        StringAssignmentModel assignmentModel9 = StringAssignmentModel.builder()
             .filters(List.of(filter3))
             .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID1.name())
             .value(null)
             .build();
 
-        StringAssignmentInfos assignmentInfos10 = StringAssignmentInfos.builder()
+        StringAssignmentModel assignmentModel10 = StringAssignmentModel.builder()
             .filters(List.of(filter3))
             .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID2.name())
             .value("")
             .build();
 
-        List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
-        infosList.addAll(List.of(assignmentInfos1,
-                assignmentInfos2,
-                assignmentInfos3,
-                assignmentInfos4,
-                assignmentInfos5,
-                assignmentInfos6,
-                assignmentInfos7,
-                assignmentInfos8,
-                assignmentInfos9,
-                assignmentInfos10));
+        List<AssignmentModel<?>> infosList = super.getAssignmentModel();
+        infosList.addAll(List.of(assignmentModel1,
+                assignmentModel2,
+                assignmentModel3,
+                assignmentModel4,
+                assignmentModel5,
+                assignmentModel6,
+                assignmentModel7,
+                assignmentModel8,
+                assignmentModel9,
+                assignmentModel10));
 
         return infosList;
     }

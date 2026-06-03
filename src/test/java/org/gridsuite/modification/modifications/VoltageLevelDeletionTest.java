@@ -9,8 +9,8 @@ package org.gridsuite.modification.modifications;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
-import org.gridsuite.modification.dto.EquipmentDeletionInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.model.EquipmentDeletionModel;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.utils.NetworkCreation;
 
 import java.util.Map;
@@ -29,8 +29,8 @@ class VoltageLevelDeletionTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        return EquipmentDeletionInfos.builder()
+    protected ModificationModel buildModification() {
+        return EquipmentDeletionModel.builder()
                 .stashed(false)
                 .equipmentType(IdentifiableType.VOLTAGE_LEVEL)
                 .equipmentId("v1")
@@ -48,9 +48,9 @@ class VoltageLevelDeletionTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("EQUIPMENT_DELETION", modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals("EQUIPMENT_DELETION", modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
         assertEquals("v1", createdValues.get("equipmentId"));
     }
 

@@ -10,8 +10,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
+import org.gridsuite.modification.model.*;
+import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.model.ModificationModel;
+import org.gridsuite.modification.model.constants.OperationType;
+import org.gridsuite.modification.model.TwoWindingsTransformerModificationModel;
+import org.gridsuite.modification.model.tabular.TabularModificationModel;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -36,21 +40,21 @@ class TabularTwoWindingsTransformerModificationsTest extends AbstractNetworkModi
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        List<ModificationInfos> modifications = List.of(
+    protected ModificationModel buildModification() {
+        List<ModificationModel> modifications = List.of(
                 buildOneModification("trf1", 0.0),
                 buildOneModification("trf2", 1.0),
                 buildOneModification("unknownTwt", 1.0)
         );
-        return TabularModificationInfos.builder()
+        return TabularModificationModel.builder()
                 .modificationType(ModificationType.TWO_WINDINGS_TRANSFORMER_MODIFICATION)
                 .modifications(modifications)
                 .stashed(false)
                 .build();
     }
 
-    protected TwoWindingsTransformerModificationInfos buildOneModification(String equipmentId, Double seriesResistance) {
-        return TwoWindingsTransformerModificationInfos.builder().equipmentId(equipmentId)
+    protected TwoWindingsTransformerModificationModel buildOneModification(String equipmentId, Double seriesResistance) {
+        return TwoWindingsTransformerModificationModel.builder().equipmentId(equipmentId)
                 .r(new AttributeModification<>(seriesResistance, OperationType.SET))
                 .build();
     }
@@ -58,11 +62,11 @@ class TabularTwoWindingsTransformerModificationsTest extends AbstractNetworkModi
     @Test
     @Override
     public void testApply() {
-        ModificationInfos modificationInfos = buildModification();
-        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ModificationModel modificationModel = buildModification();
+        ReportNode reportNode = modificationModel.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationModel.toModification().apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication(reportNode);
     }
 
@@ -80,9 +84,9 @@ class TabularTwoWindingsTransformerModificationsTest extends AbstractNetworkModi
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
         assertEquals(ModificationType.TWO_WINDINGS_TRANSFORMER_MODIFICATION.name(), createdValues.get("tabularModificationType"));
     }
 

@@ -11,7 +11,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowProvider;
-import org.gridsuite.modification.dto.LoadFlowParametersInfos;
+import org.gridsuite.modification.model.LoadFlowParametersModel;
 
 import java.util.Map;
 
@@ -24,16 +24,16 @@ public final class LoadFlowParametersUtils {
         // Should not be instantiated
     }
 
-    public static LoadFlowParameters mapLoadFlowPrameters(LoadFlowParametersInfos loadFlowParametersInfos) {
-        LoadFlowParameters params = loadFlowParametersInfos.getCommonParameters();
+    public static LoadFlowParameters mapLoadFlowPrameters(LoadFlowParametersModel loadFlowParametersModel) {
+        LoadFlowParameters params = loadFlowParametersModel.getCommonParameters();
 
-        if (loadFlowParametersInfos.getSpecificParametersPerProvider() == null ||
-                loadFlowParametersInfos.getSpecificParametersPerProvider().isEmpty()) {
+        if (loadFlowParametersModel.getSpecificParametersPerProvider() == null ||
+                loadFlowParametersModel.getSpecificParametersPerProvider().isEmpty()) {
             return params;
         }
 
-        String provider = loadFlowParametersInfos.getProvider();
-        Map<String, String> specificParameters = loadFlowParametersInfos.getSpecificParametersPerProvider().get(provider);
+        String provider = loadFlowParametersModel.getProvider();
+        Map<String, String> specificParameters = loadFlowParametersModel.getSpecificParametersPerProvider().get(provider);
         LoadFlowProvider loadFlowProvider = LoadFlowProvider.findAll().stream()
                 .filter(p -> p.getName().equals(provider))
                 .findFirst()
