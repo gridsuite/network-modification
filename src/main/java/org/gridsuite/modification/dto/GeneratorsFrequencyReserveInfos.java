@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package org.gridsuite.modification.model;
+package org.gridsuite.modification.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -12,8 +12,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.model.FilterModel;
 
-import java.util.UUID;
+import java.util.List;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -23,12 +24,11 @@ import java.util.UUID;
 @AllArgsConstructor
 @Getter
 @Setter
-@Schema(description = "Generators filter Infos")
-public class GeneratorsFilterModel {
+@Schema(description = "Generators frequency reserve infos")
+public class GeneratorsFrequencyReserveInfos {
+    @Schema(description = "generators filters")
+    private List<FilterInfos> generatorsFilters;
 
-    @Schema(description = "id of generators filter")
-    private UUID id;
-
-    @Schema(description = "name of generators filter")
-    private String name;
+    @Schema(description = "frequency reserve")
+    private Double frequencyReserve;
 }
