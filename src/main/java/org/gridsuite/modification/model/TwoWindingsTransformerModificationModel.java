@@ -6,12 +6,12 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.TwoWindingsTransformerModification;
@@ -25,9 +25,8 @@ import org.gridsuite.modification.modifications.TwoWindingsTransformerModificati
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Two windings transformer modification")
-@JsonTypeName("TWO_WINDINGS_TRANSFORMER_MODIFICATION")
 @ModificationErrorTypeName("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR")
-public class TwoWindingsTransformerModificationModel extends BranchModificationModel {
+public class TwoWindingsTransformerModificationModel extends BranchModificationModel implements ModificationModel {
 
     @Schema(description = "Magnetizing conductance")
     private AttributeModification<Double> g;
@@ -61,6 +60,11 @@ public class TwoWindingsTransformerModificationModel extends BranchModificationM
     @Override
     public AbstractModification toModification() {
         return new TwoWindingsTransformerModification(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.TWO_WINDINGS_TRANSFORMER_MODIFICATION;
     }
 
     @Override

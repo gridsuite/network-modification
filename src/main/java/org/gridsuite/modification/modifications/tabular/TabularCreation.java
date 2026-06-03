@@ -10,7 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.model.EquipmentModificationModel;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.model.ShuntCompensatorCreationModel;
 import org.gridsuite.modification.model.tabular.TabularCreationModel;
 
@@ -48,7 +48,7 @@ public class TabularCreation extends AbstractTabularModification {
     }
 
     @Override
-    public void specificCheck(EquipmentModificationModel equipmentModificationModel, Network network, ReportNode subReportNode) {
+    public void specificCheck(ModificationModel equipmentModificationModel, Network network, ReportNode subReportNode) {
         if (equipmentModificationModel instanceof ShuntCompensatorCreationModel shuntCompensatorCreationModel && shuntCompensatorCreationModel.getMaxSusceptance() != null) {
             if (shuntCompensatorCreationModel.getShuntCompensatorType() != null && shuntCompensatorCreationModel.getMaxQAtNominalV() != null) {
                 subReportNode.newReportNode()

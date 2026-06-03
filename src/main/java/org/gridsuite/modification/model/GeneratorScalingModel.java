@@ -7,13 +7,13 @@
 
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.GeneratorScaling;
@@ -26,14 +26,18 @@ import org.gridsuite.modification.modifications.GeneratorScaling;
 @NoArgsConstructor
 @Getter
 @Setter
-@JsonTypeName("GENERATOR_SCALING")
 @ModificationErrorTypeName("GENERATOR_SCALING_ERROR")
 @Schema(description = "Generator scaling creation")
-public class GeneratorScalingModel extends ScalingModel {
+public class GeneratorScalingModel extends ScalingModel implements ModificationModel {
 
     @Override
     public AbstractModification toModification() {
         return new GeneratorScaling(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.GENERATOR_SCALING;
     }
 
     @Override

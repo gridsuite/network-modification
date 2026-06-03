@@ -90,46 +90,6 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
 
     }
 
-    @Test
-    void checkCompositeFiltersDeactivatedAndStashedModifications() {
-        Network network = getNetwork();
-        ModificationModel renameModif = ModificationCreation.getModificationGenerator("idGenerator", "baseline name");
-        renameModif.setActivated(true);
-        renameModif.setStashed(false);
-
-        ModificationModel deactivatedRenameModif = ModificationCreation.getModificationGenerator("idGenerator", "deactivated name");
-        deactivatedRenameModif.setActivated(false);
-        deactivatedRenameModif.setStashed(false);
-
-        ModificationModel stashedRenameModif = ModificationCreation.getModificationGenerator("idGenerator", "stashed name");
-        stashedRenameModif.setActivated(true);
-        stashedRenameModif.setStashed(true);
-
-        ModificationModel invalidModif = ModificationCreation.getModificationGenerator("idGenerator", "null activated name");
-        invalidModif.setActivated(null);
-        invalidModif.setStashed(null);
-
-        CompositeModificationModel composite = CompositeModificationModel.builder()
-                .name("filter test composite")
-                .modificationsInfos(List.of(renameModif, deactivatedRenameModif, stashedRenameModif, invalidModif))
-                .stashed(false)
-                .build();
-
-        ReportNode report = composite.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test")
-                .build());
-
-        CompositeModification netmod = (CompositeModification) composite.toModification();
-        assertDoesNotThrow(() -> netmod.apply(network, report));
-
-        // Only the baseline rename (activated=true, stashed=false) should have been applied;
-        // the deactivated, stashed, and null-activated renames must all have been skipped.
-        Generator gen = network.getGenerator("idGenerator");
-        assertNotNull(gen);
-        assertEquals("baseline name", gen.getOptionalName().orElseThrow());
-    }
-
     private GeneratorCreationModel buildThrowingModification() {
         return ModificationCreation.getCreationGenerator(
                 "v1", "idGenerator", "nameGenerator", "1B", "v2load", "LOAD", "v1"
@@ -145,7 +105,6 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
     protected ModificationModel buildModification() {
         List<ModificationModel> modifications = List.of(
                 CompositeModificationModel.builder()
-                        .activated(true)
                         .name("sub composite 1")
                         .modificationsInfos(
                                 List.of(
@@ -159,12 +118,10 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                 ModificationCreation.getCreationBattery("v1", "idBattery", "nameBattery", "1.1"),
                 // test of a composite modification inside a composite modification inside a composite modification
                 CompositeModificationModel.builder()
-                        .activated(true)
                         .name("sub composite 2")
                         .modificationsInfos(
                                 List.of(
                                         CompositeModificationModel.builder()
-                                                .activated(true)
                                                 .name("sub sub composite")
                                                 .modificationsInfos(
                                                         List.of(ModificationCreation.getModificationGenerator("idGenerator", "other idGenerator name again"))
@@ -176,7 +133,6 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         return CompositeModificationModel.builder()
                 .name("main composite")
                 .modificationsInfos(modifications)
-                .stashed(false)
                 .build();
     }
 
@@ -191,6 +147,6 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertNotNull(ModificationType.COMPOSITE_MODIFICATION.name(), modificationModel.getMessageType());
+        assertNotNull(ModificationType.COMPOSITE_MODIFICATION.name(), modificationModel.getType().toString());
     }
 }

@@ -92,7 +92,6 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
         return ModificationByAssignmentModel.builder()
                 .equipmentType(getIdentifiableType())
                 .assignmentModelList(getAssignmentModel())
-                .stashed(false)
                 .build();
     }
 

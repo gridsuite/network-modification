@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
@@ -69,7 +68,6 @@ class OperatingStatusModificationLockoutLineTest extends AbstractNetworkModifica
     @Override
     protected ModificationModel buildModification() {
         return OperatingStatusModificationModel.builder()
-                .stashed(false)
                 .equipmentId(TARGET_LINE_ID)
                 .energizedVoltageLevelId("energizedVoltageLevelId")
                 .action(OperatingStatusModificationModel.ActionType.LOCKOUT).build();
@@ -142,8 +140,8 @@ class OperatingStatusModificationLockoutLineTest extends AbstractNetworkModifica
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("OPERATING_STATUS_MODIFICATION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("OPERATING_STATUS_MODIFICATION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("energizedVoltageLevelId", createdValues.get("energizedVoltageLevelId"));
         assertEquals("LOCKOUT", createdValues.get("action"));
         assertEquals("line2", createdValues.get("equipmentId"));

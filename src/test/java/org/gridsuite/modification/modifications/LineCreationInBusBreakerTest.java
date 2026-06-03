@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
@@ -52,7 +51,6 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
     @Test
     void testCreateLineOptionalParameters5() throws Exception {
         LineCreationModel lineCreationModelPermanentLimitNOK = LineCreationModel.builder()
-                .stashed(false)
                 .equipmentId("idLine2")
                 .equipmentName("nameLine2")
                 .r(100.0)
@@ -99,7 +97,6 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
         // between voltage level "v1" and busbar section "bus1" and
         //         voltage level "v2" and busbar section "bus2"
         return LineCreationModel.builder()
-            .stashed(false)
             .equipmentId("idLine1")
             .equipmentName("nameLine1")
             .r(100.0)
@@ -195,8 +192,8 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("LINE_CREATION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("LINE_CREATION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("idLine1", createdValues.get("equipmentId"));
     }
 }

@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
@@ -41,7 +40,6 @@ class OperatingStatusModificationTripBusBarTest extends AbstractNetworkModificat
     @Override
     protected ModificationModel buildModification() {
         return OperatingStatusModificationModel.builder()
-                .stashed(false)
                 .equipmentId(TARGET_BUSBAR_ID)
                 .action(OperatingStatusModificationModel.ActionType.TRIP).build();
     }
@@ -54,8 +52,8 @@ class OperatingStatusModificationTripBusBarTest extends AbstractNetworkModificat
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("OPERATING_STATUS_MODIFICATION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("OPERATING_STATUS_MODIFICATION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("TRIP", createdValues.get("action"));
     }
 

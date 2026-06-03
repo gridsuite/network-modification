@@ -7,7 +7,6 @@
 
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.HvdcLine;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LccModification;
@@ -26,9 +26,8 @@ import org.gridsuite.modification.modifications.LccModification;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "LCC modification")
-@JsonTypeName("LCC_MODIFICATION")
 @ModificationErrorTypeName("MODIFY_LCC_ERROR")
-public class LccModificationModel extends BasicEquipmentModificationModel {
+public class LccModificationModel extends BasicEquipmentModificationModel implements ModificationModel {
     @Schema(description = "DC nominal voltage")
     private AttributeModification<Double> nominalV;
 
@@ -53,6 +52,11 @@ public class LccModificationModel extends BasicEquipmentModificationModel {
     @Override
     public AbstractModification toModification() {
         return new LccModification(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.LCC_MODIFICATION;
     }
 
     @Override

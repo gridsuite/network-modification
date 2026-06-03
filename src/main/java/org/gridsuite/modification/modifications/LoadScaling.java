@@ -106,13 +106,13 @@ public class LoadScaling extends AbstractScaling {
     @Override
     protected void applyProportionalToPmaxVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationModel scalingVariationModel) {
         // no implementation for load scaling
-        throw new NetworkModificationException(scalingModel.getErrorType(), String.format("This variation mode is not supported : %s", scalingVariationModel.getVariationMode().name()));
+        throw new NetworkModificationException(NetworkModificationException.Type.LOAD_SCALING_ERROR, String.format("This variation mode is not supported : %s", scalingVariationModel.getVariationMode().name()));
     }
 
     @Override
     protected void applyStackingUpVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationModel scalingVariationModel) {
         // no implementation for load scaling
-        throw new NetworkModificationException(scalingModel.getErrorType(), String.format("This variation mode is not supported : %s", scalingVariationModel.getVariationMode().name()));
+        throw new NetworkModificationException(NetworkModificationException.Type.LOAD_SCALING_ERROR, String.format("This variation mode is not supported : %s", scalingVariationModel.getVariationMode().name()));
     }
 
     private double scale(Network network, ScalingVariationModel scalingVariationModel, double asked, Scalable proportionalScalable) {

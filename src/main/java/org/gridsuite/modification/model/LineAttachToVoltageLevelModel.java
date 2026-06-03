@@ -6,11 +6,11 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LineAttachToVoltageLevel;
@@ -26,9 +26,8 @@ import java.util.Map;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Line attach to voltage level")
-@JsonTypeName("LINE_ATTACH_TO_VOLTAGE_LEVEL")
 @ModificationErrorTypeName("LINE_ATTACH_ERROR")
-public class LineAttachToVoltageLevelModel extends ModificationModel {
+public class LineAttachToVoltageLevelModel implements ModificationModel {
 
     @Schema(description = "line to attach to ID")
     private String lineToAttachToId;
@@ -72,6 +71,11 @@ public class LineAttachToVoltageLevelModel extends ModificationModel {
     @Override
     public AbstractModification toModification() {
         return new LineAttachToVoltageLevel(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.LINE_ATTACH_TO_VOLTAGE_LEVEL;
     }
 
     @Override

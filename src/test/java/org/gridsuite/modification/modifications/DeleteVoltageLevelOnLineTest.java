@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
@@ -45,7 +44,6 @@ class DeleteVoltageLevelOnLineTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return DeleteVoltageLevelOnLineModel.builder()
-               .stashed(false)
                .lineToAttachTo1Id("l1")
                .lineToAttachTo2Id("l2")
                .replacingLine1Id("replacementLineId")
@@ -73,7 +71,6 @@ class DeleteVoltageLevelOnLineTest extends AbstractNetworkModificationTest {
     void createWithInvalidLineIdTest() throws Exception {
         // test create with incorrect line id
         DeleteVoltageLevelOnLineModel deleteVoltageLevelOnLineModel = DeleteVoltageLevelOnLineModel.builder()
-                .stashed(false)
                 .lineToAttachTo1Id("l1")
                 .lineToAttachTo2Id("ll")
                 .replacingLine1Id("replacementLineId")
@@ -93,8 +90,8 @@ class DeleteVoltageLevelOnLineTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("DELETE_VOLTAGE_LEVEL_ON_LINE", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("DELETE_VOLTAGE_LEVEL_ON_LINE", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("l1", createdValues.get("lineToAttachTo1Id"));
         assertEquals("l2", createdValues.get("lineToAttachTo2Id"));
     }

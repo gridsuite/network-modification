@@ -7,7 +7,6 @@
 package org.gridsuite.modification.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Country;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,6 +16,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.SubstationModification;
@@ -31,15 +31,19 @@ import org.gridsuite.modification.modifications.SubstationModification;
 @ToString(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Substation modification")
-@JsonTypeName("SUBSTATION_MODIFICATION")
 @ModificationErrorTypeName("MODIFY_SUBSTATION_ERROR")
-public class SubstationModificationModel extends BasicEquipmentModificationModel {
+public class SubstationModificationModel extends BasicEquipmentModificationModel implements ModificationModel {
     @Schema(description = "country modification")
     private AttributeModification<Country> country;
 
     @Override
     public AbstractModification toModification() {
         return new SubstationModification(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.SUBSTATION_MODIFICATION;
     }
 
     @Override

@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.CompositeModification;
@@ -34,7 +35,7 @@ import java.util.Map;
 @Schema(description = "Composite modification")
 @JsonTypeName("COMPOSITE_MODIFICATION")
 @ModificationErrorTypeName("COMPOSITE_MODIFICATION_ERROR")
-public class CompositeModificationModel extends ModificationModel {
+public class CompositeModificationModel implements ModificationModel {
 
     @Schema(description = "composite modification name")
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -53,6 +54,11 @@ public class CompositeModificationModel extends ModificationModel {
     @Override
     public AbstractModification toModification() {
         return new CompositeModification(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.COMPOSITE_MODIFICATION;
     }
 
     @Override

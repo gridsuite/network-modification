@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
@@ -73,7 +72,6 @@ class LineModificationTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return LineModificationModel.builder()
-                .stashed(false)
                 .equipmentId("line1")
                 .equipmentName(new AttributeModification<>("LineModified", OperationType.SET))
                 .connectionName1(new AttributeModification<>("cn1Line1", OperationType.SET))
@@ -164,8 +162,8 @@ class LineModificationTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("LINE_MODIFICATION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("LINE_MODIFICATION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("line1", createdValues.get("equipmentId"));
     }
 

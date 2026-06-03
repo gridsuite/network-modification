@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -55,7 +54,6 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return GeneratorModificationModel.builder()
-                .stashed(false)
                 .equipmentId("idGenerator")
                 .energySource(new AttributeModification<>(EnergySource.SOLAR, OperationType.SET))
                 .equipmentName(new AttributeModification<>("newV1Generator", OperationType.SET))
@@ -279,8 +277,8 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("GENERATOR_MODIFICATION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("GENERATOR_MODIFICATION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("idGenerator", createdValues.get("equipmentId"));
     }
 
@@ -324,7 +322,6 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         assertEquals(50.0, generator.getTargetV());
 
         GeneratorModificationModel modificationModel = GeneratorModificationModel.builder()
-                .stashed(false)
                 .equipmentId("idGenerator")
                 .targetV(new AttributeModification<>(52.0, OperationType.SET))
                 .build();

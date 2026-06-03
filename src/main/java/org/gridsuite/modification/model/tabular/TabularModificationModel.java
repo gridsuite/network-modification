@@ -6,9 +6,10 @@
  */
 package org.gridsuite.modification.model.tabular;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import lombok.*;
+import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.tabular.TabularModification;
@@ -27,12 +28,16 @@ import java.util.Map;
 @NoArgsConstructor
 @Data
 @Schema(description = "Tabular modification")
-@JsonTypeName("TABULAR_MODIFICATION")
 @ModificationErrorTypeName("TABULAR_MODIFICATION_ERROR")
-public class TabularModificationModel extends TabularBaseModel {
+public class TabularModificationModel extends TabularBaseModel implements ModificationModel {
     @Override
     public AbstractModification toModification() {
         return new TabularModification(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.TABULAR_MODIFICATION;
     }
 
     @Override

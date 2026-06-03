@@ -60,7 +60,6 @@ class BatteryByFormulaModificationTest extends AbstractByFormulaModificationTest
         ByFormulaModificationModel modificationModel = ByFormulaModificationModel.builder()
                 .identifiableType(getIdentifiableType())
                 .formulaModelList(List.of(formulaModel))
-                .stashed(false)
                 .build();
         apply(modificationModel);
         assertEquals(75, getNetwork().getBattery(BATTERY_ID_1).getTargetP(), 0);

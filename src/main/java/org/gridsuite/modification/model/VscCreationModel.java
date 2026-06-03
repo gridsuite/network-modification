@@ -7,7 +7,6 @@
 
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.HvdcLine;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,6 +16,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VscCreation;
@@ -31,9 +31,8 @@ import org.gridsuite.modification.modifications.VscCreation;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "VSC creation")
-@JsonTypeName("VSC_CREATION")
 @ModificationErrorTypeName("CREATE_VSC_ERROR")
-public class VscCreationModel extends EquipmentCreationModel {
+public class VscCreationModel extends EquipmentCreationModel implements ModificationModel {
     @Schema(description = "DC nominal voltage")
     private Double nominalV;
 
@@ -73,6 +72,11 @@ public class VscCreationModel extends EquipmentCreationModel {
     @Override
     public AbstractModification toModification() {
         return new VscCreation(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.VSC_CREATION;
     }
 
     @Override

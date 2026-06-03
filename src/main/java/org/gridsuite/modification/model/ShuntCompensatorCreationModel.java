@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -15,6 +14,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.constants.ShuntCompensatorType;
 import org.gridsuite.modification.modifications.AbstractModification;
@@ -30,9 +30,8 @@ import org.gridsuite.modification.modifications.ShuntCompensatorCreation;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Shunt compensator creation")
-@JsonTypeName("SHUNT_COMPENSATOR_CREATION")
 @ModificationErrorTypeName("CREATE_SHUNT_COMPENSATOR_ERROR")
-public class ShuntCompensatorCreationModel extends InjectionCreationModel {
+public class ShuntCompensatorCreationModel extends InjectionCreationModel implements ModificationModel {
     @Schema(description = "Maximum number of sections")
     private Integer maximumSectionCount;
 
@@ -51,6 +50,11 @@ public class ShuntCompensatorCreationModel extends InjectionCreationModel {
     @Override
     public AbstractModification toModification() {
         return new ShuntCompensatorCreation(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.SHUNT_COMPENSATOR_CREATION;
     }
 
     @Override

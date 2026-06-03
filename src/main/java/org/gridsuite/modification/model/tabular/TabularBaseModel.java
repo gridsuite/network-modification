@@ -23,10 +23,10 @@ import java.util.List;
  */
 @SuperBuilder
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @Data
 @Schema(description = "Tabular abstract modification")
-public class TabularBaseModel extends ModificationModel {
+public class TabularBaseModel {
 
     @Schema(description = "additional properties")
     @JsonInclude(JsonInclude.Include.NON_NULL)

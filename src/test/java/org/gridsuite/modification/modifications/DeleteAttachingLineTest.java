@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
@@ -46,7 +45,6 @@ class DeleteAttachingLineTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return DeleteAttachingLineModel.builder()
-                .stashed(false)
                 .lineToAttachTo1Id("l1")
                 .lineToAttachTo2Id("l2")
                 .attachedLineId("l3")
@@ -77,7 +75,6 @@ class DeleteAttachingLineTest extends AbstractNetworkModificationTest {
     @Test
     void createWithNoAttachmentPointTest() {
         DeleteAttachingLineModel deleteAttachingLineModel = DeleteAttachingLineModel.builder()
-                .stashed(false)
                 .lineToAttachTo1Id("l1")
                 .lineToAttachTo2Id("l3")
                 .attachedLineId("l1")
@@ -99,8 +96,8 @@ class DeleteAttachingLineTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("DELETE_ATTACHING_LINE", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("DELETE_ATTACHING_LINE", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("l3", createdValues.get("attachedLineId"));
         assertEquals("l1", createdValues.get("lineToAttachTo1Id"));
         assertEquals("l2", createdValues.get("lineToAttachTo2Id"));

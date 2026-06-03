@@ -9,6 +9,7 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.iidm.network.Injection;
 import org.gridsuite.modification.model.AttributeModification;
 import org.gridsuite.modification.model.InjectionModificationModel;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.model.constants.OperationType;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,11 +19,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 abstract class AbstractInjectionModificationTest extends AbstractNetworkModificationTest {
     protected void assertChangeConnectionState(Injection<?> existingEquipment, boolean expectedState) throws Exception {
-        assertChangeConnectionState(existingEquipment, (InjectionModificationModel) buildModification(), expectedState);
+        assertChangeConnectionState(existingEquipment, buildModification(), expectedState);
     }
 
-    protected void assertChangeConnectionState(Injection<?> existingEquipment, InjectionModificationModel modificationModel, boolean expectedState) throws Exception {
-        modificationModel.setTerminalConnected(new AttributeModification<>(expectedState, OperationType.SET));
+    protected void assertChangeConnectionState(Injection<?> existingEquipment, ModificationModel modificationModel, boolean expectedState) throws Exception {
+        ((InjectionModificationModel) modificationModel).setTerminalConnected(new AttributeModification<>(expectedState, OperationType.SET));
 
         if (expectedState) {
             if (existingEquipment.getTerminal().isConnected()) {

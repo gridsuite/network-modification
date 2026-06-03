@@ -164,7 +164,7 @@ public class LccModification extends AbstractModification {
     }
 
     private void modifyShuntCompensatorsOnSide(Network network, VoltageLevel voltageLevel,
-                                              @Nonnull LccConverterStationModificationModel converterStationModel, ReportNode reportNode) {
+                                               @Nonnull LccConverterStationModificationModel converterStationModel, ReportNode reportNode) {
 
         List<LccShuntCompensatorModificationModel> shuntCompensatorsOnSide = converterStationModel.getShuntCompensatorsOnSide();
 

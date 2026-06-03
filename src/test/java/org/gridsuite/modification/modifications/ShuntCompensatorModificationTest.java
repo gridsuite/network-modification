@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.Measurement;
@@ -47,7 +46,6 @@ class ShuntCompensatorModificationTest extends AbstractInjectionModificationTest
     @Override
     protected void checkModification() {
         var shuntCompensator = ShuntCompensatorModificationModel.builder()
-                .stashed(false)
                 .equipmentId("wrong id")
                 .build();
 
@@ -103,7 +101,6 @@ class ShuntCompensatorModificationTest extends AbstractInjectionModificationTest
 
         // NegativeQmaxAtNominalV
         var shuntCompensator5 = ShuntCompensatorModificationModel.builder()
-                .stashed(false)
                 .equipmentId("v5shunt")
                 .maxQAtNominalV(new AttributeModification<>(-15.0, OperationType.SET))
                 .build();
@@ -122,7 +119,6 @@ class ShuntCompensatorModificationTest extends AbstractInjectionModificationTest
 
         assertEquals(1.0, model.getBPerSection(), 0);
         ShuntCompensatorModificationModel modificationModel = ShuntCompensatorModificationModel.builder()
-                .stashed(false)
                 .equipmentId("v7shunt")
                 .shuntCompensatorType(new AttributeModification<>(ShuntCompensatorType.REACTOR, OperationType.SET))
                 .build();
@@ -143,7 +139,6 @@ class ShuntCompensatorModificationTest extends AbstractInjectionModificationTest
 
         assertEquals(1.0, model.getBPerSection(), 0);
         ShuntCompensatorModificationModel modificationModel = ShuntCompensatorModificationModel.builder()
-                .stashed(false)
                 .equipmentId("v7shunt")
                 .maxSusceptance(AttributeModification.toAttributeModification(3.0, OperationType.SET))
                 .build();
@@ -179,14 +174,12 @@ class ShuntCompensatorModificationTest extends AbstractInjectionModificationTest
         createShuntCompensator(v6, "v8shunt", "v8shunt", 25, 225., 10, true, 1, 1, 2, 1, "feeder_v8shunt", 50, ConnectablePosition.Direction.BOTTOM);
 
         ShuntCompensatorModificationModel modificationModel1 = ShuntCompensatorModificationModel.builder()
-                        .stashed(false)
                         .equipmentId("v7shunt")
                         .maxQAtNominalV(new AttributeModification<>(30.5, OperationType.SET))
                         .shuntCompensatorType(new AttributeModification<>(ShuntCompensatorType.REACTOR, OperationType.SET))
                         .build();
 
         ShuntCompensatorModificationModel modificationModel2 = ShuntCompensatorModificationModel.builder()
-                .stashed(false)
                 .equipmentId("v8shunt")
                 .maxQAtNominalV(new AttributeModification<>(30.5, OperationType.SET))
                 .shuntCompensatorType(new AttributeModification<>(ShuntCompensatorType.CAPACITOR, OperationType.SET))
@@ -212,7 +205,6 @@ class ShuntCompensatorModificationTest extends AbstractInjectionModificationTest
         createShuntCompensator(v2, "v7shunt", "v7shunt", 25, 225., 10, true, 1, 1, 2, 1, "feeder_v7shunt", 40, ConnectablePosition.Direction.BOTTOM);
 
         return ShuntCompensatorModificationModel.builder()
-                .stashed(false)
                 .equipmentId("v7shunt")
                 .shuntCompensatorType(new AttributeModification<>(ShuntCompensatorType.CAPACITOR, OperationType.SET))
                 .maxQAtNominalV(new AttributeModification<>(15.0, OperationType.SET))
@@ -237,8 +229,8 @@ class ShuntCompensatorModificationTest extends AbstractInjectionModificationTest
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("SHUNT_COMPENSATOR_MODIFICATION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("SHUNT_COMPENSATOR_MODIFICATION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("v7shunt", createdValues.get("equipmentId"));
     }
 
@@ -246,7 +238,6 @@ class ShuntCompensatorModificationTest extends AbstractInjectionModificationTest
     void testDisconnection() throws Exception {
         ShuntCompensatorModificationModel shuntModificationModel =
                 ShuntCompensatorModificationModel.builder()
-                        .stashed(false)
                         .equipmentId("v2shunt")
                         .voltageLevelId(new AttributeModification<>("v2", OperationType.SET))
                         .busOrBusbarSectionId(new AttributeModification<>("1B", OperationType.SET))
@@ -258,7 +249,6 @@ class ShuntCompensatorModificationTest extends AbstractInjectionModificationTest
     void testConnection() throws Exception {
         ShuntCompensatorModificationModel shuntModificationModel =
                 ShuntCompensatorModificationModel.builder()
-                        .stashed(false)
                         .equipmentId("v2shunt")
                         .voltageLevelId(new AttributeModification<>("v2", OperationType.SET))
                         .busOrBusbarSectionId(new AttributeModification<>("1B", OperationType.SET))

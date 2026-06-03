@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
@@ -44,7 +43,6 @@ class CreateCouplingDeviceTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return CreateCouplingDeviceModel.builder()
-            .stashed(false)
             .voltageLevelId("v1")
             .couplingDeviceInfos(CouplingDeviceModel.builder()
                 .busbarSectionId1("bbs1")
@@ -65,15 +63,14 @@ class CreateCouplingDeviceTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("ADD_COUPLING_DEVICE", modificationModel.getMessageType());
-        Map<String, String> updatedValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("ADD_COUPLING_DEVICE", modificationModel.getType().toString());
+        Map<String, String> updatedValues = modificationModel.getMapMessageValues();
         assertEquals("v1", updatedValues.get("voltageLevelId"));
     }
 
     @Test
     void testCreateCouplingDeviceFail() {
         CreateCouplingDeviceModel createCouplingDeviceModel = CreateCouplingDeviceModel.builder()
-            .stashed(false)
             .voltageLevelId("v1")
             .couplingDeviceInfos(CouplingDeviceModel.builder()
                 .busbarSectionId1("bbs1")

@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.byfilter.formula.FormulaModel;
 import org.gridsuite.modification.modifications.byfilter.ByFormulaModification;
@@ -36,7 +37,7 @@ import java.util.List;
 @ModificationErrorTypeName("BY_FORMULA_MODIFICATION_ERROR")
 @ToString(callSuper = true)
 @Schema(description = "Modification by formula")
-public class ByFormulaModificationModel extends ModificationModel {
+public class ByFormulaModificationModel implements ModificationModel {
     @Schema(description = "Identifiable type")
     private IdentifiableType identifiableType;
 
@@ -46,6 +47,11 @@ public class ByFormulaModificationModel extends ModificationModel {
     @Override
     public ByFormulaModification toModification() {
         return new ByFormulaModification(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.BY_FORMULA_MODIFICATION;
     }
 
     @Override

@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
@@ -50,7 +49,6 @@ class LineSplitWithNewVoltageLevelTest extends AbstractNetworkModificationTest {
         VoltageLevelCreationModel vl1 = createVoltageLevel();
 
         return LineSplitWithVoltageLevelModel.builder()
-            .stashed(false)
             .lineToSplitId("line2")
             .percent(10.0)
             .mayNewVoltageLevelInfos(vl1)
@@ -76,14 +74,13 @@ class LineSplitWithNewVoltageLevelTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("LINE_SPLIT_WITH_VOLTAGE_LEVEL", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("LINE_SPLIT_WITH_VOLTAGE_LEVEL", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("line2", createdValues.get("lineToSplitId"));
     }
 
     private VoltageLevelCreationModel createVoltageLevel() {
         return VoltageLevelCreationModel.builder()
-                .stashed(false)
                 .equipmentId("newVoltageLevel")
                 .equipmentName("NewVoltageLevel")
                 .nominalV(379.3)
@@ -112,7 +109,6 @@ class LineSplitWithNewVoltageLevelTest extends AbstractNetworkModificationTest {
         VoltageLevelCreationModel vl1 = createVoltageLevel();
 
         LineSplitWithVoltageLevelModel modificationModel = LineSplitWithVoltageLevelModel.builder()
-                .stashed(false)
                 .lineToSplitId("line2")
                 .percent(10.0)
                 .mayNewVoltageLevelInfos(vl1)

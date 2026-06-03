@@ -6,13 +6,13 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VoltageInitModification;
@@ -30,9 +30,8 @@ import java.util.Map;
 @Getter
 @Setter
 @Schema(description = "Voltage init modification infos")
-@JsonTypeName("VOLTAGE_INIT_MODIFICATION")
 @ModificationErrorTypeName("VOLTAGE_INIT_MODIFICATION_ERROR")
-public class VoltageInitModificationModel extends ModificationModel {
+public class VoltageInitModificationModel implements ModificationModel {
     @Schema(description = "generators modifications")
     private List<VoltageInitGeneratorModificationModel> generators;
 
@@ -63,6 +62,11 @@ public class VoltageInitModificationModel extends ModificationModel {
     @Override
     public AbstractModification toModification() {
         return new VoltageInitModification(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.VOLTAGE_INIT_MODIFICATION;
     }
 
     @Override

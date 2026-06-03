@@ -10,10 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
-import org.gridsuite.modification.IFilterService;
-import org.gridsuite.modification.ReactiveVariationMode;
-import org.gridsuite.modification.VariationMode;
-import org.gridsuite.modification.VariationType;
+import org.gridsuite.modification.*;
 import org.gridsuite.modification.model.FilterEquipments;
 import org.gridsuite.modification.model.FilterModel;
 import org.gridsuite.modification.model.IdentifiableAttributes;
@@ -27,8 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import java.nio.file.Paths;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -133,9 +128,6 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
             .build();
 
         ModificationModel modificationToCreate = LoadScalingModel.builder()
-            .stashed(false)
-            .uuid(LOAD_SCALING_ID)
-            .date(Instant.now().truncatedTo(ChronoUnit.MICROS))
             .variationType(VariationType.DELTA_P)
             .variations(List.of(variation1))
             .build();
@@ -175,7 +167,7 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         loadScaling.apply(getNetwork(), report);
-        assertLogMessage(loadScalingInfo.getErrorType().name() + ": There is no valid equipment ID among the provided filter(s)",
+        assertLogMessage(NetworkModificationException.Type.SCALING_ERROR.name() + ": There is no valid equipment ID among the provided filter(s)",
                 "network.modification.invalidFilters", report);
     }
 
@@ -290,8 +282,6 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
             .build();
 
         return LoadScalingModel.builder()
-            .stashed(false)
-            .date(Instant.now().truncatedTo(ChronoUnit.MICROS))
             .variationType(VariationType.DELTA_P)
             .variations(List.of(variation1, variation2, variation3, variation4, variation5))
             .build();
@@ -359,9 +349,6 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
                 .filters(List.of(filter))
                 .build();
         LoadScalingModel loadScalingInfo = LoadScalingModel.builder()
-                .stashed(false)
-                .uuid(LOAD_SCALING_ID)
-                .date(Instant.now().truncatedTo(ChronoUnit.MICROS))
                 .variationType(VariationType.TARGET_P)
                 .variations(List.of(variation))
                 .build();

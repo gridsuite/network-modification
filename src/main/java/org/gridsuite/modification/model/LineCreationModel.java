@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -15,6 +14,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LineCreation;
@@ -31,9 +31,8 @@ import java.util.List;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Line creation")
-@JsonTypeName("LINE_CREATION")
 @ModificationErrorTypeName("CREATE_LINE_ERROR")
-public class LineCreationModel extends BranchCreationModel {
+public class LineCreationModel extends BranchCreationModel implements ModificationModel {
 
     @Schema(description = "Shunt conductance Side 1")
     private Double g1;
@@ -53,6 +52,11 @@ public class LineCreationModel extends BranchCreationModel {
     @Override
     public AbstractModification toModification() {
         return new LineCreation(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.LINE_CREATION;
     }
 
     @Override

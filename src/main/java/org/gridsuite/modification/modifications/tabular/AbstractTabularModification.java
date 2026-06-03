@@ -10,6 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.model.EquipmentModificationModel;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.model.tabular.TabularBaseModel;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ public abstract class AbstractTabularModification extends AbstractModification {
         this.modificationModel = modificationModel;
     }
 
-    public abstract void specificCheck(EquipmentModificationModel equipmentModificationModel, Network network, ReportNode subReportNode);
+    public abstract void specificCheck(ModificationModel equipmentModificationModel, Network network, ReportNode subReportNode);
 
     public abstract String defaultMessage();
 
@@ -47,9 +48,9 @@ public abstract class AbstractTabularModification extends AbstractModification {
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
             try {
-                AbstractModification modification = equipmentModificationModel.toModification();
+                AbstractModification modification = modifModel.toModification();
                 modification.check(network);
-                specificCheck(equipmentModificationModel, network, modifReportNode);
+                specificCheck(modifModel, network, modifReportNode);
                 modification.apply(network, modifReportNode);
             } catch (Exception e) {
                 applicationFailuresCount++;

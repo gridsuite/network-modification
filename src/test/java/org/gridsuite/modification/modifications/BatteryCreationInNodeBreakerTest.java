@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Battery;
@@ -86,7 +85,6 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
     protected ModificationModel buildModification() {
         // create new battery in voltage level with node/breaker topology (in voltage level "v2" and busbar section "1B")
         return BatteryCreationModel.builder()
-                .stashed(false)
                 .equipmentId("idBattery1")
                 .equipmentName("idBattery1")
                 .voltageLevelId("v2")
@@ -187,8 +185,8 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("BATTERY_CREATION", modificationModel.getMessageType());
-        Map<String, String> updatedValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("BATTERY_CREATION", modificationModel.getType());
+        Map<String, String> updatedValues = modificationModel.getMapMessageValues();
         assertEquals("idBattery1", updatedValues.get("equipmentId"));
     }
 
@@ -209,7 +207,6 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
     void testCreateWithDroopNull() {
         Network network = getNetwork();
         BatteryCreationModel batteryCreationModel = BatteryCreationModel.builder()
-                .stashed(false)
                 .equipmentId("idBattery3")
                 .voltageLevelId("v2")
                 .busOrBusbarSectionId("1B")
@@ -233,7 +230,6 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         assertFalse(activePowerControl.isParticipate());
 
         BatteryCreationModel batteryCreationModel2 = BatteryCreationModel.builder()
-                .stashed(false)
                 .equipmentId("idBattery4")
                 .voltageLevelId("v2")
                 .busOrBusbarSectionId("1B")

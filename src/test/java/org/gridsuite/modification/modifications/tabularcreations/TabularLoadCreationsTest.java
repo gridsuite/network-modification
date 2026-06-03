@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications.tabularcreations;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
@@ -74,7 +73,6 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
         return TabularCreationModel.builder()
             .modificationType(ModificationType.LOAD_CREATION)
             .modifications(creations)
-            .stashed(false)
             .csvFilename("filename")
             .build();
     }
@@ -143,8 +141,8 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals(ModificationType.TABULAR_CREATION.name(), modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals(ModificationType.TABULAR_CREATION.name(), modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals(ModificationType.LOAD_CREATION.name(), createdValues.get("tabularCreationType"));
     }
 

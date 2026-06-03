@@ -9,5 +9,5 @@ public interface ModificationDto {
 
     Instant getDate();
 
-    boolean getStashed();
+    Boolean getStashed();
 }

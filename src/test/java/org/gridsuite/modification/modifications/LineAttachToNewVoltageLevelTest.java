@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import org.gridsuite.modification.model.*;
@@ -23,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class LineAttachToNewVoltageLevelTest extends AbstractNetworkModificationTest {
     private static LineCreationModel getAttachmentLine() {
         return LineCreationModel.builder()
-                .stashed(false)
                 .equipmentId("attachmentLine")
                 .r(50.6)
                 .x(25.3)
@@ -33,9 +31,8 @@ class LineAttachToNewVoltageLevelTest extends AbstractNetworkModificationTest {
     private static VoltageLevelCreationModel getAttachmentPoint() {
         return VoltageLevelCreationModel.builder()
                 .equipmentId("AttPointId")
-                .stashed(false)
                 .nominalV(0)
-                .substationCreation(SubstationCreationModel.builder().stashed(false)
+                .substationCreation(SubstationCreationModel.builder()
                         .equipmentId("attachmentPointSubstation")
                         .equipmentName("attachmentPointSubstationName")
                         .country(Country.FR)
@@ -61,7 +58,6 @@ class LineAttachToNewVoltageLevelTest extends AbstractNetworkModificationTest {
 
     private static VoltageLevelCreationModel getNewVoltageLevel() {
         return VoltageLevelCreationModel.builder()
-                .stashed(false)
                 .equipmentId("newVoltageLevel")
                 .equipmentName("NewVoltageLevel")
                 .nominalV(379.3)
@@ -90,7 +86,6 @@ class LineAttachToNewVoltageLevelTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return LineAttachToVoltageLevelModel.builder()
-                .stashed(false)
                 .lineToAttachToId("line3")
                 .percent(20.0)
                 .attachmentPointId("AttPointId")
@@ -149,8 +144,8 @@ class LineAttachToNewVoltageLevelTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("LINE_ATTACH_TO_VOLTAGE_LEVEL", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("LINE_ATTACH_TO_VOLTAGE_LEVEL", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("line3", createdValues.get("lineToAttachToId"));
     }
 

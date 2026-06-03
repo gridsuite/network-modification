@@ -76,6 +76,6 @@ public abstract class AbstractNetworkModificationTest {
 
     @SuppressWarnings("java:S1130") // Exceptions are throws by overrides
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("{}", modificationModel.getMessageValues());
+        assertEquals("{}", modificationModel.getMapMessageValues().toString());
     }
 }

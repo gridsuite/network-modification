@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
@@ -37,7 +36,6 @@ class TwoWindingsTransformerCreationBusBreakerTest extends AbstractNetworkModifi
     @Override
     protected ModificationModel buildModification() {
         return TwoWindingsTransformerCreationModel.builder()
-                .stashed(false)
                 .equipmentId("new2wt")
                 .equipmentName("new2wt")
                 .r(1.)
@@ -211,7 +209,6 @@ class TwoWindingsTransformerCreationBusBreakerTest extends AbstractNetworkModifi
                 .build();
         // create new 2wt in voltage level with bus/breaker topology
         TwoWindingsTransformerCreationModel twoWindingsTransformerCreationModel = TwoWindingsTransformerCreationModel.builder()
-                .stashed(false)
                 .equipmentId("id2wt1")
                 .equipmentName("2wtName")
                 .voltageLevelId1("v1")
@@ -231,7 +228,6 @@ class TwoWindingsTransformerCreationBusBreakerTest extends AbstractNetworkModifi
                 .build();
         testCreateTwoWindingsTransformerInBusBreaker(twoWindingsTransformerCreationModel);
         TwoWindingsTransformerCreationModel twoWindingsTransformerCreationModel2 = TwoWindingsTransformerCreationModel.builder()
-                .stashed(false)
                 .equipmentId("id2wt1WithRatioTapChanger2")
                 .equipmentName("2wtName")
                 .voltageLevelId1("v1")
@@ -269,7 +265,6 @@ class TwoWindingsTransformerCreationBusBreakerTest extends AbstractNetworkModifi
                 .steps(getTapChangerSteps())
                 .build();
         TwoWindingsTransformerCreationModel twoWindingsTransformerCreationModel = TwoWindingsTransformerCreationModel.builder()
-                .stashed(false)
                 .equipmentId("id2wt1WithPhaseTapChanger")
                 .equipmentName("2wtName")
                 .voltageLevelId1("v1")
@@ -327,8 +322,8 @@ class TwoWindingsTransformerCreationBusBreakerTest extends AbstractNetworkModifi
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("TWO_WINDINGS_TRANSFORMER_CREATION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("TWO_WINDINGS_TRANSFORMER_CREATION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("new2wt", createdValues.get("equipmentId"));
     }
 }

@@ -56,7 +56,6 @@ class BatteryModificationByAssignmentTest extends AbstractModificationByAssignme
         ModificationByAssignmentModel modificationModel = ModificationByAssignmentModel.builder()
                 .equipmentType(getIdentifiableType())
                 .assignmentModelList(List.of(assignmentModel))
-                .stashed(false)
                 .build();
         apply(modificationModel);
         assertEquals(55, getNetwork().getBattery(BATTERY_ID_1).getTargetP(), 0);

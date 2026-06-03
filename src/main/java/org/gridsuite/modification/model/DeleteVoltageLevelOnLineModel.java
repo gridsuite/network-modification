@@ -6,11 +6,11 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.DeleteVoltageLevelOnLine;
@@ -29,9 +29,8 @@ import java.util.Map;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Delete voltage level on line infos")
-@JsonTypeName("DELETE_VOLTAGE_LEVEL_ON_LINE")
 @ModificationErrorTypeName("DELETE_VOLTAGE_LEVEL_ON_LINE_ERROR")
-public class DeleteVoltageLevelOnLineModel extends ModificationModel {
+public class DeleteVoltageLevelOnLineModel implements ModificationModel {
 
     @Schema(description = "line 1 id")
     private String lineToAttachTo1Id;
@@ -48,6 +47,11 @@ public class DeleteVoltageLevelOnLineModel extends ModificationModel {
     @Override
     public AbstractModification toModification() {
         return new DeleteVoltageLevelOnLine(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.DELETE_VOLTAGE_LEVEL_ON_LINE;
     }
 
     @Override

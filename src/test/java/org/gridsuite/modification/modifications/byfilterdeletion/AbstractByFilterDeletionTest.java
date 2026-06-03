@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications.byfilterdeletion;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import org.gridsuite.filter.utils.EquipmentType;
@@ -77,7 +76,6 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
                 .build();
 
         ByFilterDeletionModel byFilterDeletionModel = ByFilterDeletionModel.builder()
-                .stashed(false)
                 .equipmentType(getIdentifiableType())
                 .filters(List.of(filter1))
                 .build();
@@ -109,7 +107,6 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
                 .build();
 
         ByFilterDeletionModel byFilterDeletionModel = ByFilterDeletionModel.builder()
-                .stashed(false)
                 .equipmentType(getIdentifiableType())
                 .filters(List.of(filter1))
                 .build();
@@ -143,7 +140,6 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
                 .build();
 
         return ByFilterDeletionModel.builder()
-                .stashed(false)
                 .equipmentType(getIdentifiableType())
                 .filters(List.of(filter1, filter2))
                 .build();
@@ -151,8 +147,8 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("BY_FILTER_DELETION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("BY_FILTER_DELETION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals(getIdentifiableType().name(), createdValues.get("equipmentType"));
     }
 }

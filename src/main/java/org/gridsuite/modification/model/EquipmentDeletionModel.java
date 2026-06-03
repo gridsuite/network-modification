@@ -7,7 +7,6 @@
 package org.gridsuite.modification.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,6 +16,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.EquipmentDeletion;
@@ -30,9 +30,8 @@ import org.gridsuite.modification.modifications.EquipmentDeletion;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Equipment deletion")
-@JsonTypeName("EQUIPMENT_DELETION")
 @ModificationErrorTypeName("DELETE_EQUIPMENT_ERROR")
-public class EquipmentDeletionModel extends EquipmentModificationModel {
+public class EquipmentDeletionModel extends EquipmentModificationModel implements ModificationModel {
     @Schema(description = "Equipment type")
     private IdentifiableType equipmentType;
 
@@ -43,6 +42,11 @@ public class EquipmentDeletionModel extends EquipmentModificationModel {
     @Override
     public AbstractModification toModification() {
         return new EquipmentDeletion(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.EQUIPMENT_DELETION;
     }
 
     @Override

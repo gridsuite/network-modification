@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications.tabularcreations;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -105,7 +104,6 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
         return TabularCreationModel.builder()
             .modificationType(ModificationType.GENERATOR_CREATION)
             .modifications(creations)
-            .stashed(false)
             .build();
     }
 
@@ -239,8 +237,8 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals(ModificationType.TABULAR_CREATION.name(), modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals(ModificationType.TABULAR_CREATION.name(), modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals(ModificationType.GENERATOR_CREATION.name(), createdValues.get("tabularCreationType"));
     }
 

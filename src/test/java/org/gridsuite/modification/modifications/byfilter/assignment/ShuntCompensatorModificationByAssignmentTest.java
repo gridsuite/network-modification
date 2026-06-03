@@ -57,7 +57,6 @@ class ShuntCompensatorModificationByAssignmentTest extends AbstractModificationB
         ModificationByAssignmentModel modificationModel = ModificationByAssignmentModel.builder()
                 .equipmentType(getIdentifiableType())
                 .assignmentModelList(List.of(assignmentModel))
-                .stashed(false)
                 .build();
         apply(modificationModel);
         assertEquals(2, getNetwork().getShuntCompensator(SHUNT_COMPENSATOR_ID_1).getMaximumSectionCount(), 0);

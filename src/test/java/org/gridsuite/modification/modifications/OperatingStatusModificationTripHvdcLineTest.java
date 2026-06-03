@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
@@ -42,7 +41,6 @@ class OperatingStatusModificationTripHvdcLineTest extends AbstractNetworkModific
     @Override
     protected ModificationModel buildModification() {
         return OperatingStatusModificationModel.builder()
-                .stashed(false)
                 .equipmentId(TARGET_HVDC_LINE_ID)
                 .energizedVoltageLevelId("energizedVoltageLevelId")
                 .action(OperatingStatusModificationModel.ActionType.TRIP).build();
@@ -56,8 +54,8 @@ class OperatingStatusModificationTripHvdcLineTest extends AbstractNetworkModific
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("OPERATING_STATUS_MODIFICATION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("OPERATING_STATUS_MODIFICATION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("energizedVoltageLevelId", createdValues.get("energizedVoltageLevelId"));
         assertEquals("TRIP", createdValues.get("action"));
         assertEquals("hvdcLine", createdValues.get("equipmentId"));

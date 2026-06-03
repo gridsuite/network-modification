@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.SwitchKind;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VoltageLevelCreation;
@@ -32,9 +32,8 @@ import java.util.Map;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Voltage level creation")
-@JsonTypeName("VOLTAGE_LEVEL_CREATION")
 @ModificationErrorTypeName("CREATE_VOLTAGE_LEVEL_ERROR")
-public class VoltageLevelCreationModel extends EquipmentCreationModel {
+public class VoltageLevelCreationModel extends EquipmentCreationModel implements ModificationModel {
 
     @Schema(description = "substation id")
     private String substationId;
@@ -72,6 +71,11 @@ public class VoltageLevelCreationModel extends EquipmentCreationModel {
     @Override
     public AbstractModification toModification() {
         return new VoltageLevelCreation(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.VOLTAGE_LEVEL_CREATION;
     }
 
     @Override

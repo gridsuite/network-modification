@@ -6,8 +6,8 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.GroovyScript;
@@ -27,15 +27,19 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Groovy script modification")
-@JsonTypeName("GROOVY_SCRIPT")
 @ModificationErrorTypeName("GROOVY_SCRIPT_ERROR")
-public class GroovyScriptModel extends ModificationModel {
+public class GroovyScriptModel implements ModificationModel {
     @Schema(description = "Groovy script")
     private String script;
 
     @Override
     public AbstractModification toModification() {
         return new GroovyScript(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.GROOVY_SCRIPT;
     }
 
     @Override

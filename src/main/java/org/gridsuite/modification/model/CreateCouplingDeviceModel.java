@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -14,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.CreateCouplingDevice;
@@ -30,9 +30,8 @@ import java.util.Map;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Coupling device creation")
-@JsonTypeName("CREATE_COUPLING_DEVICE")
 @ModificationErrorTypeName("CREATE_COUPLING_DEVICE_ERROR")
-public class CreateCouplingDeviceModel extends ModificationModel {
+public class CreateCouplingDeviceModel implements ModificationModel {
 
     @Schema(description = "VoltageLevelId")
     private String voltageLevelId;
@@ -43,6 +42,11 @@ public class CreateCouplingDeviceModel extends ModificationModel {
     @Override
     public AbstractModification toModification() {
         return new CreateCouplingDevice(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.CREATE_COUPLING_DEVICE;
     }
 
     @Override

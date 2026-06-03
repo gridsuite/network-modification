@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications.tabularmodifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -52,7 +51,6 @@ class TabularSubstationModificationsTest extends AbstractNetworkModificationTest
         return TabularModificationModel.builder()
                 .modificationType(MOFIFICATION_TYPE)
                 .modifications(modifications)
-                .stashed(false)
                 .build();
     }
 
@@ -84,8 +82,8 @@ class TabularSubstationModificationsTest extends AbstractNetworkModificationTest
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals(MOFIFICATION_TYPE.name(), createdValues.get("tabularModificationType"));
     }
 

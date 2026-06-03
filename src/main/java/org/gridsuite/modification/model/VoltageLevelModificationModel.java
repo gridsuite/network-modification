@@ -7,7 +7,6 @@
 
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -15,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VoltageLevelModification;
@@ -30,9 +30,8 @@ import java.util.List;
 @Getter
 @Setter
 @Schema(description = "Voltage level modification")
-@JsonTypeName("VOLTAGE_LEVEL_MODIFICATION")
 @ModificationErrorTypeName("MODIFY_VOLTAGE_LEVEL_ERROR")
-public class VoltageLevelModificationModel extends BasicEquipmentModificationModel {
+public class VoltageLevelModificationModel extends BasicEquipmentModificationModel implements ModificationModel {
     @Schema(description = "nominal voltage in kV")
     private AttributeModification<Double> nominalV;
 
@@ -54,6 +53,11 @@ public class VoltageLevelModificationModel extends BasicEquipmentModificationMod
     @Override
     public AbstractModification toModification() {
         return new VoltageLevelModification(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.VOLTAGE_LEVEL_MODIFICATION;
     }
 
     @Override

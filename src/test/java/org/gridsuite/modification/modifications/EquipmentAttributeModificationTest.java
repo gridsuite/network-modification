@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
@@ -40,7 +39,6 @@ class EquipmentAttributeModificationTest extends AbstractNetworkModificationTest
     @Override
     protected EquipmentAttributeModificationModel buildModification() {
         return EquipmentAttributeModificationModel.builder()
-            .stashed(false)
             .equipmentType(IdentifiableType.SWITCH)
             .equipmentAttributeName("open")
             .equipmentAttributeValue(true)
@@ -57,7 +55,6 @@ class EquipmentAttributeModificationTest extends AbstractNetworkModificationTest
     void testWithErrors() throws Exception {
         // bad equipment attribute name
         EquipmentAttributeModificationModel switchStatusModificationModel = EquipmentAttributeModificationModel.builder()
-            .stashed(false)
             .equipmentType(IdentifiableType.SWITCH)
             .equipmentAttributeName("close") // bad
             .equipmentAttributeValue(true)
@@ -70,8 +67,8 @@ class EquipmentAttributeModificationTest extends AbstractNetworkModificationTest
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("EQUIPMENT_ATTRIBUTE_MODIFICATION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("EQUIPMENT_ATTRIBUTE_MODIFICATION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("open", createdValues.get("equipmentAttributeName"));
         assertEquals("v1b1", createdValues.get("equipmentId"));
         assertEquals("true", createdValues.get("equipmentAttributeValue"));

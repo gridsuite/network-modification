@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
@@ -41,7 +40,6 @@ class VscCreationTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return VscCreationModel.builder()
-                .stashed(false)
                 .equipmentId("vsc1")
                 .equipmentName("vsc1Name")
                 .nominalV(39.)
@@ -162,8 +160,8 @@ class VscCreationTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("VSC_CREATION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("VSC_CREATION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("vsc1", createdValues.get("equipmentId"));
     }
 

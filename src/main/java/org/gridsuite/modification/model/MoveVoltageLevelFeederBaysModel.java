@@ -6,13 +6,13 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.MoveVoltageLevelFeederBays;
@@ -28,9 +28,8 @@ import java.util.Map;
 @Getter
 @Setter
 @Schema(description = "Move voltage level feeder bays")
-@JsonTypeName("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS")
 @ModificationErrorTypeName("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR")
-public class MoveVoltageLevelFeederBaysModel extends ModificationModel {
+public class MoveVoltageLevelFeederBaysModel implements ModificationModel {
 
     @Schema(description = "Voltage level id")
     private String voltageLevelId;
@@ -41,6 +40,11 @@ public class MoveVoltageLevelFeederBaysModel extends ModificationModel {
     @Override
     public AbstractModification toModification() {
         return new MoveVoltageLevelFeederBays(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS;
     }
 
     @Override

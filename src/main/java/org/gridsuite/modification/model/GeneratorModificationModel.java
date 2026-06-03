@@ -8,9 +8,9 @@ package org.gridsuite.modification.model;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.constants.VoltageRegulationType;
 import org.gridsuite.modification.modifications.AbstractModification;
@@ -33,9 +33,8 @@ import lombok.experimental.SuperBuilder;
 @Data
 @ToString(callSuper = true)
 @Schema(description = "generator modification")
-@JsonTypeName("GENERATOR_MODIFICATION")
 @ModificationErrorTypeName("MODIFY_GENERATOR_ERROR")
-public class GeneratorModificationModel extends InjectionModificationModel {
+public class GeneratorModificationModel extends InjectionModificationModel implements ModificationModel {
     @Schema(description = "Energy source")
     private AttributeModification<EnergySource> energySource;
 
@@ -117,6 +116,11 @@ public class GeneratorModificationModel extends InjectionModificationModel {
     @Override
     public AbstractModification toModification() {
         return new GeneratorModification(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.GENERATOR_MODIFICATION;
     }
 
     @Override

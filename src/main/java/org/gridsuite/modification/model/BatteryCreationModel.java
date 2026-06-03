@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -14,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.BatteryCreation;
@@ -30,9 +30,8 @@ import java.util.List;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Battery creation")
-@JsonTypeName("BATTERY_CREATION")
 @ModificationErrorTypeName("CREATE_BATTERY_ERROR")
-public class BatteryCreationModel extends InjectionCreationModel implements ReactiveLimitsHolderModel {
+public class BatteryCreationModel extends InjectionCreationModel implements ModificationModel, ReactiveLimitsHolderModel {
 
     @Schema(description = "Minimum active power")
     private double minP;
@@ -73,6 +72,11 @@ public class BatteryCreationModel extends InjectionCreationModel implements Reac
     @Override
     public AbstractModification toModification() {
         return new BatteryCreation(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.BATTERY_CREATION;
     }
 
     @Override

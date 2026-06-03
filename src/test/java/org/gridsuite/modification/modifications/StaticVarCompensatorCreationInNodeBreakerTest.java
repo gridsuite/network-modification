@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
@@ -44,7 +43,6 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
     @Override
     protected ModificationModel buildModification() {
         return StaticVarCompensatorCreationModel.builder()
-                .stashed(false)
                 .equipmentId("idStaticVarCompensator1")
                 .equipmentName("nameStaticVarCompensator1")
                 .voltageLevelId("v2")
@@ -216,9 +214,8 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("STATIC_VAR_COMPENSATOR_CREATION", modificationModel.getMessageType());
-        Map<String, String> updatedValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
-        });
+        assertEquals("STATIC_VAR_COMPENSATOR_CREATION", modificationModel.getType().toString());
+        Map<String, String> updatedValues = modificationModel.getMapMessageValues();
         assertEquals("idStaticVarCompensator1", updatedValues.get("equipmentId"));
     }
 

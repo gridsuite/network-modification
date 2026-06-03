@@ -7,6 +7,7 @@
 package org.gridsuite.modification.model;
 
 import com.powsybl.commons.report.ReportNode;
+import org.gridsuite.modification.ModificationType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,7 +18,12 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class ModificationModelTest {
 
-    private static final class TestModificationModel extends ModificationModel {
+    private static final class TestModificationModel implements ModificationModel {
+
+        @Override
+        public ModificationType getType() {
+            return null;
+        }
         // Intentionally does not override createSubReportNode() or toModification()
         // to test the UnsupportedOperationException throwing behavior
     }

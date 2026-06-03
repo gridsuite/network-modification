@@ -60,7 +60,6 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
         ModificationByAssignmentModel modificationModel = ModificationByAssignmentModel.builder()
                 .equipmentType(getIdentifiableType())
                 .assignmentModelList(List.of(assignmentModel))
-                .stashed(false)
                 .build();
 
         apply(modificationModel);

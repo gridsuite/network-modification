@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.LoadType;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LoadCreation;
@@ -29,9 +29,8 @@ import org.gridsuite.modification.modifications.LoadCreation;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Load creation")
-@JsonTypeName("LOAD_CREATION")
 @ModificationErrorTypeName("CREATE_LOAD_ERROR")
-public class LoadCreationModel extends InjectionCreationModel {
+public class LoadCreationModel extends InjectionCreationModel implements ModificationModel {
     @Schema(description = "Load type")
     private LoadType loadType;
 
@@ -44,6 +43,11 @@ public class LoadCreationModel extends InjectionCreationModel {
     @Override
     public AbstractModification toModification() {
         return new LoadCreation(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.LOAD_CREATION;
     }
 
     @Override

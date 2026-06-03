@@ -6,13 +6,14 @@
  */
 package org.gridsuite.modification.model.tabular;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.tabular.TabularCreation;
@@ -28,13 +29,17 @@ import java.util.Map;
 @NoArgsConstructor
 @Data
 @Schema(description = "Tabular creation")
-@JsonTypeName("TABULAR_CREATION")
 @ModificationErrorTypeName("TABULAR_CREATION_ERROR")
-public class TabularCreationModel extends TabularBaseModel {
+public class TabularCreationModel extends TabularBaseModel implements ModificationModel {
 
     @Override
     public AbstractModification toModification() {
         return new TabularCreation(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.TABULAR_CREATION;
     }
 
     @Override

@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
@@ -43,7 +42,6 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
         limitsGroup.setCurrentLimits(currentLimitsModel);
         operationalLimitsList.add(limitsGroup);
         return LineCreationModel.builder()
-                .stashed(false)
                 .equipmentId(lineName)
                 .r(50.6)
                 .x(25.3)
@@ -54,7 +52,6 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
 
     private static VoltageLevelCreationModel getNewVoltageLevel() {
         return VoltageLevelCreationModel.builder()
-                .stashed(false)
                 .equipmentId("newVoltageLevel")
                 .equipmentName("NewVoltageLevel")
                 .nominalV(379.3)
@@ -113,7 +110,6 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return LineAttachToVoltageLevelModel.builder()
-                .stashed(false)
                 .lineToAttachToId("line3")
                 .percent(10.0)
                 .attachmentPointId("AttPointId")   // created VL
@@ -207,8 +203,8 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("LINE_ATTACH_TO_VOLTAGE_LEVEL", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("LINE_ATTACH_TO_VOLTAGE_LEVEL", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("line3", createdValues.get("lineToAttachToId"));
     }
 

@@ -58,7 +58,6 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         ModificationByAssignmentModel modificationModel = ModificationByAssignmentModel.builder()
                 .equipmentType(getIdentifiableType())
                 .assignmentModelList(List.of(assignmentModel))
-                .stashed(false)
                 .build();
         apply(modificationModel);
 
@@ -79,7 +78,6 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         ModificationByAssignmentModel modificationModel2 = ModificationByAssignmentModel.builder()
                 .equipmentType(getIdentifiableType())
                 .assignmentModelList(List.of(assignmentModel2))
-                .stashed(false)
                 .build();
         apply(modificationModel2);
 
@@ -107,7 +105,6 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         ModificationByAssignmentModel modificationModel = ModificationByAssignmentModel.builder()
                 .equipmentType(getIdentifiableType())
                 .assignmentModelList(List.of(assignmentModel))
-                .stashed(false)
                 .build();
 
         apply(modificationModel);

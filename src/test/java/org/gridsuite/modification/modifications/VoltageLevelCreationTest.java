@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
@@ -135,7 +134,6 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
     @Test
     void testCreateWithSubstationCreation() {
         SubstationCreationModel substationCreationModel = SubstationCreationModel.builder()
-                .stashed(false)
                 .equipmentId("newSubstationId")
                 .equipmentName("newSubstationName")
                 .country(Country.AF)
@@ -204,8 +202,8 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("VOLTAGE_LEVEL_CREATION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("VOLTAGE_LEVEL_CREATION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("vlId", createdValues.get("equipmentId"));
     }
 

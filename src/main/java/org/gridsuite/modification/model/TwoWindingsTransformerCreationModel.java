@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -15,6 +14,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.TwoWindingsTransformerCreation;
@@ -29,9 +29,8 @@ import org.gridsuite.modification.modifications.TwoWindingsTransformerCreation;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Two windings transformer creation")
-@JsonTypeName("TWO_WINDINGS_TRANSFORMER_CREATION")
 @ModificationErrorTypeName("CREATE_TWO_WINDINGS_TRANSFORMER_ERROR")
-public class TwoWindingsTransformerCreationModel extends BranchCreationModel {
+public class TwoWindingsTransformerCreationModel extends BranchCreationModel implements ModificationModel {
 
     @Schema(description = "Magnetizing conductance")
     private double g;
@@ -57,6 +56,11 @@ public class TwoWindingsTransformerCreationModel extends BranchCreationModel {
     @Override
     public AbstractModification toModification() {
         return new TwoWindingsTransformerCreation(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.TWO_WINDINGS_TRANSFORMER_CREATION;
     }
 
     @Override

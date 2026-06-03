@@ -90,7 +90,6 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
         return ByFormulaModificationModel.builder()
                 .identifiableType(getIdentifiableType())
                 .formulaModelList(getFormulaModel())
-                .stashed(false)
                 .build();
     }
 

@@ -27,9 +27,9 @@ import java.util.Map;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString(callSuper = true)
+@ToString
 @Schema(description = "Equipment modification")
-public class EquipmentModificationModel extends ModificationModel {
+public class EquipmentModificationModel {
     @Schema(description = "Equipment ID")
     @NonNull
     private String equipmentId;
@@ -38,7 +38,6 @@ public class EquipmentModificationModel extends ModificationModel {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<FreePropertyModel> properties;
 
-    @Override
     public Map<String, String> getMapMessageValues() {
         return Map.of("equipmentId", getEquipmentId());
     }

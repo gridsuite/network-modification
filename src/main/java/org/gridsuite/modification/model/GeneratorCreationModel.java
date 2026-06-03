@@ -7,7 +7,6 @@
 package org.gridsuite.modification.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.EnergySource;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,6 +16,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.GeneratorCreation;
@@ -33,9 +33,8 @@ import java.util.List;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Generator creation")
-@JsonTypeName("GENERATOR_CREATION")
 @ModificationErrorTypeName("CREATE_GENERATOR_ERROR")
-public class GeneratorCreationModel extends InjectionCreationModel implements ReactiveLimitsHolderModel {
+public class GeneratorCreationModel extends InjectionCreationModel implements ModificationModel, ReactiveLimitsHolderModel {
     @Schema(description = "Energy source")
     private EnergySource energySource;
 
@@ -114,6 +113,11 @@ public class GeneratorCreationModel extends InjectionCreationModel implements Re
     @Override
     public AbstractModification toModification() {
         return new GeneratorCreation(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.GENERATOR_CREATION;
     }
 
     @Override

@@ -13,8 +13,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.VariationType;
-import org.gridsuite.modification.model.GeneratorScalingModel;
-import org.gridsuite.modification.model.ScalingVariationModel;
 
 import java.time.Instant;
 import java.util.List;

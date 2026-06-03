@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -47,7 +46,6 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
 
     protected ModificationModel buildModification(String selectedLimitGroups1, String selectedLimitGroups2) {
         return TwoWindingsTransformerCreationModel.builder()
-                .stashed(false)
                 .equipmentId("new2wt")
                 .equipmentName("new2wt")
                 .r(1.)
@@ -221,10 +219,8 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
                 .build();
         testCreateTwoWindingsTransformerInNodeBreaker(twoWindingsTransformerCreationModel);
         TwoWindingsTransformerCreationModel twoWindingsTransformerCreationModel2 = TwoWindingsTransformerCreationModel.builder()
-                .activated(true)
                 .equipmentId("id2wt1WithRatioTapChanger2")
                 .equipmentName("2wtName")
-                .description("a dummy description")
                 .voltageLevelId1("v1")
                 .busOrBusbarSectionId1("1.1")
                 .connected1(true)
@@ -243,7 +239,7 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
                 .build();
         testCreateTwoWindingsTransformerInNodeBreaker(twoWindingsTransformerCreationModel2);
         assertEquals(
-            "TwoWindingsTransformerCreationModel(super=BranchCreationModel(super=EquipmentCreationModel(super=EquipmentModificationModel(super=ModificationModel(uuid=null, type=TWO_WINDINGS_TRANSFORMER_CREATION, date=null, stashed=false, messageType=null, messageValues=null, activated=true, description=a dummy description), equipmentId=id2wt1WithRatioTapChanger2, properties=null), equipmentName=2wtName), r=400.0, x=300.0, voltageLevelId1=v1, voltageLevelId2=v4, busOrBusbarSectionId1=1.1, busOrBusbarSectionId2=1.A, operationalLimitsGroups=null, selectedOperationalLimitsGroupId1=null, selectedOperationalLimitsGroupId2=null, connectionName1=null, connectionDirection1=TOP, connectionName2=null, connectionDirection2=TOP, connectionPosition1=null, connectionPosition2=null, connected1=true, connected2=true), g=100.0, b=200.0, ratedU1=1000.0, ratedU2=1010.0, ratedS=null, ratioTapChanger=RatioTapChangerCreationModel(super=TapChangerCreationModel(lowTapPosition=0, tapPosition=1, regulating=true, targetDeadband=null, terminalRefConnectableId=v1load, terminalRefConnectableType=LOAD, terminalRefConnectableVlId=v1, steps=[TapChangerStepCreationModel(index=0, rho=1.0, r=39.78473, x=39.784725, g=0.0, b=0.0, alpha=0.0), TapChangerStepCreationModel(index=0, rho=1.0, r=39.78474, x=39.784726, g=0.0, b=0.0, alpha=0.0), TapChangerStepCreationModel(index=0, rho=1.0, r=39.78475, x=39.784727, g=0.0, b=0.0, alpha=0.0)], loadTapChangingCapabilities=true), targetV=220.0), phaseTapChanger=null)",
+            "TwoWindingsTransformerCreationModel(super=BranchCreationModel(super=EquipmentCreationModel(super=EquipmentModificationModel(equipmentId=id2wt1WithRatioTapChanger2, properties=null), equipmentName=2wtName), r=400.0, x=300.0, voltageLevelId1=v1, voltageLevelId2=v4, busOrBusbarSectionId1=1.1, busOrBusbarSectionId2=1.A, operationalLimitsGroups=null, selectedOperationalLimitsGroupId1=null, selectedOperationalLimitsGroupId2=null, connectionName1=null, connectionDirection1=TOP, connectionName2=null, connectionDirection2=TOP, connectionPosition1=null, connectionPosition2=null, connected1=true, connected2=true), g=100.0, b=200.0, ratedU1=1000.0, ratedU2=1010.0, ratedS=null, ratioTapChanger=RatioTapChangerCreationModel(super=TapChangerCreationModel(lowTapPosition=0, tapPosition=1, regulating=true, targetDeadband=null, terminalRefConnectableId=v1load, terminalRefConnectableType=LOAD, terminalRefConnectableVlId=v1, steps=[TapChangerStepCreationModel(index=0, rho=1.0, r=39.78473, x=39.784725, g=0.0, b=0.0, alpha=0.0), TapChangerStepCreationModel(index=0, rho=1.0, r=39.78474, x=39.784726, g=0.0, b=0.0, alpha=0.0), TapChangerStepCreationModel(index=0, rho=1.0, r=39.78475, x=39.784727, g=0.0, b=0.0, alpha=0.0)], loadTapChangingCapabilities=true), targetV=220.0), phaseTapChanger=null)",
             twoWindingsTransformerCreationModel2.toString()
         );
 
@@ -447,8 +443,8 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("TWO_WINDINGS_TRANSFORMER_CREATION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("TWO_WINDINGS_TRANSFORMER_CREATION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("new2wt", createdValues.get("equipmentId"));
     }
 

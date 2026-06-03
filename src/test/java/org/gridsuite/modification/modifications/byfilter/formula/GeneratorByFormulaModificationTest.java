@@ -65,7 +65,6 @@ class GeneratorByFormulaModificationTest extends AbstractByFormulaModificationTe
         ByFormulaModificationModel modificationModel = ByFormulaModificationModel.builder()
                 .identifiableType(getIdentifiableType())
                 .formulaModelList(List.of(formulaModel))
-                .stashed(false)
                 .build();
         apply(modificationModel);
         assertEquals(75, getNetwork().getGenerator(GENERATOR_ID_1).getTargetP(), 0);

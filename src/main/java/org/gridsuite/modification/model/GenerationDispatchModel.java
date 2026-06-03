@@ -7,13 +7,13 @@
 
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.GenerationDispatch;
@@ -28,9 +28,8 @@ import java.util.List;
 @Getter
 @Setter
 @Schema(description = "Generation dispatch creation")
-@JsonTypeName("GENERATION_DISPATCH")
 @ModificationErrorTypeName("GENERATION_DISPATCH_ERROR")
-public class GenerationDispatchModel extends ModificationModel {
+public class GenerationDispatchModel implements ModificationModel {
     @Schema(description = "loss coefficient")
     private Double lossCoefficient;
 
@@ -52,6 +51,11 @@ public class GenerationDispatchModel extends ModificationModel {
     @Override
     public AbstractModification toModification() {
         return new GenerationDispatch(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.GENERATION_DISPATCH;
     }
 
     @Override

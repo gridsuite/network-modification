@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
@@ -49,7 +48,6 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return VoltageLevelModificationModel.builder()
-                .stashed(false)
                 .equipmentId("v1")
                 .equipmentName(new AttributeModification<>("test 1", OperationType.SET))
                 .nominalV(new AttributeModification<>(420D, OperationType.SET))
@@ -100,7 +98,6 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
         applyModification(infos);
 
         VoltageLevelModificationModel updatedModel = VoltageLevelModificationModel.builder()
-                .stashed(false)
                 .equipmentId("v1")
                 .ipMax(new AttributeModification<>(0.9, OperationType.SET))
                 .build();
@@ -127,7 +124,6 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
         final String vlWithBothIcc = "v3";
 
         VoltageLevelModificationModel vli = VoltageLevelModificationModel.builder()
-                .stashed(false)
                 .equipmentId(vlWithBothIcc)
                 .build();
         if (ipMin != null) {
@@ -189,7 +185,6 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
     private void testSetIpMinOnEquipmentWithoutExtension() {
         final String vlWithNoIcc = "v2";
         VoltageLevelModificationModel vli = VoltageLevelModificationModel.builder()
-                .stashed(false)
                 .equipmentId(vlWithNoIcc)
                 .ipMin(new AttributeModification<>(10.0, OperationType.SET))
                 .build();
@@ -202,7 +197,6 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
     private void testSetNominalVoltage() {
         final String vlWithNoIcc = "v2";
         VoltageLevelModificationModel vli = VoltageLevelModificationModel.builder()
-            .stashed(false)
             .equipmentId(vlWithNoIcc)
             .nominalV(new AttributeModification<>(-10.0, OperationType.SET))
             .build();
@@ -215,7 +209,6 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
     private void testSetLowVoltageLimit() {
         final String vlWithNoIcc = "v2";
         VoltageLevelModificationModel vli = VoltageLevelModificationModel.builder()
-            .stashed(false)
             .equipmentId(vlWithNoIcc)
             .lowVoltageLimit(new AttributeModification<>(-11.0, OperationType.SET))
             .build();
@@ -228,7 +221,6 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
     private void testSetHighVoltageLimit() {
         final String vlWithNoIcc = "v2";
         VoltageLevelModificationModel vli = VoltageLevelModificationModel.builder()
-            .stashed(false)
             .equipmentId(vlWithNoIcc)
             .highVoltageLimit(new AttributeModification<>(-12.0, OperationType.SET))
             .build();
@@ -246,7 +238,6 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
 
         final double targetIpMax = 29.0;
         VoltageLevelModificationModel vli = VoltageLevelModificationModel.builder()
-                .stashed(false)
                 .equipmentId(vlName)
                 .ipMax(new AttributeModification<>(targetIpMax, OperationType.SET))
                 .build();
@@ -273,7 +264,6 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
                 .withMessageTemplate("test")
                 .build();
         VoltageLevelModificationModel updateModif = VoltageLevelModificationModel.builder()
-                .stashed(false)
                 .equipmentId("v1")
                 .busbarSectionVMeasurements(List.of(
                     BusbarSectionVMeasurementModel.builder()
@@ -317,8 +307,8 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("VOLTAGE_LEVEL_MODIFICATION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("VOLTAGE_LEVEL_MODIFICATION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("v1", createdValues.get("equipmentId"));
     }
 

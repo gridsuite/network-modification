@@ -143,7 +143,6 @@ class LccModificationTest extends AbstractInjectionModificationTest {
 
     private void buildAndApplyLccCreationWithShuntCompensator(Network network) {
         LccCreationModel creationModel = LccCreationModel.builder()
-            .stashed(false)
             .equipmentId("lcc1")
             .equipmentName("lcc1Name")
             .nominalV(39.)

@@ -30,7 +30,6 @@ class GroovyScriptTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return GroovyScriptModel.builder()
-                .stashed(false)
                 .script("network.getGenerator('idGenerator').targetP=12\n")
                 .build();
     }

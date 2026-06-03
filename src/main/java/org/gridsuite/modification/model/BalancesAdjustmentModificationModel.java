@@ -6,13 +6,13 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.BalancesAdjustmentModification;
@@ -30,9 +30,8 @@ import java.util.UUID;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Balances adjustment modification infos")
-@JsonTypeName("BALANCES_ADJUSTMENT_MODIFICATION")
 @ModificationErrorTypeName("BALANCES_ADJUSTMENT_MODIFICATION_ERROR")
-public class BalancesAdjustmentModificationModel extends ModificationModel {
+public class BalancesAdjustmentModificationModel implements ModificationModel {
     public static final int DEFAULT_MAX_NUMBER_ITERATIONS = 5;
     public static final double DEFAULT_THRESHOLD_NET_POSITION = 1;
     public static final List<Country> DEFAULT_COUNTRIES_TO_BALANCE = Collections.emptyList();
@@ -69,6 +68,11 @@ public class BalancesAdjustmentModificationModel extends ModificationModel {
     @Override
     public AbstractModification toModification() {
         return new BalancesAdjustmentModification(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.BALANCES_ADJUSTMENT_MODIFICATION;
     }
 
     @Override

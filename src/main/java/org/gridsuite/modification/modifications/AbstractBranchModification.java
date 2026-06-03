@@ -11,7 +11,6 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.model.*;
 import org.gridsuite.modification.model.AttributeModification;
 import org.gridsuite.modification.model.BranchModificationModel;
 import org.gridsuite.modification.model.constants.OperationType;

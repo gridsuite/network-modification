@@ -12,9 +12,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.model.FilterModel;
-import org.gridsuite.modification.model.GenerationDispatchModel;
-import org.gridsuite.modification.model.GeneratorsFrequencyReserveModel;
 import org.gridsuite.modification.model.SubstationsGeneratorsOrderingModel;
 
 import java.time.Instant;

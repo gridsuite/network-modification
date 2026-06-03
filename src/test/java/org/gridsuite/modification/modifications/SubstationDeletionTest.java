@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.model.EquipmentDeletionModel;
@@ -31,7 +30,6 @@ class SubstationDeletionTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return EquipmentDeletionModel.builder()
-                .stashed(false)
                 .equipmentType(IdentifiableType.SUBSTATION)
                 .equipmentId("s1")
                 .build();
@@ -51,8 +49,8 @@ class SubstationDeletionTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("EQUIPMENT_DELETION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("EQUIPMENT_DELETION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("s1", createdValues.get("equipmentId"));
     }
 

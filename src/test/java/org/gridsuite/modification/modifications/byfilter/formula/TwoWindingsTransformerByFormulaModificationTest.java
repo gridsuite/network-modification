@@ -56,7 +56,6 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
         ByFormulaModificationModel modificationModel = ByFormulaModificationModel.builder()
                 .identifiableType(getIdentifiableType())
                 .formulaModelList(List.of(formulaModel))
-                .stashed(false)
                 .build();
         apply(modificationModel);
 
@@ -79,7 +78,6 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
         ByFormulaModificationModel modificationModel2 = ByFormulaModificationModel.builder()
                 .identifiableType(getIdentifiableType())
                 .formulaModelList(List.of(formulaModel2))
-                .stashed(false)
                 .build();
         apply(modificationModel2);
 
@@ -108,7 +106,6 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
         ByFormulaModificationModel modificationModel = ByFormulaModificationModel.builder()
                 .identifiableType(getIdentifiableType())
                 .formulaModelList(List.of(formulaModel))
-                .stashed(false)
                 .build();
         apply(modificationModel);
 

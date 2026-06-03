@@ -28,8 +28,6 @@ public final class ModificationCreation {
 
     public static VoltageLevelCreationModel getCreationVoltageLevel(String substationId, String voltageLevelId, String voltageLevelName) {
         return VoltageLevelCreationModel.builder()
-            .stashed(false)
-            .activated(true)
             .equipmentId(voltageLevelId)
             .equipmentName(voltageLevelName)
             .substationId(substationId)
@@ -46,8 +44,6 @@ public final class ModificationCreation {
 
     public static BatteryCreationModel getCreationBattery(String vlId, String batteryId, String batteryName, String busOrBusbarSectionId) {
         return BatteryCreationModel.builder()
-                .stashed(false)
-                .activated(true)
                 .equipmentId(batteryId)
                 .equipmentName(batteryName)
                 .voltageLevelId(vlId)
@@ -71,8 +67,6 @@ public final class ModificationCreation {
     public static GeneratorCreationModel getCreationGenerator(String vlId, String generatorId, String generatorName, String busOrBusbarSectionId,
                                                               String regulatingTerminalId, String regulatingTerminalType, String regulatingTerminalVlId) {
         return GeneratorCreationModel.builder()
-            .stashed(false)
-            .activated(true)
             .equipmentId(generatorId)
             .equipmentName(generatorName)
             .voltageLevelId(vlId)
@@ -105,8 +99,6 @@ public final class ModificationCreation {
 
     public static GeneratorModificationModel getModificationGenerator(String generatorId, String generatorName) {
         GeneratorModificationModel.GeneratorModificationModelBuilder builder = GeneratorModificationModel.builder()
-                .stashed(false)
-                .activated(true)
                 .equipmentId(generatorId);
 
         if (generatorName != null) {
@@ -118,8 +110,6 @@ public final class ModificationCreation {
 
     public static LoadCreationModel getCreationLoad(String vlId, String loadId, String loadName, String busOrBusBarSectionId, LoadType loadType) {
         return LoadCreationModel.builder()
-            .stashed(false)
-            .activated(true)
             .equipmentId(loadId)
             .equipmentName(loadName)
             .voltageLevelId(vlId)
@@ -134,8 +124,6 @@ public final class ModificationCreation {
 
     public static LoadModificationModel getModificationLoad(String loadId, String vlId, String loadName, String busOrBusbarSectionId, LoadType loadType, Long activePower, Long reactivePower) {
         LoadModificationModel.LoadModificationModelBuilder builder = LoadModificationModel.builder()
-            .stashed(false)
-            .activated(true)
             .equipmentId(loadId);
 
         if (loadName != null) {
@@ -167,8 +155,6 @@ public final class ModificationCreation {
 
     public static VoltageLevelModificationModel getModificationVoltageLevel(String vlId, String vlName) {
         VoltageLevelModificationModel.VoltageLevelModificationModelBuilder builder = VoltageLevelModificationModel.builder()
-            .stashed(false)
-            .activated(true)
             .equipmentId(vlId);
 
         builder.equipmentName(AttributeModification.toAttributeModification(vlName, OperationType.SET));

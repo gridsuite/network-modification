@@ -7,7 +7,6 @@
 
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.byfilter.assignment.AssignmentModel;
 import org.gridsuite.modification.modifications.byfilter.ModificationByAssignment;
@@ -29,11 +29,10 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-@JsonTypeName("MODIFICATION_BY_ASSIGNMENT")
 @ModificationErrorTypeName("MODIFICATION_BY_ASSIGNMENT_ERROR")
 @ToString(callSuper = true)
 @Schema(description = "Modification by assignment")
-public class ModificationByAssignmentModel extends ModificationModel {
+public class ModificationByAssignmentModel implements ModificationModel {
     @Schema(description = "Equipment type")
     private IdentifiableType equipmentType;
 
@@ -43,6 +42,11 @@ public class ModificationByAssignmentModel extends ModificationModel {
     @Override
     public ModificationByAssignment toModification() {
         return new ModificationByAssignment(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.MODIFICATION_BY_ASSIGNMENT;
     }
 
     @Override

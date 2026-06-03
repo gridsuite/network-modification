@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications.tabularcreations;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Network;
@@ -99,7 +98,6 @@ class TabularBatteryCreationsTest extends AbstractNetworkModificationTest {
         return TabularCreationModel.builder()
             .modificationType(ModificationType.BATTERY_CREATION)
             .modifications(creations)
-            .stashed(false)
             .build();
     }
 
@@ -210,8 +208,8 @@ class TabularBatteryCreationsTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals(ModificationType.TABULAR_CREATION.name(), modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals(ModificationType.TABULAR_CREATION.name(), modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals(ModificationType.BATTERY_CREATION.name(), createdValues.get("tabularCreationType"));
     }
 

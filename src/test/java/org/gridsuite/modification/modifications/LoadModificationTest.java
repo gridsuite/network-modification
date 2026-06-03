@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
@@ -52,7 +51,6 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return LoadModificationModel.builder()
-            .stashed(false)
             .equipmentId("v1load")
             .equipmentName(new AttributeModification<>("nameLoad1", OperationType.SET))
             .loadType(new AttributeModification<>(LoadType.FICTITIOUS, OperationType.SET))
@@ -95,7 +93,6 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
     protected void checkModification() {
         // Unset an attribute that should not be null
         LoadModificationModel loadModificationModel = LoadModificationModel.builder()
-                .stashed(false)
                 .equipmentId("v1load")
                 .loadType(new AttributeModification<>(null, OperationType.UNSET))
                 .build();
@@ -105,8 +102,8 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("LOAD_MODIFICATION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("LOAD_MODIFICATION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("v1load", createdValues.get("equipmentId"));
     }
 

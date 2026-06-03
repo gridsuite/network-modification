@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import org.gridsuite.modification.IFilterService;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.VariationMode;
 import org.gridsuite.modification.VariationType;
 import org.gridsuite.modification.model.FilterEquipments;
@@ -26,8 +27,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import java.nio.file.Paths;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -132,9 +131,6 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                 .build();
 
         ModificationModel modificationToCreate = GeneratorScalingModel.builder()
-                .stashed(false)
-                .uuid(GENERATOR_SCALING_ID)
-                .date(Instant.now().truncatedTo(ChronoUnit.MICROS))
                 .variationType(VariationType.DELTA_P)
                 .variations(List.of(variation1))
                 .build();
@@ -162,7 +158,6 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                 .filters(List.of(filter))
                 .build();
         var generatorScalingInfo = GeneratorScalingModel.builder()
-                .stashed(false)
                 .variationType(VariationType.TARGET_P)
                 .variations(List.of(variation))
                 .build();
@@ -173,7 +168,7 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         generatorScaling.apply(getNetwork(), report);
-        assertLogMessage(generatorScalingInfo.getErrorType().name() + ": There is no valid equipment ID among the provided filter(s)",
+        assertLogMessage(NetworkModificationException.Type.SCALING_ERROR.name() + ": There is no valid equipment ID among the provided filter(s)",
                 "network.modification.invalidFilters", report);
     }
 
@@ -207,7 +202,6 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                 .filters(List.of(filter, filter2))
                 .build();
         var generatorScalingInfo = GeneratorScalingModel.builder()
-                .stashed(false)
                 .variationType(VariationType.TARGET_P)
                 .variations(List.of(variation))
                 .build();
@@ -283,7 +277,6 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                 .build();
 
         return GeneratorScalingModel.builder()
-                .stashed(false)
                 //.date(ZonedDateTime.now().truncatedTo(ChronoUnit.MICROS))
                 .variationType(VariationType.DELTA_P)
                 .variations(List.of(variation1, variation2, variation3, variation4, variation5))
@@ -352,7 +345,6 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                 .filters(List.of(filter))
                 .build();
         var generatorScalingInfo = GeneratorScalingModel.builder()
-                .stashed(false)
                 .variationType(VariationType.TARGET_P)
                 .variations(List.of(variation))
                 .build();

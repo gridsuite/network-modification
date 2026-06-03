@@ -7,13 +7,13 @@
 
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VoltageLevelTopologyModification;
@@ -29,9 +29,8 @@ import java.util.List;
 @Getter
 @Setter
 @Schema(description = "Voltage level topology modification")
-@JsonTypeName("VOLTAGE_LEVEL_TOPOLOGY_MODIFICATION")
 @ModificationErrorTypeName("MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR")
-public class VoltageLevelTopologyModificationModel extends EquipmentModificationModel {
+public class VoltageLevelTopologyModificationModel extends EquipmentModificationModel implements ModificationModel {
 
     @Schema(description = "Switch attribute modification list")
     private List<EquipmentAttributeModificationModel> equipmentAttributeModificationList;
@@ -39,6 +38,11 @@ public class VoltageLevelTopologyModificationModel extends EquipmentModification
     @Override
     public AbstractModification toModification() {
         return new VoltageLevelTopologyModification(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.VOLTAGE_LEVEL_TOPOLOGY_MODIFICATION;
     }
 
     @Override

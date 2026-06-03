@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.CreateVoltageLevelTopology;
 
@@ -32,7 +33,7 @@ import java.util.Map;
 @ToString(callSuper = true)
 @Schema(description = "voltage level topology creation")
 @JsonTypeName("CREATE_VOLTAGE_LEVEL_TOPOLOGY")
-public class CreateVoltageLevelTopologyModel extends ModificationModel {
+public class CreateVoltageLevelTopologyModel implements ModificationModel {
 
     @Schema(description = "voltageLevelId")
     private String voltageLevelId;
@@ -60,5 +61,10 @@ public class CreateVoltageLevelTopologyModel extends ModificationModel {
     @Override
     public AbstractModification toModification() {
         return new CreateVoltageLevelTopology(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.CREATE_VOLTAGE_LEVEL_TOPOLOGY;
     }
 }

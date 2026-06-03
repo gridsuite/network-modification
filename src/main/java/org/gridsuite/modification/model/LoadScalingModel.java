@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -14,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LoadScaling;
@@ -27,13 +27,17 @@ import org.gridsuite.modification.modifications.LoadScaling;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Load scaling creation")
-@JsonTypeName("LOAD_SCALING")
 @ModificationErrorTypeName("LOAD_SCALING_ERROR")
-public class LoadScalingModel extends ScalingModel {
+public class LoadScalingModel extends ScalingModel implements ModificationModel {
 
     @Override
     public AbstractModification toModification() {
         return new LoadScaling(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.LOAD_SCALING;
     }
 
     @Override

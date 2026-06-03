@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
@@ -14,8 +13,6 @@ import org.gridsuite.modification.model.FreePropertyModel;
 import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.model.ShuntCompensatorCreationModel;
 import org.gridsuite.modification.utils.NetworkCreation;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -45,8 +42,6 @@ class ShuntCompensatorCreationInBusBreakerTest extends AbstractNetworkModificati
     @Override
     protected ModificationModel buildModification() {
         return ShuntCompensatorCreationModel.builder()
-            .stashed(false)
-            .date(Instant.now().truncatedTo(ChronoUnit.MICROS))
             .equipmentId("shuntOneId")
             .equipmentName("hopOne")
             .maximumSectionCount(10)
@@ -69,8 +64,8 @@ class ShuntCompensatorCreationInBusBreakerTest extends AbstractNetworkModificati
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("SHUNT_COMPENSATOR_CREATION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("SHUNT_COMPENSATOR_CREATION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("shuntOneId", createdValues.get("equipmentId"));
     }
 }

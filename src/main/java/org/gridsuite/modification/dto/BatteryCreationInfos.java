@@ -13,8 +13,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.model.BatteryCreationModel;
-import org.gridsuite.modification.model.BatteryModificationModel;
-import org.gridsuite.modification.model.GroovyScriptModel;
 
 import java.time.Instant;
 import java.util.UUID;

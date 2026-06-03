@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -50,7 +49,6 @@ class GeneratorCreationInBusBreakerTest extends AbstractNetworkModificationTest 
     @Override
     protected ModificationModel buildModification() {
         return GeneratorCreationModel.builder()
-                .stashed(false)
                 .equipmentId("idGenerator2")
                 .equipmentName("nameGenerator2")
                 .voltageLevelId("v1")
@@ -117,8 +115,8 @@ class GeneratorCreationInBusBreakerTest extends AbstractNetworkModificationTest 
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("GENERATOR_CREATION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("GENERATOR_CREATION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("idGenerator2", createdValues.get("equipmentId"));
     }
 }

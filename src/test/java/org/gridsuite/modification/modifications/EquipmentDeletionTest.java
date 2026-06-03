@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.RemoveSubstation;
@@ -48,7 +47,6 @@ class EquipmentDeletionTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return EquipmentDeletionModel.builder()
-                .stashed(false)
                 .equipmentType(IdentifiableType.LOAD)
                 .equipmentId("v1load")
                 .build();
@@ -63,7 +61,6 @@ class EquipmentDeletionTest extends AbstractNetworkModificationTest {
     void testOkWhenRemovingIsolatedEquipment() {
 
         EquipmentDeletionModel equipmentDeletionModel = EquipmentDeletionModel.builder()
-                .stashed(false)
                 .equipmentType(IdentifiableType.LOAD)
                 .equipmentId("v5load")
                 .build();
@@ -87,7 +84,6 @@ class EquipmentDeletionTest extends AbstractNetworkModificationTest {
             hvdcLccDeletionModel.setMcsOnSide2(shuntCompensatorModel);
         }
         EquipmentDeletionModel equipmentDeletionModel = EquipmentDeletionModel.builder()
-                .stashed(false)
                 .equipmentType(IdentifiableType.HVDC_LINE)
                 .equipmentId(hvdcLineName)
                 .equipmentInfos(hvdcLccDeletionModel)
@@ -121,8 +117,8 @@ class EquipmentDeletionTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("EQUIPMENT_DELETION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("EQUIPMENT_DELETION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("v1load", createdValues.get("equipmentId"));
     }
 }

@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Network;
@@ -78,7 +77,6 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
     @Override
     protected BatteryModificationModel buildModification() {
         return BatteryModificationModel.builder()
-            .stashed(false)
             .equipmentId("v3Battery")
             .equipmentName(new AttributeModification<>("newV1Battery", OperationType.SET))
             .voltageLevelId(new AttributeModification<>("v2", OperationType.SET))
@@ -249,8 +247,8 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("BATTERY_MODIFICATION", modificationModel.getMessageType());
-        Map<String, String> updatedValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("BATTERY_MODIFICATION", modificationModel.getType().toString());
+        Map<String, String> updatedValues = modificationModel.getMapMessageValues();
         assertEquals("v3Battery", updatedValues.get("equipmentId"));
     }
 

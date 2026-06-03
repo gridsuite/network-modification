@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
@@ -48,7 +47,6 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return BatteryCreationModel.builder()
-                .stashed(false)
                 .equipmentId("idBattery2")
                 .equipmentName("nameBattery2")
                 .voltageLevelId("v1")
@@ -91,8 +89,8 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("BATTERY_CREATION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("BATTERY_CREATION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("idBattery2", createdValues.get("equipmentId"));
         Battery battery = getNetwork().getBattery("idBattery2");
         assertNotNull(battery.getExtension(ActivePowerControl.class));
@@ -105,7 +103,6 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
     void testCreateWithDroopNull() {
         Network network = getNetwork();
         BatteryCreationModel batteryCreationModel = BatteryCreationModel.builder()
-                .stashed(false)
                 .equipmentId("idBattery2")
                 .equipmentName("nameBattery2")
                 .voltageLevelId("v1")

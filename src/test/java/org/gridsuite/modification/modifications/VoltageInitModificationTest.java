@@ -84,7 +84,6 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return VoltageInitModificationModel.builder()
-            .stashed(false)
             .generators(List.of(
                 VoltageInitGeneratorModificationModel.builder()
                     .generatorId("idGenerator")
@@ -220,7 +219,6 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
         getNetwork().getShuntCompensator(shuntCompensatorId).setSectionCount(currentSectionCount);
 
         VoltageInitModificationModel modification = VoltageInitModificationModel.builder()
-            .stashed(false)
             .generators(List.of())
             .transformers(List.of())
             .staticVarCompensators(List.of())

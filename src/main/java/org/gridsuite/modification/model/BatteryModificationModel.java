@@ -6,9 +6,9 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.BatteryModification;
@@ -30,9 +30,8 @@ import java.util.List;
 @Data
 @ToString(callSuper = true)
 @Schema(description = "Battery modification")
-@JsonTypeName("BATTERY_MODIFICATION")
 @ModificationErrorTypeName("MODIFY_BATTERY_ERROR")
-public class BatteryModificationModel extends InjectionModificationModel {
+public class BatteryModificationModel extends InjectionModificationModel implements ModificationModel {
     @Schema(description = "Minimum active power")
     private AttributeModification<Double> minP;
 
@@ -72,6 +71,11 @@ public class BatteryModificationModel extends InjectionModificationModel {
     @Override
     public AbstractModification toModification() {
         return new BatteryModification(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.BATTERY_MODIFICATION;
     }
 
     @Override

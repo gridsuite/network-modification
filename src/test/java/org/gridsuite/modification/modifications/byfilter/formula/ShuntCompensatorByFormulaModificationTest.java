@@ -60,7 +60,6 @@ class ShuntCompensatorByFormulaModificationTest extends AbstractByFormulaModific
         ByFormulaModificationModel modificationModel = ByFormulaModificationModel.builder()
                 .identifiableType(getIdentifiableType())
                 .formulaModelList(List.of(formulaModel))
-                .stashed(false)
                 .build();
         apply(modificationModel);
         assertEquals(5, getNetwork().getShuntCompensator(SHUNT_COMPENSATOR_ID_1).getMaximumSectionCount(), 0);

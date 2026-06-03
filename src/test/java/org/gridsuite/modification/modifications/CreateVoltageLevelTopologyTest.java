@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
@@ -57,7 +56,6 @@ class CreateVoltageLevelTopologyTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return CreateVoltageLevelTopologyModel.builder()
-            .stashed(false)
             .voltageLevelId("v1")
             .sectionCount(3)
             .switchKinds(List.of(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR))
@@ -76,9 +74,8 @@ class CreateVoltageLevelTopologyTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("CREATE_VOLTAGE_LEVEL_TOPOLOGY", modificationModel.getMessageType());
-        Map<String, String> updatedValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
-        });
+        assertEquals("CREATE_VOLTAGE_LEVEL_TOPOLOGY", modificationModel.getType().toString());
+        Map<String, String> updatedValues = modificationModel.getMapMessageValues();
         assertEquals("v1", updatedValues.get("voltageLevelId"));
     }
 

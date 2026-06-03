@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -14,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
@@ -32,9 +32,8 @@ import static org.gridsuite.modification.NetworkModificationException.Type.OPERA
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Operating status modification")
-@JsonTypeName("OPERATING_STATUS_MODIFICATION")
 @ModificationErrorTypeName("OPERATING_STATUS_MODIFICATION_ERROR")
-public class OperatingStatusModificationModel extends EquipmentModificationModel {
+public class OperatingStatusModificationModel extends EquipmentModificationModel implements ModificationModel {
     @Schema(description = "Action type")
     private ActionType action;
 
@@ -55,6 +54,11 @@ public class OperatingStatusModificationModel extends EquipmentModificationModel
     }
 
     @Override
+    public ModificationType getType() {
+        return ModificationType.OPERATING_STATUS_MODIFICATION;
+    }
+
+    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         String messageKey = switch (action) {
             case LOCKOUT -> "network.modification.OPERATING_STATUS_MODIFICATION_LOCKOUT";
@@ -71,7 +75,6 @@ public class OperatingStatusModificationModel extends EquipmentModificationModel
 
     @Override
     public void check() {
-        super.check();
         if (action == null) {
             throw new NetworkModificationException(OPERATING_ACTION_TYPE_EMPTY);
         }

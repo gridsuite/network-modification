@@ -25,7 +25,7 @@ import java.util.List;
 @Setter
 @Schema(description = "Scaling infos")
 @ToString(callSuper = true)
-public class ScalingModel extends ModificationModel {
+public class ScalingModel {
     @Schema(description = "scaling variations")
     private List<ScalingVariationModel> variations;
 

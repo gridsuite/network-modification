@@ -6,11 +6,11 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LinesAttachToSplitLines;
@@ -27,9 +27,8 @@ import java.util.Map;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Line attach to split line")
-@JsonTypeName("LINES_ATTACH_TO_SPLIT_LINES")
 @ModificationErrorTypeName("LINE_ATTACH_ERROR")
-public class LinesAttachToSplitLinesModel extends ModificationModel {
+public class LinesAttachToSplitLinesModel implements ModificationModel {
 
     @Schema(description = "line 1 id")
     private String lineToAttachTo1Id;
@@ -61,6 +60,11 @@ public class LinesAttachToSplitLinesModel extends ModificationModel {
     @Override
     public AbstractModification toModification() {
         return new LinesAttachToSplitLines(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.LINES_ATTACH_TO_SPLIT_LINES;
     }
 
     @Override

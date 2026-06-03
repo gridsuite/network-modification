@@ -8,11 +8,9 @@
 package org.gridsuite.modification.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -23,8 +21,6 @@ import java.util.List;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Lcc converter station modification")
-@JsonTypeName("LCC_CONVERTER_STATION_MODIFICATION")
-@ModificationErrorTypeName("LCC_MODIFY_CONVERTER_STATION_ERROR")
 public class LccConverterStationModificationModel extends InjectionModificationModel {
     @Schema(description = "Loss Factor")
     private AttributeModification<Float> lossFactor;

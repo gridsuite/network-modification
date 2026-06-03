@@ -11,7 +11,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.model.EquipmentModificationModel;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.model.ShuntCompensatorModificationModel;
 import org.gridsuite.modification.model.tabular.TabularModificationModel;
 
@@ -49,7 +49,7 @@ public class TabularModification extends AbstractTabularModification {
     }
 
     @Override
-    public void specificCheck(EquipmentModificationModel equipmentModificationModel, Network network, ReportNode subReportNode) {
+    public void specificCheck(ModificationModel equipmentModificationModel, Network network, ReportNode subReportNode) {
         if (equipmentModificationModel instanceof ShuntCompensatorModificationModel shuntCompensatorModificationModel) {
             var shuntCompensator = network.getShuntCompensator(shuntCompensatorModificationModel.getEquipmentId());
             if (shuntCompensator.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {

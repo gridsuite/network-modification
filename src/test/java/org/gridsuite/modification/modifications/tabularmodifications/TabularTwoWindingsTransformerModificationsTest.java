@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications.tabularmodifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
@@ -49,7 +48,6 @@ class TabularTwoWindingsTransformerModificationsTest extends AbstractNetworkModi
         return TabularModificationModel.builder()
                 .modificationType(ModificationType.TWO_WINDINGS_TRANSFORMER_MODIFICATION)
                 .modifications(modifications)
-                .stashed(false)
                 .build();
     }
 
@@ -85,8 +83,8 @@ class TabularTwoWindingsTransformerModificationsTest extends AbstractNetworkModi
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals(ModificationType.TWO_WINDINGS_TRANSFORMER_MODIFICATION.name(), createdValues.get("tabularModificationType"));
     }
 

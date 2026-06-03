@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
@@ -35,7 +34,6 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return CreateVoltageLevelSectionModel.builder()
-                .stashed(false)
                 .voltageLevelId("v1")
                 .busbarSectionId("bbs1")
                 .busbarIndex(1)
@@ -100,8 +98,8 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("CREATE_VOLTAGE_LEVEL_SECTION", modificationModel.getMessageType());
-        Map<String, String> updatedValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("CREATE_VOLTAGE_LEVEL_SECTION", modificationModel.getType().toString());
+        Map<String, String> updatedValues = modificationModel.getMapMessageValues();
         assertEquals("v1", updatedValues.get("voltageLevelId"));
     }
 
@@ -129,7 +127,6 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
                 .add();
         bbs.newExtension(BusbarSectionPositionAdder.class).withBusbarIndex(1).withSectionIndex(0).add();
         CreateVoltageLevelSectionModel.builder()
-                .stashed(false)
                 .voltageLevelId("v1")
                 .busbarSectionId("bbs1_2")
                 .busbarIndex(2)
@@ -159,7 +156,6 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
                 .withMessageTemplate("test")
                 .build();
         CreateVoltageLevelSectionModel.builder()
-                .stashed(false)
                 .voltageLevelId("v1")
                 .busbarSectionId("bbs1_2")
                 .busbarIndex(2)

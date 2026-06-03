@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
@@ -36,7 +35,6 @@ class LineSplitWithVoltageLevelTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return LineSplitWithVoltageLevelModel.builder()
-            .stashed(false)
             .lineToSplitId("line2")
             .percent(10.0)
             .mayNewVoltageLevelInfos(null)
@@ -97,8 +95,8 @@ class LineSplitWithVoltageLevelTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("LINE_SPLIT_WITH_VOLTAGE_LEVEL", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("LINE_SPLIT_WITH_VOLTAGE_LEVEL", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("line2", createdValues.get("lineToSplitId"));
     }
 }

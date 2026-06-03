@@ -6,12 +6,12 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LineSplitWithVoltageLevel;
@@ -28,9 +28,8 @@ import java.util.Map;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Line split with voltage level")
-@JsonTypeName("LINE_SPLIT_WITH_VOLTAGE_LEVEL")
 @ModificationErrorTypeName("LINE_SPLIT_ERROR")
-public class LineSplitWithVoltageLevelModel extends ModificationModel {
+public class LineSplitWithVoltageLevelModel implements ModificationModel {
 
     @Schema(description = "line to split ID")
     private String lineToSplitId;
@@ -62,6 +61,11 @@ public class LineSplitWithVoltageLevelModel extends ModificationModel {
     @Override
     public AbstractModification toModification() {
         return new LineSplitWithVoltageLevel(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.LINE_SPLIT_WITH_VOLTAGE_LEVEL;
     }
 
     @Override

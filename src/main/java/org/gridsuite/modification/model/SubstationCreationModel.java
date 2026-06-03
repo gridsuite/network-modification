@@ -6,11 +6,11 @@
  */
 package org.gridsuite.modification.model;
 
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.SubstationCreation;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Country;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,9 +30,8 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Substation creation")
-@JsonTypeName("SUBSTATION_CREATION")
 @ModificationErrorTypeName("CREATE_SUBSTATION_ERROR")
-public class SubstationCreationModel extends EquipmentCreationModel {
+public class SubstationCreationModel extends EquipmentCreationModel implements ModificationModel {
 
     @Schema(description = "Substation country")
     private Country country;
@@ -40,6 +39,11 @@ public class SubstationCreationModel extends EquipmentCreationModel {
     @Override
     public AbstractModification toModification() {
         return new SubstationCreation(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.SUBSTATION_CREATION;
     }
 
     @Override

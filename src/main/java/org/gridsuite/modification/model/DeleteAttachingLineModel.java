@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -15,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.DeleteAttachingLine;
@@ -32,9 +32,8 @@ import java.util.Map;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Delete attaching line infos")
-@JsonTypeName("DELETE_ATTACHING_LINE")
 @ModificationErrorTypeName("DELETE_ATTACHING_LINE_ERROR")
-public class DeleteAttachingLineModel extends ModificationModel {
+public class DeleteAttachingLineModel implements ModificationModel {
 
     @Schema(description = "line 1 id")
     private String lineToAttachTo1Id;
@@ -54,6 +53,11 @@ public class DeleteAttachingLineModel extends ModificationModel {
     @Override
     public AbstractModification toModification() {
         return new DeleteAttachingLine(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.DELETE_ATTACHING_LINE;
     }
 
     @Override

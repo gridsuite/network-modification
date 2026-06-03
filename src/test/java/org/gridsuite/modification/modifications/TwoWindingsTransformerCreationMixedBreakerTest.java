@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -33,7 +32,6 @@ class TwoWindingsTransformerCreationMixedBreakerTest extends AbstractNetworkModi
     @Override
     protected ModificationModel buildModification() {
         return TwoWindingsTransformerCreationModel.builder()
-                .stashed(false)
                 .equipmentId("id2wt1")
                 .equipmentName("2wtName")
                 .voltageLevelId1("v1")
@@ -155,8 +153,8 @@ class TwoWindingsTransformerCreationMixedBreakerTest extends AbstractNetworkModi
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("TWO_WINDINGS_TRANSFORMER_CREATION", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() { });
+        assertEquals("TWO_WINDINGS_TRANSFORMER_CREATION", modificationModel.getType().toString());
+        Map<String, String> createdValues = modificationModel.getMapMessageValues();
         assertEquals("id2wt1", createdValues.get("equipmentId"));
     }
 

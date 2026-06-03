@@ -7,7 +7,6 @@
 package org.gridsuite.modification.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.constants.VoltageRegulationType;
 import org.gridsuite.modification.modifications.AbstractModification;
@@ -31,9 +31,8 @@ import org.gridsuite.modification.modifications.StaticVarCompensatorCreation;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Static var compensator creation")
-@JsonTypeName("STATIC_VAR_COMPENSATOR_CREATION")
 @ModificationErrorTypeName("CREATE_STATIC_VAR_COMPENSATOR_ERROR")
-public class StaticVarCompensatorCreationModel extends InjectionCreationModel {
+public class StaticVarCompensatorCreationModel extends InjectionCreationModel implements ModificationModel {
     @Schema(description = "Susceptance max")
     private Double maxSusceptance;
 
@@ -98,6 +97,11 @@ public class StaticVarCompensatorCreationModel extends InjectionCreationModel {
     @Override
     public AbstractModification toModification() {
         return new StaticVarCompensatorCreation(this);
+    }
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.STATIC_VAR_COMPENSATOR_CREATION;
     }
 
     @Override
