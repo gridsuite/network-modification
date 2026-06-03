@@ -358,11 +358,11 @@ public class GenerationDispatch extends AbstractModification {
         }
     }
 
-    private List<String> exportFilters(List<GeneratorsFilterModel> generatorsFilters, Network network, ReportNode subReportNode, String generatorsType) {
+    private List<String> exportFilters(List<FilterModel> generatorsFilters, Network network, ReportNode subReportNode, String generatorsType) {
         if (CollectionUtils.isEmpty(generatorsFilters)) {
             return List.of();
         }
-        var filters = generatorsFilters.stream().collect(Collectors.toMap(GeneratorsFilterModel::getId, GeneratorsFilterModel::getName, (id1, id2) -> id1, LinkedHashMap::new));
+        var filters = generatorsFilters.stream().collect(Collectors.toMap(FilterModel::getId, FilterModel::getName, (id1, id2) -> id1, LinkedHashMap::new));
 
         // export filters
         Map<UUID, FilterEquipments> exportedGenerators = filterService

@@ -26,7 +26,7 @@ import java.util.List;
 @Schema(description = "Generators frequency reserve infos")
 public class GeneratorsFrequencyReserveModel {
     @Schema(description = "generators filters")
-    private List<GeneratorsFilterModel> generatorsFilters;
+    private List<FilterModel> generatorsFilters;
 
     @Schema(description = "frequency reserve")
     private Double frequencyReserve;

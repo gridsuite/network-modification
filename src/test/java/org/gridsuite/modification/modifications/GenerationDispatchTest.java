@@ -273,9 +273,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         GenerationDispatchModel modification = buildModification();
         modification.setDefaultOutageRate(15.);
         modification.setGeneratorsWithoutOutage(
-            List.of(GeneratorsFilterModel.builder().id(FILTER_ID_1).name("filter1").build(),
-                    GeneratorsFilterModel.builder().id(FILTER_ID_2).name("filter2").build(),
-                    GeneratorsFilterModel.builder().id(FILTER_ID_3).name("filter3").build()));
+            List.of(FilterModel.builder().id(FILTER_ID_1).name("filter1").build(),
+                    FilterModel.builder().id(FILTER_ID_2).name("filter2").build(),
+                    FilterModel.builder().id(FILTER_ID_3).name("filter3").build()));
 
         // network with 2 synchronous components, 2 hvdc lines between them, forcedOutageRate and plannedOutageRate defined for the generators
         setNetwork(Network.read("testGenerationDispatchReduceMaxP.xiidm", getClass().getResourceAsStream("/testGenerationDispatchReduceMaxP.xiidm")));
@@ -335,12 +335,12 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         GenerationDispatchModel modification = buildModification();
         modification.setDefaultOutageRate(15.);
         modification.setGeneratorsWithoutOutage(
-            List.of(GeneratorsFilterModel.builder().id(FILTER_ID_1).name("filter1").build(),
-                GeneratorsFilterModel.builder().id(FILTER_ID_2).name("filter2").build(),
-                GeneratorsFilterModel.builder().id(FILTER_ID_3).name("filter3").build()));
+            List.of(FilterModel.builder().id(FILTER_ID_1).name("filter1").build(),
+                FilterModel.builder().id(FILTER_ID_2).name("filter2").build(),
+                FilterModel.builder().id(FILTER_ID_3).name("filter3").build()));
         modification.setGeneratorsWithFixedSupply(
-            List.of(GeneratorsFilterModel.builder().id(FILTER_ID_1).name("filter1").build(),
-                GeneratorsFilterModel.builder().id(FILTER_ID_4).name("filter4").build()));
+            List.of(FilterModel.builder().id(FILTER_ID_1).name("filter1").build(),
+                FilterModel.builder().id(FILTER_ID_4).name("filter4").build()));
 
         // network with 2 synchronous components, 2 hvdc lines between them, forcedOutageRate, plannedOutageRate, predefinedActivePowerSetpoint defined for some generators
         setNetwork(Network.read("testGenerationDispatchFixedActivePower.xiidm", getClass().getResourceAsStream("/testGenerationDispatchFixedActivePower.xiidm")));
@@ -404,18 +404,18 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         assertLogMessageWithoutRank("Sum of generator active power setpoints in EAST region: 330.0 MW (NUCLEAR: 0.0 MW, THERMAL: 0.0 MW, HYDRO: 330.0 MW, WIND AND SOLAR: 0.0 MW, OTHER: 0.0 MW).", "network.modification.SumGeneratorActivePower", report);
     }
 
-    private static List<GeneratorsFilterModel> getGeneratorsFiltersModelWithFilters123() {
-        return List.of(GeneratorsFilterModel.builder().id(FILTER_ID_1).name("filter1").build(),
-                GeneratorsFilterModel.builder().id(FILTER_ID_2).name("filter2").build(),
-                GeneratorsFilterModel.builder().id(FILTER_ID_3).name("filter3").build());
+    private static List<FilterModel> getGeneratorsFiltersModelWithFilters123() {
+        return List.of(FilterModel.builder().id(FILTER_ID_1).name("filter1").build(),
+                FilterModel.builder().id(FILTER_ID_2).name("filter2").build(),
+                FilterModel.builder().id(FILTER_ID_3).name("filter3").build());
     }
 
     private static List<GeneratorsFrequencyReserveModel> getGeneratorsFrequencyReserveModelWithFilters456() {
         return List.of(GeneratorsFrequencyReserveModel.builder().frequencyReserve(3.)
-                        .generatorsFilters(List.of(GeneratorsFilterModel.builder().id(FILTER_ID_4).name("filter4").build(),
-                                GeneratorsFilterModel.builder().id(FILTER_ID_5).name("filter5").build())).build(),
+                        .generatorsFilters(List.of(FilterModel.builder().id(FILTER_ID_4).name("filter4").build(),
+                                FilterModel.builder().id(FILTER_ID_5).name("filter5").build())).build(),
                 GeneratorsFrequencyReserveModel.builder().frequencyReserve(5.)
-                        .generatorsFilters(List.of(GeneratorsFilterModel.builder().id(FILTER_ID_6).name("filter6").build())).build());
+                        .generatorsFilters(List.of(FilterModel.builder().id(FILTER_ID_6).name("filter6").build())).build());
     }
 
     private static List<FilterEquipments> getGeneratorsWithoutOutageFilters123() {
@@ -583,7 +583,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         modification.setLossCoefficient(10.);
         modification.setDefaultOutageRate(20.);
         modification.setGeneratorsWithFixedSupply(List.of(
-                        GeneratorsFilterModel.builder().id(FILTER_ID_1).name("fixedGroups").build()));
+                        FilterModel.builder().id(FILTER_ID_1).name("fixedGroups").build()));
         modification.setSubstationsGeneratorsOrdering(List.of(
                         SubstationsGeneratorsOrderingModel.builder().substationIds(List.of("S5", "S4", "S54", "S15", "S74")).build(),
                         SubstationsGeneratorsOrderingModel.builder().substationIds(List.of("S27")).build(),
@@ -726,7 +726,6 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
     @Override
     protected GenerationDispatchModel buildModification() {
         return GenerationDispatchModel.builder()
-            .stashed(false)
             .lossCoefficient(20.)
             .defaultOutageRate(0.)
             .generatorsWithoutOutage(List.of())
@@ -774,18 +773,18 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         GenerationDispatchModel modification = buildModification();
         modification.setDefaultOutageRate(15.);
         modification.setGeneratorsWithoutOutage(
-            List.of(GeneratorsFilterModel.builder().id(FILTER_ID_1).name("filter1").build(),
-                GeneratorsFilterModel.builder().id(FILTER_ID_2).name("filter2").build(),
-                GeneratorsFilterModel.builder().id(FILTER_ID_3).name("filter3").build()));
+            List.of(FilterModel.builder().id(FILTER_ID_1).name("filter1").build(),
+                FilterModel.builder().id(FILTER_ID_2).name("filter2").build(),
+                FilterModel.builder().id(FILTER_ID_3).name("filter3").build()));
         modification.setGeneratorsWithFixedSupply(
-            List.of(GeneratorsFilterModel.builder().id(FILTER_ID_1).name("filter1").build(),
-                GeneratorsFilterModel.builder().id(FILTER_ID_2).name("filter2").build(),
-                GeneratorsFilterModel.builder().id(FILTER_ID_3).name("filter3").build()));
+            List.of(FilterModel.builder().id(FILTER_ID_1).name("filter1").build(),
+                FilterModel.builder().id(FILTER_ID_2).name("filter2").build(),
+                FilterModel.builder().id(FILTER_ID_3).name("filter3").build()));
         modification.setGeneratorsFrequencyReserve(List.of(GeneratorsFrequencyReserveModel.builder().frequencyReserve(3.)
-                .generatorsFilters(List.of(GeneratorsFilterModel.builder().id(FILTER_ID_4).name("filter4").build(),
-                    GeneratorsFilterModel.builder().id(FILTER_ID_5).name("filter5").build())).build(),
+                .generatorsFilters(List.of(FilterModel.builder().id(FILTER_ID_4).name("filter4").build(),
+                    FilterModel.builder().id(FILTER_ID_5).name("filter5").build())).build(),
             GeneratorsFrequencyReserveModel.builder().frequencyReserve(5.)
-                .generatorsFilters(List.of(GeneratorsFilterModel.builder().id(FILTER_ID_6).name("filter6").build())).build()));
+                .generatorsFilters(List.of(FilterModel.builder().id(FILTER_ID_6).name("filter6").build())).build()));
 
         // network with 2 synchronous components, 2 hvdc lines between them, forcedOutageRate and plannedOutageRate defined for the generators
         setNetwork(Network.read("testGenerationDispatchReduceMaxP.xiidm", getClass().getResourceAsStream("/testGenerationDispatchReduceMaxP.xiidm")));

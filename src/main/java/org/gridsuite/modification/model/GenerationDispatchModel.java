@@ -38,10 +38,10 @@ public class GenerationDispatchModel extends ModificationModel {
     private Double defaultOutageRate;
 
     @Schema(description = "generators without outage")
-    private List<GeneratorsFilterModel> generatorsWithoutOutage;
+    private List<FilterModel> generatorsWithoutOutage;
 
     @Schema(description = "generators with fixed supply")
-    private List<GeneratorsFilterModel> generatorsWithFixedSupply;
+    private List<FilterModel> generatorsWithFixedSupply;
 
     @Schema(description = "generators frequency reserve")
     private List<GeneratorsFrequencyReserveModel> generatorsFrequencyReserve;
