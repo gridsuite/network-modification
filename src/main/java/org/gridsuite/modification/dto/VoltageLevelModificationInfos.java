@@ -19,6 +19,8 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VoltageLevelModification;
 
+import java.util.List;
+
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
  */
@@ -45,6 +47,9 @@ public class VoltageLevelModificationInfos extends BasicEquipmentModificationInf
 
     @Schema(description = "high short-circuit current limit in A")
     private AttributeModification<Double> ipMax;
+
+    @Schema(description = "Busbar sections voltage measurements")
+    private List<BusbarSectionVMeasurementInfos> busbarSectionVMeasurements;
 
     @Override
     public AbstractModification toModification() {

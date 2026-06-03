@@ -36,11 +36,11 @@ public final class FieldUtils {
             case GENERATOR -> GeneratorField.getReferenceValue((Generator) equipment, equipmentField);
             case BATTERY -> BatteryField.getReferenceValue((Battery) equipment, equipmentField);
             case SHUNT_COMPENSATOR ->
-                    ShuntCompensatorField.getReferenceValue((ShuntCompensator) equipment, equipmentField);
+                ShuntCompensatorField.getReferenceValue((ShuntCompensator) equipment, equipmentField);
             case VOLTAGE_LEVEL -> VoltageLevelField.getReferenceValue((VoltageLevel) equipment, equipmentField);
             case LOAD -> LoadField.getReferenceValue((Load) equipment, equipmentField);
             case TWO_WINDINGS_TRANSFORMER ->
-                    TwoWindingsTransformerField.getReferenceValue((TwoWindingsTransformer) equipment, equipmentField);
+                TwoWindingsTransformerField.getReferenceValue((TwoWindingsTransformer) equipment, equipmentField);
             case LINE -> LineField.getReferenceValue((Line) equipment, equipmentField);
             default -> throw new NetworkModificationException(NetworkModificationException.Type.MODIFICATION_ERROR,
                             "Unsupported getting value for equipment type : " + equipment.getType().name());
