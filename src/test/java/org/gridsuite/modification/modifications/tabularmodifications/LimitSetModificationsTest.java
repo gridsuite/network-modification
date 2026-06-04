@@ -436,13 +436,12 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
 
     /**
      * Verify that a temporary limit modification with either {@code name} or {@code acceptableDuration}
-     * missing is skipped and emits a {@code temporaryLimitsMissingInfo} log, for every supported
-     * {@link TemporaryLimitModificationType}. When the temporary-limit-level type is REPLACE, pre-existing
-     * limits are dropped by REPLACE semantics; otherwise they remain untouched.
+     * missing is skipped and emits the matching missing-field log, for every supported
+     * {@link TemporaryLimitModificationType}.
      */
-    @ParameterizedTest(name = "[{index}] {0} with missing {1} should log temporaryLimitsMissingInfo and skip the change")
+    @ParameterizedTest(name = "[{index}] {0} with missing {1} should log {2} and skip the change")
     @MethodSource("missingTemporaryLimitFieldCases")
-    void testTemporaryLimitMissingFieldIsSkipped(TemporaryLimitModificationType op, MissingField missing) {
+    void testTemporaryLimitMissingFieldIsSkipped(TemporaryLimitModificationType op, MissingField missing, String expectedKey, String expectedMessage) {
         ModificationInfos modificationInfos = buildMissingFieldModification(op, missing);
 
         ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
@@ -454,11 +453,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
                 .getCurrentLimits().orElse(null);
         assertNotNull(limits);
-        int expectedSize = (op == TemporaryLimitModificationType.REPLACE) ? 0 : 2;
-        assertEquals(expectedSize, limits.getTemporaryLimits().size());
-        assertLogMessageWithoutRank(
-                "Missing info (name or duration) to find temporary limit to " + op + ": ignored",
-                "network.modification.temporaryLimitsMissingInfo", reportNode);
+        // the only input is invalid, so nothing is applied and the existing temporary limits
+        // are kept, including in REPLACE mode
+        assertEquals(2, limits.getTemporaryLimits().size());
+        assertLogMessageWithoutRank(expectedMessage, expectedKey, reportNode);
     }
 
     static Stream<Arguments> missingTemporaryLimitFieldCases() {
@@ -469,8 +467,12 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 TemporaryLimitModificationType.DELETE,
                 TemporaryLimitModificationType.REPLACE
         ).flatMap(op -> Stream.of(
-                Arguments.of(op, MissingField.NAME),
-                Arguments.of(op, MissingField.DURATION)));
+                Arguments.of(op, MissingField.NAME,
+                        "network.modification.temporaryLimitsMissingName",
+                        "Missing name for temporary limit to " + op + ": ignored"),
+                Arguments.of(op, MissingField.DURATION,
+                        "network.modification.temporaryLimitsMissingDuration",
+                        "Missing acceptable duration for temporary limit to " + op + ": ignored")));
     }
 
     private static ModificationInfos buildMissingFieldModification(TemporaryLimitModificationType op, MissingField missing) {
@@ -693,8 +695,8 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 .withMessageTemplate("test").build());
         modificationInfos.toModification().apply(getNetwork(), reportNode);
 
-        assertLogMessageWithoutRank("Duplicate name or duration for temporary limit different_name (duration: 32) to ADD: ignored",
-                "network.modification.temporaryLimitsDuplicate", reportNode);
+        assertLogMessageWithoutRank("Duplicate duration for temporary limit different_name (duration: 32) to ADD: ignored",
+                "network.modification.temporaryLimitsDuplicateDuration", reportNode);
     }
 
     /**
@@ -732,8 +734,8 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 .withMessageTemplate("test").build());
         modificationInfos.toModification().apply(getNetwork(), reportNode);
 
-        assertLogMessageWithoutRank("Duplicate name or duration for temporary limit name32 (duration: 99) to ADD: ignored",
-                "network.modification.temporaryLimitsDuplicate", reportNode);
+        assertLogMessageWithoutRank("Duplicate name for temporary limit name32 (duration: 99) to ADD: ignored",
+                "network.modification.temporaryLimitsDuplicateName", reportNode);
     }
 
     /**
@@ -790,7 +792,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
 
     /**
      * Test MODIFY where the new name collides with another existing limit's name on the same side:
-     * must be skipped with a temporaryLimitsDuplicate WARN.
+     * must be skipped with a temporaryLimitsDuplicateName WARN.
      */
     @Test
     void testModifyTemporaryLimitWithDuplicateName() {
@@ -831,13 +833,13 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         // limit at duration 32 unchanged
         assertEquals("name32", limits.getTemporaryLimit(32).getName());
         assertEquals(15.0, limits.getTemporaryLimit(32).getValue(), 0.01);
-        assertLogMessageWithoutRank("Duplicate name or duration for temporary limit name33 (duration: 32) to MODIFY: ignored",
-                "network.modification.temporaryLimitsDuplicate", reportNode);
+        assertLogMessageWithoutRank("Duplicate name for temporary limit name33 (duration: 32) to MODIFY: ignored",
+                "network.modification.temporaryLimitsDuplicateName", reportNode);
     }
 
     /**
      * Test MODIFY_OR_ADD where the provided name collides with another existing limit's name on
-     * a different duration: must be skipped with a temporaryLimitsDuplicate WARN.
+     * a different duration: must be skipped with a temporaryLimitsDuplicateName WARN.
      */
     @Test
     void testModifyOrAddTemporaryLimitWithDuplicateName() {
@@ -879,8 +881,8 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         assertNull(limits.getTemporaryLimit(50));
         // existing name33 unchanged
         assertEquals(15.0, limits.getTemporaryLimit(33).getValue(), 0.01);
-        assertLogMessageWithoutRank("Duplicate name or duration for temporary limit name33 (duration: 50) to MODIFY_OR_ADD: ignored",
-                "network.modification.temporaryLimitsDuplicate", reportNode);
+        assertLogMessageWithoutRank("Duplicate name for temporary limit name33 (duration: 50) to MODIFY_OR_ADD: ignored",
+                "network.modification.temporaryLimitsDuplicateName", reportNode);
     }
 
     /**
@@ -1017,7 +1019,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
     /**
      * Test that the duplicate check sees in-batch additions: when two ADD rows in the same batch
      * target the same fresh duration (not present in the network), the second one must be rejected
-     * with a temporaryLimitsDuplicate WARN, because the working set already contains the first.
+     * with a temporaryLimitsDuplicateDuration WARN, because the working set already contains the first.
      */
     @Test
     void testAddTemporaryLimitDuplicateWithEarlierInBatchAddIsSkipped() {
@@ -1067,8 +1069,8 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         // only the first ADD survived at duration 50
         assertEquals("first_new", limits.getTemporaryLimit(50).getName());
         assertEquals(11., limits.getTemporaryLimit(50).getValue(), 0.01);
-        assertLogMessageWithoutRank("Duplicate name or duration for temporary limit second_new (duration: 50) to ADD: ignored",
-                "network.modification.temporaryLimitsDuplicate", reportNode);
+        assertLogMessageWithoutRank("Duplicate duration for temporary limit second_new (duration: 50) to ADD: ignored",
+                "network.modification.temporaryLimitsDuplicateDuration", reportNode);
     }
 
     @Override
@@ -1105,7 +1107,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         assertLogMessageWithoutRank("Limit set DEFAULT has been modified on side 1", "network.modification.operationalLimitsGroupModified", reportNode);
         assertLogMessageWithoutRank("Previous temporary limits were removed", "network.modification.temporaryLimitsReplaced", reportNode);
         assertLogMessageWithoutRank("Cannot add DEFAULT operational limit group, one with the given name already exists", "network.modification.tabular.modification.exception", reportNode);
-        assertLogMessageWithoutRank("No existing temporary limit found with acceptableDuration = 3 matching is based on acceptableDuration if that helps",
+        assertLogMessageWithoutRank("No existing temporary limit found with acceptableDuration=3: ignored",
                 "network.modification.temporaryLimitsNoMatch", reportNode);
         assertLogMessageWithoutRank("limit set selected on side 2 : group0", "network.modification.limitSetSelectedOnSide2", reportNode);
         assertLogMessageWithoutRank("Limit set group0 has replaced the existing limit sets on side 2", "network.modification.operationalLimitsGroupReplaced", reportNode);
