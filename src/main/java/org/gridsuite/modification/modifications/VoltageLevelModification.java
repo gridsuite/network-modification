@@ -128,7 +128,8 @@ public class VoltageLevelModification extends AbstractModification {
                     List<ReportNode> measurementReports = new ArrayList<>();
                     applyBusbarSectionVoltageMeasurement(bbs, vMeas, measurementReports);
                     if (!measurementReports.isEmpty()) {
-                        ModificationUtils.getInstance().reportModifications(bbsReportNode, measurementReports, "network.modification.voltageLevel.busbarSection.measurements", Map.of("id", bbs.getId()));
+                        ModificationUtils.getInstance().reportModifications(bbsReportNode, measurementReports,
+                                "network.modification.voltageLevel.busbarSection.measurements", Map.of("id", bbs.getId()));
                     }
                 }
             });
