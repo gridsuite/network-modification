@@ -6,15 +6,19 @@
  */
 package org.gridsuite.modification.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.model.CompositeModificationModel;
+import org.gridsuite.modification.ModificationType;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -24,7 +28,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class CompositeModificationInfos extends CompositeModificationModel implements ModificationDto {
+public class CompositeModificationInfos implements ModificationDto {
     @Schema(description = "Modification id")
     private UUID uuid;
 
@@ -46,4 +50,30 @@ public class CompositeModificationInfos extends CompositeModificationModel imple
 
     @Schema(description = "User description")
     private String description;
+
+    @Schema(description = "composite modification name")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String name;
+
+    @Schema(description = "composite modification list")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<ModificationDto> modificationsInfos;
+
+    // While composite submodifications are lazy loaded we need an indicator to know if we allow depth sensitive operation
+    // added only to the DTO so it can be computed while retrieving composite metadata at runtime
+    @Schema(description = "composite modification max depth")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer maxDepth;
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.COMPOSITE_MODIFICATION;
+    }
+
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        Map<String, String> mapMessageValues = new HashMap<>();
+        mapMessageValues.put("name", getName());
+        return mapMessageValues;
+    }
 }

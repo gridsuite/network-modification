@@ -14,9 +14,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -55,4 +58,16 @@ public class ByFilterDeletionInfos implements ModificationDto {
     @Schema(description = "List of filters")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<FilterInfos> filters;
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.BY_FILTER_DELETION;
+    }
+
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        Map<String, String> mapMessageValues = new HashMap<>();
+        mapMessageValues.put("equipmentType", getEquipmentType().name());
+        return mapMessageValues;
+    }
 }

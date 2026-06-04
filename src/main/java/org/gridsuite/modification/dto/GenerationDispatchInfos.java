@@ -12,10 +12,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.SubstationsGeneratorsOrderingModel;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -65,4 +67,14 @@ public class GenerationDispatchInfos implements ModificationDto {
 
     @Schema(description = "substations hierarchy for ordering generators with marginal cost")
     private List<SubstationsGeneratorsOrderingModel> substationsGeneratorsOrdering;
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.GENERATION_DISPATCH;
+    }
+
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        return Map.of();
+    }
 }

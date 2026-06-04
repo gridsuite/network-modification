@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ import java.util.List;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Lcc converter station creation")
-public class LccConverterStationCreationModel extends InjectionCreationModel {
+public class LccConverterStationCreationModel extends InjectionCreationModel implements ModificationModel {
     @Schema(description = "Loss Factor")
     private Float lossFactor;
 
@@ -34,4 +35,9 @@ public class LccConverterStationCreationModel extends InjectionCreationModel {
     @Schema(description = "LCC HVDC Converter Station Shunt Compensator")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<LccShuntCompensatorModel> shuntCompensatorsOnSide;
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.LCC_CONVERTER_STATION_CREATION;
+    }
 }

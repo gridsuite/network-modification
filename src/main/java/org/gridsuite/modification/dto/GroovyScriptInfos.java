@@ -12,6 +12,7 @@ import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.model.GroovyScriptModel;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -43,4 +44,9 @@ public class GroovyScriptInfos extends GroovyScriptModel implements Modification
 
     @Schema(description = "User description")
     private String description;
+
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        return Map.of();
+    }
 }

@@ -15,6 +15,7 @@ import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.model.ByFormulaModificationModel;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -46,4 +47,9 @@ public class ByFormulaModificationInfos extends ByFormulaModificationModel imple
 
     @Schema(description = "User description")
     private String description;
+
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        return super.getMapMessageValues();
+    }
 }

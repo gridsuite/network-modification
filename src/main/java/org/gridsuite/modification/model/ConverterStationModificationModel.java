@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +13,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.annotation.ModificationErrorTypeName;
 
 import java.util.List;
@@ -27,9 +27,8 @@ import java.util.List;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Converter station modification")
-@JsonTypeName("CONVERTER_STATION_MODIFICATION")
 @ModificationErrorTypeName("MODIFY_CONVERTER_STATION_ERROR")
-public class ConverterStationModificationModel extends InjectionModificationModel {
+public class ConverterStationModificationModel extends InjectionModificationModel implements ModificationModel {
     @Schema(description = "Loss Factor")
     private AttributeModification<Float> lossFactor;
 
@@ -54,4 +53,8 @@ public class ConverterStationModificationModel extends InjectionModificationMode
     @Schema(description = "Reactive capability curve points")
     private List<ReactiveCapabilityCurvePointsModel> reactiveCapabilityCurvePoints;
 
+    @Override
+    public ModificationType getType() {
+        return ModificationType.CONVERTER_STATION_MODIFICATION;
+    }
 }

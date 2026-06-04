@@ -12,10 +12,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.VariationType;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -53,4 +55,14 @@ public class GeneratorScalingInfos implements ModificationDto {
 
     @Schema(description = "variation type")
     private VariationType variationType;
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.GENERATOR_SCALING;
+    }
+
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        return Map.of();
+    }
 }

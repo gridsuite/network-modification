@@ -13,10 +13,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.assignment.AssignmentInfos;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -54,4 +56,14 @@ public class ModificationByAssignmentInfos implements ModificationDto {
 
     @Schema(description = "list of modifications")
     private List<? extends AssignmentInfos<?>> assignmentModelList;
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.MODIFICATION_BY_ASSIGNMENT;
+    }
+
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        return Map.of();
+    }
 }

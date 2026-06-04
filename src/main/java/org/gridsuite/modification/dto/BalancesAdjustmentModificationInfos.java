@@ -15,6 +15,7 @@ import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.model.BalancesAdjustmentModificationModel;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -46,4 +47,9 @@ public class BalancesAdjustmentModificationInfos extends BalancesAdjustmentModif
 
     @Schema(description = "User description")
     private String description;
+
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        return super.getMapMessageValues();
+    }
 }
