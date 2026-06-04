@@ -8,15 +8,12 @@ package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.network.Network;
-
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.UUID;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Class to extend if you want to test a network modification.<ul>

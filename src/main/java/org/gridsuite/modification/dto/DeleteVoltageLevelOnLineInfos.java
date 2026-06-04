@@ -18,7 +18,6 @@ import org.gridsuite.modification.modifications.DeleteVoltageLevelOnLine;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
  */
