@@ -6,17 +6,14 @@
  */
 package org.gridsuite.modification.dto.tabular;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.ModificationDto;
-import org.gridsuite.modification.model.tabular.TabularCreationModel;
+import org.gridsuite.modification.ModificationType;
 
-import java.time.Instant;
-import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -25,26 +22,17 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class TabularCreationInfos extends TabularCreationModel implements ModificationDto {
-    @Schema(description = "Modification id")
-    private UUID uuid;
+public class TabularCreationInfos extends AbstractTabularInfos {
 
-    @Schema(description = "Modification date")
-    private Instant date;
+    @Override
+    public ModificationType getType() {
+        return ModificationType.TABULAR_CREATION;
+    }
 
-    @Schema(description = "Modification flag")
-    @Builder.Default
-    private Boolean stashed = false;
-
-    @Schema(description = "Message type")
-    private String messageType;
-
-    @Schema(description = "Message values")
-    private String messageValues;
-
-    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
-    private Boolean activated;
-
-    @Schema(description = "User description")
-    private String description;
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        Map<String, String> mapMessageValues = new HashMap<>();
+        mapMessageValues.put("tabularCreationType", getModificationType().name());
+        return mapMessageValues;
+    }
 }

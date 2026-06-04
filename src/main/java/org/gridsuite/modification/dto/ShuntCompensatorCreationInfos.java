@@ -24,7 +24,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ShuntCompensatorCreationInfos extends ShuntCompensatorCreationModel implements ModificationDto {
+public class ShuntCompensatorCreationInfos extends ShuntCompensatorCreationModel implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 

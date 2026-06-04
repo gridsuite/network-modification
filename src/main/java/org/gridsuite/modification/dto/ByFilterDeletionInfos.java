@@ -29,7 +29,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ByFilterDeletionInfos implements ModificationDto {
+public class ByFilterDeletionInfos implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 

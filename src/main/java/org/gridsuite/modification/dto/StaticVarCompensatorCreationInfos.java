@@ -24,7 +24,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class StaticVarCompensatorCreationInfos extends StaticVarCompensatorCreationModel implements ModificationDto {
+public class StaticVarCompensatorCreationInfos extends StaticVarCompensatorCreationModel implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 

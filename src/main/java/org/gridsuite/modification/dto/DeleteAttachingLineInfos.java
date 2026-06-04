@@ -24,7 +24,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class DeleteAttachingLineInfos extends DeleteAttachingLineModel implements ModificationDto {
+public class DeleteAttachingLineInfos extends DeleteAttachingLineModel implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 

@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
-public interface ModificationDto {
+public interface ModificationInfos {
 
     UUID getUuid();
 
@@ -21,4 +21,12 @@ public interface ModificationDto {
     String getDescription();
 
     Map<String, String> getMapMessageValues();
+
+    default String getMessageType() {
+        return getType().name();
+    }
+
+    default String getMessageValues() {
+        return getMapMessageValues().toString();
+    }
 }

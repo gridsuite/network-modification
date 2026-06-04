@@ -6,19 +6,13 @@
  */
 package org.gridsuite.modification.dto;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.VariationType;
 
-import java.time.Instant;
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -27,34 +21,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class LoadScalingInfos implements ModificationDto {
-    @Schema(description = "Modification id")
-    private UUID uuid;
-
-    @Schema(description = "Modification date")
-    private Instant date;
-
-    @Schema(description = "Modification flag")
-    @Builder.Default
-    private Boolean stashed = false;
-
-    @Schema(description = "Message type")
-    private String messageType;
-
-    @Schema(description = "Message values")
-    private String messageValues;
-
-    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
-    private Boolean activated;
-
-    @Schema(description = "User description")
-    private String description;
-
-    @Schema(description = "scaling variations")
-    private List<ScalingVariationInfos> variations;
-
-    @Schema(description = "variation type")
-    private VariationType variationType;
+public class LoadScalingInfos extends AbstractScalingInfos {
 
     @Override
     public ModificationType getType() {

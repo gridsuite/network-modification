@@ -24,7 +24,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class LinesAttachToSplitLinesInfos extends LinesAttachToSplitLinesModel implements ModificationDto {
+public class LinesAttachToSplitLinesInfos extends LinesAttachToSplitLinesModel implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 

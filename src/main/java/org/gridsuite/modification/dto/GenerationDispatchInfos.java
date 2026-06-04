@@ -27,7 +27,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class GenerationDispatchInfos implements ModificationDto {
+public class GenerationDispatchInfos implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 

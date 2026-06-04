@@ -24,7 +24,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class VscCreationInfos extends VscCreationModel implements ModificationDto {
+public class VscCreationInfos extends VscCreationModel implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 

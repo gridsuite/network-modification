@@ -6,17 +6,11 @@
  */
 package org.gridsuite.modification.dto.tabular;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.ModificationDto;
-import org.gridsuite.modification.model.tabular.LimitSetsTabularModificationModel;
-
-import java.time.Instant;
-import java.util.UUID;
+import org.gridsuite.modification.ModificationType;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -25,26 +19,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class LimitSetsTabularModificationInfos extends LimitSetsTabularModificationModel implements ModificationDto {
-    @Schema(description = "Modification id")
-    private UUID uuid;
+public class LimitSetsTabularModificationInfos extends TabularModificationInfos {
 
-    @Schema(description = "Modification date")
-    private Instant date;
-
-    @Schema(description = "Modification flag")
-    @Builder.Default
-    private Boolean stashed = false;
-
-    @Schema(description = "Message type")
-    private String messageType;
-
-    @Schema(description = "Message values")
-    private String messageValues;
-
-    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
-    private Boolean activated;
-
-    @Schema(description = "User description")
-    private String description;
+    @Override
+    public ModificationType getType() {
+        return ModificationType.LIMIT_SETS_TABULAR_MODIFICATION;
+    }
 }

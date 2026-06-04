@@ -22,7 +22,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class GroovyScriptInfos extends GroovyScriptModel implements ModificationDto {
+public class GroovyScriptInfos extends GroovyScriptModel implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 

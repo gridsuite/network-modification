@@ -24,7 +24,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class BatteryModificationInfos extends BatteryModificationModel implements ModificationDto {
+public class BatteryModificationInfos extends BatteryModificationModel implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 

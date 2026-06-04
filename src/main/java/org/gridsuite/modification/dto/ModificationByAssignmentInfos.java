@@ -28,7 +28,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ModificationByAssignmentInfos implements ModificationDto {
+public class ModificationByAssignmentInfos implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 
@@ -55,7 +55,7 @@ public class ModificationByAssignmentInfos implements ModificationDto {
     private IdentifiableType equipmentType;
 
     @Schema(description = "list of modifications")
-    private List<? extends AssignmentInfos<?>> assignmentModelList;
+    private List<? extends AssignmentInfos<?>> assignmentInfosList;
 
     @Override
     public ModificationType getType() {

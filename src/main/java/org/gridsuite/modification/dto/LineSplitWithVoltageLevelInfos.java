@@ -24,7 +24,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class LineSplitWithVoltageLevelInfos extends LineSplitWithVoltageLevelModel implements ModificationDto {
+public class LineSplitWithVoltageLevelInfos extends LineSplitWithVoltageLevelModel implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 

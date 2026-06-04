@@ -24,7 +24,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class LccModificationInfos extends LccModificationModel implements ModificationDto {
+public class LccModificationInfos extends LccModificationModel implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 

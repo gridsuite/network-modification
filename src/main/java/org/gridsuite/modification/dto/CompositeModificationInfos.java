@@ -28,7 +28,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class CompositeModificationInfos implements ModificationDto {
+public class CompositeModificationInfos implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 
@@ -57,7 +57,7 @@ public class CompositeModificationInfos implements ModificationDto {
 
     @Schema(description = "composite modification list")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<ModificationDto> modificationsInfos;
+    private List<ModificationInfos> modificationsInfos;
 
     // While composite submodifications are lazy loaded we need an indicator to know if we allow depth sensitive operation
     // added only to the DTO so it can be computed while retrieving composite metadata at runtime

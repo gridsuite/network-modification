@@ -24,7 +24,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class TwoWindingsTransformerCreationInfos extends TwoWindingsTransformerCreationModel implements ModificationDto {
+public class TwoWindingsTransformerCreationInfos extends TwoWindingsTransformerCreationModel implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 

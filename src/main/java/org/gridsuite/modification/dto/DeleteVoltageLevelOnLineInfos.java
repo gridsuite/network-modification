@@ -24,7 +24,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class DeleteVoltageLevelOnLineInfos extends DeleteVoltageLevelOnLineModel implements ModificationDto {
+public class DeleteVoltageLevelOnLineInfos extends DeleteVoltageLevelOnLineModel implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 

@@ -7,10 +7,7 @@
 package org.gridsuite.modification.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.model.LineAttachToVoltageLevelModel;
 
@@ -24,7 +21,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class LineAttachToVoltageLevelInfos extends LineAttachToVoltageLevelModel implements ModificationDto {
+public class LineAttachToVoltageLevelInfos extends LineAttachToVoltageLevelModel implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 

@@ -1,9 +1,3 @@
-/*
-  Copyright (c) 2021, RTE (http://www.rte-france.com)
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
 package org.gridsuite.modification.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,19 +6,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.model.VscModificationModel;
+import org.gridsuite.modification.VariationType;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
-/**
- * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
- */
 @SuperBuilder
 @NoArgsConstructor
 @Getter
 @Setter
-public class VscModificationInfos extends VscModificationModel implements ModificationInfos {
+public abstract class AbstractScalingInfos implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 
@@ -46,4 +38,10 @@ public class VscModificationInfos extends VscModificationModel implements Modifi
 
     @Schema(description = "User description")
     private String description;
+
+    @Schema(description = "scaling variations")
+    private List<ScalingVariationInfos> variations;
+
+    @Schema(description = "variation type")
+    private VariationType variationType;
 }

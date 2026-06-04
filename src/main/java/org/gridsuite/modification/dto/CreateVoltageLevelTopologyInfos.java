@@ -24,7 +24,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class CreateVoltageLevelTopologyInfos extends CreateVoltageLevelTopologyModel implements ModificationDto {
+public class CreateVoltageLevelTopologyInfos extends CreateVoltageLevelTopologyModel implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 

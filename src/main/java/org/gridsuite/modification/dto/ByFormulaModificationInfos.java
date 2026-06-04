@@ -6,15 +6,18 @@
  */
 package org.gridsuite.modification.dto;
 
+import com.powsybl.iidm.network.IdentifiableType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.model.ByFormulaModificationModel;
+import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.dto.assignment.FormulaInfos;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -25,7 +28,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ByFormulaModificationInfos extends ByFormulaModificationModel implements ModificationDto {
+public class ByFormulaModificationInfos implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 
@@ -48,8 +51,19 @@ public class ByFormulaModificationInfos extends ByFormulaModificationModel imple
     @Schema(description = "User description")
     private String description;
 
+    @Schema(description = "Identifiable type")
+    private IdentifiableType identifiableType;
+
+    @Schema(description = "list of formulas")
+    private List<FormulaInfos> formulaInfosList;
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.BY_FORMULA_MODIFICATION;
+    }
+
     @Override
     public Map<String, String> getMapMessageValues() {
-        return super.getMapMessageValues();
+        return Map.of();
     }
 }
