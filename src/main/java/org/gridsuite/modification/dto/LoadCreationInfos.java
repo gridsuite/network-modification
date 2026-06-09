@@ -7,17 +7,15 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.LoadType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.LoadCreation;
+import org.gridsuite.modification.model.LoadCreationModel;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -31,26 +29,30 @@ import org.gridsuite.modification.modifications.LoadCreation;
 @Schema(description = "Load creation")
 @JsonTypeName("LOAD_CREATION")
 @ModificationErrorTypeName("CREATE_LOAD_ERROR")
-public class LoadCreationInfos extends InjectionCreationInfos {
-    @Schema(description = "Load type")
-    private LoadType loadType;
+public class LoadCreationInfos extends LoadCreationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "Active power")
-    private double p0;
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Schema(description = "Reactive power")
-    private double q0;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Override
-    public AbstractModification toModification() {
-        return new LoadCreation(this);
-    }
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.load.creation")
-                .withUntypedValue("loadId", getEquipmentId())
-                .add();
-    }
+    @Schema(description = "Message type")
+    private String messageType;
+
+    @Schema(description = "Message values")
+    private String messageValues;
+
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
+
+    @Schema(description = "User description")
+    private String description;
 }

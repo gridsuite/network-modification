@@ -7,17 +7,15 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.ShuntCompensatorType;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.ShuntCompensatorCreation;
+import org.gridsuite.modification.model.ShuntCompensatorCreationModel;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Jacques Borsenberger <jacques.borsenberger at rte-france.com>
@@ -31,32 +29,30 @@ import org.gridsuite.modification.modifications.ShuntCompensatorCreation;
 @Schema(description = "Shunt compensator creation")
 @JsonTypeName("SHUNT_COMPENSATOR_CREATION")
 @ModificationErrorTypeName("CREATE_SHUNT_COMPENSATOR_ERROR")
-public class ShuntCompensatorCreationInfos extends InjectionCreationInfos {
-    @Schema(description = "Maximum number of sections")
-    private Integer maximumSectionCount;
+public class ShuntCompensatorCreationInfos extends ShuntCompensatorCreationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "Section count")
-    private Integer sectionCount;
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Schema(description = "Maximal susceptance available")
-    private Double maxSusceptance;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "Qmax available at nominal voltage")
-    private Double maxQAtNominalV;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "Shunt Compensator Type")
-    private ShuntCompensatorType shuntCompensatorType;
+    @Schema(description = "Message type")
+    private String messageType;
 
-    @Override
-    public AbstractModification toModification() {
-        return new ShuntCompensatorCreation(this);
-    }
+    @Schema(description = "Message values")
+    private String messageValues;
 
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.shuntCompensatorCreation")
-                .withUntypedValue("shuntCompensatorId", this.getEquipmentId())
-                .add();
-    }
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
+
+    @Schema(description = "User description")
+    private String description;
 }

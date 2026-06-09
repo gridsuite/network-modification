@@ -8,20 +8,15 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.GeneratorsFilterModel;
-import org.gridsuite.modification.model.GeneratorsFrequencyReserveModel;
-import org.gridsuite.modification.model.SubstationsGeneratorsOrderingModel;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.GenerationDispatch;
-
-import java.util.List;
+import org.gridsuite.modification.model.GenerationDispatchModel;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -33,34 +28,30 @@ import java.util.List;
 @Schema(description = "Generation dispatch creation")
 @JsonTypeName("GENERATION_DISPATCH")
 @ModificationErrorTypeName("GENERATION_DISPATCH_ERROR")
-public class GenerationDispatchInfos extends ModificationInfos {
-    @Schema(description = "loss coefficient")
-    private Double lossCoefficient;
+public class GenerationDispatchInfos extends GenerationDispatchModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "default outage rate")
-    private Double defaultOutageRate;
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Schema(description = "generators without outage")
-    private List<GeneratorsFilterModel> generatorsWithoutOutage;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "generators with fixed supply")
-    private List<GeneratorsFilterModel> generatorsWithFixedSupply;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "generators frequency reserve")
-    private List<GeneratorsFrequencyReserveModel> generatorsFrequencyReserve;
+    @Schema(description = "Message type")
+    private String messageType;
 
-    @Schema(description = "substations hierarchy for ordering generators with marginal cost")
-    private List<SubstationsGeneratorsOrderingModel> substationsGeneratorsOrdering;
+    @Schema(description = "Message values")
+    private String messageValues;
 
-    @Override
-    public AbstractModification toModification() {
-        return new GenerationDispatch(this);
-    }
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.generationDispatch")
-                .add();
-    }
+    @Schema(description = "User description")
+    private String description;
 }

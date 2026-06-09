@@ -8,20 +8,15 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.IdentifiableType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.byfilter.formula.FormulaModel;
-import org.gridsuite.modification.modifications.byfilter.ByFormulaModification;
-
-import java.util.List;
+import org.gridsuite.modification.model.ByFormulaModificationModel;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -36,20 +31,30 @@ import java.util.List;
 @ModificationErrorTypeName("BY_FORMULA_MODIFICATION_ERROR")
 @ToString(callSuper = true)
 @Schema(description = "Modification by formula")
-public class ByFormulaModificationInfos extends ModificationInfos {
-    @Schema(description = "Identifiable type")
-    private IdentifiableType identifiableType;
+public class ByFormulaModificationInfos extends ByFormulaModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "list of formulas")
-    private List<FormulaModel> formulaInfosList;
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Override
-    public ByFormulaModification toModification() {
-        return new ByFormulaModification(this);
-    }
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.byFormulaModification").add();
-    }
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
+
+    @Schema(description = "Message type")
+    private String messageType;
+
+    @Schema(description = "Message values")
+    private String messageValues;
+
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
+
+    @Schema(description = "User description")
+    private String description;
 }

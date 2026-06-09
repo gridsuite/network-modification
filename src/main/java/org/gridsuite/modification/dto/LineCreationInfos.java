@@ -7,19 +7,15 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.LineSegmentModel;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.LineCreation;
-
-import java.util.List;
+import org.gridsuite.modification.model.LineCreationModel;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Sylvain Bouzols <sylvain.bouzols at rte-france.com>
@@ -33,33 +29,30 @@ import java.util.List;
 @Schema(description = "Line creation")
 @JsonTypeName("LINE_CREATION")
 @ModificationErrorTypeName("CREATE_LINE_ERROR")
-public class LineCreationInfos extends BranchCreationInfos {
+public class LineCreationInfos extends LineCreationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "Shunt conductance Side 1")
-    private Double g1;
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Schema(description = "Shunt susceptance Side 1")
-    private Double b1;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "Shunt conductance Side 2")
-    private Double g2;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "Shunt susceptance Side 2")
-    private Double b2;
+    @Schema(description = "Message type")
+    private String messageType;
 
-    @Schema(description = "Segments used from catalog")
-    private List<LineSegmentModel> lineSegments;
+    @Schema(description = "Message values")
+    private String messageValues;
 
-    @Override
-    public AbstractModification toModification() {
-        return new LineCreation(this);
-    }
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.lineCreation")
-                .withUntypedValue("lineId", getEquipmentId())
-                .add();
-    }
+    @Schema(description = "User description")
+    private String description;
 }

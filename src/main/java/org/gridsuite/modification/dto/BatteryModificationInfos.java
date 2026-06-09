@@ -7,19 +7,15 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.AttributeModification;
-import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsModel;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.BatteryModification;
-
-import java.util.List;
+import org.gridsuite.modification.model.BatteryModificationModel;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
@@ -32,53 +28,30 @@ import java.util.List;
 @Schema(description = "Battery modification")
 @JsonTypeName("BATTERY_MODIFICATION")
 @ModificationErrorTypeName("MODIFY_BATTERY_ERROR")
-public class BatteryModificationInfos extends InjectionModificationInfos {
-    @Schema(description = "Minimum active power")
-    private AttributeModification<Double> minP;
+public class BatteryModificationInfos extends BatteryModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "Maximum active power")
-    private AttributeModification<Double> maxP;
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Schema(description = "Active power set point")
-    private AttributeModification<Double> targetP;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "Reactive power set point")
-    private AttributeModification<Double> targetQ;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "Participate")
-    private AttributeModification<Boolean> participate;
+    @Schema(description = "Message type")
+    private String messageType;
 
-    @Schema(description = "Droop")
-    private AttributeModification<Float> droop;
+    @Schema(description = "Message values")
+    private String messageValues;
 
-    @Schema(description = "Transient reactance")
-    private AttributeModification<Double> directTransX;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Schema(description = "Step up transformer reactance")
-    private AttributeModification<Double> stepUpTransformerX;
-
-    @Schema(description = "Minimum reactive power")
-    private AttributeModification<Double> minQ;
-
-    @Schema(description = "Maximum reactive power")
-    private AttributeModification<Double> maxQ;
-
-    @Schema(description = "Reactive capability curve points")
-    private List<ReactiveCapabilityCurvePointsModel> reactiveCapabilityCurvePoints;
-
-    @Schema(description = "Reactive capability curve")
-    private AttributeModification<Boolean> reactiveCapabilityCurve;
-
-    @Override
-    public AbstractModification toModification() {
-        return new BatteryModification(this);
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.battery.modification")
-                .withUntypedValue("batteryId", this.getEquipmentId())
-                .add();
-    }
+    @Schema(description = "User description")
+    private String description;
 }

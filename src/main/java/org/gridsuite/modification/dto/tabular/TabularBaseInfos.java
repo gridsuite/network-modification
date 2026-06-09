@@ -6,18 +6,15 @@
  */
 package org.gridsuite.modification.dto.tabular;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.model.tabular.TabularPropertyModel;
-import org.springframework.lang.NonNull;
-
-import java.util.List;
+import org.gridsuite.modification.model.tabular.TabularBaseModel;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author David Braquart <david.braquart_externe at rte-france.com>
@@ -27,34 +24,30 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "Tabular abstract modification")
-public class TabularBaseInfos extends ModificationInfos {
-
-    @Schema(description = "additional properties")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<TabularPropertyModel> properties;
-
-    @Schema(description = "csv file name")
-    private String csvFilename;
+public class TabularBaseInfos extends TabularBaseModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
     @Schema(description = "Modification type")
-    @NonNull
-    private ModificationType modificationType;
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Schema(description = "modifications")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<ModificationInfos> modifications;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    public String formatEquipmentTypeName() {
-        return switch (getModificationType()) {
-            case GENERATOR_CREATION, GENERATOR_MODIFICATION -> getModifications().size() > 1 ? "generators" : "generator";
-            case LOAD_CREATION, LOAD_MODIFICATION -> getModifications().size() > 1 ? "loads" : "load";
-            case SHUNT_COMPENSATOR_CREATION, SHUNT_COMPENSATOR_MODIFICATION -> getModifications().size() > 1 ? "shunt compensators" : "shunt compensator";
-            case BATTERY_CREATION, BATTERY_MODIFICATION -> getModifications().size() > 1 ? "batteries" : "battery";
-            case TWO_WINDINGS_TRANSFORMER_MODIFICATION -> getModifications().size() > 1 ? "two windings transformers" : "two windings transformer";
-            case VOLTAGE_LEVEL_MODIFICATION -> getModifications().size() > 1 ? "voltage levels" : "voltage level";
-            case LINE_MODIFICATION -> getModifications().size() > 1 ? "lines" : "line";
-            case SUBSTATION_MODIFICATION -> getModifications().size() > 1 ? "substations" : "substation";
-            default -> "equipments of unknown type";
-        };
-    }
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
+
+    @Schema(description = "Message type")
+    private String messageType;
+
+    @Schema(description = "Message values")
+    private String messageValues;
+
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
+
+    @Schema(description = "User description")
+    private String description;
 }

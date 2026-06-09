@@ -6,16 +6,14 @@
  */
 package org.gridsuite.modification.dto;
 
-import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.model.OperationalLimitsGroupModel;
-
-import java.util.List;
+import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.model.BranchCreationModel;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Sylvain Bouzols <sylvain.bouzols at rte-france.com>
@@ -26,56 +24,30 @@ import java.util.List;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Branch creation")
-public class BranchCreationInfos extends EquipmentCreationInfos {
+public class BranchCreationInfos extends BranchCreationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "Series resistance")
-    private double r;
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Schema(description = "Series reactance")
-    private double x;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "Voltage level id Side 1")
-    private String voltageLevelId1;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "Voltage level id Side 2")
-    private String voltageLevelId2;
+    @Schema(description = "Message type")
+    private String messageType;
 
-    @Schema(description = "Bus or Busbar section id Side 1")
-    private String busOrBusbarSectionId1;
+    @Schema(description = "Message values")
+    private String messageValues;
 
-    @Schema(description = "Bus or Busbar section id Side 2")
-    private String busOrBusbarSectionId2;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Schema(description = "Operational limit groups on side 1 and 2")
-    private List<OperationalLimitsGroupModel> operationalLimitsGroups;
-
-    @Schema(description = "Selected operational limits group on Side 1")
-    private String selectedOperationalLimitsGroupId1;
-
-    @Schema(description = "Selected operational limits group on Side 2")
-    private String selectedOperationalLimitsGroupId2;
-
-    @Schema(description = "Connection Name 1")
-    private String connectionName1;
-
-    @Schema(description = "Connection Direction 1")
-    private ConnectablePosition.Direction connectionDirection1;
-
-    @Schema(description = "Connection Name 2")
-    private String connectionName2;
-
-    @Schema(description = "Connection Direction 2")
-    private ConnectablePosition.Direction connectionDirection2;
-
-    @Schema(description = "Connection position 1")
-    private Integer connectionPosition1;
-
-    @Schema(description = "Connection position 2")
-    private Integer connectionPosition2;
-
-    @Schema(description = "Connected 1")
-    private boolean connected1;
-
-    @Schema(description = "Connected 2")
-    private boolean connected2;
+    @Schema(description = "User description")
+    private String description;
 }

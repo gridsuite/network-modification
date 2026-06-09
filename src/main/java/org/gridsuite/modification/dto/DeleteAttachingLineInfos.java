@@ -7,20 +7,15 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.DeleteAttachingLine;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.gridsuite.modification.model.DeleteAttachingLineModel;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
@@ -34,39 +29,30 @@ import java.util.Map;
 @Schema(description = "Delete attaching line infos")
 @JsonTypeName("DELETE_ATTACHING_LINE")
 @ModificationErrorTypeName("DELETE_ATTACHING_LINE_ERROR")
-public class DeleteAttachingLineInfos extends ModificationInfos {
+public class DeleteAttachingLineInfos extends DeleteAttachingLineModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "line 1 id")
-    private String lineToAttachTo1Id;
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Schema(description = "line 2 id")
-    private String lineToAttachTo2Id;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "attachment line id")
-    private String attachedLineId;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "replacing line 1 ID")
-    private String replacingLine1Id;
+    @Schema(description = "Message type")
+    private String messageType;
 
-    @Schema(description = "replacing line 1 name")
-    private String replacingLine1Name;
+    @Schema(description = "Message values")
+    private String messageValues;
 
-    @Override
-    public AbstractModification toModification() {
-        return new DeleteAttachingLine(this);
-    }
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.deleteAttachingLine").add();
-    }
-
-    @Override
-    public Map<String, String> getMapMessageValues() {
-        Map<String, String> mapMessageValues = new HashMap<>();
-        mapMessageValues.put("attachedLineId", getAttachedLineId());
-        mapMessageValues.put("lineToAttachTo1Id", getLineToAttachTo1Id());
-        mapMessageValues.put("lineToAttachTo2Id", getLineToAttachTo2Id());
-        return mapMessageValues;
-    }
+    @Schema(description = "User description")
+    private String description;
 }

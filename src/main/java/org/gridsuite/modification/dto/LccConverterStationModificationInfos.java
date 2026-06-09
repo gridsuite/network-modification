@@ -7,17 +7,16 @@
 
 package org.gridsuite.modification.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.AttributeModification;
-import org.gridsuite.modification.model.LccShuntCompensatorModificationModel;
-import org.springframework.util.CollectionUtils;
-
-import java.util.List;
+import org.gridsuite.modification.model.LccConverterStationModificationModel;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 @SuperBuilder
 @NoArgsConstructor
@@ -27,18 +26,30 @@ import java.util.List;
 @Schema(description = "Lcc converter station modification")
 @JsonTypeName("LCC_CONVERTER_STATION_MODIFICATION")
 @ModificationErrorTypeName("LCC_MODIFY_CONVERTER_STATION_ERROR")
-public class LccConverterStationModificationInfos extends InjectionModificationInfos {
-    @Schema(description = "Loss Factor")
-    private AttributeModification<Float> lossFactor;
+public class LccConverterStationModificationInfos extends LccConverterStationModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "Power Factor")
-    private AttributeModification<Float> powerFactor;
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Schema(description = "LCC HVDC Converter Station Shunt Compensator")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<LccShuntCompensatorModificationModel> shuntCompensatorsOnSide;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    public boolean hasModifications() {
-        return getEquipmentName() != null || lossFactor != null || powerFactor != null || !CollectionUtils.isEmpty(shuntCompensatorsOnSide);
-    }
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
+
+    @Schema(description = "Message type")
+    private String messageType;
+
+    @Schema(description = "Message values")
+    private String messageValues;
+
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
+
+    @Schema(description = "User description")
+    private String description;
 }

@@ -7,15 +7,16 @@
 
 package org.gridsuite.modification.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.LccShuntCompensatorModel;
-
-import java.util.List;
+import org.gridsuite.modification.model.LccConverterStationCreationModel;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
@@ -29,14 +30,30 @@ import java.util.List;
 @Schema(description = "Lcc converter station creation")
 @JsonTypeName("LCC_CONVERTER_STATION_CREATION")
 @ModificationErrorTypeName("LCC_CREATE_CONVERTER_STATION_ERROR")
-public class LccConverterStationCreationInfos extends InjectionCreationInfos {
-    @Schema(description = "Loss Factor")
-    private Float lossFactor;
+public class LccConverterStationCreationInfos extends LccConverterStationCreationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "Power Factor")
-    private Float powerFactor;
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Schema(description = "LCC HVDC Converter Station Shunt Compensator")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<LccShuntCompensatorModel> shuntCompensatorsOnSide;
+    @Schema(description = "Modification date")
+    private Instant date;
+
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
+
+    @Schema(description = "Message type")
+    private String messageType;
+
+    @Schema(description = "Message values")
+    private String messageValues;
+
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
+
+    @Schema(description = "User description")
+    private String description;
 }

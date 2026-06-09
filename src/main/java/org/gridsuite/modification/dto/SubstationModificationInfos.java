@@ -8,18 +8,15 @@ package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.Country;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.AttributeModification;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.SubstationModification;
+import org.gridsuite.modification.model.SubstationModificationModel;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author David Braquart <david.braquart at rte-france.com>
@@ -33,20 +30,30 @@ import org.gridsuite.modification.modifications.SubstationModification;
 @Schema(description = "Substation modification")
 @JsonTypeName("SUBSTATION_MODIFICATION")
 @ModificationErrorTypeName("MODIFY_SUBSTATION_ERROR")
-public class SubstationModificationInfos extends BasicEquipmentModificationInfos {
-    @Schema(description = "country modification")
-    private AttributeModification<Country> country;
+public class SubstationModificationInfos extends SubstationModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Override
-    public AbstractModification toModification() {
-        return new SubstationModification(this);
-    }
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.substation.modification")
-                .withUntypedValue("substationId", this.getEquipmentId())
-                .add();
-    }
+    @Schema(description = "Modification date")
+    private Instant date;
+
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
+
+    @Schema(description = "Message type")
+    private String messageType;
+
+    @Schema(description = "Message values")
+    private String messageValues;
+
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
+
+    @Schema(description = "User description")
+    private String description;
 }

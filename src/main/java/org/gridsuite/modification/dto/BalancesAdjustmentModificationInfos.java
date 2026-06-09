@@ -7,20 +7,15 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.loadflow.LoadFlowParameters;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.BalancesAdjustmentAreaModel;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.BalancesAdjustmentModification;
-
-import java.util.Collections;
-import java.util.List;
+import org.gridsuite.modification.model.BalancesAdjustmentModificationModel;
+import java.time.Instant;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Joris Mancini <joris.mancini_externe at rte-france.com>
@@ -33,47 +28,30 @@ import java.util.UUID;
 @Schema(description = "Balances adjustment modification infos")
 @JsonTypeName("BALANCES_ADJUSTMENT_MODIFICATION")
 @ModificationErrorTypeName("BALANCES_ADJUSTMENT_MODIFICATION_ERROR")
-public class BalancesAdjustmentModificationInfos extends ModificationInfos {
-    public static final int DEFAULT_MAX_NUMBER_ITERATIONS = 5;
-    public static final double DEFAULT_THRESHOLD_NET_POSITION = 1;
-    public static final List<Country> DEFAULT_COUNTRIES_TO_BALANCE = Collections.emptyList();
-    public static final LoadFlowParameters.BalanceType DEFAULT_BALANCE_TYPE = LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD;
-    public static final boolean DEFAULT_WITH_LOAD_FLOW = true;
-    public static final boolean DEFAULT_WITH_RATIO_TAP_CHANGERS = false;
-    public static final boolean DEFAULT_SUBTRACT_LOAD_FLOW_BALANCING = false;
+public class BalancesAdjustmentModificationInfos extends BalancesAdjustmentModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    List<BalancesAdjustmentAreaModel> areas;
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
+    @Schema(description = "Modification date")
+    private Instant date;
+
+    @Schema(description = "Modification flag")
     @Builder.Default
-    private int maxNumberIterations = DEFAULT_MAX_NUMBER_ITERATIONS;
+    private Boolean stashed = false;
 
-    @Builder.Default
-    private double thresholdNetPosition = DEFAULT_THRESHOLD_NET_POSITION;
+    @Schema(description = "Message type")
+    private String messageType;
 
-    @Builder.Default
-    private List<Country> countriesToBalance = DEFAULT_COUNTRIES_TO_BALANCE;
+    @Schema(description = "Message values")
+    private String messageValues;
 
-    @Builder.Default
-    private LoadFlowParameters.BalanceType balanceType = DEFAULT_BALANCE_TYPE;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Builder.Default
-    private boolean withLoadFlow = DEFAULT_WITH_LOAD_FLOW;
-
-    private UUID loadFlowParametersId;
-
-    @Builder.Default
-    private boolean withRatioTapChangers = DEFAULT_WITH_RATIO_TAP_CHANGERS;
-
-    @Builder.Default
-    private boolean subtractLoadFlowBalancing = DEFAULT_SUBTRACT_LOAD_FLOW_BALANCING;
-
-    @Override
-    public AbstractModification toModification() {
-        return new BalancesAdjustmentModification(this);
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.balancesAdjustment").add();
-    }
+    @Schema(description = "User description")
+    private String description;
 }

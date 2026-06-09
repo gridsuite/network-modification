@@ -6,20 +6,16 @@
  */
 package org.gridsuite.modification.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.StaticVarCompensator;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.VoltageRegulationType;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.StaticVarCompensatorCreation;
+import org.gridsuite.modification.model.StaticVarCompensatorCreationModel;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
@@ -33,75 +29,30 @@ import org.gridsuite.modification.modifications.StaticVarCompensatorCreation;
 @Schema(description = "Static var compensator creation")
 @JsonTypeName("STATIC_VAR_COMPENSATOR_CREATION")
 @ModificationErrorTypeName("CREATE_STATIC_VAR_COMPENSATOR_ERROR")
-public class StaticVarCompensatorCreationInfos extends InjectionCreationInfos {
-    @Schema(description = "Susceptance max")
-    private Double maxSusceptance;
+public class StaticVarCompensatorCreationInfos extends StaticVarCompensatorCreationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "Susceptance min")
-    private Double minSusceptance;
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Schema(description = "Q max at nominal voltage")
-    private Double maxQAtNominalV;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "Q min at nominal voltage")
-    private Double minQAtNominalV;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "regulation mode")
-    private StaticVarCompensator.RegulationMode regulationMode;
+    @Schema(description = "Message type")
+    private String messageType;
 
-    @Schema(description = "Voltage set point")
-    private Double voltageSetpoint;
+    @Schema(description = "Message values")
+    private String messageValues;
 
-    @Schema(description = "Reactive power set point")
-    private Double reactivePowerSetpoint;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Schema(description = "Voltage Regulation type")
-    private VoltageRegulationType voltageRegulationType;
-
-    @Schema(description = "Regulating terminal equipment id")
-    private String regulatingTerminalId;
-
-    @Schema(description = "Regulating terminal equipment type")
-    private String regulatingTerminalType;
-
-    @Schema(description = "Regulating terminal voltage level id")
-    private String regulatingTerminalVlId;
-
-    @Schema(description = "Regulating")
-    @JsonProperty("isRegulating")
-    public boolean regulating;
-
-    @Schema(description = "standby automaton on")
-    private boolean standbyAutomatonOn;
-
-    @Schema(description = "Standby")
-    private boolean standby;
-
-    @Schema(description = "Fixed part of susceptance")
-    private Double b0;
-
-    @Schema(description = "Fixed part of Q at nominal voltage")
-    private Double q0;
-
-    @Schema(description = "Low voltage set point ")
-    private Double lowVoltageSetpoint;
-
-    @Schema(description = "High voltage set point")
-    private Double highVoltageSetpoint;
-
-    @Schema(description = "Low voltage threshold")
-    private Double lowVoltageThreshold;
-
-    @Schema(description = "High voltage threshold")
-    private Double highVoltageThreshold;
-
-    @Override
-    public AbstractModification toModification() {
-        return new StaticVarCompensatorCreation(this);
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.staticVarCompensatorCreation").withUntypedValue("id", this.getEquipmentId()).add();
-    }
+    @Schema(description = "User description")
+    private String description;
 }

@@ -6,24 +6,16 @@
  */
 package org.gridsuite.modification.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.IdentifiableType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.FilterModel;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.ByFilterDeletion;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.gridsuite.modification.model.ByFilterDeletionModel;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
@@ -36,28 +28,30 @@ import java.util.Map;
 @Schema(description = "By filter deletion")
 @JsonTypeName("BY_FILTER_DELETION")
 @ModificationErrorTypeName("BY_FILTER_DELETION_ERROR")
-public class ByFilterDeletionInfos extends ModificationInfos {
-    @Schema(description = "Equipment type")
-    private IdentifiableType equipmentType;
+public class ByFilterDeletionInfos extends ByFilterDeletionModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "List of filters")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<FilterModel> filters;
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Override
-    public AbstractModification toModification() {
-        return new ByFilterDeletion(this);
-    }
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.byFilter.deletion").add();
-    }
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Override
-    public Map<String, String> getMapMessageValues() {
-        Map<String, String> mapMessageValues = new HashMap<>();
-        mapMessageValues.put("equipmentType", getEquipmentType().name());
-        return mapMessageValues;
-    }
+    @Schema(description = "Message type")
+    private String messageType;
+
+    @Schema(description = "Message values")
+    private String messageValues;
+
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
+
+    @Schema(description = "User description")
+    private String description;
 }

@@ -6,13 +6,14 @@
  */
 package org.gridsuite.modification.dto;
 
-import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.model.InjectionCreationModel;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -23,22 +24,30 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Injection creation")
-public class InjectionCreationInfos extends EquipmentCreationInfos {
-    @Schema(description = "Voltage level id")
-    private String voltageLevelId;
+public class InjectionCreationInfos extends InjectionCreationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "Bus id")
-    private String busOrBusbarSectionId;
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Schema(description = "Connection Name")
-    private String connectionName;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "Connection Direction")
-    private ConnectablePosition.Direction connectionDirection;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "Connection Position")
-    private Integer connectionPosition;
+    @Schema(description = "Message type")
+    private String messageType;
 
-    @Schema(description = "Connected")
-    private boolean terminalConnected;
+    @Schema(description = "Message values")
+    private String messageValues;
+
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
+
+    @Schema(description = "User description")
+    private String description;
 }

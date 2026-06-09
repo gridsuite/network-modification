@@ -6,15 +6,14 @@
  */
 package org.gridsuite.modification.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.model.InjectionModificationModel;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
@@ -25,38 +24,30 @@ import org.gridsuite.modification.model.AttributeModification;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Injection modification")
-public class InjectionModificationInfos extends BasicEquipmentModificationInfos {
-    @Schema(description = "Voltage level id modification")
-    private AttributeModification<String> voltageLevelId;
+public class InjectionModificationInfos extends InjectionModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "Bus id modification")
-    private AttributeModification<String> busOrBusbarSectionId;
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Schema(description = "Connection Name")
-    private AttributeModification<String> connectionName;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "Connection Direction")
-    private AttributeModification<ConnectablePosition.Direction> connectionDirection;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "Connection Position")
-    private AttributeModification<Integer> connectionPosition;
+    @Schema(description = "Message type")
+    private String messageType;
 
-    @Schema(description = "Connected")
-    private AttributeModification<Boolean> terminalConnected;
+    @Schema(description = "Message values")
+    private String messageValues;
 
-    @JsonProperty("pMeasurementValue")
-    @Schema(description = "P measurement value")
-    private AttributeModification<Double> pMeasurementValue;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @JsonProperty("pMeasurementValidity")
-    @Schema(description = "P measurement validity")
-    private AttributeModification<Boolean> pMeasurementValidity;
-
-    @JsonProperty("qMeasurementValue")
-    @Schema(description = "Q measurement value")
-    private AttributeModification<Double> qMeasurementValue;
-
-    @JsonProperty("qMeasurementValidity")
-    @Schema(description = "Q measurement validity")
-    private AttributeModification<Boolean> qMeasurementValidity;
+    @Schema(description = "User description")
+    private String description;
 }

@@ -6,18 +6,14 @@
  */
 package org.gridsuite.modification.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.model.FreePropertyModel;
-import org.springframework.lang.NonNull;
-
-import java.util.List;
-import java.util.Map;
+import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.model.EquipmentModificationModel;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -29,17 +25,30 @@ import java.util.Map;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Equipment modification")
-public class EquipmentModificationInfos extends ModificationInfos {
-    @Schema(description = "Equipment ID")
-    @NonNull
-    private String equipmentId;
+public class EquipmentModificationInfos extends EquipmentModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "free properties")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<FreePropertyModel> properties;
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Override
-    public Map<String, String> getMapMessageValues() {
-        return Map.of("equipmentId", getEquipmentId());
-    }
+    @Schema(description = "Modification date")
+    private Instant date;
+
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
+
+    @Schema(description = "Message type")
+    private String messageType;
+
+    @Schema(description = "Message values")
+    private String messageValues;
+
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
+
+    @Schema(description = "User description")
+    private String description;
 }

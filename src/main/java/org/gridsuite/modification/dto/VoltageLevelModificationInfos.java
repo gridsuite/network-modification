@@ -8,19 +8,15 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.AttributeModification;
-import org.gridsuite.modification.model.BusbarSectionVMeasurementModel;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.VoltageLevelModification;
-
-import java.util.List;
+import org.gridsuite.modification.model.VoltageLevelModificationModel;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -33,36 +29,30 @@ import java.util.List;
 @Schema(description = "Voltage level modification")
 @JsonTypeName("VOLTAGE_LEVEL_MODIFICATION")
 @ModificationErrorTypeName("MODIFY_VOLTAGE_LEVEL_ERROR")
-public class VoltageLevelModificationInfos extends BasicEquipmentModificationInfos {
-    @Schema(description = "nominal voltage in kV")
-    private AttributeModification<Double> nominalV;
+public class VoltageLevelModificationInfos extends VoltageLevelModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "low voltage limit in kV")
-    private AttributeModification<Double> lowVoltageLimit;
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Schema(description = "high voltage limit  in kV")
-    private AttributeModification<Double> highVoltageLimit;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "low short-circuit current limit in A")
-    private AttributeModification<Double> ipMin;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "high short-circuit current limit in A")
-    private AttributeModification<Double> ipMax;
+    @Schema(description = "Message type")
+    private String messageType;
 
-    @Schema(description = "Busbar sections voltage measurements")
-    private List<BusbarSectionVMeasurementModel> busbarSectionVMeasurements;
+    @Schema(description = "Message values")
+    private String messageValues;
 
-    @Override
-    public AbstractModification toModification() {
-        return new VoltageLevelModification(this);
-    }
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.voltageLevel.modification")
-                .withUntypedValue("voltageLevelId", getEquipmentId())
-                .add();
-    }
-
+    @Schema(description = "User description")
+    private String description;
 }

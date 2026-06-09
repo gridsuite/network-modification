@@ -6,23 +6,16 @@
  */
 package org.gridsuite.modification.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.EnergySource;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.AttributeModification;
-import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsModel;
-import org.gridsuite.modification.model.VoltageRegulationType;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.GeneratorModification;
-
-import java.util.List;
+import org.gridsuite.modification.model.GeneratorModificationModel;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Jacques Borsenberger <jacques.borsenberger at rte-france.com>
@@ -35,95 +28,30 @@ import java.util.List;
 @Schema(description = "generator modification")
 @JsonTypeName("GENERATOR_MODIFICATION")
 @ModificationErrorTypeName("MODIFY_GENERATOR_ERROR")
-public class GeneratorModificationInfos extends InjectionModificationInfos {
-    @Schema(description = "Energy source")
-    private AttributeModification<EnergySource> energySource;
+public class GeneratorModificationInfos extends GeneratorModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "Minimum active power")
-    private AttributeModification<Double> minP;
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Schema(description = "Maximum active power")
-    private AttributeModification<Double> maxP;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "Rated nominal power")
-    private AttributeModification<Double> ratedS;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "Active power set point")
-    private AttributeModification<Double> targetP;
+    @Schema(description = "Message type")
+    private String messageType;
 
-    @Schema(description = "Reactive power set point")
-    private AttributeModification<Double> targetQ;
+    @Schema(description = "Message values")
+    private String messageValues;
 
-    @Schema(description = "Voltage regulation on")
-    private AttributeModification<Boolean> voltageRegulationOn;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Schema(description = "Voltage set point")
-    private AttributeModification<Double> targetV;
-
-    @Schema(description = "Planning active power set point")
-    private AttributeModification<Double> plannedActivePowerSetPoint;
-
-    @Schema(description = "Marginal cost")
-    private AttributeModification<Double> marginalCost;
-
-    @Schema(description = "Planning outage rate")
-    private AttributeModification<Double> plannedOutageRate;
-
-    @Schema(description = "Forced outage rate")
-    private AttributeModification<Double> forcedOutageRate;
-
-    @Schema(description = "Minimum reactive power")
-    private AttributeModification<Double> minQ;
-
-    @Schema(description = "Maximum reactive power")
-    private AttributeModification<Double> maxQ;
-
-    @Schema(description = "Reactive capability curve points")
-    private List<ReactiveCapabilityCurvePointsModel> reactiveCapabilityCurvePoints;
-
-    @Schema(description = "Participate")
-    private AttributeModification<Boolean> participate;
-
-    @Schema(description = "Droop")
-    private AttributeModification<Float> droop;
-
-    @Schema(description = "Transient reactance")
-    private AttributeModification<Double> directTransX;
-
-    @Schema(description = "Step up transformer reactance")
-    private AttributeModification<Double> stepUpTransformerX;
-
-    @Schema(description = "Voltage Regulation type")
-    private AttributeModification<VoltageRegulationType> voltageRegulationType;
-
-    @Schema(description = "Regulating terminal equipment id")
-    private AttributeModification<String> regulatingTerminalId;
-
-    @Schema(description = "Regulating terminal equipment type")
-    private AttributeModification<String> regulatingTerminalType;
-
-    @Schema(description = "Regulating terminal voltage level id")
-    private AttributeModification<String> regulatingTerminalVlId;
-
-    // As this attribute has only one lower case letter at its start (xXXXX), the getters is parsed as getQPercent and the field for Jackson is parsed as qpercent
-    // while we expect qPercent. JsonProperty let fix the json field to qPercent
-    @JsonProperty("qPercent")
-    @Schema(description = "Q percent")
-    private AttributeModification<Double> qPercent;
-
-    @Schema(description = "Reactive capability curve")
-    private AttributeModification<Boolean> reactiveCapabilityCurve;
-
-    @Override
-    public AbstractModification toModification() {
-        return new GeneratorModification(this);
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.generator.modification")
-                .withUntypedValue("generatorId", this.getEquipmentId())
-                .add();
-    }
+    @Schema(description = "User description")
+    private String description;
 }

@@ -7,26 +7,15 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.VoltageInitBusModificationModel;
-import org.gridsuite.modification.model.VoltageInitGeneratorModificationModel;
-import org.gridsuite.modification.model.VoltageInitShuntCompensatorModificationModel;
-import org.gridsuite.modification.model.VoltageInitStaticVarCompensatorModificationModel;
-import org.gridsuite.modification.model.VoltageInitTransformerModificationModel;
-import org.gridsuite.modification.model.VoltageInitVscConverterStationModificationModel;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.VoltageInitModification;
-
+import org.gridsuite.modification.model.VoltageInitModificationModel;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -38,50 +27,30 @@ import java.util.Map;
 @Schema(description = "Voltage init modification infos")
 @JsonTypeName("VOLTAGE_INIT_MODIFICATION")
 @ModificationErrorTypeName("VOLTAGE_INIT_MODIFICATION_ERROR")
-public class VoltageInitModificationInfos extends ModificationInfos {
-    @Schema(description = "generators modifications")
-    private List<VoltageInitGeneratorModificationModel> generators;
+public class VoltageInitModificationInfos extends VoltageInitModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "transformers modifications")
-    private List<VoltageInitTransformerModificationModel> transformers;
+    @Schema(description = "Modification type")
+    @Setter(AccessLevel.NONE)
+    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
-    @Schema(description = "static var compensator modifications")
-    private List<VoltageInitStaticVarCompensatorModificationModel> staticVarCompensators;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "vsc converter station modifications")
-    private List<VoltageInitVscConverterStationModificationModel> vscConverterStations;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "shunt compensator modifications")
-    private List<VoltageInitShuntCompensatorModificationModel> shuntCompensators;
+    @Schema(description = "Message type")
+    private String messageType;
 
-    @Schema(description = "buses modifications")
-    private List<VoltageInitBusModificationModel> buses;
+    @Schema(description = "Message values")
+    private String messageValues;
 
-    @Schema(description = "root network name")
-    private String rootNetworkName;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Schema(description = "node name")
-    private String nodeName;
-
-    @Schema(description = "computation date")
-    private Instant computationDate;
-
-    @Override
-    public AbstractModification toModification() {
-        return new VoltageInitModification(this);
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.voltageInitModification").add();
-    }
-
-    @Override
-    public Map<String, String> getMapMessageValues() {
-        Map<String, String> mapMessageValues = new HashMap<>();
-        mapMessageValues.put("rootNetworkName", getRootNetworkName());
-        mapMessageValues.put("nodeName", getNodeName());
-        mapMessageValues.put("computationDate", getComputationDate() != null ? getComputationDate().toString() : null);
-        return mapMessageValues;
-    }
+    @Schema(description = "User description")
+    private String description;
 }
