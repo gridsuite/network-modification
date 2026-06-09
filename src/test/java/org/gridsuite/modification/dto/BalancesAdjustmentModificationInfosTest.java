@@ -9,7 +9,7 @@ package org.gridsuite.modification.dto;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
-import org.gridsuite.modification.model.BalancesAdjustmentAreaInfos;
+import org.gridsuite.modification.model.BalancesAdjustmentAreaModel;
 import org.gridsuite.modification.model.ShiftEquipmentType;
 import org.gridsuite.modification.model.ShiftType;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ class BalancesAdjustmentModificationInfosTest {
     @Test
     void buildModificationInfosWithDefaultValues() {
         BalancesAdjustmentModificationInfos infos = BalancesAdjustmentModificationInfos.builder()
-            .areas(List.of(BalancesAdjustmentAreaInfos.builder()
+            .areas(List.of(BalancesAdjustmentAreaModel.builder()
                 .name("FR")
                 .countries(List.of(Country.FR))
                 .netPosition(500d)
@@ -41,7 +41,7 @@ class BalancesAdjustmentModificationInfosTest {
         assertEquals(BalancesAdjustmentModificationInfos.DEFAULT_SUBTRACT_LOAD_FLOW_BALANCING, infos.isSubtractLoadFlowBalancing());
         assertEquals(1, infos.getAreas().size());
 
-        BalancesAdjustmentAreaInfos areaInfos = infos.getAreas().get(0);
+        BalancesAdjustmentAreaModel areaInfos = infos.getAreas().get(0);
         assertEquals("FR", areaInfos.getName());
         assertEquals(500d, areaInfos.getNetPosition(), 0.001);
         assertEquals(ShiftType.BALANCED, areaInfos.getShiftType());
@@ -53,7 +53,7 @@ class BalancesAdjustmentModificationInfosTest {
     @Test
     void buildModificationInfosWithoutDefaultValues() {
         BalancesAdjustmentModificationInfos infos = BalancesAdjustmentModificationInfos.builder()
-            .areas(List.of(BalancesAdjustmentAreaInfos.builder()
+            .areas(List.of(BalancesAdjustmentAreaModel.builder()
                 .name("FR")
                 .countries(List.of(Country.FR))
                 .netPosition(500d)
@@ -78,7 +78,7 @@ class BalancesAdjustmentModificationInfosTest {
         assertTrue(infos.isSubtractLoadFlowBalancing());
         assertEquals(1, infos.getAreas().size());
 
-        BalancesAdjustmentAreaInfos areaInfos = infos.getAreas().get(0);
+        BalancesAdjustmentAreaModel areaInfos = infos.getAreas().get(0);
         assertEquals("FR", areaInfos.getName());
         assertEquals(500d, areaInfos.getNetPosition(), 0.001);
         assertEquals(ShiftType.BALANCED, areaInfos.getShiftType());

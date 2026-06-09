@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.SubstationCreationInfos;
-import org.gridsuite.modification.model.FreePropertyInfos;
+import org.gridsuite.modification.model.FreePropertyModel;
 import org.gridsuite.modification.utils.NetworkCreation;
 
 import java.util.List;
@@ -39,7 +39,7 @@ class SubstationCreationTest extends AbstractNetworkModificationTest {
                 .equipmentId("SubstationId")
                 .equipmentName("SubstationName")
                 .country(Country.AF)
-                .properties(List.of(FreePropertyInfos.builder().name("DEMO").value("DemoC").build()))
+                .properties(List.of(FreePropertyModel.builder().name("DEMO").value("DemoC").build()))
                 .build();
     }
 

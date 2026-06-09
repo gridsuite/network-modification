@@ -17,7 +17,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.AbstractEquipmentDeletionInfos;
+import org.gridsuite.modification.model.AbstractEquipmentDeletionModel;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.EquipmentDeletion;
 
@@ -38,7 +38,7 @@ public class EquipmentDeletionInfos extends EquipmentModificationInfos {
 
     @Schema(description = "Equipment specific infos (optional)")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private AbstractEquipmentDeletionInfos equipmentInfos;
+    private AbstractEquipmentDeletionModel equipmentInfos;
 
     @Override
     public AbstractModification toModification() {

@@ -15,8 +15,8 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.PhaseTapChangerCreationInfos;
-import org.gridsuite.modification.model.RatioTapChangerCreationInfos;
+import org.gridsuite.modification.model.PhaseTapChangerCreationModel;
+import org.gridsuite.modification.model.RatioTapChangerCreationModel;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.TwoWindingsTransformerCreation;
 
@@ -50,10 +50,10 @@ public class TwoWindingsTransformerCreationInfos extends BranchCreationInfos {
     private Double ratedS;
 
     @Schema(description = "Ratio tap changer")
-    private RatioTapChangerCreationInfos ratioTapChanger;
+    private RatioTapChangerCreationModel ratioTapChanger;
 
     @Schema(description = "Phase tap changer")
-    private PhaseTapChangerCreationInfos phaseTapChanger;
+    private PhaseTapChangerCreationModel phaseTapChanger;
 
     @Override
     public AbstractModification toModification() {

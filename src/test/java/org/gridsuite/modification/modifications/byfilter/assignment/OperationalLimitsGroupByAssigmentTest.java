@@ -13,8 +13,8 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.model.FilterEquipments;
 import org.gridsuite.modification.model.IdentifiableAttributes;
-import org.gridsuite.modification.model.byfilter.assignment.AssignmentInfos;
-import org.gridsuite.modification.model.byfilter.assignment.PropertyAssignmentInfos;
+import org.gridsuite.modification.model.byfilter.assignment.AssignmentModel;
+import org.gridsuite.modification.model.byfilter.assignment.PropertyAssignmentModel;
 import org.junit.jupiter.api.Assertions;
 
 import java.util.ArrayList;
@@ -83,26 +83,26 @@ public class OperationalLimitsGroupByAssigmentTest extends AbstractModificationB
     }
 
     @Override
-    protected List<AssignmentInfos<?>> getAssignmentInfos() {
-        PropertyAssignmentInfos assignmentInfos1 = PropertyAssignmentInfos.builder()
+    protected List<AssignmentModel<?>> getAssignmentInfos() {
+        PropertyAssignmentModel assignmentInfos1 = PropertyAssignmentModel.builder()
                 .filters(List.of(filter1))
                 .editedField(OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES.name())
                 .propertyName("property1")
                 .value("value1")
                 .build();
-        PropertyAssignmentInfos assignmentInfos2 = PropertyAssignmentInfos.builder()
+        PropertyAssignmentModel assignmentInfos2 = PropertyAssignmentModel.builder()
                 .filters(List.of(filter2))
                 .editedField(OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES.name())
                 .propertyName("property2")
                 .value("value2")
                 .build();
-        PropertyAssignmentInfos assignmentInfos3 = PropertyAssignmentInfos.builder()
+        PropertyAssignmentModel assignmentInfos3 = PropertyAssignmentModel.builder()
                 .filters(List.of(filter3))
                 .editedField(OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES.name())
                 .propertyName("property0")
                 .value("value0")
                 .build();
-        List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
+        List<AssignmentModel<?>> infosList = super.getAssignmentInfos();
         infosList.addAll(List.of(assignmentInfos1, assignmentInfos2, assignmentInfos3));
         return infosList;
     }

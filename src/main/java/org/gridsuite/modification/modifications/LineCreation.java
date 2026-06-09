@@ -12,8 +12,8 @@ import com.powsybl.iidm.network.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LineCreationInfos;
-import org.gridsuite.modification.model.OperationalLimitsGroupInfos;
-import org.gridsuite.modification.model.OperationalLimitsGroupInfos.Applicability;
+import org.gridsuite.modification.model.OperationalLimitsGroupModel;
+import org.gridsuite.modification.model.OperationalLimitsGroupModel.Applicability;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -77,14 +77,14 @@ public class LineCreation extends AbstractModification {
     public static void addLimits(LineCreationInfos modificationInfos, ReportNode subReportNode, Line line) {
         // Set permanent and temporary current limits
         ReportNode limitsReporter = null;
-        List<OperationalLimitsGroupInfos> opLimitsGroupSide1 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE1);
-        List<OperationalLimitsGroupInfos> opLimitsGroupSide2 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE2);
+        List<OperationalLimitsGroupModel> opLimitsGroupSide1 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE1);
+        List<OperationalLimitsGroupModel> opLimitsGroupSide2 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), Applicability.SIDE2);
         ReportNode reportNode;
         if (!CollectionUtils.isEmpty(modificationInfos.getOperationalLimitsGroups())) {
             limitsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.limitsCreated").add();
             reportNode = addLimitSetReportNode(limitsReporter);
 
-            for (OperationalLimitsGroupInfos olgInfos : modificationInfos.getOperationalLimitsGroups()) {
+            for (OperationalLimitsGroupModel olgInfos : modificationInfos.getOperationalLimitsGroups()) {
                 ReportNode limitSetNode = reportNode.newReportNode()
                         .withMessageTemplate("network.modification.limitSetAdded")
                         .withUntypedValue("name", olgInfos.getId())

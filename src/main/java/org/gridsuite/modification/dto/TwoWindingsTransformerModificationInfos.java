@@ -13,8 +13,8 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.AttributeModification;
-import org.gridsuite.modification.model.PhaseTapChangerModificationInfos;
-import org.gridsuite.modification.model.RatioTapChangerModificationInfos;
+import org.gridsuite.modification.model.PhaseTapChangerModificationModel;
+import org.gridsuite.modification.model.RatioTapChangerModificationModel;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.TwoWindingsTransformerModification;
 
@@ -48,11 +48,11 @@ public class TwoWindingsTransformerModificationInfos extends BranchModificationI
 
     @Schema(description = "Ratio tap changer")
     @Builder.Default
-    private RatioTapChangerModificationInfos ratioTapChanger = new RatioTapChangerModificationInfos();
+    private RatioTapChangerModificationModel ratioTapChanger = new RatioTapChangerModificationModel();
 
     @Schema(description = "Phase tap changer")
     @Builder.Default
-    private PhaseTapChangerModificationInfos phaseTapChanger = new PhaseTapChangerModificationInfos();
+    private PhaseTapChangerModificationModel phaseTapChanger = new PhaseTapChangerModificationModel();
 
     @Schema(description = "Ratio tap changer to be estimated status")
     private AttributeModification<Boolean> ratioTapChangerToBeEstimated;

@@ -16,8 +16,8 @@ import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentDeletionInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.model.HvdcLccDeletionInfos;
-import org.gridsuite.modification.model.HvdcLccDeletionInfos.ShuntCompensatorInfos;
+import org.gridsuite.modification.model.HvdcLccDeletionModel;
+import org.gridsuite.modification.model.HvdcLccDeletionModel.ShuntCompensatorModel;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -80,8 +80,8 @@ class EquipmentDeletionTest extends AbstractNetworkModificationTest {
         assertNotNull(getNetwork().getHvdcLine(hvdcLineName));
         assertEquals(warningCase, getNetwork().getShuntCompensator(shuntNameToBeRemoved) == null);
 
-        List<ShuntCompensatorInfos> shuntCompensatorInfos = List.of(new ShuntCompensatorInfos(shuntNameToBeRemoved, selected));
-        HvdcLccDeletionInfos hvdcLccDeletionInfos = new HvdcLccDeletionInfos();
+        List<ShuntCompensatorModel> shuntCompensatorInfos = List.of(new ShuntCompensatorModel(shuntNameToBeRemoved, selected));
+        HvdcLccDeletionModel hvdcLccDeletionInfos = new HvdcLccDeletionModel();
         if (side == 1) {
             hvdcLccDeletionInfos.setMcsOnSide1(shuntCompensatorInfos);
         } else {

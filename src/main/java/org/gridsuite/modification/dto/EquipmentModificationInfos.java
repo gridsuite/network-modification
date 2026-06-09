@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.model.FreePropertyInfos;
+import org.gridsuite.modification.model.FreePropertyModel;
 import org.springframework.lang.NonNull;
 
 import java.util.List;
@@ -36,7 +36,7 @@ public class EquipmentModificationInfos extends ModificationInfos {
 
     @Schema(description = "free properties")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<FreePropertyInfos> properties;
+    private List<FreePropertyModel> properties;
 
     @Override
     public Map<String, String> getMapMessageValues() {

@@ -13,7 +13,7 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.SubstationCreationInfos;
 import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
-import org.gridsuite.modification.model.FreePropertyInfos;
+import org.gridsuite.modification.model.FreePropertyModel;
 import org.gridsuite.modification.utils.ModificationCreation;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ class VoltageLevelCreationTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationInfos buildModification() {
         VoltageLevelCreationInfos voltageLevelInfos = ModificationCreation.getCreationVoltageLevel("s2", "vlId", "vlName");
-        voltageLevelInfos.setProperties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()));
+        voltageLevelInfos.setProperties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()));
         return voltageLevelInfos;
     }
 

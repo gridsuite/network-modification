@@ -16,7 +16,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.AttributeModification;
-import org.gridsuite.modification.model.LineSegmentInfos;
+import org.gridsuite.modification.model.LineSegmentModel;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LineModification;
 
@@ -49,7 +49,7 @@ public class LineModificationInfos extends BranchModificationInfos {
     private AttributeModification<Double> b2;
 
     @Schema(description = "segments used from catalog to generate limits")
-    private List<LineSegmentInfos> lineSegments;
+    private List<LineSegmentModel> lineSegments;
 
     @Schema(description = "apply limits from catalog segments")
     private boolean applySegmentsLimits;

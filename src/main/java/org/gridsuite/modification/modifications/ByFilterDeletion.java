@@ -21,7 +21,7 @@ import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ByFilterDeletionInfos;
 import org.gridsuite.modification.model.FilterEquipments;
-import org.gridsuite.modification.model.FilterInfos;
+import org.gridsuite.modification.model.FilterModel;
 import org.gridsuite.modification.model.IdentifiableAttributes;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.CollectionUtils;
@@ -65,8 +65,8 @@ public class ByFilterDeletion extends AbstractModification {
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         var filters = modificationInfos.getFilters().stream()
-                .filter(distinctByKey(FilterInfos::getId))
-                .collect(Collectors.toMap(FilterInfos::getId, FilterInfos::getName));
+                .filter(distinctByKey(FilterModel::getId))
+                .collect(Collectors.toMap(FilterModel::getId, FilterModel::getName));
 
         Map<UUID, FilterEquipments> exportFilters = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, modificationInfos.getErrorType());
         if (exportFilters != null) {
@@ -74,7 +74,7 @@ public class ByFilterDeletion extends AbstractModification {
             Set<IdentifiableAttributes> identifiableAttributes = ModificationUtils.getIdentifiableAttributes(exportFilters, modificationInfos.getFilters(), subReportNode);
 
             if (CollectionUtils.isEmpty(identifiableAttributes)) {
-                String filterNames = modificationInfos.getFilters().stream().map(FilterInfos::getName).collect(Collectors.joining(", "));
+                String filterNames = modificationInfos.getFilters().stream().map(FilterModel::getName).collect(Collectors.joining(", "));
                 createReport(subReportNode, "network.modification.allFiltersWrong", Map.of("filterNames", filterNames), TypedValue.WARN_SEVERITY);
             } else {
                 subReportNode.newReportNode()

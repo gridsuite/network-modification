@@ -18,7 +18,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.byfilter.formula.FormulaInfos;
+import org.gridsuite.modification.model.byfilter.formula.FormulaModel;
 import org.gridsuite.modification.modifications.byfilter.ByFormulaModification;
 
 import java.util.List;
@@ -41,7 +41,7 @@ public class ByFormulaModificationInfos extends ModificationInfos {
     private IdentifiableType identifiableType;
 
     @Schema(description = "list of formulas")
-    private List<FormulaInfos> formulaInfosList;
+    private List<FormulaModel> formulaInfosList;
 
     @Override
     public ByFormulaModification toModification() {

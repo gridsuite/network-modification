@@ -11,7 +11,7 @@ import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.model.FilterEquipments;
 import org.gridsuite.modification.model.IdentifiableAttributes;
 import org.gridsuite.modification.model.byfilter.equipmentfield.LoadField;
-import org.gridsuite.modification.model.byfilter.formula.FormulaInfos;
+import org.gridsuite.modification.model.byfilter.formula.FormulaModel;
 import org.gridsuite.modification.model.byfilter.formula.Operator;
 import org.gridsuite.modification.model.byfilter.formula.ReferenceFieldOrValue;
 
@@ -56,15 +56,15 @@ class LoadByFormulaModificationTest extends AbstractByFormulaModificationTest {
     }
 
     @Override
-    protected List<FormulaInfos> getFormulaInfos() {
-        FormulaInfos formulaInfos1 = getFormulaInfo(LoadField.ACTIVE_POWER_SET_POINT.name(),
+    protected List<FormulaModel> getFormulaInfos() {
+        FormulaModel formulaInfos1 = getFormulaInfo(LoadField.ACTIVE_POWER_SET_POINT.name(),
                 List.of(filter1),
                 Operator.ADDITION,
                 ReferenceFieldOrValue.builder().equipmentField(LoadField.ACTIVE_POWER_SET_POINT.name()).build(),
                 ReferenceFieldOrValue.builder().value(25.).build()
         );
 
-        FormulaInfos formulaInfos2 = getFormulaInfo(LoadField.REACTIVE_POWER_SET_POINT.name(),
+        FormulaModel formulaInfos2 = getFormulaInfo(LoadField.REACTIVE_POWER_SET_POINT.name(),
                 List.of(filter2),
                 Operator.MULTIPLICATION,
                 ReferenceFieldOrValue.builder().equipmentField(LoadField.REACTIVE_POWER_SET_POINT.name()).build(),

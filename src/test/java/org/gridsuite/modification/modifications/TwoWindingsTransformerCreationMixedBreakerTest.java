@@ -11,10 +11,10 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.model.FreePropertyInfos;
-import org.gridsuite.modification.model.PhaseTapChangerCreationInfos;
-import org.gridsuite.modification.model.RatioTapChangerCreationInfos;
-import org.gridsuite.modification.model.TapChangerStepCreationInfos;
+import org.gridsuite.modification.model.FreePropertyModel;
+import org.gridsuite.modification.model.PhaseTapChangerCreationModel;
+import org.gridsuite.modification.model.RatioTapChangerCreationModel;
+import org.gridsuite.modification.model.TapChangerStepCreationModel;
 import org.gridsuite.modification.utils.NetworkCreation;
 
 import java.util.List;
@@ -58,7 +58,7 @@ class TwoWindingsTransformerCreationMixedBreakerTest extends AbstractNetworkModi
                 .connectionDirection1(ConnectablePosition.Direction.TOP)
                 .connectionName2("cnid2wt2")
                 .connectionDirection2(ConnectablePosition.Direction.TOP)
-                .phaseTapChanger(PhaseTapChangerCreationInfos.builder()
+                .phaseTapChanger(PhaseTapChangerCreationModel.builder()
                         .lowTapPosition(1)
                         .tapPosition(2)
                         .terminalRefConnectableId("v1load")
@@ -66,7 +66,7 @@ class TwoWindingsTransformerCreationMixedBreakerTest extends AbstractNetworkModi
                         .regulating(false)
                         .terminalRefConnectableType("LOAD")
                         .regulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
-                        .steps(List.of(TapChangerStepCreationInfos.builder()
+                        .steps(List.of(TapChangerStepCreationModel.builder()
                                         .index(1)
                                         .rho(1)
                                         .r(0)
@@ -75,7 +75,7 @@ class TwoWindingsTransformerCreationMixedBreakerTest extends AbstractNetworkModi
                                         .b(0)
                                         .alpha(0)
                                         .build(),
-                                TapChangerStepCreationInfos.builder()
+                                TapChangerStepCreationModel.builder()
                                         .index(2)
                                         .rho(1)
                                         .r(0)
@@ -84,7 +84,7 @@ class TwoWindingsTransformerCreationMixedBreakerTest extends AbstractNetworkModi
                                         .b(0)
                                         .alpha(0.)
                                         .build(),
-                                TapChangerStepCreationInfos.builder()
+                                TapChangerStepCreationModel.builder()
                                         .index(3)
                                         .rho(1)
                                         .r(0)
@@ -94,7 +94,7 @@ class TwoWindingsTransformerCreationMixedBreakerTest extends AbstractNetworkModi
                                         .alpha(0.)
                                         .build()
                         )).build())
-                .ratioTapChanger(RatioTapChangerCreationInfos.builder()
+                .ratioTapChanger(RatioTapChangerCreationModel.builder()
                         .lowTapPosition(5)
                         .tapPosition(6)
                         .regulating(true)
@@ -104,7 +104,7 @@ class TwoWindingsTransformerCreationMixedBreakerTest extends AbstractNetworkModi
                         .terminalRefConnectableType("LOAD")
                         .loadTapChangingCapabilities(true)
                         .targetV(5.)
-                        .steps(List.of(TapChangerStepCreationInfos.builder()
+                        .steps(List.of(TapChangerStepCreationModel.builder()
                                         .index(5)
                                         .rho(1)
                                         .r(0)
@@ -112,7 +112,7 @@ class TwoWindingsTransformerCreationMixedBreakerTest extends AbstractNetworkModi
                                         .g(0)
                                         .b(0)
                                         .build(),
-                                TapChangerStepCreationInfos.builder()
+                                TapChangerStepCreationModel.builder()
                                         .index(6)
                                         .rho(1)
                                         .r(0)
@@ -120,7 +120,7 @@ class TwoWindingsTransformerCreationMixedBreakerTest extends AbstractNetworkModi
                                         .g(0)
                                         .b(0)
                                         .build(),
-                                TapChangerStepCreationInfos.builder()
+                                TapChangerStepCreationModel.builder()
                                         .index(7)
                                         .rho(1)
                                         .r(0)
@@ -128,7 +128,7 @@ class TwoWindingsTransformerCreationMixedBreakerTest extends AbstractNetworkModi
                                         .g(0)
                                         .b(0)
                                         .build(),
-                                TapChangerStepCreationInfos.builder()
+                                TapChangerStepCreationModel.builder()
                                         .index(8)
                                         .rho(1)
                                         .r(0)
@@ -138,7 +138,7 @@ class TwoWindingsTransformerCreationMixedBreakerTest extends AbstractNetworkModi
                                         .build()
                         ))
                         .build())
-                .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+                .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
                 .build();
     }
 

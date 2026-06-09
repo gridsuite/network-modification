@@ -15,7 +15,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.CouplingDeviceInfos;
+import org.gridsuite.modification.model.CouplingDeviceModel;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.CreateCouplingDevice;
 
@@ -39,7 +39,7 @@ public class CreateCouplingDeviceInfos extends ModificationInfos {
     private String voltageLevelId;
 
     @Schema(description = "Coupling device information")
-    private CouplingDeviceInfos couplingDeviceInfos;
+    private CouplingDeviceModel couplingDeviceInfos;
 
     @Override
     public AbstractModification toModification() {

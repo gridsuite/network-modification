@@ -14,7 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.BalancesAdjustmentAreaInfos;
+import org.gridsuite.modification.model.BalancesAdjustmentAreaModel;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.BalancesAdjustmentModification;
 
@@ -42,7 +42,7 @@ public class BalancesAdjustmentModificationInfos extends ModificationInfos {
     public static final boolean DEFAULT_WITH_RATIO_TAP_CHANGERS = false;
     public static final boolean DEFAULT_SUBTRACT_LOAD_FLOW_BALANCING = false;
 
-    List<BalancesAdjustmentAreaInfos> areas;
+    List<BalancesAdjustmentAreaModel> areas;
 
     @Builder.Default
     private int maxNumberIterations = DEFAULT_MAX_NUMBER_ITERATIONS;

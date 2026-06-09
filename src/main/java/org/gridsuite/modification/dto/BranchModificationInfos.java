@@ -14,7 +14,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.model.AttributeModification;
-import org.gridsuite.modification.model.OperationalLimitsGroupModificationInfos;
+import org.gridsuite.modification.model.OperationalLimitsGroupModificationModel;
 import org.gridsuite.modification.model.OperationalLimitsGroupsModificationType;
 
 import java.util.List;
@@ -43,7 +43,7 @@ public class BranchModificationInfos extends BasicEquipmentModificationInfos {
     private Boolean enableOLGModification;
 
     @Schema(description = "Operational limit groups on side 1 and 2")
-    private List<OperationalLimitsGroupModificationInfos> operationalLimitsGroups;
+    private List<OperationalLimitsGroupModificationModel> operationalLimitsGroups;
 
     @Schema(description = "Selected operational limits group on Side 1")
     private AttributeModification<String> selectedOperationalLimitsGroupId1;

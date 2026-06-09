@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.LccShuntCompensatorInfos;
+import org.gridsuite.modification.model.LccShuntCompensatorModel;
 
 import java.util.List;
 
@@ -38,5 +38,5 @@ public class LccConverterStationCreationInfos extends InjectionCreationInfos {
 
     @Schema(description = "LCC HVDC Converter Station Shunt Compensator")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<LccShuntCompensatorInfos> shuntCompensatorsOnSide;
+    private List<LccShuntCompensatorModel> shuntCompensatorsOnSide;
 }

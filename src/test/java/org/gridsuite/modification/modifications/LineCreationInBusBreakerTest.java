@@ -13,11 +13,11 @@ import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.ValidationException;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.model.CurrentLimitsInfos;
-import org.gridsuite.modification.model.FreePropertyInfos;
-import org.gridsuite.modification.model.LimitsPropertyInfos;
-import org.gridsuite.modification.model.LineSegmentInfos;
-import org.gridsuite.modification.model.OperationalLimitsGroupInfos;
+import org.gridsuite.modification.model.CurrentLimitsModel;
+import org.gridsuite.modification.model.FreePropertyModel;
+import org.gridsuite.modification.model.LimitsPropertyModel;
+import org.gridsuite.modification.model.LineSegmentModel;
+import org.gridsuite.modification.model.OperationalLimitsGroupModel;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
@@ -29,8 +29,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.BUS_NOT_FOUND;
-import static org.gridsuite.modification.model.OperationalLimitsGroupInfos.Applicability.SIDE1;
-import static org.gridsuite.modification.model.OperationalLimitsGroupInfos.Applicability.SIDE2;
+import static org.gridsuite.modification.model.OperationalLimitsGroupModel.Applicability.SIDE1;
+import static org.gridsuite.modification.model.OperationalLimitsGroupModel.Applicability.SIDE2;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -68,10 +68,10 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
                 .busOrBusbarSectionId2("bus2")
                 .operationalLimitsGroups(
                     List.of(
-                        OperationalLimitsGroupInfos.builder()
+                        OperationalLimitsGroupModel.builder()
                             .id("limiSet1")
                             .currentLimits(
-                                CurrentLimitsInfos.builder().permanentLimit(-1.0).build()
+                                CurrentLimitsModel.builder().permanentLimit(-1.0).build()
                         ).applicability(SIDE1).build()
                     )
                 )
@@ -117,15 +117,15 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
             .busOrBusbarSectionId1("bus1")
             .operationalLimitsGroups(
                 List.of(
-                    OperationalLimitsGroupInfos.builder()
+                    OperationalLimitsGroupModel.builder()
                         .id("limitSet1")
                         .currentLimits(
-                            CurrentLimitsInfos.builder().permanentLimit(5.).temporaryLimits(Collections.emptyList()).build()
+                            CurrentLimitsModel.builder().permanentLimit(5.).temporaryLimits(Collections.emptyList()).build()
                         ).applicability(SIDE1).build(),
-                    OperationalLimitsGroupInfos.builder()
+                    OperationalLimitsGroupModel.builder()
                         .id("limitSet2")
                         .currentLimits(
-                            CurrentLimitsInfos.builder().permanentLimit(5.).temporaryLimits(Collections.emptyList()).build()
+                            CurrentLimitsModel.builder().permanentLimit(5.).temporaryLimits(Collections.emptyList()).build()
                         ).applicability(SIDE2).build()
                 )
             )
@@ -133,9 +133,9 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
             .selectedOperationalLimitsGroupId2(selectedLimitGroups2)
             .voltageLevelId2("v2")
             .busOrBusbarSectionId2("bus2")
-            .lineSegments(List.of(new LineSegmentInfos(UUID.randomUUID().toString(), 1, "1", "50", null),
-                new LineSegmentInfos(UUID.randomUUID().toString(), 1, "1", null, 0.95)))
-            .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+            .lineSegments(List.of(new LineSegmentModel(UUID.randomUUID().toString(), 1, "1", "50", null),
+                new LineSegmentModel(UUID.randomUUID().toString(), 1, "1", null, 0.95)))
+            .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
             .build();
     }
 
@@ -143,12 +143,12 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
     void testCreateLimitsProperties() {
         LineCreationInfos modificationInfos = (LineCreationInfos) buildModification();
         modificationInfos.setOperationalLimitsGroups(List.of(
-            OperationalLimitsGroupInfos.builder()
+            OperationalLimitsGroupModel.builder()
                 .id("newLimit")
                 .applicability(SIDE1)
-                .limitsProperties(List.of(new LimitsPropertyInfos(PROP1_NAME, PROP1_VALUE),
-                    new LimitsPropertyInfos(PROP2_NAME, PROP2_VALUE)))
-                .currentLimits(CurrentLimitsInfos.builder().permanentLimit(10.0)
+                .limitsProperties(List.of(new LimitsPropertyModel(PROP1_NAME, PROP1_VALUE),
+                    new LimitsPropertyModel(PROP2_NAME, PROP2_VALUE)))
+                .currentLimits(CurrentLimitsModel.builder().permanentLimit(10.0)
                     .build())
                 .build()));
 
@@ -169,12 +169,12 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
     void testCreateLimitsPropertiesWithDuplicates() {
         LineCreationInfos modificationInfos = (LineCreationInfos) buildModification();
         modificationInfos.setOperationalLimitsGroups(List.of(
-            OperationalLimitsGroupInfos.builder()
+            OperationalLimitsGroupModel.builder()
                 .id("newLimit")
                 .applicability(SIDE1)
-                .limitsProperties(List.of(new LimitsPropertyInfos(PROP1_NAME, PROP1_VALUE),
-                    new LimitsPropertyInfos(PROP1_NAME, PROP2_VALUE)))
-                .currentLimits(CurrentLimitsInfos.builder().permanentLimit(10.0)
+                .limitsProperties(List.of(new LimitsPropertyModel(PROP1_NAME, PROP1_VALUE),
+                    new LimitsPropertyModel(PROP1_NAME, PROP2_VALUE)))
+                .currentLimits(CurrentLimitsModel.builder().permanentLimit(10.0)
                     .build())
                 .build()));
         modificationInfos.toModification().apply(getNetwork());

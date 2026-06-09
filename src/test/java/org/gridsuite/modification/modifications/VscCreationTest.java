@@ -13,8 +13,8 @@ import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.model.FreePropertyInfos;
-import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsInfos;
+import org.gridsuite.modification.model.FreePropertyModel;
+import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsModel;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
@@ -59,7 +59,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
                 .angleDroopActivePowerControl(true)
                 .converterStation1(buildConverterStationWithReactiveCapabilityCurve())
                 .converterStation2(buildConverterStationWithMinMaxReactiveLimits())
-                .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+                .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
                 .build();
     }
 
@@ -84,12 +84,12 @@ class VscCreationTest extends AbstractNetworkModificationTest {
     }
 
     private static ConverterStationCreationInfos buildConverterStationWithReactiveCapabilityCurve() {
-        var point1 = ReactiveCapabilityCurvePointsInfos.builder()
+        var point1 = ReactiveCapabilityCurvePointsModel.builder()
                 .p(0.4)
                 .maxQ(3.)
                 .minQ(0.)
                 .build();
-        var point2 = ReactiveCapabilityCurvePointsInfos.builder()
+        var point2 = ReactiveCapabilityCurvePointsModel.builder()
                 .p(0.6)
                 .maxQ(2.)
                 .minQ(1.1)

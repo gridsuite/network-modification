@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.model.tabular.TabularPropertyInfos;
+import org.gridsuite.modification.model.tabular.TabularPropertyModel;
 import org.springframework.lang.NonNull;
 
 import java.util.List;
@@ -31,7 +31,7 @@ public class TabularBaseInfos extends ModificationInfos {
 
     @Schema(description = "additional properties")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<TabularPropertyInfos> properties;
+    private List<TabularPropertyModel> properties;
 
     @Schema(description = "csv file name")
     private String csvFilename;

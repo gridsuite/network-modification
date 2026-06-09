@@ -16,9 +16,9 @@ import org.gridsuite.modification.VariationType;
 import org.gridsuite.modification.dto.GeneratorScalingInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.model.FilterEquipments;
-import org.gridsuite.modification.model.FilterInfos;
+import org.gridsuite.modification.model.FilterModel;
 import org.gridsuite.modification.model.IdentifiableAttributes;
-import org.gridsuite.modification.model.ScalingVariationInfos;
+import org.gridsuite.modification.model.ScalingVariationModel;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.BeforeEach;
@@ -121,12 +121,12 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
         Map<UUID, FilterEquipments> filters = Map.of(FILTER_NO_DK, FilterEquipments.builder().filterId(FILTER_NO_DK).identifiableAttributes(identifiableAttributes).build());
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filters);
 
-        var filter = FilterInfos.builder()
+        var filter = FilterModel.builder()
                 .id(FILTER_NO_DK)
                 .name("filter")
                 .build();
 
-        var variation1 = ScalingVariationInfos.builder()
+        var variation1 = ScalingVariationModel.builder()
                 .variationValue(100D)
                 .variationMode(VariationMode.VENTILATION)
                 .filters(List.of(filter))
@@ -153,11 +153,11 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
         Map<UUID, FilterEquipments> filters = Map.of(FILTER_WRONG_ID_1, FilterEquipments.builder().filterId(FILTER_WRONG_ID_1).identifiableAttributes(List.of()).build());
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filters);
 
-        var filter = FilterInfos.builder()
+        var filter = FilterModel.builder()
                 .name("filter")
                 .id(FILTER_WRONG_ID_1)
                 .build();
-        var variation = ScalingVariationInfos.builder()
+        var variation = ScalingVariationModel.builder()
                 .variationMode(VariationMode.PROPORTIONAL)
                 .variationValue(100D)
                 .filters(List.of(filter))
@@ -192,17 +192,17 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                         .build());
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filters);
 
-        var filter = FilterInfos.builder()
+        var filter = FilterModel.builder()
                 .name("filter")
                 .id(FILTER_WRONG_ID_2)
                 .build();
 
-        var filter2 = FilterInfos.builder()
+        var filter2 = FilterModel.builder()
                 .name("filter2")
                 .id(FILTER_ID_5)
                 .build();
 
-        var variation = ScalingVariationInfos.builder()
+        var variation = ScalingVariationModel.builder()
                 .variationMode(VariationMode.PROPORTIONAL)
                 .variationValue(900D)
                 .filters(List.of(filter, filter2))
@@ -228,56 +228,56 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
 
     @Override
     protected ModificationInfos buildModification() {
-        var filter1 = FilterInfos.builder()
+        var filter1 = FilterModel.builder()
                 .id(FILTER_ID_1)
                 .name("filter1")
                 .build();
 
-        var filter2 = FilterInfos.builder()
+        var filter2 = FilterModel.builder()
                 .id(FILTER_ID_2)
                 .name("filter2")
                 .build();
 
-        var filter3 = FilterInfos.builder()
+        var filter3 = FilterModel.builder()
                 .id(FILTER_ID_3)
                 .name("filter3")
                 .build();
 
-        var filter4 = FilterInfos.builder()
+        var filter4 = FilterModel.builder()
                 .id(FILTER_ID_4)
                 .name("filter4")
                 .build();
 
-        var filter5 = FilterInfos.builder()
+        var filter5 = FilterModel.builder()
                 .id(FILTER_ID_5)
                 .name("filter5")
                 .build();
 
-        var variation1 = ScalingVariationInfos.builder()
+        var variation1 = ScalingVariationModel.builder()
                 .variationMode(VariationMode.PROPORTIONAL_TO_PMAX)
                 .variationValue(50D)
                 .filters(List.of(filter1))
                 .build();
 
-        var variation2 = ScalingVariationInfos.builder()
+        var variation2 = ScalingVariationModel.builder()
                 .variationMode(VariationMode.REGULAR_DISTRIBUTION)
                 .variationValue(50D)
                 .filters(List.of(filter2))
                 .build();
 
-        var variation3 = ScalingVariationInfos.builder()
+        var variation3 = ScalingVariationModel.builder()
                 .variationMode(VariationMode.STACKING_UP)
                 .variationValue(50D)
                 .filters(List.of(filter3))
                 .build();
 
-        var variation4 = ScalingVariationInfos.builder()
+        var variation4 = ScalingVariationModel.builder()
                 .variationMode(VariationMode.VENTILATION)
                 .variationValue(50D)
                 .filters(List.of(filter4))
                 .build();
 
-        var variation5 = ScalingVariationInfos.builder()
+        var variation5 = ScalingVariationModel.builder()
                 .variationMode(VariationMode.PROPORTIONAL)
                 .variationValue(50D)
                 .filters(List.of(filter1, filter5))
@@ -342,12 +342,12 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
         Map<UUID, FilterEquipments> filters = Map.of(FILTER_ID_ALL_GEN, FilterEquipments.builder().filterId(FILTER_ID_ALL_GEN).identifiableAttributes(identifiableAttributes).build());
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filters);
 
-        var filter = FilterInfos.builder()
+        var filter = FilterModel.builder()
                 .name("filter")
                 .id(FILTER_ID_ALL_GEN)
                 .build();
         final double variationValue = 100D;
-        var variation = ScalingVariationInfos.builder()
+        var variation = ScalingVariationModel.builder()
                 .variationMode(variationMode)
                 .variationValue(variationValue)
                 .filters(List.of(filter))

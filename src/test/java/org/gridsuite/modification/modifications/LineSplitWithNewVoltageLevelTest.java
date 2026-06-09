@@ -13,8 +13,8 @@ import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.model.CouplingDeviceInfos;
-import org.gridsuite.modification.model.FreePropertyInfos;
+import org.gridsuite.modification.model.CouplingDeviceModel;
+import org.gridsuite.modification.model.FreePropertyModel;
 import org.gridsuite.modification.utils.DummyNamingStrategy;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Assertions;
@@ -97,8 +97,8 @@ class LineSplitWithNewVoltageLevelTest extends AbstractNetworkModificationTest {
                 .busbarCount(2)
                 .sectionCount(2)
                 .switchKinds(Arrays.asList(SwitchKind.BREAKER))
-                .couplingDevices(Arrays.asList(CouplingDeviceInfos.builder().busbarSectionId1("1A").busbarSectionId2("1B").build()))
-                .properties(List.of(FreePropertyInfos.builder()
+                .couplingDevices(Arrays.asList(CouplingDeviceModel.builder().busbarSectionId1("1A").busbarSectionId2("1B").build()))
+                .properties(List.of(FreePropertyModel.builder()
                         .added(true)
                         .name("voltageLevelProp")
                         .value("valueVoltageLevel")

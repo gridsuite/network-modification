@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.MoveFeederBayInfos;
+import org.gridsuite.modification.model.MoveFeederBayModel;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.MoveVoltageLevelFeederBays;
 
@@ -37,7 +37,7 @@ public class MoveVoltageLevelFeederBaysInfos extends ModificationInfos {
     private String voltageLevelId;
 
     @Schema(description = "Feeder bays list")
-    private List<MoveFeederBayInfos> feederBays;
+    private List<MoveFeederBayModel> feederBays;
 
     @Override
     public AbstractModification toModification() {

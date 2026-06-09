@@ -21,9 +21,9 @@ import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.model.FilterEquipments;
-import org.gridsuite.modification.model.GeneratorsFilterInfos;
+import org.gridsuite.modification.model.GeneratorsFilterModel;
 import org.gridsuite.modification.model.IdentifiableAttributes;
-import org.gridsuite.modification.model.SubstationsGeneratorsOrderingInfos;
+import org.gridsuite.modification.model.SubstationsGeneratorsOrderingModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -205,7 +205,7 @@ public class GenerationDispatch extends AbstractModification {
         return generatorsByMarginalCost;
     }
 
-    private static void reportUnknownSubstations(Network network, List<SubstationsGeneratorsOrderingInfos> substationsGeneratorsOrderingInfos, ReportNode reportNode) {
+    private static void reportUnknownSubstations(Network network, List<SubstationsGeneratorsOrderingModel> substationsGeneratorsOrderingInfos, ReportNode reportNode) {
         if (!CollectionUtils.isEmpty(substationsGeneratorsOrderingInfos)) {
             substationsGeneratorsOrderingInfos.forEach(sInfo ->
                     sInfo.getSubstationIds().forEach(sId -> {
@@ -219,7 +219,7 @@ public class GenerationDispatch extends AbstractModification {
     }
 
     private static List<Generator> computeAdjustableGenerators(Network network, Component component, List<String> generatorsWithFixedSupply,
-                                                               List<SubstationsGeneratorsOrderingInfos> substationsGeneratorsOrderingInfos,
+                                                               List<SubstationsGeneratorsOrderingModel> substationsGeneratorsOrderingInfos,
                                                                ReportNode reportNode) {
         List<String> generatorsToReturn = new ArrayList<>();
 
@@ -361,11 +361,11 @@ public class GenerationDispatch extends AbstractModification {
         }
     }
 
-    private List<String> exportFilters(List<GeneratorsFilterInfos> generatorsFilters, Network network, ReportNode subReportNode, String generatorsType) {
+    private List<String> exportFilters(List<GeneratorsFilterModel> generatorsFilters, Network network, ReportNode subReportNode, String generatorsType) {
         if (CollectionUtils.isEmpty(generatorsFilters)) {
             return List.of();
         }
-        var filters = generatorsFilters.stream().collect(Collectors.toMap(GeneratorsFilterInfos::getId, GeneratorsFilterInfos::getName, (id1, id2) -> id1, LinkedHashMap::new));
+        var filters = generatorsFilters.stream().collect(Collectors.toMap(GeneratorsFilterModel::getId, GeneratorsFilterModel::getName, (id1, id2) -> id1, LinkedHashMap::new));
 
         // export filters
         Map<UUID, FilterEquipments> exportedGenerators = filterService

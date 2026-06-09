@@ -14,7 +14,7 @@ import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.dto.ByFilterDeletionInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.model.FilterEquipments;
-import org.gridsuite.modification.model.FilterInfos;
+import org.gridsuite.modification.model.FilterModel;
 import org.gridsuite.modification.model.IdentifiableAttributes;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
@@ -72,7 +72,7 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
 
     @Override
     protected void checkModification() {
-        var filter1 = FilterInfos.builder()
+        var filter1 = FilterModel.builder()
                 .id(FILTER_ID_1)
                 .name("filter1")
                 .build();
@@ -104,7 +104,7 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
 
     @Test
     void testCreateAllFiltersWrong() throws Exception {
-        var filter1 = FilterInfos.builder()
+        var filter1 = FilterModel.builder()
                 .id(FILTER_ID_1)
                 .name("filter1")
                 .build();
@@ -133,12 +133,12 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
 
     @Override
     protected ModificationInfos buildModification() {
-        var filter1 = FilterInfos.builder()
+        var filter1 = FilterModel.builder()
                 .id(FILTER_ID_1)
                 .name("filter1")
                 .build();
 
-        var filter2 = FilterInfos.builder()
+        var filter2 = FilterModel.builder()
                 .id(FILTER_ID_2)
                 .name("filter2")
                 .build();

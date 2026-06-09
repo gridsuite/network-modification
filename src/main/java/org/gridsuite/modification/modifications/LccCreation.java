@@ -16,7 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LccConverterStationCreationInfos;
 import org.gridsuite.modification.dto.LccCreationInfos;
-import org.gridsuite.modification.model.LccShuntCompensatorInfos;
+import org.gridsuite.modification.model.LccShuntCompensatorModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -113,7 +113,7 @@ public class LccCreation extends AbstractModification {
                 createConverterStationInBusBreaker(network, voltageLevel, lccConverterStationCreationInfos, subReportNode);
     }
 
-    private ShuntCompensatorAdder createShuntCompensatorInNodeBreaker(VoltageLevel voltageLevel, LccShuntCompensatorInfos shuntCompensatorInfos) {
+    private ShuntCompensatorAdder createShuntCompensatorInNodeBreaker(VoltageLevel voltageLevel, LccShuntCompensatorModel shuntCompensatorInfos) {
         return voltageLevel.newShuntCompensator()
                 .setId(shuntCompensatorInfos.getId())
                 .setName(shuntCompensatorInfos.getName())
@@ -124,7 +124,7 @@ public class LccCreation extends AbstractModification {
                 .add();
     }
 
-    private void createShuntCompensatorInBusBreaker(VoltageLevel voltageLevel, Bus bus, LccShuntCompensatorInfos shuntCompensatorInfos) {
+    private void createShuntCompensatorInBusBreaker(VoltageLevel voltageLevel, Bus bus, LccShuntCompensatorModel shuntCompensatorInfos) {
         voltageLevel.newShuntCompensator()
                 .setId(shuntCompensatorInfos.getId())
                 .setName(shuntCompensatorInfos.getName())
@@ -159,7 +159,7 @@ public class LccCreation extends AbstractModification {
     private void createShuntCompensatorOnSideInNodeBreaker(VoltageLevel voltageLevel, Network network,
                                                            LccConverterStationCreationInfos lccConverterStationCreationInfos,
                                                            InjectionAdder<?, ?> injectionAdder,
-                                                           LccShuntCompensatorInfos shuntCompensatorOnSide,
+                                                           LccShuntCompensatorModel shuntCompensatorOnSide,
                                                            ReportNode subReportNode) {
         int position = ModificationUtils.getInstance().getPosition(lccConverterStationCreationInfos.getBusOrBusbarSectionId(), network, voltageLevel);
         CreateFeederBay algo = new CreateFeederBayBuilder()

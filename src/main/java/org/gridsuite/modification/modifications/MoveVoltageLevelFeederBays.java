@@ -15,7 +15,7 @@ import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.model.AttributeModification;
-import org.gridsuite.modification.model.MoveFeederBayInfos;
+import org.gridsuite.modification.model.MoveFeederBayModel;
 import org.gridsuite.modification.model.OperationType;
 import org.gridsuite.modification.utils.ModificationUtils;
 
@@ -41,7 +41,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
     @Override
     public void check(Network network) throws NetworkModificationException {
         VoltageLevel voltageLevel = getVoltageLevelOrThrow(network, modificationInfos.getVoltageLevelId());
-        for (MoveFeederBayInfos info : modificationInfos.getFeederBays()) {
+        for (MoveFeederBayModel info : modificationInfos.getFeederBays()) {
             checkBusOrBusbarSectionExist(voltageLevel, info);
             checkConnectable(network, info);
         }
@@ -55,7 +55,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
         return voltageLevel;
     }
 
-    private void checkBusOrBusbarSectionExist(VoltageLevel voltageLevel, MoveFeederBayInfos info) {
+    private void checkBusOrBusbarSectionExist(VoltageLevel voltageLevel, MoveFeederBayModel info) {
         boolean busOrBusbarSectionExists = voltageLevel.getTopologyKind().equals(TopologyKind.NODE_BREAKER)
                 ? voltageLevel.getNodeBreakerView().getBusbarSection(info.getBusbarSectionId()) != null
                 : voltageLevel.getBusBreakerView().getBus(info.getBusbarSectionId()) != null;
@@ -65,7 +65,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
         }
     }
 
-    private void checkConnectable(Network network, MoveFeederBayInfos info) {
+    private void checkConnectable(Network network, MoveFeederBayModel info) {
         Connectable<?> connectable = network.getConnectable(info.getEquipmentId());
         if (connectable instanceof BusbarSection || connectable instanceof ThreeWindingsTransformer) {
             throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
@@ -74,7 +74,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        for (MoveFeederBayInfos info : modificationInfos.getFeederBays()) {
+        for (MoveFeederBayModel info : modificationInfos.getFeederBays()) {
             Connectable<?> connectable = network.getConnectable(info.getEquipmentId());
             if (connectable != null) {
                 modifyConnectablePosition(network, connectable, info, subReportNode);
@@ -93,7 +93,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
         return ModificationType.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS.name();
     }
 
-    private void modifyConnectablePosition(Network network, Connectable<?> connectable, MoveFeederBayInfos newConnectablePositionInfos, ReportNode subReportNode) {
+    private void modifyConnectablePosition(Network network, Connectable<?> connectable, MoveFeederBayModel newConnectablePositionInfos, ReportNode subReportNode) {
         ConnectablePosition<?> oldConnectablePosition = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<?> connectablePositionAdder = connectable.newExtension(ConnectablePositionAdder.class);
 
@@ -111,7 +111,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
         moveFeederBay(network, connectable, newConnectablePositionInfos, subReportNode);
     }
 
-    private InjectionModificationInfos buildInjectionModificationInfos(MoveFeederBayInfos newConnectablePositionInfos) {
+    private InjectionModificationInfos buildInjectionModificationInfos(MoveFeederBayModel newConnectablePositionInfos) {
         InjectionModificationInfos injectionInfos = new InjectionModificationInfos();
         injectionInfos.setEquipmentId(newConnectablePositionInfos.getEquipmentId());
         setConnectionAttributes(injectionInfos::setConnectionPosition,
@@ -121,7 +121,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
         return injectionInfos;
     }
 
-    private BranchModificationInfos buildBranchModificationInfos(MoveFeederBayInfos info) {
+    private BranchModificationInfos buildBranchModificationInfos(MoveFeederBayModel info) {
         BranchModificationInfos branchInfos = new BranchModificationInfos();
         branchInfos.setEquipmentId(info.getEquipmentId());
         ThreeSides connectionSide = ThreeSides.valueOf(info.getConnectionSide());
@@ -142,7 +142,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
     private void setConnectionAttributes(java.util.function.Consumer<AttributeModification<Integer>> setPosition,
                                          java.util.function.Consumer<AttributeModification<String>> setName,
                                          java.util.function.Consumer<AttributeModification<ConnectablePosition.Direction>> setDirection,
-                                         MoveFeederBayInfos info) {
+                                         MoveFeederBayModel info) {
         acceptIfNotNull(setPosition, info.getConnectionPosition());
         acceptIfNotNull(setName, info.getConnectionName());
         acceptIfNotNull(setDirection, info.getConnectionDirection());
@@ -154,7 +154,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
         }
     }
 
-    private void moveFeederBay(Network network, Connectable<?> connectable, MoveFeederBayInfos info, ReportNode subReportNode) {
+    private void moveFeederBay(Network network, Connectable<?> connectable, MoveFeederBayModel info, ReportNode subReportNode) {
         Terminal terminal = getTerminal(network, info);
         String currentBusbarId = ModificationUtils.getInstance().getBusOrBusbarSection(terminal);
         String targetBusbarId = info.getBusbarSectionId();
@@ -167,7 +167,7 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
         }
     }
 
-    public Terminal getTerminal(Network network, MoveFeederBayInfos info) {
+    public Terminal getTerminal(Network network, MoveFeederBayModel info) {
         Connectable<?> connectable = network.getConnectable(info.getEquipmentId());
         return switch (connectable) {
             case Injection<?> injection -> injection.getTerminal();

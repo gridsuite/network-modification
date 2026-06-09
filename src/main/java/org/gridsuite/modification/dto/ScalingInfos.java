@@ -13,7 +13,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.VariationType;
-import org.gridsuite.modification.model.ScalingVariationInfos;
+import org.gridsuite.modification.model.ScalingVariationModel;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ import java.util.List;
 @ToString(callSuper = true)
 public class ScalingInfos extends ModificationInfos {
     @Schema(description = "scaling variations")
-    private List<ScalingVariationInfos> variations;
+    private List<ScalingVariationModel> variations;
 
     @Schema(description = "variation type")
     private VariationType variationType;

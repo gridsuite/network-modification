@@ -15,9 +15,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.GeneratorsFilterInfos;
-import org.gridsuite.modification.model.GeneratorsFrequencyReserveInfos;
-import org.gridsuite.modification.model.SubstationsGeneratorsOrderingInfos;
+import org.gridsuite.modification.model.GeneratorsFilterModel;
+import org.gridsuite.modification.model.GeneratorsFrequencyReserveModel;
+import org.gridsuite.modification.model.SubstationsGeneratorsOrderingModel;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.GenerationDispatch;
 
@@ -41,16 +41,16 @@ public class GenerationDispatchInfos extends ModificationInfos {
     private Double defaultOutageRate;
 
     @Schema(description = "generators without outage")
-    private List<GeneratorsFilterInfos> generatorsWithoutOutage;
+    private List<GeneratorsFilterModel> generatorsWithoutOutage;
 
     @Schema(description = "generators with fixed supply")
-    private List<GeneratorsFilterInfos> generatorsWithFixedSupply;
+    private List<GeneratorsFilterModel> generatorsWithFixedSupply;
 
     @Schema(description = "generators frequency reserve")
-    private List<GeneratorsFrequencyReserveInfos> generatorsFrequencyReserve;
+    private List<GeneratorsFrequencyReserveModel> generatorsFrequencyReserve;
 
     @Schema(description = "substations hierarchy for ordering generators with marginal cost")
-    private List<SubstationsGeneratorsOrderingInfos> substationsGeneratorsOrdering;
+    private List<SubstationsGeneratorsOrderingModel> substationsGeneratorsOrdering;
 
     @Override
     public AbstractModification toModification() {

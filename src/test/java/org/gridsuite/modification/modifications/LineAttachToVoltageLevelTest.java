@@ -13,10 +13,10 @@ import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.SwitchKind;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.model.CouplingDeviceInfos;
-import org.gridsuite.modification.model.CurrentLimitsInfos;
-import org.gridsuite.modification.model.FreePropertyInfos;
-import org.gridsuite.modification.model.OperationalLimitsGroupInfos;
+import org.gridsuite.modification.model.CouplingDeviceModel;
+import org.gridsuite.modification.model.CurrentLimitsModel;
+import org.gridsuite.modification.model.FreePropertyModel;
+import org.gridsuite.modification.model.OperationalLimitsGroupModel;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
@@ -33,16 +33,16 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
     private static LineCreationInfos getAttachmentLine(String lineName) {
-        List<FreePropertyInfos> propertiesList = new ArrayList<>();
-        FreePropertyInfos propertyOne = new FreePropertyInfos();
+        List<FreePropertyModel> propertiesList = new ArrayList<>();
+        FreePropertyModel propertyOne = new FreePropertyModel();
         propertyOne.setName("property");
         propertyOne.setValue("value");
         propertiesList.add(propertyOne);
-        List<OperationalLimitsGroupInfos> operationalLimitsList = new ArrayList<>();
-        OperationalLimitsGroupInfos limitsGroup = new OperationalLimitsGroupInfos();
+        List<OperationalLimitsGroupModel> operationalLimitsList = new ArrayList<>();
+        OperationalLimitsGroupModel limitsGroup = new OperationalLimitsGroupModel();
         limitsGroup.setId("groupId");
-        limitsGroup.setApplicability(OperationalLimitsGroupInfos.Applicability.SIDE1);
-        CurrentLimitsInfos currentLimitsInfos = new CurrentLimitsInfos();
+        limitsGroup.setApplicability(OperationalLimitsGroupModel.Applicability.SIDE1);
+        CurrentLimitsModel currentLimitsInfos = new CurrentLimitsModel();
         currentLimitsInfos.setPermanentLimit(1.0);
         limitsGroup.setCurrentLimits(currentLimitsInfos);
         operationalLimitsList.add(limitsGroup);
@@ -70,7 +70,7 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
                 .busbarCount(2)
                 .sectionCount(2)
                 .switchKinds(List.of(SwitchKind.BREAKER))
-                .couplingDevices(Collections.singletonList(CouplingDeviceInfos.builder().busbarSectionId1("bbs.nw").busbarSectionId2("bbs.ne").build()))
+                .couplingDevices(Collections.singletonList(CouplingDeviceModel.builder().busbarSectionId1("bbs.nw").busbarSectionId2("bbs.ne").build()))
                 .build();
     }
 

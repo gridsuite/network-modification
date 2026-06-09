@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.BatteryModificationInfos;
 import org.gridsuite.modification.model.AttributeModification;
-import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsInfos;
+import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -147,7 +147,7 @@ public class BatteryModification extends AbstractInjectionModification {
                                                             Battery battery, ReportNode subReportNode, ReportNode subReportNodeLimits) {
 
         ReactiveCapabilityCurveAdder adder = battery.newReactiveCapabilityCurve();
-        List<ReactiveCapabilityCurvePointsInfos> modificationPoints = modificationInfos.getReactiveCapabilityCurvePoints();
+        List<ReactiveCapabilityCurvePointsModel> modificationPoints = modificationInfos.getReactiveCapabilityCurvePoints();
         Collection<ReactiveCapabilityCurve.Point> points = battery.getReactiveLimits().getKind() == ReactiveLimitsKind.CURVE ? battery.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints() : List.of();
         ModificationUtils.getInstance().modifyReactiveCapabilityCurvePoints(points, modificationPoints, adder, subReportNode, subReportNodeLimits);
     }

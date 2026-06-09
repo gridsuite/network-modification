@@ -12,11 +12,11 @@ import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.model.FilterEquipments;
-import org.gridsuite.modification.model.FilterInfos;
+import org.gridsuite.modification.model.FilterModel;
 import org.gridsuite.modification.model.IdentifiableAttributes;
-import org.gridsuite.modification.model.byfilter.assignment.AssignmentInfos;
-import org.gridsuite.modification.model.byfilter.assignment.BooleanAssignmentInfos;
-import org.gridsuite.modification.model.byfilter.assignment.DoubleAssignmentInfos;
+import org.gridsuite.modification.model.byfilter.assignment.AssignmentModel;
+import org.gridsuite.modification.model.byfilter.assignment.BooleanAssignmentModel;
+import org.gridsuite.modification.model.byfilter.assignment.DoubleAssignmentModel;
 import org.gridsuite.modification.model.byfilter.equipmentfield.GeneratorField;
 import org.junit.jupiter.api.Test;
 
@@ -56,7 +56,7 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
                 .build();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_WITH_ONE_WRONG_ID, filter));
 
-        DoubleAssignmentInfos assignmentInfos = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos = DoubleAssignmentModel.builder()
                 .filters(List.of(filterWithOneWrongId))
                 .editedField(GeneratorField.ACTIVE_POWER_SET_POINT.name())
                 .value(55.)
@@ -186,129 +186,129 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
     }
 
     @Override
-    protected List<AssignmentInfos<?>> getAssignmentInfos() {
+    protected List<AssignmentModel<?>> getAssignmentInfos() {
 
-        DoubleAssignmentInfos assignmentInfos1 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos1 = DoubleAssignmentModel.builder()
                 .editedField(GeneratorField.REACTIVE_POWER_SET_POINT.name())
                 .value(50.)
                 .filters(List.of(filter1, filter2))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos2 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos2 = DoubleAssignmentModel.builder()
                 .editedField(GeneratorField.DROOP.name())
                 .value(2.)
                 .filters(List.of(filter3))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos3 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos3 = DoubleAssignmentModel.builder()
                 .editedField(GeneratorField.RATED_NOMINAL_POWER.name())
                 .value(2.)
                 .filters(List.of(filter5))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos4 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos4 = DoubleAssignmentModel.builder()
                 .editedField(GeneratorField.MARGINAL_COST.name())
                 .value(2.)
                 .filters(List.of(filter1))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos5 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos5 = DoubleAssignmentModel.builder()
                 .editedField(GeneratorField.VOLTAGE_SET_POINT.name())
                 .value(2.)
                 .filters(List.of(filter4))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos6 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos6 = DoubleAssignmentModel.builder()
                 .editedField(GeneratorField.PLANNED_ACTIVE_POWER_SET_POINT.name())
                 .value(10.)
                 .filters(List.of(filter1))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos7 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos7 = DoubleAssignmentModel.builder()
                 .editedField(GeneratorField.MINIMUM_ACTIVE_POWER.name())
                 .value(2.)
                 .filters(List.of(filter1, filter2))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos8 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos8 = DoubleAssignmentModel.builder()
                 .editedField(GeneratorField.PLANNED_OUTAGE_RATE.name())
                 .value(0.1)
                 .filters(List.of(filter1))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos9 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos9 = DoubleAssignmentModel.builder()
                 .editedField(GeneratorField.FORCED_OUTAGE_RATE.name())
                 .value(0.05)
                 .filters(List.of(filter1))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos10 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos10 = DoubleAssignmentModel.builder()
                 .editedField(GeneratorField.MAXIMUM_ACTIVE_POWER.name())
                 .value(300.)
                 .filters(List.of(filter1, filter2, filter3, filter4, filter5))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos11 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos11 = DoubleAssignmentModel.builder()
                 .editedField(GeneratorField.TRANSIENT_REACTANCE.name())
                 .value(0.2)
                 .filters(List.of(filter2))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos12 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos12 = DoubleAssignmentModel.builder()
                 .editedField(GeneratorField.STEP_UP_TRANSFORMER_REACTANCE.name())
                 .value(0.3)
                 .filters(List.of(filter2))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos13 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos13 = DoubleAssignmentModel.builder()
                 .editedField(GeneratorField.Q_PERCENT.name())
                 .value(0.25)
                 .filters(List.of(filter4))
                 .build();
 
-        BooleanAssignmentInfos assignmentInfos14 = BooleanAssignmentInfos.builder()
+        BooleanAssignmentModel assignmentInfos14 = BooleanAssignmentModel.builder()
                 .editedField(GeneratorField.VOLTAGE_REGULATOR_ON.name())
                 .value(true)
                 .filters(List.of(filter1))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos15 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos15 = DoubleAssignmentModel.builder()
                 .editedField(GeneratorField.TRANSIENT_REACTANCE.name())
                 .value(Double.NaN)
                 .filters(List.of(filter1))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos16 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos16 = DoubleAssignmentModel.builder()
                 .editedField(GeneratorField.STEP_UP_TRANSFORMER_REACTANCE.name())
                 .value(Double.NaN)
                 .filters(List.of(filter1))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos17 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos17 = DoubleAssignmentModel.builder()
                 .editedField(GeneratorField.PLANNED_OUTAGE_RATE.name())
                 .value(10.)
                 .filters(List.of(filter6))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos18 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos18 = DoubleAssignmentModel.builder()
                 .editedField(GeneratorField.FORCED_OUTAGE_RATE.name())
                 .value(11.)
                 .filters(List.of(filter6))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos19 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos19 = DoubleAssignmentModel.builder()
                 .editedField(GeneratorField.Q_PERCENT.name())
                 .value(120.)
                 .filters(List.of(filter6))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos20 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos20 = DoubleAssignmentModel.builder()
             .editedField(GeneratorField.Q_PERCENT.name())
             .value(120.)
-            .filters(List.of(new FilterInfos(UUID.randomUUID(), "filterNotFound")))
+            .filters(List.of(new FilterModel(UUID.randomUUID(), "filterNotFound")))
             .build();
 
-        List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
+        List<AssignmentModel<?>> infosList = super.getAssignmentInfos();
         infosList.addAll(List.of(
                 assignmentInfos1,
                 assignmentInfos2,

@@ -14,8 +14,8 @@ import com.powsybl.iidm.network.IdentifiableType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ByFormulaModificationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.model.byfilter.AbstractAssignmentInfos;
-import org.gridsuite.modification.model.byfilter.formula.FormulaInfos;
+import org.gridsuite.modification.model.byfilter.AbstractAssignmentModel;
+import org.gridsuite.modification.model.byfilter.formula.FormulaModel;
 import org.gridsuite.modification.model.byfilter.formula.Operator;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 
@@ -55,7 +55,7 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
     }
 
     @Override
-    public List<AbstractAssignmentInfos> getAssignmentInfosList() {
+    public List<AbstractAssignmentModel> getAssignmentInfosList() {
         return Collections.unmodifiableList(modificationInfos.getFormulaInfosList());
     }
 
@@ -65,8 +65,8 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
     }
 
     @Override
-    protected boolean preCheckValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos, List<ReportNode> reports, List<String> notEditableEquipments) {
-        FormulaInfos formulaInfos = (FormulaInfos) abstractAssignmentInfos;
+    protected boolean preCheckValue(Identifiable<?> equipment, AbstractAssignmentModel abstractAssignmentInfos, List<ReportNode> reports, List<String> notEditableEquipments) {
+        FormulaModel formulaInfos = (FormulaModel) abstractAssignmentInfos;
         Double value1 = formulaInfos.getFieldOrValue1().getRefOrValue(equipment);
         Double value2 = formulaInfos.getFieldOrValue2().getRefOrValue(equipment);
         // value 1 and value 2 cannot be null because getRefOrValue returns NaN if value is null
@@ -96,8 +96,8 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
     }
 
     @Override
-    protected String getNewValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos) {
-        FormulaInfos formulaInfos = (FormulaInfos) abstractAssignmentInfos;
+    protected String getNewValue(Identifiable<?> equipment, AbstractAssignmentModel abstractAssignmentInfos) {
+        FormulaModel formulaInfos = (FormulaModel) abstractAssignmentInfos;
         Double value1 = formulaInfos.getFieldOrValue1().getRefOrValue(equipment);
         Double value2 = formulaInfos.getFieldOrValue2().getRefOrValue(equipment);
         return applyOperation(formulaInfos.getOperator(), value1, value2).toString();

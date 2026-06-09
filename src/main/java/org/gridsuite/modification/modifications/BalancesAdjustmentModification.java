@@ -23,8 +23,8 @@ import lombok.SneakyThrows;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.model.BalancesAdjustmentAreaInfos;
-import org.gridsuite.modification.model.LoadFlowParametersInfos;
+import org.gridsuite.modification.model.BalancesAdjustmentAreaModel;
+import org.gridsuite.modification.model.LoadFlowParametersModel;
 import org.gridsuite.modification.model.ShiftEquipmentType;
 import org.gridsuite.modification.model.ShiftType;
 import org.slf4j.Logger;
@@ -70,7 +70,7 @@ public class BalancesAdjustmentModification extends AbstractModification {
             return parameters;
         }
 
-        LoadFlowParametersInfos loadFlowParametersInfos = getLoadFlowParametersInfos(reportNode);
+        LoadFlowParametersModel loadFlowParametersInfos = getLoadFlowParametersInfos(reportNode);
 
         if (loadFlowParametersInfos != null &&
                 loadFlowParametersInfos.getProvider().equals("OpenLoadFlow")) {
@@ -83,13 +83,13 @@ public class BalancesAdjustmentModification extends AbstractModification {
         return parameters;
     }
 
-    private LoadFlowParametersInfos getLoadFlowParametersInfos(ReportNode reportNode) {
+    private LoadFlowParametersModel getLoadFlowParametersInfos(ReportNode reportNode) {
         if (balancesAdjustmentModificationInfos.getLoadFlowParametersId() == null) {
             reportUsingDefaultParameters(reportNode, "Load flow parameters ID is null");
             return null;
         }
 
-        LoadFlowParametersInfos loadFlowParametersInfos = loadFlowService.getLoadFlowParametersInfos(
+        LoadFlowParametersModel loadFlowParametersInfos = loadFlowService.getLoadFlowParametersInfos(
                 balancesAdjustmentModificationInfos.getLoadFlowParametersId()
         );
 
@@ -164,7 +164,7 @@ public class BalancesAdjustmentModification extends AbstractModification {
                 .toList();
     }
 
-    private Scalable createScalable(BalancesAdjustmentAreaInfos balancesAdjustmentAreaInfos, Network network, ReportNode reportNode) {
+    private Scalable createScalable(BalancesAdjustmentAreaModel balancesAdjustmentAreaInfos, Network network, ReportNode reportNode) {
         return createScalable(
             balancesAdjustmentAreaInfos.getShiftEquipmentType(),
             balancesAdjustmentAreaInfos.getShiftType(),

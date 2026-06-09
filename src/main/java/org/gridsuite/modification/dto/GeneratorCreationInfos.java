@@ -17,8 +17,8 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsInfos;
-import org.gridsuite.modification.model.ReactiveLimitsHolderInfos;
+import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsModel;
+import org.gridsuite.modification.model.ReactiveLimitsHolderModel;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.GeneratorCreation;
 
@@ -36,7 +36,7 @@ import java.util.List;
 @Schema(description = "Generator creation")
 @JsonTypeName("GENERATOR_CREATION")
 @ModificationErrorTypeName("CREATE_GENERATOR_ERROR")
-public class GeneratorCreationInfos extends InjectionCreationInfos implements ReactiveLimitsHolderInfos {
+public class GeneratorCreationInfos extends InjectionCreationInfos implements ReactiveLimitsHolderModel {
     @Schema(description = "Energy source")
     private EnergySource energySource;
 
@@ -80,7 +80,7 @@ public class GeneratorCreationInfos extends InjectionCreationInfos implements Re
     private Double maxQ;
 
     @Schema(description = "Reactive capability curve points")
-    private List<ReactiveCapabilityCurvePointsInfos> reactiveCapabilityCurvePoints;
+    private List<ReactiveCapabilityCurvePointsModel> reactiveCapabilityCurvePoints;
 
     @Schema(description = "Participate")
     private Boolean participate;

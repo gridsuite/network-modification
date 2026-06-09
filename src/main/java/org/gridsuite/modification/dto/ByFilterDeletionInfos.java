@@ -17,7 +17,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.FilterInfos;
+import org.gridsuite.modification.model.FilterModel;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.ByFilterDeletion;
 
@@ -42,7 +42,7 @@ public class ByFilterDeletionInfos extends ModificationInfos {
 
     @Schema(description = "List of filters")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<FilterInfos> filters;
+    private List<FilterModel> filters;
 
     @Override
     public AbstractModification toModification() {

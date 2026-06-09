@@ -14,7 +14,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.AttributeModification;
-import org.gridsuite.modification.model.LccShuntCompensatorModificationInfos;
+import org.gridsuite.modification.model.LccShuntCompensatorModificationModel;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -36,7 +36,7 @@ public class LccConverterStationModificationInfos extends InjectionModificationI
 
     @Schema(description = "LCC HVDC Converter Station Shunt Compensator")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<LccShuntCompensatorModificationInfos> shuntCompensatorsOnSide;
+    private List<LccShuntCompensatorModificationModel> shuntCompensatorsOnSide;
 
     public boolean hasModifications() {
         return getEquipmentName() != null || lossFactor != null || powerFactor != null || !CollectionUtils.isEmpty(shuntCompensatorsOnSide);

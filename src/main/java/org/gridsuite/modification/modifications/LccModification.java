@@ -14,7 +14,7 @@ import org.apache.commons.math3.util.Pair;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LccConverterStationModificationInfos;
 import org.gridsuite.modification.dto.LccModificationInfos;
-import org.gridsuite.modification.model.LccShuntCompensatorModificationInfos;
+import org.gridsuite.modification.model.LccShuntCompensatorModificationModel;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -167,7 +167,7 @@ public class LccModification extends AbstractModification {
     private void modifyShuntCompensatorsOnSide(Network network, VoltageLevel voltageLevel,
                                               @Nonnull LccConverterStationModificationInfos converterStationInfos, ReportNode reportNode) {
 
-        List<LccShuntCompensatorModificationInfos> shuntCompensatorsOnSide = converterStationInfos.getShuntCompensatorsOnSide();
+        List<LccShuntCompensatorModificationModel> shuntCompensatorsOnSide = converterStationInfos.getShuntCompensatorsOnSide();
 
         Optional.ofNullable(shuntCompensatorsOnSide).ifPresent(shuntCompensators ->
             shuntCompensators.forEach(infos -> {
@@ -179,7 +179,7 @@ public class LccModification extends AbstractModification {
             }));
     }
 
-    private static void modifyShuntCompensator(VoltageLevel voltageLevel, List<ReportNode> nodes, LccShuntCompensatorModificationInfos infos, ShuntCompensator shuntCompensator) {
+    private static void modifyShuntCompensator(VoltageLevel voltageLevel, List<ReportNode> nodes, LccShuntCompensatorModificationModel infos, ShuntCompensator shuntCompensator) {
 
         if (shuntCompensator == null) {
             nodes.add(ReportNode.newRootReportNode()

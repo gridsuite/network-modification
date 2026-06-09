@@ -12,7 +12,7 @@ import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentDeletionInfos;
-import org.gridsuite.modification.model.HvdcLccDeletionInfos;
+import org.gridsuite.modification.model.HvdcLccDeletionModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.List;
@@ -70,7 +70,7 @@ public class EquipmentDeletion extends AbstractModification {
     }
 
     private void removeHvdcLine(Network network, ReportNode subReportNode) {
-        HvdcLccDeletionInfos specificInfos = (HvdcLccDeletionInfos) modificationInfos.getEquipmentInfos();
+        HvdcLccDeletionModel specificInfos = (HvdcLccDeletionModel) modificationInfos.getEquipmentInfos();
         List<String> shuntCompensatorIds = List.of();
         if (specificInfos != null) {
             shuntCompensatorIds = Stream.concat(
@@ -89,7 +89,7 @@ public class EquipmentDeletion extends AbstractModification {
                             return mcsInfo.isConnectedToHvdc();
                         }
                     })
-                    .map(HvdcLccDeletionInfos.ShuntCompensatorInfos::getId)
+                    .map(HvdcLccDeletionModel.ShuntCompensatorModel::getId)
                     .collect(Collectors.toList());
         }
         RemoveHvdcLine algo = new RemoveHvdcLineBuilder()

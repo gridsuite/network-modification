@@ -17,7 +17,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.AttributeModification;
-import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsInfos;
+import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsModel;
 import org.gridsuite.modification.model.VoltageRegulationType;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.GeneratorModification;
@@ -79,7 +79,7 @@ public class GeneratorModificationInfos extends InjectionModificationInfos {
     private AttributeModification<Double> maxQ;
 
     @Schema(description = "Reactive capability curve points")
-    private List<ReactiveCapabilityCurvePointsInfos> reactiveCapabilityCurvePoints;
+    private List<ReactiveCapabilityCurvePointsModel> reactiveCapabilityCurvePoints;
 
     @Schema(description = "Participate")
     private AttributeModification<Boolean> participate;

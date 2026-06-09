@@ -14,12 +14,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.VoltageInitBusModificationInfos;
-import org.gridsuite.modification.model.VoltageInitGeneratorModificationInfos;
-import org.gridsuite.modification.model.VoltageInitShuntCompensatorModificationInfos;
-import org.gridsuite.modification.model.VoltageInitStaticVarCompensatorModificationInfos;
-import org.gridsuite.modification.model.VoltageInitTransformerModificationInfos;
-import org.gridsuite.modification.model.VoltageInitVscConverterStationModificationInfos;
+import org.gridsuite.modification.model.VoltageInitBusModificationModel;
+import org.gridsuite.modification.model.VoltageInitGeneratorModificationModel;
+import org.gridsuite.modification.model.VoltageInitShuntCompensatorModificationModel;
+import org.gridsuite.modification.model.VoltageInitStaticVarCompensatorModificationModel;
+import org.gridsuite.modification.model.VoltageInitTransformerModificationModel;
+import org.gridsuite.modification.model.VoltageInitVscConverterStationModificationModel;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VoltageInitModification;
 
@@ -40,22 +40,22 @@ import java.util.Map;
 @ModificationErrorTypeName("VOLTAGE_INIT_MODIFICATION_ERROR")
 public class VoltageInitModificationInfos extends ModificationInfos {
     @Schema(description = "generators modifications")
-    private List<VoltageInitGeneratorModificationInfos> generators;
+    private List<VoltageInitGeneratorModificationModel> generators;
 
     @Schema(description = "transformers modifications")
-    private List<VoltageInitTransformerModificationInfos> transformers;
+    private List<VoltageInitTransformerModificationModel> transformers;
 
     @Schema(description = "static var compensator modifications")
-    private List<VoltageInitStaticVarCompensatorModificationInfos> staticVarCompensators;
+    private List<VoltageInitStaticVarCompensatorModificationModel> staticVarCompensators;
 
     @Schema(description = "vsc converter station modifications")
-    private List<VoltageInitVscConverterStationModificationInfos> vscConverterStations;
+    private List<VoltageInitVscConverterStationModificationModel> vscConverterStations;
 
     @Schema(description = "shunt compensator modifications")
-    private List<VoltageInitShuntCompensatorModificationInfos> shuntCompensators;
+    private List<VoltageInitShuntCompensatorModificationModel> shuntCompensators;
 
     @Schema(description = "buses modifications")
-    private List<VoltageInitBusModificationInfos> buses;
+    private List<VoltageInitBusModificationModel> buses;
 
     @Schema(description = "root network name")
     private String rootNetworkName;

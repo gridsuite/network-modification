@@ -20,7 +20,7 @@ import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.VoltageLevelModificationInfos;
 import org.gridsuite.modification.model.AttributeModification;
-import org.gridsuite.modification.model.BusbarSectionVMeasurementInfos;
+import org.gridsuite.modification.model.BusbarSectionVMeasurementModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 import org.springframework.util.CollectionUtils;
@@ -134,7 +134,7 @@ public class VoltageLevelModification extends AbstractModification {
         }
     }
 
-    private void applyBusbarSectionVoltageMeasurement(BusbarSection bbs, BusbarSectionVMeasurementInfos vMeasInfo, List<ReportNode> reports) {
+    private void applyBusbarSectionVoltageMeasurement(BusbarSection bbs, BusbarSectionVMeasurementModel vMeasInfo, List<ReportNode> reports) {
         Double vValue = vMeasInfo.getVMeasurementValue() != null ? vMeasInfo.getVMeasurementValue().getValue() : null;
         Boolean vValidity = vMeasInfo.getVMeasurementValidity() != null ? vMeasInfo.getVMeasurementValidity().getValue() : null;
         if (vValue == null && vValidity == null) {

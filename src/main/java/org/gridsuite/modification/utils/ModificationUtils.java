@@ -18,13 +18,13 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.model.AttributeModification;
 import org.gridsuite.modification.model.FilterEquipments;
-import org.gridsuite.modification.model.FilterInfos;
+import org.gridsuite.modification.model.FilterModel;
 import org.gridsuite.modification.model.IdentifiableAttributes;
-import org.gridsuite.modification.model.LimitsPropertyInfos;
+import org.gridsuite.modification.model.LimitsPropertyModel;
 import org.gridsuite.modification.model.OperationType;
-import org.gridsuite.modification.model.OperationalLimitsGroupInfos;
-import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsInfos;
-import org.gridsuite.modification.model.ReactiveLimitsHolderInfos;
+import org.gridsuite.modification.model.OperationalLimitsGroupModel;
+import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsModel;
+import org.gridsuite.modification.model.ReactiveLimitsHolderModel;
 import org.gridsuite.modification.model.VoltageRegulationType;
 import org.gridsuite.modification.modifications.AbstractBranchModification;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
@@ -45,8 +45,8 @@ import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
-import static org.gridsuite.modification.model.OperationalLimitsGroupInfos.Applicability.SIDE1;
-import static org.gridsuite.modification.model.OperationalLimitsGroupInfos.Applicability.SIDE2;
+import static org.gridsuite.modification.model.OperationalLimitsGroupModel.Applicability.SIDE1;
+import static org.gridsuite.modification.model.OperationalLimitsGroupModel.Applicability.SIDE2;
 import static org.gridsuite.modification.modifications.AbstractBranchModification.*;
 import static org.gridsuite.modification.modifications.byfilter.AbstractModificationByAssignment.*;
 
@@ -89,7 +89,7 @@ public final class ModificationUtils {
     public static final String FIELD_PLANNED_ACTIVE_POWER_SET_POINT = "Planned active power set point";
     public static final String FIELD_ACTIVE_POWER_TARGET = "Active power target";
 
-    public static String applicabilityToString(OperationalLimitsGroupInfos.Applicability applicability) {
+    public static String applicabilityToString(OperationalLimitsGroupModel.Applicability applicability) {
         return switch (applicability) {
             case EQUIPMENT -> "sides 1 & 2";
             case SIDE1 -> "side 1";
@@ -1102,7 +1102,7 @@ public final class ModificationUtils {
      * @param branch branch to which limits are going to be added
      * @param side which side of the branch receives the limits
      */
-    public void setCurrentLimitsOnASide(ReportNode reportNode, OperationalLimitsGroupInfos opLimitsGroup, Branch<?> branch, TwoSides side) {
+    public void setCurrentLimitsOnASide(ReportNode reportNode, OperationalLimitsGroupModel opLimitsGroup, Branch<?> branch, TwoSides side) {
 
         boolean hasPermanent = opLimitsGroup.getCurrentLimits().getPermanentLimit() != null;
         boolean hasTemporary = !CollectionUtils.isEmpty(opLimitsGroup.getCurrentLimits().getTemporaryLimits());
@@ -1170,13 +1170,13 @@ public final class ModificationUtils {
         }
     }
 
-    private static boolean checkPropertiesUnicity(List<LimitsPropertyInfos> properties, List<ReportNode> reportNodeList) {
+    private static boolean checkPropertiesUnicity(List<LimitsPropertyModel> properties, List<ReportNode> reportNodeList) {
 
         if (CollectionUtils.isEmpty(properties)) {
             return true;
         }
         boolean unicity = true;
-        for (LimitsPropertyInfos property : properties) {
+        for (LimitsPropertyModel property : properties) {
             if (properties.stream().filter(prop -> prop.name().equals(property.name())).toList().size() > 1) {
                 reportNodeList.add(ReportNode.newRootReportNode().withSeverity(TypedValue.ERROR_SEVERITY)
                     .withMessageTemplate("network.modification.propertyNameUnique")
@@ -1210,7 +1210,7 @@ public final class ModificationUtils {
     }
 
     public void modifyReactiveCapabilityCurvePoints(Collection<ReactiveCapabilityCurve.Point> points,
-                                                    List<ReactiveCapabilityCurvePointsInfos> modificationPoints,
+                                                    List<ReactiveCapabilityCurvePointsModel> modificationPoints,
                                                     ReactiveCapabilityCurveAdder adder,
                                                     ReportNode subReportNode, ReportNode subReportNodeLimits) {
         List<ReportNode> reports = new ArrayList<>();
@@ -1219,7 +1219,7 @@ public final class ModificationUtils {
                 .forEach(i -> {
                     String fieldSuffix;
                     ReactiveCapabilityCurve.Point oldPoint = i < equipementIdPoints.size() - 1 ? equipementIdPoints.get(i) : null;
-                    ReactiveCapabilityCurvePointsInfos newPoint = modificationPoints.get(i);
+                    ReactiveCapabilityCurvePointsModel newPoint = modificationPoints.get(i);
                     if (i == 0) {
                         fieldSuffix = "min";
                     } else if (i == (modificationPoints.size() - 1)) {
@@ -1247,7 +1247,7 @@ public final class ModificationUtils {
     }
 
     public void createReactiveCapabilityCurvePoint(ReactiveCapabilityCurveAdder adder,
-                                                    ReactiveCapabilityCurvePointsInfos newPoint,
+                                                    ReactiveCapabilityCurvePointsModel newPoint,
                                                     ReactiveCapabilityCurve.Point oldPoint,
                                                     List<ReportNode> reports,
                                                     String fieldSuffix) {
@@ -1422,7 +1422,7 @@ public final class ModificationUtils {
     }
 
     public void checkMaxQGreaterThanMinQ(
-            List<ReactiveCapabilityCurvePointsInfos> modificationPoints,
+            List<ReactiveCapabilityCurvePointsModel> modificationPoints,
             NetworkModificationException.Type exceptionType, String errorMessage
     ) {
         for (var point : modificationPoints) {
@@ -1457,7 +1457,7 @@ public final class ModificationUtils {
     }
 
     public void checkReactiveLimit(ReactiveLimitsHolder reactiveLimitsHolder, AttributeModification<Double> minimumReactivePower, AttributeModification<Double> maximumReactivePower,
-                                   List<ReactiveCapabilityCurvePointsInfos> modificationPoints, NetworkModificationException.Type exeptionType, String errorMessage) {
+                                   List<ReactiveCapabilityCurvePointsModel> modificationPoints, NetworkModificationException.Type exeptionType, String errorMessage) {
         if (reactiveLimitsHolder.getReactiveLimits().getKind() == ReactiveLimitsKind.MIN_MAX
                 && (minimumReactivePower != null || maximumReactivePower != null)) {
             MinMaxReactiveLimits minMaxReactiveLimits = reactiveLimitsHolder.getReactiveLimits(MinMaxReactiveLimits.class);
@@ -1535,7 +1535,7 @@ public final class ModificationUtils {
                 equipmentName + " '" + equipmentId + "' : " + msgSuffix);
     }
 
-    private void checkReactiveCapabilityCurvePoints(List<ReactiveCapabilityCurvePointsInfos> points,
+    private void checkReactiveCapabilityCurvePoints(List<ReactiveCapabilityCurvePointsModel> points,
                                                     NetworkModificationException.Type errorType,
                                                     String equipmentId,
                                                     String equipmentName) {
@@ -1544,7 +1544,7 @@ public final class ModificationUtils {
         }
         IntStream.range(0, points.size())
                 .forEach(i -> {
-                    ReactiveCapabilityCurvePointsInfos newPoint = points.get(i);
+                    ReactiveCapabilityCurvePointsModel newPoint = points.get(i);
                     if (newPoint.getP() == null || Double.isNaN(newPoint.getP())) {
                         throw makeEquipmentException(errorType, equipmentId, equipmentName, "P is not set in a reactive capability curve limits point");
                     } else if (newPoint.getMinQ() == null || Double.isNaN(newPoint.getMinQ())) {
@@ -1555,7 +1555,7 @@ public final class ModificationUtils {
                 });
     }
 
-    public void checkReactiveLimitsCreation(ReactiveLimitsHolderInfos modificationInfos,
+    public void checkReactiveLimitsCreation(ReactiveLimitsHolderModel modificationInfos,
                                             NetworkModificationException.Type errorType,
                                             String equipmentId,
                                             String equipmentName) {
@@ -1571,7 +1571,7 @@ public final class ModificationUtils {
         }
 
         // check reactive capability curve limits
-        List<ReactiveCapabilityCurvePointsInfos> points = modificationInfos.getReactiveCapabilityCurvePoints();
+        List<ReactiveCapabilityCurvePointsModel> points = modificationInfos.getReactiveCapabilityCurvePoints();
         if (!org.apache.commons.collections4.CollectionUtils.isEmpty(points)) {
             checkReactiveCapabilityCurvePoints(points, errorType, equipmentId, equipmentName);
         }
@@ -1625,7 +1625,7 @@ public final class ModificationUtils {
         }
     }
 
-    public void createReactiveLimits(ReactiveLimitsHolderInfos creationInfos,
+    public void createReactiveLimits(ReactiveLimitsHolderModel creationInfos,
                                             ReactiveLimitsHolder reactiveLimitsHolder,
                                      ReportNode subReporter) {
         if (Boolean.TRUE.equals(creationInfos.getReactiveCapabilityCurve())) {
@@ -1635,7 +1635,7 @@ public final class ModificationUtils {
         }
     }
 
-    public void createMinMaxReactiveLimits(ReactiveLimitsHolderInfos batteryCreationInfos,
+    public void createMinMaxReactiveLimits(ReactiveLimitsHolderModel batteryCreationInfos,
                                                   ReactiveLimitsHolder reactiveLimitsHolder,
                                            ReportNode subReportNode) {
         List<ReportNode> minMaxReactiveLimitsReports = new ArrayList<>();
@@ -1659,16 +1659,16 @@ public final class ModificationUtils {
         }
     }
 
-    public void createReactiveCapabilityCurve(ReactiveLimitsHolderInfos creationInfos,
+    public void createReactiveCapabilityCurve(ReactiveLimitsHolderModel creationInfos,
                                                      ReactiveLimitsHolder reactiveLimitsHolder,
                                               ReportNode subReportNode) {
         List<ReportNode> pointsReports = new ArrayList<>();
         ReactiveCapabilityCurveAdder adder = reactiveLimitsHolder.newReactiveCapabilityCurve();
-        List<ReactiveCapabilityCurvePointsInfos> points = creationInfos.getReactiveCapabilityCurvePoints();
+        List<ReactiveCapabilityCurvePointsModel> points = creationInfos.getReactiveCapabilityCurvePoints();
         IntStream.range(0, points.size())
                 .forEach(i -> {
                     String fieldSuffix;
-                    ReactiveCapabilityCurvePointsInfos newPoint = points.get(i);
+                    ReactiveCapabilityCurvePointsModel newPoint = points.get(i);
                     if (i == 0) {
                         fieldSuffix = "min";
                     } else if (i == (points.size() - 1)) {
@@ -1684,7 +1684,7 @@ public final class ModificationUtils {
     }
 
     private void createReactiveCapabilityCurvePoint(ReactiveCapabilityCurveAdder adder,
-                                                           ReactiveCapabilityCurvePointsInfos point,
+                                                           ReactiveCapabilityCurvePointsModel point,
                                                            List<ReportNode> reports,
                                                            String fieldSuffix) {
         adder.beginPoint()
@@ -1711,7 +1711,7 @@ public final class ModificationUtils {
         return true;
     }
 
-    public static Set<IdentifiableAttributes> getIdentifiableAttributes(Map<UUID, FilterEquipments> exportFilters, List<FilterInfos> filterInfos, ReportNode subReportNode) {
+    public static Set<IdentifiableAttributes> getIdentifiableAttributes(Map<UUID, FilterEquipments> exportFilters, List<FilterModel> filterInfos, ReportNode subReportNode) {
         filterInfos.stream()
                 .filter(f -> !exportFilters.containsKey(f.getId()))
                 .forEach(f -> createReport(subReportNode, "network.modification.filterNotFound", Map.of("name", f.getName()), TypedValue.WARN_SEVERITY));
@@ -2042,16 +2042,16 @@ public final class ModificationUtils {
         return true;
     }
 
-    public static List<OperationalLimitsGroupInfos> getOperationalLimitsGroupsOnSide(List<OperationalLimitsGroupInfos> operationalLimitsGroupInfos,
-                                                                               OperationalLimitsGroupInfos.Applicability applicability) {
+    public static List<OperationalLimitsGroupModel> getOperationalLimitsGroupsOnSide(List<OperationalLimitsGroupModel> operationalLimitsGroupInfos,
+                                                                               OperationalLimitsGroupModel.Applicability applicability) {
         if (operationalLimitsGroupInfos == null || operationalLimitsGroupInfos.isEmpty()) {
             return List.of();
         }
         return operationalLimitsGroupInfos.stream().filter(info -> info.getApplicability() == applicability
-            || info.getApplicability() == OperationalLimitsGroupInfos.Applicability.EQUIPMENT).toList();
+            || info.getApplicability() == OperationalLimitsGroupModel.Applicability.EQUIPMENT).toList();
     }
 
-    public static boolean hasLimitSet(List<OperationalLimitsGroupInfos> operationalLimitsGroupInfos, String limitSet) {
+    public static boolean hasLimitSet(List<OperationalLimitsGroupModel> operationalLimitsGroupInfos, String limitSet) {
         return operationalLimitsGroupInfos.stream().anyMatch(
             info -> Objects.equals(info.getId(), limitSet));
     }

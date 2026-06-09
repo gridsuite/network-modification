@@ -15,8 +15,8 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsInfos;
-import org.gridsuite.modification.model.ReactiveLimitsHolderInfos;
+import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsModel;
+import org.gridsuite.modification.model.ReactiveLimitsHolderModel;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ import java.util.List;
 @Schema(description = "Converter station creation")
 @JsonTypeName("CONVERTER_STATION_CREATION")
 @ModificationErrorTypeName("CREATE_CONVERTER_STATION_ERROR")
-public class ConverterStationCreationInfos extends InjectionCreationInfos implements ReactiveLimitsHolderInfos {
+public class ConverterStationCreationInfos extends InjectionCreationInfos implements ReactiveLimitsHolderModel {
     @Schema(description = "Loss Factor")
     private Float lossFactor;
 
@@ -55,6 +55,6 @@ public class ConverterStationCreationInfos extends InjectionCreationInfos implem
     private Double maxQ;
 
     @Schema(description = "Reactive capability curve points")
-    private List<ReactiveCapabilityCurvePointsInfos> reactiveCapabilityCurvePoints;
+    private List<ReactiveCapabilityCurvePointsModel> reactiveCapabilityCurvePoints;
 
 }

@@ -19,9 +19,9 @@ import com.powsybl.iidm.network.extensions.Measurements;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.model.AttributeModification;
-import org.gridsuite.modification.model.FreePropertyInfos;
+import org.gridsuite.modification.model.FreePropertyModel;
 import org.gridsuite.modification.model.OperationType;
-import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsInfos;
+import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsModel;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.CollectionUtils;
@@ -93,9 +93,9 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
             .minQ(new AttributeModification<>(-100., OperationType.SET))
             .maxP(new AttributeModification<>(100., OperationType.SET))
             .reactiveCapabilityCurvePoints(List.of(
-                            new ReactiveCapabilityCurvePointsInfos(100., 100.,
+                            new ReactiveCapabilityCurvePointsModel(100., 100.,
                                             0.1),
-                            new ReactiveCapabilityCurvePointsInfos(100., 100.,
+                            new ReactiveCapabilityCurvePointsModel(100., 100.,
                                             150.)))
             .droop(new AttributeModification<>(0.1f, OperationType.SET))
             .directTransX(new AttributeModification<>(0.1, OperationType.SET))
@@ -106,7 +106,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
             .pMeasurementValidity(new AttributeModification<>(MEASUREMENT_P_VALID, OperationType.SET))
             .qMeasurementValue(new AttributeModification<>(MEASUREMENT_Q_VALUE, OperationType.SET))
             .qMeasurementValidity(new AttributeModification<>(MEASUREMENT_Q_VALID, OperationType.SET))
-            .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+            .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
             .build();
     }
 
@@ -127,7 +127,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         Collection<ReactiveCapabilityCurve.Point> points = modifiedBattery
                         .getReactiveLimits(ReactiveCapabilityCurve.class).getPoints();
         List<ReactiveCapabilityCurve.Point> batteryPoints = new ArrayList<>(points);
-        List<ReactiveCapabilityCurvePointsInfos> modificationPoints = batteryModificationInfos
+        List<ReactiveCapabilityCurvePointsModel> modificationPoints = batteryModificationInfos
                         .getReactiveCapabilityCurvePoints();
         if (!CollectionUtils.isEmpty(points)) {
             IntStream.range(0, batteryPoints.size())
@@ -195,13 +195,13 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
                 .endPoint()
                 .add();
         Collection<ReactiveCapabilityCurve.Point> points = battery.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints();
-        List<ReactiveCapabilityCurvePointsInfos> modificationPoints = batteryModificationInfos.getReactiveCapabilityCurvePoints();
+        List<ReactiveCapabilityCurvePointsModel> modificationPoints = batteryModificationInfos.getReactiveCapabilityCurvePoints();
         AtomicReference<Double> maxQ = new AtomicReference<>(Double.NaN);
         AtomicReference<Double> minQ = new AtomicReference<>(Double.NaN);
         if (!CollectionUtils.isEmpty(points)) {
             IntStream.range(0, modificationPoints.size())
                     .forEach(i -> {
-                        ReactiveCapabilityCurvePointsInfos newPoint = modificationPoints.get(i);
+                        ReactiveCapabilityCurvePointsModel newPoint = modificationPoints.get(i);
                         newPoint.setMinQ(300.0);
                         newPoint.setMaxQ(250.0);
                         maxQ.set(newPoint.getMaxQ());

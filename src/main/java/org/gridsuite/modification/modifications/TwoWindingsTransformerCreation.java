@@ -13,10 +13,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.filter.utils.expertfilter.RatioRegulationModeType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.model.OperationalLimitsGroupInfos;
-import org.gridsuite.modification.model.PhaseTapChangerCreationInfos;
-import org.gridsuite.modification.model.RatioTapChangerCreationInfos;
-import org.gridsuite.modification.model.TapChangerStepCreationInfos;
+import org.gridsuite.modification.model.OperationalLimitsGroupModel;
+import org.gridsuite.modification.model.PhaseTapChangerCreationModel;
+import org.gridsuite.modification.model.RatioTapChangerCreationModel;
+import org.gridsuite.modification.model.TapChangerStepCreationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -27,8 +27,8 @@ import java.util.Optional;
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.iidm.network.TwoSides.TWO;
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
-import static org.gridsuite.modification.model.OperationalLimitsGroupInfos.Applicability.SIDE1;
-import static org.gridsuite.modification.model.OperationalLimitsGroupInfos.Applicability.SIDE2;
+import static org.gridsuite.modification.model.OperationalLimitsGroupModel.Applicability.SIDE1;
+import static org.gridsuite.modification.model.OperationalLimitsGroupModel.Applicability.SIDE2;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
 public class TwoWindingsTransformerCreation extends AbstractModification {
@@ -142,7 +142,7 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         List<ReportNode> regulationReports = new ArrayList<>();
         List<ReportNode> tapsReports = new ArrayList<>();
 
-        PhaseTapChangerCreationInfos phaseTapChangerInfos = twoWindingsTransformerCreationInfos.getPhaseTapChanger();
+        PhaseTapChangerCreationModel phaseTapChangerInfos = twoWindingsTransformerCreationInfos.getPhaseTapChanger();
         PhaseTapChangerAdder phaseTapChangerAdder = twt.newPhaseTapChanger();
         double targetDeadband = phaseTapChangerInfos.getTargetDeadband() != null ? phaseTapChangerInfos.getTargetDeadband() : 0.;
         if (phaseTapChangerInfos.isRegulating()) {
@@ -170,7 +170,7 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         tapsReports.add(getInstance().buildCreationReport(phaseTapChangerInfos.getSteps().size() - 1, "High tap position"));
 
         if (phaseTapChangerInfos.getSteps() != null) {
-            for (TapChangerStepCreationInfos step : phaseTapChangerInfos.getSteps()) {
+            for (TapChangerStepCreationModel step : phaseTapChangerInfos.getSteps()) {
                 phaseTapChangerAdder.beginStep().setR(step.getR()).setX(step.getX()).setG(step.getG()).setB(step.getB()).setRho(step.getRho()).setAlpha(step.getAlpha()).endStep();
             }
 
@@ -192,7 +192,7 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         List<ReportNode> regulatedTerminalReports = new ArrayList<>();
         List<ReportNode> regulationReports = new ArrayList<>();
         List<ReportNode> tapsReports = new ArrayList<>();
-        RatioTapChangerCreationInfos ratioTapChangerInfos = twoWindingsTransformerCreationInfos.getRatioTapChanger();
+        RatioTapChangerCreationModel ratioTapChangerInfos = twoWindingsTransformerCreationInfos.getRatioTapChanger();
         RatioTapChangerAdder ratioTapChangerAdder = twt.newRatioTapChanger();
         Terminal terminal = getInstance().getTerminalFromIdentifiable(network,
                 ratioTapChangerInfos.getTerminalRefConnectableId(),
@@ -223,7 +223,7 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         tapsReports.add(getInstance().buildCreationReport(ratioTapChangerInfos.getSteps().size() - 1, "High tap position"));
 
         if (ratioTapChangerInfos.getSteps() != null) {
-            for (TapChangerStepCreationInfos step : ratioTapChangerInfos.getSteps()) {
+            for (TapChangerStepCreationModel step : ratioTapChangerInfos.getSteps()) {
                 ratioTapChangerAdder.beginStep().setR(step.getR()).setX(step.getX()).setG(step.getG()).setB(step.getB()).setRho(step.getRho()).endStep();
             }
             ratioTapChangerAdder.add();
@@ -260,8 +260,8 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
 
         // Set permanent and temporary current limits
         ReportNode limitsReporter = null;
-        List<OperationalLimitsGroupInfos> operationalLimitsGroups1 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), SIDE1);
-        List<OperationalLimitsGroupInfos> operationalLimitsGroups2 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), SIDE2);
+        List<OperationalLimitsGroupModel> operationalLimitsGroups1 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), SIDE1);
+        List<OperationalLimitsGroupModel> operationalLimitsGroups2 = ModificationUtils.getOperationalLimitsGroupsOnSide(modificationInfos.getOperationalLimitsGroups(), SIDE2);
 
         List<ReportNode> limitSetsOnSideReportNodes = new ArrayList<>();
         if (!CollectionUtils.isEmpty(modificationInfos.getOperationalLimitsGroups())) {
@@ -271,17 +271,17 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
                     .withMessageTemplate("network.modification.LimitSets")
                     .add();
 
-            for (OperationalLimitsGroupInfos olgInfos : modificationInfos.getOperationalLimitsGroups()) {
+            for (OperationalLimitsGroupModel olgInfos : modificationInfos.getOperationalLimitsGroups()) {
                 ReportNode limitSetNode = reportNode.newReportNode()
                         .withMessageTemplate("network.modification.limitSetAdded")
                         .withUntypedValue("name", olgInfos.getId())
                         .withSeverity(TypedValue.INFO_SEVERITY)
                         .add();
 
-                if (olgInfos.getApplicability() == OperationalLimitsGroupInfos.Applicability.SIDE1 || olgInfos.getApplicability() == OperationalLimitsGroupInfos.Applicability.EQUIPMENT) {
+                if (olgInfos.getApplicability() == OperationalLimitsGroupModel.Applicability.SIDE1 || olgInfos.getApplicability() == OperationalLimitsGroupModel.Applicability.EQUIPMENT) {
                     ModificationUtils.getInstance().setCurrentLimitsOnASide(limitSetNode, olgInfos, twoWindingsTransformer, ONE);
                 }
-                if (olgInfos.getApplicability() == OperationalLimitsGroupInfos.Applicability.SIDE2 || olgInfos.getApplicability() == OperationalLimitsGroupInfos.Applicability.EQUIPMENT) {
+                if (olgInfos.getApplicability() == OperationalLimitsGroupModel.Applicability.SIDE2 || olgInfos.getApplicability() == OperationalLimitsGroupModel.Applicability.EQUIPMENT) {
                     ModificationUtils.getInstance().setCurrentLimitsOnASide(limitSetNode, olgInfos, twoWindingsTransformer, TWO);
                 }
             }

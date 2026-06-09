@@ -16,7 +16,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.AttributeModification;
-import org.gridsuite.modification.model.BusbarSectionVMeasurementInfos;
+import org.gridsuite.modification.model.BusbarSectionVMeasurementModel;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VoltageLevelModification;
 
@@ -50,7 +50,7 @@ public class VoltageLevelModificationInfos extends BasicEquipmentModificationInf
     private AttributeModification<Double> ipMax;
 
     @Schema(description = "Busbar sections voltage measurements")
-    private List<BusbarSectionVMeasurementInfos> busbarSectionVMeasurements;
+    private List<BusbarSectionVMeasurementModel> busbarSectionVMeasurements;
 
     @Override
     public AbstractModification toModification() {

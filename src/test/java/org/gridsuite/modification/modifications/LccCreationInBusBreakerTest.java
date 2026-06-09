@@ -14,8 +14,8 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LccConverterStationCreationInfos;
 import org.gridsuite.modification.dto.LccCreationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.model.FreePropertyInfos;
-import org.gridsuite.modification.model.LccShuntCompensatorInfos;
+import org.gridsuite.modification.model.FreePropertyModel;
+import org.gridsuite.modification.model.LccShuntCompensatorModel;
 import org.gridsuite.modification.utils.NetworkCreation;
 
 import java.util.List;
@@ -51,19 +51,19 @@ class LccCreationInBusBreakerTest extends AbstractNetworkModificationTest {
                 .activePowerSetpoint(5.)
                 .converterStation1(buildConverterStation1WithShuntCompensatorsOnSide())
                 .converterStation2(buildConverterStation2WithShuntCompensatorsOnSide())
-                .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+                .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
                 .build();
     }
 
     private static LccConverterStationCreationInfos buildConverterStation1WithShuntCompensatorsOnSide() {
-        var filter1 = LccShuntCompensatorInfos.builder()
+        var filter1 = LccShuntCompensatorModel.builder()
                 .id("ShuntStation1Id1")
                 .name("ShuntStation1Name1")
                 .maxQAtNominalV(0.1)
                 .connectedToHvdc(true)
                 .build();
 
-        var filter2 = LccShuntCompensatorInfos.builder()
+        var filter2 = LccShuntCompensatorModel.builder()
                 .id("ShuntStation1Id2")
                 .name("ShuntStation1Name2")
                 .maxQAtNominalV(0.1)

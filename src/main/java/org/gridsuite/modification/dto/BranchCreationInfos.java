@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.model.OperationalLimitsGroupInfos;
+import org.gridsuite.modification.model.OperationalLimitsGroupModel;
 
 import java.util.List;
 
@@ -47,7 +47,7 @@ public class BranchCreationInfos extends EquipmentCreationInfos {
     private String busOrBusbarSectionId2;
 
     @Schema(description = "Operational limit groups on side 1 and 2")
-    private List<OperationalLimitsGroupInfos> operationalLimitsGroups;
+    private List<OperationalLimitsGroupModel> operationalLimitsGroups;
 
     @Schema(description = "Selected operational limits group on Side 1")
     private String selectedOperationalLimitsGroupId1;

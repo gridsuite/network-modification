@@ -16,7 +16,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.model.CouplingDeviceInfos;
+import org.gridsuite.modification.model.CouplingDeviceModel;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VoltageLevelCreation;
 
@@ -65,7 +65,7 @@ public class VoltageLevelCreationInfos extends EquipmentCreationInfos {
     private List<SwitchKind> switchKinds;
 
     @Schema(description = "coupling devices infos")
-    private List<CouplingDeviceInfos> couplingDevices;
+    private List<CouplingDeviceModel> couplingDevices;
 
     @Schema(description = "substation Creation infos")
     private SubstationCreationInfos substationCreation;

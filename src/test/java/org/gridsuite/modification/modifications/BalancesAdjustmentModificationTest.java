@@ -14,8 +14,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.model.BalancesAdjustmentAreaInfos;
-import org.gridsuite.modification.model.LoadFlowParametersInfos;
+import org.gridsuite.modification.model.BalancesAdjustmentAreaModel;
+import org.gridsuite.modification.model.LoadFlowParametersModel;
 import org.gridsuite.modification.model.ShiftEquipmentType;
 import org.gridsuite.modification.model.ShiftType;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
@@ -53,28 +53,28 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
     protected BalancesAdjustmentModificationInfos buildModification() {
         return BalancesAdjustmentModificationInfos.builder()
                 .areas(List.of(
-                        BalancesAdjustmentAreaInfos.builder()
+                        BalancesAdjustmentAreaModel.builder()
                                 .name("FR")
                                 .countries(List.of(Country.FR))
                                 .netPosition(-45d)
                                 .shiftType(ShiftType.PROPORTIONAL)
                                 .shiftEquipmentType(ShiftEquipmentType.GENERATOR)
                                 .build(),
-                        BalancesAdjustmentAreaInfos.builder()
+                        BalancesAdjustmentAreaModel.builder()
                                 .name("NE")
                                 .countries(List.of(Country.NE))
                                 .netPosition(-54d)
                                 .shiftType(ShiftType.BALANCED)
                                 .shiftEquipmentType(ShiftEquipmentType.GENERATOR)
                                 .build(),
-                        BalancesAdjustmentAreaInfos.builder()
+                        BalancesAdjustmentAreaModel.builder()
                                 .name("GE")
                                 .countries(List.of(Country.GE))
                                 .netPosition(0d)
                                 .shiftType(ShiftType.PROPORTIONAL)
                                 .shiftEquipmentType(ShiftEquipmentType.LOAD)
                                 .build(),
-                        BalancesAdjustmentAreaInfos.builder()
+                        BalancesAdjustmentAreaModel.builder()
                                 .name("AU")
                                 .countries(List.of(Country.AU))
                                 .netPosition(100d)
@@ -118,28 +118,28 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
     void testApplyWithLoadFlow() {
         var infos = BalancesAdjustmentModificationInfos.builder()
             .areas(List.of(
-                BalancesAdjustmentAreaInfos.builder()
+                BalancesAdjustmentAreaModel.builder()
                     .name("FR")
                     .countries(List.of(Country.FR))
                     .netPosition(-45d)
                     .shiftType(ShiftType.PROPORTIONAL)
                     .shiftEquipmentType(ShiftEquipmentType.GENERATOR)
                     .build(),
-                BalancesAdjustmentAreaInfos.builder()
+                BalancesAdjustmentAreaModel.builder()
                     .name("NE")
                     .countries(List.of(Country.NE))
                     .netPosition(-54d)
                     .shiftType(ShiftType.BALANCED)
                     .shiftEquipmentType(ShiftEquipmentType.GENERATOR)
                     .build(),
-                BalancesAdjustmentAreaInfos.builder()
+                BalancesAdjustmentAreaModel.builder()
                     .name("GE")
                     .countries(List.of(Country.GE))
                     .netPosition(0d)
                     .shiftType(ShiftType.PROPORTIONAL)
                     .shiftEquipmentType(ShiftEquipmentType.LOAD)
                     .build(),
-                BalancesAdjustmentAreaInfos.builder()
+                BalancesAdjustmentAreaModel.builder()
                     .name("AU")
                     .countries(List.of(Country.AU))
                     .netPosition(100d)
@@ -152,7 +152,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
             .build();
 
         when(loadFlowService.getLoadFlowParametersInfos(LOADFLOW_PARAMETERS_UUID))
-                .thenReturn(LoadFlowParametersInfos.builder()
+                .thenReturn(LoadFlowParametersModel.builder()
                         .provider("OpenLoadFlow")
                         .commonParameters(LoadFlowParameters.load())
                         .specificParametersPerProvider(Map.of("OpenLoadFlow", Map.of(
@@ -181,7 +181,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
     void testLoadFlowParametersNotFound() {
         var infos = BalancesAdjustmentModificationInfos.builder()
                 .areas(List.of(
-                        BalancesAdjustmentAreaInfos.builder()
+                        BalancesAdjustmentAreaModel.builder()
                                 .name("FR")
                                 .countries(List.of(Country.FR))
                                 .netPosition(-45d)
@@ -220,7 +220,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
     void testLoadFlowProviderNotSpecified() {
         var infos = BalancesAdjustmentModificationInfos.builder()
                 .areas(List.of(
-                        BalancesAdjustmentAreaInfos.builder()
+                        BalancesAdjustmentAreaModel.builder()
                                 .name("FR")
                                 .countries(List.of(Country.FR))
                                 .netPosition(-45d)
@@ -233,7 +233,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
                 .build();
 
         when(loadFlowService.getLoadFlowParametersInfos(LOADFLOW_PARAMETERS_UUID))
-                .thenReturn(LoadFlowParametersInfos.builder()
+                .thenReturn(LoadFlowParametersModel.builder()
                         .provider(null) // No provider specified
                         .commonParameters(LoadFlowParameters.load())
                         .specificParametersPerProvider(Map.of())
@@ -263,7 +263,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
     void testLoadFlowParametersIdNull() {
         var infos = BalancesAdjustmentModificationInfos.builder()
                 .areas(List.of(
-                        BalancesAdjustmentAreaInfos.builder()
+                        BalancesAdjustmentAreaModel.builder()
                                 .name("FR")
                                 .countries(List.of(Country.FR))
                                 .netPosition(-45d)

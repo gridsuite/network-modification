@@ -15,7 +15,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.AttributeModification;
-import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsInfos;
+import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsModel;
 
 import java.util.List;
 
@@ -53,6 +53,6 @@ public class ConverterStationModificationInfos extends InjectionModificationInfo
     private AttributeModification<Double> maxQ;
 
     @Schema(description = "Reactive capability curve points")
-    private List<ReactiveCapabilityCurvePointsInfos> reactiveCapabilityCurvePoints;
+    private List<ReactiveCapabilityCurvePointsModel> reactiveCapabilityCurvePoints;
 
 }

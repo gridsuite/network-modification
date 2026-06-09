@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
 import org.gridsuite.modification.dto.CreateCouplingDeviceInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.model.CouplingDeviceInfos;
+import org.gridsuite.modification.model.CouplingDeviceModel;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
 import org.junit.jupiter.api.Assertions;
@@ -46,7 +46,7 @@ class CreateCouplingDeviceTest extends AbstractNetworkModificationTest {
         return CreateCouplingDeviceInfos.builder()
             .stashed(false)
             .voltageLevelId("v1")
-            .couplingDeviceInfos(CouplingDeviceInfos.builder()
+            .couplingDeviceInfos(CouplingDeviceModel.builder()
                 .busbarSectionId1("bbs1")
                 .busbarSectionId2("bbs5")
                 .build())
@@ -75,7 +75,7 @@ class CreateCouplingDeviceTest extends AbstractNetworkModificationTest {
         CreateCouplingDeviceInfos createCouplingDeviceInfos = CreateCouplingDeviceInfos.builder()
             .stashed(false)
             .voltageLevelId("v1")
-            .couplingDeviceInfos(CouplingDeviceInfos.builder()
+            .couplingDeviceInfos(CouplingDeviceModel.builder()
                 .busbarSectionId1("bbs1")
                 .busbarSectionId2("bbs2")
                 .build())

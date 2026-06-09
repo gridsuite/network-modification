@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.VariationType;
 import org.gridsuite.modification.dto.GeneratorScalingInfos;
 import org.gridsuite.modification.model.IdentifiableAttributes;
-import org.gridsuite.modification.model.ScalingVariationInfos;
+import org.gridsuite.modification.model.ScalingVariationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.*;
@@ -39,7 +39,7 @@ public class GeneratorScaling extends AbstractScaling {
     protected void applyStackingUpVariation(Network network,
                                             ReportNode subReportNode,
                                          Set<IdentifiableAttributes> identifiableAttributes,
-                                         ScalingVariationInfos generatorScalingVariation) {
+                                         ScalingVariationModel generatorScalingVariation) {
         AtomicReference<Double> sum = new AtomicReference<>(0D);
         Scalable stackingUpScalable = Scalable.stack(identifiableAttributes.stream()
                 .map(attribute -> network.getGenerator(attribute.getId()))
@@ -55,7 +55,7 @@ public class GeneratorScaling extends AbstractScaling {
     protected void applyVentilationVariation(Network network,
                                              ReportNode subReportNode,
                                           Set<IdentifiableAttributes> identifiableAttributes,
-                                          ScalingVariationInfos generatorScalingVariation,
+                                          ScalingVariationModel generatorScalingVariation,
                                           Double distributionKeys) {
         if (distributionKeys != null) {
             AtomicReference<Double> sum = new AtomicReference<>(0D);
@@ -79,7 +79,7 @@ public class GeneratorScaling extends AbstractScaling {
     protected void applyRegularDistributionVariation(Network network,
                                                      ReportNode subReportNode,
                                                   Set<IdentifiableAttributes> identifiableAttributes,
-                                                  ScalingVariationInfos generatorScalingVariation) {
+                                                  ScalingVariationModel generatorScalingVariation) {
         List<Generator> generators = identifiableAttributes
                 .stream()
                 .map(attribute -> network.getGenerator(attribute.getId()))
@@ -103,7 +103,7 @@ public class GeneratorScaling extends AbstractScaling {
     protected void applyProportionalToPmaxVariation(Network network,
                                                     ReportNode subReportNode,
                                                  Set<IdentifiableAttributes> identifiableAttributes,
-                                                 ScalingVariationInfos generatorScalingVariation) {
+                                                 ScalingVariationModel generatorScalingVariation) {
         AtomicReference<Double> maxPSum = new AtomicReference<>(0D);
         AtomicReference<Double> targetPSum = new AtomicReference<>(0D);
         List<Generator> generators = identifiableAttributes
@@ -132,7 +132,7 @@ public class GeneratorScaling extends AbstractScaling {
     protected void applyProportionalVariation(Network network,
                                               ReportNode subReportNode,
                                            Set<IdentifiableAttributes> identifiableAttributes,
-                                           ScalingVariationInfos generatorScalingVariation) {
+                                           ScalingVariationModel generatorScalingVariation) {
         AtomicReference<Double> sum = new AtomicReference<>(0D);
         List<Generator> generators = identifiableAttributes
                 .stream()
@@ -165,7 +165,7 @@ public class GeneratorScaling extends AbstractScaling {
         });
     }
 
-    private void scale(Network network, ReportNode subReportNode, ScalingVariationInfos scalingVariationInfos, AtomicReference<Double> sum, Scalable scalable, ScalingParameters scalingParameters) {
+    private void scale(Network network, ReportNode subReportNode, ScalingVariationModel scalingVariationInfos, AtomicReference<Double> sum, Scalable scalable, ScalingParameters scalingParameters) {
         double asked = getAsked(scalingVariationInfos, sum);
         double done = scalable.scale(network, asked, scalingParameters);
         subReportNode.newReportNode()
@@ -178,7 +178,7 @@ public class GeneratorScaling extends AbstractScaling {
     }
 
     @Override
-    protected double getAsked(ScalingVariationInfos generatorScalingVariation, AtomicReference<Double> sum) {
+    protected double getAsked(ScalingVariationModel generatorScalingVariation, AtomicReference<Double> sum) {
         return scalingInfos.getVariationType() == VariationType.DELTA_P
                 ? generatorScalingVariation.getVariationValue()
                 : generatorScalingVariation.getVariationValue() - sum.get();
