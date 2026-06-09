@@ -60,7 +60,7 @@ public abstract class AbstractInjectionModification extends AbstractModification
         return estimSubReportNode;
     }
 
-    private void upsertMeasurement(Measurements<?> measurements, Measurement.Type type, Double value, Boolean requestedValidity, List<ReportNode> reports) {
+    public static void upsertMeasurement(Measurements<?> measurements, Measurement.Type type, Double value, Boolean requestedValidity, List<ReportNode> reports) {
         if (value == null && requestedValidity == null) {
             return;
         }
@@ -70,29 +70,37 @@ public abstract class AbstractInjectionModification extends AbstractModification
             if (value != null) {
                 double oldValue = measurement.getValue();
                 measurement.setValue(value);
-                reports.add(ModificationUtils.buildModificationReport(oldValue, value, measurementType + VALUE, TypedValue.INFO_SEVERITY));
+                if (reports != null) {
+                    reports.add(ModificationUtils.buildModificationReport(oldValue, value, measurementType + VALUE, TypedValue.INFO_SEVERITY));
+                }
             }
             if (requestedValidity != null) {
                 boolean oldValidity = measurement.isValid();
 
                 ModificationUtils.updateMeasurementValidity(measurement, requestedValidity);
-                reports.add(ModificationUtils.buildModificationReport(oldValidity, requestedValidity, measurementType + VALIDITY, TypedValue.INFO_SEVERITY));
+                if (reports != null) {
+                    reports.add(ModificationUtils.buildModificationReport(oldValidity, requestedValidity, measurementType + VALIDITY, TypedValue.INFO_SEVERITY));
+                }
             }
         } else {
             var measurementAdder = measurements.newMeasurement().setId(UUID.randomUUID().toString()).setType(type);
             if (value != null) {
                 measurementAdder.setValue(value);
-                reports.add(ModificationUtils.buildModificationReport(null, value, measurementType + VALUE, TypedValue.INFO_SEVERITY));
+                if (reports != null) {
+                    reports.add(ModificationUtils.buildModificationReport(null, value, measurementType + VALUE, TypedValue.INFO_SEVERITY));
+                }
             }
             if (requestedValidity != null) {
                 measurementAdder.setValid(requestedValidity);
-                reports.add(ModificationUtils.buildModificationReport(null, requestedValidity, measurementType + VALIDITY, TypedValue.INFO_SEVERITY));
+                if (reports != null) {
+                    reports.add(ModificationUtils.buildModificationReport(null, requestedValidity, measurementType + VALIDITY, TypedValue.INFO_SEVERITY));
+                }
             }
             measurementAdder.add();
         }
     }
 
-    private Measurement getExistingMeasurement(Measurements<?> measurements, Measurement.Type type) {
+    public static Measurement getExistingMeasurement(Measurements<?> measurements, Measurement.Type type) {
         return measurements.getMeasurements(type).stream().findFirst().orElse(null);
     }
 }
