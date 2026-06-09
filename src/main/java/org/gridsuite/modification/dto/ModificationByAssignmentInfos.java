@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.NetworkModificationException.Type;
 import org.gridsuite.modification.dto.assignment.AssignmentInfos;
 
 import java.time.Instant;
@@ -65,5 +66,10 @@ public class ModificationByAssignmentInfos implements ModificationInfos {
     @Override
     public Map<String, String> getMapMessageValues() {
         return Map.of();
+    }
+
+    @Override
+    public Type getErrorType() {
+        return Type.MODIFICATION_BY_ASSIGNMENT_ERROR;
     }
 }

@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.NetworkModificationException.Type;
 import org.gridsuite.modification.model.ConverterStationCreationModel;
 
 import java.time.Instant;
@@ -51,5 +52,10 @@ public class ConverterStationCreationInfos extends ConverterStationCreationModel
     @Override
     public Map<String, String> getMapMessageValues() {
         return super.getMapMessageValues();
+    }
+
+    @Override
+    public Type getErrorType() {
+        return super.getErrorType();
     }
 }

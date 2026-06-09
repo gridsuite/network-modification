@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.NetworkModificationException.Type;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,5 +35,10 @@ public class TabularCreationInfos extends AbstractTabularInfos {
         Map<String, String> mapMessageValues = new HashMap<>();
         mapMessageValues.put("tabularCreationType", getModificationType().name());
         return mapMessageValues;
+    }
+
+    @Override
+    public Type getErrorType() {
+        return Type.TABULAR_CREATION_ERROR;
     }
 }

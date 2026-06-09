@@ -10,7 +10,6 @@ import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.model.tabular.TabularPropertyModel;
-import org.springframework.lang.NonNull;
 
 import java.time.Instant;
 import java.util.List;
@@ -51,7 +50,6 @@ public abstract class AbstractTabularInfos implements ModificationInfos {
     private String csvFilename;
 
     @Schema(description = "Modification type")
-    @NonNull
     private ModificationType modificationType;
 
     @Schema(description = "modifications")

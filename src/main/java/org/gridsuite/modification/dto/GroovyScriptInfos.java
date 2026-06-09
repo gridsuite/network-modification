@@ -9,6 +9,7 @@ package org.gridsuite.modification.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.NetworkModificationException.Type;
 import org.gridsuite.modification.model.GroovyScriptModel;
 
 import java.time.Instant;
@@ -48,5 +49,10 @@ public class GroovyScriptInfos extends GroovyScriptModel implements Modification
     @Override
     public Map<String, String> getMapMessageValues() {
         return Map.of();
+    }
+
+    @Override
+    public Type getErrorType() {
+        return super.getErrorType();
     }
 }

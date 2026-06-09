@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.NetworkModificationException.Type;
 import org.gridsuite.modification.model.CreateVoltageLevelSectionModel;
 
 import java.time.Instant;
@@ -46,4 +47,9 @@ public class CreateVoltageLevelSectionInfos extends CreateVoltageLevelSectionMod
 
     @Schema(description = "User description")
     private String description;
+
+    @Override
+    public Type getErrorType() {
+        return super.getErrorType();
+    }
 }

@@ -28,7 +28,15 @@ public interface ModificationModel {
     }
 
     default NetworkModificationException.Type getErrorType() {
-        return NetworkModificationException.Type.valueOf(this.getClass().getAnnotation(ModificationErrorTypeName.class).value());
+        Class<?> currentClass = this.getClass();
+        while (currentClass != null) {
+            ModificationErrorTypeName annotation = currentClass.getAnnotation(ModificationErrorTypeName.class);
+            if (annotation != null) {
+                return NetworkModificationException.Type.valueOf(annotation.value());
+            }
+            currentClass = currentClass.getSuperclass();
+        }
+        throw new IllegalStateException("No ModificationErrorTypeName annotation found for " + this.getClass().getSimpleName());
     }
 
     ModificationType getType();

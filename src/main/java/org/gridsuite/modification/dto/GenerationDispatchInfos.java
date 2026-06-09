@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.NetworkModificationException.Type;
 import org.gridsuite.modification.model.SubstationsGeneratorsOrderingModel;
 
 import java.time.Instant;
@@ -76,5 +77,10 @@ public class GenerationDispatchInfos implements ModificationInfos {
     @Override
     public Map<String, String> getMapMessageValues() {
         return Map.of();
+    }
+
+    @Override
+    public Type getErrorType() {
+        return Type.GENERATION_DISPATCH_ERROR;
     }
 }

@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.NetworkModificationException.Type;
 
 import java.util.Map;
 
@@ -31,5 +32,10 @@ public class GeneratorScalingInfos extends AbstractScalingInfos {
     @Override
     public Map<String, String> getMapMessageValues() {
         return Map.of();
+    }
+
+    @Override
+    public Type getErrorType() {
+        return Type.GENERATOR_SCALING_ERROR;
     }
 }

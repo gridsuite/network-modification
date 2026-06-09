@@ -9,6 +9,7 @@ package org.gridsuite.modification.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.NetworkModificationException.Type;
 import org.gridsuite.modification.model.LineAttachToVoltageLevelModel;
 
 import java.time.Instant;
@@ -43,4 +44,9 @@ public class LineAttachToVoltageLevelInfos extends LineAttachToVoltageLevelModel
 
     @Schema(description = "User description")
     private String description;
+
+    @Override
+    public Type getErrorType() {
+        return super.getErrorType();
+    }
 }

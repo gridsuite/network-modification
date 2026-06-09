@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.NetworkModificationException.Type;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -75,5 +76,10 @@ public class CompositeModificationInfos implements ModificationInfos {
         Map<String, String> mapMessageValues = new HashMap<>();
         mapMessageValues.put("name", getName());
         return mapMessageValues;
+    }
+
+    @Override
+    public Type getErrorType() {
+        return Type.COMPOSITE_MODIFICATION_ERROR;
     }
 }

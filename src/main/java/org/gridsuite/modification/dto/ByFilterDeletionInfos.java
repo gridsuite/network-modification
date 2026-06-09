@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.NetworkModificationException.Type;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -69,5 +70,10 @@ public class ByFilterDeletionInfos implements ModificationInfos {
         Map<String, String> mapMessageValues = new HashMap<>();
         mapMessageValues.put("equipmentType", getEquipmentType().name());
         return mapMessageValues;
+    }
+
+    @Override
+    public Type getErrorType() {
+        return Type.BY_FILTER_DELETION_ERROR;
     }
 }
