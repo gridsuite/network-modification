@@ -10,22 +10,25 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
-
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.FilterEquipments;
+import org.gridsuite.modification.model.FilterInfos;
+import org.gridsuite.modification.model.IdentifiableAttributes;
+import org.gridsuite.modification.model.ScalingVariationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.CollectionUtils;
-
-import static org.gridsuite.modification.utils.ModificationUtils.createReport;
-import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+
+import static org.gridsuite.modification.utils.ModificationUtils.createReport;
+import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
 
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>

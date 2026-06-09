@@ -15,13 +15,14 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentDeletionInfos;
-import org.gridsuite.modification.dto.HvdcLccDeletionInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.HvdcLccDeletionInfos.ShuntCompensatorInfos;
+import org.gridsuite.modification.model.HvdcLccDeletionInfos;
+import org.gridsuite.modification.model.HvdcLccDeletionInfos.ShuntCompensatorInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;

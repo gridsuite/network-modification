@@ -11,11 +11,11 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
-
-import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.SubstationCreationInfos;
+import org.gridsuite.modification.model.FreePropertyInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;

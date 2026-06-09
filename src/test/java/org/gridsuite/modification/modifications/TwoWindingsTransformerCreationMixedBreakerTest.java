@@ -11,7 +11,12 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.FreePropertyInfos;
+import org.gridsuite.modification.model.PhaseTapChangerCreationInfos;
+import org.gridsuite.modification.model.RatioTapChangerCreationInfos;
+import org.gridsuite.modification.model.TapChangerStepCreationInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;

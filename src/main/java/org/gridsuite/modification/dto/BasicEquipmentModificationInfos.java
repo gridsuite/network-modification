@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.model.AttributeModification;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>

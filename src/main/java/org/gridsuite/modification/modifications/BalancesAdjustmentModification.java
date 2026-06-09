@@ -23,6 +23,10 @@ import lombok.SneakyThrows;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.BalancesAdjustmentAreaInfos;
+import org.gridsuite.modification.model.LoadFlowParametersInfos;
+import org.gridsuite.modification.model.ShiftEquipmentType;
+import org.gridsuite.modification.model.ShiftType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

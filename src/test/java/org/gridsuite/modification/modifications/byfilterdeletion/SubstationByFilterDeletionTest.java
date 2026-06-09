@@ -9,9 +9,10 @@ package org.gridsuite.modification.modifications.byfilterdeletion;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
+import org.gridsuite.modification.model.FilterEquipments;
+import org.gridsuite.modification.model.IdentifiableAttributes;
 import org.gridsuite.modification.utils.NetworkCreation;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;

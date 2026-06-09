@@ -14,13 +14,19 @@ import lombok.AllArgsConstructor;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.NetworkModificationException.Type;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.VoltageInitBusModificationInfos;
+import org.gridsuite.modification.model.VoltageInitGeneratorModificationInfos;
+import org.gridsuite.modification.model.VoltageInitShuntCompensatorModificationInfos;
+import org.gridsuite.modification.model.VoltageInitStaticVarCompensatorModificationInfos;
+import org.gridsuite.modification.model.VoltageInitTransformerModificationInfos;
+import org.gridsuite.modification.model.VoltageInitVscConverterStationModificationInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 
-import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>

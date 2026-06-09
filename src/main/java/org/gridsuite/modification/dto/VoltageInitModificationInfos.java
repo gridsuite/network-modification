@@ -14,6 +14,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
+import org.gridsuite.modification.model.VoltageInitBusModificationInfos;
+import org.gridsuite.modification.model.VoltageInitGeneratorModificationInfos;
+import org.gridsuite.modification.model.VoltageInitShuntCompensatorModificationInfos;
+import org.gridsuite.modification.model.VoltageInitStaticVarCompensatorModificationInfos;
+import org.gridsuite.modification.model.VoltageInitTransformerModificationInfos;
+import org.gridsuite.modification.model.VoltageInitVscConverterStationModificationInfos;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VoltageInitModification;
 

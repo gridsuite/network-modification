@@ -13,18 +13,18 @@ import com.powsybl.iidm.network.IdentifiableType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.DataType;
-import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.PropertyAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField;
+import org.gridsuite.modification.model.byfilter.AbstractAssignmentInfos;
+import org.gridsuite.modification.model.byfilter.DataType;
+import org.gridsuite.modification.model.byfilter.assignment.AssignmentInfos;
+import org.gridsuite.modification.model.byfilter.assignment.PropertyAssignmentInfos;
+import org.gridsuite.modification.model.byfilter.equipmentfield.PropertyField;
 
 import java.util.Collections;
 import java.util.List;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFICATION_BY_ASSIGNMENT_ERROR;
-import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.getReferenceValue;
-import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.setNewValue;
+import static org.gridsuite.modification.model.byfilter.equipmentfield.PropertyField.getReferenceValue;
+import static org.gridsuite.modification.model.byfilter.equipmentfield.PropertyField.setNewValue;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>

@@ -16,22 +16,21 @@ import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
-
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ByFilterDeletionInfos;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.FilterInfos;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
+import org.gridsuite.modification.model.FilterEquipments;
+import org.gridsuite.modification.model.FilterInfos;
+import org.gridsuite.modification.model.IdentifiableAttributes;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.CollectionUtils;
 
-import static org.gridsuite.modification.utils.ModificationUtils.createReport;
-import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
-
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.gridsuite.modification.utils.ModificationUtils.createReport;
+import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
 
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>

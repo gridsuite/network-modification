@@ -13,6 +13,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.VariationType;
+import org.gridsuite.modification.model.ScalingVariationInfos;
 
 import java.util.List;
 

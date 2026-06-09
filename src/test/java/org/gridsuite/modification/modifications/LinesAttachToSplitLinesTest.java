@@ -12,6 +12,7 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LinesAttachToSplitLinesInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
+
 import java.util.Map;
 import java.util.UUID;
 

@@ -14,6 +14,13 @@ import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimatedAd
 import org.apache.commons.lang3.BooleanUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.model.OperationType;
+import org.gridsuite.modification.model.PhaseTapChangerModificationInfos;
+import org.gridsuite.modification.model.RatioTapChangerModificationInfos;
+import org.gridsuite.modification.model.RegulationSide;
+import org.gridsuite.modification.model.TapChangerModificationInfos;
+import org.gridsuite.modification.model.TapChangerStepCreationInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;

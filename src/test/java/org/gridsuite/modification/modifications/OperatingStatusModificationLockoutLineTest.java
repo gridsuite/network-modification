@@ -11,7 +11,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
-
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import org.gridsuite.modification.NetworkModificationException;
@@ -21,6 +20,7 @@ import org.gridsuite.modification.report.NetworkModificationReportResourceBundle
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.Test;
+
 import java.util.Map;
 import java.util.UUID;
 

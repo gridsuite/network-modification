@@ -14,6 +14,9 @@ import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.model.MoveFeederBayInfos;
+import org.gridsuite.modification.model.OperationType;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.function.Consumer;

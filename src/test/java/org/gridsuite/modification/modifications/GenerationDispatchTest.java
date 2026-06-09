@@ -17,11 +17,15 @@ import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.GeneratorsFilterInfos;
+import org.gridsuite.modification.model.GeneratorsFrequencyReserveInfos;
+import org.gridsuite.modification.model.SubstationsGeneratorsOrderingInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;

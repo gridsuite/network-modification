@@ -10,10 +10,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
-
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.model.FreePropertyInfos;
+import org.gridsuite.modification.model.OperationType;
 import org.gridsuite.modification.utils.NetworkCreation;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

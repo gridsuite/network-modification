@@ -11,9 +11,9 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.BranchModificationInfos;
 import org.gridsuite.modification.dto.LineModificationInfos;
+import org.gridsuite.modification.model.AttributeModification;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 

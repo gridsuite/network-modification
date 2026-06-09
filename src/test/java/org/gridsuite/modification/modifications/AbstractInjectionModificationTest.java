@@ -7,9 +7,10 @@
 package org.gridsuite.modification.modifications;
 
 import com.powsybl.iidm.network.Injection;
-import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.InjectionModificationInfos;
-import org.gridsuite.modification.dto.OperationType;
+import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.model.OperationType;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

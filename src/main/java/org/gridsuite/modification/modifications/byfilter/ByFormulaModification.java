@@ -14,12 +14,13 @@ import com.powsybl.iidm.network.IdentifiableType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ByFormulaModificationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
-import org.gridsuite.modification.dto.byfilter.formula.Operator;
+import org.gridsuite.modification.model.byfilter.AbstractAssignmentInfos;
+import org.gridsuite.modification.model.byfilter.formula.FormulaInfos;
+import org.gridsuite.modification.model.byfilter.formula.Operator;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 
 import javax.annotation.Nonnull;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collections;

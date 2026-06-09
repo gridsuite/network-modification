@@ -11,8 +11,10 @@ import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
+import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.model.PhaseTapChangerModificationInfos;
+import org.gridsuite.modification.model.RatioTapChangerModificationInfos;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.TwoWindingsTransformerModification;
 

@@ -11,10 +11,10 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.LineCreationInfos;
-import org.gridsuite.modification.dto.LineSegmentInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.model.FreePropertyInfos;
+import org.gridsuite.modification.model.LineSegmentInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
 
 import java.util.List;

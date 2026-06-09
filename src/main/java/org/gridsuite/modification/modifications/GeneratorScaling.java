@@ -15,8 +15,8 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.VariationType;
 import org.gridsuite.modification.dto.GeneratorScalingInfos;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
-import org.gridsuite.modification.dto.ScalingVariationInfos;
+import org.gridsuite.modification.model.IdentifiableAttributes;
+import org.gridsuite.modification.model.ScalingVariationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.*;

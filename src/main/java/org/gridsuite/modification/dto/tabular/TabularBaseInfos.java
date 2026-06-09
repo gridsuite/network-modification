@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.model.tabular.TabularPropertyInfos;
 import org.springframework.lang.NonNull;
 
 import java.util.List;

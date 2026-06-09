@@ -15,6 +15,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
+import org.gridsuite.modification.model.GeneratorsFilterInfos;
+import org.gridsuite.modification.model.GeneratorsFrequencyReserveInfos;
+import org.gridsuite.modification.model.SubstationsGeneratorsOrderingInfos;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.GenerationDispatch;
 

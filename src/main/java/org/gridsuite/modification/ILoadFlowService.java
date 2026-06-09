@@ -6,7 +6,7 @@
  */
 package org.gridsuite.modification;
 
-import org.gridsuite.modification.dto.LoadFlowParametersInfos;
+import org.gridsuite.modification.model.LoadFlowParametersInfos;
 
 import java.util.UUID;
 

@@ -12,14 +12,21 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.CurrentLimitsInfos;
+import org.gridsuite.modification.model.CurrentTemporaryLimitCreationInfos;
+import org.gridsuite.modification.model.FreePropertyInfos;
+import org.gridsuite.modification.model.PhaseTapChangerCreationInfos;
+import org.gridsuite.modification.model.RatioTapChangerCreationInfos;
+import org.gridsuite.modification.model.TapChangerStepCreationInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.BUS_NOT_FOUND;
-import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.*;
+import static org.gridsuite.modification.model.OperationalLimitsGroupInfos.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
+import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.model.LccShuntCompensatorModificationInfos;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;

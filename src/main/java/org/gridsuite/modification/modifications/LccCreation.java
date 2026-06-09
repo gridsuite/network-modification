@@ -16,7 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LccConverterStationCreationInfos;
 import org.gridsuite.modification.dto.LccCreationInfos;
-import org.gridsuite.modification.dto.LccShuntCompensatorInfos;
+import org.gridsuite.modification.model.LccShuntCompensatorInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 

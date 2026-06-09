@@ -11,6 +11,15 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.model.CurrentLimitsModificationInfos;
+import org.gridsuite.modification.model.CurrentTemporaryLimitModificationInfos;
+import org.gridsuite.modification.model.LimitsPropertyInfos;
+import org.gridsuite.modification.model.OperationType;
+import org.gridsuite.modification.model.OperationalLimitsGroupInfos;
+import org.gridsuite.modification.model.OperationalLimitsGroupModificationInfos;
+import org.gridsuite.modification.model.OperationalLimitsGroupModificationType;
+import org.gridsuite.modification.model.TemporaryLimitModificationType;
 import org.gridsuite.modification.modifications.AbstractBranchModification;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -24,7 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.*;
+import static org.gridsuite.modification.model.OperationalLimitsGroupInfos.Applicability.*;
 import static org.gridsuite.modification.modifications.AbstractBranchModification.*;
 
 /**

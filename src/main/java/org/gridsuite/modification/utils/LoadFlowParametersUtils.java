@@ -11,7 +11,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowProvider;
-import org.gridsuite.modification.dto.LoadFlowParametersInfos;
+import org.gridsuite.modification.model.LoadFlowParametersInfos;
 
 import java.util.Map;
 

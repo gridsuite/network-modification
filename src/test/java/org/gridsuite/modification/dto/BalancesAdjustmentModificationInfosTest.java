@@ -9,6 +9,9 @@ package org.gridsuite.modification.dto;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
+import org.gridsuite.modification.model.BalancesAdjustmentAreaInfos;
+import org.gridsuite.modification.model.ShiftEquipmentType;
+import org.gridsuite.modification.model.ShiftType;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

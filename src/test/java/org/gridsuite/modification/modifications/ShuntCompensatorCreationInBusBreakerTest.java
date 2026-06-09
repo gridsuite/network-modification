@@ -10,10 +10,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorCreationInfos;
+import org.gridsuite.modification.model.FreePropertyInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;

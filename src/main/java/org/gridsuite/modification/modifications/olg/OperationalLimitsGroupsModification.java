@@ -11,13 +11,16 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import jakarta.validation.constraints.NotNull;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.OperationalLimitsGroupInfos;
+import org.gridsuite.modification.model.OperationalLimitsGroupModificationInfos;
+import org.gridsuite.modification.model.OperationalLimitsGroupsModificationType;
 
 import java.util.*;
 import java.util.stream.Stream;
 
-import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.*;
-import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.EQUIPMENT;
-import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.DELETE;
+import static org.gridsuite.modification.model.OperationalLimitsGroupInfos.Applicability.*;
+import static org.gridsuite.modification.model.OperationalLimitsGroupInfos.Applicability.EQUIPMENT;
+import static org.gridsuite.modification.model.OperationalLimitsGroupModificationType.DELETE;
 import static org.gridsuite.modification.modifications.AbstractBranchModification.*;
 
 /**

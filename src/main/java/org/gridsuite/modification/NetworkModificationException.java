@@ -9,7 +9,6 @@ package org.gridsuite.modification;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.IdentifiableType;
 import lombok.NonNull;
-
 import org.gridsuite.modification.dto.OperatingStatusModificationInfos;
 import org.springframework.http.HttpStatus;
 

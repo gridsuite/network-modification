@@ -11,11 +11,11 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.LccConverterStationCreationInfos;
 import org.gridsuite.modification.dto.LccCreationInfos;
-import org.gridsuite.modification.dto.LccShuntCompensatorInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.model.FreePropertyInfos;
+import org.gridsuite.modification.model.LccShuntCompensatorInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
 
 import java.util.List;

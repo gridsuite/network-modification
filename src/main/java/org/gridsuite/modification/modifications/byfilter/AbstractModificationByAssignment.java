@@ -17,11 +17,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils;
+import org.gridsuite.modification.model.FilterEquipments;
+import org.gridsuite.modification.model.FilterInfos;
+import org.gridsuite.modification.model.byfilter.AbstractAssignmentInfos;
+import org.gridsuite.modification.model.byfilter.equipmentfield.FieldUtils;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -33,9 +33,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils.getFieldValue;
-import static org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils.setFieldValue;
-import static org.gridsuite.modification.dto.byfilter.equipmentfield.GeneratorField.*;
+import static org.gridsuite.modification.model.byfilter.equipmentfield.FieldUtils.getFieldValue;
+import static org.gridsuite.modification.model.byfilter.equipmentfield.FieldUtils.setFieldValue;
+import static org.gridsuite.modification.model.byfilter.equipmentfield.GeneratorField.*;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
 /**

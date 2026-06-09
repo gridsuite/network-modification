@@ -12,7 +12,7 @@ import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentDeletionInfos;
-import org.gridsuite.modification.dto.HvdcLccDeletionInfos;
+import org.gridsuite.modification.model.HvdcLccDeletionInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.List;
