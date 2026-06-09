@@ -74,7 +74,7 @@ public class OperationalLimitsGroupModification {
         switch (olgModifInfos.getModificationType()) {
             case OperationalLimitsGroupModificationType.MODIFY_OR_ADD:
                 switch (olgModifInfos.getApplicability()) {
-                    case EQUIPMENT :
+                    case EQUIPMENT:
                         if (modifiedOperationalLimitsGroup1() == null && modifiedOperationalLimitsGroup2() == null) {
                             addOlg(EQUIPMENT);
                         } else if (modifiedOperationalLimitsGroup1() != null && modifiedOperationalLimitsGroup2() != null) {
@@ -93,14 +93,14 @@ public class OperationalLimitsGroupModification {
                             }
                         }
                         break;
-                    case SIDE1 :
+                    case SIDE1:
                         if (modifiedOperationalLimitsGroup1() == null) {
                             addOlg(olgModifInfos.getApplicability());
                         } else {
                             modifyOLG(olgModifInfos.getApplicability());
                         }
                         break;
-                    case SIDE2 :
+                    case SIDE2:
                         if (modifiedOperationalLimitsGroup2() == null) {
                             addOlg(olgModifInfos.getApplicability());
                         } else {

@@ -15,17 +15,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.EquipmentAttributeModification;
 import org.springframework.lang.NonNull;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
 
 /**
@@ -84,7 +81,7 @@ public class EquipmentAttributeModificationInfos extends EquipmentModificationIn
     }
 
     private void checkSwitchStatusModificationInfos() {
-        if (!equipmentAttributeName.equals("open")) {
+        if (!"open".equals(equipmentAttributeName)) {
             throw new NetworkModificationException(EQUIPMENT_ATTRIBUTE_NAME_ERROR, "For switch status, the attribute name is only 'open'");
         }
         Set<Boolean> possibleValues = Set.of(true, false);

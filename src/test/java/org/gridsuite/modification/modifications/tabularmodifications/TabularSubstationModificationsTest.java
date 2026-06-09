@@ -27,7 +27,7 @@ import static org.gridsuite.modification.utils.TestUtils.assertLogNthMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author AJELLAL Ali <ali.ajellal@rte-france.com>
+ * @author AJELLAL Ali <ali.ajellal at rte-france.com>
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
 class TabularSubstationModificationsTest extends AbstractNetworkModificationTest {
@@ -42,8 +42,10 @@ class TabularSubstationModificationsTest extends AbstractNetworkModificationTest
     protected ModificationInfos buildModification() {
 
         List<ModificationInfos> modifications = List.of(
-                SubstationModificationInfos.builder().equipmentId("s1").equipmentName(new AttributeModification<>("s1", OperationType.SET)).country(new AttributeModification<>(Country.BE, OperationType.SET)).build(),
-                SubstationModificationInfos.builder().equipmentId("s2").equipmentName(new AttributeModification<>("s2", OperationType.SET)).country(new AttributeModification<>(Country.BE, OperationType.SET)).build()
+                SubstationModificationInfos.builder().equipmentId("s1").equipmentName(new AttributeModification<>("s1", OperationType.SET)).country(new AttributeModification<>(Country.BE,
+                        OperationType.SET)).build(),
+                SubstationModificationInfos.builder().equipmentId("s2").equipmentName(new AttributeModification<>("s2", OperationType.SET)).country(new AttributeModification<>(Country.BE,
+                        OperationType.SET)).build()
         );
         return TabularModificationInfos.builder()
                 .modificationType(MOFIFICATION_TYPE)

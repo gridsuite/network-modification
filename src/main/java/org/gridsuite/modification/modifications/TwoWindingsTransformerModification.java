@@ -103,7 +103,8 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         return "TwoWindingsTransformerModification";
     }
 
-    private void modifyTwoWindingsTransformer(TwoWindingsTransformer twoWindingsTransformer, BranchModificationInfos twoWindingsTransformerModificationInfos, ReportNode subReportNode, Network network) {
+    private void modifyTwoWindingsTransformer(TwoWindingsTransformer twoWindingsTransformer, BranchModificationInfos twoWindingsTransformerModificationInfos, ReportNode subReportNode,
+            Network network) {
         modifyBranch(twoWindingsTransformer, twoWindingsTransformerModificationInfos, subReportNode, "network.modification.twoWindingsTransformerModification.modified");
         updateStateEstimationData((TwoWindingsTransformerModificationInfos) twoWindingsTransformerModificationInfos, twoWindingsTransformer, subReportNode);
         addTapChangersToTwoWindingsTransformer(network, (TwoWindingsTransformerModificationInfos) twoWindingsTransformerModificationInfos, twoWindingsTransformer, subReportNode);
@@ -228,8 +229,10 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         ReportNode estimSubReportNode = updateMeasurements(twt, twoWindingsTransformerModificationInfos, subReportNode);
 
         // toBeEstimated part specific to 2WT
-        Boolean rtcToBeEstim = twoWindingsTransformerModificationInfos.getRatioTapChangerToBeEstimated() != null ? twoWindingsTransformerModificationInfos.getRatioTapChangerToBeEstimated().getValue() : null;
-        Boolean ptcToBeEstim = twoWindingsTransformerModificationInfos.getPhaseTapChangerToBeEstimated() != null ? twoWindingsTransformerModificationInfos.getPhaseTapChangerToBeEstimated().getValue() : null;
+        Boolean rtcToBeEstim = twoWindingsTransformerModificationInfos.getRatioTapChangerToBeEstimated() != null ? twoWindingsTransformerModificationInfos.getRatioTapChangerToBeEstimated().getValue(
+                ) : null;
+        Boolean ptcToBeEstim = twoWindingsTransformerModificationInfos.getPhaseTapChangerToBeEstimated() != null ? twoWindingsTransformerModificationInfos.getPhaseTapChangerToBeEstimated().getValue(
+                ) : null;
         if (rtcToBeEstim == null && ptcToBeEstim == null) {
             return;
         }
@@ -255,8 +258,10 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         ModificationUtils.getInstance().reportModifications(estimSubReportNode, reports, "network.modification.twtToBeEstimated");
     }
 
-    private void addTapChangersToTwoWindingsTransformer(Network network, TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos, TwoWindingsTransformer twt, ReportNode subReportNode) {
-        if (twt.hasRatioTapChanger() && twoWindingsTransformerModificationInfos.getRatioTapChanger().getEnabled() != null && Boolean.FALSE.equals(twoWindingsTransformerModificationInfos.getRatioTapChanger().getEnabled().getValue())) {
+    private void addTapChangersToTwoWindingsTransformer(Network network, TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos, TwoWindingsTransformer twt,
+            ReportNode subReportNode) {
+        if (twt.hasRatioTapChanger() && twoWindingsTransformerModificationInfos.getRatioTapChanger().getEnabled() != null
+                && Boolean.FALSE.equals(twoWindingsTransformerModificationInfos.getRatioTapChanger().getEnabled().getValue())) {
             twt.getRatioTapChanger().remove();
             subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.RatioTapChangerRemoved")
@@ -266,7 +271,8 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
             processRatioTapChanger(network, twoWindingsTransformerModificationInfos, twt, subReportNode, twt.hasRatioTapChanger());
         }
 
-        if (twt.hasPhaseTapChanger() && twoWindingsTransformerModificationInfos.getPhaseTapChanger().getEnabled() != null && Boolean.FALSE.equals(twoWindingsTransformerModificationInfos.getPhaseTapChanger().getEnabled().getValue())) {
+        if (twt.hasPhaseTapChanger() && twoWindingsTransformerModificationInfos.getPhaseTapChanger().getEnabled() != null
+                && Boolean.FALSE.equals(twoWindingsTransformerModificationInfos.getPhaseTapChanger().getEnabled().getValue())) {
             twt.getPhaseTapChanger().remove();
             subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.PhaseTapChangerRemoved")
@@ -297,7 +303,8 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 twt, isModification);
 
         List<ReportNode> positionsAndStepsReports = new ArrayList<>();
-        processTapChangerPositionsAndSteps(phaseTapChanger, phaseTapChangerAdder, isModification, phaseTapChangerInfos.getLowTapPosition(), phaseTapChangerInfos.getTapPosition(), phaseTapChangerInfos.getSteps(), positionsAndStepsReports);
+        processTapChangerPositionsAndSteps(phaseTapChanger, phaseTapChangerAdder, isModification, phaseTapChangerInfos.getLowTapPosition(), phaseTapChangerInfos.getTapPosition(),
+                phaseTapChangerInfos.getSteps(), positionsAndStepsReports);
 
         if (!isModification) {
             phaseTapChangerAdder.add();
@@ -340,7 +347,8 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                     throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation mode is missing when creating tap phase changer with regulation enabled");
                 }
                 if (regulationModeModification.getValue() == CURRENT_LIMITER && regulationValueModification.getValue() < 0) {
-                    throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value must be positive if regulation mode is CURRENT_LIMITER when creating tap phase changer with regulation enabled");
+                    throw new NetworkModificationException(CREATE_TWO_WINDINGS_TRANSFORMER_ERROR,
+                            "Regulation value must be positive if regulation mode is CURRENT_LIMITER when creating tap phase changer with regulation enabled");
                 }
 
             } else {
@@ -356,7 +364,8 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                 }
                 PhaseTapChanger.RegulationMode newRegulationMode = regulationModeModification == null ? phaseTapChanger.getRegulationMode() : regulationModeModification.getValue();
                 if (regulationValueModification != null && newRegulationMode == CURRENT_LIMITER && regulationValueModification.getValue() < 0) {
-                    throw new NetworkModificationException(MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Regulation value must be positive if regulation mode is CURRENT_LIMITER when modifying, phase tap changer can not regulate");
+                    throw new NetworkModificationException(MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR,
+                            "Regulation value must be positive if regulation mode is CURRENT_LIMITER when modifying, phase tap changer can not regulate");
                 }
             }
         }
@@ -482,7 +491,8 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         }
 
         List<ReportNode> positionsAndStepsReports = new ArrayList<>();
-        processTapChangerPositionsAndSteps(ratioTapChanger, ratioTapChangerAdder, isModification, ratioTapChangerInfos.getLowTapPosition(), ratioTapChangerInfos.getTapPosition(), ratioTapChangerInfos.getSteps(), positionsAndStepsReports
+        processTapChangerPositionsAndSteps(ratioTapChanger, ratioTapChangerAdder, isModification, ratioTapChangerInfos.getLowTapPosition(), ratioTapChangerInfos.getTapPosition(),
+                ratioTapChangerInfos.getSteps(), positionsAndStepsReports
         );
 
         if (!isModification) {
@@ -667,7 +677,8 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         }
     }
 
-    private static void processPhaseTapChangerStep(List<ReportNode> tapChangerStepsReports, PhaseTapChangerAdder tapChangerAdder, PhaseTapChangerStepsReplacer tapChangerStepReplacer, boolean isModification, TapChangerStepCreationInfos step) {
+    private static void processPhaseTapChangerStep(List<ReportNode> tapChangerStepsReports, PhaseTapChangerAdder tapChangerAdder, PhaseTapChangerStepsReplacer tapChangerStepReplacer,
+            boolean isModification, TapChangerStepCreationInfos step) {
         if (tapChangerStepsReports != null) {
             addStepAttributeReport(tapChangerStepsReports, "network.modification.newStepAlpha", String.valueOf(step.getAlpha()));
         }
@@ -680,7 +691,8 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         }
     }
 
-    private static void processRatioTapChangerStep(TapChangerAdder<?, ?, ?, ?, ?, ?> tapChangerAdder, TapChangerStepsReplacer<?, ?> tapChangerStepReplacer, boolean isModification, TapChangerStepCreationInfos step) {
+    private static void processRatioTapChangerStep(TapChangerAdder<?, ?, ?, ?, ?, ?> tapChangerAdder, TapChangerStepsReplacer<?, ?> tapChangerStepReplacer, boolean isModification,
+            TapChangerStepCreationInfos step) {
         if (isModification) {
             tapChangerStepReplacer.beginStep().setR(step.getR()).setX(step.getX()).setG(step.getG())
                     .setB(step.getB()).setRho(step.getRho()).endStep();

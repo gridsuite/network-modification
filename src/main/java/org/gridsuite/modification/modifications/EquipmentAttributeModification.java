@@ -35,7 +35,8 @@ public class EquipmentAttributeModification extends AbstractModification {
             throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, modificationInfos.getEquipmentId());
         }
         if (identifiable.getType() != modificationInfos.getEquipmentType()) {
-            throw new NetworkModificationException(WRONG_EQUIPMENT_TYPE, String.format("Type of '%s' is not %s but %s", modificationInfos.getEquipmentId(), modificationInfos.getEquipmentType(), identifiable.getType()));
+            throw new NetworkModificationException(WRONG_EQUIPMENT_TYPE, String.format("Type of '%s' is not %s but %s", modificationInfos.getEquipmentId(), modificationInfos.getEquipmentType(),
+                    identifiable.getType()));
         }
     }
 
@@ -52,10 +53,12 @@ public class EquipmentAttributeModification extends AbstractModification {
             if (identifiable instanceof Line) {
                 changeLineAttribute((Line) identifiable, modificationInfos.getEquipmentAttributeName(), modificationInfos.getEquipmentAttributeValue(), subReportNode);
             } else if (identifiable instanceof TwoWindingsTransformer) {
-                changeTwoWindingsTransformerAttribute((TwoWindingsTransformer) identifiable, modificationInfos.getEquipmentAttributeName(), modificationInfos.getEquipmentAttributeValue(), subReportNode);
+                changeTwoWindingsTransformerAttribute((TwoWindingsTransformer) identifiable, modificationInfos.getEquipmentAttributeName(), modificationInfos.getEquipmentAttributeValue(),
+                        subReportNode);
             }
         } else if (identifiable instanceof ThreeWindingsTransformer) {
-            changeThreeWindingsTransformerAttribute((ThreeWindingsTransformer) identifiable, modificationInfos.getEquipmentAttributeName(), modificationInfos.getEquipmentAttributeValue(), subReportNode);
+            changeThreeWindingsTransformerAttribute((ThreeWindingsTransformer) identifiable, modificationInfos.getEquipmentAttributeName(), modificationInfos.getEquipmentAttributeValue(),
+                    subReportNode);
         } else if (identifiable instanceof HvdcLine) {
             // no hvdc line modifications yet
         }
@@ -67,7 +70,7 @@ public class EquipmentAttributeModification extends AbstractModification {
     }
 
     private void changeSwitchAttribute(Switch aSwitch, String attributeName, Object attributeValue, ReportNode reportNode) {
-        if (attributeName.equals("open")) {
+        if ("open".equals(attributeName)) {
             if (Boolean.TRUE.equals(aSwitch.isOpen() != (Boolean) attributeValue)) {
                 aSwitch.setOpen((Boolean) attributeValue);
                 reportNode.newReportNode()
@@ -85,7 +88,7 @@ public class EquipmentAttributeModification extends AbstractModification {
 
     // TODO remove only for switch
     private void changeGeneratorAttribute(Generator generator, String attributeName, Object attributeValue, ReportNode reportNode) {
-        if (attributeName.equals("targetP")) {
+        if ("targetP".equals(attributeName)) {
             generator.setTargetP((Double) attributeValue);
             reportNode.newReportNode()
                 .withMessageTemplate("network.modification.generatorChanged")
@@ -99,7 +102,7 @@ public class EquipmentAttributeModification extends AbstractModification {
 
     // TODO remove only for switch
     private void changeLineAttribute(Line line, String attributeName, Object attributeValue, ReportNode reportNode) {
-        if (attributeName.equals("operatingStatus")) {
+        if ("operatingStatus".equals(attributeName)) {
             line.newExtension(OperatingStatusAdder.class).withStatus(OperatingStatus.Status.valueOf((String) attributeValue)).add();
             reportNode.newReportNode()
                 .withMessageTemplate("network.modification.lineStatusChanged")

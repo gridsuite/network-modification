@@ -109,7 +109,8 @@ public class VoltageLevelModification extends AbstractModification {
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
 
-        ModificationUtils.getInstance().applyElementaryModifications(voltageLevel::setName, () -> voltageLevel.getOptionalName().orElse("No value"), modificationInfos.getEquipmentName(), subReportNode, "Name");
+        ModificationUtils.getInstance().applyElementaryModifications(voltageLevel::setName, () -> voltageLevel.getOptionalName().orElse("No value"), modificationInfos.getEquipmentName(),
+                subReportNode, "Name");
         modifyNominalV(voltageLevel, modificationInfos.getNominalV(), subReportNode);
         modifLowVoltageLimit(voltageLevel, modificationInfos.getLowVoltageLimit(), subReportNode);
         modifyHighVoltageLimit(voltageLevel, modificationInfos.getHighVoltageLimit(), subReportNode);
@@ -127,7 +128,8 @@ public class VoltageLevelModification extends AbstractModification {
                     List<ReportNode> measurementReports = new ArrayList<>();
                     applyBusbarSectionVoltageMeasurement(bbs, vMeas, measurementReports);
                     if (!measurementReports.isEmpty()) {
-                        ModificationUtils.getInstance().reportModifications(bbsReportNode, measurementReports, "network.modification.voltageLevel.busbarSection.measurements", Map.of("id", bbs.getId()));
+                        ModificationUtils.getInstance().reportModifications(bbsReportNode, measurementReports,
+                                "network.modification.voltageLevel.busbarSection.measurements", Map.of("id", bbs.getId()));
                     }
                 }
             });
