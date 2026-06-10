@@ -33,11 +33,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class StaticVarCompensatorModificationByAssignmentTest extends AbstractModificationByAssignmentTest {
     private static final String SVC_ID_1 = "svc1";
     private static final String SVC_ID_2 = "svc2";
+    private static final Double REACTIVE_POWER_MEASUREMENT_VALUE_FOR_SVC1 = 25.;
+    private static final boolean REACTIVE_POWER_MEASUREMENT_VALIDITY_FOR_SVC2 = false;
 
     @Override
     protected void createEquipments() {
-        createStaticVarCompensator(getNetwork().getVoltageLevel("v1"), SVC_ID_1, SVC_ID_1, 0, StaticVarCompensator.RegulationMode.VOLTAGE, 100.0, -50., 80., 120.);
-        createStaticVarCompensator(getNetwork().getVoltageLevel("v1"), SVC_ID_2, SVC_ID_2, 0, StaticVarCompensator.RegulationMode.VOLTAGE, 100.0, -50., 80., 120.);
+        createStaticVarCompensator(getNetwork().getVoltageLevel("v1"), SVC_ID_1, SVC_ID_1, 8, StaticVarCompensator.RegulationMode.VOLTAGE, 100.0, -50., 80., 120.);
+        createStaticVarCompensator(getNetwork().getVoltageLevel("v3"), SVC_ID_2, SVC_ID_2, 10, StaticVarCompensator.RegulationMode.VOLTAGE, 100.0, -50., 80., 120.);
     }
 
     @Override
@@ -53,13 +55,13 @@ class StaticVarCompensatorModificationByAssignmentTest extends AbstractModificat
     protected List<AssignmentInfos<?>> getAssignmentInfos() {
         DoubleAssignmentInfos assignmentInfos1 = DoubleAssignmentInfos.builder()
                 .editedField(StaticVarCompensatorField.REACTIVE_POWER_MEASUREMENT_VALUE.name())
-                .value(25.)
+                .value(REACTIVE_POWER_MEASUREMENT_VALUE_FOR_SVC1)
                 .filters(List.of(filter1))
                 .build();
 
         BooleanAssignmentInfos assignmentInfos2 = BooleanAssignmentInfos.builder()
                 .editedField(StaticVarCompensatorField.REACTIVE_POWER_MEASUREMENT_VALIDITY.name())
-                .value(false)
+                .value(REACTIVE_POWER_MEASUREMENT_VALIDITY_FOR_SVC2)
                 .filters(List.of(filter1))
                 .build();
 
@@ -75,15 +77,15 @@ class StaticVarCompensatorModificationByAssignmentTest extends AbstractModificat
         StaticVarCompensator svc2 = getNetwork().getStaticVarCompensator(SVC_ID_2);
         Measurements<?> ms1 = (Measurements<?>) svc1.getExtension(Measurements.class);
         assertNotNull(ms1);
-        Measurement m1 = getExistingMeasurement(ms1, Measurement.Type.REACTIVE_POWER);
-        assertNotNull(m1);
+        Measurement svc1Measurement = getExistingMeasurement(ms1, Measurement.Type.REACTIVE_POWER);
+        assertNotNull(svc1Measurement);
         Measurements<?> ms2 = (Measurements<?>) svc2.getExtension(Measurements.class);
         assertNotNull(ms2);
-        Measurement m2 = getExistingMeasurement(ms2, Measurement.Type.REACTIVE_POWER);
-        assertNotNull(m2);
+        Measurement svc2Measurement = getExistingMeasurement(ms2, Measurement.Type.REACTIVE_POWER);
+        assertNotNull(svc2Measurement);
 
-        assertThat(m1.getValue()).isEqualTo(25.);
-        assertThat(m2.isValid()).isEqualTo(false);
+        assertThat(svc1Measurement.getValue()).isEqualTo(REACTIVE_POWER_MEASUREMENT_VALUE_FOR_SVC1);
+        assertThat(svc2Measurement.isValid()).isEqualTo(REACTIVE_POWER_MEASUREMENT_VALIDITY_FOR_SVC2);
     }
 
     @Override
