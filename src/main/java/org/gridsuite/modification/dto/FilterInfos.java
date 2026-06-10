@@ -6,9 +6,11 @@
  */
 package org.gridsuite.modification.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.filter.AbstractFilter;
 
 import java.util.UUID;
 
@@ -30,4 +32,7 @@ public class FilterInfos {
     @Schema(description = "name of filter")
     private String name;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "embedded filter content (populated only on export)")
+    private AbstractFilter filterContent;
 }

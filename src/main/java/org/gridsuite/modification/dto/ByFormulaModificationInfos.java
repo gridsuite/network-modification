@@ -17,11 +17,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.filter.AbstractFilter;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.modifications.byfilter.ByFormulaModification;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -51,5 +56,30 @@ public class ByFormulaModificationInfos extends ModificationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode().withMessageTemplate("network.modification.byFormulaModification").add();
+    }
+
+    @Override
+    public List<UUID> getReferencedFilterUuids() {
+        return formulaInfosList == null
+                ? List.of()
+                : formulaInfosList.stream()
+                .flatMap(f -> f.getFilters() == null ? Stream.empty() : f.getFilters().stream())
+                .map(FilterInfos::getId)
+                .filter(Objects::nonNull).toList();
+    }
+
+    @Override
+    public void embedReferencedData(Map<UUID, AbstractFilter> filters,
+                                    Map<UUID, LoadFlowParametersInfos> lfParams) {
+        if (formulaInfosList == null) {
+            return;
+        }
+        formulaInfosList.stream()
+                .flatMap(f -> f.getFilters() == null ? Stream.empty() : f.getFilters().stream())
+                .forEach(ref -> {
+                    if (ref.getId() != null) {
+                        ref.setFilterContent(filters.get(ref.getId()));
+                    }
+                });
     }
 }
