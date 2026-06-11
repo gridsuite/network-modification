@@ -37,7 +37,7 @@ import java.util.UUID;
 @ModificationErrorTypeName("MODIFICATION_REFERENCE_ERROR")
 public class ModificationReferenceInfos extends ModificationInfos {
     public enum Type {
-        SAMPLE,
+        BASIC,
         DIRECTORY,
     }
 
@@ -60,7 +60,7 @@ public class ModificationReferenceInfos extends ModificationInfos {
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate(referenceType == Type.SAMPLE ? "network.modification.sample.reference.apply" : "network.modification.directory.reference.apply").add();
+        return reportNode.newReportNode().withMessageTemplate(referenceType == Type.BASIC ? "network.modification.basic.reference.apply" : "network.modification.directory.reference.apply").add();
     }
 
     @Override

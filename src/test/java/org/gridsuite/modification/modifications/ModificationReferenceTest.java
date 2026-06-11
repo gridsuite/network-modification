@@ -32,7 +32,7 @@ class ModificationReferenceTest extends AbstractNetworkModificationTest {
 
     @Override
     public void checkModification() {
-        assertEquals("ModificationReference", buildModification().toModification().getName());
+        assertEquals(ModificationType.MODIFICATION_REFERENCE.name(), buildModification().toModification().getName());
     }
 
     @Override
@@ -44,7 +44,7 @@ class ModificationReferenceTest extends AbstractNetworkModificationTest {
     protected ModificationInfos buildModification() {
         ModificationInfos modificationInfo = ModificationCreation.getCreationLoad("v1", "idLoad", "nameLoad", "1.1", LoadType.UNDEFINED);
         return ModificationReferenceInfos.builder()
-            .referenceType(ModificationReferenceInfos.Type.SAMPLE)
+            .referenceType(ModificationReferenceInfos.Type.BASIC)
             .referenceId(UUID.randomUUID())
             .referenceInfos(modificationInfo)
             .stashed(false)

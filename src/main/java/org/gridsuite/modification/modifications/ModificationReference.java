@@ -12,6 +12,7 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.ModificationReferenceInfos;
 
 /**
@@ -55,6 +56,6 @@ public class ModificationReference extends AbstractModification {
 
     @Override
     public String getName() {
-        return "ModificationReference";
+        return ModificationType.MODIFICATION_REFERENCE.name();
     }
 }
