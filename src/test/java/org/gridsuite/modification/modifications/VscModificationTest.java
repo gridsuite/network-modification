@@ -27,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.gridsuite.modification.NetworkModificationException.Type.WRONG_HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL;
 import static org.gridsuite.modification.modifications.VscModification.ACTIVE_POWER_CONTROL_DROOP_P0_REQUIRED_ERROR_MSG;
 import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * @author jamal kheyyad <jamal.kheyyad at rte-france.com>
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
@@ -102,6 +103,7 @@ class VscModificationTest extends AbstractNetworkModificationTest {
     }
 
     @Override
+    @SuppressWarnings("checkstyle:AvoidNestedBlocks")
     protected void assertAfterNetworkModificationApplication() {
         HvdcLine hvdcLine = getNetwork().getHvdcLine("hvdcLine");
         assertNotNull(hvdcLine);

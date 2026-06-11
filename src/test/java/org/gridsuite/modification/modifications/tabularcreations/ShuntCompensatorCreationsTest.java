@@ -183,11 +183,14 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
                 .withMessageTemplate("test").build());
         tabularCreationInfos.toModification().apply(getNetwork(), reportNode);
 
-        assertLogMessage("Tabular creation: Input for maximum susceptance has been ignored since it is not possible to simultaneously set type, maximum reactive power and maximum susceptance for shunt compensator with id id1",
+        assertLogMessage("Tabular creation: Input for maximum susceptance has been ignored since it is not possible to simultaneously set type, maximum reactive power and maximum susceptance for "
+                + "shunt compensator with id id1",
                 "network.modification.tabular.creation.shuntCompensator.maxSusceptanceIgnored.1", reportNode);
-        assertLogMessage("Tabular creation: Input for maximum susceptance has been ignored since it is not possible to simultaneously set type and maximum susceptance for shunt compensator with id id2",
+        assertLogMessage("Tabular creation: Input for maximum susceptance has been ignored since it is not possible to simultaneously set type and maximum susceptance for shunt compensator with "
+                + "id id2",
                 "network.modification.tabular.creation.shuntCompensator.maxSusceptanceIgnored.2", reportNode);
-        assertLogMessage("Tabular creation: Input for maximum susceptance has been ignored since it is not possible to simultaneously set maximum reactive power and maximum susceptance for shunt compensator with id id3",
+        assertLogMessage("Tabular creation: Input for maximum susceptance has been ignored since it is not possible to simultaneously set maximum reactive power and maximum susceptance for shunt "
+                + "compensator with id id3",
                 "network.modification.tabular.creation.shuntCompensator.maxSusceptanceIgnored.3", reportNode);
 
     }

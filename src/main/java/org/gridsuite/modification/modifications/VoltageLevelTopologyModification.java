@@ -20,7 +20,7 @@ import static org.gridsuite.modification.NetworkModificationException.Type.MODIF
 import static org.gridsuite.modification.NetworkModificationException.Type.VOLTAGE_LEVEL_NOT_FOUND;
 
 /**
- * @author REHILI Ghazwa <ghazwarhili@gmail.com>
+ * @author REHILI Ghazwa <ghazwarhili at gmail.com>
  */
 
 public class VoltageLevelTopologyModification extends AbstractModification {

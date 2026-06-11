@@ -169,7 +169,8 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
 
         NetworkModificationException exception = assertThrows(NetworkModificationException.class,
                 () -> batteryModificationInfos.toModification().check(getNetwork()));
-        assertEquals("MODIFY_BATTERY_ERROR : Battery '" + "v3Battery" + "' : Active power " + activePower + " is expected to be equal to 0 or within the range of minimum active power and maximum active power: [" + minActivePower + ", " + maxActivePower + "]",
+        assertEquals("MODIFY_BATTERY_ERROR : Battery '" + "v3Battery" + "' : Active power " + activePower + " is expected to be equal to 0 or within the range of minimum active power and maximum "
+                + "active power: [" + minActivePower + ", " + maxActivePower + "]",
                 exception.getMessage());
 
     }
@@ -233,7 +234,8 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         batteryModificationInfos.toModification().apply(network, rootNode);
 
         assertMeasurements(network.getBattery("v3Battery"), newPMeasurementValue, newPMeasurementValidity, newQMeasurementValue, newQMeasurementValidity);
-        assertMeasurementsReportNodes(rootNode, MEASUREMENT_P_VALUE, newPMeasurementValue, MEASUREMENT_P_VALID, newPMeasurementValidity, MEASUREMENT_Q_VALUE, newQMeasurementValue, MEASUREMENT_Q_VALID, newQMeasurementValidity);
+        assertMeasurementsReportNodes(rootNode, MEASUREMENT_P_VALUE, newPMeasurementValue, MEASUREMENT_P_VALID, newPMeasurementValidity, MEASUREMENT_Q_VALUE, newQMeasurementValue, MEASUREMENT_Q_VALID,
+                newQMeasurementValidity);
     }
 
     @Test
@@ -280,7 +282,8 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         });
     }
 
-    private void assertMeasurementsReportNodes(ReportNode rootNode, Double measurementPValue, Double newPMeasurementValue, Boolean measurementPValid, Boolean newPMeasurementValidity, Double measurementQValue, Double newQMeasurementValue, Boolean measurementQValid, Boolean newQMeasurementValidity) {
+    private void assertMeasurementsReportNodes(ReportNode rootNode, Double measurementPValue, Double newPMeasurementValue, Boolean measurementPValid, Boolean newPMeasurementValidity,
+            Double measurementQValue, Double newQMeasurementValue, Boolean measurementQValid, Boolean newQMeasurementValidity) {
         Optional<ReportNode> stateEstimationDataNode = rootNode.getChildren().stream()
                 .filter(node -> node.getMessageKey().equals("network.modification.stateEstimationData"))
                 .findFirst();

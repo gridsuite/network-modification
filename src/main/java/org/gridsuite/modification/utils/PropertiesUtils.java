@@ -10,10 +10,8 @@ import com.powsybl.commons.report.*;
 import com.powsybl.iidm.network.Identifiable;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
-
-import java.util.*;
-
 import javax.annotation.Nullable;
+import java.util.*;
 
 public final class PropertiesUtils {
 

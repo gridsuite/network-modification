@@ -26,7 +26,7 @@ import static org.gridsuite.modification.utils.TestUtils.assertLogNthMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author AJELLAL Ali <ali.ajellal@rte-france.com>
+ * @author AJELLAL Ali <ali.ajellal at rte-france.com>
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
 class TabularVoltageLevelModificationsTest extends AbstractNetworkModificationTest {
@@ -38,8 +38,10 @@ class TabularVoltageLevelModificationsTest extends AbstractNetworkModificationTe
     @Override
     protected ModificationInfos buildModification() {
         List<ModificationInfos> modifications = List.of(
-                VoltageLevelModificationInfos.builder().equipmentId("v1").nominalV(new AttributeModification<>(300., OperationType.SET)).highVoltageLimit(new AttributeModification<>(400., OperationType.SET)).lowVoltageLimit(new AttributeModification<>(299., OperationType.SET)).build(),
-                VoltageLevelModificationInfos.builder().equipmentId("v2").nominalV(new AttributeModification<>(300., OperationType.SET)).highVoltageLimit(new AttributeModification<>(400., OperationType.SET)).lowVoltageLimit(new AttributeModification<>(299., OperationType.SET)).build()
+                VoltageLevelModificationInfos.builder().equipmentId("v1").nominalV(new AttributeModification<>(300., OperationType.SET)).highVoltageLimit(new AttributeModification<>(400.,
+                        OperationType.SET)).lowVoltageLimit(new AttributeModification<>(299., OperationType.SET)).build(),
+                VoltageLevelModificationInfos.builder().equipmentId("v2").nominalV(new AttributeModification<>(300., OperationType.SET)).highVoltageLimit(new AttributeModification<>(400.,
+                        OperationType.SET)).lowVoltageLimit(new AttributeModification<>(299., OperationType.SET)).build()
         );
         return TabularModificationInfos.builder()
                 .modificationType(ModificationType.VOLTAGE_LEVEL_MODIFICATION)
