@@ -9,14 +9,16 @@ package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.GeneratorScalingModel;
+
 import java.time.Instant;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -32,10 +34,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class GeneratorScalingInfos extends GeneratorScalingModel implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
-
-    @Schema(description = "Modification type")
-    @Setter(AccessLevel.NONE)
-    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
     @Schema(description = "Modification date")
     private Instant date;

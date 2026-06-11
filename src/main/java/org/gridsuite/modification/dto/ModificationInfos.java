@@ -6,6 +6,8 @@
  */
 package org.gridsuite.modification.dto;
 
+import org.gridsuite.modification.modifications.AbstractModification;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -40,4 +42,6 @@ public interface ModificationInfos {
     String getDescription();
 
     void setDescription(String description);
+
+    AbstractModification toModification();
 }

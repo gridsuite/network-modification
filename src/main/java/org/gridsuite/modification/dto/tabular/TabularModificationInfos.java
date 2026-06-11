@@ -8,15 +8,17 @@ package org.gridsuite.modification.dto.tabular;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.tabular.TabularModificationModel;
+
 import java.time.Instant;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
@@ -31,10 +33,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class TabularModificationInfos extends TabularModificationModel implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
-
-    @Schema(description = "Modification type")
-    @Setter(AccessLevel.NONE)
-    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
 
     @Schema(description = "Modification date")
     private Instant date;
