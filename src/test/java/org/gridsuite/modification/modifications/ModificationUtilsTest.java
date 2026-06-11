@@ -28,50 +28,50 @@ class ModificationUtilsTest {
     void testCheckMaxQGreaterThanMinQ() {
         var point1 = ReactiveCapabilityCurvePointsModel.builder().minQ(10.0).maxQ(20.0).build();
         ModificationUtils.getInstance().checkMaxQGreaterThanMinQ(
-                Collections.singletonList(point1),
-                MODIFY_GENERATOR_ERROR,
-                "old KO, new OK: No exception should be thrown");
+            Collections.singletonList(point1),
+            MODIFY_GENERATOR_ERROR,
+            "old KO, new OK: No exception should be thrown");
 
         var point2 = ReactiveCapabilityCurvePointsModel.builder().minQ(20.0).maxQ(10.0).build();
         var exception = (NetworkModificationException) catchRuntimeException(() -> ModificationUtils.getInstance().checkMaxQGreaterThanMinQ(
-                Collections.singletonList(point2),
-                MODIFY_GENERATOR_ERROR,
-                "old OK, new KO: ")
+            Collections.singletonList(point2),
+            MODIFY_GENERATOR_ERROR,
+            "old OK, new KO: ")
         );
         assertThat(exception.getType()).isEqualTo(MODIFY_GENERATOR_ERROR);
         assertThat(exception)
-                .hasMessageEndingWith("old OK, new KO: maximum reactive power 10.0 is expected to be greater than or equal to minimum reactive power 20.0");
+            .hasMessageEndingWith("old OK, new KO: maximum reactive power 10.0 is expected to be greater than or equal to minimum reactive power 20.0");
 
         var point3 = ReactiveCapabilityCurvePointsModel.builder().minQ(20.0).maxQ(10.0).build();
         exception = (NetworkModificationException) catchRuntimeException(() -> ModificationUtils.getInstance().checkMaxQGreaterThanMinQ(
-                Collections.singletonList(point3),
-                MODIFY_GENERATOR_ERROR,
-                "old null, new KO: ")
+            Collections.singletonList(point3),
+            MODIFY_GENERATOR_ERROR,
+            "old null, new KO: ")
         );
         assertThat(exception.getType()).isEqualTo(MODIFY_GENERATOR_ERROR);
         assertThat(exception)
-                .hasMessageEndingWith("old null, new KO: maximum reactive power 10.0 is expected to be greater than or equal to minimum reactive power 20.0");
+            .hasMessageEndingWith("old null, new KO: maximum reactive power 10.0 is expected to be greater than or equal to minimum reactive power 20.0");
 
         var point4 = ReactiveCapabilityCurvePointsModel.builder().minQ(10.0).maxQ(20.0).build();
         ModificationUtils.getInstance().checkMaxQGreaterThanMinQ(
-                Collections.singletonList(point4),
-                MODIFY_GENERATOR_ERROR,
-                "old null, new OK: No exception should be thrown");
+            Collections.singletonList(point4),
+            MODIFY_GENERATOR_ERROR,
+            "old null, new OK: No exception should be thrown");
 
         var point5 = ReactiveCapabilityCurvePointsModel.builder().minQ(10.0).maxQ(20.0).build();
         ModificationUtils.getInstance().checkMaxQGreaterThanMinQ(
-                Collections.singletonList(point5),
-                MODIFY_GENERATOR_ERROR,
-                "old OK, new null: No exception should be thrown");
+            Collections.singletonList(point5),
+            MODIFY_GENERATOR_ERROR,
+            "old OK, new null: No exception should be thrown");
 
         var point6 = ReactiveCapabilityCurvePointsModel.builder().minQ(20.0).maxQ(10.0).build();
         exception = (NetworkModificationException) catchRuntimeException(() -> ModificationUtils.getInstance().checkMaxQGreaterThanMinQ(
-                Collections.singletonList(point6),
-                MODIFY_GENERATOR_ERROR,
-                "old KO, new null: ")
+            Collections.singletonList(point6),
+            MODIFY_GENERATOR_ERROR,
+            "old KO, new null: ")
         );
         assertThat(exception.getType()).isEqualTo(MODIFY_GENERATOR_ERROR);
         assertThat(exception)
-                .hasMessageEndingWith("old KO, new null: maximum reactive power 10.0 is expected to be greater than or equal to minimum reactive power 20.0");
+            .hasMessageEndingWith("old KO, new null: maximum reactive power 10.0 is expected to be greater than or equal to minimum reactive power 20.0");
     }
 }

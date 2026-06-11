@@ -43,34 +43,34 @@ class VoltageLevelByFormulaModificationTest extends AbstractByFormulaModificatio
     @Override
     protected void createEquipments() {
         getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_1).setNominalV(400)
-                .setHighVoltageLimit(200)
-                .setLowVoltageLimit(100)
-                .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(10).withIpMax(120).add();
+            .setHighVoltageLimit(200)
+            .setLowVoltageLimit(100)
+            .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(10).withIpMax(120).add();
 
         getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_2).setNominalV(150)
-                .setLowVoltageLimit(100)
-                .setHighVoltageLimit(1000)
-                .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(10).withIpMax(120).add();
+            .setLowVoltageLimit(100)
+            .setHighVoltageLimit(1000)
+            .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(10).withIpMax(120).add();
 
         getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_3).setNominalV(70)
-                .setLowVoltageLimit(50)
-                .setHighVoltageLimit(250)
-                .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(50).withIpMax(150).add();
+            .setLowVoltageLimit(50)
+            .setHighVoltageLimit(250)
+            .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(50).withIpMax(150).add();
 
         getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_4).setNominalV(100)
-                .setLowVoltageLimit(70)
-                .setHighVoltageLimit(300)
-                .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(10).withIpMax(100).add();
+            .setLowVoltageLimit(70)
+            .setHighVoltageLimit(300)
+            .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(10).withIpMax(100).add();
 
         getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_5).setNominalV(210)
-                .setLowVoltageLimit(10)
-                .setHighVoltageLimit(500)
-                .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(25).withIpMax(75).add();
+            .setLowVoltageLimit(10)
+            .setHighVoltageLimit(500)
+            .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(25).withIpMax(75).add();
 
         getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_6).setNominalV(750)
-                .setHighVoltageLimit(1000)
-                .setLowVoltageLimit(90)
-                .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(100).withIpMax(200).add();
+            .setHighVoltageLimit(1000)
+            .setLowVoltageLimit(90)
+            .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(100).withIpMax(200).add();
 
         getNetwork().getSubstation("s1").newVoltageLevel().setId(VOLTAGE_LEVEL_ID_7)
             .setTopologyKind(TopologyKind.NODE_BREAKER).setNominalV(380.).add();
@@ -82,32 +82,32 @@ class VoltageLevelByFormulaModificationTest extends AbstractByFormulaModificatio
     @Override
     protected Map<UUID, FilterEquipments> getTestFilters() {
         FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_1, getIdentifiableType(), 1.0),
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_2, getIdentifiableType(), 2.0)))
+                new IdentifiableAttributes(VOLTAGE_LEVEL_ID_1, getIdentifiableType(), 1.0),
+                new IdentifiableAttributes(VOLTAGE_LEVEL_ID_2, getIdentifiableType(), 2.0)))
             .build();
 
         FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_3, getIdentifiableType(), 2.0),
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_4, getIdentifiableType(), 5.0)))
+                new IdentifiableAttributes(VOLTAGE_LEVEL_ID_3, getIdentifiableType(), 2.0),
+                new IdentifiableAttributes(VOLTAGE_LEVEL_ID_4, getIdentifiableType(), 5.0)))
             .build();
 
         FilterEquipments filter3 = FilterEquipments.builder().filterId(FILTER_ID_3).identifiableAttributes(List.of(
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_5, getIdentifiableType(), 6.0),
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_6, getIdentifiableType(), 7.0)))
+                new IdentifiableAttributes(VOLTAGE_LEVEL_ID_5, getIdentifiableType(), 6.0),
+                new IdentifiableAttributes(VOLTAGE_LEVEL_ID_6, getIdentifiableType(), 7.0)))
             .build();
 
         FilterEquipments filter4 = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_2, getIdentifiableType(), 2.0),
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_5, getIdentifiableType(), 6.0)))
+                new IdentifiableAttributes(VOLTAGE_LEVEL_ID_2, getIdentifiableType(), 2.0),
+                new IdentifiableAttributes(VOLTAGE_LEVEL_ID_5, getIdentifiableType(), 6.0)))
             .build();
 
         FilterEquipments filter5 = FilterEquipments.builder().filterId(FILTER_ID_5).identifiableAttributes(List.of(
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_4, getIdentifiableType(), 5.0),
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_6, getIdentifiableType(), 7.0)))
+                new IdentifiableAttributes(VOLTAGE_LEVEL_ID_4, getIdentifiableType(), 5.0),
+                new IdentifiableAttributes(VOLTAGE_LEVEL_ID_6, getIdentifiableType(), 7.0)))
             .build();
 
         FilterEquipments filter6 = FilterEquipments.builder().filterId(FILTER_ID_6).identifiableAttributes(List.of(
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_7, getIdentifiableType(), 5.0)))
+                new IdentifiableAttributes(VOLTAGE_LEVEL_ID_7, getIdentifiableType(), 5.0)))
             .build();
 
         FilterEquipments filter7 = FilterEquipments.builder().filterId(FILTER_ID_7).identifiableAttributes(List.of(
@@ -119,91 +119,91 @@ class VoltageLevelByFormulaModificationTest extends AbstractByFormulaModificatio
     }
 
     @Override
-    protected List<FormulaModel> getFormulaInfos() {
-        FormulaModel formulaInfos1 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
+    protected List<FormulaModel> getFormulaModel() {
+        FormulaModel formulaModel1 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
             List.of(filter1, filter2),
             Operator.ADDITION,
             ReferenceFieldOrValue.builder().equipmentField(VoltageLevelField.LOW_VOLTAGE_LIMIT.name()).build(),
             ReferenceFieldOrValue.builder().value(10.).build()
         );
 
-        FormulaModel formulaInfos2 = getFormulaInfo(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name(),
+        FormulaModel formulaModel2 = getFormulaInfo(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name(),
             List.of(filter3),
             Operator.MULTIPLICATION,
             ReferenceFieldOrValue.builder().equipmentField(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name()).build(),
             ReferenceFieldOrValue.builder().value(2.).build()
         );
 
-        FormulaModel formulaInfos3 = getFormulaInfo(VoltageLevelField.NOMINAL_VOLTAGE.name(),
+        FormulaModel formulaModel3 = getFormulaInfo(VoltageLevelField.NOMINAL_VOLTAGE.name(),
             List.of(filter4),
             Operator.PERCENTAGE,
             ReferenceFieldOrValue.builder().value(150.).build(),
             ReferenceFieldOrValue.builder().equipmentField(VoltageLevelField.LOW_VOLTAGE_LIMIT.name()).build()
         );
 
-        FormulaModel formulaInfos4 = getFormulaInfo(VoltageLevelField.LOW_SHORT_CIRCUIT_CURRENT_LIMIT.name(),
+        FormulaModel formulaModel4 = getFormulaInfo(VoltageLevelField.LOW_SHORT_CIRCUIT_CURRENT_LIMIT.name(),
             List.of(filter5),
             Operator.DIVISION,
             ReferenceFieldOrValue.builder().equipmentField(VoltageLevelField.LOW_SHORT_CIRCUIT_CURRENT_LIMIT.name()).build(),
             ReferenceFieldOrValue.builder().value(2.).build()
         );
 
-        FormulaModel formulaInfos5 = getFormulaInfo(VoltageLevelField.HIGH_SHORT_CIRCUIT_CURRENT_LIMIT.name(),
+        FormulaModel formulaModel5 = getFormulaInfo(VoltageLevelField.HIGH_SHORT_CIRCUIT_CURRENT_LIMIT.name(),
             List.of(filter4, filter5),
             Operator.SUBTRACTION,
             ReferenceFieldOrValue.builder().equipmentField(VoltageLevelField.HIGH_SHORT_CIRCUIT_CURRENT_LIMIT.name()).build(),
             ReferenceFieldOrValue.builder().value(5.).build()
         );
 
-        FormulaModel formulaInfos6 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
+        FormulaModel formulaModel6 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
             List.of(filter6),
             Operator.ADDITION,
             ReferenceFieldOrValue.builder().equipmentField(VoltageLevelField.LOW_VOLTAGE_LIMIT.name()).build(),
             ReferenceFieldOrValue.builder().value(10.).build()
         );
 
-        FormulaModel formulaInfos7 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
+        FormulaModel formulaModel7 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
             List.of(filter6),
             Operator.ADDITION,
             ReferenceFieldOrValue.builder().value(100.).build(),
             ReferenceFieldOrValue.builder().equipmentField(VoltageLevelField.LOW_VOLTAGE_LIMIT.name()).build()
         );
 
-        FormulaModel formulaInfos8 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
+        FormulaModel formulaModel8 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
             List.of(filter6),
             Operator.ADDITION,
             ReferenceFieldOrValue.builder().equipmentField(VoltageLevelField.LOW_SHORT_CIRCUIT_CURRENT_LIMIT.name()).build(),
             ReferenceFieldOrValue.builder().value(100.).build()
         );
 
-        FormulaModel formulaInfos9 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
+        FormulaModel formulaModel9 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
             List.of(filter6),
             Operator.ADDITION,
             ReferenceFieldOrValue.builder().value(100.).build(),
             ReferenceFieldOrValue.builder().equipmentField(VoltageLevelField.LOW_SHORT_CIRCUIT_CURRENT_LIMIT.name()).build()
         );
 
-        FormulaModel formulaInfos10 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
+        FormulaModel formulaModel10 = getFormulaInfo(VoltageLevelField.LOW_VOLTAGE_LIMIT.name(),
             List.of(filter7),
             Operator.MULTIPLICATION,
             ReferenceFieldOrValue.builder().value(100.).build(),
             ReferenceFieldOrValue.builder().value(1.1).build());
 
-        FormulaModel formulaInfos11 = getFormulaInfo(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name(),
+        FormulaModel formulaModel11 = getFormulaInfo(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name(),
             List.of(filter7),
             Operator.DIVISION,
             ReferenceFieldOrValue.builder().value(1000.).build(),
             ReferenceFieldOrValue.builder().value(3.).build());
 
         // test error divide by 0
-        FormulaModel formulaInfos12 = getFormulaInfo(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name(),
-                List.of(filter7),
-                Operator.DIVISION,
-                ReferenceFieldOrValue.builder().value(1000.).build(),
-                ReferenceFieldOrValue.builder().value(0.).build());
+        FormulaModel formulaModel12 = getFormulaInfo(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name(),
+            List.of(filter7),
+            Operator.DIVISION,
+            ReferenceFieldOrValue.builder().value(1000.).build(),
+            ReferenceFieldOrValue.builder().value(0.).build());
 
-        return List.of(formulaInfos1, formulaInfos2, formulaInfos3, formulaInfos4, formulaInfos5,
-            formulaInfos6, formulaInfos7, formulaInfos8, formulaInfos9, formulaInfos10, formulaInfos11, formulaInfos12);
+        return List.of(formulaModel1, formulaModel2, formulaModel3, formulaModel4, formulaModel5,
+            formulaModel6, formulaModel7, formulaModel8, formulaModel9, formulaModel10, formulaModel11, formulaModel12);
     }
 
     @Override

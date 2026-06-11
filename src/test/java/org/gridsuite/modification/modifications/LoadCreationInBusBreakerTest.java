@@ -10,16 +10,17 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.dto.LoadCreationInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.model.FreePropertyModel;
+import org.gridsuite.modification.model.LoadCreationModel;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.utils.NetworkCreation;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
@@ -34,9 +35,8 @@ class LoadCreationInBusBreakerTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        return LoadCreationInfos.builder()
-            .stashed(false)
+    protected ModificationModel buildModification() {
+        return LoadCreationModel.builder()
             .equipmentId("idLoad1")
             .equipmentName("nameLoad1")
             .voltageLevelId("v1")
@@ -57,9 +57,10 @@ class LoadCreationInBusBreakerTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("LOAD_CREATION", modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals("LOAD_CREATION", modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+        });
         assertEquals("idLoad1", createdValues.get("equipmentId"));
     }
 

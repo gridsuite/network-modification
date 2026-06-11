@@ -8,7 +8,7 @@ package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.network.Network;
-import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.model.ModificationModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * <li>If you want to add a test specific to a modification, add it in its own class.</li>
  * </ul>
  */
+
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
@@ -67,14 +68,14 @@ public abstract class AbstractNetworkModificationTest {
 
     protected abstract Network createNetwork(UUID networkUuid);
 
-    protected abstract ModificationInfos buildModification();
+    protected abstract ModificationModel buildModification();
 
     protected abstract void assertAfterNetworkModificationApplication();
 
     protected abstract void checkModification();
 
     @SuppressWarnings("java:S1130") // Exceptions are throws by overrides
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("{}", modificationInfos.getMessageValues());
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals("{}", modificationModel.getMessageValues());
     }
 }

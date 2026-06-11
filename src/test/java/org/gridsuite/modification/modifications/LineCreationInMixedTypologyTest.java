@@ -9,17 +9,18 @@ package org.gridsuite.modification.modifications;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.dto.LineCreationInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.model.FreePropertyModel;
+import org.gridsuite.modification.model.LineCreationModel;
 import org.gridsuite.modification.model.LineSegmentModel;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.utils.NetworkCreation;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
@@ -35,12 +36,11 @@ class LineCreationInMixedTypologyTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
+    protected ModificationModel buildModification() {
         // create new line in voltage levels with node breaker topology and bus breaker topology
         // between voltage level "v1" and busbar section "1.1" type NODE_BREAKER and
         //         voltage level "v2" and busbar section "bus2 type BUS_BREAKER"
-        return LineCreationInfos.builder()
-            .stashed(false)
+        return LineCreationModel.builder()
             .equipmentId("idLine1")
             .equipmentName("nameLine1")
             .r(100.0)
@@ -73,9 +73,10 @@ class LineCreationInMixedTypologyTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("LINE_CREATION", modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals("LINE_CREATION", modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+        });
         assertEquals("idLine1", createdValues.get("equipmentId"));
     }
 

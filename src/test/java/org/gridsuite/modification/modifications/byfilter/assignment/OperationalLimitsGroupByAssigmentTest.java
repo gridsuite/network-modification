@@ -40,70 +40,70 @@ public class OperationalLimitsGroupByAssigmentTest extends AbstractModificationB
     @Override
     protected void createEquipments() {
         createLineWithLimits(getNetwork(), LINE_ID_1, LINE_ID_1, "v1", "v2", 21, 21, 2,
-                1, 3, 4, 0.001, 0.0015,
-                "line_1", 11, ConnectablePosition.Direction.TOP,
-                "line_1", 22, ConnectablePosition.Direction.BOTTOM);
+            1, 3, 4, 0.001, 0.0015,
+            "line_1", 11, ConnectablePosition.Direction.TOP,
+            "line_1", 22, ConnectablePosition.Direction.BOTTOM);
 
         createLineWithLimits(getNetwork(), LINE_ID_2, LINE_ID_2, "v1", "v2", 33, 44, 3,
-                3, 5, 1, 0.002, 0.0025,
-                "line_2", 33, ConnectablePosition.Direction.TOP,
-                "line_2", 44, ConnectablePosition.Direction.BOTTOM);
+            3, 5, 1, 0.002, 0.0025,
+            "line_2", 33, ConnectablePosition.Direction.TOP,
+            "line_2", 44, ConnectablePosition.Direction.BOTTOM);
 
         createLineWithLimits(getNetwork(), LINE_ID_3, LINE_ID_3, "v1", "v2", 45, 56, 3,
-                3, 5, 1, 0.002, 0.0025,
-                "line_3", 45, ConnectablePosition.Direction.TOP,
-                "line_3", 56, ConnectablePosition.Direction.BOTTOM);
+            3, 5, 1, 0.002, 0.0025,
+            "line_3", 45, ConnectablePosition.Direction.TOP,
+            "line_3", 56, ConnectablePosition.Direction.BOTTOM);
 
         createLine(getNetwork(), LINE_ID_4, LINE_ID_4, "v1", "v2", 46, 57, 3,
-                3, 5, 1, 0.002, 0.0025,
-                "line_3", 46, ConnectablePosition.Direction.TOP,
-                "line_3", 57, ConnectablePosition.Direction.BOTTOM);
+            3, 5, 1, 0.002, 0.0025,
+            "line_3", 46, ConnectablePosition.Direction.TOP,
+            "line_3", 57, ConnectablePosition.Direction.BOTTOM);
         addLimitsWithIdenticalProperties(getNetwork().getLine(LINE_ID_4));
         createLine(getNetwork(), LINE_ID_5, LINE_ID_5, "v1", "v2", 47, 58, 3,
-                3, 5, 1, 0.002, 0.0025,
-                "line_3", 45, ConnectablePosition.Direction.TOP,
-                "line_3", 58, ConnectablePosition.Direction.BOTTOM);
+            3, 5, 1, 0.002, 0.0025,
+            "line_3", 45, ConnectablePosition.Direction.TOP,
+            "line_3", 58, ConnectablePosition.Direction.BOTTOM);
         addLimitsWithoutProperties(getNetwork().getLine(LINE_ID_5));
     }
 
     @Override
     protected Map<UUID, FilterEquipments> getTestFilters() {
         FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(
-                new IdentifiableAttributes(LINE_ID_1, IdentifiableType.LINE, 1.0),
-                new IdentifiableAttributes(LINE_ID_2, IdentifiableType.LINE, 2.0)
+            new IdentifiableAttributes(LINE_ID_1, IdentifiableType.LINE, 1.0),
+            new IdentifiableAttributes(LINE_ID_2, IdentifiableType.LINE, 2.0)
         )).build();
         FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(
-                new IdentifiableAttributes(LINE_ID_3, IdentifiableType.LINE, 1.0)
+            new IdentifiableAttributes(LINE_ID_3, IdentifiableType.LINE, 1.0)
         )).build();
         FilterEquipments filter3 = FilterEquipments.builder().filterId(FILTER_ID_3).identifiableAttributes(List.of(
-                new IdentifiableAttributes(LINE_ID_4, IdentifiableType.LINE, 1.0),
-                new IdentifiableAttributes(LINE_ID_5, IdentifiableType.LINE, 2.0)
+            new IdentifiableAttributes(LINE_ID_4, IdentifiableType.LINE, 1.0),
+            new IdentifiableAttributes(LINE_ID_5, IdentifiableType.LINE, 2.0)
         )).build();
         return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3);
     }
 
     @Override
-    protected List<AssignmentModel<?>> getAssignmentInfos() {
-        PropertyAssignmentModel assignmentInfos1 = PropertyAssignmentModel.builder()
-                .filters(List.of(filter1))
-                .editedField(OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES.name())
-                .propertyName("property1")
-                .value("value1")
-                .build();
-        PropertyAssignmentModel assignmentInfos2 = PropertyAssignmentModel.builder()
-                .filters(List.of(filter2))
-                .editedField(OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES.name())
-                .propertyName("property2")
-                .value("value2")
-                .build();
-        PropertyAssignmentModel assignmentInfos3 = PropertyAssignmentModel.builder()
-                .filters(List.of(filter3))
-                .editedField(OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES.name())
-                .propertyName("property0")
-                .value("value0")
-                .build();
-        List<AssignmentModel<?>> infosList = super.getAssignmentInfos();
-        infosList.addAll(List.of(assignmentInfos1, assignmentInfos2, assignmentInfos3));
+    protected List<AssignmentModel<?>> getAssignmentModel() {
+        PropertyAssignmentModel assignmentModel1 = PropertyAssignmentModel.builder()
+            .filters(List.of(filter1))
+            .editedField(OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES.name())
+            .propertyName("property1")
+            .value("value1")
+            .build();
+        PropertyAssignmentModel assignmentModel2 = PropertyAssignmentModel.builder()
+            .filters(List.of(filter2))
+            .editedField(OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES.name())
+            .propertyName("property2")
+            .value("value2")
+            .build();
+        PropertyAssignmentModel assignmentModel3 = PropertyAssignmentModel.builder()
+            .filters(List.of(filter3))
+            .editedField(OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES.name())
+            .propertyName("property0")
+            .value("value0")
+            .build();
+        List<AssignmentModel<?>> infosList = super.getAssignmentModel();
+        infosList.addAll(List.of(assignmentModel1, assignmentModel2, assignmentModel3));
         return infosList;
     }
 

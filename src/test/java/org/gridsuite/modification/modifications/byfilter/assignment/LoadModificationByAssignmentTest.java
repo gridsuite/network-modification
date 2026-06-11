@@ -45,40 +45,40 @@ class LoadModificationByAssignmentTest extends AbstractModificationByAssignmentT
     @Override
     protected Map<UUID, FilterEquipments> getTestFilters() {
         FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(
-            new IdentifiableAttributes(LOAD_ID_1, IdentifiableType.LOAD, 1.0),
-            new IdentifiableAttributes(LOAD_ID_2, IdentifiableType.LOAD, 2.0)))
+                new IdentifiableAttributes(LOAD_ID_1, IdentifiableType.LOAD, 1.0),
+                new IdentifiableAttributes(LOAD_ID_2, IdentifiableType.LOAD, 2.0)))
             .build();
 
         FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(
-            new IdentifiableAttributes(LOAD_ID_3, IdentifiableType.LOAD, 2.0),
-            new IdentifiableAttributes(LOAD_ID_4, IdentifiableType.LOAD, 5.0)))
+                new IdentifiableAttributes(LOAD_ID_3, IdentifiableType.LOAD, 2.0),
+                new IdentifiableAttributes(LOAD_ID_4, IdentifiableType.LOAD, 5.0)))
             .build();
 
         return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2);
     }
 
     @Override
-    protected List<AssignmentModel<?>> getAssignmentInfos() {
-        DoubleAssignmentModel assignmentInfos1 = DoubleAssignmentModel.builder()
-                .editedField(LoadField.ACTIVE_POWER_SET_POINT.name())
-                .value(25.)
-                .filters(List.of(filter1))
-                .build();
+    protected List<AssignmentModel<?>> getAssignmentModel() {
+        DoubleAssignmentModel assignmentModel1 = DoubleAssignmentModel.builder()
+            .editedField(LoadField.ACTIVE_POWER_SET_POINT.name())
+            .value(25.)
+            .filters(List.of(filter1))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos2 = DoubleAssignmentModel.builder()
-                .editedField(LoadField.REACTIVE_POWER_SET_POINT.name())
-                .value(2.5)
-                .filters(List.of(filter2))
-                .build();
+        DoubleAssignmentModel assignmentModel2 = DoubleAssignmentModel.builder()
+            .editedField(LoadField.REACTIVE_POWER_SET_POINT.name())
+            .value(2.5)
+            .filters(List.of(filter2))
+            .build();
 
-        EnumAssignmentModel assignmentInfos3 = EnumAssignmentModel.builder()
-                .editedField(LoadField.LOAD_TYPE.name())
-                .value(LoadType.AUXILIARY.name())
-                .filters(List.of(filter1))
-                .build();
+        EnumAssignmentModel assignmentModel3 = EnumAssignmentModel.builder()
+            .editedField(LoadField.LOAD_TYPE.name())
+            .value(LoadType.AUXILIARY.name())
+            .filters(List.of(filter1))
+            .build();
 
-        List<AssignmentModel<?>> infosList = super.getAssignmentInfos();
-        infosList.addAll(List.of(assignmentInfos1, assignmentInfos2, assignmentInfos3));
+        List<AssignmentModel<?>> infosList = super.getAssignmentModel();
+        infosList.addAll(List.of(assignmentModel1, assignmentModel2, assignmentModel3));
 
         return infosList;
     }

@@ -10,10 +10,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
 import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.model.LineModificationModel;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.model.OperationType;
+import org.gridsuite.modification.model.tabular.TabularModificationModel;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -38,29 +39,28 @@ class TabularLineModificationsTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        List<ModificationInfos> modifications = List.of(
-                LineModificationInfos.builder().equipmentId("line1").r(new AttributeModification<>(10., OperationType.SET)).build(),
-                LineModificationInfos.builder().equipmentId("line2").x(new AttributeModification<>(20., OperationType.SET)).build(),
-                LineModificationInfos.builder().equipmentId("line3").g1(new AttributeModification<>(30., OperationType.SET)).build(),
-                LineModificationInfos.builder().equipmentId("line3").b1(new AttributeModification<>(40., OperationType.SET)).build(),
-                LineModificationInfos.builder().equipmentId("unknownLine").b2(new AttributeModification<>(60., OperationType.SET)).build()
+    protected ModificationModel buildModification() {
+        List<ModificationModel> modifications = List.of(
+            LineModificationModel.builder().equipmentId("line1").r(new AttributeModification<>(10., OperationType.SET)).build(),
+            LineModificationModel.builder().equipmentId("line2").x(new AttributeModification<>(20., OperationType.SET)).build(),
+            LineModificationModel.builder().equipmentId("line3").g1(new AttributeModification<>(30., OperationType.SET)).build(),
+            LineModificationModel.builder().equipmentId("line3").b1(new AttributeModification<>(40., OperationType.SET)).build(),
+            LineModificationModel.builder().equipmentId("unknownLine").b2(new AttributeModification<>(60., OperationType.SET)).build()
         );
-        return TabularModificationInfos.builder()
-                .modificationType(ModificationType.LINE_MODIFICATION)
-                .modifications(modifications)
-                .stashed(false)
-                .build();
+        return TabularModificationModel.builder()
+            .modificationType(ModificationType.LINE_MODIFICATION)
+            .modifications(modifications)
+            .build();
     }
 
     @Test
     @Override
     public void testApply() {
-        ModificationInfos modificationInfos = buildModification();
-        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        ModificationModel modificationModel = buildModification();
+        ReportNode reportNode = modificationModel.createSubReportNode(ReportNode.newRootReportNode()
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test").build());
+        modificationModel.toModification().apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication(reportNode);
     }
 
@@ -82,9 +82,10 @@ class TabularLineModificationsTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+        });
         assertEquals(ModificationType.LINE_MODIFICATION.name(), createdValues.get("tabularModificationType"));
     }
 

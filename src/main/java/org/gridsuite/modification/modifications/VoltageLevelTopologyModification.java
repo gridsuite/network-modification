@@ -13,8 +13,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.EquipmentAttributeModificationInfos;
-import org.gridsuite.modification.dto.VoltageLevelTopologyModificationInfos;
+import org.gridsuite.modification.model.EquipmentAttributeModificationModel;
+import org.gridsuite.modification.model.VoltageLevelTopologyModificationModel;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR;
 import static org.gridsuite.modification.NetworkModificationException.Type.VOLTAGE_LEVEL_NOT_FOUND;
@@ -24,21 +24,21 @@ import static org.gridsuite.modification.NetworkModificationException.Type.VOLTA
  */
 
 public class VoltageLevelTopologyModification extends AbstractModification {
-    private final VoltageLevelTopologyModificationInfos modificationInfos;
+    private final VoltageLevelTopologyModificationModel modificationModel;
 
-    public VoltageLevelTopologyModification(VoltageLevelTopologyModificationInfos voltageLevelTopologyModificationInfos) {
-        this.modificationInfos = voltageLevelTopologyModificationInfos;
+    public VoltageLevelTopologyModification(VoltageLevelTopologyModificationModel voltageLevelTopologyModificationModel) {
+        this.modificationModel = voltageLevelTopologyModificationModel;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        VoltageLevel voltageLevel = network.getVoltageLevel(modificationInfos.getEquipmentId());
+        VoltageLevel voltageLevel = network.getVoltageLevel(modificationModel.getEquipmentId());
         if (voltageLevel == null) {
-            throw new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, modificationInfos.getEquipmentId());
+            throw new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, modificationModel.getEquipmentId());
         }
-        if (!modificationInfos.getEquipmentAttributeModificationList().isEmpty()) {
-            for (EquipmentAttributeModificationInfos equipmentAttributeModificationInfos : modificationInfos.getEquipmentAttributeModificationList()) {
-                EquipmentAttributeModification equipmentAttributeModification = new EquipmentAttributeModification(equipmentAttributeModificationInfos);
+        if (!modificationModel.getEquipmentAttributeModificationList().isEmpty()) {
+            for (EquipmentAttributeModificationModel equipmentAttributeModificationModel : modificationModel.getEquipmentAttributeModificationList()) {
+                EquipmentAttributeModification equipmentAttributeModification = new EquipmentAttributeModification(equipmentAttributeModificationModel);
                 equipmentAttributeModification.check(network);
             }
         } else {
@@ -48,15 +48,15 @@ public class VoltageLevelTopologyModification extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        for (EquipmentAttributeModificationInfos equipmentAttributeModificationInfos : modificationInfos.getEquipmentAttributeModificationList()) {
-            EquipmentAttributeModification equipmentAttributeModification = new EquipmentAttributeModification(equipmentAttributeModificationInfos);
+        for (EquipmentAttributeModificationModel equipmentAttributeModificationModel : modificationModel.getEquipmentAttributeModificationList()) {
+            EquipmentAttributeModification equipmentAttributeModification = new EquipmentAttributeModification(equipmentAttributeModificationModel);
             equipmentAttributeModification.apply(network, subReportNode);
         }
         subReportNode.newReportNode()
-                .withMessageTemplate("network.modification.voltageLevelTopologyModified")
-                .withUntypedValue("id", modificationInfos.getEquipmentId())
-                .withSeverity(TypedValue.DEBUG_SEVERITY)
-                .add();
+            .withMessageTemplate("network.modification.voltageLevelTopologyModified")
+            .withUntypedValue("id", modificationModel.getEquipmentId())
+            .withSeverity(TypedValue.DEBUG_SEVERITY)
+            .add();
     }
 
     @Override

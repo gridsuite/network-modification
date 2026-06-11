@@ -10,8 +10,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.EquipmentAttributeModificationInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.model.EquipmentAttributeModificationModel;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
@@ -27,9 +27,9 @@ class EquipmentAttributeModificationTest extends AbstractNetworkModificationTest
 
     @Override
     public void checkModification() {
-        EquipmentAttributeModificationInfos switchStatusModificationInfos = (EquipmentAttributeModificationInfos) buildModification();
-        switchStatusModificationInfos.setEquipmentId("notFound");
-        assertThrows(NetworkModificationException.class, () -> switchStatusModificationInfos.toModification().check(getNetwork()));
+        EquipmentAttributeModificationModel switchStatusModificationModel = (EquipmentAttributeModificationModel) buildModification();
+        switchStatusModificationModel.setEquipmentId("notFound");
+        assertThrows(NetworkModificationException.class, () -> switchStatusModificationModel.toModification().check(getNetwork()));
     }
 
     @Override
@@ -38,9 +38,8 @@ class EquipmentAttributeModificationTest extends AbstractNetworkModificationTest
     }
 
     @Override
-    protected EquipmentAttributeModificationInfos buildModification() {
-        return EquipmentAttributeModificationInfos.builder()
-            .stashed(false)
+    protected ModificationModel buildModification() {
+        return EquipmentAttributeModificationModel.builder()
             .equipmentType(IdentifiableType.SWITCH)
             .equipmentAttributeName("open")
             .equipmentAttributeValue(true)
@@ -56,22 +55,22 @@ class EquipmentAttributeModificationTest extends AbstractNetworkModificationTest
     @Test
     void testWithErrors() throws Exception {
         // bad equipment attribute name
-        EquipmentAttributeModificationInfos switchStatusModificationInfos = EquipmentAttributeModificationInfos.builder()
-            .stashed(false)
+        EquipmentAttributeModificationModel switchStatusModificationModel = EquipmentAttributeModificationModel.builder()
             .equipmentType(IdentifiableType.SWITCH)
             .equipmentAttributeName("close") // bad
             .equipmentAttributeValue(true)
             .equipmentId("v1b1")
             .build();
 
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> switchStatusModificationInfos.toModification().apply(getNetwork()));
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> switchStatusModificationModel.toModification().apply(getNetwork()));
         assertEquals("ATTRIBUTE_NOT_EDITABLE : SWITCH attribute 'close' not editable", exception.getMessage());
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("EQUIPMENT_ATTRIBUTE_MODIFICATION", modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals("EQUIPMENT_ATTRIBUTE_MODIFICATION", modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+        });
         assertEquals("open", createdValues.get("equipmentAttributeName"));
         assertEquals("v1b1", createdValues.get("equipmentId"));
         assertEquals("true", createdValues.get("equipmentAttributeValue"));

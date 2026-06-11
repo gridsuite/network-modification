@@ -11,10 +11,11 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
 import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.model.OperationType;
+import org.gridsuite.modification.model.SubstationModificationModel;
+import org.gridsuite.modification.model.tabular.TabularModificationModel;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -41,27 +42,26 @@ class TabularSubstationModificationsTest extends AbstractNetworkModificationTest
     }
 
     @Override
-    protected ModificationInfos buildModification() {
+    protected ModificationModel buildModification() {
 
-        List<ModificationInfos> modifications = List.of(
-                SubstationModificationInfos.builder().equipmentId("s1").equipmentName(new AttributeModification<>("s1", OperationType.SET)).country(new AttributeModification<>(Country.BE, OperationType.SET)).build(),
-                SubstationModificationInfos.builder().equipmentId("s2").equipmentName(new AttributeModification<>("s2", OperationType.SET)).country(new AttributeModification<>(Country.BE, OperationType.SET)).build()
+        List<ModificationModel> modifications = List.of(
+            SubstationModificationModel.builder().equipmentId("s1").equipmentName(new AttributeModification<>("s1", OperationType.SET)).country(new AttributeModification<>(Country.BE, OperationType.SET)).build(),
+            SubstationModificationModel.builder().equipmentId("s2").equipmentName(new AttributeModification<>("s2", OperationType.SET)).country(new AttributeModification<>(Country.BE, OperationType.SET)).build()
         );
-        return TabularModificationInfos.builder()
-                .modificationType(MOFIFICATION_TYPE)
-                .modifications(modifications)
-                .stashed(false)
-                .build();
+        return TabularModificationModel.builder()
+            .modificationType(MOFIFICATION_TYPE)
+            .modifications(modifications)
+            .build();
     }
 
     @Test
     @Override
     public void testApply() {
-        ModificationInfos modificationInfos = buildModification();
-        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        ModificationModel modificationModel = buildModification();
+        ReportNode reportNode = modificationModel.createSubReportNode(ReportNode.newRootReportNode()
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test").build());
+        modificationModel.toModification().apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication(reportNode);
     }
 
@@ -81,9 +81,10 @@ class TabularSubstationModificationsTest extends AbstractNetworkModificationTest
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+        });
         assertEquals(MOFIFICATION_TYPE.name(), createdValues.get("tabularModificationType"));
     }
 

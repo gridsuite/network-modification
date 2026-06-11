@@ -9,13 +9,7 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.model.VoltageInitBusModificationModel;
-import org.gridsuite.modification.model.VoltageInitGeneratorModificationModel;
-import org.gridsuite.modification.model.VoltageInitShuntCompensatorModificationModel;
-import org.gridsuite.modification.model.VoltageInitStaticVarCompensatorModificationModel;
-import org.gridsuite.modification.model.VoltageInitTransformerModificationModel;
-import org.gridsuite.modification.model.VoltageInitVscConverterStationModificationModel;
+import org.gridsuite.modification.model.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -88,9 +82,8 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        return VoltageInitModificationInfos.builder()
-            .stashed(false)
+    protected ModificationModel buildModification() {
+        return VoltageInitModificationModel.builder()
             .generators(List.of(
                 VoltageInitGeneratorModificationModel.builder()
                     .generatorId("idGenerator")
@@ -225,8 +218,7 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
         setNetwork(createNetwork(getNetworkId()));
         getNetwork().getShuntCompensator(shuntCompensatorId).setSectionCount(currentSectionCount);
 
-        VoltageInitModificationInfos modification = VoltageInitModificationInfos.builder()
-            .stashed(false)
+        VoltageInitModificationModel modification = VoltageInitModificationModel.builder()
             .generators(List.of())
             .transformers(List.of())
             .staticVarCompensators(List.of())
@@ -240,8 +232,8 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
                     .build()))
             .build();
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test").build());
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test").build());
         modification.toModification().apply(getNetwork(), report);
         return report;
     }
@@ -281,7 +273,7 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
 
     @Test
     void testMapMessageValues() {
-        ModificationInfos modifications = buildModification();
+        ModificationModel modifications = buildModification();
         Map<String, String> values = modifications.getMapMessageValues();
         assertEquals("rootNetwork1", values.get("rootNetworkName"));
         assertEquals("node1", values.get("nodeName"));

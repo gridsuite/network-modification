@@ -8,13 +8,16 @@ package org.gridsuite.modification.modifications.tabularcreations;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.EnergySource;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.GeneratorCreationInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
+import org.gridsuite.modification.model.GeneratorCreationModel;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsModel;
+import org.gridsuite.modification.model.tabular.TabularCreationModel;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -26,7 +29,8 @@ import java.util.UUID;
 
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.gridsuite.modification.utils.TestUtils.assertLogNthMessage;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -39,9 +43,9 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        List<ModificationInfos> creations = List.of(
-            GeneratorCreationInfos.builder()
+    protected ModificationModel buildModification() {
+        List<ModificationModel> creations = List.of(
+            GeneratorCreationModel.builder()
                 .equipmentId("id1").equipmentName("name1").voltageLevelId("v1").busOrBusbarSectionId("1.1")
                 .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
                 .energySource(EnergySource.HYDRO).minP(0).maxP(100).ratedS(10D)
@@ -52,7 +56,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .regulatingTerminalId("v2load").regulatingTerminalType("LOAD").regulatingTerminalVlId("v2").qPercent(35D)
                 .reactiveCapabilityCurve(false).reactiveCapabilityCurvePoints(List.of())
                 .build(),
-            GeneratorCreationInfos.builder()
+            GeneratorCreationModel.builder()
                 .equipmentId("id2").equipmentName("name2").voltageLevelId("v2").busOrBusbarSectionId("1A")
                 .connectionName("feederId2").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false)
                 .energySource(EnergySource.NUCLEAR).minP(0).maxP(500)
@@ -62,14 +66,14 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .stepUpTransformerX(45D)
                 .reactiveCapabilityCurve(false).reactiveCapabilityCurvePoints(List.of())
                 .build(),
-            GeneratorCreationInfos.builder()
+            GeneratorCreationModel.builder()
                 .equipmentId("id3").voltageLevelId("v3").busOrBusbarSectionId("3A")
                 .connectionName("feederId3").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .energySource(EnergySource.WIND).minP(0).maxP(200)
                 .targetP(150).voltageRegulationOn(true).targetV(375D)
                 .reactiveCapabilityCurve(false).reactiveCapabilityCurvePoints(List.of())
                 .build(),
-            GeneratorCreationInfos.builder()
+            GeneratorCreationModel.builder()
                 .equipmentId("id4").equipmentName("name4").voltageLevelId("v4").busOrBusbarSectionId("1.A")
                 .connectionName("feederId4").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false)
                 .energySource(EnergySource.OTHER).minP(0).maxP(800)
@@ -80,21 +84,21 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .regulatingTerminalId("v5load").regulatingTerminalType("LOAD").regulatingTerminalVlId("v5").qPercent(75D)
                 .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsModel.builder().p(1.).minQ(2.).maxQ(3.).build(), ReactiveCapabilityCurvePointsModel.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsModel.builder().p(9.).minQ(10.).maxQ(11.).build()))
                 .build(),
-            GeneratorCreationInfos.builder()
+            GeneratorCreationModel.builder()
                 .equipmentId("id5").voltageLevelId("v5").busOrBusbarSectionId("1A1")
                 .connectionName("name5").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .energySource(EnergySource.WIND).minP(0).maxP(200)
                 .targetP(150).voltageRegulationOn(true).targetV(375D)
                 .reactiveCapabilityCurve(false).reactiveCapabilityCurvePoints(List.of())
                 .build(),
-            GeneratorCreationInfos.builder()
+            GeneratorCreationModel.builder()
                 .equipmentId("id6").voltageLevelId("v5").busOrBusbarSectionId("1A1")
                 .connectionName("v5generator").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .energySource(EnergySource.WIND).minP(0).maxP(200)
                 .targetP(150).voltageRegulationOn(true).targetV(375D)
                 .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsModel.builder().p(1.).minQ(2.).maxQ(3.).build(), ReactiveCapabilityCurvePointsModel.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsModel.builder().p(9.).minQ(10.).maxQ(11.).build()))
                 .build(),
-            GeneratorCreationInfos.builder()
+            GeneratorCreationModel.builder()
                 .equipmentId("id7").voltageLevelId("v6").busOrBusbarSectionId("1B1")
                 .connectionName("v6generator").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false)
                 .energySource(EnergySource.HYDRO).minP(0).maxP(200)
@@ -103,10 +107,9 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsModel.builder().p(1.).minQ(2.).maxQ(3.).build(), ReactiveCapabilityCurvePointsModel.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsModel.builder().p(9.).minQ(10.).maxQ(11.).build()))
                 .build()
         );
-        return TabularCreationInfos.builder()
+        return TabularCreationModel.builder()
             .modificationType(ModificationType.GENERATOR_CREATION)
             .modifications(creations)
-            .stashed(false)
             .build();
     }
 
@@ -131,8 +134,8 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
 
     @Test
     void testAllModificationsHaveSucceeded() {
-        List<ModificationInfos> creations = List.of(
-            GeneratorCreationInfos.builder()
+        List<ModificationModel> creations = List.of(
+            GeneratorCreationModel.builder()
                 .equipmentId("id1").equipmentName("name1").voltageLevelId("v1").busOrBusbarSectionId("1.1")
                 .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
                 .energySource(EnergySource.HYDRO).minP(0).maxP(100).ratedS(10D)
@@ -143,7 +146,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .regulatingTerminalId("v2load").regulatingTerminalType("LOAD").regulatingTerminalVlId("v2").qPercent(35D)
                 .reactiveCapabilityCurve(false).reactiveCapabilityCurvePoints(List.of())
                 .build(),
-            GeneratorCreationInfos.builder()
+            GeneratorCreationModel.builder()
                 .equipmentId("id2").equipmentName("name2").voltageLevelId("v2").busOrBusbarSectionId("1A")
                 .connectionName("feederId2").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false)
                 .energySource(EnergySource.NUCLEAR).minP(0).maxP(500)
@@ -155,14 +158,14 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .build()
         );
 
-        ModificationInfos creationInfos = TabularCreationInfos.builder()
+        ModificationModel creationModel = TabularCreationModel.builder()
             .modificationType(ModificationType.GENERATOR_CREATION)
             .modifications(creations)
             .build();
-        ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test").build());
-        creationInfos.toModification().apply(getNetwork(), reportNode);
+        ReportNode reportNode = creationModel.createSubReportNode(ReportNode.newRootReportNode()
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test").build());
+        creationModel.toModification().apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: 2 generators have been created", "network.modification.tabular.creation", reportNode);
         assertLogMessage("Creation of id1", "network.modification.tabular.creation.equipmentId", reportNode);
         assertLogNthMessage("Creation of id2", "network.modification.tabular.creation.equipmentId", reportNode, 2);
@@ -170,8 +173,8 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
 
     @Test
     void testAllModificationsHaveFailed() {
-        List<ModificationInfos> creations = List.of(
-            GeneratorCreationInfos.builder()
+        List<ModificationModel> creations = List.of(
+            GeneratorCreationModel.builder()
                 .equipmentId("id1").equipmentName("name1").voltageLevelId("unknown_vl").busOrBusbarSectionId("1.1")
                 .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
                 .energySource(EnergySource.HYDRO).minP(0).maxP(100).ratedS(10D)
@@ -182,7 +185,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .regulatingTerminalId("v2load").regulatingTerminalType("LOAD").regulatingTerminalVlId("v2").qPercent(35D)
                 .reactiveCapabilityCurve(false)
                 .build(),
-            GeneratorCreationInfos.builder()
+            GeneratorCreationModel.builder()
                 .equipmentId("id2").equipmentName("name2").voltageLevelId("v1").busOrBusbarSectionId("unknown_bbs")
                 .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
                 .energySource(EnergySource.HYDRO).minP(0).maxP(100).ratedS(10D)
@@ -193,7 +196,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .regulatingTerminalId("v2load").regulatingTerminalType("LOAD").regulatingTerminalVlId("v2").qPercent(35D)
                 .reactiveCapabilityCurve(false)
                 .build(),
-            GeneratorCreationInfos.builder()
+            GeneratorCreationModel.builder()
                 .equipmentId("id3").equipmentName("name3").voltageLevelId("v1").busOrBusbarSectionId("1.1")
                 .connectionName("feederId3").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
                 .energySource(EnergySource.HYDRO).minP(0).maxP(-100).ratedS(10D)
@@ -204,21 +207,21 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .regulatingTerminalId("v2load").regulatingTerminalType("LOAD").regulatingTerminalVlId("v2").qPercent(35D)
                 .reactiveCapabilityCurve(false)
                 .build(),
-            GeneratorCreationInfos.builder()
+            GeneratorCreationModel.builder()
                 .equipmentId("id4").voltageLevelId("v5").busOrBusbarSectionId("1A1")
                 .connectionName("v5generator").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .energySource(EnergySource.WIND).minP(0).maxP(200)
                 .targetP(150).voltageRegulationOn(true).targetV(375D)
                 .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsModel.builder().maxQ(3.).build(), ReactiveCapabilityCurvePointsModel.builder().maxQ(3.).build(), ReactiveCapabilityCurvePointsModel.builder().maxQ(3.).build()))
                 .build(),
-            GeneratorCreationInfos.builder()
+            GeneratorCreationModel.builder()
                 .equipmentId("id5").voltageLevelId("v5").busOrBusbarSectionId("1A1")
                 .connectionName("v5generator").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .energySource(EnergySource.WIND).minP(0).maxP(200)
                 .targetP(150).voltageRegulationOn(true).targetV(375D)
                 .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsModel.builder().p(3.).build(), ReactiveCapabilityCurvePointsModel.builder().p(3.).build(), ReactiveCapabilityCurvePointsModel.builder().p(3.).build()))
                 .build(),
-            GeneratorCreationInfos.builder()
+            GeneratorCreationModel.builder()
                 .equipmentId("id6").voltageLevelId("v5").busOrBusbarSectionId("1A1")
                 .connectionName("v5generator").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .energySource(EnergySource.WIND).minP(0).maxP(200)
@@ -226,22 +229,23 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsModel.builder().minQ(1.).p(3.).build(), ReactiveCapabilityCurvePointsModel.builder().minQ(1.).p(3.).build(), ReactiveCapabilityCurvePointsModel.builder().minQ(1.).p(3.).build()))
                 .build()
         );
-        ModificationInfos creationInfos = TabularCreationInfos.builder()
-                .modificationType(ModificationType.GENERATOR_CREATION)
-                .modifications(creations)
-                .build();
-        ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test").build());
-        creationInfos.toModification().apply(getNetwork(), reportNode);
+        ModificationModel creationModel = TabularCreationModel.builder()
+            .modificationType(ModificationType.GENERATOR_CREATION)
+            .modifications(creations)
+            .build();
+        ReportNode reportNode = creationModel.createSubReportNode(ReportNode.newRootReportNode()
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test").build());
+        creationModel.toModification().apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: No generators have been created", "network.modification.tabular.creation.error", reportNode);
         assertLogMessage("Creation errors", "network.modification.tabular.creation.error.equipmentError", reportNode);
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals(ModificationType.TABULAR_CREATION.name(), modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals(ModificationType.TABULAR_CREATION.name(), modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+        });
         assertEquals(ModificationType.GENERATOR_CREATION.name(), createdValues.get("tabularCreationType"));
     }
 

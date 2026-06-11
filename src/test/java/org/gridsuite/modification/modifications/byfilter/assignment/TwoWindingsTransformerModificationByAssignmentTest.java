@@ -10,9 +10,9 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.model.FilterEquipments;
 import org.gridsuite.modification.model.IdentifiableAttributes;
+import org.gridsuite.modification.model.ModificationByAssignmentModel;
 import org.gridsuite.modification.model.byfilter.assignment.AssignmentModel;
 import org.gridsuite.modification.model.byfilter.assignment.DoubleAssignmentModel;
 import org.gridsuite.modification.model.byfilter.assignment.IntegerAssignmentModel;
@@ -49,18 +49,17 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         IdentifiableAttributes identifiableAttributes2 = new IdentifiableAttributes(TWT_ID_6, getIdentifiableType(), 1.);
         FilterEquipments filter = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(identifiableAttributes1, identifiableAttributes2)).build();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_ID_4, filter));
-        DoubleAssignmentModel assignmentInfos = DoubleAssignmentModel.builder()
-                .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
-                .value(1.)
-                .filters(List.of(filter4))
-                .build();
+        DoubleAssignmentModel assignmentModel = DoubleAssignmentModel.builder()
+            .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
+            .value(1.)
+            .filters(List.of(filter4))
+            .build();
 
-        ModificationByAssignmentInfos modificationInfos = ModificationByAssignmentInfos.builder()
-                .equipmentType(getIdentifiableType())
-                .assignmentInfosList(List.of(assignmentInfos))
-                .stashed(false)
-                .build();
-        apply(modificationInfos);
+        ModificationByAssignmentModel modificationModel = ModificationByAssignmentModel.builder()
+            .equipmentType(getIdentifiableType())
+            .assignmentInfosList(List.of(assignmentModel))
+            .build();
+        apply(modificationModel);
 
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_4).getRatioTapChanger());
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_6).getRatioTapChanger());
@@ -70,18 +69,17 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         IdentifiableAttributes identifiableAttributes4 = new IdentifiableAttributes(TWT_ID_2, getIdentifiableType(), 1.);
         FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(identifiableAttributes3, identifiableAttributes4)).build();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_ID_1, filter2));
-        DoubleAssignmentModel assignmentInfos2 = DoubleAssignmentModel.builder()
-                .editedField(TwoWindingsTransformerField.PHASE_TAP_POSITION.name())
-                .value(1.)
-                .filters(List.of(filter1))
-                .build();
+        DoubleAssignmentModel assignmentModel2 = DoubleAssignmentModel.builder()
+            .editedField(TwoWindingsTransformerField.PHASE_TAP_POSITION.name())
+            .value(1.)
+            .filters(List.of(filter1))
+            .build();
 
-        ModificationByAssignmentInfos modificationInfos2 = ModificationByAssignmentInfos.builder()
-                .equipmentType(getIdentifiableType())
-                .assignmentInfosList(List.of(assignmentInfos2))
-                .stashed(false)
-                .build();
-        apply(modificationInfos2);
+        ModificationByAssignmentModel modificationModel2 = ModificationByAssignmentModel.builder()
+            .equipmentType(getIdentifiableType())
+            .assignmentInfosList(List.of(assignmentModel2))
+            .build();
+        apply(modificationModel2);
 
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_1).getPhaseTapChanger());
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_2).getPhaseTapChanger());
@@ -98,19 +96,18 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
 
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_ID_1, filterTwt1, FILTER_ID_4, filterTwt2));
 
-        IntegerAssignmentModel assignmentInfos = IntegerAssignmentModel.builder()
-                .filters(List.of(filter1, filter4))
-                .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
-                .value(4)
-                .build();
+        IntegerAssignmentModel assignmentModel = IntegerAssignmentModel.builder()
+            .filters(List.of(filter1, filter4))
+            .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
+            .value(4)
+            .build();
 
-        ModificationByAssignmentInfos modificationInfos = ModificationByAssignmentInfos.builder()
-                .equipmentType(getIdentifiableType())
-                .assignmentInfosList(List.of(assignmentInfos))
-                .stashed(false)
-                .build();
+        ModificationByAssignmentModel modificationModel = ModificationByAssignmentModel.builder()
+            .equipmentType(getIdentifiableType())
+            .assignmentInfosList(List.of(assignmentModel))
+            .build();
 
-        apply(modificationInfos);
+        apply(modificationModel);
 
         assertNotNull(getNetwork().getTwoWindingsTransformer(TWT_ID_1).getRatioTapChanger());
         assertNotNull(getNetwork().getTwoWindingsTransformer(TWT_ID_2).getRatioTapChanger());
@@ -152,54 +149,54 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         Substation s3 = getNetwork().getSubstation("s3");
         TwoWindingsTransformer twt1 = createTwoWindingsTransformer(s1, TWT_ID_1, TWT_ID_1, 30, 40, 50,
             60, 10, 20, 100, 100,
-                "v1", "v2",
-                "trf1", 11, ConnectablePosition.Direction.TOP,
-                "trf1", 22, ConnectablePosition.Direction.BOTTOM);
+            "v1", "v2",
+            "trf1", 11, ConnectablePosition.Direction.TOP,
+            "trf1", 22, ConnectablePosition.Direction.BOTTOM);
         twt1.setRatedS(11);
         addRatioTapChangerSteps(twt1.newRatioTapChanger().setTargetV(50).setLowTapPosition(0).setTapPosition(1).setTargetDeadband(55));
 
         TwoWindingsTransformer twt2 = createTwoWindingsTransformer(s1, TWT_ID_2, TWT_ID_2, 35, 45, 55,
             65, 15, 25, 101, 100,
-                "v1", "v4",
-                "trf1", 33, ConnectablePosition.Direction.TOP,
-                "trf1", 44, ConnectablePosition.Direction.BOTTOM);
+            "v1", "v4",
+            "trf1", 33, ConnectablePosition.Direction.TOP,
+            "trf1", 44, ConnectablePosition.Direction.BOTTOM);
         twt2.setRatedS(10);
         addRatioTapChangerSteps(twt2.newRatioTapChanger().setTargetV(53).setLowTapPosition(3).setTapPosition(4).setTargetDeadband(58));
 
         TwoWindingsTransformer twt3 = createTwoWindingsTransformer(s1, TWT_ID_3, TWT_ID_3, 40, 50, 60,
             70, 20, 30, 101, 101,
-                "v2", "v4",
-                "trf1", 10, ConnectablePosition.Direction.TOP,
-                "trf1", 20, ConnectablePosition.Direction.BOTTOM);
+            "v2", "v4",
+            "trf1", 10, ConnectablePosition.Direction.TOP,
+            "trf1", 20, ConnectablePosition.Direction.BOTTOM);
         twt3.setRatedS(25);
         addRatioTapChangerSteps(twt3.newRatioTapChanger().setTargetV(56).setLowTapPosition(0).setTapPosition(1).setTargetDeadband(61));
 
         TwoWindingsTransformer twt4 = createTwoWindingsTransformer(s3, TWT_ID_4, TWT_ID_4, 45, 55, 65,
             75, 25, 35, 100, 100,
-                "v5", "v6",
-                "trf1", 30, ConnectablePosition.Direction.TOP,
-                "trf1", 40, ConnectablePosition.Direction.BOTTOM);
+            "v5", "v6",
+            "trf1", 30, ConnectablePosition.Direction.TOP,
+            "trf1", 40, ConnectablePosition.Direction.BOTTOM);
         twt4.setRatedS(15);
         addPhaseTapChangerSteps(twt4.newPhaseTapChanger()
-                .setRegulationValue(45)
-                .setLowTapPosition(1)
-                .setTapPosition(2)
-                .setTargetDeadband(34)
-                .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL));
+            .setRegulationValue(45)
+            .setLowTapPosition(1)
+            .setTapPosition(2)
+            .setTargetDeadband(34)
+            .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL));
 
         TwoWindingsTransformer twt5 = createTwoWindingsTransformer(s3, TWT_ID_5, TWT_ID_5, 50, 60, 70,
             80, 30, 40, 101, 101,
-                "v5", "v6",
-                "trf1", 15, ConnectablePosition.Direction.TOP,
-                "trf1", 26, ConnectablePosition.Direction.BOTTOM);
+            "v5", "v6",
+            "trf1", 15, ConnectablePosition.Direction.TOP,
+            "trf1", 26, ConnectablePosition.Direction.BOTTOM);
         twt5.setRatedS(30);
         addPhaseTapChangerSteps(twt5.newPhaseTapChanger().setRegulationValue(46).setLowTapPosition(2).setTapPosition(2).setTargetDeadband(35));
 
         TwoWindingsTransformer twt6 = createTwoWindingsTransformer(s3, TWT_ID_6, TWT_ID_6, 55, 65, 75, 85,
             35, 45, 102, 102,
-                "v5", "v6",
-                "trf1", 38, ConnectablePosition.Direction.TOP,
-                "trf1", 49, ConnectablePosition.Direction.BOTTOM);
+            "v5", "v6",
+            "trf1", 38, ConnectablePosition.Direction.TOP,
+            "trf1", 49, ConnectablePosition.Direction.BOTTOM);
         twt6.setRatedS(20);
         addPhaseTapChangerSteps(twt6.newPhaseTapChanger().setRegulationValue(47).setLowTapPosition(1).setTapPosition(1).setTargetDeadband(36));
     }
@@ -230,157 +227,157 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
     }
 
     @Override
-    protected List<AssignmentModel<?>> getAssignmentInfos() {
-        DoubleAssignmentModel assignmentInfos1 = DoubleAssignmentModel.builder()
-                .filters(List.of(filter1))
-                .editedField(TwoWindingsTransformerField.TARGET_V.name())
-                .value(2.)
-                .build();
+    protected List<AssignmentModel<?>> getAssignmentModel() {
+        DoubleAssignmentModel assignmentModel1 = DoubleAssignmentModel.builder()
+            .filters(List.of(filter1))
+            .editedField(TwoWindingsTransformerField.TARGET_V.name())
+            .value(2.)
+            .build();
 
-        IntegerAssignmentModel assignmentInfos2 = IntegerAssignmentModel.builder()
-                .filters(List.of(filter2))
-                .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
-                .value(4)
-                .build();
+        IntegerAssignmentModel assignmentModel2 = IntegerAssignmentModel.builder()
+            .filters(List.of(filter2))
+            .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
+            .value(4)
+            .build();
 
-        IntegerAssignmentModel assignmentInfos3 = IntegerAssignmentModel.builder()
-                .filters(List.of(filter2))
-                .editedField(TwoWindingsTransformerField.RATIO_LOW_TAP_POSITION.name())
-                .value(4)
-                .build();
+        IntegerAssignmentModel assignmentModel3 = IntegerAssignmentModel.builder()
+            .filters(List.of(filter2))
+            .editedField(TwoWindingsTransformerField.RATIO_LOW_TAP_POSITION.name())
+            .value(4)
+            .build();
 
-        DoubleAssignmentModel assignmentInfos4 = DoubleAssignmentModel.builder()
-                .filters(List.of(filter1))
-                .editedField(TwoWindingsTransformerField.RATIO_TARGET_DEADBAND.name())
-                .value(5.)
-                .build();
+        DoubleAssignmentModel assignmentModel4 = DoubleAssignmentModel.builder()
+            .filters(List.of(filter1))
+            .editedField(TwoWindingsTransformerField.RATIO_TARGET_DEADBAND.name())
+            .value(5.)
+            .build();
 
-        DoubleAssignmentModel assignmentInfos5 = DoubleAssignmentModel.builder()
-                .filters(List.of(filter4))
-                .editedField(TwoWindingsTransformerField.REGULATION_VALUE.name())
-                .value(2.)
-                .build();
+        DoubleAssignmentModel assignmentModel5 = DoubleAssignmentModel.builder()
+            .filters(List.of(filter4))
+            .editedField(TwoWindingsTransformerField.REGULATION_VALUE.name())
+            .value(2.)
+            .build();
 
-        IntegerAssignmentModel assignmentInfos6 = IntegerAssignmentModel.builder()
-                .filters(List.of(filter3))
-                .editedField(TwoWindingsTransformerField.PHASE_TAP_POSITION.name())
-                .value(2)
-                .build();
+        IntegerAssignmentModel assignmentModel6 = IntegerAssignmentModel.builder()
+            .filters(List.of(filter3))
+            .editedField(TwoWindingsTransformerField.PHASE_TAP_POSITION.name())
+            .value(2)
+            .build();
 
-        IntegerAssignmentModel assignmentInfos7 = IntegerAssignmentModel.builder()
-                .filters(List.of(filter3))
-                .editedField(TwoWindingsTransformerField.PHASE_LOW_TAP_POSITION.name())
-                .value(2)
-                .build();
+        IntegerAssignmentModel assignmentModel7 = IntegerAssignmentModel.builder()
+            .filters(List.of(filter3))
+            .editedField(TwoWindingsTransformerField.PHASE_LOW_TAP_POSITION.name())
+            .value(2)
+            .build();
 
-        DoubleAssignmentModel assignmentInfos8 = DoubleAssignmentModel.builder()
-                .filters(List.of(filter4))
-                .editedField(TwoWindingsTransformerField.PHASE_TARGET_DEADBAND.name())
-                .value(10.)
-                .build();
+        DoubleAssignmentModel assignmentModel8 = DoubleAssignmentModel.builder()
+            .filters(List.of(filter4))
+            .editedField(TwoWindingsTransformerField.PHASE_TARGET_DEADBAND.name())
+            .value(10.)
+            .build();
 
-        DoubleAssignmentModel assignmentInfos9 = DoubleAssignmentModel.builder()
-                .filters(List.of(filter1, filter4))
-                .editedField(TwoWindingsTransformerField.X.name())
-                .value(20.)
-                .build();
+        DoubleAssignmentModel assignmentModel9 = DoubleAssignmentModel.builder()
+            .filters(List.of(filter1, filter4))
+            .editedField(TwoWindingsTransformerField.X.name())
+            .value(20.)
+            .build();
 
-        DoubleAssignmentModel assignmentInfos10 = DoubleAssignmentModel.builder()
-                .filters(List.of(filter2, filter3))
-                .editedField(TwoWindingsTransformerField.R.name())
-                .value(2.)
-                .build();
+        DoubleAssignmentModel assignmentModel10 = DoubleAssignmentModel.builder()
+            .filters(List.of(filter2, filter3))
+            .editedField(TwoWindingsTransformerField.R.name())
+            .value(2.)
+            .build();
 
-        DoubleAssignmentModel assignmentInfos11 = DoubleAssignmentModel.builder()
-                .filters(List.of(filter4, filter2))
-                .editedField(TwoWindingsTransformerField.G.name())
-                .value(25.)
-                .build();
+        DoubleAssignmentModel assignmentModel11 = DoubleAssignmentModel.builder()
+            .filters(List.of(filter4, filter2))
+            .editedField(TwoWindingsTransformerField.G.name())
+            .value(25.)
+            .build();
 
-        DoubleAssignmentModel assignmentInfos12 = DoubleAssignmentModel.builder()
-                .filters(List.of(filter1, filter3))
-                .editedField(TwoWindingsTransformerField.B.name())
-                .value(2.5)
-                .build();
+        DoubleAssignmentModel assignmentModel12 = DoubleAssignmentModel.builder()
+            .filters(List.of(filter1, filter3))
+            .editedField(TwoWindingsTransformerField.B.name())
+            .value(2.5)
+            .build();
 
-        DoubleAssignmentModel assignmentInfos13 = DoubleAssignmentModel.builder()
-                .filters(List.of(filter2))
-                .editedField(TwoWindingsTransformerField.RATED_U1.name())
-                .value(15.)
-                .build();
+        DoubleAssignmentModel assignmentModel13 = DoubleAssignmentModel.builder()
+            .filters(List.of(filter2))
+            .editedField(TwoWindingsTransformerField.RATED_U1.name())
+            .value(15.)
+            .build();
 
-        DoubleAssignmentModel assignmentInfos14 = DoubleAssignmentModel.builder()
-                .filters(List.of(filter3, filter2))
-                .editedField(TwoWindingsTransformerField.RATED_U2.name())
-                .value(0.5)
-                .build();
+        DoubleAssignmentModel assignmentModel14 = DoubleAssignmentModel.builder()
+            .filters(List.of(filter3, filter2))
+            .editedField(TwoWindingsTransformerField.RATED_U2.name())
+            .value(0.5)
+            .build();
 
-        DoubleAssignmentModel assignmentInfos15 = DoubleAssignmentModel.builder()
-                .filters(List.of(filter1, filter2))
-                .editedField(TwoWindingsTransformerField.RATED_S.name())
-                .value(2.)
-                .build();
+        DoubleAssignmentModel assignmentModel15 = DoubleAssignmentModel.builder()
+            .filters(List.of(filter1, filter2))
+            .editedField(TwoWindingsTransformerField.RATED_S.name())
+            .value(2.)
+            .build();
 
-        StringAssignmentModel assignmentInfos16 = StringAssignmentModel.builder()
+        StringAssignmentModel assignmentModel16 = StringAssignmentModel.builder()
             .filters(List.of(filter1))
             .editedField(TwoWindingsTransformerField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID1.name())
             .value("group1")
             .build();
 
-        StringAssignmentModel assignmentInfos17 = StringAssignmentModel.builder()
+        StringAssignmentModel assignmentModel17 = StringAssignmentModel.builder()
             .filters(List.of(filter2))
             .editedField(TwoWindingsTransformerField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID2.name())
             .value("group2")
             .build();
 
-        StringAssignmentModel assignmentInfos18 = StringAssignmentModel.builder()
+        StringAssignmentModel assignmentModel18 = StringAssignmentModel.builder()
             .filters(List.of(filter3))
             .editedField(TwoWindingsTransformerField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID1.name())
             .value(null)
             .build();
 
-        StringAssignmentModel assignmentInfos19 = StringAssignmentModel.builder()
+        StringAssignmentModel assignmentModel19 = StringAssignmentModel.builder()
             .filters(List.of(filter3))
             .editedField(TwoWindingsTransformerField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID2.name())
             .value("")
             .build();
 
         // High tap position is always equals to lowTapPosition + steps.size() - 1 and its modification is ignored
-        IntegerAssignmentModel assignmentInfos20 = IntegerAssignmentModel.builder()
+        IntegerAssignmentModel assignmentModel20 = IntegerAssignmentModel.builder()
             .filters(List.of(filter1))
             .editedField(TwoWindingsTransformerField.RATIO_HIGH_TAP_POSITION.name())
             .value(10)
             .build();
 
         // High tap position is always equals to lowTapPosition + steps.size() - 1 and its modification is ignored
-        IntegerAssignmentModel assignmentInfos21 = IntegerAssignmentModel.builder()
+        IntegerAssignmentModel assignmentModel21 = IntegerAssignmentModel.builder()
             .filters(List.of(filter3))
             .editedField(TwoWindingsTransformerField.PHASE_HIGH_TAP_POSITION.name())
             .value(10)
             .build();
 
-        List<AssignmentModel<?>> infosList = super.getAssignmentInfos();
-        infosList.addAll(List.of(assignmentInfos1,
-                assignmentInfos2,
-                assignmentInfos3,
-                assignmentInfos4,
-                assignmentInfos5,
-                assignmentInfos6,
-                assignmentInfos7,
-                assignmentInfos8,
-                assignmentInfos9,
-                assignmentInfos10,
-                assignmentInfos11,
-                assignmentInfos12,
-                assignmentInfos13,
-                assignmentInfos14,
-                assignmentInfos15,
-                assignmentInfos16,
-                assignmentInfos17,
-                assignmentInfos18,
-                assignmentInfos19,
-                assignmentInfos20,
-                assignmentInfos21));
+        List<AssignmentModel<?>> infosList = super.getAssignmentModel();
+        infosList.addAll(List.of(assignmentModel1,
+            assignmentModel2,
+            assignmentModel3,
+            assignmentModel4,
+            assignmentModel5,
+            assignmentModel6,
+            assignmentModel7,
+            assignmentModel8,
+            assignmentModel9,
+            assignmentModel10,
+            assignmentModel11,
+            assignmentModel12,
+            assignmentModel13,
+            assignmentModel14,
+            assignmentModel15,
+            assignmentModel16,
+            assignmentModel17,
+            assignmentModel18,
+            assignmentModel19,
+            assignmentModel20,
+            assignmentModel21));
 
         return infosList;
     }
@@ -490,100 +487,100 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
 
     private static void addRatioTapChangerSteps(RatioTapChangerAdder ratioTapChangerAdder) {
         ratioTapChangerAdder.beginStep()
-                .setR(39.78473)
-                .setX(39.784725)
-                .setG(0.0)
-                .setB(0.0)
-                .setRho(15.0)
-                .endStep()
-                .beginStep()
-                .setR(39.78474)
-                .setX(39.784726)
-                .setG(0.0)
-                .setB(0.0)
-                .setRho(15.0)
-                .endStep()
-                .beginStep()
-                .setR(39.78473)
-                .setX(39.784725)
-                .setG(0.0)
-                .setB(0.0)
-                .setRho(15.0)
-                .endStep()
-                .beginStep()
-                .setR(39.78474)
-                .setX(39.784726)
-                .setG(0.0)
-                .setB(0.0)
-                .setRho(15.0)
-                .endStep()
-                .beginStep()
-                .setR(39.78473)
-                .setX(39.784725)
-                .setG(0.0)
-                .setB(0.0)
-                .setRho(5.0)
-                .endStep()
-                .beginStep()
-                .setR(39.78474)
-                .setX(39.784726)
-                .setG(0.0)
-                .setB(0.0)
-                .setRho(15.0)
-                .endStep()
-                .add();
+            .setR(39.78473)
+            .setX(39.784725)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(15.0)
+            .endStep()
+            .beginStep()
+            .setR(39.78474)
+            .setX(39.784726)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(15.0)
+            .endStep()
+            .beginStep()
+            .setR(39.78473)
+            .setX(39.784725)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(15.0)
+            .endStep()
+            .beginStep()
+            .setR(39.78474)
+            .setX(39.784726)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(15.0)
+            .endStep()
+            .beginStep()
+            .setR(39.78473)
+            .setX(39.784725)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(5.0)
+            .endStep()
+            .beginStep()
+            .setR(39.78474)
+            .setX(39.784726)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(15.0)
+            .endStep()
+            .add();
     }
 
     private static void addPhaseTapChangerSteps(PhaseTapChangerAdder phaseTapChangerAdder) {
         phaseTapChangerAdder.beginStep()
-                .setR(39.78473)
-                .setX(39.784725)
-                .setG(0.0)
-                .setB(0.0)
-                .setRho(15.0)
-                .setAlpha(1.)
-                .endStep()
-                .beginStep()
-                .setR(39.78475)
-                .setX(39.784727)
-                .setG(0.0)
-                .setB(0.0)
-                .setRho(15.0)
-                .setAlpha(1.1)
-                .endStep()
-                .beginStep()
-                .setR(39.78473)
-                .setX(39.784725)
-                .setG(0.0)
-                .setB(0.0)
-                .setRho(15.0)
-                .setAlpha(1.)
-                .endStep()
-                .beginStep()
-                .setR(39.78475)
-                .setX(39.784727)
-                .setG(0.0)
-                .setB(0.0)
-                .setRho(15.0)
-                .setAlpha(1.1)
-                .endStep()
-                .beginStep()
-                .setR(39.78473)
-                .setX(39.784725)
-                .setG(0.0)
-                .setB(0.0)
-                .setRho(15.0)
-                .setAlpha(1.)
-                .endStep()
-                .beginStep()
-                .setR(39.78475)
-                .setX(39.784727)
-                .setG(0.0)
-                .setB(0.0)
-                .setRho(15.0)
-                .setAlpha(1.1)
-                .endStep()
-                .add();
+            .setR(39.78473)
+            .setX(39.784725)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(15.0)
+            .setAlpha(1.)
+            .endStep()
+            .beginStep()
+            .setR(39.78475)
+            .setX(39.784727)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(15.0)
+            .setAlpha(1.1)
+            .endStep()
+            .beginStep()
+            .setR(39.78473)
+            .setX(39.784725)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(15.0)
+            .setAlpha(1.)
+            .endStep()
+            .beginStep()
+            .setR(39.78475)
+            .setX(39.784727)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(15.0)
+            .setAlpha(1.1)
+            .endStep()
+            .beginStep()
+            .setR(39.78473)
+            .setX(39.784725)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(15.0)
+            .setAlpha(1.)
+            .endStep()
+            .beginStep()
+            .setR(39.78475)
+            .setX(39.784727)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(15.0)
+            .setAlpha(1.1)
+            .endStep()
+            .add();
     }
 
 }

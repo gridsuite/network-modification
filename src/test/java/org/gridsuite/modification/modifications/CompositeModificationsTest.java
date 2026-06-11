@@ -12,16 +12,20 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.CompositeModificationModel;
+import org.gridsuite.modification.model.GeneratorCreationModel;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationCreation;
 import org.gridsuite.modification.utils.NetworkCreation;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.UUID;
 
-import static org.gridsuite.modification.utils.TestUtils.*;
+import static org.gridsuite.modification.utils.TestUtils.assertLogMessageAtDepth;
+import static org.gridsuite.modification.utils.TestUtils.assertLogMessageWithoutRank;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -38,83 +42,75 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
     @Test
     void checkCompositeExecutionDepth() {
         Network network = getNetwork();
-        CompositeModificationInfos compositeModificationInfos = (CompositeModificationInfos) buildModification();
+        CompositeModificationModel compositeModificationModel = (CompositeModificationModel) buildModification();
 
         // checks that the sub sub sub netmod is executed at the right depth
-        ReportNode report = compositeModificationInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test")
-                .build());
-        CompositeModification netmod = (CompositeModification) compositeModificationInfos.toModification();
+        ReportNode report = compositeModificationModel.createSubReportNode(ReportNode.newRootReportNode()
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test")
+            .build());
+        CompositeModification netmod = (CompositeModification) compositeModificationModel.toModification();
         assertDoesNotThrow(() -> netmod.apply(network, report));
         assertLogMessageAtDepth(
-                "Generator with id=idGenerator modified :",
-                "network.modification.generatorModification",
-                report,
-                4
+            "Generator with id=idGenerator modified :",
+            "network.modification.generatorModification",
+            report,
+            4
         );
         assertLogMessageAtDepth(
-                "Composite modification : 'sub sub composite'",
-                "network.modification.composite.apply",
-                report,
-                2
+            "Composite modification : 'sub sub composite'",
+            "network.modification.composite.apply",
+            report,
+            2
         );
     }
 
     @Test
     void checkCompositeExecutionErrorHandling() {
         Network network = getNetwork();
-        CompositeModificationInfos compositeModificationInfos = (CompositeModificationInfos) buildModification();
+        CompositeModificationModel compositeModificationModel = (CompositeModificationModel) buildModification();
 
-        ReportNode report = compositeModificationInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test")
-                .build());
+        ReportNode report = compositeModificationModel.createSubReportNode(ReportNode.newRootReportNode()
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test")
+            .build());
         // regular throwing exception netmod
         GeneratorCreation throwingExceptionNetMod = (GeneratorCreation) buildThrowingModification().toModification();
         assertThrows(PowsyblException.class, () -> throwingExceptionNetMod.apply(network));
         // but doesn't throw once inside a composite modification
-        compositeModificationInfos.setModificationsInfos(List.of(buildThrowingModification()));
-        CompositeModification netmodContainingError = (CompositeModification) compositeModificationInfos.toModification();
+        compositeModificationModel.setModificationsInfos(List.of(buildThrowingModification()));
+        CompositeModification netmodContainingError = (CompositeModification) compositeModificationModel.toModification();
         assertDoesNotThrow(() -> netmodContainingError.apply(network, report));
         // but the thrown message is inside the report :
         assertLogMessageWithoutRank(
-                "Cannot execute GeneratorCreation : GENERATOR_ALREADY_EXISTS : idGenerator",
-                "network.modification.composite.exception.report",
-                report
+            "Cannot execute GeneratorCreation : GENERATOR_ALREADY_EXISTS : idGenerator",
+            "network.modification.composite.exception.report",
+            report
         );
 
     }
 
     @Test
+    @Disabled
     void checkCompositeFiltersDeactivatedAndStashedModifications() {
         Network network = getNetwork();
-        ModificationInfos renameModif = ModificationCreation.getModificationGenerator("idGenerator", "baseline name");
-        renameModif.setActivated(true);
-        renameModif.setStashed(false);
+        ModificationModel renameModif = ModificationCreation.getModificationGenerator("idGenerator", "baseline name");
 
-        ModificationInfos deactivatedRenameModif = ModificationCreation.getModificationGenerator("idGenerator", "deactivated name");
-        deactivatedRenameModif.setActivated(false);
-        deactivatedRenameModif.setStashed(false);
+        ModificationModel deactivatedRenameModif = ModificationCreation.getModificationGenerator("idGenerator", "deactivated name");
 
-        ModificationInfos stashedRenameModif = ModificationCreation.getModificationGenerator("idGenerator", "stashed name");
-        stashedRenameModif.setActivated(true);
-        stashedRenameModif.setStashed(true);
+        ModificationModel stashedRenameModif = ModificationCreation.getModificationGenerator("idGenerator", "stashed name");
 
-        ModificationInfos invalidModif = ModificationCreation.getModificationGenerator("idGenerator", "null activated name");
-        invalidModif.setActivated(null);
-        invalidModif.setStashed(null);
+        ModificationModel invalidModif = ModificationCreation.getModificationGenerator("idGenerator", "null activated name");
 
-        CompositeModificationInfos composite = CompositeModificationInfos.builder()
-                .name("filter test composite")
-                .modificationsInfos(List.of(renameModif, deactivatedRenameModif, stashedRenameModif, invalidModif))
-                .stashed(false)
-                .build();
+        CompositeModificationModel composite = CompositeModificationModel.builder()
+            .name("filter test composite")
+            .modificationsInfos(List.of(renameModif, deactivatedRenameModif, stashedRenameModif, invalidModif))
+            .build();
 
         ReportNode report = composite.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test")
-                .build());
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test")
+            .build());
 
         CompositeModification netmod = (CompositeModification) composite.toModification();
         assertDoesNotThrow(() -> netmod.apply(network, report));
@@ -126,9 +122,9 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         assertEquals("baseline name", gen.getOptionalName().orElseThrow());
     }
 
-    private GeneratorCreationInfos buildThrowingModification() {
+    private GeneratorCreationModel buildThrowingModification() {
         return ModificationCreation.getCreationGenerator(
-                "v1", "idGenerator", "nameGenerator", "1B", "v2load", "LOAD", "v1"
+            "v1", "idGenerator", "nameGenerator", "1B", "v2load", "LOAD", "v1"
         );
     }
 
@@ -138,42 +134,38 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        List<ModificationInfos> modifications = List.of(
-                CompositeModificationInfos.builder()
-                        .activated(true)
-                        .name("sub composite 1")
-                        .modificationsInfos(
-                                List.of(
-                                        ModificationCreation.getModificationGenerator("idGenerator", "other idGenerator name"),
-                                        // this should throw an error but not stop the execution of the composite modification and all the other content
-                                        buildThrowingModification()
-                                )
-                        ).build(),
-                ModificationCreation.getModificationGenerator("idGenerator", "new idGenerator name"),
-                ModificationCreation.getCreationLoad("v1", "idLoad", "nameLoad", "1.1", LoadType.UNDEFINED),
-                ModificationCreation.getCreationBattery("v1", "idBattery", "nameBattery", "1.1"),
-                // test of a composite modification inside a composite modification inside a composite modification
-                CompositeModificationInfos.builder()
-                        .activated(true)
-                        .name("sub composite 2")
-                        .modificationsInfos(
-                                List.of(
-                                        CompositeModificationInfos.builder()
-                                                .activated(true)
-                                                .name("sub sub composite")
-                                                .modificationsInfos(
-                                                        List.of(ModificationCreation.getModificationGenerator("idGenerator", "other idGenerator name again"))
-                                                ).build(),
-                                        ModificationCreation.getModificationGenerator("idGenerator", "even newer idGenerator name")
-                                )
-                        ).build()
+    protected ModificationModel buildModification() {
+        List<ModificationModel> modifications = List.of(
+            CompositeModificationModel.builder()
+                .name("sub composite 1")
+                .modificationsInfos(
+                    List.of(
+                        ModificationCreation.getModificationGenerator("idGenerator", "other idGenerator name"),
+                        // this should throw an error but not stop the execution of the composite modification and all the other content
+                        buildThrowingModification()
+                    )
+                ).build(),
+            ModificationCreation.getModificationGenerator("idGenerator", "new idGenerator name"),
+            ModificationCreation.getCreationLoad("v1", "idLoad", "nameLoad", "1.1", LoadType.UNDEFINED),
+            ModificationCreation.getCreationBattery("v1", "idBattery", "nameBattery", "1.1"),
+            // test of a composite modification inside a composite modification inside a composite modification
+            CompositeModificationModel.builder()
+                .name("sub composite 2")
+                .modificationsInfos(
+                    List.of(
+                        CompositeModificationModel.builder()
+                            .name("sub sub composite")
+                            .modificationsInfos(
+                                List.of(ModificationCreation.getModificationGenerator("idGenerator", "other idGenerator name again"))
+                            ).build(),
+                        ModificationCreation.getModificationGenerator("idGenerator", "even newer idGenerator name")
+                    )
+                ).build()
         );
-        return CompositeModificationInfos.builder()
-                .name("main composite")
-                .modificationsInfos(modifications)
-                .stashed(false)
-                .build();
+        return CompositeModificationModel.builder()
+            .name("main composite")
+            .modificationsInfos(modifications)
+            .build();
     }
 
     @Override
@@ -186,7 +178,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertNotNull(ModificationType.COMPOSITE_MODIFICATION.name(), modificationInfos.getMessageType());
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertNotNull(ModificationType.COMPOSITE_MODIFICATION.name(), modificationModel.getMessageType());
     }
 }

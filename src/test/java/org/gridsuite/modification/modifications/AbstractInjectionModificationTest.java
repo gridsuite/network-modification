@@ -7,8 +7,8 @@
 package org.gridsuite.modification.modifications;
 
 import com.powsybl.iidm.network.Injection;
-import org.gridsuite.modification.dto.InjectionModificationInfos;
 import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.model.InjectionModificationModel;
 import org.gridsuite.modification.model.OperationType;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,11 +19,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 abstract class AbstractInjectionModificationTest extends AbstractNetworkModificationTest {
     protected void assertChangeConnectionState(Injection<?> existingEquipment, boolean expectedState) throws Exception {
-        assertChangeConnectionState(existingEquipment, (InjectionModificationInfos) buildModification(), expectedState);
+        assertChangeConnectionState(existingEquipment, (InjectionModificationModel) buildModification(), expectedState);
     }
 
-    protected void assertChangeConnectionState(Injection<?> existingEquipment, InjectionModificationInfos modificationInfos, boolean expectedState) throws Exception {
-        modificationInfos.setTerminalConnected(new AttributeModification<>(expectedState, OperationType.SET));
+    protected void assertChangeConnectionState(Injection<?> existingEquipment, InjectionModificationModel modificationModel, boolean expectedState) throws Exception {
+        modificationModel.setTerminalConnected(new AttributeModification<>(expectedState, OperationType.SET));
 
         if (expectedState) {
             if (existingEquipment.getTerminal().isConnected()) {
@@ -36,12 +36,12 @@ abstract class AbstractInjectionModificationTest extends AbstractNetworkModifica
         }
         assertThat(existingEquipment.getTerminal().isConnected()).isNotEqualTo(expectedState);
 
-        modificationInfos.toModification().apply(getNetwork());
+        modificationModel.toModification().apply(getNetwork());
         // connection state has changed as expected
         assertThat(existingEquipment.getTerminal().isConnected()).isEqualTo(expectedState);
 
         // try to modify again => no change on connection state
-        modificationInfos.toModification().apply(getNetwork());
+        modificationModel.toModification().apply(getNetwork());
         assertThat(existingEquipment.getTerminal().isConnected()).isEqualTo(expectedState);
     }
 }

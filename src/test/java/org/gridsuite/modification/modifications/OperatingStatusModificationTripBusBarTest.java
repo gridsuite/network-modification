@@ -10,8 +10,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
-import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.OperatingStatusModificationInfos;
+import org.gridsuite.modification.model.ModificationModel;
+import org.gridsuite.modification.model.OperatingStatusModificationModel;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.gridsuite.modification.utils.TestUtils;
 
@@ -39,11 +39,10 @@ class OperatingStatusModificationTripBusBarTest extends AbstractNetworkModificat
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        return OperatingStatusModificationInfos.builder()
-                .stashed(false)
-                .equipmentId(TARGET_BUSBAR_ID)
-                .action(OperatingStatusModificationInfos.ActionType.TRIP).build();
+    protected ModificationModel buildModification() {
+        return OperatingStatusModificationModel.builder()
+            .equipmentId(TARGET_BUSBAR_ID)
+            .action(OperatingStatusModificationModel.ActionType.TRIP).build();
     }
 
     @Override
@@ -53,9 +52,10 @@ class OperatingStatusModificationTripBusBarTest extends AbstractNetworkModificat
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("OPERATING_STATUS_MODIFICATION", modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals("OPERATING_STATUS_MODIFICATION", modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+        });
         assertEquals("TRIP", createdValues.get("action"));
     }
 

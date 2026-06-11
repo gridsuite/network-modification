@@ -10,10 +10,10 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.model.FilterEquipments;
 import org.gridsuite.modification.model.FilterModel;
 import org.gridsuite.modification.model.IdentifiableAttributes;
+import org.gridsuite.modification.model.ModificationByAssignmentModel;
 import org.gridsuite.modification.model.byfilter.assignment.AssignmentModel;
 import org.gridsuite.modification.model.byfilter.assignment.BooleanAssignmentModel;
 import org.gridsuite.modification.model.byfilter.assignment.DoubleAssignmentModel;
@@ -51,69 +51,68 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
     void testCreateWithWarning() {
         IdentifiableAttributes identifiableAttributes = new IdentifiableAttributes(GENERATOR_ID_1, getIdentifiableType(), 1.0);
         FilterEquipments filter = FilterEquipments.builder().filterId(FILTER_WITH_ONE_WRONG_ID)
-                .identifiableAttributes(List.of(identifiableAttributes))
-                .notFoundEquipments(List.of("wrongId"))
-                .build();
+            .identifiableAttributes(List.of(identifiableAttributes))
+            .notFoundEquipments(List.of("wrongId"))
+            .build();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_WITH_ONE_WRONG_ID, filter));
 
-        DoubleAssignmentModel assignmentInfos = DoubleAssignmentModel.builder()
-                .filters(List.of(filterWithOneWrongId))
-                .editedField(GeneratorField.ACTIVE_POWER_SET_POINT.name())
-                .value(55.)
-                .build();
+        DoubleAssignmentModel assignmentModel = DoubleAssignmentModel.builder()
+            .filters(List.of(filterWithOneWrongId))
+            .editedField(GeneratorField.ACTIVE_POWER_SET_POINT.name())
+            .value(55.)
+            .build();
 
-        ModificationByAssignmentInfos modificationInfos = ModificationByAssignmentInfos.builder()
-                .equipmentType(getIdentifiableType())
-                .assignmentInfosList(List.of(assignmentInfos))
-                .stashed(false)
-                .build();
-        apply(modificationInfos);
+        ModificationByAssignmentModel modificationModel = ModificationByAssignmentModel.builder()
+            .equipmentType(getIdentifiableType())
+            .assignmentInfosList(List.of(assignmentModel))
+            .build();
+        apply(modificationModel);
         assertEquals(55, getNetwork().getGenerator(GENERATOR_ID_1).getTargetP(), 0);
     }
 
     @Override
     protected void createEquipments() {
         getNetwork().getGenerator(GENERATOR_ID_1)
-                .setTargetP(100)
-                .setMaxP(500)
-                .setMinP(0)
-                .setTargetV(10)
-                .setTargetQ(20)
-                .newExtension(GeneratorStartupAdder.class)
-                .withMarginalCost(30.)
-                .withPlannedOutageRate(0.25)
-                .withPlannedActivePowerSetpoint(40.)
-                .withForcedOutageRate(0.55)
-                .add();
+            .setTargetP(100)
+            .setMaxP(500)
+            .setMinP(0)
+            .setTargetV(10)
+            .setTargetQ(20)
+            .newExtension(GeneratorStartupAdder.class)
+            .withMarginalCost(30.)
+            .withPlannedOutageRate(0.25)
+            .withPlannedActivePowerSetpoint(40.)
+            .withForcedOutageRate(0.55)
+            .add();
 
         getNetwork().getGenerator(GENERATOR_ID_2)
-                .setTargetP(200)
-                .setMaxP(2000)
-                .setMinP(10)
-                .setTargetV(10)
-                .setTargetQ(20)
-                .newExtension(GeneratorStartupAdder.class)
-                .withMarginalCost(30.)
-                .withPlannedOutageRate(0.25)
-                .withPlannedActivePowerSetpoint(40.)
-                .withForcedOutageRate(0.55)
-                .add();
+            .setTargetP(200)
+            .setMaxP(2000)
+            .setMinP(10)
+            .setTargetV(10)
+            .setTargetQ(20)
+            .newExtension(GeneratorStartupAdder.class)
+            .withMarginalCost(30.)
+            .withPlannedOutageRate(0.25)
+            .withPlannedActivePowerSetpoint(40.)
+            .withForcedOutageRate(0.55)
+            .add();
 
         getNetwork().getGenerator(GENERATOR_ID_3)
-                .setTargetP(300)
-                .setMaxP(2000)
-                .setMinP(70)
-                .newExtension(GeneratorShortCircuitAdder.class)
-                .withDirectTransX(40.)
-                .withStepUpTransformerX(38.)
-                .add();
+            .setTargetP(300)
+            .setMaxP(2000)
+            .setMinP(70)
+            .newExtension(GeneratorShortCircuitAdder.class)
+            .withDirectTransX(40.)
+            .withStepUpTransformerX(38.)
+            .add();
 
         createGenerator(getNetwork().getVoltageLevel("v1"), GENERATOR_ID_4, 3, 400, 1.0, "cn10", 11, ConnectablePosition.Direction.TOP, 700, 110);
         getNetwork().getGenerator(GENERATOR_ID_4)
-                        .newExtension(GeneratorShortCircuitAdder.class)
-                        .withDirectTransX(46.)
-                        .withStepUpTransformerX(50.)
-                        .add();
+            .newExtension(GeneratorShortCircuitAdder.class)
+            .withDirectTransX(46.)
+            .withStepUpTransformerX(50.)
+            .add();
 
         createGenerator(getNetwork().getVoltageLevel("v1"), GENERATOR_ID_5, 20, 200, 1.0, "cn10", 12, ConnectablePosition.Direction.TOP, 2000, 50);
         getNetwork().getGenerator(GENERATOR_ID_5).newExtension(ActivePowerControlAdder.class).withDroop(2).add();
@@ -123,14 +122,14 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
 
         createGenerator(getNetwork().getVoltageLevel("v6"), GENERATOR_ID_7, 10, 200, 1.0, "cn10", 14, ConnectablePosition.Direction.TOP, 2000, 50);
         getNetwork().getGenerator(GENERATOR_ID_7).newExtension(CoordinatedReactiveControlAdder.class)
-                        .withQPercent(6)
-                        .add();
+            .withQPercent(6)
+            .add();
         getNetwork().getGenerator(GENERATOR_ID_7).newExtension(GeneratorStartupAdder.class).withMarginalCost(50).add();
 
         createGenerator(getNetwork().getVoltageLevel("v3"), GENERATOR_ID_8, 10, 100, 1.0, "cn10", 15, ConnectablePosition.Direction.TOP, 500, 20);
         getNetwork().getGenerator(GENERATOR_ID_8).newExtension(CoordinatedReactiveControlAdder.class)
-                .withQPercent(12)
-                .add();
+            .withQPercent(12)
+            .add();
         getNetwork().getGenerator(GENERATOR_ID_8).newExtension(GeneratorStartupAdder.class).withMarginalCost(60).add();
 
         createGenerator(getNetwork().getVoltageLevel("v4"), GENERATOR_ID_9, 10, 200, 1.0, "cn10", 16, ConnectablePosition.Direction.TOP, 2000, 50);
@@ -142,194 +141,194 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
         // use to get warning
         createGenerator(getNetwork().getVoltageLevel("v5"), GENERATOR_ID_11, 12, 100, 1.0, "cn10", 19, ConnectablePosition.Direction.TOP, 500, 20);
         getNetwork().getGenerator(GENERATOR_ID_11)
-                .setTargetV(10)
-                .newExtension(GeneratorStartupAdder.class)
-                .withMarginalCost(30.)
-                .withPlannedOutageRate(0.25)
-                .withPlannedActivePowerSetpoint(40.)
-                .withForcedOutageRate(0.55)
-                .add();
+            .setTargetV(10)
+            .newExtension(GeneratorStartupAdder.class)
+            .withMarginalCost(30.)
+            .withPlannedOutageRate(0.25)
+            .withPlannedActivePowerSetpoint(40.)
+            .withForcedOutageRate(0.55)
+            .add();
     }
 
     @Override
     protected Map<UUID, FilterEquipments> getTestFilters() {
         FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_1, IdentifiableType.GENERATOR, 1.0),
-            new IdentifiableAttributes(GENERATOR_ID_2, IdentifiableType.GENERATOR, 2.0)))
-                .build();
+                new IdentifiableAttributes(GENERATOR_ID_1, IdentifiableType.GENERATOR, 1.0),
+                new IdentifiableAttributes(GENERATOR_ID_2, IdentifiableType.GENERATOR, 2.0)))
+            .build();
 
         FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_3, IdentifiableType.GENERATOR, 2.0),
-            new IdentifiableAttributes(GENERATOR_ID_4, IdentifiableType.GENERATOR, 5.0)))
-                .build();
+                new IdentifiableAttributes(GENERATOR_ID_3, IdentifiableType.GENERATOR, 2.0),
+                new IdentifiableAttributes(GENERATOR_ID_4, IdentifiableType.GENERATOR, 5.0)))
+            .build();
 
         FilterEquipments filter3 = FilterEquipments.builder().filterId(FILTER_ID_3).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_5, IdentifiableType.GENERATOR, 6.0),
-            new IdentifiableAttributes(GENERATOR_ID_6, IdentifiableType.GENERATOR, 7.0)))
-                .build();
+                new IdentifiableAttributes(GENERATOR_ID_5, IdentifiableType.GENERATOR, 6.0),
+                new IdentifiableAttributes(GENERATOR_ID_6, IdentifiableType.GENERATOR, 7.0)))
+            .build();
 
         FilterEquipments filter4 = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_7, IdentifiableType.GENERATOR, 3.0),
-            new IdentifiableAttributes(GENERATOR_ID_8, IdentifiableType.GENERATOR, 8.0)))
-                .build();
+                new IdentifiableAttributes(GENERATOR_ID_7, IdentifiableType.GENERATOR, 3.0),
+                new IdentifiableAttributes(GENERATOR_ID_8, IdentifiableType.GENERATOR, 8.0)))
+            .build();
 
         FilterEquipments filter5 = FilterEquipments.builder().filterId(FILTER_ID_5).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_9, IdentifiableType.GENERATOR, 0.0),
-            new IdentifiableAttributes(GENERATOR_ID_10, IdentifiableType.GENERATOR, 9.0)))
-                .build();
+                new IdentifiableAttributes(GENERATOR_ID_9, IdentifiableType.GENERATOR, 0.0),
+                new IdentifiableAttributes(GENERATOR_ID_10, IdentifiableType.GENERATOR, 9.0)))
+            .build();
 
         FilterEquipments filter6 = FilterEquipments.builder().filterId(FILTER_ID_6).identifiableAttributes(List.of(
-                        new IdentifiableAttributes(GENERATOR_ID_11, IdentifiableType.GENERATOR, 1.0)))
-                .build();
+                new IdentifiableAttributes(GENERATOR_ID_11, IdentifiableType.GENERATOR, 1.0)))
+            .build();
 
         return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3, FILTER_ID_4, filter4, FILTER_ID_5, filter5, FILTER_ID_6, filter6);
     }
 
     @Override
-    protected List<AssignmentModel<?>> getAssignmentInfos() {
+    protected List<AssignmentModel<?>> getAssignmentModel() {
 
-        DoubleAssignmentModel assignmentInfos1 = DoubleAssignmentModel.builder()
-                .editedField(GeneratorField.REACTIVE_POWER_SET_POINT.name())
-                .value(50.)
-                .filters(List.of(filter1, filter2))
-                .build();
+        DoubleAssignmentModel assignmentModel1 = DoubleAssignmentModel.builder()
+            .editedField(GeneratorField.REACTIVE_POWER_SET_POINT.name())
+            .value(50.)
+            .filters(List.of(filter1, filter2))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos2 = DoubleAssignmentModel.builder()
-                .editedField(GeneratorField.DROOP.name())
-                .value(2.)
-                .filters(List.of(filter3))
-                .build();
+        DoubleAssignmentModel assignmentModel2 = DoubleAssignmentModel.builder()
+            .editedField(GeneratorField.DROOP.name())
+            .value(2.)
+            .filters(List.of(filter3))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos3 = DoubleAssignmentModel.builder()
-                .editedField(GeneratorField.RATED_NOMINAL_POWER.name())
-                .value(2.)
-                .filters(List.of(filter5))
-                .build();
+        DoubleAssignmentModel assignmentModel3 = DoubleAssignmentModel.builder()
+            .editedField(GeneratorField.RATED_NOMINAL_POWER.name())
+            .value(2.)
+            .filters(List.of(filter5))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos4 = DoubleAssignmentModel.builder()
-                .editedField(GeneratorField.MARGINAL_COST.name())
-                .value(2.)
-                .filters(List.of(filter1))
-                .build();
+        DoubleAssignmentModel assignmentModel4 = DoubleAssignmentModel.builder()
+            .editedField(GeneratorField.MARGINAL_COST.name())
+            .value(2.)
+            .filters(List.of(filter1))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos5 = DoubleAssignmentModel.builder()
-                .editedField(GeneratorField.VOLTAGE_SET_POINT.name())
-                .value(2.)
-                .filters(List.of(filter4))
-                .build();
+        DoubleAssignmentModel assignmentModel5 = DoubleAssignmentModel.builder()
+            .editedField(GeneratorField.VOLTAGE_SET_POINT.name())
+            .value(2.)
+            .filters(List.of(filter4))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos6 = DoubleAssignmentModel.builder()
-                .editedField(GeneratorField.PLANNED_ACTIVE_POWER_SET_POINT.name())
-                .value(10.)
-                .filters(List.of(filter1))
-                .build();
+        DoubleAssignmentModel assignmentModel6 = DoubleAssignmentModel.builder()
+            .editedField(GeneratorField.PLANNED_ACTIVE_POWER_SET_POINT.name())
+            .value(10.)
+            .filters(List.of(filter1))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos7 = DoubleAssignmentModel.builder()
-                .editedField(GeneratorField.MINIMUM_ACTIVE_POWER.name())
-                .value(2.)
-                .filters(List.of(filter1, filter2))
-                .build();
+        DoubleAssignmentModel assignmentModel7 = DoubleAssignmentModel.builder()
+            .editedField(GeneratorField.MINIMUM_ACTIVE_POWER.name())
+            .value(2.)
+            .filters(List.of(filter1, filter2))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos8 = DoubleAssignmentModel.builder()
-                .editedField(GeneratorField.PLANNED_OUTAGE_RATE.name())
-                .value(0.1)
-                .filters(List.of(filter1))
-                .build();
+        DoubleAssignmentModel assignmentModel8 = DoubleAssignmentModel.builder()
+            .editedField(GeneratorField.PLANNED_OUTAGE_RATE.name())
+            .value(0.1)
+            .filters(List.of(filter1))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos9 = DoubleAssignmentModel.builder()
-                .editedField(GeneratorField.FORCED_OUTAGE_RATE.name())
-                .value(0.05)
-                .filters(List.of(filter1))
-                .build();
+        DoubleAssignmentModel assignmentModel9 = DoubleAssignmentModel.builder()
+            .editedField(GeneratorField.FORCED_OUTAGE_RATE.name())
+            .value(0.05)
+            .filters(List.of(filter1))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos10 = DoubleAssignmentModel.builder()
-                .editedField(GeneratorField.MAXIMUM_ACTIVE_POWER.name())
-                .value(300.)
-                .filters(List.of(filter1, filter2, filter3, filter4, filter5))
-                .build();
+        DoubleAssignmentModel assignmentModel10 = DoubleAssignmentModel.builder()
+            .editedField(GeneratorField.MAXIMUM_ACTIVE_POWER.name())
+            .value(300.)
+            .filters(List.of(filter1, filter2, filter3, filter4, filter5))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos11 = DoubleAssignmentModel.builder()
-                .editedField(GeneratorField.TRANSIENT_REACTANCE.name())
-                .value(0.2)
-                .filters(List.of(filter2))
-                .build();
+        DoubleAssignmentModel assignmentModel11 = DoubleAssignmentModel.builder()
+            .editedField(GeneratorField.TRANSIENT_REACTANCE.name())
+            .value(0.2)
+            .filters(List.of(filter2))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos12 = DoubleAssignmentModel.builder()
-                .editedField(GeneratorField.STEP_UP_TRANSFORMER_REACTANCE.name())
-                .value(0.3)
-                .filters(List.of(filter2))
-                .build();
+        DoubleAssignmentModel assignmentModel12 = DoubleAssignmentModel.builder()
+            .editedField(GeneratorField.STEP_UP_TRANSFORMER_REACTANCE.name())
+            .value(0.3)
+            .filters(List.of(filter2))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos13 = DoubleAssignmentModel.builder()
-                .editedField(GeneratorField.Q_PERCENT.name())
-                .value(0.25)
-                .filters(List.of(filter4))
-                .build();
+        DoubleAssignmentModel assignmentModel13 = DoubleAssignmentModel.builder()
+            .editedField(GeneratorField.Q_PERCENT.name())
+            .value(0.25)
+            .filters(List.of(filter4))
+            .build();
 
-        BooleanAssignmentModel assignmentInfos14 = BooleanAssignmentModel.builder()
-                .editedField(GeneratorField.VOLTAGE_REGULATOR_ON.name())
-                .value(true)
-                .filters(List.of(filter1))
-                .build();
+        BooleanAssignmentModel assignmentModel14 = BooleanAssignmentModel.builder()
+            .editedField(GeneratorField.VOLTAGE_REGULATOR_ON.name())
+            .value(true)
+            .filters(List.of(filter1))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos15 = DoubleAssignmentModel.builder()
-                .editedField(GeneratorField.TRANSIENT_REACTANCE.name())
-                .value(Double.NaN)
-                .filters(List.of(filter1))
-                .build();
+        DoubleAssignmentModel assignmentModel15 = DoubleAssignmentModel.builder()
+            .editedField(GeneratorField.TRANSIENT_REACTANCE.name())
+            .value(Double.NaN)
+            .filters(List.of(filter1))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos16 = DoubleAssignmentModel.builder()
-                .editedField(GeneratorField.STEP_UP_TRANSFORMER_REACTANCE.name())
-                .value(Double.NaN)
-                .filters(List.of(filter1))
-                .build();
+        DoubleAssignmentModel assignmentModel16 = DoubleAssignmentModel.builder()
+            .editedField(GeneratorField.STEP_UP_TRANSFORMER_REACTANCE.name())
+            .value(Double.NaN)
+            .filters(List.of(filter1))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos17 = DoubleAssignmentModel.builder()
-                .editedField(GeneratorField.PLANNED_OUTAGE_RATE.name())
-                .value(10.)
-                .filters(List.of(filter6))
-                .build();
+        DoubleAssignmentModel assignmentModel17 = DoubleAssignmentModel.builder()
+            .editedField(GeneratorField.PLANNED_OUTAGE_RATE.name())
+            .value(10.)
+            .filters(List.of(filter6))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos18 = DoubleAssignmentModel.builder()
-                .editedField(GeneratorField.FORCED_OUTAGE_RATE.name())
-                .value(11.)
-                .filters(List.of(filter6))
-                .build();
+        DoubleAssignmentModel assignmentModel18 = DoubleAssignmentModel.builder()
+            .editedField(GeneratorField.FORCED_OUTAGE_RATE.name())
+            .value(11.)
+            .filters(List.of(filter6))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos19 = DoubleAssignmentModel.builder()
-                .editedField(GeneratorField.Q_PERCENT.name())
-                .value(120.)
-                .filters(List.of(filter6))
-                .build();
+        DoubleAssignmentModel assignmentModel19 = DoubleAssignmentModel.builder()
+            .editedField(GeneratorField.Q_PERCENT.name())
+            .value(120.)
+            .filters(List.of(filter6))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos20 = DoubleAssignmentModel.builder()
+        DoubleAssignmentModel assignmentModel20 = DoubleAssignmentModel.builder()
             .editedField(GeneratorField.Q_PERCENT.name())
             .value(120.)
             .filters(List.of(new FilterModel(UUID.randomUUID(), "filterNotFound")))
             .build();
 
-        List<AssignmentModel<?>> infosList = super.getAssignmentInfos();
+        List<AssignmentModel<?>> infosList = super.getAssignmentModel();
         infosList.addAll(List.of(
-                assignmentInfos1,
-                assignmentInfos2,
-                assignmentInfos3,
-                assignmentInfos4,
-                assignmentInfos5,
-                assignmentInfos6,
-                assignmentInfos7,
-                assignmentInfos8,
-                assignmentInfos9,
-                assignmentInfos10,
-                assignmentInfos11,
-                assignmentInfos12,
-                assignmentInfos13,
-                assignmentInfos14,
-                assignmentInfos15,
-                assignmentInfos16,
-                assignmentInfos17,
-                assignmentInfos18,
-                assignmentInfos19,
-                assignmentInfos20
+            assignmentModel1,
+            assignmentModel2,
+            assignmentModel3,
+            assignmentModel4,
+            assignmentModel5,
+            assignmentModel6,
+            assignmentModel7,
+            assignmentModel8,
+            assignmentModel9,
+            assignmentModel10,
+            assignmentModel11,
+            assignmentModel12,
+            assignmentModel13,
+            assignmentModel14,
+            assignmentModel15,
+            assignmentModel16,
+            assignmentModel17,
+            assignmentModel18,
+            assignmentModel19,
+            assignmentModel20
         ));
 
         return infosList;
@@ -419,19 +418,19 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
         assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(17).getChildren().getFirst().getMessage());
         assertEquals("Edited field : PLANNED_OUTAGE_RATE", reportNode.getChildren().getFirst().getChildren().get(17).getChildren().get(1).getMessage());
         assertEquals("Cannot modify equipment gen11 : MODIFY_GENERATOR_ERROR : Generator 'gen11' : must have PLANNED_OUTAGE_RATE between 0 and 1",
-                reportNode.getChildren().getFirst().getChildren().get(17).getChildren().get(2).getMessage());
+            reportNode.getChildren().getFirst().getChildren().get(17).getChildren().get(2).getMessage());
 
         assertEquals("Assignment on filters : filter6", reportNode.getChildren().getFirst().getChildren().get(18).getMessage());
         assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(18).getChildren().getFirst().getMessage());
         assertEquals("Edited field : FORCED_OUTAGE_RATE", reportNode.getChildren().getFirst().getChildren().get(18).getChildren().get(1).getMessage());
         assertEquals("Cannot modify equipment gen11 : MODIFY_GENERATOR_ERROR : Generator 'gen11' : must have FORCED_OUTAGE_RATE between 0 and 1",
-                reportNode.getChildren().getFirst().getChildren().get(18).getChildren().get(2).getMessage());
+            reportNode.getChildren().getFirst().getChildren().get(18).getChildren().get(2).getMessage());
 
         assertEquals("Assignment on filters : filter6", reportNode.getChildren().getFirst().getChildren().get(19).getMessage());
         assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(19).getChildren().getFirst().getMessage());
         assertEquals("Edited field : Q_PERCENT", reportNode.getChildren().getFirst().getChildren().get(19).getChildren().get(1).getMessage());
         assertEquals("Cannot modify equipment gen11 : MODIFY_GENERATOR_ERROR : Generator 'gen11' : must have Q_Percent between 0 and 100",
-                reportNode.getChildren().getFirst().getChildren().get(19).getChildren().get(2).getMessage());
+            reportNode.getChildren().getFirst().getChildren().get(19).getChildren().get(2).getMessage());
     }
 
     @Override

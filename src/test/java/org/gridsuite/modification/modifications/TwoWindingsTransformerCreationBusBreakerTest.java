@@ -11,13 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.model.CurrentLimitsModel;
-import org.gridsuite.modification.model.CurrentTemporaryLimitCreationModel;
-import org.gridsuite.modification.model.FreePropertyModel;
-import org.gridsuite.modification.model.PhaseTapChangerCreationModel;
-import org.gridsuite.modification.model.RatioTapChangerCreationModel;
-import org.gridsuite.modification.model.TapChangerStepCreationModel;
+import org.gridsuite.modification.model.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +20,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.BUS_NOT_FOUND;
-import static org.gridsuite.modification.model.OperationalLimitsGroupModel.*;
+import static org.gridsuite.modification.model.OperationalLimitsGroupModel.Applicability;
+import static org.gridsuite.modification.model.OperationalLimitsGroupModel.builder;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -42,146 +37,145 @@ class TwoWindingsTransformerCreationBusBreakerTest extends AbstractNetworkModifi
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        return TwoWindingsTransformerCreationInfos.builder()
-                .stashed(false)
-                .equipmentId("new2wt")
-                .equipmentName("new2wt")
-                .r(1.)
-                .x(2.)
-                .g(3.)
-                .b(4.)
-                .ratedU1(5.)
-                .ratedU2(6.)
-                .ratedS(1.)
-                .voltageLevelId1("v1")
-                .busOrBusbarSectionId1("bus1")
-                .connected1(true)
-                .voltageLevelId2("v12")
-                .busOrBusbarSectionId2("bus12")
-                .connected2(true)
-                .operationalLimitsGroups(
-                    List.of(
-                        builder()
-                            .id("limitSet1")
-                            .currentLimits(
-                                    CurrentLimitsModel.builder()
-                            .permanentLimit(3.)
-                            .temporaryLimits(
+    protected ModificationModel buildModification() {
+        return TwoWindingsTransformerCreationModel.builder()
+            .equipmentId("new2wt")
+            .equipmentName("new2wt")
+            .r(1.)
+            .x(2.)
+            .g(3.)
+            .b(4.)
+            .ratedU1(5.)
+            .ratedU2(6.)
+            .ratedS(1.)
+            .voltageLevelId1("v1")
+            .busOrBusbarSectionId1("bus1")
+            .connected1(true)
+            .voltageLevelId2("v12")
+            .busOrBusbarSectionId2("bus12")
+            .connected2(true)
+            .operationalLimitsGroups(
+                List.of(
+                    builder()
+                        .id("limitSet1")
+                        .currentLimits(
+                            CurrentLimitsModel.builder()
+                                .permanentLimit(3.)
+                                .temporaryLimits(
                                     List.of(CurrentTemporaryLimitCreationModel.builder().name("IT5").acceptableDuration(98647).value(45.).build())
-                            ).build()
+                                ).build()
                         ).applicability(Applicability.SIDE1).build(),
-                        builder()
-                            .id("limitSet2")
-                            .currentLimits(
-                                CurrentLimitsModel.builder()
-                                    .permanentLimit(2.)
-                                    .temporaryLimits(
-                                        List.of(CurrentTemporaryLimitCreationModel.builder().name("IT10").acceptableDuration(683647).value(791.).build())
-                                    ).build()).applicability(Applicability.SIDE2)
-                            .build()
-                    )
+                    builder()
+                        .id("limitSet2")
+                        .currentLimits(
+                            CurrentLimitsModel.builder()
+                                .permanentLimit(2.)
+                                .temporaryLimits(
+                                    List.of(CurrentTemporaryLimitCreationModel.builder().name("IT10").acceptableDuration(683647).value(791.).build())
+                                ).build()).applicability(Applicability.SIDE2)
+                        .build()
                 )
-                .selectedOperationalLimitsGroupId1("limitSet1")
-                .selectedOperationalLimitsGroupId2("limitSet2")
-                .connectionName1("cn201")
-                .connectionDirection1(ConnectablePosition.Direction.TOP)
-                .connectionName2("cn202")
-                .connectionDirection2(ConnectablePosition.Direction.TOP)
-                .phaseTapChanger(PhaseTapChangerCreationModel.builder()
-                        .lowTapPosition(1)
-                        .tapPosition(2)
-                        .terminalRefConnectableId("idGenerator1")
-                        .terminalRefConnectableVlId("v1")
-                        .regulating(false)
-                        .terminalRefConnectableType("GENERATOR")
-                        .regulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
-                        .steps(List.of(TapChangerStepCreationModel.builder()
-                                        .index(1)
-                                        .rho(1)
-                                        .r(0)
-                                        .x(0)
-                                        .g(0)
-                                        .b(0)
-                                        .alpha(0)
-                                        .build(),
-                                TapChangerStepCreationModel.builder()
-                                        .index(2)
-                                        .rho(1)
-                                        .r(0)
-                                        .x(0)
-                                        .g(0)
-                                        .b(0)
-                                        .alpha(0.)
-                                        .build(),
-                                TapChangerStepCreationModel.builder()
-                                        .index(3)
-                                        .rho(1)
-                                        .r(0)
-                                        .x(0)
-                                        .g(0)
-                                        .b(0)
-                                        .alpha(0.)
-                                        .build()
-                        )).build())
-                .ratioTapChanger(RatioTapChangerCreationModel.builder()
-                        .lowTapPosition(5)
-                        .tapPosition(6)
-                        .regulating(true)
-                        .targetDeadband(1.)
-                        .terminalRefConnectableId("idGenerator1")
-                        .terminalRefConnectableVlId("v2")
-                        .terminalRefConnectableType("GENERATOR")
-                        .loadTapChangingCapabilities(true)
-                        .targetV(5.)
-                        .steps(List.of(TapChangerStepCreationModel.builder()
-                                        .index(5)
-                                        .rho(1)
-                                        .r(0)
-                                        .x(0)
-                                        .g(0)
-                                        .b(0)
-                                        .build(),
-                                TapChangerStepCreationModel.builder()
-                                        .index(6)
-                                        .rho(1)
-                                        .r(0)
-                                        .x(0)
-                                        .g(0)
-                                        .b(0)
-                                        .build(),
-                                TapChangerStepCreationModel.builder()
-                                        .index(7)
-                                        .rho(1)
-                                        .r(0)
-                                        .x(0)
-                                        .g(0)
-                                        .b(0)
-                                        .build(),
-                                TapChangerStepCreationModel.builder()
-                                        .index(8)
-                                        .rho(1)
-                                        .r(0)
-                                        .x(0)
-                                        .g(0)
-                                        .b(0)
-                                        .build()
-                        ))
-                        .build())
-                .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
-                .build();
+            )
+            .selectedOperationalLimitsGroupId1("limitSet1")
+            .selectedOperationalLimitsGroupId2("limitSet2")
+            .connectionName1("cn201")
+            .connectionDirection1(ConnectablePosition.Direction.TOP)
+            .connectionName2("cn202")
+            .connectionDirection2(ConnectablePosition.Direction.TOP)
+            .phaseTapChanger(PhaseTapChangerCreationModel.builder()
+                .lowTapPosition(1)
+                .tapPosition(2)
+                .terminalRefConnectableId("idGenerator1")
+                .terminalRefConnectableVlId("v1")
+                .regulating(false)
+                .terminalRefConnectableType("GENERATOR")
+                .regulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
+                .steps(List.of(TapChangerStepCreationModel.builder()
+                        .index(1)
+                        .rho(1)
+                        .r(0)
+                        .x(0)
+                        .g(0)
+                        .b(0)
+                        .alpha(0)
+                        .build(),
+                    TapChangerStepCreationModel.builder()
+                        .index(2)
+                        .rho(1)
+                        .r(0)
+                        .x(0)
+                        .g(0)
+                        .b(0)
+                        .alpha(0.)
+                        .build(),
+                    TapChangerStepCreationModel.builder()
+                        .index(3)
+                        .rho(1)
+                        .r(0)
+                        .x(0)
+                        .g(0)
+                        .b(0)
+                        .alpha(0.)
+                        .build()
+                )).build())
+            .ratioTapChanger(RatioTapChangerCreationModel.builder()
+                .lowTapPosition(5)
+                .tapPosition(6)
+                .regulating(true)
+                .targetDeadband(1.)
+                .terminalRefConnectableId("idGenerator1")
+                .terminalRefConnectableVlId("v2")
+                .terminalRefConnectableType("GENERATOR")
+                .loadTapChangingCapabilities(true)
+                .targetV(5.)
+                .steps(List.of(TapChangerStepCreationModel.builder()
+                        .index(5)
+                        .rho(1)
+                        .r(0)
+                        .x(0)
+                        .g(0)
+                        .b(0)
+                        .build(),
+                    TapChangerStepCreationModel.builder()
+                        .index(6)
+                        .rho(1)
+                        .r(0)
+                        .x(0)
+                        .g(0)
+                        .b(0)
+                        .build(),
+                    TapChangerStepCreationModel.builder()
+                        .index(7)
+                        .rho(1)
+                        .r(0)
+                        .x(0)
+                        .g(0)
+                        .b(0)
+                        .build(),
+                    TapChangerStepCreationModel.builder()
+                        .index(8)
+                        .rho(1)
+                        .r(0)
+                        .x(0)
+                        .g(0)
+                        .b(0)
+                        .build()
+                ))
+                .build())
+            .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+            .build();
     }
 
     @Override
     protected void checkModification() {
-        TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos = (TwoWindingsTransformerCreationInfos) buildModification();
-        twoWindingsTransformerCreationInfos.setEquipmentId("");
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> twoWindingsTransformerCreationInfos.toModification().apply(getNetwork()));
+        TwoWindingsTransformerCreationModel twoWindingsTransformerCreationModel = (TwoWindingsTransformerCreationModel) buildModification();
+        twoWindingsTransformerCreationModel.setEquipmentId("");
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> twoWindingsTransformerCreationModel.toModification().apply(getNetwork()));
         assertEquals("Invalid id ''", exception.getMessage());
 
-        twoWindingsTransformerCreationInfos.setEquipmentId("new2wt");
-        twoWindingsTransformerCreationInfos.setBusOrBusbarSectionId1("notFoundBus");
-        exception = assertThrows(PowsyblException.class, () -> twoWindingsTransformerCreationInfos.toModification().check(getNetwork()));
+        twoWindingsTransformerCreationModel.setEquipmentId("new2wt");
+        twoWindingsTransformerCreationModel.setBusOrBusbarSectionId1("notFoundBus");
+        exception = assertThrows(PowsyblException.class, () -> twoWindingsTransformerCreationModel.toModification().check(getNetwork()));
         assertEquals(BUS_NOT_FOUND + " : notFoundBus", exception.getMessage());
     }
 
@@ -204,138 +198,136 @@ class TwoWindingsTransformerCreationBusBreakerTest extends AbstractNetworkModifi
     @Test
     void testCreateTwoWindingsTransformerWithRatioTapChangerInBusBreaker() throws Exception {
         // create new 2wt in voltage level with Bus/breaker topology, having a RatioTapChanger
-        RatioTapChangerCreationModel ratioTapChangerCreationInfos = RatioTapChangerCreationModel.builder()
-                .lowTapPosition(0)
-                .tapPosition(1)
-                .regulating(true)
-                .targetDeadband(null)
-                .terminalRefConnectableVlId("v1")
-                .terminalRefConnectableId("idGenerator1")
-                .terminalRefConnectableType("GENERATOR")
-                .loadTapChangingCapabilities(true)
-                .targetV(220.)
-                .steps(getTapChangerSteps())
-                .build();
+        RatioTapChangerCreationModel ratioTapChangerCreationModel = RatioTapChangerCreationModel.builder()
+            .lowTapPosition(0)
+            .tapPosition(1)
+            .regulating(true)
+            .targetDeadband(null)
+            .terminalRefConnectableVlId("v1")
+            .terminalRefConnectableId("idGenerator1")
+            .terminalRefConnectableType("GENERATOR")
+            .loadTapChangingCapabilities(true)
+            .targetV(220.)
+            .steps(getTapChangerSteps())
+            .build();
         // create new 2wt in voltage level with bus/breaker topology
-        TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos = TwoWindingsTransformerCreationInfos.builder()
-                .stashed(false)
-                .equipmentId("id2wt1")
-                .equipmentName("2wtName")
-                .voltageLevelId1("v1")
-                .busOrBusbarSectionId1("bus1")
-                .connected1(true)
-                .voltageLevelId2("v12")
-                .busOrBusbarSectionId2("bus12")
-                .connected2(true)
-                .g(100.0)
-                .b(200.0)
-                .ratedU1(1000)
-                .ratedU2(1010)
-                .x(300)
-                .r(400)
-                .ratedS(200.)
-                .ratioTapChanger(ratioTapChangerCreationInfos)
-                .build();
-        testCreateTwoWindingsTransformerInBusBreaker(twoWindingsTransformerCreationInfos);
-        TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos2 = TwoWindingsTransformerCreationInfos.builder()
-                .stashed(false)
-                .equipmentId("id2wt1WithRatioTapChanger2")
-                .equipmentName("2wtName")
-                .voltageLevelId1("v1")
-                .busOrBusbarSectionId1("bus1")
-                .connected1(true)
-                .voltageLevelId2("v12")
-                .busOrBusbarSectionId2("bus12")
-                .connected2(true)
-                .g(100.0)
-                .b(200.0)
-                .ratedU1(1000)
-                .ratedU2(1010)
-                .x(300)
-                .r(400)
-                .connectionDirection1(ConnectablePosition.Direction.TOP)
-                .connectionDirection2(ConnectablePosition.Direction.TOP)
-                .ratioTapChanger(ratioTapChangerCreationInfos)
-                .build();
-        testCreateTwoWindingsTransformerInBusBreaker(twoWindingsTransformerCreationInfos2);
+        TwoWindingsTransformerCreationModel twoWindingsTransformerCreationModel = TwoWindingsTransformerCreationModel.builder()
+            .equipmentId("id2wt1")
+            .equipmentName("2wtName")
+            .voltageLevelId1("v1")
+            .busOrBusbarSectionId1("bus1")
+            .connected1(true)
+            .voltageLevelId2("v12")
+            .busOrBusbarSectionId2("bus12")
+            .connected2(true)
+            .g(100.0)
+            .b(200.0)
+            .ratedU1(1000)
+            .ratedU2(1010)
+            .x(300)
+            .r(400)
+            .ratedS(200.)
+            .ratioTapChanger(ratioTapChangerCreationModel)
+            .build();
+        testCreateTwoWindingsTransformerInBusBreaker(twoWindingsTransformerCreationModel);
+        TwoWindingsTransformerCreationModel twoWindingsTransformerCreationModel2 = TwoWindingsTransformerCreationModel.builder()
+            .equipmentId("id2wt1WithRatioTapChanger2")
+            .equipmentName("2wtName")
+            .voltageLevelId1("v1")
+            .busOrBusbarSectionId1("bus1")
+            .connected1(true)
+            .voltageLevelId2("v12")
+            .busOrBusbarSectionId2("bus12")
+            .connected2(true)
+            .g(100.0)
+            .b(200.0)
+            .ratedU1(1000)
+            .ratedU2(1010)
+            .x(300)
+            .r(400)
+            .connectionDirection1(ConnectablePosition.Direction.TOP)
+            .connectionDirection2(ConnectablePosition.Direction.TOP)
+            .ratioTapChanger(ratioTapChangerCreationModel)
+            .build();
+        testCreateTwoWindingsTransformerInBusBreaker(twoWindingsTransformerCreationModel2);
     }
 
     @Test
     void testCreateTwoWindingsTransformerWithPhaseTapChangerInBusBreaker() throws Exception {
         // create new 2wt in voltage level with Bus/breaker topology, having a PhaseTapChanger
-        PhaseTapChangerCreationModel phaseTapChangerCreationInfos = PhaseTapChangerCreationModel.builder()
-                .lowTapPosition(0)
-                .tapPosition(1)
-                .regulating(true)
-                .targetDeadband(null)
-                .regulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
-                .regulationValue(10.0)
-                .terminalRefConnectableVlId("v1")
-                .terminalRefConnectableId("idGenerator1")
-                .terminalRefConnectableType("GENERATOR")
-                .steps(getTapChangerSteps())
-                .build();
-        TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos = TwoWindingsTransformerCreationInfos.builder()
-                .stashed(false)
-                .equipmentId("id2wt1WithPhaseTapChanger")
-                .equipmentName("2wtName")
-                .voltageLevelId1("v1")
-                .busOrBusbarSectionId1("bus1")
-                .voltageLevelId2("v12")
-                .busOrBusbarSectionId2("bus12")
-                .g(100.0)
-                .b(200.0)
-                .ratedU1(1000)
-                .ratedU2(1010)
-                .x(300)
-                .r(400)
-                .connectionName1("cnid2wt1")
-                .connectionDirection1(ConnectablePosition.Direction.TOP)
-                .connected1(true)
-                .connectionName2("cnid2wt2")
-                .connectionDirection2(ConnectablePosition.Direction.TOP)
-                .connected2(true)
-                .phaseTapChanger(phaseTapChangerCreationInfos)
-                .build();
-        testCreateTwoWindingsTransformerInBusBreaker(twoWindingsTransformerCreationInfos);
+        PhaseTapChangerCreationModel phaseTapChangerCreationModel = PhaseTapChangerCreationModel.builder()
+            .lowTapPosition(0)
+            .tapPosition(1)
+            .regulating(true)
+            .targetDeadband(null)
+            .regulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+            .regulationValue(10.0)
+            .terminalRefConnectableVlId("v1")
+            .terminalRefConnectableId("idGenerator1")
+            .terminalRefConnectableType("GENERATOR")
+            .steps(getTapChangerSteps())
+            .build();
+        TwoWindingsTransformerCreationModel twoWindingsTransformerCreationModel = TwoWindingsTransformerCreationModel.builder()
+            .equipmentId("id2wt1WithPhaseTapChanger")
+            .equipmentName("2wtName")
+            .voltageLevelId1("v1")
+            .busOrBusbarSectionId1("bus1")
+            .voltageLevelId2("v12")
+            .busOrBusbarSectionId2("bus12")
+            .g(100.0)
+            .b(200.0)
+            .ratedU1(1000)
+            .ratedU2(1010)
+            .x(300)
+            .r(400)
+            .connectionName1("cnid2wt1")
+            .connectionDirection1(ConnectablePosition.Direction.TOP)
+            .connected1(true)
+            .connectionName2("cnid2wt2")
+            .connectionDirection2(ConnectablePosition.Direction.TOP)
+            .connected2(true)
+            .phaseTapChanger(phaseTapChangerCreationModel)
+            .build();
+        testCreateTwoWindingsTransformerInBusBreaker(twoWindingsTransformerCreationModel);
     }
 
-    private void testCreateTwoWindingsTransformerInBusBreaker(TwoWindingsTransformerCreationInfos twoWindingsTransformerCreationInfos) throws Exception {
-        final String transformerId = twoWindingsTransformerCreationInfos.getEquipmentId();
-        twoWindingsTransformerCreationInfos.toModification().apply(getNetwork());
+    private void testCreateTwoWindingsTransformerInBusBreaker(TwoWindingsTransformerCreationModel twoWindingsTransformerCreationModel) throws Exception {
+        final String transformerId = twoWindingsTransformerCreationModel.getEquipmentId();
+        twoWindingsTransformerCreationModel.toModification().apply(getNetwork());
         assertNotNull(getNetwork().getTwoWindingsTransformer(transformerId));  // transformer was created
     }
 
     private static List<TapChangerStepCreationModel> getTapChangerSteps() {
         return List.of(
-                TapChangerStepCreationModel.builder()
-                        .r(39.78473)
-                        .x(39.784725)
-                        .g(0.)
-                        .b(0.)
-                        .rho(1.)
-                        .build(),
-                TapChangerStepCreationModel.builder()
-                        .r(39.78474)
-                        .x(39.784726)
-                        .g(0.)
-                        .b(0.)
-                        .rho(1.)
-                        .build(),
-                TapChangerStepCreationModel.builder()
-                        .r(39.78475)
-                        .x(39.784727)
-                        .g(0.)
-                        .b(0.)
-                        .rho(1.)
-                        .build()
+            TapChangerStepCreationModel.builder()
+                .r(39.78473)
+                .x(39.784725)
+                .g(0.)
+                .b(0.)
+                .rho(1.)
+                .build(),
+            TapChangerStepCreationModel.builder()
+                .r(39.78474)
+                .x(39.784726)
+                .g(0.)
+                .b(0.)
+                .rho(1.)
+                .build(),
+            TapChangerStepCreationModel.builder()
+                .r(39.78475)
+                .x(39.784727)
+                .g(0.)
+                .b(0.)
+                .rho(1.)
+                .build()
         );
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("TWO_WINDINGS_TRANSFORMER_CREATION", modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals("TWO_WINDINGS_TRANSFORMER_CREATION", modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+        });
         assertEquals("new2wt", createdValues.get("equipmentId"));
     }
 }

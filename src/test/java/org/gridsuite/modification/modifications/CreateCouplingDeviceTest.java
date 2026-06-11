@@ -11,9 +11,9 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
-import org.gridsuite.modification.dto.CreateCouplingDeviceInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.model.CouplingDeviceModel;
+import org.gridsuite.modification.model.CreateCouplingDeviceModel;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
 import org.junit.jupiter.api.Assertions;
@@ -42,9 +42,8 @@ class CreateCouplingDeviceTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        return CreateCouplingDeviceInfos.builder()
-            .stashed(false)
+    protected ModificationModel buildModification() {
+        return CreateCouplingDeviceModel.builder()
             .voltageLevelId("v1")
             .couplingDeviceInfos(CouplingDeviceModel.builder()
                 .busbarSectionId1("bbs1")
@@ -64,26 +63,26 @@ class CreateCouplingDeviceTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("ADD_COUPLING_DEVICE", modificationInfos.getMessageType());
-        Map<String, String> updatedValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals("ADD_COUPLING_DEVICE", modificationModel.getMessageType());
+        Map<String, String> updatedValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+        });
         assertEquals("v1", updatedValues.get("voltageLevelId"));
     }
 
     @Test
     void testCreateCouplingDeviceFail() {
-        CreateCouplingDeviceInfos createCouplingDeviceInfos = CreateCouplingDeviceInfos.builder()
-            .stashed(false)
+        CreateCouplingDeviceModel createCouplingDeviceModel = CreateCouplingDeviceModel.builder()
             .voltageLevelId("v1")
             .couplingDeviceInfos(CouplingDeviceModel.builder()
                 .busbarSectionId1("bbs1")
                 .busbarSectionId2("bbs2")
                 .build())
             .build();
-        Map<String, String> updatedValues = createCouplingDeviceInfos.getMapMessageValues();
+        Map<String, String> updatedValues = createCouplingDeviceModel.getMapMessageValues();
         assertEquals("v1", updatedValues.get("voltageLevelId"));
         Network network = getNetwork();
-        AbstractModification modification = createCouplingDeviceInfos.toModification();
+        AbstractModification modification = createCouplingDeviceModel.toModification();
         ReportNode report = ReportNode.newRootReportNode()
             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test")

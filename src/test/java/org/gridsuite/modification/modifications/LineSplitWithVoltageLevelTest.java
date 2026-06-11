@@ -10,8 +10,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.LineSplitWithVoltageLevelInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.model.LineSplitWithVoltageLevelModel;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.utils.NetworkCreation;
 
 import java.util.List;
@@ -34,9 +34,8 @@ class LineSplitWithVoltageLevelTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        return LineSplitWithVoltageLevelInfos.builder()
-            .stashed(false)
+    protected ModificationModel buildModification() {
+        return LineSplitWithVoltageLevelModel.builder()
             .lineToSplitId("line2")
             .percent(10.0)
             .mayNewVoltageLevelInfos(null)
@@ -66,39 +65,40 @@ class LineSplitWithVoltageLevelTest extends AbstractNetworkModificationTest {
     @Override
     protected void checkModification() {
         // try to create an already existing line
-        LineSplitWithVoltageLevelInfos tryWithNewLine1Id = (LineSplitWithVoltageLevelInfos) buildModification();
+        LineSplitWithVoltageLevelModel tryWithNewLine1Id = (LineSplitWithVoltageLevelModel) buildModification();
         tryWithNewLine1Id.setNewLine1Id("line1");
         Exception exception = assertThrows(NetworkModificationException.class, () -> tryWithNewLine1Id.toModification().check(getNetwork()));
         assertEquals(new NetworkModificationException(LINE_ALREADY_EXISTS, "line1").getMessage(),
-                exception.getMessage());
+            exception.getMessage());
 
         // same test with "newLine2Id"
-        LineSplitWithVoltageLevelInfos tryWithNewLine2Id = (LineSplitWithVoltageLevelInfos) buildModification();
+        LineSplitWithVoltageLevelModel tryWithNewLine2Id = (LineSplitWithVoltageLevelModel) buildModification();
         tryWithNewLine2Id.setNewLine2Id("line1");
         exception = assertThrows(NetworkModificationException.class, () -> tryWithNewLine2Id.toModification().check(getNetwork()));
         assertEquals(new NetworkModificationException(LINE_ALREADY_EXISTS, "line1").getMessage(),
-                exception.getMessage());
+            exception.getMessage());
 
         // testCreateWithWrongBusBar
         // not existing busbar
-        LineSplitWithVoltageLevelInfos tryWithBadId = (LineSplitWithVoltageLevelInfos) buildModification();
+        LineSplitWithVoltageLevelModel tryWithBadId = (LineSplitWithVoltageLevelModel) buildModification();
         tryWithBadId.setBbsOrBusId("999A");
         exception = assertThrows(NetworkModificationException.class, () -> tryWithBadId.toModification().check(getNetwork()));
         assertEquals(new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, "999A").getMessage(),
-                exception.getMessage());
+            exception.getMessage());
 
         // try with a switch, not a busbar
-        LineSplitWithVoltageLevelInfos tryWithSwitchId = (LineSplitWithVoltageLevelInfos) buildModification();
+        LineSplitWithVoltageLevelModel tryWithSwitchId = (LineSplitWithVoltageLevelModel) buildModification();
         tryWithSwitchId.setBbsOrBusId("v1d1");
         exception = assertThrows(NetworkModificationException.class, () -> tryWithSwitchId.toModification().check(getNetwork()));
         assertEquals(new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, "v1d1").getMessage(),
-                exception.getMessage());
+            exception.getMessage());
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("LINE_SPLIT_WITH_VOLTAGE_LEVEL", modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals("LINE_SPLIT_WITH_VOLTAGE_LEVEL", modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+        });
         assertEquals("line2", createdValues.get("lineToSplitId"));
     }
 }

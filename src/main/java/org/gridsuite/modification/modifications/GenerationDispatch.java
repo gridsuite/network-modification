@@ -19,11 +19,7 @@ import org.gridsuite.filter.AbstractFilter;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.model.FilterEquipments;
-import org.gridsuite.modification.model.GeneratorsFilterModel;
-import org.gridsuite.modification.model.IdentifiableAttributes;
-import org.gridsuite.modification.model.SubstationsGeneratorsOrderingModel;
+import org.gridsuite.modification.model.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -57,12 +53,12 @@ public class GenerationDispatch extends AbstractModification {
     private static final String GENERATORS_WITHOUT_OUTAGE = "generatorsWithoutOutage";
     private static final String GENERATORS_FREQUENCY_RESERVE = "generatorsFrequencyReserve";
 
-    private final GenerationDispatchInfos generationDispatchInfos;
+    private final GenerationDispatchModel generationDispatchModel;
 
     protected IFilterService filterService;
 
-    public GenerationDispatch(GenerationDispatchInfos generationDispatchInfos) {
-        this.generationDispatchInfos = generationDispatchInfos;
+    public GenerationDispatch(GenerationDispatchModel generationDispatchModel) {
+        this.generationDispatchModel = generationDispatchModel;
     }
 
     private static void report(ReportNode reportNode, String key, Map<String, Object> values, TypedValue severity) {
@@ -85,41 +81,41 @@ public class GenerationDispatch extends AbstractModification {
     private static double computeTotalActiveBatteryTargetP(Component component) {
         Objects.requireNonNull(component);
         return component.getBusStream().flatMap(Bus::getBatteryStream)
-                .filter(battery -> battery.getTerminal().isConnected())
-                .mapToDouble(Battery::getTargetP)
-                .sum();
+            .filter(battery -> battery.getTerminal().isConnected())
+            .mapToDouble(Battery::getTargetP)
+            .sum();
     }
 
     private static double computeTotalAmountFixedSupply(Network network, Component component, List<String> generatorsWithFixedSupply, ReportNode reportNode) {
         double totalAmountFixedSupply = 0.;
         List<Generator> generatorsWithoutSetpointList = new ArrayList<>();
         totalAmountFixedSupply += generatorsWithFixedSupply.stream().map(network::getGenerator)
-                .filter(generator -> generator != null && generator.getTerminal().isConnected() &&
-                        generator.getTerminal().getBusView().getBus().getSynchronousComponent().getNum() == component.getNum())
-                .peek(generator -> {
-                    GeneratorStartup startupExtension = generator.getExtension(GeneratorStartup.class);
-                    if (startupExtension != null && !Double.isNaN(startupExtension.getPlannedActivePowerSetpoint())) {
-                        generator.setTargetP(startupExtension.getPlannedActivePowerSetpoint());
-                    } else {
-                        generator.setTargetP(0.);
-                        generatorsWithoutSetpointList.add(generator);
+            .filter(generator -> generator != null && generator.getTerminal().isConnected() &&
+                generator.getTerminal().getBusView().getBus().getSynchronousComponent().getNum() == component.getNum())
+            .peek(generator -> {
+                GeneratorStartup startupExtension = generator.getExtension(GeneratorStartup.class);
+                if (startupExtension != null && !Double.isNaN(startupExtension.getPlannedActivePowerSetpoint())) {
+                    generator.setTargetP(startupExtension.getPlannedActivePowerSetpoint());
+                } else {
+                    generator.setTargetP(0.);
+                    generatorsWithoutSetpointList.add(generator);
 
-                    }
-                })
-                .mapToDouble(Generator::getTargetP).sum();
+                }
+            })
+            .mapToDouble(Generator::getTargetP).sum();
         if (!generatorsWithoutSetpointList.isEmpty()) {
             boolean plural = generatorsWithoutSetpointList.size() > 1;
             report(reportNode, "network.modification.GeneratorsWithoutPredefinedActivePowerSetpoint",
-                    Map.of("numGeneratorsWithoutSetpoint", generatorsWithoutSetpointList.size(),
-                            IS_PLURAL, plural ? "s do" : " does",
-                            ITS_PURAL, plural ? "Their" : "Its"),
+                Map.of("numGeneratorsWithoutSetpoint", generatorsWithoutSetpointList.size(),
+                    IS_PLURAL, plural ? "s do" : " does",
+                    ITS_PURAL, plural ? "Their" : "Its"),
                 TypedValue.INFO_SEVERITY);
         }
 
         // Report details for each generator without a predefined setpoint
         generatorsWithoutSetpointList.forEach(generator ->
-                report(reportNode, "network.modification.MissingPredefinedActivePowerSetpointForGenerator",
-                        Map.of("generatorId", generator.getId()), TypedValue.DETAIL_SEVERITY));
+            report(reportNode, "network.modification.MissingPredefinedActivePowerSetpointForGenerator",
+                Map.of("generatorId", generator.getId()), TypedValue.DETAIL_SEVERITY));
         return totalAmountFixedSupply;
     }
 
@@ -179,19 +175,19 @@ public class GenerationDispatch extends AbstractModification {
 
         // get generators with marginal cost
         List<Generator> generatorsWithMarginalCost = generators.stream()
-                .filter(generator -> getGeneratorMarginalCost(generator) != null)
-                .collect(Collectors.toList());
+            .filter(generator -> getGeneratorMarginalCost(generator) != null)
+            .collect(Collectors.toList());
         int nbNoCost = generators.size() - generatorsWithMarginalCost.size();
         if (nbNoCost > 0) {
             report(reportNode, "network.modification.NbGeneratorsWithNoCost",
-                    Map.of("nbNoCost", nbNoCost,
-                            IS_PLURAL, nbNoCost > 1 ? "s have" : " has"),
-                    TypedValue.INFO_SEVERITY);
+                Map.of("nbNoCost", nbNoCost,
+                    IS_PLURAL, nbNoCost > 1 ? "s have" : " has"),
+                TypedValue.INFO_SEVERITY);
         }
         generators.stream()
             .filter(generator -> getGeneratorMarginalCost(generator) == null)
             .forEach(g -> report(reportNode, "network.modification.MissingMarginalCostForGenerator",
-                    Map.of(GENERATOR, g.getId()), TypedValue.DETAIL_SEVERITY)
+                Map.of(GENERATOR, g.getId()), TypedValue.DETAIL_SEVERITY)
             );
 
         // build map of generators by marginal cost
@@ -205,26 +201,26 @@ public class GenerationDispatch extends AbstractModification {
         return generatorsByMarginalCost;
     }
 
-    private static void reportUnknownSubstations(Network network, List<SubstationsGeneratorsOrderingModel> substationsGeneratorsOrderingInfos, ReportNode reportNode) {
-        if (!CollectionUtils.isEmpty(substationsGeneratorsOrderingInfos)) {
-            substationsGeneratorsOrderingInfos.forEach(sInfo ->
-                    sInfo.getSubstationIds().forEach(sId -> {
-                        Substation substation = network.getSubstation(sId);
-                        if (substation == null) {
-                            report(reportNode, "network.modification.SubstationNotFound",
-                                    Map.of(SUBSTATION, sId), TypedValue.WARN_SEVERITY);
-                        }
-                    }));
+    private static void reportUnknownSubstations(Network network, List<SubstationsGeneratorsOrderingModel> substationsGeneratorsOrderingModel, ReportNode reportNode) {
+        if (!CollectionUtils.isEmpty(substationsGeneratorsOrderingModel)) {
+            substationsGeneratorsOrderingModel.forEach(sInfo ->
+                sInfo.getSubstationIds().forEach(sId -> {
+                    Substation substation = network.getSubstation(sId);
+                    if (substation == null) {
+                        report(reportNode, "network.modification.SubstationNotFound",
+                            Map.of(SUBSTATION, sId), TypedValue.WARN_SEVERITY);
+                    }
+                }));
         }
     }
 
     private static List<Generator> computeAdjustableGenerators(Network network, Component component, List<String> generatorsWithFixedSupply,
-                                                               List<SubstationsGeneratorsOrderingModel> substationsGeneratorsOrderingInfos,
+                                                               List<SubstationsGeneratorsOrderingModel> substationsGeneratorsOrderingModel,
                                                                ReportNode reportNode) {
         List<String> generatorsToReturn = new ArrayList<>();
 
         // log substations not found
-        reportUnknownSubstations(network, substationsGeneratorsOrderingInfos, reportNode);
+        reportUnknownSubstations(network, substationsGeneratorsOrderingModel, reportNode);
 
         // get all connected generators in the component
         List<Generator> generators = component.getBusStream().flatMap(Bus::getGeneratorStream).collect(Collectors.toList());
@@ -234,12 +230,12 @@ public class GenerationDispatch extends AbstractModification {
 
         Map<Double, List<String>> generatorsByMarginalCost = getGeneratorsByMarginalCost(generators, reportNode);
         generatorsByMarginalCost.forEach((mCost, gList) -> {  // loop on generators of same cost
-            if (!CollectionUtils.isEmpty(substationsGeneratorsOrderingInfos)) {  // substations hierarchy provided
+            if (!CollectionUtils.isEmpty(substationsGeneratorsOrderingModel)) {  // substations hierarchy provided
                 // build mapGeneratorsBySubstationsList, that will contain all the generators with the same marginal cost as mCost contained in each list of substations
                 LinkedHashMap<Integer, Set<String>> mapGeneratorsBySubstationsList = new LinkedHashMap<>();
 
                 AtomicInteger i = new AtomicInteger(0);
-                substationsGeneratorsOrderingInfos.forEach(sInfo -> {
+                substationsGeneratorsOrderingModel.forEach(sInfo -> {
                     mapGeneratorsBySubstationsList.computeIfAbsent(i.get(), k -> new TreeSet<>());
 
                     // get generators with marginal cost == mCost in all substations of the current list
@@ -310,30 +306,30 @@ public class GenerationDispatch extends AbstractModification {
         public void endReport(List<Generator> adjustableGenerators) {
             // report updated generators
             report(reportNode, "network.modification.TotalGeneratorSetTargetP",
-                    Map.of("nbUpdatedGenerator", updatedGenerators.size(), IS_PLURAL, updatedGenerators.size() > 1 ? "s" : ""), TypedValue.INFO_SEVERITY);
+                Map.of("nbUpdatedGenerator", updatedGenerators.size(), IS_PLURAL, updatedGenerators.size() > 1 ? "s" : ""), TypedValue.INFO_SEVERITY);
             updatedGenerators.forEach(g -> report(reportNode, "network.modification.GeneratorSetTargetP",
-                    Map.of(GENERATOR, g.getId(), "newValue", round(g.getTargetP())), TypedValue.DETAIL_SEVERITY));
+                Map.of(GENERATOR, g.getId(), "newValue", round(g.getTargetP())), TypedValue.DETAIL_SEVERITY));
 
             // report unchanged generators
             int nbUnchangedGenerators = adjustableGenerators.size() - updatedGenerators.size();
             if (nbUnchangedGenerators > 0) {
                 List<String> updatedGeneratorsIds = updatedGenerators.stream().map(Identifiable::getId).toList();
                 report(reportNode, "network.modification.TotalGeneratorUnchangedTargetP",
-                        Map.of("nbUnchangedGenerator", nbUnchangedGenerators,
-                                IS_PLURAL, nbUnchangedGenerators > 1 ? "s have" : " has"), TypedValue.INFO_SEVERITY);
+                    Map.of("nbUnchangedGenerator", nbUnchangedGenerators,
+                        IS_PLURAL, nbUnchangedGenerators > 1 ? "s have" : " has"), TypedValue.INFO_SEVERITY);
                 adjustableGenerators.stream()
-                        .filter(g -> !updatedGeneratorsIds.contains(g.getId()))
-                        .forEach(g -> report(reportNode, "network.modification.GeneratorUnchangedTargetP",
-                                Map.of(GENERATOR, g.getId()), TypedValue.DETAIL_SEVERITY));
+                    .filter(g -> !updatedGeneratorsIds.contains(g.getId()))
+                    .forEach(g -> report(reportNode, "network.modification.GeneratorUnchangedTargetP",
+                        Map.of(GENERATOR, g.getId()), TypedValue.DETAIL_SEVERITY));
             }
             // report the max marginal cost used
             Double maxUsedMarginalCost = updatedGenerators.stream()
-                    .map(GenerationDispatch::getGeneratorMarginalCost)
-                    .filter(Objects::nonNull)
-                    .mapToDouble(Double::doubleValue).max().orElseThrow();
+                .map(GenerationDispatch::getGeneratorMarginalCost)
+                .filter(Objects::nonNull)
+                .mapToDouble(Double::doubleValue).max().orElseThrow();
 
             report(reportNode, "network.modification.MaxUsedMarginalCost",
-                    Map.of("maxUsedMarginalCost", maxUsedMarginalCost), TypedValue.INFO_SEVERITY);
+                Map.of("maxUsedMarginalCost", maxUsedMarginalCost), TypedValue.INFO_SEVERITY);
         }
     }
 
@@ -351,11 +347,11 @@ public class GenerationDispatch extends AbstractModification {
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        double lossCoefficient = generationDispatchInfos.getLossCoefficient();
+        double lossCoefficient = generationDispatchModel.getLossCoefficient();
         if (lossCoefficient < 0. || lossCoefficient > 100.) {
             throw new NetworkModificationException(GENERATION_DISPATCH_ERROR, "The loss coefficient must be between 0 and 100");
         }
-        double defaultOutageRate = generationDispatchInfos.getDefaultOutageRate();
+        double defaultOutageRate = generationDispatchModel.getDefaultOutageRate();
         if (defaultOutageRate < 0. || defaultOutageRate > 100.) {
             throw new NetworkModificationException(GENERATION_DISPATCH_ERROR, "The default outage rate must be between 0 and 100");
         }
@@ -398,15 +394,15 @@ public class GenerationDispatch extends AbstractModification {
     }
 
     private List<String> collectGeneratorsWithoutOutage(Network network, ReportNode subReportNode) {
-        return exportFilters(generationDispatchInfos.getGeneratorsWithoutOutage(), network, subReportNode, GENERATORS_WITHOUT_OUTAGE);
+        return exportFilters(generationDispatchModel.getGeneratorsWithoutOutage(), network, subReportNode, GENERATORS_WITHOUT_OUTAGE);
     }
 
     private List<String> collectGeneratorsWithFixedSupply(Network network, ReportNode subReportNode) {
-        return exportFilters(generationDispatchInfos.getGeneratorsWithFixedSupply(), network, subReportNode, GENERATORS_WITH_FIXED_SUPPLY);
+        return exportFilters(generationDispatchModel.getGeneratorsWithFixedSupply(), network, subReportNode, GENERATORS_WITH_FIXED_SUPPLY);
     }
 
     private List<GeneratorsFrequencyReserve> collectGeneratorsWithFrequencyReserve(Network network, ReportNode subReportNode) {
-        return generationDispatchInfos.getGeneratorsFrequencyReserve().stream().map(g -> {
+        return generationDispatchModel.getGeneratorsFrequencyReserve().stream().map(g -> {
             List<String> generators = exportFilters(g.getGeneratorsFilters(), network, subReportNode, GENERATORS_FREQUENCY_RESERVE);
             return GeneratorsFrequencyReserve.builder().generators(generators).frequencyReserve(g.getFrequencyReserve()).build();
         }).collect(Collectors.toList());
@@ -434,7 +430,7 @@ public class GenerationDispatch extends AbstractModification {
                 !Double.isNaN(startupExtension.getPlannedOutageRate())) {
                 res *= (1. - startupExtension.getForcedOutageRate()) * (1. - startupExtension.getPlannedOutageRate());
             } else {
-                res *= 1. - generationDispatchInfos.getDefaultOutageRate() / 100.;
+                res *= 1. - generationDispatchModel.getDefaultOutageRate() / 100.;
             }
         }
         double genFrequencyReserve = computeGenFrequencyReserve(generator, generatorsFrequencyReserve);
@@ -443,27 +439,27 @@ public class GenerationDispatch extends AbstractModification {
 
     private void reportDisconnectedGenerators(List<Generator> globalDisconnectedGenerators, int componentNum, ReportNode reportNode) {
         List<Generator> componentDisconnectedGenerators = globalDisconnectedGenerators.stream()
-                .filter(g -> g.getTerminal().getBusView() != null && g.getTerminal().getBusView().getConnectableBus() != null &&
-                        g.getTerminal().getBusView().getConnectableBus().getSynchronousComponent().getNum() == componentNum)
-                .toList();
+            .filter(g -> g.getTerminal().getBusView() != null && g.getTerminal().getBusView().getConnectableBus() != null &&
+                g.getTerminal().getBusView().getConnectableBus().getSynchronousComponent().getNum() == componentNum)
+            .toList();
         if (!componentDisconnectedGenerators.isEmpty()) {
             report(reportNode, "network.modification.TotalDisconnectedGenerator",
-                    Map.of("nbDisconnectedGenerator", componentDisconnectedGenerators.size(),
-                            IS_PLURAL, componentDisconnectedGenerators.size() > 1 ? "s have" : " has"),
-                    TypedValue.INFO_SEVERITY);
+                Map.of("nbDisconnectedGenerator", componentDisconnectedGenerators.size(),
+                    IS_PLURAL, componentDisconnectedGenerators.size() > 1 ? "s have" : " has"),
+                TypedValue.INFO_SEVERITY);
             componentDisconnectedGenerators.forEach(g ->
                 report(reportNode, "network.modification.DisconnectedGenerator",
-                        Map.of(GENERATOR, g.getId()), TypedValue.DETAIL_SEVERITY)
+                    Map.of(GENERATOR, g.getId()), TypedValue.DETAIL_SEVERITY)
             );
         }
     }
 
     private boolean checkMissingFilters(ReportNode subReportNode) {
         Map<UUID, String> filterNamesByUuid = new LinkedHashMap<>();
-        generationDispatchInfos.getGeneratorsWithoutOutage().forEach(filterInfos -> filterNamesByUuid.put(filterInfos.getId(), filterInfos.getName()));
-        generationDispatchInfos.getGeneratorsWithFixedSupply().forEach(filterInfos -> filterNamesByUuid.put(filterInfos.getId(), filterInfos.getName()));
-        generationDispatchInfos.getGeneratorsFrequencyReserve().forEach(frequencyReserveInfos ->
-            frequencyReserveInfos.getGeneratorsFilters().forEach(filterInfos -> filterNamesByUuid.put(filterInfos.getId(), filterInfos.getName()))
+        generationDispatchModel.getGeneratorsWithoutOutage().forEach(filterModel -> filterNamesByUuid.put(filterModel.getId(), filterModel.getName()));
+        generationDispatchModel.getGeneratorsWithFixedSupply().forEach(filterModel -> filterNamesByUuid.put(filterModel.getId(), filterModel.getName()));
+        generationDispatchModel.getGeneratorsFrequencyReserve().forEach(frequencyReserveModel ->
+            frequencyReserveModel.getGeneratorsFilters().forEach(filterModel -> filterNamesByUuid.put(filterModel.getId(), filterModel.getName()))
         );
         if (!filterNamesByUuid.isEmpty()) {
             List<AbstractFilter> filters = filterService.getFilters(new ArrayList<>(filterNamesByUuid.keySet()));
@@ -494,15 +490,15 @@ public class GenerationDispatch extends AbstractModification {
             .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingInt(Component::getNum))), ArrayList::new));
 
         report(subReportNode, "network.modification.NbSynchronousComponents",
-                Map.of("scNumber", synchronousComponents.size(),
-                        IS_PLURAL, synchronousComponents.size() > 1 ? "s" : "",
-                        "scList", synchronousComponents.stream().map(sc -> "SC" + sc.getNum()).collect(Collectors.joining(", "))),
-                TypedValue.INFO_SEVERITY);
+            Map.of("scNumber", synchronousComponents.size(),
+                IS_PLURAL, synchronousComponents.size() > 1 ? "s" : "",
+                "scList", synchronousComponents.stream().map(sc -> "SC" + sc.getNum()).collect(Collectors.joining(", "))),
+            TypedValue.INFO_SEVERITY);
 
         // all disconnected generators at network level (for report purpose)
         List<Generator> disconnectedGenerators = network.getGeneratorStream()
-                .filter(g -> !g.getTerminal().isConnected())
-                .toList();
+            .filter(g -> !g.getTerminal().isConnected())
+            .toList();
 
         // get generators for which there will be no reduction of maximal power
         List<String> generatorsWithoutOutage = collectGeneratorsWithoutOutage(network, subReportNode);
@@ -517,19 +513,19 @@ public class GenerationDispatch extends AbstractModification {
             int componentNum = component.getNum();
 
             ReportNode componentReportNode = subReportNode.newReportNode()
-                    .withMessageTemplate("network.modification.NetworkCC0.SYNCHRONOUS_COMPONENT")
-                    .withUntypedValue("componentNum", componentNum)
-                    .add();
+                .withMessageTemplate("network.modification.NetworkCC0.SYNCHRONOUS_COMPONENT")
+                .withUntypedValue("componentNum", componentNum)
+                .add();
 
             ReportNode powerToDispatchReportNode = componentReportNode.newReportNode()
-                    .withMessageTemplate(POWER_TO_DISPATCH)
-                    .add();
+                .withMessageTemplate(POWER_TO_DISPATCH)
+                .add();
 
             // log disconnected generators attached to this synchronous component
             reportDisconnectedGenerators(disconnectedGenerators, componentNum, powerToDispatchReportNode);
 
             // get total value of connected loads in the connected component
-            double totalDemand = computeTotalDemand(component, generationDispatchInfos.getLossCoefficient());
+            double totalDemand = computeTotalDemand(component, generationDispatchModel.getLossCoefficient());
             report(powerToDispatchReportNode, "network.modification.TotalDemand",
                 Map.of("totalDemand", round(totalDemand)), TypedValue.INFO_SEVERITY);
 
@@ -545,7 +541,7 @@ public class GenerationDispatch extends AbstractModification {
 
             double activeBatteryTotalTargetP = computeTotalActiveBatteryTargetP(component);
             report(powerToDispatchReportNode, "network.modification.TotalActiveBatteryTargetP",
-                    Map.of("batteryBalance", round(activeBatteryTotalTargetP)), TypedValue.INFO_SEVERITY);
+                Map.of("batteryBalance", round(activeBatteryTotalTargetP)), TypedValue.INFO_SEVERITY);
 
             double totalAmountSupplyToBeDispatched = totalDemand - totalAmountFixedSupply - hvdcBalance - activeBatteryTotalTargetP;
             if (totalAmountSupplyToBeDispatched < 0.) {
@@ -559,8 +555,8 @@ public class GenerationDispatch extends AbstractModification {
 
             // get adjustable generators in the component
             List<Generator> adjustableGenerators = computeAdjustableGenerators(network, component, generatorsWithFixedSupply,
-                                                                               generationDispatchInfos.getSubstationsGeneratorsOrdering(),
-                                                                               powerToDispatchReportNode);
+                generationDispatchModel.getSubstationsGeneratorsOrdering(),
+                powerToDispatchReportNode);
 
             double realized = 0.;
             if (!adjustableGenerators.isEmpty()) {
@@ -572,8 +568,8 @@ public class GenerationDispatch extends AbstractModification {
                 }).toList();
 
                 ReportNode stackingReportNode = componentReportNode.newReportNode()
-                        .withMessageTemplate(STACKING)
-                        .add();
+                    .withMessageTemplate(STACKING)
+                    .add();
 
                 GeneratorTargetPListener listener = new GeneratorTargetPListener(stackingReportNode);
                 network.addListener(listener);
@@ -586,8 +582,8 @@ public class GenerationDispatch extends AbstractModification {
             }
 
             ReportNode resultReporter = componentReportNode.newReportNode()
-                    .withMessageTemplate(RESULT)
-                    .add();
+                .withMessageTemplate(RESULT)
+                .add();
 
             if (Math.abs(totalAmountSupplyToBeDispatched - realized) < EPSILON) {
                 Map<String, List<Generator>> generatorsByRegion = getGeneratorsByRegion(network, component);
@@ -597,14 +593,14 @@ public class GenerationDispatch extends AbstractModification {
                 generatorsByRegion.forEach((region, generators) -> {
                     Map<EnergySource, Double> activePowerSumByEnergySource = getActivePowerSumByEnergySource(generators);
                     report(resultReporter, "network.modification.SumGeneratorActivePower",
-                            Map.of("region", region,
-                                    "sum", round(activePowerSumByEnergySource.values().stream().reduce(0d, Double::sum)),
-                                    "nuclearSum", round(activePowerSumByEnergySource.getOrDefault(EnergySource.NUCLEAR, 0d)),
-                                    "thermalSum", round(activePowerSumByEnergySource.getOrDefault(EnergySource.THERMAL, 0d)),
-                                    "hydroSum", round(activePowerSumByEnergySource.getOrDefault(EnergySource.HYDRO, 0d)),
-                                    "windAndSolarSum", round(activePowerSumByEnergySource.getOrDefault(EnergySource.WIND, 0d) + activePowerSumByEnergySource.getOrDefault(EnergySource.SOLAR, 0d)),
-                                    "otherSum", round(activePowerSumByEnergySource.getOrDefault(EnergySource.OTHER, 0d))
-                                    ), TypedValue.INFO_SEVERITY);
+                        Map.of("region", region,
+                            "sum", round(activePowerSumByEnergySource.values().stream().reduce(0d, Double::sum)),
+                            "nuclearSum", round(activePowerSumByEnergySource.getOrDefault(EnergySource.NUCLEAR, 0d)),
+                            "thermalSum", round(activePowerSumByEnergySource.getOrDefault(EnergySource.THERMAL, 0d)),
+                            "hydroSum", round(activePowerSumByEnergySource.getOrDefault(EnergySource.HYDRO, 0d)),
+                            "windAndSolarSum", round(activePowerSumByEnergySource.getOrDefault(EnergySource.WIND, 0d) + activePowerSumByEnergySource.getOrDefault(EnergySource.SOLAR, 0d)),
+                            "otherSum", round(activePowerSumByEnergySource.getOrDefault(EnergySource.OTHER, 0d))
+                        ), TypedValue.INFO_SEVERITY);
                 });
             } else {
                 double remainingPowerImbalance = totalAmountSupplyToBeDispatched - realized;
@@ -622,12 +618,12 @@ public class GenerationDispatch extends AbstractModification {
     private Map<String, List<Generator>> getGeneratorsByRegion(Network network, Component component) {
         // get all connected generators  that are inside the synchronous component and the substationIds associated.
         List<Generator> connectedGenerators = network.getGeneratorStream()
-                .filter(g -> g.getTerminal().isConnected() && g.getTerminal().getBusView().getBus().getSynchronousComponent().getNum() == component.getNum())
-                .toList();
+            .filter(g -> g.getTerminal().isConnected() && g.getTerminal().getBusView().getBus().getSynchronousComponent().getNum() == component.getNum())
+            .toList();
         List<String> substationIds = connectedGenerators.stream()
-                .map(g -> g.getTerminal().getVoltageLevel().getSubstation().map(Substation::getId).orElse(null))
-                .filter(Objects::nonNull)
-                .toList();
+            .map(g -> g.getTerminal().getVoltageLevel().getSubstation().map(Substation::getId).orElse(null))
+            .filter(Objects::nonNull)
+            .toList();
         // get all substations with "regionCvg" property name
         Map<String, String> substationIdPropertiesMap = new HashMap<>();
         if (!CollectionUtils.isEmpty(substationIds)) {
@@ -651,8 +647,8 @@ public class GenerationDispatch extends AbstractModification {
 
         groupedSubstationIds.forEach((region, substationList) -> {
             List<Generator> connectedGeneratorsWithSubstation = connectedGenerators.stream()
-                    .filter(g -> substationList.contains(g.getTerminal().getVoltageLevel().getSubstation().map(Substation::getId).orElse(null)))
-                    .toList();
+                .filter(g -> substationList.contains(g.getTerminal().getVoltageLevel().getSubstation().map(Substation::getId).orElse(null)))
+                .toList();
             generatorsByRegion.put(region, connectedGeneratorsWithSubstation);
         });
 

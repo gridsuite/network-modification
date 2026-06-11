@@ -13,11 +13,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.gridsuite.modification.ILoadFlowService;
-import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.model.BalancesAdjustmentAreaModel;
-import org.gridsuite.modification.model.LoadFlowParametersModel;
-import org.gridsuite.modification.model.ShiftEquipmentType;
-import org.gridsuite.modification.model.ShiftType;
+import org.gridsuite.modification.model.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.Test;
@@ -29,7 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 /**
@@ -50,40 +47,40 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
     }
 
     @Override
-    protected BalancesAdjustmentModificationInfos buildModification() {
-        return BalancesAdjustmentModificationInfos.builder()
-                .areas(List.of(
-                        BalancesAdjustmentAreaModel.builder()
-                                .name("FR")
-                                .countries(List.of(Country.FR))
-                                .netPosition(-45d)
-                                .shiftType(ShiftType.PROPORTIONAL)
-                                .shiftEquipmentType(ShiftEquipmentType.GENERATOR)
-                                .build(),
-                        BalancesAdjustmentAreaModel.builder()
-                                .name("NE")
-                                .countries(List.of(Country.NE))
-                                .netPosition(-54d)
-                                .shiftType(ShiftType.BALANCED)
-                                .shiftEquipmentType(ShiftEquipmentType.GENERATOR)
-                                .build(),
-                        BalancesAdjustmentAreaModel.builder()
-                                .name("GE")
-                                .countries(List.of(Country.GE))
-                                .netPosition(0d)
-                                .shiftType(ShiftType.PROPORTIONAL)
-                                .shiftEquipmentType(ShiftEquipmentType.LOAD)
-                                .build(),
-                        BalancesAdjustmentAreaModel.builder()
-                                .name("AU")
-                                .countries(List.of(Country.AU))
-                                .netPosition(100d)
-                                .shiftType(ShiftType.BALANCED)
-                                .shiftEquipmentType(ShiftEquipmentType.LOAD)
-                                .build()
-                ))
-                .withLoadFlow(false)
-                .build();
+    protected ModificationModel buildModification() {
+        return BalancesAdjustmentModificationModel.builder()
+            .areas(List.of(
+                BalancesAdjustmentAreaModel.builder()
+                    .name("FR")
+                    .countries(List.of(Country.FR))
+                    .netPosition(-45d)
+                    .shiftType(ShiftType.PROPORTIONAL)
+                    .shiftEquipmentType(ShiftEquipmentType.GENERATOR)
+                    .build(),
+                BalancesAdjustmentAreaModel.builder()
+                    .name("NE")
+                    .countries(List.of(Country.NE))
+                    .netPosition(-54d)
+                    .shiftType(ShiftType.BALANCED)
+                    .shiftEquipmentType(ShiftEquipmentType.GENERATOR)
+                    .build(),
+                BalancesAdjustmentAreaModel.builder()
+                    .name("GE")
+                    .countries(List.of(Country.GE))
+                    .netPosition(0d)
+                    .shiftType(ShiftType.PROPORTIONAL)
+                    .shiftEquipmentType(ShiftEquipmentType.LOAD)
+                    .build(),
+                BalancesAdjustmentAreaModel.builder()
+                    .name("AU")
+                    .countries(List.of(Country.AU))
+                    .netPosition(100d)
+                    .shiftType(ShiftType.BALANCED)
+                    .shiftEquipmentType(ShiftEquipmentType.LOAD)
+                    .build()
+            ))
+            .withLoadFlow(false)
+            .build();
     }
 
     @Override
@@ -116,7 +113,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
 
     @Test
     void testApplyWithLoadFlow() {
-        var infos = BalancesAdjustmentModificationInfos.builder()
+        var infos = BalancesAdjustmentModificationModel.builder()
             .areas(List.of(
                 BalancesAdjustmentAreaModel.builder()
                     .name("FR")
@@ -152,13 +149,13 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
             .build();
 
         when(loadFlowService.getLoadFlowParametersInfos(LOADFLOW_PARAMETERS_UUID))
-                .thenReturn(LoadFlowParametersModel.builder()
-                        .provider("OpenLoadFlow")
-                        .commonParameters(LoadFlowParameters.load())
-                        .specificParametersPerProvider(Map.of("OpenLoadFlow", Map.of(
-                                "key1", "value1"
-                        )))
-                        .build());
+            .thenReturn(LoadFlowParametersModel.builder()
+                .provider("OpenLoadFlow")
+                .commonParameters(LoadFlowParameters.load())
+                .specificParametersPerProvider(Map.of("OpenLoadFlow", Map.of(
+                    "key1", "value1"
+                )))
+                .build());
         BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
         modification.initApplicationContext(null, loadFlowService);
         modification.apply(getNetwork(), new DefaultNamingStrategy(), ReportNode.NO_OP);
@@ -179,119 +176,119 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
 
     @Test
     void testLoadFlowParametersNotFound() {
-        var infos = BalancesAdjustmentModificationInfos.builder()
-                .areas(List.of(
-                        BalancesAdjustmentAreaModel.builder()
-                                .name("FR")
-                                .countries(List.of(Country.FR))
-                                .netPosition(-45d)
-                                .shiftType(ShiftType.PROPORTIONAL)
-                                .shiftEquipmentType(ShiftEquipmentType.GENERATOR)
-                                .build()
-                ))
-                .withLoadFlow(true)
-                .loadFlowParametersId(INVALID_LOADFLOW_PARAMETERS_UUID)
-                .build();
+        var infos = BalancesAdjustmentModificationModel.builder()
+            .areas(List.of(
+                BalancesAdjustmentAreaModel.builder()
+                    .name("FR")
+                    .countries(List.of(Country.FR))
+                    .netPosition(-45d)
+                    .shiftType(ShiftType.PROPORTIONAL)
+                    .shiftEquipmentType(ShiftEquipmentType.GENERATOR)
+                    .build()
+            ))
+            .withLoadFlow(true)
+            .loadFlowParametersId(INVALID_LOADFLOW_PARAMETERS_UUID)
+            .build();
 
         when(loadFlowService.getLoadFlowParametersInfos(INVALID_LOADFLOW_PARAMETERS_UUID))
-                .thenReturn(null);
+            .thenReturn(null);
 
         BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
         modification.initApplicationContext(null, loadFlowService);
 
         Network network = getNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test")
-                .build();
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test")
+            .build();
 
         // Should not throw exception but use default parameters and complete successfully
         assertDoesNotThrow(() -> modification.apply(network, new DefaultNamingStrategy(), reportNode));
 
         // Verify that the appropriate report message was generated
         TestUtils.assertLogMessage(
-                "Using default load flow parameters: Load flow parameters with id " + INVALID_LOADFLOW_PARAMETERS_UUID + " not found",
-                "network.modification.balancesAdjustment.usingDefaultLoadFlowParameters",
-                reportNode
+            "Using default load flow parameters: Load flow parameters with id " + INVALID_LOADFLOW_PARAMETERS_UUID + " not found",
+            "network.modification.balancesAdjustment.usingDefaultLoadFlowParameters",
+            reportNode
         );
     }
 
     @Test
     void testLoadFlowProviderNotSpecified() {
-        var infos = BalancesAdjustmentModificationInfos.builder()
-                .areas(List.of(
-                        BalancesAdjustmentAreaModel.builder()
-                                .name("FR")
-                                .countries(List.of(Country.FR))
-                                .netPosition(-45d)
-                                .shiftType(ShiftType.PROPORTIONAL)
-                                .shiftEquipmentType(ShiftEquipmentType.GENERATOR)
-                                .build()
-                ))
-                .withLoadFlow(true)
-                .loadFlowParametersId(LOADFLOW_PARAMETERS_UUID)
-                .build();
+        var infos = BalancesAdjustmentModificationModel.builder()
+            .areas(List.of(
+                BalancesAdjustmentAreaModel.builder()
+                    .name("FR")
+                    .countries(List.of(Country.FR))
+                    .netPosition(-45d)
+                    .shiftType(ShiftType.PROPORTIONAL)
+                    .shiftEquipmentType(ShiftEquipmentType.GENERATOR)
+                    .build()
+            ))
+            .withLoadFlow(true)
+            .loadFlowParametersId(LOADFLOW_PARAMETERS_UUID)
+            .build();
 
         when(loadFlowService.getLoadFlowParametersInfos(LOADFLOW_PARAMETERS_UUID))
-                .thenReturn(LoadFlowParametersModel.builder()
-                        .provider(null) // No provider specified
-                        .commonParameters(LoadFlowParameters.load())
-                        .specificParametersPerProvider(Map.of())
-                        .build());
+            .thenReturn(LoadFlowParametersModel.builder()
+                .provider(null) // No provider specified
+                .commonParameters(LoadFlowParameters.load())
+                .specificParametersPerProvider(Map.of())
+                .build());
 
         BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
         modification.initApplicationContext(null, loadFlowService);
 
         Network network = getNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test")
-                .build();
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test")
+            .build();
 
         // Should not throw exception but use default parameters and complete successfully
         assertDoesNotThrow(() -> modification.apply(network, new DefaultNamingStrategy(), reportNode));
 
         // Verify that the appropriate report message was generated
         TestUtils.assertLogMessageWithoutRank(
-                "Using default load flow parameters: Load flow provider is null in parameters with id " + LOADFLOW_PARAMETERS_UUID,
-                "network.modification.balancesAdjustment.usingDefaultLoadFlowParameters",
-                reportNode
+            "Using default load flow parameters: Load flow provider is null in parameters with id " + LOADFLOW_PARAMETERS_UUID,
+            "network.modification.balancesAdjustment.usingDefaultLoadFlowParameters",
+            reportNode
         );
     }
 
     @Test
     void testLoadFlowParametersIdNull() {
-        var infos = BalancesAdjustmentModificationInfos.builder()
-                .areas(List.of(
-                        BalancesAdjustmentAreaModel.builder()
-                                .name("FR")
-                                .countries(List.of(Country.FR))
-                                .netPosition(-45d)
-                                .shiftType(ShiftType.PROPORTIONAL)
-                                .shiftEquipmentType(ShiftEquipmentType.GENERATOR)
-                                .build()
-                ))
-                .withLoadFlow(true)
-                .loadFlowParametersId(null)
-                .build();
+        var infos = BalancesAdjustmentModificationModel.builder()
+            .areas(List.of(
+                BalancesAdjustmentAreaModel.builder()
+                    .name("FR")
+                    .countries(List.of(Country.FR))
+                    .netPosition(-45d)
+                    .shiftType(ShiftType.PROPORTIONAL)
+                    .shiftEquipmentType(ShiftEquipmentType.GENERATOR)
+                    .build()
+            ))
+            .withLoadFlow(true)
+            .loadFlowParametersId(null)
+            .build();
 
         BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
         modification.initApplicationContext(null, loadFlowService);
 
         Network network = getNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test")
-                .build();
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test")
+            .build();
 
         // Should not throw exception but use default parameters and complete successfully
         assertDoesNotThrow(() -> modification.apply(network, new DefaultNamingStrategy(), reportNode));
 
         // Verify that the appropriate report message was generated
         TestUtils.assertLogMessageWithoutRank(
-                "Using default load flow parameters: Load flow parameters ID is null",
-                "network.modification.balancesAdjustment.usingDefaultLoadFlowParameters",
-                reportNode
+            "Using default load flow parameters: Load flow parameters ID is null",
+            "network.modification.balancesAdjustment.usingDefaultLoadFlowParameters",
+            reportNode
         );
     }
 }

@@ -11,9 +11,9 @@ import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.model.FilterEquipments;
 import org.gridsuite.modification.model.IdentifiableAttributes;
+import org.gridsuite.modification.model.ModificationByAssignmentModel;
 import org.gridsuite.modification.model.byfilter.assignment.AssignmentModel;
 import org.gridsuite.modification.model.byfilter.assignment.DoubleAssignmentModel;
 import org.gridsuite.modification.model.byfilter.equipmentfield.BatteryField;
@@ -24,7 +24,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.gridsuite.modification.utils.NetworkUtil.createBattery;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -44,21 +45,20 @@ class BatteryModificationByAssignmentTest extends AbstractModificationByAssignme
     void testCreateWithWarning() throws Exception {
         IdentifiableAttributes identifiableAttributes = new IdentifiableAttributes(BATTERY_ID_1, getIdentifiableType(), 1.0);
         FilterEquipments filter = FilterEquipments.builder().filterId(FILTER_WITH_ONE_WRONG_ID)
-                .identifiableAttributes(List.of(identifiableAttributes))
-                .notFoundEquipments(List.of("wrongId"))
-                .build();
+            .identifiableAttributes(List.of(identifiableAttributes))
+            .notFoundEquipments(List.of("wrongId"))
+            .build();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_WITH_ONE_WRONG_ID, filter));
-        DoubleAssignmentModel assignmentInfos = DoubleAssignmentModel.builder()
-                .filters(List.of(filterWithOneWrongId))
-                .editedField(BatteryField.ACTIVE_POWER_SET_POINT.name())
-                .value(55.)
-                .build();
-        ModificationByAssignmentInfos modificationInfos = ModificationByAssignmentInfos.builder()
-                .equipmentType(getIdentifiableType())
-                .assignmentInfosList(List.of(assignmentInfos))
-                .stashed(false)
-                .build();
-        apply(modificationInfos);
+        DoubleAssignmentModel assignmentModel = DoubleAssignmentModel.builder()
+            .filters(List.of(filterWithOneWrongId))
+            .editedField(BatteryField.ACTIVE_POWER_SET_POINT.name())
+            .value(55.)
+            .build();
+        ModificationByAssignmentModel modificationModel = ModificationByAssignmentModel.builder()
+            .equipmentType(getIdentifiableType())
+            .assignmentInfosList(List.of(assignmentModel))
+            .build();
+        apply(modificationModel);
         assertEquals(55, getNetwork().getBattery(BATTERY_ID_1).getTargetP(), 0);
     }
 
@@ -109,51 +109,51 @@ class BatteryModificationByAssignmentTest extends AbstractModificationByAssignme
     }
 
     @Override
-    protected List<AssignmentModel<?>> getAssignmentInfos() {
-        DoubleAssignmentModel assignmentInfos1 = DoubleAssignmentModel.builder()
-                .filters(List.of(filter1, filter2))
-                .editedField(BatteryField.MAXIMUM_ACTIVE_POWER.name())
-                .value(80.)
-                .build();
+    protected List<AssignmentModel<?>> getAssignmentModel() {
+        DoubleAssignmentModel assignmentModel1 = DoubleAssignmentModel.builder()
+            .filters(List.of(filter1, filter2))
+            .editedField(BatteryField.MAXIMUM_ACTIVE_POWER.name())
+            .value(80.)
+            .build();
 
-        DoubleAssignmentModel assignmentInfos2 = DoubleAssignmentModel.builder()
-                .filters(List.of(filter3))
-                .editedField(BatteryField.MINIMUM_ACTIVE_POWER.name())
-                .value(30.)
-                .build();
+        DoubleAssignmentModel assignmentModel2 = DoubleAssignmentModel.builder()
+            .filters(List.of(filter3))
+            .editedField(BatteryField.MINIMUM_ACTIVE_POWER.name())
+            .value(30.)
+            .build();
 
-        DoubleAssignmentModel assignmentInfos3 = DoubleAssignmentModel.builder()
-                .filters(List.of(filter5))
-                .editedField(BatteryField.ACTIVE_POWER_SET_POINT.name())
-                .value(75.)
-                .build();
+        DoubleAssignmentModel assignmentModel3 = DoubleAssignmentModel.builder()
+            .filters(List.of(filter5))
+            .editedField(BatteryField.ACTIVE_POWER_SET_POINT.name())
+            .value(75.)
+            .build();
 
-        DoubleAssignmentModel assignmentInfos4 = DoubleAssignmentModel.builder()
-                .filters(List.of(filter4))
-                .editedField(BatteryField.REACTIVE_POWER_SET_POINT.name())
-                .value(2.)
-                .build();
+        DoubleAssignmentModel assignmentModel4 = DoubleAssignmentModel.builder()
+            .filters(List.of(filter4))
+            .editedField(BatteryField.REACTIVE_POWER_SET_POINT.name())
+            .value(2.)
+            .build();
 
-        DoubleAssignmentModel assignmentInfos5 = DoubleAssignmentModel.builder()
-                .filters(List.of(filter4))
-                .editedField(BatteryField.DROOP.name())
-                .value(2.)
-                .build();
+        DoubleAssignmentModel assignmentModel5 = DoubleAssignmentModel.builder()
+            .filters(List.of(filter4))
+            .editedField(BatteryField.DROOP.name())
+            .value(2.)
+            .build();
 
-        DoubleAssignmentModel assignmentInfos6 = DoubleAssignmentModel.builder()
-                .filters(List.of(filter4))
-                .editedField(BatteryField.TRANSIENT_REACTANCE.name())
-                .value(3.)
-                .build();
+        DoubleAssignmentModel assignmentModel6 = DoubleAssignmentModel.builder()
+            .filters(List.of(filter4))
+            .editedField(BatteryField.TRANSIENT_REACTANCE.name())
+            .value(3.)
+            .build();
 
-        DoubleAssignmentModel assignmentInfos7 = DoubleAssignmentModel.builder()
-                .filters(List.of(filter4))
-                .editedField(BatteryField.STEP_UP_TRANSFORMER_REACTANCE.name())
-                .value(4.)
-                .build();
+        DoubleAssignmentModel assignmentModel7 = DoubleAssignmentModel.builder()
+            .filters(List.of(filter4))
+            .editedField(BatteryField.STEP_UP_TRANSFORMER_REACTANCE.name())
+            .value(4.)
+            .build();
 
-        List<AssignmentModel<?>> infosList = super.getAssignmentInfos();
-        infosList.addAll(List.of(assignmentInfos1, assignmentInfos2, assignmentInfos3, assignmentInfos4, assignmentInfos5, assignmentInfos6, assignmentInfos7));
+        List<AssignmentModel<?>> infosList = super.getAssignmentModel();
+        infosList.addAll(List.of(assignmentModel1, assignmentModel2, assignmentModel3, assignmentModel4, assignmentModel5, assignmentModel6, assignmentModel7));
 
         return infosList;
     }

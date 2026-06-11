@@ -12,7 +12,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.StaticVarCompensatorCreationInfos;
+import org.gridsuite.modification.model.StaticVarCompensatorCreationModel;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -30,59 +30,59 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
  */
 public class StaticVarCompensatorCreation extends AbstractModification {
 
-    private final StaticVarCompensatorCreationInfos modificationInfos;
+    private final StaticVarCompensatorCreationModel modificationModel;
 
-    public StaticVarCompensatorCreation(StaticVarCompensatorCreationInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
+    public StaticVarCompensatorCreation(StaticVarCompensatorCreationModel modificationModel) {
+        this.modificationModel = modificationModel;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (network.getStaticVarCompensator(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationException(STATIC_VAR_COMPENSATOR_ALREADY_EXISTS, modificationInfos.getEquipmentId());
+        if (network.getStaticVarCompensator(modificationModel.getEquipmentId()) != null) {
+            throw new NetworkModificationException(STATIC_VAR_COMPENSATOR_ALREADY_EXISTS, modificationModel.getEquipmentId());
         }
-        String errorMessage = "Static var compensator '" + modificationInfos.getEquipmentId() + "' : ";
+        String errorMessage = "Static var compensator '" + modificationModel.getEquipmentId() + "' : ";
 
         // check connectivity
         ModificationUtils.getInstance()
-                .controlConnectivity(network, modificationInfos.getVoltageLevelId(),
-                modificationInfos.getBusOrBusbarSectionId());
+            .controlConnectivity(network, modificationModel.getVoltageLevelId(),
+                modificationModel.getBusOrBusbarSectionId());
 
         // check reactive power limits and set points
-        ModificationUtils.getInstance().checkReactivePowerLimitsAndSetPointsCreation(modificationInfos);
+        ModificationUtils.getInstance().checkReactivePowerLimitsAndSetPointsCreation(modificationModel);
 
         // check regulated terminal
-        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId());
-        ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(), modificationInfos.getRegulatingTerminalId(),
-                modificationInfos.getRegulatingTerminalType(), modificationInfos.getRegulatingTerminalVlId());
+        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationModel.getVoltageLevelId());
+        ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(), modificationModel.getRegulatingTerminalId(),
+            modificationModel.getRegulatingTerminalType(), modificationModel.getRegulatingTerminalVlId());
 
         // check standby automaton
-        ModificationUtils.getInstance().checkStandbyAutomatonCreation(modificationInfos);
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getVoltageSetpoint(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "voltage set point");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getHighVoltageSetpoint(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "high voltage set point");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getLowVoltageSetpoint(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "low voltage set point");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getHighVoltageThreshold(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "high voltage threshold");
-        checkIsNotNegativeValue(errorMessage, modificationInfos.getLowVoltageThreshold(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "low voltage threshold");
+        ModificationUtils.getInstance().checkStandbyAutomatonCreation(modificationModel);
+        checkIsNotNegativeValue(errorMessage, modificationModel.getVoltageSetpoint(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "voltage set point");
+        checkIsNotNegativeValue(errorMessage, modificationModel.getHighVoltageSetpoint(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "high voltage set point");
+        checkIsNotNegativeValue(errorMessage, modificationModel.getLowVoltageSetpoint(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "low voltage set point");
+        checkIsNotNegativeValue(errorMessage, modificationModel.getHighVoltageThreshold(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "high voltage threshold");
+        checkIsNotNegativeValue(errorMessage, modificationModel.getLowVoltageThreshold(), CREATE_STATIC_VAR_COMPENSATOR_ERROR, "low voltage threshold");
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         // create the static var compensator in the network
-        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId());
+        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationModel.getVoltageLevelId());
         if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            createStaticVarCompensatorInNodeBreaker(voltageLevel, modificationInfos, network, subReportNode);
+            createStaticVarCompensatorInNodeBreaker(voltageLevel, modificationModel, network, subReportNode);
         } else {
-            createStaticVarCompensatorInBusBreaker(voltageLevel, modificationInfos, subReportNode);
+            createStaticVarCompensatorInBusBreaker(voltageLevel, modificationModel, subReportNode);
         }
-        ModificationUtils.getInstance().disconnectCreatedInjection(modificationInfos, network.getStaticVarCompensator(modificationInfos.getEquipmentId()), subReportNode);
+        ModificationUtils.getInstance().disconnectCreatedInjection(modificationModel, network.getStaticVarCompensator(modificationModel.getEquipmentId()), subReportNode);
         // properties
-        StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator(modificationInfos.getEquipmentId());
-        PropertiesUtils.applyProperties(staticVarCompensator, subReportNode, modificationInfos.getProperties(), "network.modification.StaticVarCompensatorProperties");
+        StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator(modificationModel.getEquipmentId());
+        PropertiesUtils.applyProperties(staticVarCompensator, subReportNode, modificationModel.getProperties(), "network.modification.StaticVarCompensatorProperties");
         subReportNode.newReportNode()
-                .withMessageTemplate("network.modification.staticVarCompensatorCreated")
-                .withUntypedValue("id", modificationInfos.getEquipmentId())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
+            .withMessageTemplate("network.modification.staticVarCompensatorCreated")
+            .withUntypedValue("id", modificationModel.getEquipmentId())
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
     }
 
     @Override
@@ -90,33 +90,33 @@ public class StaticVarCompensatorCreation extends AbstractModification {
         return "StaticVarCompensatorCreation";
     }
 
-    private void createStaticVarCompensatorInNodeBreaker(VoltageLevel voltageLevel, StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos,
-            Network network, ReportNode subReportNode) {
-        StaticVarCompensatorAdder staticVarCompensatorAdder = createStaticVarCompensatorAdderInNodeBreaker(voltageLevel, staticVarCompensatorCreationInfos);
-        createInjectionInNodeBreaker(voltageLevel, staticVarCompensatorCreationInfos, network, staticVarCompensatorAdder, subReportNode);
-        var staticVarCompensator = ModificationUtils.getInstance().getStaticVarCompensator(network, staticVarCompensatorCreationInfos.getEquipmentId());
-        addExtensionsToStaticVarCompensator(staticVarCompensatorCreationInfos, staticVarCompensator, voltageLevel, subReportNode);
+    private void createStaticVarCompensatorInNodeBreaker(VoltageLevel voltageLevel, StaticVarCompensatorCreationModel staticVarCompensatorCreationModel,
+                                                         Network network, ReportNode subReportNode) {
+        StaticVarCompensatorAdder staticVarCompensatorAdder = createStaticVarCompensatorAdderInNodeBreaker(voltageLevel, staticVarCompensatorCreationModel);
+        createInjectionInNodeBreaker(voltageLevel, staticVarCompensatorCreationModel, network, staticVarCompensatorAdder, subReportNode);
+        var staticVarCompensator = ModificationUtils.getInstance().getStaticVarCompensator(network, staticVarCompensatorCreationModel.getEquipmentId());
+        addExtensionsToStaticVarCompensator(staticVarCompensatorCreationModel, staticVarCompensator, voltageLevel, subReportNode);
     }
 
-    private StaticVarCompensatorAdder createStaticVarCompensatorAdderInNodeBreaker(VoltageLevel voltageLevel, StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos) {
+    private StaticVarCompensatorAdder createStaticVarCompensatorAdderInNodeBreaker(VoltageLevel voltageLevel, StaticVarCompensatorCreationModel staticVarCompensatorCreationModel) {
         Terminal terminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
-                staticVarCompensatorCreationInfos.getRegulatingTerminalId(),
-                staticVarCompensatorCreationInfos.getRegulatingTerminalType(),
-                staticVarCompensatorCreationInfos.getRegulatingTerminalVlId());
-        double bMax = Objects.isNull(staticVarCompensatorCreationInfos.getMaxSusceptance()) && Objects.nonNull(staticVarCompensatorCreationInfos.getMaxQAtNominalV()) ?
-                (staticVarCompensatorCreationInfos.getMaxQAtNominalV()) / Math.pow(voltageLevel.getNominalV(), 2) : staticVarCompensatorCreationInfos.getMaxSusceptance();
-        double bMin = Objects.isNull(staticVarCompensatorCreationInfos.getMinSusceptance()) && Objects.nonNull(staticVarCompensatorCreationInfos.getMinQAtNominalV()) ?
-                (staticVarCompensatorCreationInfos.getMinQAtNominalV()) / Math.pow(voltageLevel.getNominalV(), 2) : staticVarCompensatorCreationInfos.getMinSusceptance();
+            staticVarCompensatorCreationModel.getRegulatingTerminalId(),
+            staticVarCompensatorCreationModel.getRegulatingTerminalType(),
+            staticVarCompensatorCreationModel.getRegulatingTerminalVlId());
+        double bMax = Objects.isNull(staticVarCompensatorCreationModel.getMaxSusceptance()) && Objects.nonNull(staticVarCompensatorCreationModel.getMaxQAtNominalV()) ?
+            (staticVarCompensatorCreationModel.getMaxQAtNominalV()) / Math.pow(voltageLevel.getNominalV(), 2) : staticVarCompensatorCreationModel.getMaxSusceptance();
+        double bMin = Objects.isNull(staticVarCompensatorCreationModel.getMinSusceptance()) && Objects.nonNull(staticVarCompensatorCreationModel.getMinQAtNominalV()) ?
+            (staticVarCompensatorCreationModel.getMinQAtNominalV()) / Math.pow(voltageLevel.getNominalV(), 2) : staticVarCompensatorCreationModel.getMinSusceptance();
         StaticVarCompensatorAdder staticVarCompensatorAdder = voltageLevel.newStaticVarCompensator()
-                .setId(staticVarCompensatorCreationInfos.getEquipmentId())
-                .setName(staticVarCompensatorCreationInfos.getEquipmentName())
-                .setBmax(bMax)
-                .setBmin(bMin)
-                .setVoltageSetpoint(nanIfNull(staticVarCompensatorCreationInfos.getVoltageSetpoint()))
-                .setReactivePowerSetpoint(nanIfNull(staticVarCompensatorCreationInfos.getReactivePowerSetpoint()))
-                .setRegulating(staticVarCompensatorCreationInfos.isRegulating());
-        if (staticVarCompensatorCreationInfos.isRegulating()) {
-            staticVarCompensatorAdder.setRegulationMode(staticVarCompensatorCreationInfos.getRegulationMode());
+            .setId(staticVarCompensatorCreationModel.getEquipmentId())
+            .setName(staticVarCompensatorCreationModel.getEquipmentName())
+            .setBmax(bMax)
+            .setBmin(bMin)
+            .setVoltageSetpoint(nanIfNull(staticVarCompensatorCreationModel.getVoltageSetpoint()))
+            .setReactivePowerSetpoint(nanIfNull(staticVarCompensatorCreationModel.getReactivePowerSetpoint()))
+            .setRegulating(staticVarCompensatorCreationModel.isRegulating());
+        if (staticVarCompensatorCreationModel.isRegulating()) {
+            staticVarCompensatorAdder.setRegulationMode(staticVarCompensatorCreationModel.getRegulationMode());
         }
 
         if (terminal != null) {
@@ -126,152 +126,152 @@ public class StaticVarCompensatorCreation extends AbstractModification {
         return staticVarCompensatorAdder;
     }
 
-    private void addExtensionsToStaticVarCompensator(StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos,
+    private void addExtensionsToStaticVarCompensator(StaticVarCompensatorCreationModel staticVarCompensatorCreationModel,
                                                      StaticVarCompensator staticVarCompensator,
                                                      VoltageLevel voltageLevel,
                                                      ReportNode subReportNode) {
-        if (staticVarCompensatorCreationInfos.getEquipmentName() != null) {
-            ModificationUtils.getInstance().reportElementaryCreation(subReportNode, staticVarCompensatorCreationInfos.getEquipmentName(), "Name");
+        if (staticVarCompensatorCreationModel.getEquipmentName() != null) {
+            ModificationUtils.getInstance().reportElementaryCreation(subReportNode, staticVarCompensatorCreationModel.getEquipmentName(), "Name");
         }
 
-        reportInjectionCreationConnectivity(staticVarCompensatorCreationInfos, subReportNode);
-        reportStaticVarCompensatorLimitsAndSetpoints(staticVarCompensatorCreationInfos, staticVarCompensator, voltageLevel, subReportNode);
-        reportStaticVarCompensatorStandbyAutomaton(staticVarCompensatorCreationInfos, staticVarCompensator, voltageLevel, subReportNode);
+        reportInjectionCreationConnectivity(staticVarCompensatorCreationModel, subReportNode);
+        reportStaticVarCompensatorLimitsAndSetpoints(staticVarCompensatorCreationModel, staticVarCompensator, voltageLevel, subReportNode);
+        reportStaticVarCompensatorStandbyAutomaton(staticVarCompensatorCreationModel, staticVarCompensator, voltageLevel, subReportNode);
     }
 
-    private void reportStaticVarCompensatorStandbyAutomaton(StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos,
+    private void reportStaticVarCompensatorStandbyAutomaton(StaticVarCompensatorCreationModel staticVarCompensatorCreationModel,
                                                             StaticVarCompensator staticVarCompensator, VoltageLevel voltageLevel, ReportNode subReportNode) {
-        if (Boolean.TRUE.equals(staticVarCompensatorCreationInfos.isStandbyAutomatonOn())) {
+        if (Boolean.TRUE.equals(staticVarCompensatorCreationModel.isStandbyAutomatonOn())) {
             List<ReportNode> standbyAutomatonReports = new ArrayList<>();
-            double b0 = Objects.isNull(staticVarCompensatorCreationInfos.getB0()) && Objects.nonNull(staticVarCompensatorCreationInfos.getQ0()) ?
-                    (staticVarCompensatorCreationInfos.getQ0()) / Math.pow(voltageLevel.getNominalV(), 2) : staticVarCompensatorCreationInfos.getB0();
+            double b0 = Objects.isNull(staticVarCompensatorCreationModel.getB0()) && Objects.nonNull(staticVarCompensatorCreationModel.getQ0()) ?
+                (staticVarCompensatorCreationModel.getQ0()) / Math.pow(voltageLevel.getNominalV(), 2) : staticVarCompensatorCreationModel.getB0();
             try {
                 staticVarCompensator.newExtension(StandbyAutomatonAdder.class)
-                        .withStandbyStatus(staticVarCompensatorCreationInfos.isStandby())
-                        .withB0(b0)
-                        .withLowVoltageSetpoint(staticVarCompensatorCreationInfos.getLowVoltageSetpoint())
-                        .withHighVoltageSetpoint(staticVarCompensatorCreationInfos.getHighVoltageSetpoint())
-                        .withLowVoltageThreshold(staticVarCompensatorCreationInfos.getLowVoltageThreshold())
-                        .withHighVoltageThreshold(staticVarCompensatorCreationInfos.getHighVoltageThreshold())
-                        .add();
+                    .withStandbyStatus(staticVarCompensatorCreationModel.isStandby())
+                    .withB0(b0)
+                    .withLowVoltageSetpoint(staticVarCompensatorCreationModel.getLowVoltageSetpoint())
+                    .withHighVoltageSetpoint(staticVarCompensatorCreationModel.getHighVoltageSetpoint())
+                    .withLowVoltageThreshold(staticVarCompensatorCreationModel.getLowVoltageThreshold())
+                    .withHighVoltageThreshold(staticVarCompensatorCreationModel.getHighVoltageThreshold())
+                    .add();
                 standbyAutomatonReports.add(ModificationUtils.getInstance().buildCreationReport(
-                        staticVarCompensatorCreationInfos.isStandby(),
-                        "Standby"));
-                if (Objects.nonNull(staticVarCompensatorCreationInfos.getB0())) {
+                    staticVarCompensatorCreationModel.isStandby(),
+                    "Standby"));
+                if (Objects.nonNull(staticVarCompensatorCreationModel.getB0())) {
                     standbyAutomatonReports.add(ModificationUtils.getInstance().buildCreationReport(
-                            staticVarCompensatorCreationInfos.getB0(),
-                            "Fixed part of susceptance"));
+                        staticVarCompensatorCreationModel.getB0(),
+                        "Fixed part of susceptance"));
                 }
-                if (Objects.nonNull(staticVarCompensatorCreationInfos.getQ0())) {
+                if (Objects.nonNull(staticVarCompensatorCreationModel.getQ0())) {
                     standbyAutomatonReports.add(ModificationUtils.getInstance().buildCreationReport(
-                            staticVarCompensatorCreationInfos.getQ0(),
-                            "Fixed part of Q at nominal voltage"));
+                        staticVarCompensatorCreationModel.getQ0(),
+                        "Fixed part of Q at nominal voltage"));
                 }
                 standbyAutomatonReports.add(ModificationUtils.getInstance().buildCreationReport(
-                        staticVarCompensatorCreationInfos.getLowVoltageSetpoint(),
-                        "Low voltage set point"));
+                    staticVarCompensatorCreationModel.getLowVoltageSetpoint(),
+                    "Low voltage set point"));
                 standbyAutomatonReports.add(ModificationUtils.getInstance().buildCreationReport(
-                        staticVarCompensatorCreationInfos.getHighVoltageSetpoint(),
-                        "High voltage set point"));
+                    staticVarCompensatorCreationModel.getHighVoltageSetpoint(),
+                    "High voltage set point"));
                 standbyAutomatonReports.add(ModificationUtils.getInstance().buildCreationReport(
-                        staticVarCompensatorCreationInfos.getHighVoltageThreshold(),
-                        "High voltage threshold"));
+                    staticVarCompensatorCreationModel.getHighVoltageThreshold(),
+                    "High voltage threshold"));
                 standbyAutomatonReports.add(ModificationUtils.getInstance().buildCreationReport(
-                        staticVarCompensatorCreationInfos.getLowVoltageThreshold(),
-                        "Low voltage threshold"));
+                    staticVarCompensatorCreationModel.getLowVoltageThreshold(),
+                    "Low voltage threshold"));
             } catch (PowsyblException e) {
                 standbyAutomatonReports.add(ReportNode.newRootReportNode()
-                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                        .withMessageTemplate("network.modification.StandbyAutomatonExtensionAddError")
-                        .withUntypedValue("message", e.getMessage())
-                        .withSeverity(TypedValue.ERROR_SEVERITY)
-                        .build());
+                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                    .withMessageTemplate("network.modification.StandbyAutomatonExtensionAddError")
+                    .withUntypedValue("message", e.getMessage())
+                    .withSeverity(TypedValue.ERROR_SEVERITY)
+                    .build());
             }
             ModificationUtils.getInstance().reportModifications(subReportNode, standbyAutomatonReports,
-                    "network.modification.StandbyAutomatonCreated");
+                "network.modification.StandbyAutomatonCreated");
         }
     }
 
-    private void createStaticVarCompensatorInBusBreaker(VoltageLevel voltageLevel, StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos,
-               ReportNode subReportNode) {
+    private void createStaticVarCompensatorInBusBreaker(VoltageLevel voltageLevel, StaticVarCompensatorCreationModel staticVarCompensatorCreationModel,
+                                                        ReportNode subReportNode) {
 
-        Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, staticVarCompensatorCreationInfos.getBusOrBusbarSectionId());
-        double bMax = Objects.isNull(staticVarCompensatorCreationInfos.getMaxSusceptance()) && Objects.nonNull(staticVarCompensatorCreationInfos.getMaxQAtNominalV()) ?
-                (staticVarCompensatorCreationInfos.getMaxQAtNominalV()) / Math.pow(voltageLevel.getNominalV(), 2) : staticVarCompensatorCreationInfos.getMaxSusceptance();
-        double bMin = Objects.isNull(staticVarCompensatorCreationInfos.getMinSusceptance()) && Objects.nonNull(staticVarCompensatorCreationInfos.getMinQAtNominalV()) ?
-                (staticVarCompensatorCreationInfos.getMinQAtNominalV()) / Math.pow(voltageLevel.getNominalV(), 2) : staticVarCompensatorCreationInfos.getMinSusceptance();
+        Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, staticVarCompensatorCreationModel.getBusOrBusbarSectionId());
+        double bMax = Objects.isNull(staticVarCompensatorCreationModel.getMaxSusceptance()) && Objects.nonNull(staticVarCompensatorCreationModel.getMaxQAtNominalV()) ?
+            (staticVarCompensatorCreationModel.getMaxQAtNominalV()) / Math.pow(voltageLevel.getNominalV(), 2) : staticVarCompensatorCreationModel.getMaxSusceptance();
+        double bMin = Objects.isNull(staticVarCompensatorCreationModel.getMinSusceptance()) && Objects.nonNull(staticVarCompensatorCreationModel.getMinQAtNominalV()) ?
+            (staticVarCompensatorCreationModel.getMinQAtNominalV()) / Math.pow(voltageLevel.getNominalV(), 2) : staticVarCompensatorCreationModel.getMinSusceptance();
         /* creating the static var compensator */
         StaticVarCompensatorAdder staticVarCompensatorAdder = voltageLevel.newStaticVarCompensator()
-                .setId(staticVarCompensatorCreationInfos.getEquipmentId())
-                .setName(staticVarCompensatorCreationInfos.getEquipmentName())
-                .setBus(bus.getId())
-                .setConnectableBus(bus.getId())
-                .setBmax(bMax)
-                .setBmin(bMin)
-                .setVoltageSetpoint(staticVarCompensatorCreationInfos.getVoltageSetpoint())
-                .setReactivePowerSetpoint(staticVarCompensatorCreationInfos.getReactivePowerSetpoint())
-                .setRegulating(staticVarCompensatorCreationInfos.isRegulating());
-        if (staticVarCompensatorCreationInfos.isRegulating()) {
-            staticVarCompensatorAdder.setRegulationMode(staticVarCompensatorCreationInfos.getRegulationMode());
+            .setId(staticVarCompensatorCreationModel.getEquipmentId())
+            .setName(staticVarCompensatorCreationModel.getEquipmentName())
+            .setBus(bus.getId())
+            .setConnectableBus(bus.getId())
+            .setBmax(bMax)
+            .setBmin(bMin)
+            .setVoltageSetpoint(staticVarCompensatorCreationModel.getVoltageSetpoint())
+            .setReactivePowerSetpoint(staticVarCompensatorCreationModel.getReactivePowerSetpoint())
+            .setRegulating(staticVarCompensatorCreationModel.isRegulating());
+        if (staticVarCompensatorCreationModel.isRegulating()) {
+            staticVarCompensatorAdder.setRegulationMode(staticVarCompensatorCreationModel.getRegulationMode());
         }
         StaticVarCompensator staticVarCompensator = staticVarCompensatorAdder.add();
 
-        addExtensionsToStaticVarCompensator(staticVarCompensatorCreationInfos, staticVarCompensator, voltageLevel, subReportNode);
+        addExtensionsToStaticVarCompensator(staticVarCompensatorCreationModel, staticVarCompensator, voltageLevel, subReportNode);
     }
 
-    private void reportStaticVarCompensatorLimitsAndSetpoints(StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos,
+    private void reportStaticVarCompensatorLimitsAndSetpoints(StaticVarCompensatorCreationModel staticVarCompensatorCreationModel,
                                                               StaticVarCompensator staticVarCompensator, VoltageLevel voltageLevel, ReportNode subReportNode) {
         List<ReportNode> voltageReports = new ArrayList<>();
-        if (Objects.nonNull(staticVarCompensatorCreationInfos.getMinSusceptance())) {
-            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(staticVarCompensatorCreationInfos.getMinSusceptance(), "Susceptance min"));
+        if (Objects.nonNull(staticVarCompensatorCreationModel.getMinSusceptance())) {
+            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(staticVarCompensatorCreationModel.getMinSusceptance(), "Susceptance min"));
         }
-        if (Objects.nonNull(staticVarCompensatorCreationInfos.getMaxSusceptance())) {
-            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(staticVarCompensatorCreationInfos.getMaxSusceptance(), "Susceptance max"));
+        if (Objects.nonNull(staticVarCompensatorCreationModel.getMaxSusceptance())) {
+            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(staticVarCompensatorCreationModel.getMaxSusceptance(), "Susceptance max"));
         }
-        if (Objects.nonNull(staticVarCompensatorCreationInfos.getMinQAtNominalV())) {
-            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(staticVarCompensatorCreationInfos.getMinQAtNominalV(), "Q min at nominal voltage"));
+        if (Objects.nonNull(staticVarCompensatorCreationModel.getMinQAtNominalV())) {
+            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(staticVarCompensatorCreationModel.getMinQAtNominalV(), "Q min at nominal voltage"));
         }
-        if (Objects.nonNull(staticVarCompensatorCreationInfos.getMaxQAtNominalV())) {
-            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(staticVarCompensatorCreationInfos.getMaxQAtNominalV(), "Q max at nominal voltage"));
+        if (Objects.nonNull(staticVarCompensatorCreationModel.getMaxQAtNominalV())) {
+            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(staticVarCompensatorCreationModel.getMaxQAtNominalV(), "Q max at nominal voltage"));
         }
-        if (Objects.nonNull(staticVarCompensatorCreationInfos.getRegulationMode())) {
-            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(staticVarCompensatorCreationInfos.getRegulationMode(), "regulation mode"));
+        if (Objects.nonNull(staticVarCompensatorCreationModel.getRegulationMode())) {
+            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(staticVarCompensatorCreationModel.getRegulationMode(), "regulation mode"));
         }
-        if (Objects.nonNull(staticVarCompensatorCreationInfos.getVoltageSetpoint())) {
-            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(staticVarCompensatorCreationInfos.getVoltageSetpoint(), "Voltage set point"));
+        if (Objects.nonNull(staticVarCompensatorCreationModel.getVoltageSetpoint())) {
+            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(staticVarCompensatorCreationModel.getVoltageSetpoint(), "Voltage set point"));
         }
-        if (Objects.nonNull(staticVarCompensatorCreationInfos.getReactivePowerSetpoint())) {
-            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(staticVarCompensatorCreationInfos.getReactivePowerSetpoint(), "Reactive power set point"));
+        if (Objects.nonNull(staticVarCompensatorCreationModel.getReactivePowerSetpoint())) {
+            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(staticVarCompensatorCreationModel.getReactivePowerSetpoint(), "Reactive power set point"));
         }
-        if (Objects.nonNull(staticVarCompensatorCreationInfos.getVoltageRegulationType())) {
-            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(staticVarCompensatorCreationInfos.getVoltageRegulationType(), "Voltage Regulation type"));
+        if (Objects.nonNull(staticVarCompensatorCreationModel.getVoltageRegulationType())) {
+            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(staticVarCompensatorCreationModel.getVoltageRegulationType(), "Voltage Regulation type"));
         }
-        if (staticVarCompensatorCreationInfos.getRegulatingTerminalVlId() != null && staticVarCompensatorCreationInfos.getRegulatingTerminalId() != null &&
-                staticVarCompensatorCreationInfos.getRegulatingTerminalType() != null) {
+        if (staticVarCompensatorCreationModel.getRegulatingTerminalVlId() != null && staticVarCompensatorCreationModel.getRegulatingTerminalId() != null &&
+            staticVarCompensatorCreationModel.getRegulatingTerminalType() != null) {
             Terminal terminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
-                    staticVarCompensatorCreationInfos.getRegulatingTerminalId(),
-                    staticVarCompensatorCreationInfos.getRegulatingTerminalType(),
-                    staticVarCompensatorCreationInfos.getRegulatingTerminalVlId());
+                staticVarCompensatorCreationModel.getRegulatingTerminalId(),
+                staticVarCompensatorCreationModel.getRegulatingTerminalType(),
+                staticVarCompensatorCreationModel.getRegulatingTerminalVlId());
             if (terminal != null) {
-                updateCompensatorRegulatingTerminal(staticVarCompensatorCreationInfos, staticVarCompensator, terminal, voltageReports);
+                updateCompensatorRegulatingTerminal(staticVarCompensatorCreationModel, staticVarCompensator, terminal, voltageReports);
             }
         }
         ModificationUtils.getInstance().reportModifications(subReportNode, voltageReports, "network.modification.LimitsAndSetpointsCreated");
     }
 
-    private void updateCompensatorRegulatingTerminal(StaticVarCompensatorCreationInfos staticVarCompensatorCreationInfos, StaticVarCompensator staticVarCompensator,
-                                                   Terminal terminal, List<ReportNode> voltageReports) {
-        if (staticVarCompensatorCreationInfos.getRegulatingTerminalId() != null
-                && staticVarCompensatorCreationInfos.getRegulatingTerminalType() != null
-                && staticVarCompensatorCreationInfos.getRegulatingTerminalVlId() != null) {
+    private void updateCompensatorRegulatingTerminal(StaticVarCompensatorCreationModel staticVarCompensatorCreationModel, StaticVarCompensator staticVarCompensator,
+                                                     Terminal terminal, List<ReportNode> voltageReports) {
+        if (staticVarCompensatorCreationModel.getRegulatingTerminalId() != null
+            && staticVarCompensatorCreationModel.getRegulatingTerminalType() != null
+            && staticVarCompensatorCreationModel.getRegulatingTerminalVlId() != null) {
             staticVarCompensator.setRegulatingTerminal(terminal);
             voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
-                    staticVarCompensatorCreationInfos.getRegulatingTerminalVlId(),
-                    "Voltage level"));
+                staticVarCompensatorCreationModel.getRegulatingTerminalVlId(),
+                "Voltage level"));
             voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
-                    staticVarCompensatorCreationInfos.getRegulatingTerminalType() + ":"
-                            + staticVarCompensatorCreationInfos.getRegulatingTerminalId(),
-                    "Equipment"));
+                staticVarCompensatorCreationModel.getRegulatingTerminalType() + ":"
+                    + staticVarCompensatorCreationModel.getRegulatingTerminalId(),
+                "Equipment"));
         }
     }
 

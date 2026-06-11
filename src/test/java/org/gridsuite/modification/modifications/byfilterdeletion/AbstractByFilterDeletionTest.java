@@ -11,11 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.IFilterService;
-import org.gridsuite.modification.dto.ByFilterDeletionInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.model.FilterEquipments;
-import org.gridsuite.modification.model.FilterModel;
-import org.gridsuite.modification.model.IdentifiableAttributes;
+import org.gridsuite.modification.model.*;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.modifications.ByFilterDeletion;
@@ -62,7 +58,7 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
     @Test
     @Override
     public void testApply() throws Exception {
-        ModificationInfos modificationInfo = buildModification();
+        ModificationModel modificationInfo = buildModification();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(getTestFilters());
         AbstractModification modification = modificationInfo.toModification();
         modification.initApplicationContext(filterService, null);
@@ -73,29 +69,28 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
     @Override
     protected void checkModification() {
         var filter1 = FilterModel.builder()
-                .id(FILTER_ID_1)
-                .name("filter1")
-                .build();
+            .id(FILTER_ID_1)
+            .name("filter1")
+            .build();
 
-        ByFilterDeletionInfos byFilterDeletionInfos = ByFilterDeletionInfos.builder()
-                .stashed(false)
-                .equipmentType(getIdentifiableType())
-                .filters(List.of(filter1))
-                .build();
+        ByFilterDeletionModel byFilterDeletionModel = ByFilterDeletionModel.builder()
+            .equipmentType(getIdentifiableType())
+            .filters(List.of(filter1))
+            .build();
 
         Map<UUID, FilterEquipments> filterEquipments = Map.of(
-                FILTER_ID_1,
-                FilterEquipments.builder().filterId(FILTER_ID_1).filterName("filter1").identifiableAttributes(List.of(
-                        new IdentifiableAttributes(getExistingId(), getIdentifiableType(), null)))
-                        .notFoundEquipments(List.of(EQUIPMENT_WRONG_ID_1)).build());
+            FILTER_ID_1,
+            FilterEquipments.builder().filterId(FILTER_ID_1).filterName("filter1").identifiableAttributes(List.of(
+                    new IdentifiableAttributes(getExistingId(), getIdentifiableType(), null)))
+                .notFoundEquipments(List.of(EQUIPMENT_WRONG_ID_1)).build());
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filterEquipments);
 
-        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification();
+        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionModel.toModification();
         byFilterDeletion.initApplicationContext(filterService, null);
-        ReportNode report = byFilterDeletionInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test")
-                .build());
+        ReportNode report = byFilterDeletionModel.createSubReportNode(ReportNode.newRootReportNode()
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test")
+            .build());
         byFilterDeletion.apply(getNetwork(), report);
 
         assertLogMessage("Cannot find the following equipments " + EQUIPMENT_WRONG_ID_1 + " in filter filter1",
@@ -105,55 +100,54 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
     @Test
     void testCreateAllFiltersWrong() throws Exception {
         var filter1 = FilterModel.builder()
-                .id(FILTER_ID_1)
-                .name("filter1")
-                .build();
+            .id(FILTER_ID_1)
+            .name("filter1")
+            .build();
 
-        ByFilterDeletionInfos byFilterDeletionInfos = ByFilterDeletionInfos.builder()
-                .stashed(false)
-                .equipmentType(getIdentifiableType())
-                .filters(List.of(filter1))
-                .build();
+        ByFilterDeletionModel byFilterDeletionModel = ByFilterDeletionModel.builder()
+            .equipmentType(getIdentifiableType())
+            .filters(List.of(filter1))
+            .build();
 
         Map<UUID, FilterEquipments> filters = Map.of(
-                FILTER_ID_1, FilterEquipments.builder().identifiableAttributes(List.of())
-                        .notFoundEquipments(List.of(EQUIPMENT_WRONG_ID_1)).build());
+            FILTER_ID_1, FilterEquipments.builder().identifiableAttributes(List.of())
+                .notFoundEquipments(List.of(EQUIPMENT_WRONG_ID_1)).build());
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filters);
 
-        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification();
+        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionModel.toModification();
         byFilterDeletion.initApplicationContext(filterService, null);
-        ReportNode report = byFilterDeletionInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test")
-                .build());
+        ReportNode report = byFilterDeletionModel.createSubReportNode(ReportNode.newRootReportNode()
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test")
+            .build());
         byFilterDeletion.apply(getNetwork(), report);
-        assertLogMessage(byFilterDeletionInfos.getErrorType().name() + ": There is no valid equipment ID among the provided filter(s)",
+        assertLogMessage(byFilterDeletionModel.getErrorType().name() + ": There is no valid equipment ID among the provided filter(s)",
             "network.modification.invalidFilters", report);
     }
 
     @Override
-    protected ModificationInfos buildModification() {
+    protected ModificationModel buildModification() {
         var filter1 = FilterModel.builder()
-                .id(FILTER_ID_1)
-                .name("filter1")
-                .build();
+            .id(FILTER_ID_1)
+            .name("filter1")
+            .build();
 
         var filter2 = FilterModel.builder()
-                .id(FILTER_ID_2)
-                .name("filter2")
-                .build();
+            .id(FILTER_ID_2)
+            .name("filter2")
+            .build();
 
-        return ByFilterDeletionInfos.builder()
-                .stashed(false)
-                .equipmentType(getIdentifiableType())
-                .filters(List.of(filter1, filter2))
-                .build();
+        return ByFilterDeletionModel.builder()
+            .equipmentType(getIdentifiableType())
+            .filters(List.of(filter1, filter2))
+            .build();
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("BY_FILTER_DELETION", modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
+    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+        assertEquals("BY_FILTER_DELETION", modificationModel.getMessageType());
+        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+        });
         assertEquals(getIdentifiableType().name(), createdValues.get("equipmentType"));
     }
 }

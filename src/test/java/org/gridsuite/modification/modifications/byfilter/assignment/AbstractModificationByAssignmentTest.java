@@ -11,10 +11,10 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.IFilterService;
-import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.model.FilterEquipments;
 import org.gridsuite.modification.model.FilterModel;
+import org.gridsuite.modification.model.ModificationByAssignmentModel;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.model.byfilter.DataType;
 import org.gridsuite.modification.model.byfilter.assignment.AssignmentModel;
 import org.gridsuite.modification.model.byfilter.assignment.PropertyAssignmentModel;
@@ -57,9 +57,9 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     protected final FilterModel filter6 = new FilterModel(FILTER_ID_6, "filter6");
     protected final FilterModel filterWithOneWrongId = new FilterModel(FILTER_WITH_ONE_WRONG_ID, "filterWithOneWrongId");
     protected final ReportNode reportNode = ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test")
-            .build();
+        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+        .withMessageTemplate("test")
+        .build();
 
     @Mock
     protected IFilterService filterService;
@@ -74,7 +74,7 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     @Test
     @Override
     public void testApply() throws Exception {
-        ModificationInfos modificationInfo = buildModification();
+        ModificationModel modificationInfo = buildModification();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(getTestFilters());
         AbstractModification modification = modificationInfo.toModification();
         modification.initApplicationContext(filterService, null);
@@ -88,20 +88,19 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     }
 
     @Override
-    protected ModificationByAssignmentInfos buildModification() {
-        return ModificationByAssignmentInfos.builder()
-                .equipmentType(getIdentifiableType())
-                .assignmentInfosList(getAssignmentInfos())
-                .stashed(false)
-                .build();
+    protected ModificationModel buildModification() {
+        return ModificationByAssignmentModel.builder()
+            .equipmentType(getIdentifiableType())
+            .assignmentInfosList(getAssignmentModel())
+            .build();
     }
 
     @Override
     protected void checkModification() {
     }
 
-    protected void apply(ModificationByAssignmentInfos modificationByAssignmentInfos) {
-        AbstractModification modification = modificationByAssignmentInfos.toModification();
+    protected void apply(ModificationByAssignmentModel modificationByAssignmentModel) {
+        AbstractModification modification = modificationByAssignmentModel.toModification();
         modification.initApplicationContext(filterService, null);
         modification.apply(getNetwork());
     }
@@ -110,15 +109,15 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
 
     protected abstract Map<UUID, FilterEquipments> getTestFilters();
 
-    protected List<AssignmentModel<?>> getAssignmentInfos() {
-        PropertyAssignmentModel spyAssignmentInfos = spy(PropertyAssignmentModel.builder()
-                .editedField(PropertyField.FREE_PROPERTIES.name())
-                .propertyName("propertyName")
-                .value("propertyValue")
-                .filters(List.of(filter1))
-                .build());
-        doReturn(DataType.PROPERTY).when(spyAssignmentInfos).getDataType();
-        return new ArrayList<>(List.of(spyAssignmentInfos));
+    protected List<AssignmentModel<?>> getAssignmentModel() {
+        PropertyAssignmentModel spyAssignmentModel = spy(PropertyAssignmentModel.builder()
+            .editedField(PropertyField.FREE_PROPERTIES.name())
+            .propertyName("propertyName")
+            .value("propertyValue")
+            .filters(List.of(filter1))
+            .build());
+        doReturn(DataType.PROPERTY).when(spyAssignmentModel).getDataType();
+        return new ArrayList<>(List.of(spyAssignmentModel));
     }
 
     protected abstract IdentifiableType getIdentifiableType();

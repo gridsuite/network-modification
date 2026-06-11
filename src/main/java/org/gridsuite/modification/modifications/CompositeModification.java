@@ -13,7 +13,7 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
-import org.gridsuite.modification.dto.CompositeModificationInfos;
+import org.gridsuite.modification.model.CompositeModificationModel;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 
 import static org.gridsuite.modification.modifications.byfilter.AbstractModificationByAssignment.VALUE_KEY_ERROR_MESSAGE;
@@ -23,13 +23,13 @@ import static org.gridsuite.modification.modifications.byfilter.AbstractModifica
  */
 public class CompositeModification extends AbstractModification {
 
-    private final CompositeModificationInfos compositeModificationInfos;
+    private final CompositeModificationModel compositeModificationModel;
 
     protected IFilterService filterService;
     protected ILoadFlowService loadFlowService;
 
-    public CompositeModification(CompositeModificationInfos compositeModificationInfos) {
-        this.compositeModificationInfos = compositeModificationInfos;
+    public CompositeModification(CompositeModificationModel compositeModificationModel) {
+        this.compositeModificationModel = compositeModificationModel;
     }
 
     @Override
@@ -45,29 +45,25 @@ public class CompositeModification extends AbstractModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
-        compositeModificationInfos.getModificationsInfos().stream()
-                .filter(modificationInfos -> Boolean.TRUE.equals(modificationInfos.getActivated())
-                        && Boolean.FALSE.equals(modificationInfos.getStashed()))
-                .forEach(
-                        modif -> {
-                            ReportNode modifNode = modif.createSubReportNode(subReportNode);
-                            AbstractModification modification = modif.toModification();
-                            try {
-                                modification.check(network);
-                                modification.initApplicationContext(filterService, loadFlowService);
-                                modification.apply(network, namingStrategy, modifNode);
-                            } catch (Exception e) {
-                                // in case of error in a network modification, the composite modification doesn't interrupt its execution :
-                                // the following modifications will be carried out
-                                modifNode.newReportNode()
-                                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                                        .withMessageTemplate("network.modification.composite.exception.report")
-                                        .withUntypedValue("modificationName", modif.toModification().getName())
-                                        .withUntypedValue(VALUE_KEY_ERROR_MESSAGE, e.getMessage())
-                                        .withSeverity(TypedValue.ERROR_SEVERITY)
-                                        .add();
-                            }
-                        }
+        compositeModificationModel.getModificationsInfos().forEach(modif -> {
+                ReportNode modifNode = modif.createSubReportNode(subReportNode);
+                AbstractModification modification = modif.toModification();
+                try {
+                    modification.check(network);
+                    modification.initApplicationContext(filterService, loadFlowService);
+                    modification.apply(network, namingStrategy, modifNode);
+                } catch (Exception e) {
+                    // in case of error in a network modification, the composite modification doesn't interrupt its execution :
+                    // the following modifications will be carried out
+                    modifNode.newReportNode()
+                            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                            .withMessageTemplate("network.modification.composite.exception.report")
+                            .withUntypedValue("modificationName", modif.toModification().getName())
+                            .withUntypedValue(VALUE_KEY_ERROR_MESSAGE, e.getMessage())
+                            .withSeverity(TypedValue.ERROR_SEVERITY)
+                            .add();
+                }
+            }
         );
     }
 

@@ -41,46 +41,46 @@ class VoltageLevelModificationByAssignmentTest extends AbstractModificationByAss
     @Override
     protected void createEquipments() {
         getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_1).setNominalV(400)
-                .setHighVoltageLimit(200)
-                .setLowVoltageLimit(100)
-                .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(10).withIpMax(120).add();
+            .setHighVoltageLimit(200)
+            .setLowVoltageLimit(100)
+            .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(10).withIpMax(120).add();
 
         getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_2).setNominalV(150)
-                .setLowVoltageLimit(100)
-                .setHighVoltageLimit(1000)
-                .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(10).withIpMax(120).add();
+            .setLowVoltageLimit(100)
+            .setHighVoltageLimit(1000)
+            .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(10).withIpMax(120).add();
 
         getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_3).setNominalV(70)
-                .setLowVoltageLimit(50)
-                .setHighVoltageLimit(250)
-                .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(50).withIpMax(150).add();
+            .setLowVoltageLimit(50)
+            .setHighVoltageLimit(250)
+            .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(50).withIpMax(150).add();
 
         getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_4).setNominalV(100)
-                .setLowVoltageLimit(70)
-                .setHighVoltageLimit(300)
-                .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(10).withIpMax(100).add();
+            .setLowVoltageLimit(70)
+            .setHighVoltageLimit(300)
+            .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(10).withIpMax(100).add();
 
         getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_5).setNominalV(210)
-                .setLowVoltageLimit(10)
-                .setHighVoltageLimit(500)
-                .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(25).withIpMax(75).add();
+            .setLowVoltageLimit(10)
+            .setHighVoltageLimit(500)
+            .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(25).withIpMax(75).add();
 
         getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_6).setNominalV(750)
-                .setHighVoltageLimit(1000)
-                .setLowVoltageLimit(90)
-                .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(100).withIpMax(200).add();
+            .setHighVoltageLimit(1000)
+            .setLowVoltageLimit(90)
+            .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(100).withIpMax(200).add();
 
         // to test exceptions
         getNetwork().newVoltageLevel()
-                .setId(VOLTAGE_LEVEL_ID_7)
-                .setName(VOLTAGE_LEVEL_ID_7)
-                .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .setNominalV(400)
-                .setHighVoltageLimit(430)
-                .setLowVoltageLimit(370)
-                .add();
+            .setId(VOLTAGE_LEVEL_ID_7)
+            .setName(VOLTAGE_LEVEL_ID_7)
+            .setTopologyKind(TopologyKind.NODE_BREAKER)
+            .setNominalV(400)
+            .setHighVoltageLimit(430)
+            .setLowVoltageLimit(370)
+            .add();
         getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_7)
-                .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(100).withIpMax(200).add();
+            .newExtension(IdentifiableShortCircuitAdder.class).withIpMin(100).withIpMax(200).add();
     }
 
     @Override
@@ -111,70 +111,70 @@ class VoltageLevelModificationByAssignmentTest extends AbstractModificationByAss
         )).build();
 
         FilterEquipments filter6 = FilterEquipments.builder().filterId(FILTER_ID_6).identifiableAttributes(List.of(
-                new IdentifiableAttributes(VOLTAGE_LEVEL_ID_7, IdentifiableType.VOLTAGE_LEVEL, 1.0)
+            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_7, IdentifiableType.VOLTAGE_LEVEL, 1.0)
         )).build();
 
         return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3, FILTER_ID_4, filter4, FILTER_ID_5, filter5, FILTER_ID_6, filter6);
     }
 
     @Override
-    protected List<AssignmentModel<?>> getAssignmentInfos() {
-        DoubleAssignmentModel assignmentInfos1 = DoubleAssignmentModel.builder()
+    protected List<AssignmentModel<?>> getAssignmentModel() {
+        DoubleAssignmentModel assignmentModel1 = DoubleAssignmentModel.builder()
             .editedField(VoltageLevelField.LOW_VOLTAGE_LIMIT.name())
             .value(10.)
             .filters(List.of(filter1, filter2))
             .build();
 
-        DoubleAssignmentModel assignmentInfos2 = DoubleAssignmentModel.builder()
+        DoubleAssignmentModel assignmentModel2 = DoubleAssignmentModel.builder()
             .editedField(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name())
             .value(120.)
             .filters(List.of(filter3))
             .build();
 
-        DoubleAssignmentModel assignmentInfos3 = DoubleAssignmentModel.builder()
+        DoubleAssignmentModel assignmentModel3 = DoubleAssignmentModel.builder()
             .editedField(VoltageLevelField.NOMINAL_VOLTAGE.name())
             .value(150.)
             .filters(List.of(filter4))
             .build();
 
-        DoubleAssignmentModel assignmentInfos4 = DoubleAssignmentModel.builder()
-                .editedField(VoltageLevelField.LOW_SHORT_CIRCUIT_CURRENT_LIMIT.name())
-                .value(2.)
-                .filters(List.of(filter5))
-                .build();
+        DoubleAssignmentModel assignmentModel4 = DoubleAssignmentModel.builder()
+            .editedField(VoltageLevelField.LOW_SHORT_CIRCUIT_CURRENT_LIMIT.name())
+            .value(2.)
+            .filters(List.of(filter5))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos5 = DoubleAssignmentModel.builder()
-                .editedField(VoltageLevelField.HIGH_SHORT_CIRCUIT_CURRENT_LIMIT.name())
-                .value(80.)
-                .filters(List.of(filter4, filter5))
-                .build();
+        DoubleAssignmentModel assignmentModel5 = DoubleAssignmentModel.builder()
+            .editedField(VoltageLevelField.HIGH_SHORT_CIRCUIT_CURRENT_LIMIT.name())
+            .value(80.)
+            .filters(List.of(filter4, filter5))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos6 = DoubleAssignmentModel.builder()
-                .editedField(VoltageLevelField.LOW_VOLTAGE_LIMIT.name())
-                .value(440.)
-                .filters(List.of(filter6))
-                .build();
+        DoubleAssignmentModel assignmentModel6 = DoubleAssignmentModel.builder()
+            .editedField(VoltageLevelField.LOW_VOLTAGE_LIMIT.name())
+            .value(440.)
+            .filters(List.of(filter6))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos7 = DoubleAssignmentModel.builder()
-                .editedField(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name())
-                .value(360.)
-                .filters(List.of(filter6))
-                .build();
+        DoubleAssignmentModel assignmentModel7 = DoubleAssignmentModel.builder()
+            .editedField(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name())
+            .value(360.)
+            .filters(List.of(filter6))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos8 = DoubleAssignmentModel.builder()
-                .editedField(VoltageLevelField.LOW_SHORT_CIRCUIT_CURRENT_LIMIT.name())
-                .value(220.)
-                .filters(List.of(filter6))
-                .build();
+        DoubleAssignmentModel assignmentModel8 = DoubleAssignmentModel.builder()
+            .editedField(VoltageLevelField.LOW_SHORT_CIRCUIT_CURRENT_LIMIT.name())
+            .value(220.)
+            .filters(List.of(filter6))
+            .build();
 
-        DoubleAssignmentModel assignmentInfos9 = DoubleAssignmentModel.builder()
-                .editedField(VoltageLevelField.HIGH_SHORT_CIRCUIT_CURRENT_LIMIT.name())
-                .value(80.)
-                .filters(List.of(filter6))
-                .build();
+        DoubleAssignmentModel assignmentModel9 = DoubleAssignmentModel.builder()
+            .editedField(VoltageLevelField.HIGH_SHORT_CIRCUIT_CURRENT_LIMIT.name())
+            .value(80.)
+            .filters(List.of(filter6))
+            .build();
 
-        return List.of(assignmentInfos1, assignmentInfos2, assignmentInfos3, assignmentInfos4, assignmentInfos5,
-                assignmentInfos6, assignmentInfos7, assignmentInfos8, assignmentInfos9);
+        return List.of(assignmentModel1, assignmentModel2, assignmentModel3, assignmentModel4, assignmentModel5,
+            assignmentModel6, assignmentModel7, assignmentModel8, assignmentModel9);
     }
 
     @Override
@@ -219,25 +219,25 @@ class VoltageLevelModificationByAssignmentTest extends AbstractModificationByAss
         assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(5).getChildren().getFirst().getMessage());
         assertEquals("Edited field : LOW_VOLTAGE_LIMIT", reportNode.getChildren().getFirst().getChildren().get(5).getChildren().get(1).getMessage());
         assertEquals("Cannot modify equipment v7 : MODIFY_VOLTAGE_LEVEL_ERROR : Voltage level 'v7' :  Low voltage limit (440.0) must be inferior to High voltage limit (430.0)",
-                reportNode.getChildren().getFirst().getChildren().get(5).getChildren().get(2).getMessage());
+            reportNode.getChildren().getFirst().getChildren().get(5).getChildren().get(2).getMessage());
 
         assertEquals("Assignment on filters : filter6", reportNode.getChildren().getFirst().getChildren().get(6).getMessage());
         assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(6).getChildren().getFirst().getMessage());
         assertEquals("Edited field : HIGH_VOLTAGE_LIMIT", reportNode.getChildren().getFirst().getChildren().get(6).getChildren().get(1).getMessage());
         assertEquals("Cannot modify equipment v7 : MODIFY_VOLTAGE_LEVEL_ERROR : Voltage level 'v7' :  High voltage limit (360.0) must be superior to Low voltage limit (370.0)",
-                reportNode.getChildren().getFirst().getChildren().get(6).getChildren().get(2).getMessage());
+            reportNode.getChildren().getFirst().getChildren().get(6).getChildren().get(2).getMessage());
 
         assertEquals("Assignment on filters : filter6", reportNode.getChildren().getFirst().getChildren().get(7).getMessage());
         assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(7).getChildren().getFirst().getMessage());
         assertEquals("Edited field : LOW_SHORT_CIRCUIT_CURRENT_LIMIT", reportNode.getChildren().getFirst().getChildren().get(7).getChildren().get(1).getMessage());
         assertEquals("Cannot modify equipment v7 : MODIFY_VOLTAGE_LEVEL_ERROR : Voltage level 'v7' :  Low short circuit current limit (220.0) must be inferior to High short circuit current limit (200.0)",
-                reportNode.getChildren().getFirst().getChildren().get(7).getChildren().get(2).getMessage());
+            reportNode.getChildren().getFirst().getChildren().get(7).getChildren().get(2).getMessage());
 
         assertEquals("Assignment on filters : filter6", reportNode.getChildren().getFirst().getChildren().get(8).getMessage());
         assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(8).getChildren().getFirst().getMessage());
         assertEquals("Edited field : HIGH_SHORT_CIRCUIT_CURRENT_LIMIT", reportNode.getChildren().getFirst().getChildren().get(8).getChildren().get(1).getMessage());
         assertEquals("Cannot modify equipment v7 : MODIFY_VOLTAGE_LEVEL_ERROR : Voltage level 'v7' :  High short circuit current limit (80.0) must be superior to Low short circuit current limit (100.0)",
-                reportNode.getChildren().getFirst().getChildren().get(8).getChildren().get(2).getMessage());
+            reportNode.getChildren().getFirst().getChildren().get(8).getChildren().get(2).getMessage());
     }
 
 }
