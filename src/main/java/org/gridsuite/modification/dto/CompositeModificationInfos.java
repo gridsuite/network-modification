@@ -6,14 +6,18 @@
  */
 package org.gridsuite.modification.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.CompositeModificationModel;
+import org.gridsuite.modification.model.ModificationModel;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -27,7 +31,7 @@ import java.util.UUID;
 @Schema(description = "Composite modification")
 @JsonTypeName("COMPOSITE_MODIFICATION")
 @ModificationErrorTypeName("COMPOSITE_MODIFICATION_ERROR")
-public class CompositeModificationInfos extends CompositeModificationModel implements ModificationInfos {
+public class CompositeModificationInfos implements ModificationInfos {
     @Schema(description = "Modification id")
     private UUID uuid;
 
@@ -49,4 +53,32 @@ public class CompositeModificationInfos extends CompositeModificationModel imple
 
     @Schema(description = "User description")
     private String description;
+
+    @Schema(description = "composite modification name")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String name;
+
+    @Schema(description = "composite modification list")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<ModificationInfos> modificationsInfos;
+
+    // While composite submodifications are lazy loaded we need an indicator to know if we allow depth sensitive operation
+    // added only to the DTO so it can be computed while retrieving composite metadata at runtime
+    @Schema(description = "composite modification max depth")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer maxDepth;
+
+    @Override
+    public ModificationType getType() {
+        return ModificationType.COMPOSITE_MODIFICATION;
+    }
+
+    @Override
+    public ModificationModel toModel() {
+        return CompositeModificationModel.builder()
+            .name(name)
+            .modificationsInfos(modificationsInfos.stream().map(ModificationInfos::toModel).toList())
+            .maxDepth(maxDepth)
+            .build();
+    }
 }

@@ -8,17 +8,15 @@ package org.gridsuite.modification.dto.tabular;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.model.tabular.LimitSetsTabularModificationModel;
-
-import java.time.Instant;
-import java.util.UUID;
 
 /**
  * @author Hugo Marcellin <hugo.marcelin at rte-france.com>
@@ -30,26 +28,19 @@ import java.util.UUID;
 @Schema(description = "Limit sets tabular modification")
 @JsonTypeName("LIMIT_SETS_TABULAR_MODIFICATION")
 @ModificationErrorTypeName("LIMIT_SETS_TABULAR_MODIFICATION_ERROR")
-public class LimitSetsTabularModificationInfos extends LimitSetsTabularModificationModel implements ModificationInfos {
-    @Schema(description = "Modification id")
-    private UUID uuid;
+public class LimitSetsTabularModificationInfos extends AbstractTabularBaseInfos implements ModificationInfos {
+    @Override
+    public ModificationType getType() {
+        return ModificationType.LIMIT_SETS_TABULAR_MODIFICATION;
+    }
 
-    @Schema(description = "Modification date")
-    private Instant date;
-
-    @Schema(description = "Modification flag")
-    @Builder.Default
-    private Boolean stashed = false;
-
-    @Schema(description = "Message type")
-    private String messageType;
-
-    @Schema(description = "Message values")
-    private String messageValues;
-
-    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
-    private Boolean activated;
-
-    @Schema(description = "User description")
-    private String description;
+    @Override
+    public ModificationModel toModel() {
+        return LimitSetsTabularModificationModel.builder()
+            .modifications(modifications.stream().map(ModificationInfos::toModel).toList())
+            .properties(properties)
+            .csvFilename(csvFilename)
+            .modificationType(modificationType)
+            .build();
+    }
 }

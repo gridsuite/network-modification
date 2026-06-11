@@ -6,16 +6,20 @@
  */
 package org.gridsuite.modification.dto.tabular;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.model.tabular.TabularBaseModel;
+import org.gridsuite.modification.model.tabular.TabularPropertyModel;
+import org.springframework.lang.NonNull;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -23,29 +27,44 @@ import java.util.UUID;
  */
 @SuperBuilder
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @Data
 @Schema(description = "Tabular abstract modification")
-public class TabularBaseInfos extends TabularBaseModel implements ModificationInfos {
+public abstract class AbstractTabularBaseInfos implements ModificationInfos {
     @Schema(description = "Modification id")
-    private UUID uuid;
+    protected UUID uuid;
 
     @Schema(description = "Modification date")
-    private Instant date;
+    protected Instant date;
 
     @Schema(description = "Modification flag")
     @Builder.Default
-    private Boolean stashed = false;
+    protected Boolean stashed = false;
 
     @Schema(description = "Message type")
-    private String messageType;
+    protected String messageType;
 
     @Schema(description = "Message values")
-    private String messageValues;
+    protected String messageValues;
 
     @Schema(description = "Modification activated (defaults to true at creation when not provided)")
-    private Boolean activated;
+    protected Boolean activated;
 
     @Schema(description = "User description")
-    private String description;
+    protected String description;
+
+    @Schema(description = "additional properties")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    protected List<TabularPropertyModel> properties;
+
+    @Schema(description = "csv file name")
+    protected String csvFilename;
+
+    @Schema(description = "Modification type")
+    @NonNull
+    protected ModificationType modificationType;
+
+    @Schema(description = "modifications")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    protected List<ModificationInfos> modifications;
 }

@@ -8,17 +8,15 @@ package org.gridsuite.modification.dto.tabular;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.model.tabular.TabularModificationModel;
-
-import java.time.Instant;
-import java.util.UUID;
 
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
@@ -30,26 +28,19 @@ import java.util.UUID;
 @Schema(description = "Tabular modification")
 @JsonTypeName("TABULAR_MODIFICATION")
 @ModificationErrorTypeName("TABULAR_MODIFICATION_ERROR")
-public class TabularModificationInfos extends TabularModificationModel implements ModificationInfos {
-    @Schema(description = "Modification id")
-    private UUID uuid;
+public class TabularModificationInfos extends AbstractTabularBaseInfos implements ModificationInfos {
+    @Override
+    public ModificationType getType() {
+        return ModificationType.TABULAR_MODIFICATION;
+    }
 
-    @Schema(description = "Modification date")
-    private Instant date;
-
-    @Schema(description = "Modification flag")
-    @Builder.Default
-    private Boolean stashed = false;
-
-    @Schema(description = "Message type")
-    private String messageType;
-
-    @Schema(description = "Message values")
-    private String messageValues;
-
-    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
-    private Boolean activated;
-
-    @Schema(description = "User description")
-    private String description;
+    @Override
+    public ModificationModel toModel() {
+        return TabularModificationModel.builder()
+            .modifications(modifications.stream().map(ModificationInfos::toModel).toList())
+            .properties(properties)
+            .csvFilename(csvFilename)
+            .modificationType(modificationType)
+            .build();
+    }
 }

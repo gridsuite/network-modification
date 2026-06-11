@@ -70,6 +70,16 @@ public class ModificationModel {
     }
 
     @JsonIgnore
+    public String getMessageType() {
+        return getType().name();
+    }
+
+    @JsonIgnore
+    public String getMessageValues() {
+        return getMapMessageValues().toString();
+    }
+
+    @JsonIgnore
     public void check() {
         // To check input DTO before hypothesis creation. Nothing to check here
     }
