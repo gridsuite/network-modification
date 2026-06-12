@@ -20,7 +20,6 @@ import org.gridsuite.modification.model.byfilter.formula.Operator;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 
 import javax.annotation.Nonnull;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collections;
@@ -32,11 +31,11 @@ import static org.gridsuite.modification.NetworkModificationException.Type.BY_FO
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
  */
 public class ByFormulaModification extends AbstractModificationByAssignment {
-    private final ByFormulaModificationModel modificationModel;
+    private final ByFormulaModificationModel modificationInfos;
 
-    public ByFormulaModification(ByFormulaModificationModel modificationModel) {
+    public ByFormulaModification(ByFormulaModificationModel modificationInfos) {
         super();
-        this.modificationModel = modificationModel;
+        this.modificationInfos = modificationInfos;
     }
 
     @Override
@@ -45,18 +44,18 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
     }
 
     @Override
-    public ModificationModel getModificationModel() {
-        return modificationModel;
+    public ModificationModel getModificationInfos() {
+        return modificationInfos;
     }
 
     @Override
     public IdentifiableType getEquipmentType() {
-        return modificationModel.getIdentifiableType();
+        return modificationInfos.getIdentifiableType();
     }
 
     @Override
-    public List<AbstractAssignmentModel> getAssignmentModelList() {
-        return Collections.unmodifiableList(modificationModel.getFormulaInfosList());
+    public List<AbstractAssignmentModel> getAssignmentInfosList() {
+        return Collections.unmodifiableList(modificationInfos.getFormulaInfosList());
     }
 
     @Override
@@ -65,20 +64,20 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
     }
 
     @Override
-    protected boolean preCheckValue(Identifiable<?> equipment, AbstractAssignmentModel abstractAssignmentModel, List<ReportNode> reports, List<String> notEditableEquipments) {
-        FormulaModel formulaModel = (FormulaModel) abstractAssignmentModel;
-        Double value1 = formulaModel.getFieldOrValue1().getRefOrValue(equipment);
-        Double value2 = formulaModel.getFieldOrValue2().getRefOrValue(equipment);
+    protected boolean preCheckValue(Identifiable<?> equipment, AbstractAssignmentModel abstractAssignmentInfos, List<ReportNode> reports, List<String> notEditableEquipments) {
+        FormulaModel formulaInfos = (FormulaModel) abstractAssignmentInfos;
+        Double value1 = formulaInfos.getFieldOrValue1().getRefOrValue(equipment);
+        Double value2 = formulaInfos.getFieldOrValue2().getRefOrValue(equipment);
         // value 1 and value 2 cannot be null because getRefOrValue returns NaN if value is null
         if (Double.isNaN(value1) || Double.isNaN(value2)) {
             return reportErrorOnEquipment(equipment, notEditableEquipments, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_MISSING, reports);
         }
 
-        if (value2 == 0 && formulaModel.getOperator() == Operator.DIVISION) {
+        if (value2 == 0 && formulaInfos.getOperator() == Operator.DIVISION) {
             return reportErrorOnEquipment(equipment, notEditableEquipments, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO, reports);
         }
         if (equipment.getType() == IdentifiableType.GENERATOR) {
-            return checkGeneratorsPowerValues(equipment, abstractAssignmentModel, reports);
+            return checkGeneratorsPowerValues(equipment, abstractAssignmentInfos, reports);
         }
         return true;
     }
@@ -87,20 +86,20 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
         equipmentNotModifiedCount += 1;
         notEditableEquipments.add(equipment.getId());
         reports.add(ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate(reportKey)
-            .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
-            .withSeverity(TypedValue.WARN_SEVERITY)
-            .build());
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate(reportKey)
+                .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
         return false;
     }
 
     @Override
-    protected String getNewValue(Identifiable<?> equipment, AbstractAssignmentModel abstractAssignmentModel) {
-        FormulaModel formulaModel = (FormulaModel) abstractAssignmentModel;
-        Double value1 = formulaModel.getFieldOrValue1().getRefOrValue(equipment);
-        Double value2 = formulaModel.getFieldOrValue2().getRefOrValue(equipment);
-        return applyOperation(formulaModel.getOperator(), value1, value2).toString();
+    protected String getNewValue(Identifiable<?> equipment, AbstractAssignmentModel abstractAssignmentInfos) {
+        FormulaModel formulaInfos = (FormulaModel) abstractAssignmentInfos;
+        Double value1 = formulaInfos.getFieldOrValue1().getRefOrValue(equipment);
+        Double value2 = formulaInfos.getFieldOrValue2().getRefOrValue(equipment);
+        return applyOperation(formulaInfos.getOperator(), value1, value2).toString();
     }
 
     static final int MAX_SCALE = 10;

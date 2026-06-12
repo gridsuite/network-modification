@@ -12,7 +12,6 @@ import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.model.FilterEquipments;
 import org.gridsuite.modification.model.IdentifiableAttributes;
 import org.gridsuite.modification.utils.NetworkCreation;
-
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;

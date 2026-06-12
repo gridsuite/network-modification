@@ -21,10 +21,8 @@ import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-
 import java.util.List;
 import java.util.UUID;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -34,9 +32,9 @@ class EquipmentDeletionTest extends AbstractNetworkModificationTest {
 
     @Override
     public void checkModification() {
-        EquipmentDeletionModel equipmentDeletionModel = (EquipmentDeletionModel) buildModification();
-        equipmentDeletionModel.setEquipmentId("notFoundLoad");
-        assertThrows(NetworkModificationException.class, () -> equipmentDeletionModel.toModification().check(getNetwork()));
+        EquipmentDeletionModel equipmentDeletionInfos = (EquipmentDeletionModel) buildModification();
+        equipmentDeletionInfos.setEquipmentId("notFoundLoad");
+        assertThrows(NetworkModificationException.class, () -> equipmentDeletionInfos.toModification().check(getNetwork()));
     }
 
     @Override
@@ -47,9 +45,9 @@ class EquipmentDeletionTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return EquipmentDeletionModel.builder()
-            .equipmentType(IdentifiableType.LOAD)
-            .equipmentId("v1load")
-            .build();
+                .equipmentType(IdentifiableType.LOAD)
+                .equipmentId("v1load")
+                .build();
     }
 
     @Override
@@ -60,13 +58,13 @@ class EquipmentDeletionTest extends AbstractNetworkModificationTest {
     @Test
     void testOkWhenRemovingIsolatedEquipment() {
 
-        EquipmentDeletionModel equipmentDeletionModel = EquipmentDeletionModel.builder()
-            .equipmentType(IdentifiableType.LOAD)
-            .equipmentId("v5load")
-            .build();
+        EquipmentDeletionModel equipmentDeletionInfos = EquipmentDeletionModel.builder()
+                .equipmentType(IdentifiableType.LOAD)
+                .equipmentId("v5load")
+                .build();
 
         // delete load with error removing dangling switches, because the load connection node is not linked to any other node
-        equipmentDeletionModel.toModification().apply(getNetwork());
+        equipmentDeletionInfos.toModification().apply(getNetwork());
         var v5 = getNetwork().getVoltageLevel("v5");
         assertThrows(PowsyblException.class, () -> v5.getNodeBreakerView().getTerminal(2));
     }
@@ -76,20 +74,20 @@ class EquipmentDeletionTest extends AbstractNetworkModificationTest {
         assertNotNull(getNetwork().getHvdcLine(hvdcLineName));
         assertEquals(warningCase, getNetwork().getShuntCompensator(shuntNameToBeRemoved) == null);
 
-        List<ShuntCompensatorModel> shuntCompensatorModel = List.of(new ShuntCompensatorModel(shuntNameToBeRemoved, selected));
-        HvdcLccDeletionModel hvdcLccDeletionModel = new HvdcLccDeletionModel();
+        List<ShuntCompensatorModel> shuntCompensatorInfos = List.of(new ShuntCompensatorModel(shuntNameToBeRemoved, selected));
+        HvdcLccDeletionModel hvdcLccDeletionInfos = new HvdcLccDeletionModel();
         if (side == 1) {
-            hvdcLccDeletionModel.setMcsOnSide1(shuntCompensatorModel);
+            hvdcLccDeletionInfos.setMcsOnSide1(shuntCompensatorInfos);
         } else {
-            hvdcLccDeletionModel.setMcsOnSide2(shuntCompensatorModel);
+            hvdcLccDeletionInfos.setMcsOnSide2(shuntCompensatorInfos);
         }
-        EquipmentDeletionModel equipmentDeletionModel = EquipmentDeletionModel.builder()
-            .equipmentType(IdentifiableType.HVDC_LINE)
-            .equipmentId(hvdcLineName)
-            .equipmentInfos(hvdcLccDeletionModel)
-            .build();
+        EquipmentDeletionModel equipmentDeletionInfos = EquipmentDeletionModel.builder()
+                .equipmentType(IdentifiableType.HVDC_LINE)
+                .equipmentId(hvdcLineName)
+                .equipmentInfos(hvdcLccDeletionInfos)
+                .build();
 
-        equipmentDeletionModel.toModification().apply(getNetwork());
+        equipmentDeletionInfos.toModification().apply(getNetwork());
 
         assertNull(getNetwork().getHvdcLine(hvdcLineName));
         assertEquals(selected, getNetwork().getShuntCompensator(shuntNameToBeRemoved) == null);
@@ -116,9 +114,9 @@ class EquipmentDeletionTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("EQUIPMENT_DELETION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("EQUIPMENT_DELETION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("v1load", createdValues.get("equipmentId"));
     }

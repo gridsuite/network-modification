@@ -38,9 +38,9 @@ class OperatingStatusModificationLockoutHvdcLineTest extends AbstractNetworkModi
     @Override
     protected ModificationModel buildModification() {
         return OperatingStatusModificationModel.builder()
-            .equipmentId(TARGET_HVDC_LINE_ID)
-            .energizedVoltageLevelId("energizedVoltageLevelId")
-            .action(OperatingStatusModificationModel.ActionType.LOCKOUT).build();
+                .equipmentId(TARGET_HVDC_LINE_ID)
+                .energizedVoltageLevelId("energizedVoltageLevelId")
+                .action(OperatingStatusModificationModel.ActionType.LOCKOUT).build();
     }
 
     @Override
@@ -49,9 +49,9 @@ class OperatingStatusModificationLockoutHvdcLineTest extends AbstractNetworkModi
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("OPERATING_STATUS_MODIFICATION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("OPERATING_STATUS_MODIFICATION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("energizedVoltageLevelId", createdValues.get("energizedVoltageLevelId"));
         // assertEquals("LOCKOUT", createdValues.get("action"));

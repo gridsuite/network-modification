@@ -31,32 +31,32 @@ import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.
 
 public class GeneratorScaling extends AbstractScaling {
 
-    public GeneratorScaling(GeneratorScalingModel generatorScalableModel) {
-        super(generatorScalableModel);
+    public GeneratorScaling(GeneratorScalingModel generatorScalableInfos) {
+        super(generatorScalableInfos);
     }
 
     @Override
     protected void applyStackingUpVariation(Network network,
                                             ReportNode subReportNode,
-                                            Set<IdentifiableAttributes> identifiableAttributes,
-                                            ScalingVariationModel generatorScalingVariation) {
+                                         Set<IdentifiableAttributes> identifiableAttributes,
+                                         ScalingVariationModel generatorScalingVariation) {
         AtomicReference<Double> sum = new AtomicReference<>(0D);
         Scalable stackingUpScalable = Scalable.stack(identifiableAttributes.stream()
-            .map(attribute -> network.getGenerator(attribute.getId()))
-            .filter(ModificationUtils::isInjectionConnected)
-            .map(g -> {
-                sum.set(g.getTargetP() + sum.get());
-                return getScalable(g.getId());
-            }).toArray(Scalable[]::new));
+                .map(attribute -> network.getGenerator(attribute.getId()))
+                .filter(ModificationUtils::isInjectionConnected)
+                .map(g -> {
+                    sum.set(g.getTargetP() + sum.get());
+                    return getScalable(g.getId());
+                }).toArray(Scalable[]::new));
         scale(network, subReportNode, generatorScalingVariation, sum, stackingUpScalable, new ScalingParameters());
     }
 
     @Override
     protected void applyVentilationVariation(Network network,
                                              ReportNode subReportNode,
-                                             Set<IdentifiableAttributes> identifiableAttributes,
-                                             ScalingVariationModel generatorScalingVariation,
-                                             Double distributionKeys) {
+                                          Set<IdentifiableAttributes> identifiableAttributes,
+                                          ScalingVariationModel generatorScalingVariation,
+                                          Double distributionKeys) {
         if (distributionKeys != null) {
             AtomicReference<Double> sum = new AtomicReference<>(0D);
             List<Double> percentages = new ArrayList<>();
@@ -78,21 +78,21 @@ public class GeneratorScaling extends AbstractScaling {
     @Override
     protected void applyRegularDistributionVariation(Network network,
                                                      ReportNode subReportNode,
-                                                     Set<IdentifiableAttributes> identifiableAttributes,
-                                                     ScalingVariationModel generatorScalingVariation) {
+                                                  Set<IdentifiableAttributes> identifiableAttributes,
+                                                  ScalingVariationModel generatorScalingVariation) {
         List<Generator> generators = identifiableAttributes
-            .stream()
-            .map(attribute -> network.getGenerator(attribute.getId()))
-            .filter(ModificationUtils::isInjectionConnected)
-            .toList();
+                .stream()
+                .map(attribute -> network.getGenerator(attribute.getId()))
+                .filter(ModificationUtils::isInjectionConnected)
+                .toList();
 
         AtomicReference<Double> sum = new AtomicReference<>(0D);
 
         List<Scalable> scalables = generators.stream()
-            .map(generator -> {
-                sum.set(sum.get() + generator.getTargetP());
-                return getScalable(generator.getId());
-            }).collect(Collectors.toList());
+                .map(generator -> {
+                    sum.set(sum.get() + generator.getTargetP());
+                    return getScalable(generator.getId());
+                }).collect(Collectors.toList());
 
         List<Double> percentages = new ArrayList<>(Collections.nCopies(scalables.size(), 100.0 / scalables.size()));
         Scalable regularDistributionScalable = Scalable.proportional(percentages, scalables);
@@ -102,15 +102,15 @@ public class GeneratorScaling extends AbstractScaling {
     @Override
     protected void applyProportionalToPmaxVariation(Network network,
                                                     ReportNode subReportNode,
-                                                    Set<IdentifiableAttributes> identifiableAttributes,
-                                                    ScalingVariationModel generatorScalingVariation) {
+                                                 Set<IdentifiableAttributes> identifiableAttributes,
+                                                 ScalingVariationModel generatorScalingVariation) {
         AtomicReference<Double> maxPSum = new AtomicReference<>(0D);
         AtomicReference<Double> targetPSum = new AtomicReference<>(0D);
         List<Generator> generators = identifiableAttributes
-            .stream()
-            .map(attribute -> network.getGenerator(attribute.getId()))
-            .filter(ModificationUtils::isInjectionConnected)
-            .toList();
+                .stream()
+                .map(attribute -> network.getGenerator(attribute.getId()))
+                .filter(ModificationUtils::isInjectionConnected)
+                .toList();
         Map<String, Double> maxPMap = new HashMap<>();
         List<Double> percentages = new ArrayList<>();
         List<Scalable> scalables = new ArrayList<>();
@@ -131,14 +131,14 @@ public class GeneratorScaling extends AbstractScaling {
     @Override
     protected void applyProportionalVariation(Network network,
                                               ReportNode subReportNode,
-                                              Set<IdentifiableAttributes> identifiableAttributes,
-                                              ScalingVariationModel generatorScalingVariation) {
+                                           Set<IdentifiableAttributes> identifiableAttributes,
+                                           ScalingVariationModel generatorScalingVariation) {
         AtomicReference<Double> sum = new AtomicReference<>(0D);
         List<Generator> generators = identifiableAttributes
-            .stream()
-            .map(attribute -> network.getGenerator(attribute.getId()))
-            .filter(ModificationUtils::isInjectionConnected)
-            .toList();
+                .stream()
+                .map(attribute -> network.getGenerator(attribute.getId()))
+                .filter(ModificationUtils::isInjectionConnected)
+                .toList();
         List<Double> percentages = new ArrayList<>();
         Map<String, Double> targetPMap = new HashMap<>();
         List<Scalable> scalables = new ArrayList<>();
@@ -165,23 +165,23 @@ public class GeneratorScaling extends AbstractScaling {
         });
     }
 
-    private void scale(Network network, ReportNode subReportNode, ScalingVariationModel scalingVariationModel, AtomicReference<Double> sum, Scalable scalable, ScalingParameters scalingParameters) {
-        double asked = getAsked(scalingVariationModel, sum);
+    private void scale(Network network, ReportNode subReportNode, ScalingVariationModel scalingVariationInfos, AtomicReference<Double> sum, Scalable scalable, ScalingParameters scalingParameters) {
+        double asked = getAsked(scalingVariationInfos, sum);
         double done = scalable.scale(network, asked, scalingParameters);
         subReportNode.newReportNode()
-            .withMessageTemplate("network.modification.scalingApplied")
-            .withUntypedValue("variationMode", scalingVariationModel.getVariationMode().name())
-            .withUntypedValue("askedValue", asked)
-            .withUntypedValue("actualValue", done)
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
+                .withMessageTemplate("network.modification.scalingApplied")
+                .withUntypedValue("variationMode", scalingVariationInfos.getVariationMode().name())
+                .withUntypedValue("askedValue", asked)
+                .withUntypedValue("actualValue", done)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
     }
 
     @Override
     protected double getAsked(ScalingVariationModel generatorScalingVariation, AtomicReference<Double> sum) {
-        return scalingModel.getVariationType() == VariationType.DELTA_P
-            ? generatorScalingVariation.getVariationValue()
-            : generatorScalingVariation.getVariationValue() - sum.get();
+        return scalingInfos.getVariationType() == VariationType.DELTA_P
+                ? generatorScalingVariation.getVariationValue()
+                : generatorScalingVariation.getVariationValue() - sum.get();
     }
 
     @Override

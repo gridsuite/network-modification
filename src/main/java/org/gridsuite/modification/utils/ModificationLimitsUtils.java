@@ -159,15 +159,15 @@ public final class ModificationLimitsUtils {
                     newGroup.setProperty(propertyNameLine1, valueLine1);
                 } else {
                     reportNodes.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("network.modification.propertyOfLimitsGroupDeletedAfterMerge")
-                        .withUntypedValue("property_name", propertyNameLine1)
-                        .withUntypedValue("property_value_1", valueLine1)
-                        .withUntypedValue(LINE1, line1Id)
-                        .withUntypedValue("property_value_2", valueLine2)
-                        .withUntypedValue(LINE2, line2Id)
-                        .withUntypedValue(REPLACING_LINE, newLineId)
-                        .withSeverity(TypedValue.INFO_SEVERITY)
-                        .build());
+                            .withMessageTemplate("network.modification.propertyOfLimitsGroupDeletedAfterMerge")
+                            .withUntypedValue("property_name", propertyNameLine1)
+                            .withUntypedValue("property_value_1", valueLine1)
+                            .withUntypedValue(LINE1, line1Id)
+                            .withUntypedValue("property_value_2", valueLine2)
+                            .withUntypedValue(LINE2, line2Id)
+                            .withUntypedValue(REPLACING_LINE, newLineId)
+                            .withSeverity(TypedValue.INFO_SEVERITY)
+                            .build());
                 }
             } else {
                 String valueLine1 = groupOnLine1.getProperty(propertyNameLine1);
@@ -186,14 +186,14 @@ public final class ModificationLimitsUtils {
     private static void logDeletedGroups(String deletedGroup, ReportNode reportNode, TwoSides side,
                                          String lineWithLimitSet, String lineWithoutLimitSet, String newLineId) {
         reportNode.newReportNode()
-            .withMessageTemplate("network.modification.limitGroupsDeletedAfterMerge")
-            .withUntypedValue(LIMITSET_NAME, deletedGroup)
-            .withUntypedValue(APPLICABILITY, side.name())
-            .withUntypedValue("line_with_limitset", lineWithLimitSet)
-            .withUntypedValue("line_without_limitset", lineWithoutLimitSet)
-            .withUntypedValue(REPLACING_LINE, newLineId)
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
+                .withMessageTemplate("network.modification.limitGroupsDeletedAfterMerge")
+                .withUntypedValue(LIMITSET_NAME, deletedGroup)
+                .withUntypedValue(APPLICABILITY, side.name())
+                .withUntypedValue("line_with_limitset", lineWithLimitSet)
+                .withUntypedValue("line_without_limitset", lineWithoutLimitSet)
+                .withUntypedValue(REPLACING_LINE, newLineId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
     }
 
     private static List<ReportNode> mergeCurrentLimits(CurrentLimits currentLimitsLine1,
@@ -206,11 +206,11 @@ public final class ModificationLimitsUtils {
         List<ReportNode> reportNodes = new ArrayList<>();
         adder.setPermanentLimit(Math.min(currentLimitsLine1.getPermanentLimit(), currentLimitsLine2.getPermanentLimit()));
         logMergingPermanentLimits(reportNodes, currentLimitsLine1.getPermanentLimit(), currentLimitsLine2.getPermanentLimit(),
-            line1Id, line2Id);
+                line1Id, line2Id);
         Map<String, LoadingLimits.TemporaryLimit> temporaryLimitsOnLine1 = currentLimitsLine1.getTemporaryLimits()
-            .stream().collect(Collectors.toMap(LoadingLimits.TemporaryLimit::getName, Function.identity()));
+                .stream().collect(Collectors.toMap(LoadingLimits.TemporaryLimit::getName, Function.identity()));
         Map<String, LoadingLimits.TemporaryLimit> temporaryLimitsOnLine2 = currentLimitsLine2.getTemporaryLimits()
-            .stream().collect(Collectors.toMap(LoadingLimits.TemporaryLimit::getName, Function.identity()));
+                .stream().collect(Collectors.toMap(LoadingLimits.TemporaryLimit::getName, Function.identity()));
         Set<String> allTemporaryLimitNames = new HashSet<>();
         allTemporaryLimitNames.addAll(temporaryLimitsOnLine1.keySet());
         allTemporaryLimitNames.addAll(temporaryLimitsOnLine2.keySet());
@@ -224,16 +224,16 @@ public final class ModificationLimitsUtils {
             } else if (temporaryLimitLine1 != null) {
                 if (temporaryLimitLine1.getAcceptableDuration() != temporaryLimitLine2.getAcceptableDuration()) {
                     logSameTemporaryLimitWithDifferentAcceptableDuration(reportNodes, temporaryLimitLine1.getName(),
-                        line1Id, temporaryLimitLine1.getAcceptableDuration(), line2Id,
-                        temporaryLimitLine2.getAcceptableDuration(), side);
+                            line1Id, temporaryLimitLine1.getAcceptableDuration(), line2Id,
+                            temporaryLimitLine2.getAcceptableDuration(), side);
                 } else {
                     adder.beginTemporaryLimit()
-                        .setName(temporaryLimitName)
-                        .setAcceptableDuration(temporaryLimitLine1.getAcceptableDuration())
-                        .setValue(Math.min(temporaryLimitLine1.getValue(), temporaryLimitLine2.getValue()))
-                        .endTemporaryLimit();
+                            .setName(temporaryLimitName)
+                            .setAcceptableDuration(temporaryLimitLine1.getAcceptableDuration())
+                            .setValue(Math.min(temporaryLimitLine1.getValue(), temporaryLimitLine2.getValue()))
+                            .endTemporaryLimit();
                     logMergingTemporaryLimits(reportNodes, temporaryLimitName, temporaryLimitLine1.getAcceptableDuration(),
-                        temporaryLimitLine1.getValue(), temporaryLimitLine2.getValue(), line1Id, line2Id);
+                            temporaryLimitLine1.getValue(), temporaryLimitLine2.getValue(), line1Id, line2Id);
                 }
             }
         });
@@ -244,42 +244,42 @@ public final class ModificationLimitsUtils {
     private static void logDeletedTemporaryLimit(List<ReportNode> reportNodes, LoadingLimits.TemporaryLimit temporaryLimit,
                                                  String lineWithTemporaryLimit, String lineWithoutTemporaryLimit, TwoSides side) {
         reportNodes.add(ReportNode.newRootReportNode()
-            .withMessageTemplate("network.modification.temporaryLimitsDeletedAfterMerge")
-            .withUntypedValue(LIMIT_NAME, temporaryLimit.getName())
-            .withUntypedValue("tempo", temporaryLimit.getAcceptableDuration())
-            .withUntypedValue(APPLICABILITY, side.name())
-            .withUntypedValue("line_with_limit", lineWithTemporaryLimit)
-            .withUntypedValue("line_without_limit", lineWithoutTemporaryLimit)
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .build());
+                .withMessageTemplate("network.modification.temporaryLimitsDeletedAfterMerge")
+                .withUntypedValue(LIMIT_NAME, temporaryLimit.getName())
+                .withUntypedValue("tempo", temporaryLimit.getAcceptableDuration())
+                .withUntypedValue(APPLICABILITY, side.name())
+                .withUntypedValue("line_with_limit", lineWithTemporaryLimit)
+                .withUntypedValue("line_without_limit", lineWithoutTemporaryLimit)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
     }
 
     private static void logMergingPermanentLimits(List<ReportNode> reportNodes, Double permanentLimit1, Double permanentLimit2,
-                                                  String line1Id, String line2Id) {
+                                                 String line1Id, String line2Id) {
         reportNodes.add(ReportNode.newRootReportNode()
-            .withMessageTemplate("network.modification.mergingPermanentLimits")
-            .withUntypedValue("value1", permanentLimit1)
-            .withUntypedValue(LINE1, line1Id)
-            .withUntypedValue("value2", permanentLimit2)
-            .withUntypedValue(LINE2, line2Id)
-            .withUntypedValue("lowest_value", Math.min(permanentLimit1, permanentLimit2))
-            .withSeverity(TypedValue.DETAIL_SEVERITY)
-            .build());
+                .withMessageTemplate("network.modification.mergingPermanentLimits")
+                .withUntypedValue("value1", permanentLimit1)
+                .withUntypedValue(LINE1, line1Id)
+                .withUntypedValue("value2", permanentLimit2)
+                .withUntypedValue(LINE2, line2Id)
+                .withUntypedValue("lowest_value", Math.min(permanentLimit1, permanentLimit2))
+                .withSeverity(TypedValue.DETAIL_SEVERITY)
+                .build());
     }
 
     private static void logMergingTemporaryLimits(List<ReportNode> reportNodes, String limitName, int acceptableDuration,
                                                   Double temporaryLimitLine1, Double temporaryLimitLine2, String line1Id, String line2Id) {
         reportNodes.add(ReportNode.newRootReportNode()
-            .withMessageTemplate("network.modification.mergingTemporaryLimits")
-            .withUntypedValue(LIMIT_NAME, limitName)
-            .withUntypedValue("tempo", acceptableDuration)
-            .withUntypedValue("value1", temporaryLimitLine1)
-            .withUntypedValue("value2", temporaryLimitLine2)
-            .withUntypedValue(LINE1, line1Id)
-            .withUntypedValue(LINE2, line2Id)
-            .withUntypedValue("lowest_value", Math.min(temporaryLimitLine1, temporaryLimitLine2))
-            .withSeverity(TypedValue.DETAIL_SEVERITY)
-            .build());
+                .withMessageTemplate("network.modification.mergingTemporaryLimits")
+                .withUntypedValue(LIMIT_NAME, limitName)
+                .withUntypedValue("tempo", acceptableDuration)
+                .withUntypedValue("value1", temporaryLimitLine1)
+                .withUntypedValue("value2", temporaryLimitLine2)
+                .withUntypedValue(LINE1, line1Id)
+                .withUntypedValue(LINE2, line2Id)
+                .withUntypedValue("lowest_value", Math.min(temporaryLimitLine1, temporaryLimitLine2))
+                .withSeverity(TypedValue.DETAIL_SEVERITY)
+                .build());
     }
 
     private static void logSameTemporaryLimitWithDifferentAcceptableDuration(List<ReportNode> reportNodes, String temporaryLimitName,
@@ -287,22 +287,22 @@ public final class ModificationLimitsUtils {
                                                                              String line2, Integer acceptableDuration2,
                                                                              TwoSides side) {
         reportNodes.add(ReportNode.newRootReportNode()
-            .withMessageTemplate("network.modification.temporaryLimitsWithDifferentAcceptableDuration")
-            .withUntypedValue(LIMIT_NAME, temporaryLimitName)
-            .withUntypedValue(APPLICABILITY, side.name())
-            .withUntypedValue("tempo1", acceptableDuration1)
-            .withUntypedValue(LINE1, line1)
-            .withUntypedValue("tempo2", acceptableDuration2)
-            .withUntypedValue(LINE2, line2)
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .build());
+                .withMessageTemplate("network.modification.temporaryLimitsWithDifferentAcceptableDuration")
+                .withUntypedValue(LIMIT_NAME, temporaryLimitName)
+                .withUntypedValue(APPLICABILITY, side.name())
+                .withUntypedValue("tempo1", acceptableDuration1)
+                .withUntypedValue(LINE1, line1)
+                .withUntypedValue("tempo2", acceptableDuration2)
+                .withUntypedValue(LINE2, line2)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
     }
 
     private static void copyReportNodes(List<ReportNode> children, ReportNode parentReportNode) {
         children.forEach(currentLimitsReportNode -> {
             ReportNodeAdder reportNodeAdder = parentReportNode.newReportNode()
-                .withMessageTemplate(currentLimitsReportNode.getMessageKey())
-                .withSeverity(TypedValue.INFO_SEVERITY);
+                    .withMessageTemplate(currentLimitsReportNode.getMessageKey())
+                    .withSeverity(TypedValue.INFO_SEVERITY);
             currentLimitsReportNode.getValues().forEach((key, value) -> reportNodeAdder.withUntypedValue(key, String.valueOf(value)));
             reportNodeAdder.add();
         });

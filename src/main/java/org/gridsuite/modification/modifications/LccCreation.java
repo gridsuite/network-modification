@@ -38,65 +38,65 @@ public class LccCreation extends AbstractModification {
     public static final String EQUIPMENT_CONNECTED_TO_HVDC = "network.modification.equipmentConnectedToHvdc";
     public static final String EQUIPMENT_NOT_CONNECTED_TO_HVDC = "network.modification.equipmentNotConnectedToHvdc";
 
-    private final LccCreationModel modificationModel;
+    private final LccCreationModel modificationInfos;
 
-    public LccCreation(LccCreationModel modificationModel) {
-        this.modificationModel = modificationModel;
+    public LccCreation(LccCreationModel modificationInfos) {
+        this.modificationInfos = modificationInfos;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (network.getHvdcLine(modificationModel.getEquipmentId()) != null) {
-            throw new NetworkModificationException(HVDC_LINE_ALREADY_EXISTS, modificationModel.getEquipmentId());
+        if (network.getHvdcLine(modificationInfos.getEquipmentId()) != null) {
+            throw new NetworkModificationException(HVDC_LINE_ALREADY_EXISTS, modificationInfos.getEquipmentId());
         }
-        checkLccConverterStation(network, modificationModel.getConverterStation1());
-        checkLccConverterStation(network, modificationModel.getConverterStation2());
+        checkLccConverterStation(network, modificationInfos.getConverterStation1());
+        checkLccConverterStation(network, modificationInfos.getConverterStation2());
     }
 
     private void checkLccConverterStation(Network network, LccConverterStationCreationModel converterStation) {
         if (converterStation == null) {
-            throw new NetworkModificationException(CREATE_LCC_ERROR, modificationModel.getEquipmentId() + "Missing required converter station");
+            throw new NetworkModificationException(CREATE_LCC_ERROR, modificationInfos.getEquipmentId() + "Missing required converter station");
         }
         if (converterStation.getPowerFactor() > 1) {
             throw new NetworkModificationException(CREATE_LCC_ERROR, "Loss factor should be less or equal to 1");
         }
         // check connectivity
         ModificationUtils.getInstance().controlConnectivity(network,
-            converterStation.getVoltageLevelId(),
-            converterStation.getBusOrBusbarSectionId()
+                converterStation.getVoltageLevelId(),
+                converterStation.getBusOrBusbarSectionId()
         );
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        LccConverterStation converterStation1 = createConverterStation(network, modificationModel.getConverterStation1(), subReportNode);
-        LccConverterStation converterStation2 = createConverterStation(network, modificationModel.getConverterStation2(), subReportNode);
-        if (!modificationModel.getConverterStation1().isTerminalConnected()) {
-            network.getLccConverterStation(modificationModel.getConverterStation1().getEquipmentId()).getTerminal().disconnect();
+        LccConverterStation converterStation1 = createConverterStation(network, modificationInfos.getConverterStation1(), subReportNode);
+        LccConverterStation converterStation2 = createConverterStation(network, modificationInfos.getConverterStation2(), subReportNode);
+        if (!modificationInfos.getConverterStation1().isTerminalConnected()) {
+            network.getLccConverterStation(modificationInfos.getConverterStation1().getEquipmentId()).getTerminal().disconnect();
         }
-        if (!modificationModel.getConverterStation2().isTerminalConnected()) {
-            network.getLccConverterStation(modificationModel.getConverterStation2().getEquipmentId()).getTerminal().disconnect();
+        if (!modificationInfos.getConverterStation2().isTerminalConnected()) {
+            network.getLccConverterStation(modificationInfos.getConverterStation2().getEquipmentId()).getTerminal().disconnect();
         }
         HvdcLine hvdcLine = network.newHvdcLine()
-            .setId(modificationModel.getEquipmentId())
-            .setName(modificationModel.getEquipmentName())
-            .setNominalV(modificationModel.getNominalV())
-            .setR(modificationModel.getR())
-            .setMaxP(modificationModel.getMaxP())
-            .setActivePowerSetpoint(modificationModel.getActivePowerSetpoint())
-            .setConvertersMode(modificationModel.getConvertersMode())
-            .setConverterStationId1(converterStation1 != null ? converterStation1.getId() : null)
-            .setConverterStationId2(converterStation2 != null ? converterStation2.getId() : null)
-            .add();
+                .setId(modificationInfos.getEquipmentId())
+                .setName(modificationInfos.getEquipmentName())
+                .setNominalV(modificationInfos.getNominalV())
+                .setR(modificationInfos.getR())
+                .setMaxP(modificationInfos.getMaxP())
+                .setActivePowerSetpoint(modificationInfos.getActivePowerSetpoint())
+                .setConvertersMode(modificationInfos.getConvertersMode())
+                .setConverterStationId1(converterStation1 != null ? converterStation1.getId() : null)
+                .setConverterStationId2(converterStation2 != null ? converterStation2.getId() : null)
+                .add();
 
         subReportNode.newReportNode()
-            .withMessageTemplate("network.modification.lccCreated")
-            .withUntypedValue("id", modificationModel.getEquipmentId())
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
-        reportHvdcLineModel(hvdcLine, subReportNode);
-        addReportConverterStationLcc(modificationModel.getConverterStation1(), "1", subReportNode);
-        addReportConverterStationLcc(modificationModel.getConverterStation2(), "2", subReportNode);
+                .withMessageTemplate("network.modification.lccCreated")
+                .withUntypedValue("id", modificationInfos.getEquipmentId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+        reportHvdcLineInfos(hvdcLine, subReportNode);
+        addReportConverterStationLcc(modificationInfos.getConverterStation1(), "1", subReportNode);
+        addReportConverterStationLcc(modificationInfos.getConverterStation2(), "2", subReportNode);
     }
 
     @Override
@@ -105,164 +105,164 @@ public class LccCreation extends AbstractModification {
     }
 
     private LccConverterStation createConverterStation(Network network,
-                                                       LccConverterStationCreationModel lccConverterStationCreationModel,
+                                                       LccConverterStationCreationModel lccConverterStationCreationInfos,
                                                        ReportNode subReportNode) {
-        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, lccConverterStationCreationModel.getVoltageLevelId());
+        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, lccConverterStationCreationInfos.getVoltageLevelId());
         return voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER ?
-            createConverterStationInNodeBreaker(network, voltageLevel, lccConverterStationCreationModel, subReportNode) :
-            createConverterStationInBusBreaker(network, voltageLevel, lccConverterStationCreationModel, subReportNode);
+                createConverterStationInNodeBreaker(network, voltageLevel, lccConverterStationCreationInfos, subReportNode) :
+                createConverterStationInBusBreaker(network, voltageLevel, lccConverterStationCreationInfos, subReportNode);
     }
 
-    private ShuntCompensatorAdder createShuntCompensatorInNodeBreaker(VoltageLevel voltageLevel, LccShuntCompensatorModel shuntCompensatorModel) {
+    private ShuntCompensatorAdder createShuntCompensatorInNodeBreaker(VoltageLevel voltageLevel, LccShuntCompensatorModel shuntCompensatorInfos) {
         return voltageLevel.newShuntCompensator()
-            .setId(shuntCompensatorModel.getId())
-            .setName(shuntCompensatorModel.getName())
-            .setSectionCount(1)
-            .newLinearModel()
-            .setBPerSection((shuntCompensatorModel.getMaxQAtNominalV()) / Math.pow(voltageLevel.getNominalV(), 2))
-            .setMaximumSectionCount(1)
-            .add();
+                .setId(shuntCompensatorInfos.getId())
+                .setName(shuntCompensatorInfos.getName())
+                .setSectionCount(1)
+                .newLinearModel()
+                .setBPerSection((shuntCompensatorInfos.getMaxQAtNominalV()) / Math.pow(voltageLevel.getNominalV(), 2))
+                .setMaximumSectionCount(1)
+                .add();
     }
 
-    private void createShuntCompensatorInBusBreaker(VoltageLevel voltageLevel, Bus bus, LccShuntCompensatorModel shuntCompensatorModel) {
+    private void createShuntCompensatorInBusBreaker(VoltageLevel voltageLevel, Bus bus, LccShuntCompensatorModel shuntCompensatorInfos) {
         voltageLevel.newShuntCompensator()
-            .setId(shuntCompensatorModel.getId())
-            .setName(shuntCompensatorModel.getName())
-            .setSectionCount(1)
-            .setBus(bus.getId())
-            .setConnectableBus(bus.getId())
-            .newLinearModel()
-            .setBPerSection((shuntCompensatorModel.getMaxQAtNominalV()) / Math.pow(voltageLevel.getNominalV(), 2))
-            .setMaximumSectionCount(1)
-            .add()
-            .add();
+                .setId(shuntCompensatorInfos.getId())
+                .setName(shuntCompensatorInfos.getName())
+                .setSectionCount(1)
+                .setBus(bus.getId())
+                .setConnectableBus(bus.getId())
+                .newLinearModel()
+                .setBPerSection((shuntCompensatorInfos.getMaxQAtNominalV()) / Math.pow(voltageLevel.getNominalV(), 2))
+                .setMaximumSectionCount(1)
+                .add()
+                .add();
     }
 
     public void shuntCompensatorConnectedToHvdc(Boolean connectedToHvdc, Injection<?> injection, ReportNode subReportNode) {
         if (Boolean.TRUE.equals(connectedToHvdc)) {
             injection.getTerminal().connect();
             subReportNode.newReportNode()
-                .withMessageTemplate(EQUIPMENT_CONNECTED_TO_HVDC)
-                .withUntypedValue("id", injection.getId())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
+                    .withMessageTemplate(EQUIPMENT_CONNECTED_TO_HVDC)
+                    .withUntypedValue("id", injection.getId())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
         } else {
             injection.getTerminal().disconnect();
             subReportNode.newReportNode()
-                .withMessageTemplate(EQUIPMENT_NOT_CONNECTED_TO_HVDC)
-                .withUntypedValue("id", injection.getId())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
+                    .withMessageTemplate(EQUIPMENT_NOT_CONNECTED_TO_HVDC)
+                    .withUntypedValue("id", injection.getId())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
         }
     }
 
     private void createShuntCompensatorOnSideInNodeBreaker(VoltageLevel voltageLevel, Network network,
-                                                           LccConverterStationCreationModel lccConverterStationCreationModel,
+                                                           LccConverterStationCreationModel lccConverterStationCreationInfos,
                                                            InjectionAdder<?, ?> injectionAdder,
                                                            LccShuntCompensatorModel shuntCompensatorOnSide,
                                                            ReportNode subReportNode) {
-        int position = ModificationUtils.getInstance().getPosition(lccConverterStationCreationModel.getBusOrBusbarSectionId(), network, voltageLevel);
+        int position = ModificationUtils.getInstance().getPosition(lccConverterStationCreationInfos.getBusOrBusbarSectionId(), network, voltageLevel);
         CreateFeederBay algo = new CreateFeederBayBuilder()
-            .withBusOrBusbarSectionId(lccConverterStationCreationModel.getBusOrBusbarSectionId())
-            .withInjectionDirection(lccConverterStationCreationModel.getConnectionDirection())
-            .withInjectionFeederName(StringUtils.isBlank(shuntCompensatorOnSide.getName())
-                ? shuntCompensatorOnSide.getId()
-                : shuntCompensatorOnSide.getName())
-            .withInjectionPositionOrder(position)
-            .withInjectionAdder(injectionAdder)
-            .build();
+                .withBusOrBusbarSectionId(lccConverterStationCreationInfos.getBusOrBusbarSectionId())
+                .withInjectionDirection(lccConverterStationCreationInfos.getConnectionDirection())
+                .withInjectionFeederName(StringUtils.isBlank(shuntCompensatorOnSide.getName())
+                        ? shuntCompensatorOnSide.getId()
+                        : shuntCompensatorOnSide.getName())
+                .withInjectionPositionOrder(position)
+                .withInjectionAdder(injectionAdder)
+                .build();
         algo.apply(network, true, subReportNode);
     }
 
     private LccConverterStation createConverterStationInNodeBreaker(Network network,
                                                                     VoltageLevel voltageLevel,
-                                                                    LccConverterStationCreationModel lccConverterStationCreationModel,
+                                                                    LccConverterStationCreationModel lccConverterStationCreationInfos,
                                                                     ReportNode subReportNode) {
         LccConverterStationAdder converterStationAdder = voltageLevel.newLccConverterStation()
-            .setId(lccConverterStationCreationModel.getEquipmentId())
-            .setName(lccConverterStationCreationModel.getEquipmentName());
-        if (lccConverterStationCreationModel.getLossFactor() != null) {
-            converterStationAdder.setLossFactor(lccConverterStationCreationModel.getLossFactor());
+                .setId(lccConverterStationCreationInfos.getEquipmentId())
+                .setName(lccConverterStationCreationInfos.getEquipmentName());
+        if (lccConverterStationCreationInfos.getLossFactor() != null) {
+            converterStationAdder.setLossFactor(lccConverterStationCreationInfos.getLossFactor());
         }
-        if (lccConverterStationCreationModel.getPowerFactor() != null) {
-            converterStationAdder.setPowerFactor(lccConverterStationCreationModel.getPowerFactor());
+        if (lccConverterStationCreationInfos.getPowerFactor() != null) {
+            converterStationAdder.setPowerFactor(lccConverterStationCreationInfos.getPowerFactor());
         }
-        createInjectionInNodeBreaker(voltageLevel, lccConverterStationCreationModel, network, converterStationAdder, subReportNode);
-        Optional.ofNullable(lccConverterStationCreationModel.getShuntCompensatorsOnSide())
-            .ifPresent(shuntCompensators ->
-                shuntCompensators.forEach(shuntCompensatorOnSide -> {
-                    ShuntCompensatorAdder shuntCompensatorAdder = createShuntCompensatorInNodeBreaker(voltageLevel, shuntCompensatorOnSide);
-                    createShuntCompensatorOnSideInNodeBreaker(voltageLevel, network, lccConverterStationCreationModel,
-                        shuntCompensatorAdder, shuntCompensatorOnSide, subReportNode);
-                    shuntCompensatorConnectedToHvdc(shuntCompensatorOnSide.getConnectedToHvdc(),
-                        network.getShuntCompensator(shuntCompensatorOnSide.getId()), subReportNode);
-                }));
+        createInjectionInNodeBreaker(voltageLevel, lccConverterStationCreationInfos, network, converterStationAdder, subReportNode);
+        Optional.ofNullable(lccConverterStationCreationInfos.getShuntCompensatorsOnSide())
+                .ifPresent(shuntCompensators ->
+                        shuntCompensators.forEach(shuntCompensatorOnSide -> {
+                            ShuntCompensatorAdder shuntCompensatorAdder = createShuntCompensatorInNodeBreaker(voltageLevel, shuntCompensatorOnSide);
+                            createShuntCompensatorOnSideInNodeBreaker(voltageLevel, network, lccConverterStationCreationInfos,
+                                    shuntCompensatorAdder, shuntCompensatorOnSide, subReportNode);
+                            shuntCompensatorConnectedToHvdc(shuntCompensatorOnSide.getConnectedToHvdc(),
+                                    network.getShuntCompensator(shuntCompensatorOnSide.getId()), subReportNode);
+                        }));
         return ModificationUtils.getInstance().getLccConverterStation(network,
-            lccConverterStationCreationModel.getEquipmentId());
+                lccConverterStationCreationInfos.getEquipmentId());
     }
 
     private LccConverterStation createConverterStationInBusBreaker(Network network, VoltageLevel voltageLevel,
-                                                                   LccConverterStationCreationModel lccConverterStationCreationModel,
+                                                                   LccConverterStationCreationModel lccConverterStationCreationInfos,
                                                                    ReportNode subReportNode) {
-        Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, lccConverterStationCreationModel.getBusOrBusbarSectionId());
+        Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, lccConverterStationCreationInfos.getBusOrBusbarSectionId());
         LccConverterStation lccConverterStation = voltageLevel.newLccConverterStation()
-            .setId(lccConverterStationCreationModel.getEquipmentId())
-            .setName(lccConverterStationCreationModel.getEquipmentName())
-            .setBus(bus.getId())
-            .setLossFactor(lccConverterStationCreationModel.getLossFactor())
-            .setPowerFactor(lccConverterStationCreationModel.getPowerFactor())
-            .add();
+                .setId(lccConverterStationCreationInfos.getEquipmentId())
+                .setName(lccConverterStationCreationInfos.getEquipmentName())
+                .setBus(bus.getId())
+                .setLossFactor(lccConverterStationCreationInfos.getLossFactor())
+                .setPowerFactor(lccConverterStationCreationInfos.getPowerFactor())
+                .add();
 
-        Optional.ofNullable(lccConverterStationCreationModel.getShuntCompensatorsOnSide())
-            .ifPresent(shuntCompensators -> shuntCompensators.forEach(shuntCompensatorOnSide -> {
-                createShuntCompensatorInBusBreaker(voltageLevel, bus, shuntCompensatorOnSide);
-                shuntCompensatorConnectedToHvdc(
-                    shuntCompensatorOnSide.getConnectedToHvdc(),
-                    network.getShuntCompensator(shuntCompensatorOnSide.getId()),
-                    subReportNode);
-            }));
+        Optional.ofNullable(lccConverterStationCreationInfos.getShuntCompensatorsOnSide())
+                .ifPresent(shuntCompensators -> shuntCompensators.forEach(shuntCompensatorOnSide -> {
+                    createShuntCompensatorInBusBreaker(voltageLevel, bus, shuntCompensatorOnSide);
+                    shuntCompensatorConnectedToHvdc(
+                            shuntCompensatorOnSide.getConnectedToHvdc(),
+                            network.getShuntCompensator(shuntCompensatorOnSide.getId()),
+                            subReportNode);
+                }));
         return lccConverterStation;
     }
 
-    private void reportHvdcLineModel(HvdcLine hvdcLine, ReportNode subReportNode) {
-        if (modificationModel.getEquipmentName() != null) {
+    private void reportHvdcLineInfos(HvdcLine hvdcLine, ReportNode subReportNode) {
+        if (modificationInfos.getEquipmentName() != null) {
             ModificationUtils.getInstance()
-                .reportElementaryCreation(subReportNode, modificationModel.getEquipmentName(), "Name");
+                    .reportElementaryCreation(subReportNode, modificationInfos.getEquipmentName(), "Name");
         }
         List<ReportNode> characteristicsReport = new ArrayList<>();
-        characteristicsReport.add(ModificationUtils.getInstance().buildCreationReport(modificationModel.getNominalV(), "DC nominal voltage"));
-        characteristicsReport.add(ModificationUtils.getInstance().buildCreationReport(modificationModel.getR(), "DC resistance"));
-        characteristicsReport.add(ModificationUtils.getInstance().buildCreationReport(modificationModel.getMaxP(), "Pmax"));
+        characteristicsReport.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getNominalV(), "DC nominal voltage"));
+        characteristicsReport.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getR(), "DC resistance"));
+        characteristicsReport.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getMaxP(), "Pmax"));
         ModificationUtils.getInstance().reportModifications(subReportNode, characteristicsReport, "network.modification.lccCharacteristics");
         List<ReportNode> setPointsReports = new ArrayList<>();
-        setPointsReports.add(ModificationUtils.getInstance().buildCreationReport(modificationModel.getConvertersMode(), "Converters mode"));
-        setPointsReports.add(ModificationUtils.getInstance().buildCreationReport(modificationModel.getActivePowerSetpoint(), "Active power"));
+        setPointsReports.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getConvertersMode(), "Converters mode"));
+        setPointsReports.add(ModificationUtils.getInstance().buildCreationReport(modificationInfos.getActivePowerSetpoint(), "Active power"));
         ModificationUtils.getInstance().reportModifications(subReportNode, setPointsReports, "network.modification.LccSetPoints");
-        PropertiesUtils.applyProperties(hvdcLine, subReportNode, modificationModel.getProperties(), "network.modification.LCC_Properties");
+        PropertiesUtils.applyProperties(hvdcLine, subReportNode, modificationInfos.getProperties(), "network.modification.LCC_Properties");
     }
 
-    private void addReportConverterStationLcc(LccConverterStationCreationModel lccConverterStationCreationModel,
+    private void addReportConverterStationLcc(LccConverterStationCreationModel lccConverterStationCreationInfos,
                                               String logFieldName, ReportNode subReporter) {
         ReportNode reportConverterStationNode = subReporter.newReportNode()
-            .withMessageTemplate("network.modification.lccConverterStationCreated")
-            .withUntypedValue("fieldName", logFieldName)
-            .withUntypedValue("id", lccConverterStationCreationModel.getEquipmentId()).add();
+                .withMessageTemplate("network.modification.lccConverterStationCreated")
+                .withUntypedValue("fieldName", logFieldName)
+                .withUntypedValue("id", lccConverterStationCreationInfos.getEquipmentId()).add();
 
-        List<ReportNode> characteristicsReport = List.of(ModificationUtils.getInstance().buildCreationReport(lccConverterStationCreationModel.getLossFactor(), "Loss Factor"),
-            ModificationUtils.getInstance().buildCreationReport(lccConverterStationCreationModel.getPowerFactor(), "Power Factor"));
-        List<ReportNode> shuntCompensatorsOnSide = Optional.ofNullable(lccConverterStationCreationModel.getShuntCompensatorsOnSide())
-            .orElse(List.of())
-            .stream()
-            .flatMap(shuntCompensatorOnSide -> Stream.of(
-                ModificationUtils.getInstance().buildCreationReport(shuntCompensatorOnSide.getId(), "Shunt Compensator ID"),
-                ModificationUtils.getInstance().buildCreationReport(shuntCompensatorOnSide.getName(), "Shunt Compensator Name"),
-                ModificationUtils.getInstance().buildCreationReport(shuntCompensatorOnSide.getMaxQAtNominalV(), "Q max at nominal voltage"),
-                ModificationUtils.getInstance().buildCreationReport(shuntCompensatorOnSide.getConnectedToHvdc(), "Connected To Hvdc")
-            ))
-            .toList();
+        List<ReportNode> characteristicsReport = List.of(ModificationUtils.getInstance().buildCreationReport(lccConverterStationCreationInfos.getLossFactor(), "Loss Factor"),
+                ModificationUtils.getInstance().buildCreationReport(lccConverterStationCreationInfos.getPowerFactor(), "Power Factor"));
+        List<ReportNode> shuntCompensatorsOnSide = Optional.ofNullable(lccConverterStationCreationInfos.getShuntCompensatorsOnSide())
+                .orElse(List.of())
+                .stream()
+                .flatMap(shuntCompensatorOnSide -> Stream.of(
+                        ModificationUtils.getInstance().buildCreationReport(shuntCompensatorOnSide.getId(), "Shunt Compensator ID"),
+                        ModificationUtils.getInstance().buildCreationReport(shuntCompensatorOnSide.getName(), "Shunt Compensator Name"),
+                        ModificationUtils.getInstance().buildCreationReport(shuntCompensatorOnSide.getMaxQAtNominalV(), "Q max at nominal voltage"),
+                        ModificationUtils.getInstance().buildCreationReport(shuntCompensatorOnSide.getConnectedToHvdc(), "Connected To Hvdc")
+                ))
+                .toList();
 
         ModificationUtils.getInstance().reportModifications(reportConverterStationNode, characteristicsReport, "network.modification.converterStationCharacteristics");
-        reportInjectionCreationConnectivity(lccConverterStationCreationModel, reportConverterStationNode);
+        reportInjectionCreationConnectivity(lccConverterStationCreationInfos, reportConverterStationNode);
         ModificationUtils.getInstance().reportModifications(reportConverterStationNode, shuntCompensatorsOnSide, "network.modification.converterStationFilters");
 
     }

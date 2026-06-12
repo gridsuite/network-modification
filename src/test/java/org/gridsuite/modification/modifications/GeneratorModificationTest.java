@@ -14,13 +14,11 @@ import org.gridsuite.modification.model.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.CollectionUtils;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,47 +44,47 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return GeneratorModificationModel.builder()
-            .equipmentId("idGenerator")
-            .energySource(new AttributeModification<>(EnergySource.SOLAR, OperationType.SET))
-            .equipmentName(new AttributeModification<>("newV1Generator", OperationType.SET))
-            .voltageLevelId(new AttributeModification<>("v2", OperationType.SET))
-            .busOrBusbarSectionId(new AttributeModification<>("1B", OperationType.SET))
-            .connectionName(new AttributeModification<>("idGenerator", OperationType.SET))
-            .connectionPosition(new AttributeModification<>(1, OperationType.SET))
-            .connectionDirection(new AttributeModification<>(ConnectablePosition.Direction.TOP, OperationType.SET))
-            .targetP(new AttributeModification<>(80.0, OperationType.SET))
-            .targetQ(new AttributeModification<>(40.0, OperationType.SET))
-            .targetV(new AttributeModification<>(48.0, OperationType.SET))
-            .voltageRegulationOn(new AttributeModification<>(false, OperationType.SET))
-            .minP(new AttributeModification<>(0., OperationType.SET))
-            .maxP(new AttributeModification<>(100., OperationType.SET))
-            .ratedS(new AttributeModification<>(220., OperationType.SET))
-            .voltageRegulationType(
-                new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.SET))
-            .plannedActivePowerSetPoint(new AttributeModification<>(10., OperationType.SET))
-            .marginalCost(new AttributeModification<>(0.1, OperationType.SET))
-            .plannedOutageRate(new AttributeModification<>(.30, OperationType.SET))
-            .forcedOutageRate(new AttributeModification<>(.40, OperationType.SET))
-            .minQ(new AttributeModification<>(-100., OperationType.SET))
-            .maxQ(new AttributeModification<>(100., OperationType.SET))
-            .reactiveCapabilityCurvePoints(List.of(
-                new ReactiveCapabilityCurvePointsModel(100., 100., 0.1),
-                new ReactiveCapabilityCurvePointsModel(100., 100., 150.)))
-            .droop(new AttributeModification<>(0.1f, OperationType.SET))
-            .participate(new AttributeModification<>(true, OperationType.SET))
-            .directTransX(new AttributeModification<>(0.1, OperationType.SET))
-            .stepUpTransformerX(new AttributeModification<>(0.1, OperationType.SET))
-            .regulatingTerminalId(new AttributeModification<>("v2load", OperationType.SET))
-            .regulatingTerminalType(new AttributeModification<>("LOAD", OperationType.SET))
-            .regulatingTerminalVlId(new AttributeModification<>("v1", OperationType.SET))
-            .qPercent(new AttributeModification<>(0.1, OperationType.SET))
-            .reactiveCapabilityCurve(new AttributeModification<>(true, OperationType.SET))
-            .pMeasurementValue(new AttributeModification<>(MEASUREMENT_P_VALUE, OperationType.SET))
-            .pMeasurementValidity(new AttributeModification<>(MEASUREMENT_P_VALID, OperationType.SET))
-            .qMeasurementValue(new AttributeModification<>(MEASUREMENT_Q_VALUE, OperationType.SET))
-            .qMeasurementValidity(new AttributeModification<>(MEASUREMENT_Q_VALID, OperationType.SET))
-            .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
-            .build();
+                .equipmentId("idGenerator")
+                .energySource(new AttributeModification<>(EnergySource.SOLAR, OperationType.SET))
+                .equipmentName(new AttributeModification<>("newV1Generator", OperationType.SET))
+                .voltageLevelId(new AttributeModification<>("v2", OperationType.SET))
+                .busOrBusbarSectionId(new AttributeModification<>("1B", OperationType.SET))
+                .connectionName(new AttributeModification<>("idGenerator", OperationType.SET))
+                .connectionPosition(new AttributeModification<>(1, OperationType.SET))
+                .connectionDirection(new AttributeModification<>(ConnectablePosition.Direction.TOP, OperationType.SET))
+                .targetP(new AttributeModification<>(80.0, OperationType.SET))
+                .targetQ(new AttributeModification<>(40.0, OperationType.SET))
+                .targetV(new AttributeModification<>(48.0, OperationType.SET))
+                .voltageRegulationOn(new AttributeModification<>(false, OperationType.SET))
+                .minP(new AttributeModification<>(0., OperationType.SET))
+                .maxP(new AttributeModification<>(100., OperationType.SET))
+                .ratedS(new AttributeModification<>(220., OperationType.SET))
+                .voltageRegulationType(
+                        new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.SET))
+                .plannedActivePowerSetPoint(new AttributeModification<>(10., OperationType.SET))
+                .marginalCost(new AttributeModification<>(0.1, OperationType.SET))
+                .plannedOutageRate(new AttributeModification<>(.30, OperationType.SET))
+                .forcedOutageRate(new AttributeModification<>(.40, OperationType.SET))
+                .minQ(new AttributeModification<>(-100., OperationType.SET))
+                .maxQ(new AttributeModification<>(100., OperationType.SET))
+                .reactiveCapabilityCurvePoints(List.of(
+                        new ReactiveCapabilityCurvePointsModel(100., 100., 0.1),
+                        new ReactiveCapabilityCurvePointsModel(100., 100., 150.)))
+                .droop(new AttributeModification<>(0.1f, OperationType.SET))
+                .participate(new AttributeModification<>(true, OperationType.SET))
+                .directTransX(new AttributeModification<>(0.1, OperationType.SET))
+                .stepUpTransformerX(new AttributeModification<>(0.1, OperationType.SET))
+                .regulatingTerminalId(new AttributeModification<>("v2load", OperationType.SET))
+                .regulatingTerminalType(new AttributeModification<>("LOAD", OperationType.SET))
+                .regulatingTerminalVlId(new AttributeModification<>("v1", OperationType.SET))
+                .qPercent(new AttributeModification<>(0.1, OperationType.SET))
+                .reactiveCapabilityCurve(new AttributeModification<>(true, OperationType.SET))
+                .pMeasurementValue(new AttributeModification<>(MEASUREMENT_P_VALUE, OperationType.SET))
+                .pMeasurementValidity(new AttributeModification<>(MEASUREMENT_P_VALID, OperationType.SET))
+                .qMeasurementValue(new AttributeModification<>(MEASUREMENT_Q_VALUE, OperationType.SET))
+                .qMeasurementValidity(new AttributeModification<>(MEASUREMENT_Q_VALID, OperationType.SET))
+                .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+                .build();
     }
 
     @Override
@@ -118,75 +116,75 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
     @Override
     protected void checkModification() {
         Network network = getNetwork();
-        GeneratorModificationModel generatorModificationModel = (GeneratorModificationModel) buildModification();
+        GeneratorModificationModel generatorModificationInfos = (GeneratorModificationModel) buildModification();
         // Unset an attribute that should not be null
-        generatorModificationModel.setEnergySource(new AttributeModification<>(null, OperationType.UNSET));
-        GeneratorModification generatorModification = (GeneratorModification) generatorModificationModel.toModification();
+        generatorModificationInfos.setEnergySource(new AttributeModification<>(null, OperationType.UNSET));
+        GeneratorModification generatorModification = (GeneratorModification) generatorModificationInfos.toModification();
         ValidationException exception = assertThrows(ValidationException.class,
-            () -> generatorModification.apply(network));
+                () -> generatorModification.apply(network));
         assertEquals("Generator 'idGenerator': energy source is not set",
-            exception.getMessage());
+                exception.getMessage());
 
         // check regulating terminal
-        GeneratorModificationModel generatorModificationModel2 = (GeneratorModificationModel) buildModification();
-        generatorModificationModel2.setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
-        GeneratorModification generatorModification2 = (GeneratorModification) generatorModificationModel2.toModification();
+        GeneratorModificationModel generatorModificationInfos2 = (GeneratorModificationModel) buildModification();
+        generatorModificationInfos2.setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
+        GeneratorModification generatorModification2 = (GeneratorModification) generatorModificationInfos2.toModification();
         NetworkModificationException exception2 = assertThrows(NetworkModificationException.class,
             () -> generatorModification2.check(network));
         assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : Regulation is set to Distant but regulating terminal information are incomplete",
             exception2.getMessage());
 
         // check regulating terminal
-        GeneratorModificationModel generatorModificationModel3 = (GeneratorModificationModel) buildModification();
-        generatorModificationModel3.setRegulatingTerminalVlId(new AttributeModification<>(null, OperationType.UNSET));
-        generatorModificationModel3.setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
-        generatorModificationModel3.setRegulatingTerminalType(new AttributeModification<>(null, OperationType.UNSET));
-        GeneratorModification generatorModification3 = (GeneratorModification) generatorModificationModel3.toModification();
+        GeneratorModificationModel generatorModificationInfos3 = (GeneratorModificationModel) buildModification();
+        generatorModificationInfos3.setRegulatingTerminalVlId(new AttributeModification<>(null, OperationType.UNSET));
+        generatorModificationInfos3.setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
+        generatorModificationInfos3.setRegulatingTerminalType(new AttributeModification<>(null, OperationType.UNSET));
+        GeneratorModification generatorModification3 = (GeneratorModification) generatorModificationInfos3.toModification();
         NetworkModificationException exception3 = assertThrows(NetworkModificationException.class,
             () -> generatorModification3.check(network));
         assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : Regulation is set to Distant but regulating terminal is local and there is no modification about regulating terminal",
             exception3.getMessage());
 
         // check regulating terminal
-        GeneratorModificationModel generatorModificationModel4 = (GeneratorModificationModel) buildModification();
-        generatorModificationModel4.setRegulatingTerminalVlId(new AttributeModification<>(null, OperationType.UNSET));
-        generatorModificationModel4.setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
-        generatorModificationModel4.setRegulatingTerminalType(new AttributeModification<>(null, OperationType.UNSET));
+        GeneratorModificationModel generatorModificationInfos4 = (GeneratorModificationModel) buildModification();
+        generatorModificationInfos4.setRegulatingTerminalVlId(new AttributeModification<>(null, OperationType.UNSET));
+        generatorModificationInfos4.setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
+        generatorModificationInfos4.setRegulatingTerminalType(new AttributeModification<>(null, OperationType.UNSET));
         getNetwork().getGenerator("idGenerator").setRegulatingTerminal(getNetwork().getBusbarSection("1A1").getTerminal());
-        assertDoesNotThrow(() -> generatorModificationModel4.toModification().check(getNetwork()));
+        assertDoesNotThrow(() -> generatorModificationInfos4.toModification().check(getNetwork()));
 
-        GeneratorModificationModel generatorModificationModel5 = GeneratorModificationModel.builder()
+        GeneratorModificationModel generatorModificationInfos5 = GeneratorModificationModel.builder()
             .equipmentId("idGenerator")
             .droop(new AttributeModification<>(101f, OperationType.SET))
             .build();
-        GeneratorModification generatorModification5 = (GeneratorModification) generatorModificationModel5.toModification();
+        GeneratorModification generatorModification5 = (GeneratorModification) generatorModificationInfos5.toModification();
         String message = assertThrows(NetworkModificationException.class,
             () -> generatorModification5.check(network)).getMessage();
         assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : must have Droop between 0 and 100", message);
 
-        GeneratorModificationModel generatorModificationModel6 = GeneratorModificationModel.builder()
+        GeneratorModificationModel generatorModificationInfos6 = GeneratorModificationModel.builder()
             .equipmentId("idGenerator")
             .droop(new AttributeModification<>(-1f, OperationType.SET))
             .build();
-        GeneratorModification generatorModification6 = (GeneratorModification) generatorModificationModel6.toModification();
+        GeneratorModification generatorModification6 = (GeneratorModification) generatorModificationInfos6.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> generatorModification6.check(network)).getMessage();
         assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : must have Droop between 0 and 100", message);
 
-        GeneratorModificationModel generatorModificationModel7 = GeneratorModificationModel.builder()
+        GeneratorModificationModel generatorModificationInfos7 = GeneratorModificationModel.builder()
             .equipmentId("idGenerator")
             .targetV(new AttributeModification<>(-100d, OperationType.SET))
             .build();
-        GeneratorModification generatorModification7 = (GeneratorModification) generatorModificationModel7.toModification();
+        GeneratorModification generatorModification7 = (GeneratorModification) generatorModificationInfos7.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> generatorModification7.check(network)).getMessage();
         assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : can not have a negative value for Target Voltage", message);
 
-        GeneratorModificationModel generatorModificationModel8 = GeneratorModificationModel.builder()
+        GeneratorModificationModel generatorModificationInfos8 = GeneratorModificationModel.builder()
             .equipmentId("idGenerator")
             .ratedS(new AttributeModification<>(-100d, OperationType.SET))
             .build();
-        GeneratorModification generatorModification8 = (GeneratorModification) generatorModificationModel8.toModification();
+        GeneratorModification generatorModification8 = (GeneratorModification) generatorModificationInfos8.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> generatorModification8.check(network)).getMessage();
         assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : can not have a negative value for Rated apparent power", message);
@@ -194,84 +192,84 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
 
     @Test
     void testMinQGreaterThanMaxQ() {
-        GeneratorModificationModel generatorModificationModel = (GeneratorModificationModel) buildModification();
+        GeneratorModificationModel generatorModificationInfos = (GeneratorModificationModel) buildModification();
         Generator generator = getNetwork().getGenerator("idGenerator");
         generator.newReactiveCapabilityCurve()
-            .beginPoint()
-            .setP(0.)
-            .setMaxQ(100.)
-            .setMinQ(0.)
-            .endPoint()
-            .beginPoint()
-            .setP(200.)
-            .setMaxQ(150.)
-            .setMinQ(0.)
-            .endPoint()
-            .add();
+                .beginPoint()
+                .setP(0.)
+                .setMaxQ(100.)
+                .setMinQ(0.)
+                .endPoint()
+                .beginPoint()
+                .setP(200.)
+                .setMaxQ(150.)
+                .setMinQ(0.)
+                .endPoint()
+                .add();
         Collection<ReactiveCapabilityCurve.Point> points = generator.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints();
-        List<ReactiveCapabilityCurvePointsModel> modificationPoints = generatorModificationModel.getReactiveCapabilityCurvePoints();
+        List<ReactiveCapabilityCurvePointsModel> modificationPoints = generatorModificationInfos.getReactiveCapabilityCurvePoints();
         AtomicReference<Double> maxQ = new AtomicReference<>(Double.NaN);
         AtomicReference<Double> minQ = new AtomicReference<>(Double.NaN);
         if (!CollectionUtils.isEmpty(points)) {
             IntStream.range(0, modificationPoints.size())
-                .forEach(i -> {
-                    ReactiveCapabilityCurvePointsModel newPoint = modificationPoints.get(i);
-                    newPoint.setMinQ(300.0);
-                    maxQ.set(newPoint.getMaxQ());
-                    minQ.set(newPoint.getMinQ());
-                });
+                    .forEach(i -> {
+                        ReactiveCapabilityCurvePointsModel newPoint = modificationPoints.get(i);
+                        newPoint.setMinQ(300.0);
+                        maxQ.set(newPoint.getMaxQ());
+                        minQ.set(newPoint.getMinQ());
+                    });
         }
         Network network = getNetwork();
-        GeneratorModification generatorModification = (GeneratorModification) generatorModificationModel.toModification();
+        GeneratorModification generatorModification = (GeneratorModification) generatorModificationInfos.toModification();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class,
-            () -> generatorModification.check(network));
+                () -> generatorModification.check(network));
         assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : maximum reactive power 100.0 is expected to be greater than or equal to minimum reactive power 300.0",
-            exception.getMessage());
+                exception.getMessage());
     }
 
     @Test
     void testActivePowerZeroOrBetweenMinAndMaxActivePower() {
-        GeneratorModificationModel generatorModificationModel = (GeneratorModificationModel) buildModification();
+        GeneratorModificationModel generatorModificationInfos = (GeneratorModificationModel) buildModification();
         Generator generator = getNetwork().getGenerator("idGenerator");
         generator.setTargetP(80.)
-            .setMinP(10.)
-            .setMaxP(150.);
+                .setMinP(10.)
+                .setMaxP(150.);
 
-        generatorModificationModel.setTargetP(new AttributeModification<>(110.0, OperationType.SET));
+        generatorModificationInfos.setTargetP(new AttributeModification<>(110.0, OperationType.SET));
 
         Network network = getNetwork();
-        GeneratorModification generatorModification = (GeneratorModification) generatorModificationModel.toModification();
+        GeneratorModification generatorModification = (GeneratorModification) generatorModificationInfos.toModification();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class,
-            () -> generatorModification.check(network));
+                () -> generatorModification.check(network));
         assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : Active power 110.0 is expected to be equal to 0"
                 + " or within the range of minimum active power and maximum active power: [0.0, 100.0]",
-            exception.getMessage());
+                exception.getMessage());
 
     }
 
     @Test
     void testUnsetAttributes() {
-        GeneratorModificationModel generatorModificationModel = (GeneratorModificationModel) buildModification();
+        GeneratorModificationModel generatorModificationInfos = (GeneratorModificationModel) buildModification();
 
         // Unset TargetV
-        generatorModificationModel.setTargetV(new AttributeModification<>(null, OperationType.UNSET));
+        generatorModificationInfos.setTargetV(new AttributeModification<>(null, OperationType.UNSET));
 
-        generatorModificationModel.toModification().apply(getNetwork());
+        generatorModificationInfos.toModification().apply(getNetwork());
         assertEquals(Double.NaN, getNetwork().getGenerator("idGenerator").getTargetV());
 
         //Unset TargetQ (voltage regulation needs to be turned on and voltage setpoint to have a value)
-        generatorModificationModel.setVoltageRegulationOn(new AttributeModification<>(true, OperationType.SET));
-        generatorModificationModel.setTargetV(new AttributeModification<>(44.0, OperationType.SET));
-        generatorModificationModel.setTargetQ(new AttributeModification<>(null, OperationType.UNSET));
-        generatorModificationModel.toModification().apply(getNetwork());
+        generatorModificationInfos.setVoltageRegulationOn(new AttributeModification<>(true, OperationType.SET));
+        generatorModificationInfos.setTargetV(new AttributeModification<>(44.0, OperationType.SET));
+        generatorModificationInfos.setTargetQ(new AttributeModification<>(null, OperationType.UNSET));
+        generatorModificationInfos.toModification().apply(getNetwork());
         assertEquals(Double.NaN, getNetwork().getGenerator("idGenerator").getTargetQ());
 
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("GENERATOR_MODIFICATION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("GENERATOR_MODIFICATION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("idGenerator", createdValues.get("equipmentId"));
     }
@@ -288,10 +286,10 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
 
     @Test
     void testMoveFeederBay() {
-        GeneratorModificationModel generatorModificationModel = (GeneratorModificationModel) buildModification();
+        GeneratorModificationModel generatorModificationInfos = (GeneratorModificationModel) buildModification();
         // Change only busbar section
-        generatorModificationModel.setBusOrBusbarSectionId(new AttributeModification<>("1A", OperationType.SET));
-        generatorModificationModel.toModification().apply(getNetwork());
+        generatorModificationInfos.setBusOrBusbarSectionId(new AttributeModification<>("1A", OperationType.SET));
+        generatorModificationInfos.toModification().apply(getNetwork());
         Generator generator = getNetwork().getGenerator("idGenerator");
         Terminal terminal = generator.getTerminal();
         assertEquals("v2", terminal.getVoltageLevel().getId());
@@ -299,9 +297,9 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         assertEquals("1A", BusbarSectionFinderTraverser.findBusbarSectionId(terminal));
 
         // Change voltageLevel and busbar section
-        generatorModificationModel.setVoltageLevelId(new AttributeModification<>("v1", OperationType.SET));
-        generatorModificationModel.setBusOrBusbarSectionId(new AttributeModification<>("1.1", OperationType.SET));
-        generatorModificationModel.toModification().apply(getNetwork());
+        generatorModificationInfos.setVoltageLevelId(new AttributeModification<>("v1", OperationType.SET));
+        generatorModificationInfos.setBusOrBusbarSectionId(new AttributeModification<>("1.1", OperationType.SET));
+        generatorModificationInfos.toModification().apply(getNetwork());
         generator = getNetwork().getGenerator("idGenerator");
         terminal = generator.getTerminal();
         assertEquals("v1", terminal.getVoltageLevel().getId());
@@ -315,11 +313,11 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         assertEquals(40.0, generator.getEquivalentLocalTargetV());
         assertEquals(50.0, generator.getTargetV());
 
-        GeneratorModificationModel modificationModel = GeneratorModificationModel.builder()
-            .equipmentId("idGenerator")
-            .targetV(new AttributeModification<>(52.0, OperationType.SET))
-            .build();
-        modificationModel.toModification().apply(network);
+        GeneratorModificationModel modificationInfos = GeneratorModificationModel.builder()
+                .equipmentId("idGenerator")
+                .targetV(new AttributeModification<>(52.0, OperationType.SET))
+                .build();
+        modificationInfos.toModification().apply(network);
         Generator modifiedGenerator = network.getGenerator("idGenerator");
         assertEquals(40.0, modifiedGenerator.getEquivalentLocalTargetV());
         assertEquals(52.0, modifiedGenerator.getTargetV());

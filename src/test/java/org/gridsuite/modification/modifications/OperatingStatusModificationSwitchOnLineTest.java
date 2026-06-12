@@ -40,9 +40,9 @@ class OperatingStatusModificationSwitchOnLineTest extends AbstractNetworkModific
     @Override
     protected ModificationModel buildModification() {
         return OperatingStatusModificationModel.builder()
-            .equipmentId(TARGET_LINE_ID)
-            .energizedVoltageLevelId("energizedVoltageLevelId")
-            .action(OperatingStatusModificationModel.ActionType.SWITCH_ON).build();
+                .equipmentId(TARGET_LINE_ID)
+                .energizedVoltageLevelId("energizedVoltageLevelId")
+                .action(OperatingStatusModificationModel.ActionType.SWITCH_ON).build();
     }
 
     @Override
@@ -54,9 +54,9 @@ class OperatingStatusModificationSwitchOnLineTest extends AbstractNetworkModific
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("OPERATING_STATUS_MODIFICATION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("OPERATING_STATUS_MODIFICATION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("energizedVoltageLevelId", createdValues.get("energizedVoltageLevelId"));
         // assertEquals("SWITCH_ON", createdValues.get("action"));
@@ -70,9 +70,9 @@ class OperatingStatusModificationSwitchOnLineTest extends AbstractNetworkModific
     @Test
     void testCreateSubReportNode() {
         ReportNode reportNode = ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test")
-            .build();
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build();
 
         OperatingStatusModificationModel modification = (OperatingStatusModificationModel) buildModification();
 

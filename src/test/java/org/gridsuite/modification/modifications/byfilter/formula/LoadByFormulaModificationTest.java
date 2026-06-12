@@ -43,34 +43,34 @@ class LoadByFormulaModificationTest extends AbstractByFormulaModificationTest {
     @Override
     protected Map<UUID, FilterEquipments> getTestFilters() {
         FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(
-                new IdentifiableAttributes(LOAD_ID_1, getIdentifiableType(), 1.0),
-                new IdentifiableAttributes(LOAD_ID_2, getIdentifiableType(), 2.0)))
+            new IdentifiableAttributes(LOAD_ID_1, getIdentifiableType(), 1.0),
+            new IdentifiableAttributes(LOAD_ID_2, getIdentifiableType(), 2.0)))
             .build();
 
         FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(
-                new IdentifiableAttributes(LOAD_ID_3, getIdentifiableType(), 2.0),
-                new IdentifiableAttributes(LOAD_ID_4, getIdentifiableType(), 5.0)))
+            new IdentifiableAttributes(LOAD_ID_3, getIdentifiableType(), 2.0),
+            new IdentifiableAttributes(LOAD_ID_4, getIdentifiableType(), 5.0)))
             .build();
 
         return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2);
     }
 
     @Override
-    protected List<FormulaModel> getFormulaModel() {
-        FormulaModel formulaModel1 = getFormulaInfo(LoadField.ACTIVE_POWER_SET_POINT.name(),
-            List.of(filter1),
-            Operator.ADDITION,
-            ReferenceFieldOrValue.builder().equipmentField(LoadField.ACTIVE_POWER_SET_POINT.name()).build(),
-            ReferenceFieldOrValue.builder().value(25.).build()
+    protected List<FormulaModel> getFormulaInfos() {
+        FormulaModel formulaInfos1 = getFormulaInfo(LoadField.ACTIVE_POWER_SET_POINT.name(),
+                List.of(filter1),
+                Operator.ADDITION,
+                ReferenceFieldOrValue.builder().equipmentField(LoadField.ACTIVE_POWER_SET_POINT.name()).build(),
+                ReferenceFieldOrValue.builder().value(25.).build()
         );
 
-        FormulaModel formulaModel2 = getFormulaInfo(LoadField.REACTIVE_POWER_SET_POINT.name(),
-            List.of(filter2),
-            Operator.MULTIPLICATION,
-            ReferenceFieldOrValue.builder().equipmentField(LoadField.REACTIVE_POWER_SET_POINT.name()).build(),
-            ReferenceFieldOrValue.builder().value(2.5).build()
+        FormulaModel formulaInfos2 = getFormulaInfo(LoadField.REACTIVE_POWER_SET_POINT.name(),
+                List.of(filter2),
+                Operator.MULTIPLICATION,
+                ReferenceFieldOrValue.builder().equipmentField(LoadField.REACTIVE_POWER_SET_POINT.name()).build(),
+                ReferenceFieldOrValue.builder().value(2.5).build()
         );
-        return List.of(formulaModel1, formulaModel2);
+        return List.of(formulaInfos1, formulaInfos2);
     }
 
     @Override

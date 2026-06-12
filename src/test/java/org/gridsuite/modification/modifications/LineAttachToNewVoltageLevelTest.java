@@ -24,60 +24,60 @@ import static org.junit.jupiter.api.Assertions.*;
 class LineAttachToNewVoltageLevelTest extends AbstractNetworkModificationTest {
     private static LineCreationModel getAttachmentLine() {
         return LineCreationModel.builder()
-            .equipmentId("attachmentLine")
-            .r(50.6)
-            .x(25.3)
-            .build();
+                .equipmentId("attachmentLine")
+                .r(50.6)
+                .x(25.3)
+                .build();
     }
 
     private static VoltageLevelCreationModel getAttachmentPoint() {
         return VoltageLevelCreationModel.builder()
-            .equipmentId("AttPointId")
-            .nominalV(0)
+                .equipmentId("AttPointId")
+                .nominalV(0)
             .substationCreation(SubstationCreationModel.builder()
-                .equipmentId("attachmentPointSubstation")
-                .equipmentName("attachmentPointSubstationName")
-                .country(Country.FR)
+                        .equipmentId("attachmentPointSubstation")
+                        .equipmentName("attachmentPointSubstationName")
+                        .country(Country.FR)
+                        .properties(List.of(FreePropertyModel.builder()
+                                .added(true)
+                                .name("substationProp")
+                                .value("valueSubstation")
+                                .build()))
+                        .build())
+                .lowVoltageLimit(50.0)
+                .highVoltageLimit(100.0)
+                .ipMin(5.0)
+                .ipMax(20.0)
+                .busbarCount(1)
+                .sectionCount(1)
                 .properties(List.of(FreePropertyModel.builder()
-                    .added(true)
-                    .name("substationProp")
-                    .value("valueSubstation")
-                    .build()))
-                .build())
-            .lowVoltageLimit(50.0)
-            .highVoltageLimit(100.0)
-            .ipMin(5.0)
-            .ipMax(20.0)
-            .busbarCount(1)
-            .sectionCount(1)
-            .properties(List.of(FreePropertyModel.builder()
-                .added(true)
-                .name("voltageLevelProp")
-                .value("valueVoltageLevel")
-                .build()))
-            .build();
+                        .added(true)
+                        .name("voltageLevelProp")
+                        .value("valueVoltageLevel")
+                        .build()))
+                .build();
     }
 
     private static VoltageLevelCreationModel getNewVoltageLevel() {
         return VoltageLevelCreationModel.builder()
-            .equipmentId("newVoltageLevel")
-            .equipmentName("NewVoltageLevel")
-            .nominalV(379.3)
-            .substationId("s1")
-            .lowVoltageLimit(0.0)
-            .highVoltageLimit(10.0)
-            .ipMin(0.0)
-            .ipMax(10.0)
-            .busbarCount(2)
-            .sectionCount(2)
-            .switchKinds(List.of(SwitchKind.BREAKER))
-            .couplingDevices(Collections.singletonList(CouplingDeviceModel.builder().busbarSectionId1("1A").busbarSectionId2("1B").build()))
-            .properties(List.of(FreePropertyModel.builder()
-                .added(true)
-                .name("newVoltageLevelProp")
-                .value("newVoltageLevelValue")
-                .build()))
-            .build();
+                .equipmentId("newVoltageLevel")
+                .equipmentName("NewVoltageLevel")
+                .nominalV(379.3)
+                .substationId("s1")
+                .lowVoltageLimit(0.0)
+                .highVoltageLimit(10.0)
+                .ipMin(0.0)
+                .ipMax(10.0)
+                .busbarCount(2)
+                .sectionCount(2)
+                .switchKinds(List.of(SwitchKind.BREAKER))
+                .couplingDevices(Collections.singletonList(CouplingDeviceModel.builder().busbarSectionId1("1A").busbarSectionId2("1B").build()))
+                .properties(List.of(FreePropertyModel.builder()
+                        .added(true)
+                        .name("newVoltageLevelProp")
+                        .value("newVoltageLevelValue")
+                        .build()))
+                .build();
     }
 
     @Override
@@ -88,20 +88,20 @@ class LineAttachToNewVoltageLevelTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return LineAttachToVoltageLevelModel.builder()
-            .lineToAttachToId("line3")
-            .percent(20.0)
-            .attachmentPointId("AttPointId")
-            .attachmentPointName("attPointName")
-            .attachmentPointDetailInformation(getAttachmentPoint())
-            .mayNewVoltageLevelInfos(getNewVoltageLevel())  // create another new VL
-            .existingVoltageLevelId(null)
-            .bbsOrBusId("1.A")
-            .attachmentLine(getAttachmentLine())
-            .newLine1Id("nl1")
-            .newLine1Name("NewLine1")
-            .newLine2Id("nl2")
-            .newLine2Name("NewLine2")
-            .build();
+                .lineToAttachToId("line3")
+                .percent(20.0)
+                .attachmentPointId("AttPointId")
+                .attachmentPointName("attPointName")
+                .attachmentPointDetailInformation(getAttachmentPoint())
+                .mayNewVoltageLevelInfos(getNewVoltageLevel())  // create another new VL
+                .existingVoltageLevelId(null)
+                .bbsOrBusId("1.A")
+                .attachmentLine(getAttachmentLine())
+                .newLine1Id("nl1")
+                .newLine1Name("NewLine1")
+                .newLine2Id("nl2")
+                .newLine2Name("NewLine2")
+                .build();
     }
 
     @Override
@@ -145,9 +145,9 @@ class LineAttachToNewVoltageLevelTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("LINE_ATTACH_TO_VOLTAGE_LEVEL", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("LINE_ATTACH_TO_VOLTAGE_LEVEL", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("line3", createdValues.get("lineToAttachToId"));
     }

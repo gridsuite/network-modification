@@ -39,29 +39,25 @@ class TabularVoltageLevelModificationsTest extends AbstractNetworkModificationTe
     @Override
     protected ModificationModel buildModification() {
         List<ModificationModel> modifications = List.of(
-            VoltageLevelModificationModel.builder().equipmentId("v1")
-                .nominalV(new AttributeModification<>(300., OperationType.SET))
-                .highVoltageLimit(new AttributeModification<>(400., OperationType.SET))
-                .lowVoltageLimit(new AttributeModification<>(299., OperationType.SET)).build(),
-            VoltageLevelModificationModel.builder().equipmentId("v2")
-                .nominalV(new AttributeModification<>(300., OperationType.SET))
-                .highVoltageLimit(new AttributeModification<>(400., OperationType.SET))
-                .lowVoltageLimit(new AttributeModification<>(299., OperationType.SET)).build()
+                VoltageLevelModificationModel.builder().equipmentId("v1").nominalV(new AttributeModification<>(300., OperationType.SET)).highVoltageLimit(new AttributeModification<>(400.,
+                        OperationType.SET)).lowVoltageLimit(new AttributeModification<>(299., OperationType.SET)).build(),
+                VoltageLevelModificationModel.builder().equipmentId("v2").nominalV(new AttributeModification<>(300., OperationType.SET)).highVoltageLimit(new AttributeModification<>(400.,
+                        OperationType.SET)).lowVoltageLimit(new AttributeModification<>(299., OperationType.SET)).build()
         );
         return TabularModificationModel.builder()
-            .modificationType(ModificationType.VOLTAGE_LEVEL_MODIFICATION)
-            .modifications(modifications)
-            .build();
+                .modificationType(ModificationType.VOLTAGE_LEVEL_MODIFICATION)
+                .modifications(modifications)
+                .build();
     }
 
     @Test
     @Override
     public void testApply() {
-        ModificationModel modificationModel = buildModification();
-        ReportNode reportNode = modificationModel.createSubReportNode(ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test").build());
-        modificationModel.toModification().apply(getNetwork(), reportNode);
+        ModificationModel modificationInfos = buildModification();
+        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+        modificationInfos.toModification().apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication(reportNode);
     }
 
@@ -83,9 +79,9 @@ class TabularVoltageLevelModificationsTest extends AbstractNetworkModificationTe
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals(ModificationType.VOLTAGE_LEVEL_MODIFICATION.name(), createdValues.get("tabularModificationType"));
     }

@@ -35,7 +35,7 @@ class LineSplitWithNewVoltageLevelTest extends AbstractNetworkModificationTest {
         lineSplitAbsentLine.setLineToSplitId("absent_line_id");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lineSplitAbsentLine.toModification().check(getNetwork()));
         assertEquals(new NetworkModificationException(LINE_NOT_FOUND, "absent_line_id").getMessage(),
-            exception.getMessage());
+                exception.getMessage());
     }
 
     @Override
@@ -72,54 +72,54 @@ class LineSplitWithNewVoltageLevelTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("LINE_SPLIT_WITH_VOLTAGE_LEVEL", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("LINE_SPLIT_WITH_VOLTAGE_LEVEL", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("line2", createdValues.get("lineToSplitId"));
     }
 
     private VoltageLevelCreationModel createVoltageLevel() {
         return VoltageLevelCreationModel.builder()
-            .equipmentId("newVoltageLevel")
-            .equipmentName("NewVoltageLevel")
-            .nominalV(379.3)
-            .substationId("s1")
-            .lowVoltageLimit(0.0)
-            .highVoltageLimit(10.0)
-            .ipMin(0.0)
-            .ipMax(10.0)
-            .busbarCount(2)
-            .sectionCount(2)
-            .switchKinds(Arrays.asList(SwitchKind.BREAKER))
-            .couplingDevices(Arrays.asList(CouplingDeviceModel.builder().busbarSectionId1("1A").busbarSectionId2("1B").build()))
-            .properties(List.of(FreePropertyModel.builder()
-                .added(true)
-                .name("voltageLevelProp")
-                .value("valueVoltageLevel")
-                .build()))
-            .build();
+                .equipmentId("newVoltageLevel")
+                .equipmentName("NewVoltageLevel")
+                .nominalV(379.3)
+                .substationId("s1")
+                .lowVoltageLimit(0.0)
+                .highVoltageLimit(10.0)
+                .ipMin(0.0)
+                .ipMax(10.0)
+                .busbarCount(2)
+                .sectionCount(2)
+                .switchKinds(Arrays.asList(SwitchKind.BREAKER))
+                .couplingDevices(Arrays.asList(CouplingDeviceModel.builder().busbarSectionId1("1A").busbarSectionId2("1B").build()))
+                .properties(List.of(FreePropertyModel.builder()
+                        .added(true)
+                        .name("voltageLevelProp")
+                        .value("valueVoltageLevel")
+                        .build()))
+                .build();
     }
 
     @Test
     void testApplyWithNamingStrategy() {
         ReportNode report = ReportNode.newRootReportNode()
-            .withMessageTemplate("test")
-            .build();
+                .withMessageTemplate("test")
+                .build();
         VoltageLevelCreationModel vl1 = createVoltageLevel();
 
-        LineSplitWithVoltageLevelModel modificationModel = LineSplitWithVoltageLevelModel.builder()
-            .lineToSplitId("line2")
-            .percent(10.0)
-            .mayNewVoltageLevelInfos(vl1)
-            .existingVoltageLevelId(null)
-            .bbsOrBusId("BUSBAR_1_1")
-            .newLine1Id("nl1v")
-            .newLine1Name("NewLine1")
-            .newLine2Id("nl2v")
-            .newLine2Name("NewLine2")
-            .build();
-        modificationModel.toModification().apply(getNetwork(), new DummyNamingStrategy(), report);
+        LineSplitWithVoltageLevelModel modificationInfos = LineSplitWithVoltageLevelModel.builder()
+                .lineToSplitId("line2")
+                .percent(10.0)
+                .mayNewVoltageLevelInfos(vl1)
+                .existingVoltageLevelId(null)
+                .bbsOrBusId("BUSBAR_1_1")
+                .newLine1Id("nl1v")
+                .newLine1Name("NewLine1")
+                .newLine2Id("nl2v")
+                .newLine2Name("NewLine2")
+                .build();
+        modificationInfos.toModification().apply(getNetwork(), new DummyNamingStrategy(), report);
         Assertions.assertNotNull(getNetwork().getBusbarSection("BUSBAR_1_2"));
     }
 }

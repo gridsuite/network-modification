@@ -23,7 +23,6 @@ import org.mockito.MockitoAnnotations;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -67,28 +66,28 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
     @Override
     protected void checkModification() {
         var filter1 = FilterModel.builder()
-            .id(FILTER_ID_1)
-            .name("filter1")
-            .build();
+                .id(FILTER_ID_1)
+                .name("filter1")
+                .build();
 
-        ByFilterDeletionModel byFilterDeletionModel = ByFilterDeletionModel.builder()
-            .equipmentType(getIdentifiableType())
-            .filters(List.of(filter1))
-            .build();
+        ByFilterDeletionModel byFilterDeletionInfos = ByFilterDeletionModel.builder()
+                .equipmentType(getIdentifiableType())
+                .filters(List.of(filter1))
+                .build();
 
         Map<UUID, FilterEquipments> filterEquipments = Map.of(
-            FILTER_ID_1,
-            FilterEquipments.builder().filterId(FILTER_ID_1).filterName("filter1").identifiableAttributes(List.of(
-                    new IdentifiableAttributes(getExistingId(), getIdentifiableType(), null)))
-                .notFoundEquipments(List.of(EQUIPMENT_WRONG_ID_1)).build());
+                FILTER_ID_1,
+                FilterEquipments.builder().filterId(FILTER_ID_1).filterName("filter1").identifiableAttributes(List.of(
+                        new IdentifiableAttributes(getExistingId(), getIdentifiableType(), null)))
+                        .notFoundEquipments(List.of(EQUIPMENT_WRONG_ID_1)).build());
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filterEquipments);
 
-        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionModel.toModification();
+        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification();
         byFilterDeletion.initApplicationContext(filterService, null);
-        ReportNode report = byFilterDeletionModel.createSubReportNode(ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test")
-            .build());
+        ReportNode report = byFilterDeletionInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build());
         byFilterDeletion.apply(getNetwork(), report);
 
         assertLogMessage("Cannot find the following equipments " + EQUIPMENT_WRONG_ID_1 + " in filter filter1",
@@ -98,53 +97,53 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
     @Test
     void testCreateAllFiltersWrong() throws Exception {
         var filter1 = FilterModel.builder()
-            .id(FILTER_ID_1)
-            .name("filter1")
-            .build();
+                .id(FILTER_ID_1)
+                .name("filter1")
+                .build();
 
-        ByFilterDeletionModel byFilterDeletionModel = ByFilterDeletionModel.builder()
-            .equipmentType(getIdentifiableType())
-            .filters(List.of(filter1))
-            .build();
+        ByFilterDeletionModel byFilterDeletionInfos = ByFilterDeletionModel.builder()
+                .equipmentType(getIdentifiableType())
+                .filters(List.of(filter1))
+                .build();
 
         Map<UUID, FilterEquipments> filters = Map.of(
-            FILTER_ID_1, FilterEquipments.builder().identifiableAttributes(List.of())
-                .notFoundEquipments(List.of(EQUIPMENT_WRONG_ID_1)).build());
+                FILTER_ID_1, FilterEquipments.builder().identifiableAttributes(List.of())
+                        .notFoundEquipments(List.of(EQUIPMENT_WRONG_ID_1)).build());
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filters);
 
-        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionModel.toModification();
+        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification();
         byFilterDeletion.initApplicationContext(filterService, null);
-        ReportNode report = byFilterDeletionModel.createSubReportNode(ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test")
-            .build());
+        ReportNode report = byFilterDeletionInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build());
         byFilterDeletion.apply(getNetwork(), report);
-        assertLogMessage(byFilterDeletionModel.getErrorType().name() + ": There is no valid equipment ID among the provided filter(s)",
+        assertLogMessage(byFilterDeletionInfos.getErrorType().name() + ": There is no valid equipment ID among the provided filter(s)",
             "network.modification.invalidFilters", report);
     }
 
     @Override
     protected ModificationModel buildModification() {
         var filter1 = FilterModel.builder()
-            .id(FILTER_ID_1)
-            .name("filter1")
-            .build();
+                .id(FILTER_ID_1)
+                .name("filter1")
+                .build();
 
         var filter2 = FilterModel.builder()
-            .id(FILTER_ID_2)
-            .name("filter2")
-            .build();
+                .id(FILTER_ID_2)
+                .name("filter2")
+                .build();
 
         return ByFilterDeletionModel.builder()
-            .equipmentType(getIdentifiableType())
-            .filters(List.of(filter1, filter2))
-            .build();
+                .equipmentType(getIdentifiableType())
+                .filters(List.of(filter1, filter2))
+                .build();
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("BY_FILTER_DELETION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("BY_FILTER_DELETION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals(getIdentifiableType().name(), createdValues.get("equipmentType"));
     }

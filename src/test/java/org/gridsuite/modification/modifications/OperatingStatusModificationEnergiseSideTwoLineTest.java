@@ -41,9 +41,9 @@ class OperatingStatusModificationEnergiseSideTwoLineTest extends AbstractNetwork
     @Override
     protected ModificationModel buildModification() {
         return OperatingStatusModificationModel.builder()
-            .equipmentId(TARGET_LINE_ID)
-            .energizedVoltageLevelId("vl2")
-            .action(OperatingStatusModificationModel.ActionType.ENERGISE_END_TWO).build();
+                .equipmentId(TARGET_LINE_ID)
+                .energizedVoltageLevelId("vl2")
+                .action(OperatingStatusModificationModel.ActionType.ENERGISE_END_TWO).build();
     }
 
     @Override
@@ -59,25 +59,25 @@ class OperatingStatusModificationEnergiseSideTwoLineTest extends AbstractNetwork
     protected void checkModification() {
         // Add a line that can't be disconnected
         Line line = getNetwork().newLine()
-            .setId("cantdisconnect")
-            .setVoltageLevel1("v1")
-            .setVoltageLevel2("v3")
-            .setNode1(100)
-            .setNode2(100)
-            .setX(12)
-            .setR(7)
-            .add();
+                .setId("cantdisconnect")
+                .setVoltageLevel1("v1")
+                .setVoltageLevel2("v3")
+                .setNode1(100)
+                .setNode2(100)
+                .setX(12)
+                .setR(7)
+                .add();
         assertNotNull(line);
-        OperatingStatusModificationModel modificationModel = (OperatingStatusModificationModel) buildModification();
-        modificationModel.setEquipmentId("cantdisconnect");
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> modificationModel.toModification().apply(getNetwork()));
+        OperatingStatusModificationModel modificationInfos = (OperatingStatusModificationModel) buildModification();
+        modificationInfos.setEquipmentId("cantdisconnect");
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> modificationInfos.toModification().apply(getNetwork()));
         assertEquals("OPERATING_STATUS_MODIFICATION_ERROR : Unable to energise equipment end", exception.getMessage());
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("OPERATING_STATUS_MODIFICATION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("OPERATING_STATUS_MODIFICATION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("vl2", createdValues.get("energizedVoltageLevelId"));
         // assertEquals("ENERGISE_END_TWO", createdValues.get("action"));
@@ -87,9 +87,9 @@ class OperatingStatusModificationEnergiseSideTwoLineTest extends AbstractNetwork
     @Test
     void testCreateSubReportNode() {
         ReportNode reportNode = ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test")
-            .build();
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build();
 
         OperatingStatusModificationModel modification = (OperatingStatusModificationModel) buildModification();
 

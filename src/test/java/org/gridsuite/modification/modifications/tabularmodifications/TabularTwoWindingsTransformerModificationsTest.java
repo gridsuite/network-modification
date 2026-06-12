@@ -39,30 +39,30 @@ class TabularTwoWindingsTransformerModificationsTest extends AbstractNetworkModi
     @Override
     protected ModificationModel buildModification() {
         List<ModificationModel> modifications = List.of(
-            buildOneModification("trf1", 0.0),
-            buildOneModification("trf2", 1.0),
-            buildOneModification("unknownTwt", 1.0)
+                buildOneModification("trf1", 0.0),
+                buildOneModification("trf2", 1.0),
+                buildOneModification("unknownTwt", 1.0)
         );
         return TabularModificationModel.builder()
-            .modificationType(ModificationType.TWO_WINDINGS_TRANSFORMER_MODIFICATION)
-            .modifications(modifications)
-            .build();
+                .modificationType(ModificationType.TWO_WINDINGS_TRANSFORMER_MODIFICATION)
+                .modifications(modifications)
+                .build();
     }
 
     protected TwoWindingsTransformerModificationModel buildOneModification(String equipmentId, Double seriesResistance) {
         return TwoWindingsTransformerModificationModel.builder().equipmentId(equipmentId)
-            .r(new AttributeModification<>(seriesResistance, OperationType.SET))
-            .build();
+                .r(new AttributeModification<>(seriesResistance, OperationType.SET))
+                .build();
     }
 
     @Test
     @Override
     public void testApply() {
-        ModificationModel modificationModel = buildModification();
-        ReportNode reportNode = modificationModel.createSubReportNode(ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test").build());
-        modificationModel.toModification().apply(getNetwork(), reportNode);
+        ModificationModel modificationInfos = buildModification();
+        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+        modificationInfos.toModification().apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication(reportNode);
     }
 
@@ -81,9 +81,9 @@ class TabularTwoWindingsTransformerModificationsTest extends AbstractNetworkModi
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals(ModificationType.TWO_WINDINGS_TRANSFORMER_MODIFICATION.name(), createdValues.get("tabularModificationType"));
     }

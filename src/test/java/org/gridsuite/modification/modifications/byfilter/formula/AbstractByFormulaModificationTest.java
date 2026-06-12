@@ -26,11 +26,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -57,9 +55,9 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
     protected final FilterModel filter7 = new FilterModel(FILTER_ID_7, "filter7");
     protected final FilterModel filterWithOneWrongId = new FilterModel(FILTER_WITH_ONE_WRONG_ID, "filterWithOneWrongId");
     protected final ReportNode reportNode = ReportNode.newRootReportNode()
-        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-        .withMessageTemplate("test")
-        .build();
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test")
+            .build();
 
     @Mock
     protected IFilterService filterService;
@@ -90,40 +88,40 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
     @Override
     protected ModificationModel buildModification() {
         return ByFormulaModificationModel.builder()
-            .identifiableType(getIdentifiableType())
-            .formulaInfosList(getFormulaModel())
-            .build();
+                .identifiableType(getIdentifiableType())
+            .formulaInfosList(getFormulaInfos())
+                .build();
     }
 
     @Override
     protected void checkModification() {
     }
 
-    protected void apply(ByFormulaModificationModel modificationModel) {
-        AbstractModification modification = modificationModel.toModification();
+    protected void apply(ByFormulaModificationModel modificationInfos) {
+        AbstractModification modification = modificationInfos.toModification();
         modification.initApplicationContext(filterService, null);
         modification.apply(getNetwork());
     }
 
     protected FormulaModel getFormulaInfo(String editedField,
-                                          List<FilterModel> filters,
-                                          Operator operator,
-                                          ReferenceFieldOrValue fieldOrValue1,
-                                          ReferenceFieldOrValue fieldOrValue2) {
+                                List<FilterModel> filters,
+                                Operator operator,
+                                ReferenceFieldOrValue fieldOrValue1,
+                                ReferenceFieldOrValue fieldOrValue2) {
         return FormulaModel.builder()
-            .editedField(editedField)
-            .filters(filters)
-            .operator(operator)
-            .fieldOrValue1(fieldOrValue1)
-            .fieldOrValue2(fieldOrValue2)
-            .build();
+                .editedField(editedField)
+                .filters(filters)
+                .operator(operator)
+                .fieldOrValue1(fieldOrValue1)
+                .fieldOrValue2(fieldOrValue2)
+                .build();
     }
 
     protected abstract void createEquipments();
 
     protected abstract Map<UUID, FilterEquipments> getTestFilters();
 
-    protected abstract List<FormulaModel> getFormulaModel();
+    protected abstract List<FormulaModel> getFormulaInfos();
 
     protected abstract IdentifiableType getIdentifiableType();
 

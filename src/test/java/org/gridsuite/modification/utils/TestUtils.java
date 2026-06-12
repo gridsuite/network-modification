@@ -164,11 +164,11 @@ public final class TestUtils {
         assertTrue(line.getOperationalLimitsGroups2().stream().map(OperationalLimitsGroup::getId).toList().containsAll(side2GroupIds));
     }
 
-    public static void checkApplicationWithNamingStrategy(ModificationModel modificationModel, Network network, String busbarId) {
+    public static void checkApplicationWithNamingStrategy(ModificationModel modificationInfos, Network network, String busbarId) {
         ReportNode report = ReportNode.newRootReportNode()
-            .withMessageTemplate("test")
-            .build();
-        modificationModel.toModification().apply(network, new DummyNamingStrategy(), report);
+                .withMessageTemplate("test")
+                .build();
+        modificationInfos.toModification().apply(network, new DummyNamingStrategy(), report);
         Assertions.assertNotNull(network.getBusbarSection(busbarId));
     }
 

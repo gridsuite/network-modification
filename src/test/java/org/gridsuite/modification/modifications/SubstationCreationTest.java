@@ -14,10 +14,8 @@ import org.gridsuite.modification.model.FreePropertyModel;
 import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.model.SubstationCreationModel;
 import org.gridsuite.modification.utils.NetworkCreation;
-
 import java.util.List;
 import java.util.UUID;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -33,11 +31,11 @@ class SubstationCreationTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return SubstationCreationModel.builder()
-            .equipmentId("SubstationId")
-            .equipmentName("SubstationName")
-            .country(Country.AF)
-            .properties(List.of(FreePropertyModel.builder().name("DEMO").value("DemoC").build()))
-            .build();
+                .equipmentId("SubstationId")
+                .equipmentName("SubstationName")
+                .country(Country.AF)
+                .properties(List.of(FreePropertyModel.builder().name("DEMO").value("DemoC").build()))
+                .build();
     }
 
     @Override
@@ -49,16 +47,16 @@ class SubstationCreationTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void checkModification() {
-        SubstationCreationModel substationCreationModel = (SubstationCreationModel) buildModification();
-        substationCreationModel.setEquipmentId("");
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> substationCreationModel.toModification().apply(getNetwork()));
+        SubstationCreationModel substationCreationInfos = (SubstationCreationModel) buildModification();
+        substationCreationInfos.setEquipmentId("");
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> substationCreationInfos.toModification().apply(getNetwork()));
         assertEquals("Invalid id ''", exception.getMessage());
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("SUBSTATION_CREATION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("SUBSTATION_CREATION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("SubstationId", createdValues.get("equipmentId"));
     }

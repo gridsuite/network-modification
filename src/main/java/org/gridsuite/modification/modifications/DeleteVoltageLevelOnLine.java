@@ -22,42 +22,42 @@ import static org.gridsuite.modification.utils.ModificationLimitsUtils.applyReve
  */
 public class DeleteVoltageLevelOnLine extends AbstractModification {
 
-    private final DeleteVoltageLevelOnLineModel modificationModel;
+    private final DeleteVoltageLevelOnLineModel modificationInfos;
 
-    public DeleteVoltageLevelOnLine(DeleteVoltageLevelOnLineModel modificationModel) {
-        this.modificationModel = modificationModel;
+    public DeleteVoltageLevelOnLine(DeleteVoltageLevelOnLineModel modificationInfos) {
+        this.modificationInfos = modificationInfos;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
         // check existing lines
-        if (network.getLine(modificationModel.getLineToAttachTo1Id()) == null) {
-            throw new NetworkModificationException(LINE_NOT_FOUND, modificationModel.getLineToAttachTo1Id());
+        if (network.getLine(modificationInfos.getLineToAttachTo1Id()) == null) {
+            throw new NetworkModificationException(LINE_NOT_FOUND, modificationInfos.getLineToAttachTo1Id());
         }
-        if (network.getLine(modificationModel.getLineToAttachTo2Id()) == null) {
-            throw new NetworkModificationException(LINE_NOT_FOUND, modificationModel.getLineToAttachTo2Id());
+        if (network.getLine(modificationInfos.getLineToAttachTo2Id()) == null) {
+            throw new NetworkModificationException(LINE_NOT_FOUND, modificationInfos.getLineToAttachTo2Id());
         }
         // check future line does not exist
-        if (network.getLine(modificationModel.getReplacingLine1Id()) != null) {
-            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationModel.getReplacingLine1Id());
+        if (network.getLine(modificationInfos.getReplacingLine1Id()) != null) {
+            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationInfos.getReplacingLine1Id());
         }
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         RevertConnectVoltageLevelOnLineBuilder builder = new RevertConnectVoltageLevelOnLineBuilder();
-        RevertConnectVoltageLevelOnLine algo = builder.withLine1Id(modificationModel.getLineToAttachTo1Id())
-            .withLine2Id(modificationModel.getLineToAttachTo2Id())
-            .withLineId(modificationModel.getReplacingLine1Id())
-            .withLineName(modificationModel.getReplacingLine1Name())
-            .build();
+        RevertConnectVoltageLevelOnLine algo = builder.withLine1Id(modificationInfos.getLineToAttachTo1Id())
+                .withLine2Id(modificationInfos.getLineToAttachTo2Id())
+                .withLineId(modificationInfos.getReplacingLine1Id())
+                .withLineName(modificationInfos.getReplacingLine1Name())
+                .build();
 
         applyRevertModificationWithMergingOfLimits(network,
-            modificationModel.getLineToAttachTo1Id(),
-            modificationModel.getLineToAttachTo2Id(),
-            modificationModel.getReplacingLine1Id(),
-            algo,
-            subReportNode);
+                modificationInfos.getLineToAttachTo1Id(),
+                modificationInfos.getLineToAttachTo2Id(),
+                modificationInfos.getReplacingLine1Id(),
+                algo,
+                subReportNode);
     }
 
     @Override

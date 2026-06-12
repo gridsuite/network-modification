@@ -31,47 +31,46 @@ public class BatteryModification extends AbstractInjectionModification {
 
     public static final String ERROR_MESSAGE = "Battery '%s' : ";
 
-    public BatteryModification(BatteryModificationModel modificationModel) {
-        super(modificationModel);
+    public BatteryModification(BatteryModificationModel modificationInfos) {
+        super(modificationInfos);
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (modificationModel == null) {
+        if (modificationInfos == null) {
             throw new NetworkModificationException(MODIFY_BATTERY_ERROR, "Missing required attributes to modify the equipment");
         }
 
-        BatteryModificationModel batteryModificationModel = (BatteryModificationModel) modificationModel;
-        Battery battery = ModificationUtils.getInstance().getBattery(network, batteryModificationModel.getEquipmentId());
-        String errorMessage = "Battery '" + batteryModificationModel.getEquipmentId() + "' : ";
-        ModificationUtils.getInstance().checkVoltageLevelModification(network, batteryModificationModel.getVoltageLevelId(),
-            batteryModificationModel.getBusOrBusbarSectionId(), battery.getTerminal());
-        ModificationUtils.getInstance().checkReactiveLimit(battery, batteryModificationModel.getMinQ(), batteryModificationModel.getMaxQ(),
-            batteryModificationModel.getReactiveCapabilityCurvePoints(), MODIFY_BATTERY_ERROR, errorMessage);
-        checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(batteryModificationModel, battery, MODIFY_BATTERY_ERROR, errorMessage);
-        if (batteryModificationModel.getDroop() != null) {
-            checkIsPercentage(errorMessage, batteryModificationModel.getDroop().getValue(), MODIFY_BATTERY_ERROR, "Droop");
+        BatteryModificationModel batteryModificationInfos = (BatteryModificationModel) modificationInfos;
+        Battery battery = ModificationUtils.getInstance().getBattery(network, batteryModificationInfos.getEquipmentId());
+        String errorMessage = "Battery '" + batteryModificationInfos.getEquipmentId() + "' : ";
+        ModificationUtils.getInstance().checkVoltageLevelModification(network, batteryModificationInfos.getVoltageLevelId(),
+                batteryModificationInfos.getBusOrBusbarSectionId(), battery.getTerminal());
+        ModificationUtils.getInstance().checkReactiveLimit(battery, batteryModificationInfos.getMinQ(), batteryModificationInfos.getMaxQ(),
+                batteryModificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_BATTERY_ERROR, errorMessage);
+        checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(batteryModificationInfos, battery, MODIFY_BATTERY_ERROR, errorMessage);
+        if (batteryModificationInfos.getDroop() != null) {
+            checkIsPercentage(errorMessage, batteryModificationInfos.getDroop().getValue(), MODIFY_BATTERY_ERROR, "Droop");
         }
     }
 
-    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(BatteryModificationModel modificationModel, Battery battery,
-                                                                         NetworkModificationException.Type exceptionType,
-                                                                         String errorMessage) {
+    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(BatteryModificationModel modificationInfos, Battery battery, NetworkModificationException.Type exceptionType,
+            String errorMessage) {
         ModificationUtils.getInstance().checkActivePowerZeroOrBetweenMinAndMaxActivePower(
-            modificationModel.getTargetP(),
-            modificationModel.getMinP(),
-            modificationModel.getMaxP(),
-            battery.getMinP(),
-            battery.getMaxP(),
-            battery.getTargetP(),
-            exceptionType,
-            errorMessage
+                modificationInfos.getTargetP(),
+                modificationInfos.getMinP(),
+                modificationInfos.getMaxP(),
+                battery.getMinP(),
+                battery.getMaxP(),
+                battery.getTargetP(),
+                exceptionType,
+                errorMessage
         );
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        Battery battery = ModificationUtils.getInstance().getBattery(network, modificationModel.getEquipmentId());
+        Battery battery = ModificationUtils.getInstance().getBattery(network, modificationInfos.getEquipmentId());
         // modify the battery in the network
         modifyBattery(battery, subReportNode);
     }
@@ -82,31 +81,31 @@ public class BatteryModification extends AbstractInjectionModification {
     }
 
     private void modifyBattery(Battery battery, ReportNode subReportNode) {
-        BatteryModificationModel batteryModificationModel = (BatteryModificationModel) modificationModel;
+        BatteryModificationModel batteryModificationInfos = (BatteryModificationModel) modificationInfos;
         subReportNode.newReportNode()
-            .withMessageTemplate("network.modification.batteryModification")
-            .withUntypedValue("id", batteryModificationModel.getEquipmentId())
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
+                .withMessageTemplate("network.modification.batteryModification")
+                .withUntypedValue("id", batteryModificationInfos.getEquipmentId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
 
-        if (batteryModificationModel.getEquipmentName() != null && batteryModificationModel.getEquipmentName().getValue() != null) {
-            ModificationUtils.getInstance().applyElementaryModifications(battery::setName,
-                () -> battery.getOptionalName().orElse("No value"), batteryModificationModel.getEquipmentName(), subReportNode, "Name");
+        if (batteryModificationInfos.getEquipmentName() != null && batteryModificationInfos.getEquipmentName().getValue() != null) {
+            ModificationUtils.getInstance().applyElementaryModifications(battery::setName, () -> battery.getOptionalName().orElse("No value"), batteryModificationInfos.getEquipmentName(),
+                    subReportNode, "Name");
         }
-        modifyBatteryVoltageLevelBusOrBusBarSectionAttributes(batteryModificationModel, battery, subReportNode);
-        modifyBatteryLimitsAttributes(batteryModificationModel, battery, subReportNode);
+        modifyBatteryVoltageLevelBusOrBusBarSectionAttributes(batteryModificationInfos, battery, subReportNode);
+        modifyBatteryLimitsAttributes(batteryModificationInfos, battery, subReportNode);
         modifyBatterySetpointsAttributes(
-            batteryModificationModel.getTargetP(), batteryModificationModel.getTargetQ(),
-            batteryModificationModel.getParticipate(), batteryModificationModel.getDroop(),
-            battery, subReportNode);
-        modifyBatteryConnectivityAttributes(batteryModificationModel, battery, subReportNode);
-        updateMeasurements(battery, batteryModificationModel, subReportNode);
-        ModificationUtils.getInstance().modifyShortCircuitExtension(batteryModificationModel.getDirectTransX(),
-            batteryModificationModel.getStepUpTransformerX(),
-            battery.getExtension(BatteryShortCircuit.class),
-            () -> battery.newExtension(BatteryShortCircuitAdder.class),
-            subReportNode);
-        PropertiesUtils.applyProperties(battery, subReportNode, batteryModificationModel.getProperties(), "network.modification.BatteryProperties");
+                batteryModificationInfos.getTargetP(), batteryModificationInfos.getTargetQ(),
+                batteryModificationInfos.getParticipate(), batteryModificationInfos.getDroop(),
+                battery, subReportNode);
+        modifyBatteryConnectivityAttributes(batteryModificationInfos, battery, subReportNode);
+        updateMeasurements(battery, batteryModificationInfos, subReportNode);
+        ModificationUtils.getInstance().modifyShortCircuitExtension(batteryModificationInfos.getDirectTransX(),
+                batteryModificationInfos.getStepUpTransformerX(),
+                battery.getExtension(BatteryShortCircuit.class),
+                () -> battery.newExtension(BatteryShortCircuitAdder.class),
+                subReportNode);
+        PropertiesUtils.applyProperties(battery, subReportNode, batteryModificationInfos.getProperties(), "network.modification.BatteryProperties");
     }
 
     public static void modifyBatterySetpointsAttributes(AttributeModification<Double> targetP,
@@ -130,29 +129,29 @@ public class BatteryModification extends AbstractInjectionModification {
         modifyBatteryActivePowerControlAttributes(participate, droop, battery, subReportNode, subReporterSetpoints);
     }
 
-    private void modifyBatteryVoltageLevelBusOrBusBarSectionAttributes(BatteryModificationModel modificationModel,
+    private void modifyBatteryVoltageLevelBusOrBusBarSectionAttributes(BatteryModificationModel modificationInfos,
                                                                        Battery battery, ReportNode subReportNode) {
         ModificationUtils.getInstance().moveFeederBay(
-            battery, battery.getTerminal(),
-            modificationModel.getVoltageLevelId(),
-            modificationModel.getBusOrBusbarSectionId(),
-            subReportNode
+                battery, battery.getTerminal(),
+                modificationInfos.getVoltageLevelId(),
+                modificationInfos.getBusOrBusbarSectionId(),
+                subReportNode
         );
     }
 
-    private void modifyBatteryLimitsAttributes(BatteryModificationModel modificationModel,
+    private void modifyBatteryLimitsAttributes(BatteryModificationModel modificationInfos,
                                                Battery battery, ReportNode subReportNode) {
-        ReportNode subReportNodeLimits = modifyBatteryActiveLimitsAttributes(modificationModel.getMaxP(), modificationModel.getMinP(), battery, subReportNode);
-        modifyBatteryReactiveLimitsAttributes(modificationModel, battery, subReportNode, subReportNodeLimits);
+        ReportNode subReportNodeLimits = modifyBatteryActiveLimitsAttributes(modificationInfos.getMaxP(), modificationInfos.getMinP(), battery, subReportNode);
+        modifyBatteryReactiveLimitsAttributes(modificationInfos, battery, subReportNode, subReportNodeLimits);
     }
 
-    private void modifyBatteryReactiveCapabilityCurvePoints(BatteryModificationModel modificationModel,
+    private void modifyBatteryReactiveCapabilityCurvePoints(BatteryModificationModel modificationInfos,
                                                             Battery battery, ReportNode subReportNode, ReportNode subReportNodeLimits) {
 
         ReactiveCapabilityCurveAdder adder = battery.newReactiveCapabilityCurve();
-        List<ReactiveCapabilityCurvePointsModel> modificationPoints = modificationModel.getReactiveCapabilityCurvePoints();
-        Collection<ReactiveCapabilityCurve.Point> points = battery.getReactiveLimits().getKind() == ReactiveLimitsKind.CURVE
-            ? battery.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints() : List.of();
+        List<ReactiveCapabilityCurvePointsModel> modificationPoints = modificationInfos.getReactiveCapabilityCurvePoints();
+        Collection<ReactiveCapabilityCurve.Point> points = battery.getReactiveLimits().getKind() == ReactiveLimitsKind.CURVE ? battery.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints(
+                ) : List.of();
         ModificationUtils.getInstance().modifyReactiveCapabilityCurvePoints(points, modificationPoints, adder, subReportNode, subReportNodeLimits);
     }
 
@@ -175,16 +174,16 @@ public class BatteryModification extends AbstractInjectionModification {
         return subReportNodeLimits;
     }
 
-    private void modifyBatteryReactiveLimitsAttributes(BatteryModificationModel modificationModel,
+    private void modifyBatteryReactiveLimitsAttributes(BatteryModificationModel modificationInfos,
                                                        Battery battery, ReportNode subReportNode, ReportNode subReportNodeLimits) {
 
-        if (modificationModel.getReactiveCapabilityCurve() != null) {
-            if (Boolean.TRUE.equals(modificationModel.getReactiveCapabilityCurve().getValue()
-                && modificationModel.getReactiveCapabilityCurvePoints() != null
-                && !modificationModel.getReactiveCapabilityCurvePoints().isEmpty())) {
-                modifyBatteryReactiveCapabilityCurvePoints(modificationModel, battery, subReportNode, subReportNodeLimits);
-            } else if (Boolean.FALSE.equals(modificationModel.getReactiveCapabilityCurve().getValue())) {
-                ModificationUtils.getInstance().modifyMinMaxReactiveLimits(modificationModel.getMinQ(), modificationModel.getMaxQ(), battery, subReportNode, subReportNodeLimits);
+        if (modificationInfos.getReactiveCapabilityCurve() != null) {
+            if (Boolean.TRUE.equals(modificationInfos.getReactiveCapabilityCurve().getValue()
+                    && modificationInfos.getReactiveCapabilityCurvePoints() != null
+                    && !modificationInfos.getReactiveCapabilityCurvePoints().isEmpty())) {
+                modifyBatteryReactiveCapabilityCurvePoints(modificationInfos, battery, subReportNode, subReportNodeLimits);
+            } else if (Boolean.FALSE.equals(modificationInfos.getReactiveCapabilityCurve().getValue())) {
+                ModificationUtils.getInstance().modifyMinMaxReactiveLimits(modificationInfos.getMinQ(), modificationInfos.getMaxQ(), battery, subReportNode, subReportNodeLimits);
             }
         }
     }
@@ -200,10 +199,11 @@ public class BatteryModification extends AbstractInjectionModification {
             participate, droop, subReportNode, subReportNodeSetpoints, MODIFY_BATTERY_ERROR, String.format(ERROR_MESSAGE, battery.getId()));
     }
 
-    private ReportNode modifyBatteryConnectivityAttributes(BatteryModificationModel modificationModel,
-                                                           Battery battery, ReportNode subReportNode) {
+    private ReportNode modifyBatteryConnectivityAttributes(BatteryModificationModel modificationInfos,
+                                                                 Battery battery, ReportNode subReportNode) {
         ConnectablePosition<Battery> connectablePosition = battery.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<Battery> connectablePositionAdder = battery.newExtension(ConnectablePositionAdder.class);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, battery, modificationModel, subReportNode);
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, battery, modificationInfos, subReportNode);
     }
 }
+

@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.*;
 import org.gridsuite.modification.NetworkModificationException;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 
 /**

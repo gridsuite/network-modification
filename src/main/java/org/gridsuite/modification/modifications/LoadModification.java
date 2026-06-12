@@ -25,24 +25,24 @@ import static org.gridsuite.modification.NetworkModificationException.Type.LOAD_
  */
 public class LoadModification extends AbstractInjectionModification {
 
-    public LoadModification(LoadModificationModel modificationModel) {
-        super(modificationModel);
+    public LoadModification(LoadModificationModel modificationInfos) {
+        super(modificationInfos);
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        Load load = network.getLoad(modificationModel.getEquipmentId());
+        Load load = network.getLoad(modificationInfos.getEquipmentId());
         if (load == null) {
             throw new NetworkModificationException(LOAD_NOT_FOUND,
-                "Load " + modificationModel.getEquipmentId() + " does not exist in network");
+                    "Load " + modificationInfos.getEquipmentId() + " does not exist in network");
         }
-        ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationModel.getVoltageLevelId(),
-            modificationModel.getBusOrBusbarSectionId(), load.getTerminal());
+        ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId(),
+                modificationInfos.getBusOrBusbarSectionId(), load.getTerminal());
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        Load load = network.getLoad(modificationModel.getEquipmentId());
+        Load load = network.getLoad(modificationInfos.getEquipmentId());
         // modify the load in the network
         modifyLoad(load, subReportNode);
     }
@@ -53,23 +53,23 @@ public class LoadModification extends AbstractInjectionModification {
     }
 
     private void modifyLoad(Load load, ReportNode subReportNode) {
-        LoadModificationModel loadModificationModel = (LoadModificationModel) modificationModel;
+        LoadModificationModel loadModificationInfos = (LoadModificationModel) modificationInfos;
         subReportNode.newReportNode()
             .withMessageTemplate("network.modification.loadModification")
-            .withUntypedValue("id", loadModificationModel.getEquipmentId())
+            .withUntypedValue("id", loadModificationInfos.getEquipmentId())
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
 
-        ModificationUtils.getInstance().applyElementaryModifications(load::setName, () -> load.getOptionalName().orElse("No value"), loadModificationModel.getEquipmentName(), subReportNode, "Name");
-        ModificationUtils.getInstance().applyElementaryModifications(load::setLoadType, load::getLoadType, loadModificationModel.getLoadType(), subReportNode, "Type");
-        modifyLoadVoltageLevelBusOrBusBarSectionAttributes(loadModificationModel, load, subReportNode);
-        modifyLoadConnectivityAttributes(loadModificationModel, load, subReportNode);
-        modifyP0(load, loadModificationModel.getP0(), subReportNode);
-        modifyQ0(load, loadModificationModel.getQ0(), subReportNode);
+        ModificationUtils.getInstance().applyElementaryModifications(load::setName, () -> load.getOptionalName().orElse("No value"), loadModificationInfos.getEquipmentName(), subReportNode, "Name");
+        ModificationUtils.getInstance().applyElementaryModifications(load::setLoadType, load::getLoadType, loadModificationInfos.getLoadType(), subReportNode, "Type");
+        modifyLoadVoltageLevelBusOrBusBarSectionAttributes(loadModificationInfos, load, subReportNode);
+        modifyLoadConnectivityAttributes(loadModificationInfos, load, subReportNode);
+        modifyP0(load, loadModificationInfos.getP0(), subReportNode);
+        modifyQ0(load, loadModificationInfos.getQ0(), subReportNode);
         // measurements
-        updateMeasurements(load, loadModificationModel, subReportNode);
+        updateMeasurements(load, loadModificationInfos, subReportNode);
         // properties
-        PropertiesUtils.applyProperties(load, subReportNode, loadModificationModel.getProperties(), "network.modification.LoadProperties");
+        PropertiesUtils.applyProperties(load, subReportNode, loadModificationInfos.getProperties(), "network.modification.LoadProperties");
     }
 
     public static void modifyQ0(Load load, AttributeModification<Double> q0, ReportNode subReportNode) {
@@ -80,21 +80,21 @@ public class LoadModification extends AbstractInjectionModification {
         ModificationUtils.getInstance().applyElementaryModifications(load::setP0, load::getP0, p0, subReportNode, "Constant active power");
     }
 
-    private void modifyLoadVoltageLevelBusOrBusBarSectionAttributes(LoadModificationModel modificationModel,
+    private void modifyLoadVoltageLevelBusOrBusBarSectionAttributes(LoadModificationModel modificationInfos,
                                                                     Load load, ReportNode subReportNode) {
         ModificationUtils.getInstance().moveFeederBay(
-            load, load.getTerminal(),
-            modificationModel.getVoltageLevelId(),
-            modificationModel.getBusOrBusbarSectionId(),
-            subReportNode
+                load, load.getTerminal(),
+                modificationInfos.getVoltageLevelId(),
+                modificationInfos.getBusOrBusbarSectionId(),
+                subReportNode
         );
     }
 
-    private ReportNode modifyLoadConnectivityAttributes(LoadModificationModel loadModificationModel,
+    private ReportNode modifyLoadConnectivityAttributes(LoadModificationModel loadModificationInfos,
                                                         Load load, ReportNode subReportNode) {
         ConnectablePosition<Load> connectablePosition = load.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<Load> connectablePositionAdder = load.newExtension(ConnectablePositionAdder.class);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, load, loadModificationModel, subReportNode);
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, load, loadModificationInfos, subReportNode);
     }
 
 }

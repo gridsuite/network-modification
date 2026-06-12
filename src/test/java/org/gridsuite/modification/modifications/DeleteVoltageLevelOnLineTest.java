@@ -30,9 +30,9 @@ class DeleteVoltageLevelOnLineTest extends AbstractNetworkModificationTest {
 
     @Override
     public void checkModification() {
-        DeleteVoltageLevelOnLineModel deleteVoltageLevelOnLineModel = (DeleteVoltageLevelOnLineModel) buildModification();
-        deleteVoltageLevelOnLineModel.setLineToAttachTo1Id("notFoundLine");
-        assertThrows(NetworkModificationException.class, () -> deleteVoltageLevelOnLineModel.toModification().check(getNetwork()));
+        DeleteVoltageLevelOnLineModel deleteVoltageLevelOnLineInfos = (DeleteVoltageLevelOnLineModel) buildModification();
+        deleteVoltageLevelOnLineInfos.setLineToAttachTo1Id("notFoundLine");
+        assertThrows(NetworkModificationException.class, () -> deleteVoltageLevelOnLineInfos.toModification().check(getNetwork()));
     }
 
     @Override
@@ -43,11 +43,11 @@ class DeleteVoltageLevelOnLineTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return DeleteVoltageLevelOnLineModel.builder()
-            .lineToAttachTo1Id("l1")
-            .lineToAttachTo2Id("l2")
-            .replacingLine1Id("replacementLineId")
-            .replacingLine1Name("replacementLine")
-            .build();
+               .lineToAttachTo1Id("l1")
+               .lineToAttachTo2Id("l2")
+               .replacingLine1Id("replacementLineId")
+               .replacingLine1Name("replacementLine")
+               .build();
     }
 
     @Override
@@ -69,28 +69,28 @@ class DeleteVoltageLevelOnLineTest extends AbstractNetworkModificationTest {
     @Test
     void createWithInvalidLineIdTest() throws Exception {
         // test create with incorrect line id
-        DeleteVoltageLevelOnLineModel deleteVoltageLevelOnLineModel = DeleteVoltageLevelOnLineModel.builder()
-            .lineToAttachTo1Id("l1")
-            .lineToAttachTo2Id("ll")
-            .replacingLine1Id("replacementLineId")
-            .build();
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> deleteVoltageLevelOnLineModel.toModification().check(getNetwork()));
+        DeleteVoltageLevelOnLineModel deleteVoltageLevelOnLineInfos = DeleteVoltageLevelOnLineModel.builder()
+                .lineToAttachTo1Id("l1")
+                .lineToAttachTo2Id("ll")
+                .replacingLine1Id("replacementLineId")
+                .build();
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> deleteVoltageLevelOnLineInfos.toModification().check(getNetwork()));
         assertEquals("LINE_NOT_FOUND : ll", exception.getMessage());
     }
 
     @Test
     void createNewLineWithExistingIdTest() throws Exception {
         // try to create an already existing line
-        DeleteVoltageLevelOnLineModel deleteVoltageLevelOnLineModel = (DeleteVoltageLevelOnLineModel) buildModification();
-        deleteVoltageLevelOnLineModel.setReplacingLine1Id("l2");
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> deleteVoltageLevelOnLineModel.toModification().check(getNetwork()));
+        DeleteVoltageLevelOnLineModel deleteVoltageLevelOnLineInfos = (DeleteVoltageLevelOnLineModel) buildModification();
+        deleteVoltageLevelOnLineInfos.setReplacingLine1Id("l2");
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> deleteVoltageLevelOnLineInfos.toModification().check(getNetwork()));
         assertEquals("LINE_ALREADY_EXISTS : l2", exception.getMessage());
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("DELETE_VOLTAGE_LEVEL_ON_LINE", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("DELETE_VOLTAGE_LEVEL_ON_LINE", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("l1", createdValues.get("lineToAttachTo1Id"));
         // assertEquals("l2", createdValues.get("lineToAttachTo2Id"));

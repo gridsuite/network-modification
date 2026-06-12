@@ -43,58 +43,58 @@ class VscModificationTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return VscModificationModel.builder()
-            .equipmentId("hvdcLine")
-            .equipmentName(new AttributeModification<>("hvdcLine", OperationType.SET))
-            .nominalV(new AttributeModification<>(39., OperationType.SET))
-            .r(new AttributeModification<>(4., OperationType.SET))
-            .maxP(new AttributeModification<>(56., OperationType.SET))
-            .p0(new AttributeModification<>(5F, OperationType.SET))
-            .operatorActivePowerLimitFromSide2ToSide1(new AttributeModification<>(5.6F, OperationType.SET))
-            .convertersMode(new AttributeModification<>(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, OperationType.SET))
-            .activePowerSetpoint(new AttributeModification<>(5., OperationType.SET))
-            .operatorActivePowerLimitFromSide1ToSide2(new AttributeModification<>(6.0F, OperationType.SET))
-            .operatorActivePowerLimitFromSide2ToSide1(new AttributeModification<>(8F, OperationType.SET))
-            .droop(new AttributeModification<>(1F, OperationType.SET))
-            .angleDroopActivePowerControl(new AttributeModification<>(true, OperationType.SET))
-            .converterStation1(buildConverterStationWithReactiveCapabilityCurve())
-            .converterStation2(buildConverterStationWithMinMaxReactiveLimits())
-            .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
-            .build();
+                .equipmentId("hvdcLine")
+                .equipmentName(new AttributeModification<>("hvdcLine", OperationType.SET))
+                .nominalV(new AttributeModification<>(39., OperationType.SET))
+                .r(new AttributeModification<>(4., OperationType.SET))
+                .maxP(new AttributeModification<>(56., OperationType.SET))
+                .p0(new AttributeModification<>(5F, OperationType.SET))
+                .operatorActivePowerLimitFromSide2ToSide1(new AttributeModification<>(5.6F, OperationType.SET))
+                .convertersMode(new AttributeModification<>(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, OperationType.SET))
+                .activePowerSetpoint(new AttributeModification<>(5., OperationType.SET))
+                .operatorActivePowerLimitFromSide1ToSide2(new AttributeModification<>(6.0F, OperationType.SET))
+                .operatorActivePowerLimitFromSide2ToSide1(new AttributeModification<>(8F, OperationType.SET))
+                .droop(new AttributeModification<>(1F, OperationType.SET))
+                .angleDroopActivePowerControl(new AttributeModification<>(true, OperationType.SET))
+                .converterStation1(buildConverterStationWithReactiveCapabilityCurve())
+                .converterStation2(buildConverterStationWithMinMaxReactiveLimits())
+                .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+                .build();
     }
 
     private static ConverterStationModificationModel buildConverterStationWithReactiveCapabilityCurve() {
         return ConverterStationModificationModel.builder()
-            .equipmentId("v1vsc")
-            .equipmentName(new AttributeModification<>("v1vsc-name", OperationType.SET))
-            .lossFactor(new AttributeModification<>(0.1F, OperationType.SET))
-            .reactivePowerSetpoint(new AttributeModification<>(0.2, OperationType.SET))
-            .voltageRegulationOn(new AttributeModification<>(true, OperationType.SET))
-            .voltageSetpoint(new AttributeModification<>(0.3, OperationType.SET))
-            .reactiveCapabilityCurve(new AttributeModification<>(true, OperationType.SET))
-            .reactiveCapabilityCurvePoints(List.of(
-                new ReactiveCapabilityCurvePointsModel(0.4, 11., 0.7),
-                new ReactiveCapabilityCurvePointsModel(0.6, 12., 0.8)))
-            .build();
+                .equipmentId("v1vsc")
+                .equipmentName(new AttributeModification<>("v1vsc-name", OperationType.SET))
+                .lossFactor(new AttributeModification<>(0.1F, OperationType.SET))
+                .reactivePowerSetpoint(new AttributeModification<>(0.2, OperationType.SET))
+                .voltageRegulationOn(new AttributeModification<>(true, OperationType.SET))
+                .voltageSetpoint(new AttributeModification<>(0.3, OperationType.SET))
+                .reactiveCapabilityCurve(new AttributeModification<>(true, OperationType.SET))
+                .reactiveCapabilityCurvePoints(List.of(
+                        new ReactiveCapabilityCurvePointsModel(0.4, 11., 0.7),
+                        new ReactiveCapabilityCurvePointsModel(0.6, 12., 0.8)))
+                .build();
     }
 
     private static ConverterStationModificationModel buildEmptyConverterStation() {
         return ConverterStationModificationModel.builder()
-            .equipmentId("v1vsc")
-            .build();
+                .equipmentId("v1vsc")
+                .build();
     }
 
     private static ConverterStationModificationModel buildConverterStationWithMinMaxReactiveLimits() {
         return ConverterStationModificationModel.builder()
-            .equipmentId("v2vsc")
-            .equipmentName(new AttributeModification<>("v2vsc-name", OperationType.SET))
-            .lossFactor(new AttributeModification<>(0.1F, OperationType.SET))
-            .reactivePowerSetpoint(new AttributeModification<>(0.2, OperationType.SET))
-            .voltageRegulationOn(new AttributeModification<>(true, OperationType.SET))
-            .voltageSetpoint(new AttributeModification<>(0.3, OperationType.SET))
-            .minQ(new AttributeModification<>(0.4, OperationType.SET))
-            .maxQ(new AttributeModification<>(0.5, OperationType.SET))
-            .reactiveCapabilityCurve(new AttributeModification<>(false, OperationType.SET))
-            .build();
+                .equipmentId("v2vsc")
+                .equipmentName(new AttributeModification<>("v2vsc-name", OperationType.SET))
+                .lossFactor(new AttributeModification<>(0.1F, OperationType.SET))
+                .reactivePowerSetpoint(new AttributeModification<>(0.2, OperationType.SET))
+                .voltageRegulationOn(new AttributeModification<>(true, OperationType.SET))
+                .voltageSetpoint(new AttributeModification<>(0.3, OperationType.SET))
+                .minQ(new AttributeModification<>(0.4, OperationType.SET))
+                .maxQ(new AttributeModification<>(0.5, OperationType.SET))
+                .reactiveCapabilityCurve(new AttributeModification<>(false, OperationType.SET))
+                .build();
     }
 
     @Override
@@ -121,12 +121,12 @@ class VscModificationTest extends AbstractNetworkModificationTest {
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, hvdcLine.getConvertersMode());
 
         assertEquals(1, getNetwork().getVoltageLevel("v1").getVscConverterStationStream()
-            .filter(converterStation -> converterStation.getId().equals("v1vsc")).count());
+                .filter(converterStation -> converterStation.getId().equals("v1vsc")).count());
 
         assertEquals(1, getNetwork().getVoltageLevel("v2").getVscConverterStationStream()
-            .filter(converterStation -> converterStation.getId().equals("v2vsc")).count());
+                .filter(converterStation -> converterStation.getId().equals("v2vsc")).count());
 
-        VscModificationModel vscModificationModel = (VscModificationModel) buildModification();
+        VscModificationModel vscModificationInfos = (VscModificationModel) buildModification();
 
         {
             VscConverterStation vscConverterStation1 = (VscConverterStation) hvdcLine.getConverterStation1();
@@ -139,16 +139,16 @@ class VscModificationTest extends AbstractNetworkModificationTest {
             assertEquals(2, reactiveLimits1.getPointCount());
             Collection<ReactiveCapabilityCurve.Point> points = vscConverterStation1.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints();
             List<ReactiveCapabilityCurve.Point> vscPoints = new ArrayList<>(points);
-            List<ReactiveCapabilityCurvePointsModel> modificationPoints = vscModificationModel.getConverterStation1().getReactiveCapabilityCurvePoints();
+            List<ReactiveCapabilityCurvePointsModel> modificationPoints = vscModificationInfos.getConverterStation1().getReactiveCapabilityCurvePoints();
             if (!CollectionUtils.isEmpty(points)) {
                 IntStream.range(0, vscPoints.size())
-                    .forEach(i -> {
-                        var point = vscPoints.get(i);
-                        var modificationPoint = modificationPoints.get(i);
-                        assertEquals(modificationPoint.getMaxQ(), point.getMaxQ());
-                        assertEquals(modificationPoint.getMinQ(), point.getMinQ());
-                        assertEquals(modificationPoint.getP(), point.getP());
-                    });
+                        .forEach(i -> {
+                            var point = vscPoints.get(i);
+                            var modificationPoint = modificationPoints.get(i);
+                            assertEquals(modificationPoint.getMaxQ(), point.getMaxQ());
+                            assertEquals(modificationPoint.getMinQ(), point.getMinQ());
+                            assertEquals(modificationPoint.getP(), point.getP());
+                        });
             }
             assertEquals(0.3, vscConverterStation1.getVoltageSetpoint(), 0);
             assertEquals("v1", vscConverterStation1.getTerminal().getVoltageLevel().getId());
@@ -169,10 +169,10 @@ class VscModificationTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // String type = modificationModel.getMessageType();
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // String type = modificationInfos.getMessageType();
         // assertEquals("VSC_MODIFICATION", type);
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("hvdcLine", createdValues.get("equipmentId")); //TODO : implement equipment id change and change hvdcLine to vsc1 for example
     }
@@ -181,9 +181,9 @@ class VscModificationTest extends AbstractNetworkModificationTest {
     void testCreateAngleDroopActivePowerControlWithEnabling() throws Exception {
         var networkuuid = UUID.randomUUID();
         Network networkWithoutExt = NetworkCreation.createWithVSC(networkuuid, false);
-        VscModificationModel modificationModel = (VscModificationModel) buildModification();
-        modificationModel.setAngleDroopActivePowerControl(new AttributeModification<>(true, OperationType.SET));
-        VscModification vscModification = new VscModification(modificationModel);
+        VscModificationModel modificationInfos = (VscModificationModel) buildModification();
+        modificationInfos.setAngleDroopActivePowerControl(new AttributeModification<>(true, OperationType.SET));
+        VscModification vscModification = new VscModification(modificationInfos);
         ReportNode subReporter = ReportNode.NO_OP;
         ComputationManager computationManager = new LocalComputationManager();
         assertDoesNotThrow(() -> vscModification.check(networkWithoutExt));
@@ -200,58 +200,58 @@ class VscModificationTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void testAngleDroopActivePowerControlWithAbsentModel() {
+    void testAngleDroopActivePowerControlWithAbsentInfos() {
         var networkuuid = UUID.randomUUID();
         Network networkWithoutExt = NetworkCreation.createWithVSC(networkuuid, false);
 
-        boolean[][] droopModelIsPresentData = {
-            {true, false, false},
-            {true, true, false},
-            {true, false, true},
-            {false, true, false},
-            {false, true, true},
-            {false, false, true},
+        boolean[][] droopInfosIsPresentData = {
+                {true, false, false},
+                {true, true, false},
+                {true, false, true},
+                {false, true, false},
+                {false, true, true},
+                {false, false, true},
         };
 
-        for (boolean[] droopInfoIsPresent : droopModelIsPresentData) {
-            VscModificationModel modificationModel = buildModificationWithDroopAbsentModel(droopInfoIsPresent[0], droopInfoIsPresent[1], droopInfoIsPresent[2]);
-            checkDroopWithAbsentModel(modificationModel, networkWithoutExt);
+        for (boolean[] droopInfoIsPresent : droopInfosIsPresentData) {
+            VscModificationModel modificationInfos = buildModificationWithDroopAbsentInfos(droopInfoIsPresent[0], droopInfoIsPresent[1], droopInfoIsPresent[2]);
+            checkDroopWithAbsentInfos(modificationInfos, networkWithoutExt);
         }
     }
 
-    private VscModificationModel buildModificationWithDroopAbsentModel(boolean isPresentAngleDroopActivePowerControl, boolean isPresentDroop, boolean isPresentP0) {
-        VscModificationModel modificationModel = (VscModificationModel) buildModification();
+    private VscModificationModel buildModificationWithDroopAbsentInfos(boolean isPresentAngleDroopActivePowerControl, boolean isPresentDroop, boolean isPresentP0) {
+        VscModificationModel modificationInfos = (VscModificationModel) buildModification();
         // reset null depending to test arguments
         if (!isPresentAngleDroopActivePowerControl) {
-            modificationModel.setAngleDroopActivePowerControl(new AttributeModification<>(null, null));
+            modificationInfos.setAngleDroopActivePowerControl(new AttributeModification<>(null, null));
         }
         if (!isPresentDroop) {
-            modificationModel.setDroop(new AttributeModification<>(null, null));
+            modificationInfos.setDroop(new AttributeModification<>(null, null));
         }
         if (!isPresentP0) {
-            modificationModel.setP0(new AttributeModification<>(null, null));
+            modificationInfos.setP0(new AttributeModification<>(null, null));
         }
-        return modificationModel;
+        return modificationInfos;
     }
 
-    private static void checkDroopWithAbsentModel(VscModificationModel modificationModel, Network networkWithoutExt) {
-        VscModification vscModification = new VscModification(modificationModel);
+    private static void checkDroopWithAbsentInfos(VscModificationModel modificationInfos, Network networkWithoutExt) {
+        VscModification vscModification = new VscModification(modificationInfos);
         String message = assertThrows(NetworkModificationException.class,
-            () -> vscModification.check(networkWithoutExt))
+                () -> vscModification.check(networkWithoutExt))
             .getMessage();
         assertThat(message).isEqualTo(WRONG_HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL.name() + " : "
-            + ACTIVE_POWER_CONTROL_DROOP_P0_REQUIRED_ERROR_MSG);
+              + ACTIVE_POWER_CONTROL_DROOP_P0_REQUIRED_ERROR_MSG);
     }
 
     @Test
     void testNotCreateAngleDroopActivePowerControl() throws Exception {
         var networkuuid = UUID.randomUUID();
         Network networkWithExt = NetworkCreation.createWithVSC(networkuuid, false);
-        VscModificationModel modificationModel = (VscModificationModel) buildModification();
-        modificationModel.setAngleDroopActivePowerControl(null);
-        modificationModel.setDroop(null);
-        modificationModel.setP0(null);
-        VscModification vscModification = new VscModification(modificationModel);
+        VscModificationModel modificationInfos = (VscModificationModel) buildModification();
+        modificationInfos.setAngleDroopActivePowerControl(null);
+        modificationInfos.setDroop(null);
+        modificationInfos.setP0(null);
+        VscModification vscModification = new VscModification(modificationInfos);
         ReportNode subReporter = ReportNode.NO_OP;
         ComputationManager computationManager = new LocalComputationManager();
         assertDoesNotThrow(() -> vscModification.check(networkWithExt));
@@ -266,11 +266,11 @@ class VscModificationTest extends AbstractNetworkModificationTest {
     void testNotChangeAngleDroopActivePowerControl() throws Exception {
         var networkuuid = UUID.randomUUID();
         Network networkWithExt = NetworkCreation.createWithVSC(networkuuid, true);
-        VscModificationModel modificationModel = (VscModificationModel) buildModification();
-        modificationModel.setAngleDroopActivePowerControl(null);
-        modificationModel.setDroop(null);
-        modificationModel.setP0(null);
-        VscModification vscModification = new VscModification(modificationModel);
+        VscModificationModel modificationInfos = (VscModificationModel) buildModification();
+        modificationInfos.setAngleDroopActivePowerControl(null);
+        modificationInfos.setDroop(null);
+        modificationInfos.setP0(null);
+        VscModification vscModification = new VscModification(modificationInfos);
         ReportNode subReporter = ReportNode.NO_OP;
         ComputationManager computationManager = new LocalComputationManager();
         assertDoesNotThrow(() -> vscModification.check(networkWithExt));
@@ -287,11 +287,11 @@ class VscModificationTest extends AbstractNetworkModificationTest {
     void testChangeAngleDroopActivePowerControl() throws Exception {
         var networkuuid = UUID.randomUUID();
         Network networkWithExt = NetworkCreation.createWithVSC(networkuuid, true);
-        VscModificationModel modificationModel = (VscModificationModel) buildModification();
-        modificationModel.setAngleDroopActivePowerControl(new AttributeModification<>(false, OperationType.SET));
-        modificationModel.setDroop(new AttributeModification<>(2.F, OperationType.SET));
-        modificationModel.setP0(new AttributeModification<>(6F, OperationType.SET));
-        VscModification vscModification = new VscModification(modificationModel);
+        VscModificationModel modificationInfos = (VscModificationModel) buildModification();
+        modificationInfos.setAngleDroopActivePowerControl(new AttributeModification<>(false, OperationType.SET));
+        modificationInfos.setDroop(new AttributeModification<>(2.F, OperationType.SET));
+        modificationInfos.setP0(new AttributeModification<>(6F, OperationType.SET));
+        VscModification vscModification = new VscModification(modificationInfos);
         ReportNode subReporter = ReportNode.NO_OP;
         ComputationManager computationManager = new LocalComputationManager();
         assertDoesNotThrow(() -> vscModification.check(networkWithExt));
@@ -306,36 +306,36 @@ class VscModificationTest extends AbstractNetworkModificationTest {
 
     @Test
     void testDtoContainRequiredData() {
-        VscModificationModel modificationModel = VscModificationModel.builder()
-            .equipmentId("hvdcLine")
-            .build();
+        VscModificationModel modificationInfos = VscModificationModel.builder()
+                .equipmentId("hvdcLine")
+                .build();
 
         var networkuuid = UUID.randomUUID();
         Network networkWitoutExt = NetworkCreation.createWithVSC(networkuuid, true);
-        VscModification vscModification = new VscModification(modificationModel);
+        VscModification vscModification = new VscModification(modificationInfos);
         assertThrows(NetworkModificationException.class, () -> vscModification.check(networkWitoutExt));
     }
 
     @Test
     void testModifyOperatorActiveRange() throws Exception {
-        VscModificationModel modificationModel = VscModificationModel.builder()
-            .equipmentId("hvdcLine")
-            .converterStation1(buildConverterStationWithReactiveCapabilityCurve())
-            .converterStation2(buildConverterStationWithMinMaxReactiveLimits())
-            .operatorActivePowerLimitFromSide2ToSide1(new AttributeModification<>(99.f, OperationType.SET))
-            .operatorActivePowerLimitFromSide1ToSide2(new AttributeModification<>(100.f, OperationType.SET))
-            .build();
+        VscModificationModel modificationInfos = VscModificationModel.builder()
+                .equipmentId("hvdcLine")
+                .converterStation1(buildConverterStationWithReactiveCapabilityCurve())
+                .converterStation2(buildConverterStationWithMinMaxReactiveLimits())
+                .operatorActivePowerLimitFromSide2ToSide1(new AttributeModification<>(99.f, OperationType.SET))
+                .operatorActivePowerLimitFromSide1ToSide2(new AttributeModification<>(100.f, OperationType.SET))
+                .build();
 
         var networkuuid = UUID.randomUUID();
         Network networkWithExt = NetworkCreation.createWithVSC(networkuuid, true);
         var hvdcLine = networkWithExt.getHvdcLine("hvdcLine");
         hvdcLine.newExtension(HvdcOperatorActivePowerRangeAdder.class)
-            .withOprFromCS1toCS2(10)
-            .withOprFromCS2toCS1(12)
-            .add();
+                .withOprFromCS1toCS2(10)
+                .withOprFromCS2toCS1(12)
+                .add();
         ReportNode subReporter = ReportNode.NO_OP;
         ComputationManager computationManager = new LocalComputationManager();
-        VscModification vscModification = new VscModification(modificationModel);
+        VscModification vscModification = new VscModification(modificationInfos);
         assertDoesNotThrow(() -> vscModification.check(networkWithExt));
         vscModification.apply(networkWithExt, true, computationManager, subReporter);
         var hvdcOperatorActivePowerRange = hvdcLine.getExtension(HvdcOperatorActivePowerRange.class);
@@ -348,9 +348,9 @@ class VscModificationTest extends AbstractNetworkModificationTest {
         var networkuuid = UUID.randomUUID();
         ConverterStationModificationModel emptyConverterStation = buildEmptyConverterStation();
         Network networkWithExt = NetworkCreation.createWithVSC(networkuuid, true);
-        VscModificationModel modificationModel = (VscModificationModel) buildModification();
-        modificationModel.setConverterStation1(emptyConverterStation); // no change on converter station
-        VscModification vscModification = new VscModification(modificationModel);
+        VscModificationModel modificationInfos = (VscModificationModel) buildModification();
+        modificationInfos.setConverterStation1(emptyConverterStation); // no change on converter station
+        VscModification vscModification = new VscModification(modificationInfos);
         ReportNode subReporter = ReportNode.NO_OP;
         ComputationManager computationManager = new LocalComputationManager();
         assertDoesNotThrow(() -> vscModification.check(networkWithExt));
@@ -361,18 +361,18 @@ class VscModificationTest extends AbstractNetworkModificationTest {
     @Override
     protected void checkModification() {
         Network network = getNetwork();
-        VscModificationModel vscModificationModel = VscModificationModel.builder()
+        VscModificationModel vscModificationInfos = VscModificationModel.builder()
             .equipmentId("hvdcLine")
             .converterStation1(buildConverterStationWithReactiveCapabilityCurve())
             .converterStation2(buildConverterStationWithMinMaxReactiveLimits())
             .r(new AttributeModification<>(-1d, OperationType.SET))
             .build();
-        VscModification vscModification = (VscModification) vscModificationModel.toModification();
+        VscModification vscModification = (VscModification) vscModificationInfos.toModification();
         String message = assertThrows(NetworkModificationException.class,
             () -> vscModification.check(network)).getMessage();
         assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : can not have a negative value for Resistance R", message);
 
-        VscModificationModel vscModificationModel2 = VscModificationModel.builder()
+        VscModificationModel vscModificationInfos2 = VscModificationModel.builder()
             .equipmentId("hvdcLine")
             .converterStation1(ConverterStationModificationModel.builder()
                 .equipmentId("v1vsc")
@@ -380,12 +380,12 @@ class VscModificationTest extends AbstractNetworkModificationTest {
                 .build())
             .converterStation2(buildConverterStationWithReactiveCapabilityCurve())
             .build();
-        VscModification vscModification2 = (VscModification) vscModificationModel2.toModification();
+        VscModification vscModification2 = (VscModification) vscModificationInfos2.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> vscModification2.check(network)).getMessage();
         assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : can not have a negative value for voltage set point side 1", message);
 
-        VscModificationModel vscModificationModel3 = VscModificationModel.builder()
+        VscModificationModel vscModificationInfos3 = VscModificationModel.builder()
             .equipmentId("hvdcLine")
             .converterStation1(buildConverterStationWithReactiveCapabilityCurve())
             .converterStation2(ConverterStationModificationModel.builder()
@@ -393,23 +393,23 @@ class VscModificationTest extends AbstractNetworkModificationTest {
                 .voltageSetpoint(new AttributeModification<>(-100d, OperationType.SET))
                 .build())
             .build();
-        VscModification vscModification3 = (VscModification) vscModificationModel3.toModification();
+        VscModification vscModification3 = (VscModification) vscModificationInfos3.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> vscModification3.check(network)).getMessage();
         assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : can not have a negative value for voltage set point side 2", message);
 
-        VscModificationModel vscModificationModel4 = VscModificationModel.builder()
+        VscModificationModel vscModificationInfos4 = VscModificationModel.builder()
             .equipmentId("hvdcLine")
             .nominalV(new AttributeModification<>(-100d, OperationType.SET))
             .converterStation1(buildConverterStationWithReactiveCapabilityCurve())
             .converterStation2(buildConverterStationWithReactiveCapabilityCurve())
             .build();
-        VscModification vscModification4 = (VscModification) vscModificationModel4.toModification();
+        VscModification vscModification4 = (VscModification) vscModificationInfos4.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> vscModification4.check(network)).getMessage();
         assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : can not have a negative value for Nominal voltage", message);
 
-        VscModificationModel vscModificationModel5 = VscModificationModel.builder()
+        VscModificationModel vscModificationInfos5 = VscModificationModel.builder()
             .equipmentId("hvdcLine")
             .converterStation1(buildConverterStationWithReactiveCapabilityCurve())
             .converterStation2(ConverterStationModificationModel.builder()
@@ -417,12 +417,12 @@ class VscModificationTest extends AbstractNetworkModificationTest {
                 .lossFactor(new AttributeModification<>(-100f, OperationType.SET))
                 .build())
             .build();
-        VscModification vscModification5 = (VscModification) vscModificationModel5.toModification();
+        VscModification vscModification5 = (VscModification) vscModificationInfos5.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> vscModification5.check(network)).getMessage();
         assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : must have loss factor side 2 between 0 and 100", message);
 
-        VscModificationModel vscModificationModel6 = VscModificationModel.builder()
+        VscModificationModel vscModificationInfos6 = VscModificationModel.builder()
             .equipmentId("hvdcLine")
             .converterStation2(buildConverterStationWithReactiveCapabilityCurve())
             .converterStation1(ConverterStationModificationModel.builder()
@@ -430,7 +430,7 @@ class VscModificationTest extends AbstractNetworkModificationTest {
                 .lossFactor(new AttributeModification<>(-100f, OperationType.SET))
                 .build())
             .build();
-        VscModification vscModification6 = (VscModification) vscModificationModel6.toModification();
+        VscModification vscModification6 = (VscModification) vscModificationInfos6.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> vscModification6.check(network)).getMessage();
         assertEquals("MODIFY_VSC_ERROR : HVDC vsc 'hvdcLine' : must have loss factor side 1 between 0 and 100", message);

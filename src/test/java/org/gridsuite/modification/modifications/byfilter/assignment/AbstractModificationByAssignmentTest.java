@@ -57,9 +57,9 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     protected final FilterModel filter6 = new FilterModel(FILTER_ID_6, "filter6");
     protected final FilterModel filterWithOneWrongId = new FilterModel(FILTER_WITH_ONE_WRONG_ID, "filterWithOneWrongId");
     protected final ReportNode reportNode = ReportNode.newRootReportNode()
-        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-        .withMessageTemplate("test")
-        .build();
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("test")
+            .build();
 
     @Mock
     protected IFilterService filterService;
@@ -90,17 +90,17 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     @Override
     protected ModificationModel buildModification() {
         return ModificationByAssignmentModel.builder()
-            .equipmentType(getIdentifiableType())
-            .assignmentInfosList(getAssignmentModel())
-            .build();
+                .equipmentType(getIdentifiableType())
+            .assignmentInfosList(getAssignmentInfos())
+                .build();
     }
 
     @Override
     protected void checkModification() {
     }
 
-    protected void apply(ModificationByAssignmentModel modificationByAssignmentModel) {
-        AbstractModification modification = modificationByAssignmentModel.toModification();
+    protected void apply(ModificationByAssignmentModel modificationByAssignmentInfos) {
+        AbstractModification modification = modificationByAssignmentInfos.toModification();
         modification.initApplicationContext(filterService, null);
         modification.apply(getNetwork());
     }
@@ -109,15 +109,15 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
 
     protected abstract Map<UUID, FilterEquipments> getTestFilters();
 
-    protected List<AssignmentModel<?>> getAssignmentModel() {
-        PropertyAssignmentModel spyAssignmentModel = spy(PropertyAssignmentModel.builder()
-            .editedField(PropertyField.FREE_PROPERTIES.name())
-            .propertyName("propertyName")
-            .value("propertyValue")
-            .filters(List.of(filter1))
-            .build());
-        doReturn(DataType.PROPERTY).when(spyAssignmentModel).getDataType();
-        return new ArrayList<>(List.of(spyAssignmentModel));
+    protected List<AssignmentModel<?>> getAssignmentInfos() {
+        PropertyAssignmentModel spyAssignmentInfos = spy(PropertyAssignmentModel.builder()
+                .editedField(PropertyField.FREE_PROPERTIES.name())
+                .propertyName("propertyName")
+                .value("propertyValue")
+                .filters(List.of(filter1))
+                .build());
+        doReturn(DataType.PROPERTY).when(spyAssignmentInfos).getDataType();
+        return new ArrayList<>(List.of(spyAssignmentInfos));
     }
 
     protected abstract IdentifiableType getIdentifiableType();

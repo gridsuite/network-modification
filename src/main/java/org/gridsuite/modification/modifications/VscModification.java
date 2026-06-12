@@ -44,57 +44,57 @@ public class VscModification extends AbstractModification {
     public static final String P0_FIELD = "P0";
     public static final String ACTIVE_POWER_CONTROL_DROOP_P0_REQUIRED_ERROR_MSG = "Angle droop active power control, Droop and P0 must be all provided or none";
 
-    private final VscModificationModel modificationModel;
+    private final VscModificationModel modificationInfos;
 
-    public VscModification(VscModificationModel vscModificationModel) {
-        this.modificationModel = vscModificationModel;
+    public VscModification(VscModificationModel vscModificationInfos) {
+        this.modificationInfos = vscModificationInfos;
     }
 
     public static boolean shouldCreateDroopActivePowerControlExtension(boolean isPresentAngleDroopActivePowerControl, boolean isPresentDroop, boolean isPresentP0) {
         return isPresentAngleDroopActivePowerControl && isPresentDroop && isPresentP0;
     }
 
-    protected void checkConverterStation(@Nonnull ConverterStationModificationModel converterStationModificationModel, @Nonnull VscConverterStation vscConverterStation) {
-        String errorMessage = "Converter station '" + converterStationModificationModel.getEquipmentId() + "' : ";
-        ModificationUtils.getInstance().checkReactiveLimit(vscConverterStation, converterStationModificationModel.getMinQ(), converterStationModificationModel.getMaxQ(),
-            converterStationModificationModel.getReactiveCapabilityCurvePoints(), MODIFY_VSC_ERROR, errorMessage);
+    protected void checkConverterStation(@Nonnull ConverterStationModificationModel converterStationModificationInfos, @Nonnull VscConverterStation vscConverterStation) {
+        String errorMessage = "Converter station '" + converterStationModificationInfos.getEquipmentId() + "' : ";
+        ModificationUtils.getInstance().checkReactiveLimit(vscConverterStation, converterStationModificationInfos.getMinQ(), converterStationModificationInfos.getMaxQ(),
+                converterStationModificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_VSC_ERROR, errorMessage);
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (modificationModel == null
-            || modificationModel.getConverterStation1() == null
-            || modificationModel.getConverterStation2() == null) {
+        if (modificationInfos == null
+                || modificationInfos.getConverterStation1() == null
+                || modificationInfos.getConverterStation2() == null) {
             throw new NetworkModificationException(MODIFY_VSC_ERROR, "Missing required attributes to modify the equipment");
         }
-        HvdcLine hvdcLine = ModificationUtils.getInstance().getHvdcLine(network, modificationModel.getEquipmentId());
-        String errorMessage = "HVDC vsc '" + modificationModel.getEquipmentId() + "' : ";
+        HvdcLine hvdcLine = ModificationUtils.getInstance().getHvdcLine(network, modificationInfos.getEquipmentId());
+        String errorMessage = "HVDC vsc '" + modificationInfos.getEquipmentId() + "' : ";
 
         VscConverterStation converterStation1 = ModificationUtils.getInstance().getVscConverterStation(network, hvdcLine.getConverterStation1().getId());
         VscConverterStation converterStation2 = ModificationUtils.getInstance().getVscConverterStation(network, hvdcLine.getConverterStation2().getId());
-        checkConverterStation(modificationModel.getConverterStation1(), converterStation1);
-        checkConverterStation(modificationModel.getConverterStation2(), converterStation2);
+        checkConverterStation(modificationInfos.getConverterStation1(), converterStation1);
+        checkConverterStation(modificationInfos.getConverterStation2(), converterStation2);
         checkDroop(hvdcLine);
-        if (modificationModel.getR() != null) {
-            checkIsNotNegativeValue(errorMessage, modificationModel.getR().getValue(), MODIFY_VSC_ERROR, "Resistance R");
+        if (modificationInfos.getR() != null) {
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getR().getValue(), MODIFY_VSC_ERROR, "Resistance R");
         }
-        if (modificationModel.getNominalV() != null) {
-            checkIsNotNegativeValue(errorMessage, modificationModel.getNominalV().getValue(), MODIFY_VSC_ERROR, "Nominal voltage");
+        if (modificationInfos.getNominalV() != null) {
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getNominalV().getValue(), MODIFY_VSC_ERROR, "Nominal voltage");
         }
-        if (modificationModel.getConverterStation1().getVoltageSetpoint() != null) {
-            checkIsNotNegativeValue(errorMessage, modificationModel.getConverterStation1().getVoltageSetpoint().getValue(),
+        if (modificationInfos.getConverterStation1().getVoltageSetpoint() != null) {
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getConverterStation1().getVoltageSetpoint().getValue(),
                 MODIFY_VSC_ERROR, "voltage set point side 1");
         }
-        if (modificationModel.getConverterStation2().getVoltageSetpoint() != null) {
-            checkIsNotNegativeValue(errorMessage, modificationModel.getConverterStation2().getVoltageSetpoint().getValue(),
+        if (modificationInfos.getConverterStation2().getVoltageSetpoint() != null) {
+            checkIsNotNegativeValue(errorMessage, modificationInfos.getConverterStation2().getVoltageSetpoint().getValue(),
                 MODIFY_VSC_ERROR, "voltage set point side 2");
         }
-        if (modificationModel.getConverterStation1().getLossFactor() != null) {
-            checkIsPercentage(errorMessage, modificationModel.getConverterStation1().getLossFactor().getValue(),
+        if (modificationInfos.getConverterStation1().getLossFactor() != null) {
+            checkIsPercentage(errorMessage, modificationInfos.getConverterStation1().getLossFactor().getValue(),
                 MODIFY_VSC_ERROR, "loss factor side 1");
         }
-        if (modificationModel.getConverterStation2().getLossFactor() != null) {
-            checkIsPercentage(errorMessage, modificationModel.getConverterStation2().getLossFactor().getValue(),
+        if (modificationInfos.getConverterStation2().getLossFactor() != null) {
+            checkIsPercentage(errorMessage, modificationInfos.getConverterStation2().getLossFactor().getValue(),
                 MODIFY_VSC_ERROR, "loss factor side 2");
         }
     }
@@ -107,9 +107,9 @@ public class VscModification extends AbstractModification {
         }
 
         //--- the extension doesn't exist yet ---//
-        boolean isPresentAngleDroopActivePowerControl = modificationModel.getAngleDroopActivePowerControl() != null && modificationModel.getAngleDroopActivePowerControl().getValue() != null;
-        boolean isPresentDroop = modificationModel.getDroop() != null && modificationModel.getDroop().getValue() != null;
-        boolean isPresentP0 = modificationModel.getP0() != null && modificationModel.getP0().getValue() != null;
+        boolean isPresentAngleDroopActivePowerControl = modificationInfos.getAngleDroopActivePowerControl() != null && modificationInfos.getAngleDroopActivePowerControl().getValue() != null;
+        boolean isPresentDroop = modificationInfos.getDroop() != null && modificationInfos.getDroop().getValue() != null;
+        boolean isPresentP0 = modificationInfos.getP0() != null && modificationInfos.getP0().getValue() != null;
         // all fields are provided => OK extension will be created
         if (isPresentAngleDroopActivePowerControl && isPresentDroop && isPresentP0) {
             return;
@@ -123,8 +123,8 @@ public class VscModification extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        HvdcLine hvdcLine = ModificationUtils.getInstance().getHvdcLine(network, modificationModel.getEquipmentId());
-        modifyVsc(network, hvdcLine, modificationModel, subReportNode);
+        HvdcLine hvdcLine = ModificationUtils.getInstance().getHvdcLine(network, modificationInfos.getEquipmentId());
+        modifyVsc(network, hvdcLine, modificationInfos, subReportNode);
     }
 
     @Override
@@ -132,14 +132,14 @@ public class VscModification extends AbstractModification {
         return "VscModification";
     }
 
-    private void modifyVsc(@Nonnull Network network, @Nonnull HvdcLine hvdcLine, VscModificationModel modificationModel, ReportNode subReportNode) {
+    private void modifyVsc(@Nonnull Network network, @Nonnull HvdcLine hvdcLine, VscModificationModel modificationInfos, ReportNode subReportNode) {
         subReportNode.newReportNode()
-            .withMessageTemplate("network.modification.VscModification")
-            .withUntypedValue("id", modificationModel.getEquipmentId())
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
+                .withMessageTemplate("network.modification.VscModification")
+                .withUntypedValue("id", modificationInfos.getEquipmentId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
         // Characteristics
-        characteristics(hvdcLine, modificationModel, subReportNode);
+        characteristics(hvdcLine, modificationInfos, subReportNode);
 
         // Set Points
         List<ReportNode> setPointsReports = setPoints(hvdcLine);
@@ -161,31 +161,31 @@ public class VscModification extends AbstractModification {
         }
 
         // limits
-        operatorActivePowerLimit(hvdcLine, modificationModel, subReportNode);
+        operatorActivePowerLimit(hvdcLine, modificationInfos, subReportNode);
 
         // stations
-        modifyConverterStation(ModificationUtils.getInstance().getVscConverterStation(network, hvdcLine.getConverterStation1().getId()), modificationModel.getConverterStation1(), subReportNode, "1");
-        modifyConverterStation(ModificationUtils.getInstance().getVscConverterStation(network, hvdcLine.getConverterStation2().getId()), modificationModel.getConverterStation2(), subReportNode, "2");
+        modifyConverterStation(ModificationUtils.getInstance().getVscConverterStation(network, hvdcLine.getConverterStation1().getId()), modificationInfos.getConverterStation1(), subReportNode, "1");
+        modifyConverterStation(ModificationUtils.getInstance().getVscConverterStation(network, hvdcLine.getConverterStation2().getId()), modificationInfos.getConverterStation2(), subReportNode, "2");
 
-        PropertiesUtils.applyProperties(hvdcLine, subReportNode, modificationModel.getProperties(), "network.modification.VscProperties");
+        PropertiesUtils.applyProperties(hvdcLine, subReportNode, modificationInfos.getProperties(), "network.modification.VscProperties");
     }
 
-    private static void characteristics(HvdcLine hvdcLine, VscModificationModel modificationModel, ReportNode subReportNode) {
+    private static void characteristics(HvdcLine hvdcLine, VscModificationModel modificationInfos, ReportNode subReportNode) {
         List<ReportNode> characteristicsReportsContainer = new ArrayList<>();
-        if (modificationModel.getEquipmentName() != null && modificationModel.getEquipmentName().getValue() != null) {
+        if (modificationInfos.getEquipmentName() != null && modificationInfos.getEquipmentName().getValue() != null) {
             characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setName,
                 () -> hvdcLine.getOptionalName().orElse(NO_VALUE),
-                modificationModel.getEquipmentName(), "Name"));
+                modificationInfos.getEquipmentName(), "Name"));
         }
-        if (modificationModel.getNominalV() != null) {
-            characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(
-                hvdcLine::setNominalV, hvdcLine::getNominalV, modificationModel.getNominalV(), "DC nominal voltage"));
+        if (modificationInfos.getNominalV() != null) {
+            characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setNominalV, hvdcLine::getNominalV, modificationInfos.getNominalV(),
+                    "DC nominal voltage"));
         }
-        if (modificationModel.getR() != null) {
-            characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setR, hvdcLine::getR, modificationModel.getR(), "DC resistance"));
+        if (modificationInfos.getR() != null) {
+            characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setR, hvdcLine::getR, modificationInfos.getR(), "DC resistance"));
         }
-        if (modificationModel.getMaxP() != null) {
-            characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setMaxP, hvdcLine::getMaxP, modificationModel.getMaxP(), "Power max"));
+        if (modificationInfos.getMaxP() != null) {
+            characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setMaxP, hvdcLine::getMaxP, modificationInfos.getMaxP(), "Power max"));
         }
         if (!characteristicsReportsContainer.isEmpty()) {
             ModificationUtils.getInstance().reportModifications(subReportNode, characteristicsReportsContainer, VSC_CHARACTERISTICS);
@@ -195,29 +195,28 @@ public class VscModification extends AbstractModification {
     private List<ReportNode> setPoints(HvdcLine hvdcLine) {
 
         List<ReportNode> setPointsReports = new ArrayList<>();
-        if (modificationModel.getActivePowerSetpoint() != null) {
-            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(
-                hvdcLine::setActivePowerSetpoint, hvdcLine::getActivePowerSetpoint,
-                modificationModel.getActivePowerSetpoint(), "ActivePowerSetpoint"));
+        if (modificationInfos.getActivePowerSetpoint() != null) {
+            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setActivePowerSetpoint, hvdcLine::getActivePowerSetpoint,
+                    modificationInfos.getActivePowerSetpoint(), "ActivePowerSetpoint"));
         }
 
-        if (modificationModel.getConvertersMode() != null) {
-            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(
-                hvdcLine::setConvertersMode, hvdcLine::getConvertersMode, modificationModel.getConvertersMode(), "Converters mode"));
+        if (modificationInfos.getConvertersMode() != null) {
+            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setConvertersMode, hvdcLine::getConvertersMode, modificationInfos.getConvertersMode(),
+                    "Converters mode"));
         }
         return setPointsReports;
     }
 
-    private static void operatorActivePowerLimit(HvdcLine hvdcLine, VscModificationModel modificationModel, ReportNode subReportNode) {
+    private static void operatorActivePowerLimit(HvdcLine hvdcLine, VscModificationModel modificationInfos, ReportNode subReportNode) {
         List<ReportNode> reports = new ArrayList<>();
-        if (modificationModel.getOperatorActivePowerLimitFromSide1ToSide2() != null ||
-            modificationModel.getOperatorActivePowerLimitFromSide2ToSide1() != null) {
+        if (modificationInfos.getOperatorActivePowerLimitFromSide1ToSide2() != null ||
+                modificationInfos.getOperatorActivePowerLimitFromSide2ToSide1() != null) {
             var operatorActivePowerRange = hvdcLine.getExtension(HvdcOperatorActivePowerRange.class);
             if (operatorActivePowerRange != null) {
-                modifyOperatorActiveRange(modificationModel, operatorActivePowerRange, reports);
+                modifyOperatorActiveRange(modificationInfos, operatorActivePowerRange, reports);
 
             } else {
-                createOperatorActiveRangeExt(hvdcLine, modificationModel, reports);
+                createOperatorActiveRangeExt(hvdcLine, modificationInfos, reports);
             }
         }
         if (!reports.isEmpty()) {
@@ -225,16 +224,16 @@ public class VscModification extends AbstractModification {
         }
     }
 
-    private static void modifyOperatorActiveRange(VscModificationModel modificationModel, HvdcOperatorActivePowerRange operatorActivePowerRange, List<ReportNode> reports) {
+    private static void modifyOperatorActiveRange(VscModificationModel modificationInfos, HvdcOperatorActivePowerRange operatorActivePowerRange, List<ReportNode> reports) {
         var oldCs1ToCs2 = operatorActivePowerRange.getOprFromCS1toCS2();
         var oldCs2ToCs1 = operatorActivePowerRange.getOprFromCS2toCS1();
-        Optional.ofNullable(modificationModel.getOperatorActivePowerLimitFromSide1ToSide2()).ifPresent(info -> {
+        Optional.ofNullable(modificationInfos.getOperatorActivePowerLimitFromSide1ToSide2()).ifPresent(info -> {
             if (info.getValue() != null) {
                 operatorActivePowerRange.setOprFromCS1toCS2(info.getValue());
                 reports.add(ModificationUtils.getInstance().buildModificationReport(oldCs1ToCs2, info.getValue(), "Operator active power limit (Side1 -> Side 2)"));
             }
         });
-        Optional.ofNullable(modificationModel.getOperatorActivePowerLimitFromSide2ToSide1()).ifPresent(info -> {
+        Optional.ofNullable(modificationInfos.getOperatorActivePowerLimitFromSide2ToSide1()).ifPresent(info -> {
             if (info.getValue() != null) {
                 operatorActivePowerRange.setOprFromCS2toCS1(info.getValue());
                 reports.add(ModificationUtils.getInstance().buildModificationReport(oldCs2ToCs1, info.getValue(), "Operator active power limit (Side2 -> Side 1)"));
@@ -242,17 +241,17 @@ public class VscModification extends AbstractModification {
         });
     }
 
-    private static void createOperatorActiveRangeExt(HvdcLine hvdcLine, VscModificationModel modificationModel, List<ReportNode> reports) {
+    private static void createOperatorActiveRangeExt(HvdcLine hvdcLine, VscModificationModel modificationInfos, List<ReportNode> reports) {
         var hvdcOperatorActivePowerRangeAddr = hvdcLine.newExtension(HvdcOperatorActivePowerRangeAdder.class);
-        Optional.ofNullable(modificationModel.getOperatorActivePowerLimitFromSide1ToSide2()).ifPresent(info -> {
+        Optional.ofNullable(modificationInfos.getOperatorActivePowerLimitFromSide1ToSide2()).ifPresent(info -> {
             if (info.getValue() != null) {
-                hvdcOperatorActivePowerRangeAddr.withOprFromCS1toCS2(modificationModel.getOperatorActivePowerLimitFromSide1ToSide2().getValue());
+                hvdcOperatorActivePowerRangeAddr.withOprFromCS1toCS2(modificationInfos.getOperatorActivePowerLimitFromSide1ToSide2().getValue());
                 reports.add(ModificationUtils.getInstance().buildModificationReport(null, info.getValue(), "Operator active power limit (Side1 -> Side 2)"));
             }
         });
-        Optional.ofNullable(modificationModel.getOperatorActivePowerLimitFromSide2ToSide1()).ifPresent(info -> {
+        Optional.ofNullable(modificationInfos.getOperatorActivePowerLimitFromSide2ToSide1()).ifPresent(info -> {
             if (info.getValue() != null) {
-                hvdcOperatorActivePowerRangeAddr.withOprFromCS2toCS1(modificationModel.getOperatorActivePowerLimitFromSide2ToSide1().getValue());
+                hvdcOperatorActivePowerRangeAddr.withOprFromCS2toCS1(modificationInfos.getOperatorActivePowerLimitFromSide2ToSide1().getValue());
                 reports.add(ModificationUtils.getInstance().buildModificationReport(null, info.getValue(), "Operator active power limit (Side2 -> Side 1)"));
             }
         });
@@ -260,21 +259,21 @@ public class VscModification extends AbstractModification {
     }
 
     private void modifyExistingHvdcAngleDroopActivePowerControl(HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl, List<ReportNode> reports) {
-        Optional.ofNullable(modificationModel.getAngleDroopActivePowerControl()).ifPresent(modification ->
+        Optional.ofNullable(modificationInfos.getAngleDroopActivePowerControl()).ifPresent(modification ->
             reports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(
                 hvdcAngleDroopActivePowerControl::setEnabled,
                 hvdcAngleDroopActivePowerControl::isEnabled,
                 modification,
                 ANGLE_DROOP_ACTIVE_POWER_CONTROL_FIELD)));
 
-        Optional.ofNullable(modificationModel.getDroop()).ifPresent(modification ->
+        Optional.ofNullable(modificationInfos.getDroop()).ifPresent(modification ->
             reports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(
                 hvdcAngleDroopActivePowerControl::setDroop,
                 hvdcAngleDroopActivePowerControl::getDroop,
                 modification,
                 DROOP_FIELD)));
 
-        Optional.ofNullable(modificationModel.getP0()).ifPresent(modification ->
+        Optional.ofNullable(modificationInfos.getP0()).ifPresent(modification ->
             reports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(
                 hvdcAngleDroopActivePowerControl::setP0,
                 hvdcAngleDroopActivePowerControl::getP0,
@@ -284,10 +283,10 @@ public class VscModification extends AbstractModification {
 
     private boolean shouldCreateDroopActivePowerControlExtension() {
         return shouldCreateDroopActivePowerControlExtension(
-            modificationModel.getAngleDroopActivePowerControl() != null &&
-                modificationModel.getAngleDroopActivePowerControl().getValue() != null,
-            modificationModel.getDroop() != null && modificationModel.getDroop().getValue() != null,
-            modificationModel.getP0() != null && modificationModel.getP0().getValue() != null);
+                modificationInfos.getAngleDroopActivePowerControl() != null &&
+                        modificationInfos.getAngleDroopActivePowerControl().getValue() != null,
+                modificationInfos.getDroop() != null && modificationInfos.getDroop().getValue() != null,
+                modificationInfos.getP0() != null && modificationInfos.getP0().getValue() != null);
     }
 
     private List<ReportNode> hvdcAngleDroopActivePowerControlAdder(HvdcLine hvdcLine) {
@@ -299,15 +298,15 @@ public class VscModification extends AbstractModification {
             HvdcAngleDroopActivePowerControlAdder hvdcAngleDroopActivePowerControlAdder =
                 hvdcLine.newExtension(HvdcAngleDroopActivePowerControlAdder.class);
 
-            Boolean isEnabled = modificationModel.getAngleDroopActivePowerControl().getValue();
+            Boolean isEnabled = modificationInfos.getAngleDroopActivePowerControl().getValue();
             hvdcAngleDroopActivePowerControlAdder.withEnabled(isEnabled);
             reports.add(ModificationUtils.getInstance().buildModificationReport(null, isEnabled, ANGLE_DROOP_ACTIVE_POWER_CONTROL_FIELD));
 
-            Float droop = modificationModel.getDroop().getValue();
+            Float droop = modificationInfos.getDroop().getValue();
             hvdcAngleDroopActivePowerControlAdder.withDroop(droop);
             reports.add(ModificationUtils.getInstance().buildModificationReport(Float.NaN, droop, DROOP_FIELD));
 
-            Float p0 = modificationModel.getP0().getValue();
+            Float p0 = modificationInfos.getP0().getValue();
             hvdcAngleDroopActivePowerControlAdder.withP0(p0);
             reports.add(ModificationUtils.getInstance().buildModificationReport(Float.NaN, p0, P0_FIELD));
 
@@ -316,8 +315,8 @@ public class VscModification extends AbstractModification {
         return reports;
     }
 
-    private void modifyConverterStation(VscConverterStation converterStation, ConverterStationModificationModel converterStationModificationModel, ReportNode subReportNode, String logFieldName) {
-        if (converterStationModificationModel == null || !isConverterStationModified(converterStationModificationModel)) {
+    private void modifyConverterStation(VscConverterStation converterStation, ConverterStationModificationModel converterStationModificationInfos, ReportNode subReportNode, String logFieldName) {
+        if (converterStationModificationInfos == null || !isConverterStationModified(converterStationModificationInfos)) {
             return;
         }
 
@@ -330,14 +329,14 @@ public class VscModification extends AbstractModification {
 
         // characteristic
         List<ReportNode> characteristicReports = new ArrayList<>();
-        if (converterStationModificationModel.getEquipmentName() != null && converterStationModificationModel.getEquipmentName().getValue() != null) {
+        if (converterStationModificationInfos.getEquipmentName() != null && converterStationModificationInfos.getEquipmentName().getValue() != null) {
             characteristicReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setName,
-                () -> converterStation.getOptionalName().orElse(NO_VALUE), converterStationModificationModel.getEquipmentName(), "Name"));
+                () -> converterStation.getOptionalName().orElse(NO_VALUE), converterStationModificationInfos.getEquipmentName(), "Name"));
         }
 
-        if (converterStationModificationModel.getLossFactor() != null) {
+        if (converterStationModificationInfos.getLossFactor() != null) {
             characteristicReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setLossFactor,
-                converterStation::getLossFactor, converterStationModificationModel.getLossFactor(), "LossFactor"));
+                converterStation::getLossFactor, converterStationModificationInfos.getLossFactor(), "LossFactor"));
         }
 
         if (!characteristicReports.isEmpty()) {
@@ -347,19 +346,19 @@ public class VscModification extends AbstractModification {
 
         // set points
         List<ReportNode> setPointsReports = new ArrayList<>();
-        if (converterStationModificationModel.getReactivePowerSetpoint() != null) {
+        if (converterStationModificationInfos.getReactivePowerSetpoint() != null) {
             setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setReactivePowerSetpoint,
-                converterStation::getReactivePowerSetpoint, converterStationModificationModel.getReactivePowerSetpoint(), "Reactive Power"));
+                converterStation::getReactivePowerSetpoint, converterStationModificationInfos.getReactivePowerSetpoint(), "Reactive Power"));
         }
 
-        if (converterStationModificationModel.getVoltageRegulationOn() != null) {
+        if (converterStationModificationInfos.getVoltageRegulationOn() != null) {
             setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setVoltageRegulatorOn,
-                converterStation::isVoltageRegulatorOn, converterStationModificationModel.getVoltageRegulationOn(), "VoltageRegulationOn"));
+                converterStation::isVoltageRegulatorOn, converterStationModificationInfos.getVoltageRegulationOn(), "VoltageRegulationOn"));
         }
 
-        if (converterStationModificationModel.getVoltageSetpoint() != null) {
+        if (converterStationModificationInfos.getVoltageSetpoint() != null) {
             setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setVoltageSetpoint,
-                converterStation::getVoltageSetpoint, converterStationModificationModel.getVoltageSetpoint(), "Voltage"));
+                converterStation::getVoltageSetpoint, converterStationModificationInfos.getVoltageSetpoint(), "Voltage"));
         }
         if (!setPointsReports.isEmpty()) {
             ModificationUtils.getInstance().reportModifications(converterStationReportNode,
@@ -367,39 +366,38 @@ public class VscModification extends AbstractModification {
         }
 
         // limits
-        modifyVscReactiveLimitsAttributes(converterStationModificationModel, converterStation, converterStationReportNode, converterStationReportNode);
+        modifyVscReactiveLimitsAttributes(converterStationModificationInfos, converterStation, converterStationReportNode, converterStationReportNode);
     }
 
-    private static boolean isConverterStationModified(ConverterStationModificationModel converterStationModificationModel) {
-        return converterStationModificationModel.getEquipmentName() != null
-            && converterStationModificationModel.getEquipmentName().getValue() != null
-            || converterStationModificationModel.getLossFactor() != null
-            || converterStationModificationModel.getReactivePowerSetpoint() != null
-            || converterStationModificationModel.getVoltageRegulationOn() != null
-            || converterStationModificationModel.getVoltageSetpoint() != null || converterStationModificationModel.getReactiveCapabilityCurvePoints() != null
-            || converterStationModificationModel.getMinQ() != null || converterStationModificationModel.getMaxQ() != null;
+    private static boolean isConverterStationModified(ConverterStationModificationModel converterStationModificationInfos) {
+        return converterStationModificationInfos.getEquipmentName() != null && converterStationModificationInfos.getEquipmentName().getValue() != null
+                || converterStationModificationInfos.getLossFactor() != null
+                || converterStationModificationInfos.getReactivePowerSetpoint() != null
+                || converterStationModificationInfos.getVoltageRegulationOn() != null
+                || converterStationModificationInfos.getVoltageSetpoint() != null || converterStationModificationInfos.getReactiveCapabilityCurvePoints() != null
+                || converterStationModificationInfos.getMinQ() != null || converterStationModificationInfos.getMaxQ() != null;
     }
 
-    private void modifyVscReactiveCapabilityCurvePoints(ConverterStationModificationModel modificationModel,
+    private void modifyVscReactiveCapabilityCurvePoints(ConverterStationModificationModel modificationInfos,
                                                         VscConverterStation vscConverterStation, ReportNode subReporter, ReportNode subReportNodeLimits) {
 
         ReactiveCapabilityCurveAdder adder = vscConverterStation.newReactiveCapabilityCurve();
-        List<ReactiveCapabilityCurvePointsModel> modificationPoints = modificationModel.getReactiveCapabilityCurvePoints();
-        Collection<ReactiveCapabilityCurve.Point> points = vscConverterStation.getReactiveLimits().getKind() == ReactiveLimitsKind.CURVE
-            ? vscConverterStation.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints() : List.of();
+        List<ReactiveCapabilityCurvePointsModel> modificationPoints = modificationInfos.getReactiveCapabilityCurvePoints();
+        Collection<ReactiveCapabilityCurve.Point> points = vscConverterStation.getReactiveLimits().getKind() == ReactiveLimitsKind.CURVE ? vscConverterStation.getReactiveLimits(
+                ReactiveCapabilityCurve.class).getPoints() : List.of();
         ModificationUtils.getInstance().modifyReactiveCapabilityCurvePoints(points, modificationPoints, adder, subReporter, subReportNodeLimits);
     }
 
-    private void modifyVscReactiveLimitsAttributes(ConverterStationModificationModel modificationModel,
+    private void modifyVscReactiveLimitsAttributes(ConverterStationModificationModel modificationInfos,
                                                    VscConverterStation vscConverterStation, ReportNode subReportNode, ReportNode subReportNodeLimits) {
 
-        if (modificationModel.getReactiveCapabilityCurve() != null) {
-            if (Boolean.TRUE.equals(modificationModel.getReactiveCapabilityCurve().getValue()
-                && modificationModel.getReactiveCapabilityCurvePoints() != null
-                && !modificationModel.getReactiveCapabilityCurvePoints().isEmpty())) {
-                modifyVscReactiveCapabilityCurvePoints(modificationModel, vscConverterStation, subReportNode, subReportNodeLimits);
-            } else if (Boolean.FALSE.equals(modificationModel.getReactiveCapabilityCurve().getValue())) {
-                ModificationUtils.getInstance().modifyMinMaxReactiveLimits(modificationModel.getMinQ(), modificationModel.getMaxQ(), vscConverterStation, subReportNode, subReportNodeLimits);
+        if (modificationInfos.getReactiveCapabilityCurve() != null) {
+            if (Boolean.TRUE.equals(modificationInfos.getReactiveCapabilityCurve().getValue()
+                    && modificationInfos.getReactiveCapabilityCurvePoints() != null
+                    && !modificationInfos.getReactiveCapabilityCurvePoints().isEmpty())) {
+                modifyVscReactiveCapabilityCurvePoints(modificationInfos, vscConverterStation, subReportNode, subReportNodeLimits);
+            } else if (Boolean.FALSE.equals(modificationInfos.getReactiveCapabilityCurve().getValue())) {
+                ModificationUtils.getInstance().modifyMinMaxReactiveLimits(modificationInfos.getMinQ(), modificationInfos.getMaxQ(), vscConverterStation, subReportNode, subReportNodeLimits);
             }
         }
     }

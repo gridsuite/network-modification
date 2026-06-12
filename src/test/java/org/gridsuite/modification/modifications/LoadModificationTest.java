@@ -21,11 +21,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -89,18 +87,18 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
     @Override
     protected void checkModification() {
         // Unset an attribute that should not be null
-        LoadModificationModel loadModificationModel = LoadModificationModel.builder()
-            .equipmentId("v1load")
-            .loadType(new AttributeModification<>(null, OperationType.UNSET))
-            .build();
-        ValidationException exception = assertThrows(ValidationException.class, () -> loadModificationModel.toModification().apply(getNetwork()));
+        LoadModificationModel loadModificationInfos = LoadModificationModel.builder()
+                .equipmentId("v1load")
+                .loadType(new AttributeModification<>(null, OperationType.UNSET))
+                .build();
+        ValidationException exception = assertThrows(ValidationException.class, () -> loadModificationInfos.toModification().apply(getNetwork()));
         assertEquals("Load 'v1load': load type is null", exception.getMessage());
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("LOAD_MODIFICATION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("LOAD_MODIFICATION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("v1load", createdValues.get("equipmentId"));
     }
@@ -126,32 +124,32 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
 
         // active power test
         Measurement activePowerMeasurement = measurements.newMeasurement()
-            .setId(UUID.randomUUID().toString())
-            .setType(Measurement.Type.ACTIVE_POWER)
-            .setValue(5.0)
-            .setValid(true)
-            .add();
+                .setId(UUID.randomUUID().toString())
+                .setType(Measurement.Type.ACTIVE_POWER)
+                .setValue(5.0)
+                .setValid(true)
+                .add();
         activePowerMeasurement.putProperty("validity", actualPropertyState);
         LoadModificationModel activePowerModification = LoadModificationModel.builder()
-            .equipmentId("v1load")
-            .pMeasurementValidity(new AttributeModification<>(modificationValidity, OperationType.SET))
-            .build();
+                .equipmentId("v1load")
+                .pMeasurementValidity(new AttributeModification<>(modificationValidity, OperationType.SET))
+                .build();
         activePowerModification.toModification().apply(getNetwork());
         assertEquals(expectedPropertyState, activePowerMeasurement.getProperty("validity"));
         assertEquals(modificationValidity, activePowerMeasurement.isValid());
 
         // reactive power test
         Measurement reactivePowerMeasurement = measurements.newMeasurement()
-            .setId(UUID.randomUUID().toString())
-            .setType(Measurement.Type.REACTIVE_POWER)
-            .setValue(-5.0)
-            .setValid(false)
-            .add();
+                .setId(UUID.randomUUID().toString())
+                .setType(Measurement.Type.REACTIVE_POWER)
+                .setValue(-5.0)
+                .setValid(false)
+                .add();
         reactivePowerMeasurement.putProperty("validity", actualPropertyState);
         LoadModificationModel reactivePowerModification = LoadModificationModel.builder()
-            .equipmentId("v1load")
-            .qMeasurementValidity(new AttributeModification<>(modificationValidity, OperationType.SET))
-            .build();
+                .equipmentId("v1load")
+                .qMeasurementValidity(new AttributeModification<>(modificationValidity, OperationType.SET))
+                .build();
         reactivePowerModification.toModification().apply(getNetwork());
         assertEquals(expectedPropertyState, reactivePowerMeasurement.getProperty("validity"));
         assertEquals(modificationValidity, activePowerMeasurement.isValid());
@@ -159,14 +157,14 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
 
     public static List<Arguments> validityExpectedValuesAfterModification() {
         return List.of(
-            Arguments.of(true, "0", "0"),
-            Arguments.of(true, "1", "0"),
-            Arguments.of(true, "2", "2"),
-            Arguments.of(true, "3", "2"),
-            Arguments.of(false, "0", "1"),
-            Arguments.of(false, "1", "1"),
-            Arguments.of(false, "2", "3"),
-            Arguments.of(false, "3", "3")
+                Arguments.of(true, "0", "0"),
+                Arguments.of(true, "1", "0"),
+                Arguments.of(true, "2", "2"),
+                Arguments.of(true, "3", "2"),
+                Arguments.of(false, "0", "1"),
+                Arguments.of(false, "1", "1"),
+                Arguments.of(false, "2", "3"),
+                Arguments.of(false, "3", "3")
         );
     }
 
@@ -183,32 +181,32 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
 
         // active power test
         Measurement activePowerMeasurement = measurements.newMeasurement()
-            .setId(UUID.randomUUID().toString())
-            .setType(Measurement.Type.ACTIVE_POWER)
-            .setValue(5.0)
-            .setValid(true)
-            .add();
+                .setId(UUID.randomUUID().toString())
+                .setType(Measurement.Type.ACTIVE_POWER)
+                .setValue(5.0)
+                .setValid(true)
+                .add();
         activePowerMeasurement.putProperty("validity", propertyState);
         LoadModificationModel updateActiveValidityTrue = LoadModificationModel.builder()
-            .equipmentId("v1load")
-            .pMeasurementValue(new AttributeModification<>(newValue, OperationType.SET))
-            .build();
+                .equipmentId("v1load")
+                .pMeasurementValue(new AttributeModification<>(newValue, OperationType.SET))
+                .build();
         updateActiveValidityTrue.toModification().apply(getNetwork());
         assertEquals(propertyState, activePowerMeasurement.getProperty("validity"));
         assertEquals(newValue, activePowerMeasurement.getValue());
 
         // reactive power test
         Measurement reactivePowerMeasurement = measurements.newMeasurement()
-            .setId(UUID.randomUUID().toString())
-            .setType(Measurement.Type.REACTIVE_POWER)
-            .setValue(-5.0)
-            .setValid(false)
-            .add();
+                .setId(UUID.randomUUID().toString())
+                .setType(Measurement.Type.REACTIVE_POWER)
+                .setValue(-5.0)
+                .setValid(false)
+                .add();
         reactivePowerMeasurement.putProperty("validity", propertyState);
         LoadModificationModel updateReactiveValidityFalse = LoadModificationModel.builder()
-            .equipmentId("v1load")
-            .qMeasurementValue(new AttributeModification<>(newValue, OperationType.SET))
-            .build();
+                .equipmentId("v1load")
+                .qMeasurementValue(new AttributeModification<>(newValue, OperationType.SET))
+                .build();
         updateReactiveValidityFalse.toModification().apply(getNetwork());
         assertEquals(propertyState, reactivePowerMeasurement.getProperty("validity"));
         assertEquals(newValue, activePowerMeasurement.getValue());
@@ -222,9 +220,9 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
 
         // active power test
         LoadModificationModel updateActiveValue = LoadModificationModel.builder()
-            .equipmentId("v2load")
-            .pMeasurementValue(new AttributeModification<>(66.5, OperationType.SET))
-            .build();
+                .equipmentId("v2load")
+                .pMeasurementValue(new AttributeModification<>(66.5, OperationType.SET))
+                .build();
         updateActiveValue.toModification().apply(getNetwork());
 
         measurements = (Measurements<?>) load.getExtension(Measurements.class);
@@ -236,9 +234,9 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
 
         // reactive power test
         LoadModificationModel updateReactiveValue = LoadModificationModel.builder()
-            .equipmentId("v2load")
-            .qMeasurementValue(new AttributeModification<>(99.5, OperationType.SET))
-            .build();
+                .equipmentId("v2load")
+                .qMeasurementValue(new AttributeModification<>(99.5, OperationType.SET))
+                .build();
         updateReactiveValue.toModification().apply(getNetwork());
 
         Measurement reactivePowerMeasurement = measurements.getMeasurements(Measurement.Type.REACTIVE_POWER).stream().findFirst().orElse(null);
@@ -255,9 +253,9 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
 
         // active power test
         LoadModificationModel updateActiveValidity = LoadModificationModel.builder()
-            .equipmentId("v2load")
-            .pMeasurementValidity(new AttributeModification<>(false, OperationType.SET))
-            .build();
+                .equipmentId("v2load")
+                .pMeasurementValidity(new AttributeModification<>(false, OperationType.SET))
+                .build();
         updateActiveValidity.toModification().apply(getNetwork());
 
         measurements = (Measurements<?>) load.getExtension(Measurements.class);
@@ -269,9 +267,9 @@ class LoadModificationTest extends AbstractInjectionModificationTest {
 
         // reactive power test
         LoadModificationModel updateReactiveValidity = LoadModificationModel.builder()
-            .equipmentId("v2load")
-            .qMeasurementValidity(new AttributeModification<>(false, OperationType.SET))
-            .build();
+                .equipmentId("v2load")
+                .qMeasurementValidity(new AttributeModification<>(false, OperationType.SET))
+                .build();
         updateReactiveValidity.toModification().apply(getNetwork());
 
         Measurement reactivePowerMeasurement = measurements.getMeasurements(Measurement.Type.REACTIVE_POWER).stream().findFirst().orElse(null);

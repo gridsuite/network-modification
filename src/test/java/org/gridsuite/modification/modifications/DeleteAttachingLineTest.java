@@ -31,9 +31,9 @@ class DeleteAttachingLineTest extends AbstractNetworkModificationTest {
 
     @Override
     public void checkModification() {
-        DeleteAttachingLineModel deleteAttachingLineModel = (DeleteAttachingLineModel) buildModification();
-        deleteAttachingLineModel.setLineToAttachTo1Id("notFoundLine");
-        assertThrows(NetworkModificationException.class, () -> deleteAttachingLineModel.toModification().check(getNetwork()));
+        DeleteAttachingLineModel deleteAttachingLineInfos = (DeleteAttachingLineModel) buildModification();
+        deleteAttachingLineInfos.setLineToAttachTo1Id("notFoundLine");
+        assertThrows(NetworkModificationException.class, () -> deleteAttachingLineInfos.toModification().check(getNetwork()));
     }
 
     @Override
@@ -44,12 +44,12 @@ class DeleteAttachingLineTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return DeleteAttachingLineModel.builder()
-            .lineToAttachTo1Id("l1")
-            .lineToAttachTo2Id("l2")
-            .attachedLineId("l3")
-            .replacingLine1Id("replacingLineId")
-            .replacingLine1Name("replacingLine")
-            .build();
+                .lineToAttachTo1Id("l1")
+                .lineToAttachTo2Id("l2")
+                .attachedLineId("l3")
+                .replacingLine1Id("replacingLineId")
+                .replacingLine1Name("replacingLine")
+                .build();
     }
 
     @Override
@@ -73,30 +73,30 @@ class DeleteAttachingLineTest extends AbstractNetworkModificationTest {
 
     @Test
     void createWithNoAttachmentPointTest() {
-        DeleteAttachingLineModel deleteAttachingLineModel = DeleteAttachingLineModel.builder()
-            .lineToAttachTo1Id("l1")
-            .lineToAttachTo2Id("l3")
-            .attachedLineId("l1")
-            .replacingLine1Id("replacementLineId")
-            .build();
+        DeleteAttachingLineModel deleteAttachingLineInfos = DeleteAttachingLineModel.builder()
+                .lineToAttachTo1Id("l1")
+                .lineToAttachTo2Id("l3")
+                .attachedLineId("l1")
+                .replacingLine1Id("replacementLineId")
+                .build();
         // assert throws NetworkModificationException and check error message
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> deleteAttachingLineModel.toModification().apply(getNetwork()));
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> deleteAttachingLineInfos.toModification().apply(getNetwork()));
         assertEquals("Unable to find the attachment point and the tapped voltage level from lines l1, l3 and l1", exception.getMessage());
     }
 
     @Test
     void createNewLineWithExistingIdTest() {
         // try to create an already existing line
-        DeleteAttachingLineModel deleteAttachingLineModel = (DeleteAttachingLineModel) buildModification();
-        deleteAttachingLineModel.setReplacingLine1Id("l2");
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> deleteAttachingLineModel.toModification().check(getNetwork()));
+        DeleteAttachingLineModel deleteAttachingLineInfos = (DeleteAttachingLineModel) buildModification();
+        deleteAttachingLineInfos.setReplacingLine1Id("l2");
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> deleteAttachingLineInfos.toModification().check(getNetwork()));
         assertEquals("LINE_ALREADY_EXISTS : l2", exception.getMessage());
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("DELETE_ATTACHING_LINE", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("DELETE_ATTACHING_LINE", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("l3", createdValues.get("attachedLineId"));
         // assertEquals("l1", createdValues.get("lineToAttachTo1Id"));

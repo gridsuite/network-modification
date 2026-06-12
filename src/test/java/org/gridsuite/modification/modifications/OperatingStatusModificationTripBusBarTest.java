@@ -39,8 +39,8 @@ class OperatingStatusModificationTripBusBarTest extends AbstractNetworkModificat
     @Override
     protected ModificationModel buildModification() {
         return OperatingStatusModificationModel.builder()
-            .equipmentId(TARGET_BUSBAR_ID)
-            .action(OperatingStatusModificationModel.ActionType.TRIP).build();
+                .equipmentId(TARGET_BUSBAR_ID)
+                .action(OperatingStatusModificationModel.ActionType.TRIP).build();
     }
 
     @Override
@@ -50,9 +50,9 @@ class OperatingStatusModificationTripBusBarTest extends AbstractNetworkModificat
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("OPERATING_STATUS_MODIFICATION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("OPERATING_STATUS_MODIFICATION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("TRIP", createdValues.get("action"));
     }

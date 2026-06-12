@@ -12,11 +12,9 @@ import com.powsybl.iidm.network.Substation;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.model.*;
 import org.gridsuite.modification.utils.NetworkCreation;
-
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -60,17 +58,17 @@ class SubstationModificationTest extends AbstractNetworkModificationTest {
     protected void checkModification() {
         // Try to modify an unknown substation
         SubstationModificationModel infos = SubstationModificationModel.builder()
-            .equipmentId("unknown")
-            .country(new AttributeModification<>(Country.JP, OperationType.SET))
-            .build();
+                .equipmentId("unknown")
+                .country(new AttributeModification<>(Country.JP, OperationType.SET))
+                .build();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> infos.toModification().check(getNetwork()));
         assertEquals("SUBSTATION_NOT_FOUND : Substation unknown does not exist in network", exception.getMessage());
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("SUBSTATION_MODIFICATION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("SUBSTATION_MODIFICATION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("s3", createdValues.get("equipmentId"));
     }

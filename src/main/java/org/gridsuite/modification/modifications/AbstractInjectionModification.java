@@ -26,17 +26,17 @@ public abstract class AbstractInjectionModification extends AbstractModification
 
     private static final String VALUE = "value";
     private static final String VALIDITY = "validity";
-    protected final InjectionModificationModel modificationModel;
+    protected final InjectionModificationModel modificationInfos;
 
-    protected AbstractInjectionModification(InjectionModificationModel modificationModel) {
-        this.modificationModel = modificationModel;
+    protected AbstractInjectionModification(InjectionModificationModel modificationInfos) {
+        this.modificationInfos = modificationInfos;
     }
 
-    protected ReportNode updateMeasurements(Injection<?> injection, InjectionModificationModel injectionModificationModel, ReportNode subReportNode) {
-        Double pValue = injectionModificationModel.getPMeasurementValue() != null ? injectionModificationModel.getPMeasurementValue().getValue() : null;
-        Double qValue = injectionModificationModel.getQMeasurementValue() != null ? injectionModificationModel.getQMeasurementValue().getValue() : null;
-        Boolean pValidity = injectionModificationModel.getPMeasurementValidity() != null ? injectionModificationModel.getPMeasurementValidity().getValue() : null;
-        Boolean qValidity = injectionModificationModel.getQMeasurementValidity() != null ? injectionModificationModel.getQMeasurementValidity().getValue() : null;
+    protected ReportNode updateMeasurements(Injection<?> injection, InjectionModificationModel injectionModificationInfos, ReportNode subReportNode) {
+        Double pValue = injectionModificationInfos.getPMeasurementValue() != null ? injectionModificationInfos.getPMeasurementValue().getValue() : null;
+        Double qValue = injectionModificationInfos.getQMeasurementValue() != null ? injectionModificationInfos.getQMeasurementValue().getValue() : null;
+        Boolean pValidity = injectionModificationInfos.getPMeasurementValidity() != null ? injectionModificationInfos.getPMeasurementValidity().getValue() : null;
+        Boolean qValidity = injectionModificationInfos.getQMeasurementValidity() != null ? injectionModificationInfos.getQMeasurementValidity().getValue() : null;
 
         if (pValue == null && pValidity == null && qValue == null && qValidity == null) {
             // no measurement modification requested

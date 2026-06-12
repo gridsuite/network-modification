@@ -15,7 +15,6 @@ import org.gridsuite.modification.model.FreePropertyModel;
 import org.gridsuite.modification.model.LoadCreationModel;
 import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.utils.NetworkCreation;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -34,21 +33,21 @@ class LoadCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void checkModification() {
-        LoadCreationModel loadCreationModel = (LoadCreationModel) buildModification();
+        LoadCreationModel loadCreationInfos = (LoadCreationModel) buildModification();
         // VoltageLevel not found
-        loadCreationModel.setVoltageLevelId("notFoundVoltageLevelId");
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> loadCreationModel.toModification().check(getNetwork()));
+        loadCreationInfos.setVoltageLevelId("notFoundVoltageLevelId");
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> loadCreationInfos.toModification().check(getNetwork()));
         assertEquals(new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, "notFoundVoltageLevelId").getMessage(), exception.getMessage());
 
-        loadCreationModel.setEquipmentId("idLoad1");
-        loadCreationModel.setVoltageLevelId("v2");
-        loadCreationModel.setBusOrBusbarSectionId("notFoundBusbarSection");
-        exception = assertThrows(NetworkModificationException.class, () -> loadCreationModel.toModification().check(getNetwork()));
+        loadCreationInfos.setEquipmentId("idLoad1");
+        loadCreationInfos.setVoltageLevelId("v2");
+        loadCreationInfos.setBusOrBusbarSectionId("notFoundBusbarSection");
+        exception = assertThrows(NetworkModificationException.class, () -> loadCreationInfos.toModification().check(getNetwork()));
         assertEquals(new NetworkModificationException(BUSBAR_SECTION_NOT_FOUND, "notFoundBusbarSection").getMessage(), exception.getMessage());
 
-        loadCreationModel.setBusOrBusbarSectionId("1B");
-        loadCreationModel.setP0(Double.NaN);
-        ValidationException exception1 = assertThrows(ValidationException.class, () -> loadCreationModel.toModification().apply(getNetwork()));
+        loadCreationInfos.setBusOrBusbarSectionId("1B");
+        loadCreationInfos.setP0(Double.NaN);
+        ValidationException exception1 = assertThrows(ValidationException.class, () -> loadCreationInfos.toModification().apply(getNetwork()));
         assertEquals("Load 'idLoad1': p0 is invalid", exception1.getMessage());
     }
 
@@ -80,9 +79,9 @@ class LoadCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("LOAD_CREATION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("LOAD_CREATION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("idLoad1", createdValues.get("equipmentId"));
     }

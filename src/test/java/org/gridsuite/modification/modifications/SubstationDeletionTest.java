@@ -29,9 +29,9 @@ class SubstationDeletionTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return EquipmentDeletionModel.builder()
-            .equipmentType(IdentifiableType.SUBSTATION)
-            .equipmentId("s1")
-            .build();
+                .equipmentType(IdentifiableType.SUBSTATION)
+                .equipmentId("s1")
+                .build();
     }
 
     @Override
@@ -47,9 +47,9 @@ class SubstationDeletionTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("EQUIPMENT_DELETION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("EQUIPMENT_DELETION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("s1", createdValues.get("equipmentId"));
     }

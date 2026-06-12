@@ -11,7 +11,6 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.model.LinesAttachToSplitLinesModel;
 import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
-
 import java.util.UUID;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
@@ -32,16 +31,16 @@ class LinesAttachToSplitLinesTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return LinesAttachToSplitLinesModel.builder()
-            .lineToAttachTo1Id("l1")
-            .lineToAttachTo2Id("l2")
-            .attachedLineId("l3")
-            .voltageLevelId("v4")
-            .bbsBusId("bbs4")
-            .replacingLine1Id("nl1")
-            .replacingLine1Name("NewLine1")
-            .replacingLine2Id("nl2")
-            .replacingLine2Name("NewLine2")
-            .build();
+                .lineToAttachTo1Id("l1")
+                .lineToAttachTo2Id("l2")
+                .attachedLineId("l3")
+                .voltageLevelId("v4")
+                .bbsBusId("bbs4")
+                .replacingLine1Id("nl1")
+                .replacingLine1Name("NewLine1")
+                .replacingLine2Id("nl2")
+                .replacingLine2Name("NewLine2")
+                .build();
     }
 
     @Override
@@ -61,29 +60,29 @@ class LinesAttachToSplitLinesTest extends AbstractNetworkModificationTest {
     @Override
     protected void checkModification() {
         // use an unexisting line
-        LinesAttachToSplitLinesModel linesAttachToSplitLinesModel = (LinesAttachToSplitLinesModel) buildModification();
-        linesAttachToSplitLinesModel.setLineToAttachTo1Id("absent_line_id");
-        Exception exception = assertThrows(NetworkModificationException.class, () -> linesAttachToSplitLinesModel.toModification().check(getNetwork()));
+        LinesAttachToSplitLinesModel linesAttachToSplitLinesInfos = (LinesAttachToSplitLinesModel) buildModification();
+        linesAttachToSplitLinesInfos.setLineToAttachTo1Id("absent_line_id");
+        Exception exception = assertThrows(NetworkModificationException.class, () -> linesAttachToSplitLinesInfos.toModification().check(getNetwork()));
         assertEquals(new NetworkModificationException(LINE_NOT_FOUND, "absent_line_id").getMessage(),
-            exception.getMessage());
+                exception.getMessage());
         // try to create an already existing line
-        LinesAttachToSplitLinesModel linesAttachToSplitLinesModel1 = (LinesAttachToSplitLinesModel) buildModification();
-        linesAttachToSplitLinesModel1.setReplacingLine1Id("l1");
-        exception = assertThrows(NetworkModificationException.class, () -> linesAttachToSplitLinesModel1.toModification().check(getNetwork()));
+        LinesAttachToSplitLinesModel linesAttachToSplitLinesInfos1 = (LinesAttachToSplitLinesModel) buildModification();
+        linesAttachToSplitLinesInfos1.setReplacingLine1Id("l1");
+        exception = assertThrows(NetworkModificationException.class, () -> linesAttachToSplitLinesInfos1.toModification().check(getNetwork()));
         assertEquals(new NetworkModificationException(LINE_ALREADY_EXISTS, "l1").getMessage(),
-            exception.getMessage());
+                exception.getMessage());
         // same test on 'replacingLine2Id'
-        LinesAttachToSplitLinesModel linesAttachToSplitLinesModel2 = (LinesAttachToSplitLinesModel) buildModification();
-        linesAttachToSplitLinesModel2.setReplacingLine2Id("l1");
-        exception = assertThrows(NetworkModificationException.class, () -> linesAttachToSplitLinesModel2.toModification().check(getNetwork()));
+        LinesAttachToSplitLinesModel linesAttachToSplitLinesInfos2 = (LinesAttachToSplitLinesModel) buildModification();
+        linesAttachToSplitLinesInfos2.setReplacingLine2Id("l1");
+        exception = assertThrows(NetworkModificationException.class, () -> linesAttachToSplitLinesInfos2.toModification().check(getNetwork()));
         assertEquals(new NetworkModificationException(LINE_ALREADY_EXISTS, "l1").getMessage(),
-            exception.getMessage());
+                exception.getMessage());
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("LINES_ATTACH_TO_SPLIT_LINES", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("LINES_ATTACH_TO_SPLIT_LINES", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("l3", createdValues.get("attachedLineId"));
     }

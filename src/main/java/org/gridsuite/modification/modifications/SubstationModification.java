@@ -22,36 +22,36 @@ import static org.gridsuite.modification.NetworkModificationException.Type.SUBST
  */
 public class SubstationModification extends AbstractModification {
 
-    private final SubstationModificationModel modificationModel;
+    private final SubstationModificationModel modificationInfos;
 
-    public SubstationModification(SubstationModificationModel modificationModel) {
-        this.modificationModel = modificationModel;
+    public SubstationModification(SubstationModificationModel modificationInfos) {
+        this.modificationInfos = modificationInfos;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        Substation station = network.getSubstation(modificationModel.getEquipmentId());
+        Substation station = network.getSubstation(modificationInfos.getEquipmentId());
         if (station == null) {
             throw new NetworkModificationException(SUBSTATION_NOT_FOUND,
-                "Substation " + modificationModel.getEquipmentId() + " does not exist in network");
+                    "Substation " + modificationInfos.getEquipmentId() + " does not exist in network");
         }
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        Substation station = network.getSubstation(modificationModel.getEquipmentId());
+        Substation station = network.getSubstation(modificationInfos.getEquipmentId());
 
         // modify the substation in the network
         subReportNode.newReportNode()
-            .withMessageTemplate("network.modification.substationModification")
-            .withUntypedValue("id", modificationModel.getEquipmentId())
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
+                .withMessageTemplate("network.modification.substationModification")
+                .withUntypedValue("id", modificationInfos.getEquipmentId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
         // name and country
-        ModificationUtils.getInstance().applyElementaryModifications(station::setName, () -> station.getOptionalName().orElse("No value"), modificationModel.getEquipmentName(), subReportNode, "Name");
-        ModificationUtils.getInstance().applyElementaryModifications(station::setCountry, station::getNullableCountry, modificationModel.getCountry(), subReportNode, "Country");
+        ModificationUtils.getInstance().applyElementaryModifications(station::setName, () -> station.getOptionalName().orElse("No value"), modificationInfos.getEquipmentName(), subReportNode, "Name");
+        ModificationUtils.getInstance().applyElementaryModifications(station::setCountry, station::getNullableCountry, modificationInfos.getCountry(), subReportNode, "Country");
         // properties
-        PropertiesUtils.applyProperties(station, subReportNode, modificationModel.getProperties(), "network.modification.SubstationProperties");
+        PropertiesUtils.applyProperties(station, subReportNode, modificationInfos.getProperties(), "network.modification.SubstationProperties");
     }
 
     @Override

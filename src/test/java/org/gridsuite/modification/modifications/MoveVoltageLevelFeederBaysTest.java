@@ -17,11 +17,9 @@ import org.gridsuite.modification.report.NetworkModificationReportResourceBundle
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import static org.gridsuite.modification.ModificationType.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS;
 import static org.gridsuite.modification.utils.NetworkUtil.createBusBarSection;
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
@@ -42,15 +40,15 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
 
     @Override
     protected ModificationModel buildModification() {
-        List<MoveFeederBayModel> moveFeederBayModel = new ArrayList<>();
-        moveFeederBayModel.add(MoveFeederBayModel.builder().equipmentId("v3load")
+        List<MoveFeederBayModel> moveFeederBayInfos = new ArrayList<>();
+        moveFeederBayInfos.add(MoveFeederBayModel.builder().equipmentId("v3load")
             .busbarSectionId("3B")
             .connectionSide(null)
             .connectionName("v3loadrename")
             .connectionPosition(4)
             .connectionDirection(ConnectablePosition.Direction.TOP)
             .build());
-        moveFeederBayModel.add(MoveFeederBayModel.builder()
+        moveFeederBayInfos.add(MoveFeederBayModel.builder()
             .equipmentId("line2")
             .busbarSectionId("3B")
             .connectionSide(ThreeSides.TWO.toString())
@@ -60,7 +58,7 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
             .build());
         return MoveVoltageLevelFeederBaysModel.builder()
             .voltageLevelId("v3")
-            .feederBays(moveFeederBayModel)
+            .feederBays(moveFeederBayInfos)
             .build();
     }
 
@@ -106,17 +104,17 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
     }
 
     private void testVoltageLevelNotFound(Network network) {
-        MoveVoltageLevelFeederBaysModel moveVoltageLevelFeederBaysModel = MoveVoltageLevelFeederBaysModel.builder()
+        MoveVoltageLevelFeederBaysModel moveVoltageLevelFeederBaysInfos = MoveVoltageLevelFeederBaysModel.builder()
             .voltageLevelId("notFound")
             .build();
-        MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = (MoveVoltageLevelFeederBays) moveVoltageLevelFeederBaysModel.toModification();
+        MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = (MoveVoltageLevelFeederBays) moveVoltageLevelFeederBaysInfos.toModification();
         String message = assertThrows(NetworkModificationException.class, () -> moveVoltageLevelFeederBays.check(network)).getMessage();
         assertEquals("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR : Voltage level notFound is not found", message);
     }
 
     private void testBusBarNotFound(Network network) {
-        List<MoveFeederBayModel> moveFeederBayModel = new ArrayList<>();
-        moveFeederBayModel.add(MoveFeederBayModel.builder()
+        List<MoveFeederBayModel> moveFeederBayInfos = new ArrayList<>();
+        moveFeederBayInfos.add(MoveFeederBayModel.builder()
             .equipmentId("v3load")
             .busbarSectionId("notFound")
             .connectionSide("3B")
@@ -124,18 +122,18 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
             .connectionPosition(4)
             .connectionDirection(ConnectablePosition.Direction.TOP)
             .build());
-        MoveVoltageLevelFeederBaysModel moveVoltageLevelFeederBaysModel = MoveVoltageLevelFeederBaysModel.builder()
+        MoveVoltageLevelFeederBaysModel moveVoltageLevelFeederBaysInfos = MoveVoltageLevelFeederBaysModel.builder()
             .voltageLevelId("v3")
-            .feederBays(moveFeederBayModel)
+            .feederBays(moveFeederBayInfos)
             .build();
-        MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = (MoveVoltageLevelFeederBays) moveVoltageLevelFeederBaysModel.toModification();
+        MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = (MoveVoltageLevelFeederBays) moveVoltageLevelFeederBaysInfos.toModification();
         String message = assertThrows(NetworkModificationException.class, () -> moveVoltageLevelFeederBays.check(network)).getMessage();
         assertEquals("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR : Bus or busbar section notFound where connectable v3load is supposed to be is not found in voltage level v3", message);
     }
 
     private void testConnectableNotFound(Network network) {
-        List<MoveFeederBayModel> moveFeederBayModel = new ArrayList<>();
-        moveFeederBayModel.add(MoveFeederBayModel.builder()
+        List<MoveFeederBayModel> moveFeederBayInfos = new ArrayList<>();
+        moveFeederBayInfos.add(MoveFeederBayModel.builder()
             .equipmentId("notFound")
             .busbarSectionId("3A")
             .connectionSide(null)
@@ -143,17 +141,17 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
             .connectionPosition(4)
             .connectionDirection(ConnectablePosition.Direction.TOP)
             .build());
-        MoveVoltageLevelFeederBaysModel moveVoltageLevelFeederBaysModel = MoveVoltageLevelFeederBaysModel.builder()
+        MoveVoltageLevelFeederBaysModel moveVoltageLevelFeederBaysInfos = MoveVoltageLevelFeederBaysModel.builder()
             .voltageLevelId("v3")
-            .feederBays(moveFeederBayModel)
+            .feederBays(moveFeederBayInfos)
             .build();
-        MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = (MoveVoltageLevelFeederBays) moveVoltageLevelFeederBaysModel.toModification();
+        MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = (MoveVoltageLevelFeederBays) moveVoltageLevelFeederBaysInfos.toModification();
         assertDoesNotThrow(() -> moveVoltageLevelFeederBays.check(network));
     }
 
     private void testConnectableNotInjectionOrBranch(Network network) {
-        List<MoveFeederBayModel> moveFeederBayModel = new ArrayList<>();
-        moveFeederBayModel.add(MoveFeederBayModel.builder()
+        List<MoveFeederBayModel> moveFeederBayInfos = new ArrayList<>();
+        moveFeederBayInfos.add(MoveFeederBayModel.builder()
             .equipmentId("trf6")
             .busbarSectionId("1A")
             .connectionSide("ONE")
@@ -161,19 +159,19 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
             .connectionPosition(4)
             .connectionDirection(ConnectablePosition.Direction.TOP)
             .build());
-        MoveVoltageLevelFeederBaysModel moveVoltageLevelFeederBaysModel = MoveVoltageLevelFeederBaysModel.builder()
+        MoveVoltageLevelFeederBaysModel moveVoltageLevelFeederBaysInfos = MoveVoltageLevelFeederBaysModel.builder()
             .voltageLevelId("v2")
-            .feederBays(moveFeederBayModel)
+            .feederBays(moveFeederBayInfos)
             .build();
-        MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = (MoveVoltageLevelFeederBays) moveVoltageLevelFeederBaysModel.toModification();
+        MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = (MoveVoltageLevelFeederBays) moveVoltageLevelFeederBaysInfos.toModification();
         String message = assertThrows(NetworkModificationException.class, () -> moveVoltageLevelFeederBays.check(network)).getMessage();
         assertEquals("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR : MoveVoltageLevelFeederBays is not implemented for class com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl", message);
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("v3", createdValues.get("voltageLevelId"));
     }
@@ -190,11 +188,11 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
             .connectionPosition(4)
             .connectionDirection(ConnectablePosition.Direction.TOP)
             .build();
-        MoveVoltageLevelFeederBaysModel moveVoltageLevelFeederBaysModel = MoveVoltageLevelFeederBaysModel.builder()
+        MoveVoltageLevelFeederBaysModel moveVoltageLevelFeederBaysInfos = MoveVoltageLevelFeederBaysModel.builder()
             .voltageLevelId("v2")
             .feederBays(List.of(transformerInfo))
             .build();
-        MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = (MoveVoltageLevelFeederBays) moveVoltageLevelFeederBaysModel.toModification();
+        MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = (MoveVoltageLevelFeederBays) moveVoltageLevelFeederBaysInfos.toModification();
         assertEquals("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS", moveVoltageLevelFeederBays.getName());
         String message = assertThrows(NetworkModificationException.class, () -> moveVoltageLevelFeederBays.getTerminal(network, transformerInfo)).getMessage();
         assertEquals("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR : MoveVoltageLevelFeederBays is not implemented for class com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl", message);
@@ -263,7 +261,7 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
     @Test
     void testConnectablePositionModificationOnSide1() {
         Network network = getNetwork();
-        MoveFeederBayModel moveFeederBayModel = MoveFeederBayModel.builder()
+        MoveFeederBayModel moveFeederBayInfos = MoveFeederBayModel.builder()
             .equipmentId("line2")
             .busbarSectionId("1.1")
             .connectionSide("ONE")
@@ -273,7 +271,7 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
             .build();
         MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = new MoveVoltageLevelFeederBays(MoveVoltageLevelFeederBaysModel.builder()
             .voltageLevelId("v1")
-            .feederBays(List.of(moveFeederBayModel))
+            .feederBays(List.of(moveFeederBayInfos))
             .build());
         moveVoltageLevelFeederBays.apply(network);
         Line line = network.getLine("line2");

@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class BalancesAdjustmentModificationModelTest {
 
     @Test
-    void buildModificationModelWithDefaultValues() {
+    void buildModificationInfosWithDefaultValues() {
         BalancesAdjustmentModificationModel infos = BalancesAdjustmentModificationModel.builder()
             .areas(List.of(BalancesAdjustmentAreaModel.builder()
                 .name("FR")
@@ -43,17 +43,17 @@ class BalancesAdjustmentModificationModelTest {
         assertEquals(BalancesAdjustmentModificationModel.DEFAULT_SUBTRACT_LOAD_FLOW_BALANCING, infos.isSubtractLoadFlowBalancing());
         assertEquals(1, infos.getAreas().size());
 
-        BalancesAdjustmentAreaModel areaModel = infos.getAreas().get(0);
-        assertEquals("FR", areaModel.getName());
-        assertEquals(500d, areaModel.getNetPosition(), 0.001);
-        assertEquals(ShiftType.BALANCED, areaModel.getShiftType());
-        assertEquals(ShiftEquipmentType.LOAD, areaModel.getShiftEquipmentType());
-        assertEquals(1, areaModel.getCountries().size());
-        assertEquals(Country.FR, areaModel.getCountries().get(0));
+        BalancesAdjustmentAreaModel areaInfos = infos.getAreas().get(0);
+        assertEquals("FR", areaInfos.getName());
+        assertEquals(500d, areaInfos.getNetPosition(), 0.001);
+        assertEquals(ShiftType.BALANCED, areaInfos.getShiftType());
+        assertEquals(ShiftEquipmentType.LOAD, areaInfos.getShiftEquipmentType());
+        assertEquals(1, areaInfos.getCountries().size());
+        assertEquals(Country.FR, areaInfos.getCountries().get(0));
     }
 
     @Test
-    void buildModificationModelWithoutDefaultValues() {
+    void buildModificationInfosWithoutDefaultValues() {
         BalancesAdjustmentModificationModel infos = BalancesAdjustmentModificationModel.builder()
             .areas(List.of(BalancesAdjustmentAreaModel.builder()
                 .name("FR")
@@ -80,13 +80,13 @@ class BalancesAdjustmentModificationModelTest {
         assertTrue(infos.isSubtractLoadFlowBalancing());
         assertEquals(1, infos.getAreas().size());
 
-        BalancesAdjustmentAreaModel areaModel = infos.getAreas().get(0);
-        assertEquals("FR", areaModel.getName());
-        assertEquals(500d, areaModel.getNetPosition(), 0.001);
-        assertEquals(ShiftType.BALANCED, areaModel.getShiftType());
-        assertEquals(ShiftEquipmentType.LOAD, areaModel.getShiftEquipmentType());
-        assertEquals(1, areaModel.getCountries().size());
-        assertEquals(Country.FR, areaModel.getCountries().get(0));
+        BalancesAdjustmentAreaModel areaInfos = infos.getAreas().get(0);
+        assertEquals("FR", areaInfos.getName());
+        assertEquals(500d, areaInfos.getNetPosition(), 0.001);
+        assertEquals(ShiftType.BALANCED, areaInfos.getShiftType());
+        assertEquals(ShiftEquipmentType.LOAD, areaInfos.getShiftEquipmentType());
+        assertEquals(1, areaInfos.getCountries().size());
+        assertEquals(Country.FR, areaInfos.getCountries().get(0));
     }
 
 }

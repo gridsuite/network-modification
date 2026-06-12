@@ -26,42 +26,42 @@ import static org.gridsuite.modification.NetworkModificationException.Type.EQUIP
  */
 public class EquipmentDeletion extends AbstractModification {
 
-    private final EquipmentDeletionModel modificationModel;
+    private final EquipmentDeletionModel modificationInfos;
 
-    public EquipmentDeletion(EquipmentDeletionModel modificationModel) {
-        this.modificationModel = modificationModel;
+    public EquipmentDeletion(EquipmentDeletionModel modificationInfos) {
+        this.modificationInfos = modificationInfos;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        Identifiable<?> identifiable = ModificationUtils.getInstance().getEquipmentByIdentifiableType(network, modificationModel.getEquipmentType(), modificationModel.getEquipmentId());
+        Identifiable<?> identifiable = ModificationUtils.getInstance().getEquipmentByIdentifiableType(network, modificationInfos.getEquipmentType(), modificationInfos.getEquipmentId());
         if (identifiable == null) {
-            throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, "Equipment with id=" + modificationModel.getEquipmentId() + " not found or of bad type");
+            throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, "Equipment with id=" + modificationInfos.getEquipmentId() + " not found or of bad type");
         }
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        Identifiable<?> identifiable = ModificationUtils.getInstance().getEquipmentByIdentifiableType(network, modificationModel.getEquipmentType(), modificationModel.getEquipmentId());
+        Identifiable<?> identifiable = ModificationUtils.getInstance().getEquipmentByIdentifiableType(network, modificationInfos.getEquipmentType(), modificationInfos.getEquipmentId());
 
         // Report node is pushed to network instance to allow deletion logs from other libraries to be added
         network.getReportNodeContext().pushReportNode(subReportNode);
         if (identifiable instanceof Connectable) {
-            new RemoveFeederBay(modificationModel.getEquipmentId()).apply(network, true, subReportNode);
+            new RemoveFeederBay(modificationInfos.getEquipmentId()).apply(network, true, subReportNode);
         } else if (identifiable instanceof HvdcLine) {
             removeHvdcLine(network, subReportNode);
         } else if (identifiable instanceof VoltageLevel) {
-            new RemoveVoltageLevel(modificationModel.getEquipmentId()).apply(network, true, subReportNode);
+            new RemoveVoltageLevel(modificationInfos.getEquipmentId()).apply(network, true, subReportNode);
         } else if (identifiable instanceof Substation) {
-            RemoveSubstation rs = new RemoveSubstationBuilder().withSubstationId(modificationModel.getEquipmentId()).build();
+            RemoveSubstation rs = new RemoveSubstationBuilder().withSubstationId(modificationInfos.getEquipmentId()).build();
             rs.apply(network, true, subReportNode);
         }
         subReportNode.newReportNode()
-            .withMessageTemplate("network.modification.equipmentDeleted")
-            .withUntypedValue("type", modificationModel.getEquipmentType().name())
-            .withUntypedValue("id", modificationModel.getEquipmentId())
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
+                .withMessageTemplate("network.modification.equipmentDeleted")
+                .withUntypedValue("type", modificationInfos.getEquipmentType().name())
+                .withUntypedValue("id", modificationInfos.getEquipmentId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
     }
 
     @Override
@@ -70,32 +70,32 @@ public class EquipmentDeletion extends AbstractModification {
     }
 
     private void removeHvdcLine(Network network, ReportNode subReportNode) {
-        HvdcLccDeletionModel specificModel = (HvdcLccDeletionModel) modificationModel.getEquipmentInfos();
+        HvdcLccDeletionModel specificInfos = (HvdcLccDeletionModel) modificationInfos.getEquipmentInfos();
         List<String> shuntCompensatorIds = List.of();
-        if (specificModel != null) {
+        if (specificInfos != null) {
             shuntCompensatorIds = Stream.concat(
-                    specificModel.getMcsOnSide1() != null ? specificModel.getMcsOnSide1().stream() : Stream.of(),
-                    specificModel.getMcsOnSide2() != null ? specificModel.getMcsOnSide2().stream() : Stream.of())
-                .filter(mcsInfo -> {
-                    // isConnectedToHvdc means: selected to be removed (can be changed by the Front)
-                    if (mcsInfo.isConnectedToHvdc() && network.getShuntCompensator(mcsInfo.getId()) == null) {
-                        subReportNode.newReportNode()
-                            .withMessageTemplate("network.modification.shuntCompensatorNotDeleted")
-                            .withUntypedValue("id", mcsInfo.getId())
-                            .withSeverity(TypedValue.WARN_SEVERITY)
-                            .add();
-                        return false;
-                    } else {
-                        return mcsInfo.isConnectedToHvdc();
-                    }
-                })
-                .map(HvdcLccDeletionModel.ShuntCompensatorModel::getId)
-                .collect(Collectors.toList());
+                            specificInfos.getMcsOnSide1() != null ? specificInfos.getMcsOnSide1().stream() : Stream.of(),
+                            specificInfos.getMcsOnSide2() != null ? specificInfos.getMcsOnSide2().stream() : Stream.of())
+                    .filter(mcsInfo -> {
+                        // isConnectedToHvdc means: selected to be removed (can be changed by the Front)
+                        if (mcsInfo.isConnectedToHvdc() && network.getShuntCompensator(mcsInfo.getId()) == null) {
+                            subReportNode.newReportNode()
+                                    .withMessageTemplate("network.modification.shuntCompensatorNotDeleted")
+                                    .withUntypedValue("id", mcsInfo.getId())
+                                    .withSeverity(TypedValue.WARN_SEVERITY)
+                                    .add();
+                            return false;
+                        } else {
+                            return mcsInfo.isConnectedToHvdc();
+                        }
+                    })
+                    .map(HvdcLccDeletionModel.ShuntCompensatorModel::getId)
+                    .collect(Collectors.toList());
         }
         RemoveHvdcLine algo = new RemoveHvdcLineBuilder()
-            .withHvdcLineId(modificationModel.getEquipmentId())
-            .withShuntCompensatorIds(shuntCompensatorIds)
-            .build();
+                .withHvdcLineId(modificationInfos.getEquipmentId())
+                .withShuntCompensatorIds(shuntCompensatorIds)
+                .build();
         algo.apply(network, true, subReportNode);
     }
 }

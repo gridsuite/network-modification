@@ -9,18 +9,18 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 
 public class SubstationCreation extends AbstractModification {
 
-    private final SubstationCreationModel modificationModel;
+    private final SubstationCreationModel modificationInfos;
 
-    public SubstationCreation(SubstationCreationModel modificationModel) {
-        this.modificationModel = modificationModel;
+    public SubstationCreation(SubstationCreationModel modificationInfos) {
+        this.modificationInfos = modificationInfos;
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        ModificationUtils.getInstance().createSubstation(modificationModel, subReportNode, network);
-        Substation substation = network.getSubstation(modificationModel.getEquipmentId());
+        ModificationUtils.getInstance().createSubstation(modificationInfos, subReportNode, network);
+        Substation substation = network.getSubstation(modificationInfos.getEquipmentId());
         // properties
-        PropertiesUtils.applyProperties(substation, subReportNode, modificationModel.getProperties(), "network.modification.SubstationProperties");
+        PropertiesUtils.applyProperties(substation, subReportNode, modificationInfos.getProperties(), "network.modification.SubstationProperties");
     }
 
     @Override

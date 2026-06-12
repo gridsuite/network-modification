@@ -17,7 +17,6 @@ import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.model.tabular.TabularModificationModel;
-
 import java.util.HashMap;
 import java.util.Map;
 

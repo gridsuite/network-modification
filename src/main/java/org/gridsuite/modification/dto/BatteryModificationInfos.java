@@ -15,7 +15,6 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.BatteryModificationModel;
-
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;

@@ -30,26 +30,26 @@ import static org.gridsuite.modification.NetworkModificationException.Type.CREAT
  */
 public class CreateVoltageLevelTopology extends AbstractModification {
 
-    private final CreateVoltageLevelTopologyModel createVoltageLevelTopologyModel;
+    private final CreateVoltageLevelTopologyModel createVoltageLevelTopologyInfos;
 
     public CreateVoltageLevelTopology(CreateVoltageLevelTopologyModel createVoltageLevelTopology) {
-        this.createVoltageLevelTopologyModel = createVoltageLevelTopology;
+        this.createVoltageLevelTopologyInfos = createVoltageLevelTopology;
     }
 
     @Override
     public void check(Network network) {
-        if (createVoltageLevelTopologyModel == null
-            || createVoltageLevelTopologyModel.getVoltageLevelId() == null
-            || createVoltageLevelTopologyModel.getSwitchKinds() == null
-            || createVoltageLevelTopologyModel.getSectionCount() == null) {
+        if (createVoltageLevelTopologyInfos == null
+            || createVoltageLevelTopologyInfos.getVoltageLevelId() == null
+            || createVoltageLevelTopologyInfos.getSwitchKinds() == null
+            || createVoltageLevelTopologyInfos.getSectionCount() == null) {
             throw new NetworkModificationException(CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR, "Missing required attributes to modify the equipment");
         }
-        if (createVoltageLevelTopologyModel.getSwitchKinds().size() != createVoltageLevelTopologyModel.getSectionCount() - 1) {
+        if (createVoltageLevelTopologyInfos.getSwitchKinds().size() != createVoltageLevelTopologyInfos.getSectionCount() - 1) {
             throw new NetworkModificationException(CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR, "The switch kinds list must have a size equal to the section count minus one");
         }
-        if (network.getVoltageLevel(createVoltageLevelTopologyModel.getVoltageLevelId()) == null) {
+        if (network.getVoltageLevel(createVoltageLevelTopologyInfos.getVoltageLevelId()) == null) {
             throw new NetworkModificationException(CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR, "voltage level " +
-                createVoltageLevelTopologyModel.getVoltageLevelId() + " is not found");
+                createVoltageLevelTopologyInfos.getVoltageLevelId() + " is not found");
         }
     }
 
@@ -60,18 +60,18 @@ public class CreateVoltageLevelTopology extends AbstractModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
-        VoltageLevel voltageLevel = network.getVoltageLevel(createVoltageLevelTopologyModel.getVoltageLevelId());
+        VoltageLevel voltageLevel = network.getVoltageLevel(createVoltageLevelTopologyInfos.getVoltageLevelId());
         createVoltageLevelBusBarSection(network, namingStrategy, subReportNode, voltageLevel);
     }
 
     private void createVoltageLevelBusBarSection(Network network, NamingStrategy namingStrategy, ReportNode subReportNode, VoltageLevel voltageLevel) {
         int lowBusOrBusbarIndex = findLowBusOrBusbarIndex(voltageLevel);
         new com.powsybl.iidm.modification.topology.CreateVoltageLevelTopologyBuilder()
-            .withVoltageLevelId(createVoltageLevelTopologyModel.getVoltageLevelId())
-            .withSectionCount(createVoltageLevelTopologyModel.getSectionCount())
+            .withVoltageLevelId(createVoltageLevelTopologyInfos.getVoltageLevelId())
+            .withSectionCount(createVoltageLevelTopologyInfos.getSectionCount())
             .withAlignedBusesOrBusbarCount(1)
             .withLowBusOrBusbarIndex(lowBusOrBusbarIndex)
-            .withSwitchKinds(createVoltageLevelTopologyModel.getSwitchKinds())
+            .withSwitchKinds(createVoltageLevelTopologyInfos.getSwitchKinds())
             .withConnectExistingConnectables(true)
             .build().apply(network, namingStrategy, true, subReportNode);
     }

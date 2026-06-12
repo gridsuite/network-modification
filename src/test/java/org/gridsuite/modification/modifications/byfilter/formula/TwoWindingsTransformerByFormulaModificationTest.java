@@ -45,19 +45,19 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
         IdentifiableAttributes identifiableAttributes2 = new IdentifiableAttributes(TWT_ID_6, getIdentifiableType(), 1.);
         FilterEquipments filter = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(identifiableAttributes1, identifiableAttributes2)).build();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_ID_4, filter));
-        FormulaModel formulaModel = FormulaModel.builder()
-            .filters(List.of(filter4))
-            .fieldOrValue2(ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name()).build())
-            .fieldOrValue1(ReferenceFieldOrValue.builder().value(1.).build())
-            .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
-            .operator(Operator.ADDITION)
-            .build();
+        FormulaModel formulaInfos = FormulaModel.builder()
+                .filters(List.of(filter4))
+                .fieldOrValue2(ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name()).build())
+                .fieldOrValue1(ReferenceFieldOrValue.builder().value(1.).build())
+                .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
+                .operator(Operator.ADDITION)
+                .build();
 
-        ByFormulaModificationModel modificationModel = ByFormulaModificationModel.builder()
-            .identifiableType(getIdentifiableType())
-            .formulaInfosList(List.of(formulaModel))
-            .build();
-        apply(modificationModel);
+        ByFormulaModificationModel modificationInfos = ByFormulaModificationModel.builder()
+                .identifiableType(getIdentifiableType())
+                .formulaInfosList(List.of(formulaInfos))
+                .build();
+        apply(modificationInfos);
 
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_4).getRatioTapChanger());
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_6).getRatioTapChanger());
@@ -67,19 +67,19 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
         IdentifiableAttributes identifiableAttributes4 = new IdentifiableAttributes(TWT_ID_2, getIdentifiableType(), 1.);
         FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(identifiableAttributes3, identifiableAttributes4)).build();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_ID_1, filter2));
-        FormulaModel formulaModel2 = FormulaModel.builder()
-            .filters(List.of(filter1))
-            .fieldOrValue2(ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.PHASE_TAP_POSITION.name()).build())
-            .fieldOrValue1(ReferenceFieldOrValue.builder().value(1.).build())
-            .editedField(TwoWindingsTransformerField.PHASE_TAP_POSITION.name())
-            .operator(Operator.ADDITION)
-            .build();
+        FormulaModel formulaInfos2 = FormulaModel.builder()
+                .filters(List.of(filter1))
+                .fieldOrValue2(ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.PHASE_TAP_POSITION.name()).build())
+                .fieldOrValue1(ReferenceFieldOrValue.builder().value(1.).build())
+                .editedField(TwoWindingsTransformerField.PHASE_TAP_POSITION.name())
+                .operator(Operator.ADDITION)
+                .build();
 
-        ByFormulaModificationModel modificationModel2 = ByFormulaModificationModel.builder()
-            .identifiableType(getIdentifiableType())
-            .formulaInfosList(List.of(formulaModel2))
-            .build();
-        apply(modificationModel2);
+        ByFormulaModificationModel modificationInfos2 = ByFormulaModificationModel.builder()
+                .identifiableType(getIdentifiableType())
+            .formulaInfosList(List.of(formulaInfos2))
+                .build();
+        apply(modificationInfos2);
 
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_1).getPhaseTapChanger());
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_2).getPhaseTapChanger());
@@ -95,19 +95,19 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
         FilterEquipments filterTwt2 = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(identifiableAttributes3, identifiableAttributes4)).build();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_ID_1, filterTwt1, FILTER_ID_4, filterTwt2));
 
-        FormulaModel formulaModel = FormulaModel.builder()
-            .filters(List.of(filter1, filter4))
-            .fieldOrValue2(ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name()).build())
-            .fieldOrValue1(ReferenceFieldOrValue.builder().value(1.).build())
-            .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
-            .operator(Operator.ADDITION)
-            .build();
+        FormulaModel formulaInfos = FormulaModel.builder()
+                .filters(List.of(filter1, filter4))
+                .fieldOrValue2(ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name()).build())
+                .fieldOrValue1(ReferenceFieldOrValue.builder().value(1.).build())
+                .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
+                .operator(Operator.ADDITION)
+                .build();
 
-        ByFormulaModificationModel modificationModel = ByFormulaModificationModel.builder()
-            .identifiableType(getIdentifiableType())
-            .formulaInfosList(List.of(formulaModel))
-            .build();
-        apply(modificationModel);
+        ByFormulaModificationModel modificationInfos = ByFormulaModificationModel.builder()
+                .identifiableType(getIdentifiableType())
+                .formulaInfosList(List.of(formulaInfos))
+                .build();
+        apply(modificationInfos);
 
         assertNotNull(getNetwork().getTwoWindingsTransformer(TWT_ID_1).getRatioTapChanger());
         assertNotNull(getNetwork().getTwoWindingsTransformer(TWT_ID_2).getRatioTapChanger());
@@ -124,49 +124,49 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
         Substation s3 = getNetwork().getSubstation("s3");
         TwoWindingsTransformer twt1 = createTwoWindingsTransformer(s1, TWT_ID_1, TWT_ID_1, 30, 40, 50,
             60, 10, 20, 100, 100,
-            "v1", "v2",
-            "trf1", 11, ConnectablePosition.Direction.TOP,
-            "trf1", 22, ConnectablePosition.Direction.BOTTOM);
+                "v1", "v2",
+                "trf1", 11, ConnectablePosition.Direction.TOP,
+                "trf1", 22, ConnectablePosition.Direction.BOTTOM);
         twt1.setRatedS(11);
         addRatioTapChangerSteps(twt1.newRatioTapChanger().setTargetV(50).setLowTapPosition(0).setTapPosition(1).setTargetDeadband(55));
 
         TwoWindingsTransformer twt2 = createTwoWindingsTransformer(s1, TWT_ID_2, TWT_ID_2, 35, 45, 55,
             65, 15, 25, 101, 100,
-            "v1", "v4",
-            "trf1", 33, ConnectablePosition.Direction.TOP,
-            "trf1", 44, ConnectablePosition.Direction.BOTTOM);
+                "v1", "v4",
+                "trf1", 33, ConnectablePosition.Direction.TOP,
+                "trf1", 44, ConnectablePosition.Direction.BOTTOM);
         twt2.setRatedS(10);
         addRatioTapChangerSteps(twt2.newRatioTapChanger().setTargetV(53).setLowTapPosition(3).setTapPosition(4).setTargetDeadband(58));
 
         TwoWindingsTransformer twt3 = createTwoWindingsTransformer(s1, TWT_ID_3, TWT_ID_3, 40, 50, 60,
             70, 20, 30, 101, 101,
-            "v2", "v4",
-            "trf1", 10, ConnectablePosition.Direction.TOP,
-            "trf1", 20, ConnectablePosition.Direction.BOTTOM);
+                "v2", "v4",
+                "trf1", 10, ConnectablePosition.Direction.TOP,
+                "trf1", 20, ConnectablePosition.Direction.BOTTOM);
         twt3.setRatedS(25);
         addRatioTapChangerSteps(twt3.newRatioTapChanger().setTargetV(56).setLowTapPosition(0).setTapPosition(1).setTargetDeadband(61));
 
         TwoWindingsTransformer twt4 = createTwoWindingsTransformer(s3, TWT_ID_4, TWT_ID_4, 45, 55, 65,
             75, 25, 35, 100, 100,
-            "v5", "v6",
-            "trf1", 30, ConnectablePosition.Direction.TOP,
-            "trf1", 40, ConnectablePosition.Direction.BOTTOM);
+                "v5", "v6",
+                "trf1", 30, ConnectablePosition.Direction.TOP,
+                "trf1", 40, ConnectablePosition.Direction.BOTTOM);
         twt4.setRatedS(15);
         addPhaseTapChangerSteps(twt4.newPhaseTapChanger().setRegulationValue(45).setLowTapPosition(1).setTapPosition(2).setTargetDeadband(34));
 
         TwoWindingsTransformer twt5 = createTwoWindingsTransformer(s3, TWT_ID_5, TWT_ID_5, 50, 60, 70,
             80, 30, 40, 101, 101,
-            "v5", "v6",
-            "trf1", 15, ConnectablePosition.Direction.TOP,
-            "trf1", 26, ConnectablePosition.Direction.BOTTOM);
+                "v5", "v6",
+                "trf1", 15, ConnectablePosition.Direction.TOP,
+                "trf1", 26, ConnectablePosition.Direction.BOTTOM);
         twt5.setRatedS(30);
         addPhaseTapChangerSteps(twt5.newPhaseTapChanger().setRegulationValue(46).setLowTapPosition(2).setTapPosition(2).setTargetDeadband(35));
 
         TwoWindingsTransformer twt6 = createTwoWindingsTransformer(s3, TWT_ID_6, TWT_ID_6, 55, 65, 75, 85,
             35, 45, 102, 102,
-            "v5", "v6",
-            "trf1", 38, ConnectablePosition.Direction.TOP,
-            "trf1", 49, ConnectablePosition.Direction.BOTTOM);
+                "v5", "v6",
+                "trf1", 38, ConnectablePosition.Direction.TOP,
+                "trf1", 49, ConnectablePosition.Direction.BOTTOM);
         twt6.setRatedS(20);
         addPhaseTapChangerSteps(twt6.newPhaseTapChanger().setRegulationValue(47).setLowTapPosition(1).setTapPosition(1).setTargetDeadband(36));
     }
@@ -207,142 +207,142 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
     }
 
     @Override
-    protected List<FormulaModel> getFormulaModel() {
-        FormulaModel formulaModel1 = getFormulaInfo(TwoWindingsTransformerField.TARGET_V.name(),
-            List.of(filter1),
-            Operator.PERCENTAGE,
-            ReferenceFieldOrValue.builder().value(200.).build(),
-            ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.TARGET_V.name()).build());
+    protected List<FormulaModel> getFormulaInfos() {
+        FormulaModel formulaInfos1 = getFormulaInfo(TwoWindingsTransformerField.TARGET_V.name(),
+                List.of(filter1),
+                Operator.PERCENTAGE,
+                ReferenceFieldOrValue.builder().value(200.).build(),
+                ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.TARGET_V.name()).build());
 
-        FormulaModel formulaModel2 = getFormulaInfo(TwoWindingsTransformerField.RATIO_TAP_POSITION.name(),
-            List.of(filter2),
-            Operator.MULTIPLICATION,
-            ReferenceFieldOrValue.builder().value(4.).build(),
-            ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name()).build());
+        FormulaModel formulaInfos2 = getFormulaInfo(TwoWindingsTransformerField.RATIO_TAP_POSITION.name(),
+                List.of(filter2),
+                Operator.MULTIPLICATION,
+                ReferenceFieldOrValue.builder().value(4.).build(),
+                ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name()).build());
 
-        FormulaModel formulaModel3 = getFormulaInfo(TwoWindingsTransformerField.RATIO_LOW_TAP_POSITION.name(),
-            List.of(filter2),
-            Operator.ADDITION,
-            ReferenceFieldOrValue.builder().value(1.).build(),
-            ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATIO_LOW_TAP_POSITION.name()).build());
+        FormulaModel formulaInfos3 = getFormulaInfo(TwoWindingsTransformerField.RATIO_LOW_TAP_POSITION.name(),
+                List.of(filter2),
+                Operator.ADDITION,
+                ReferenceFieldOrValue.builder().value(1.).build(),
+                ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATIO_LOW_TAP_POSITION.name()).build());
 
-        FormulaModel formulaModel4 = getFormulaInfo(TwoWindingsTransformerField.RATIO_TARGET_DEADBAND.name(),
-            List.of(filter1),
-            Operator.DIVISION,
-            ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATIO_TARGET_DEADBAND.name()).build(),
-            ReferenceFieldOrValue.builder().value(5.).build());
+        FormulaModel formulaInfos4 = getFormulaInfo(TwoWindingsTransformerField.RATIO_TARGET_DEADBAND.name(),
+                List.of(filter1),
+                Operator.DIVISION,
+                ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATIO_TARGET_DEADBAND.name()).build(),
+                ReferenceFieldOrValue.builder().value(5.).build());
 
-        FormulaModel formulaModel5 = getFormulaInfo(TwoWindingsTransformerField.REGULATION_VALUE.name(),
-            List.of(filter4),
-            Operator.PERCENTAGE,
-            ReferenceFieldOrValue.builder().value(200.).build(),
-            ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.REGULATION_VALUE.name()).build());
+        FormulaModel formulaInfos5 = getFormulaInfo(TwoWindingsTransformerField.REGULATION_VALUE.name(),
+                List.of(filter4),
+                Operator.PERCENTAGE,
+                ReferenceFieldOrValue.builder().value(200.).build(),
+                ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.REGULATION_VALUE.name()).build());
 
-        FormulaModel formulaModel6 = getFormulaInfo(TwoWindingsTransformerField.PHASE_TAP_POSITION.name(),
-            List.of(filter3),
-            Operator.MULTIPLICATION,
-            ReferenceFieldOrValue.builder().value(2.).build(),
-            ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.PHASE_TAP_POSITION.name()).build());
+        FormulaModel formulaInfos6 = getFormulaInfo(TwoWindingsTransformerField.PHASE_TAP_POSITION.name(),
+                List.of(filter3),
+                Operator.MULTIPLICATION,
+                ReferenceFieldOrValue.builder().value(2.).build(),
+                ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.PHASE_TAP_POSITION.name()).build());
 
-        FormulaModel formulaModel7 = getFormulaInfo(TwoWindingsTransformerField.PHASE_LOW_TAP_POSITION.name(),
-            List.of(filter3),
-            Operator.MULTIPLICATION,
-            ReferenceFieldOrValue.builder().value(2.).build(),
-            ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.PHASE_LOW_TAP_POSITION.name()).build());
+        FormulaModel formulaInfos7 = getFormulaInfo(TwoWindingsTransformerField.PHASE_LOW_TAP_POSITION.name(),
+                List.of(filter3),
+                Operator.MULTIPLICATION,
+                ReferenceFieldOrValue.builder().value(2.).build(),
+                ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.PHASE_LOW_TAP_POSITION.name()).build());
 
-        FormulaModel formulaModel8 = getFormulaInfo(TwoWindingsTransformerField.PHASE_TARGET_DEADBAND.name(),
-            List.of(filter4),
-            Operator.SUBTRACTION,
-            ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.PHASE_TARGET_DEADBAND.name()).build(),
-            ReferenceFieldOrValue.builder().value(10.).build());
+        FormulaModel formulaInfos8 = getFormulaInfo(TwoWindingsTransformerField.PHASE_TARGET_DEADBAND.name(),
+                List.of(filter4),
+                Operator.SUBTRACTION,
+                ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.PHASE_TARGET_DEADBAND.name()).build(),
+                ReferenceFieldOrValue.builder().value(10.).build());
 
-        FormulaModel formulaModel9 = getFormulaInfo(TwoWindingsTransformerField.X.name(),
-            List.of(filter1, filter4),
-            Operator.ADDITION,
-            ReferenceFieldOrValue.builder().value(20.).build(),
-            ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.X.name()).build());
+        FormulaModel formulaInfos9 = getFormulaInfo(TwoWindingsTransformerField.X.name(),
+                List.of(filter1, filter4),
+                Operator.ADDITION,
+                ReferenceFieldOrValue.builder().value(20.).build(),
+                ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.X.name()).build());
 
-        FormulaModel formulaModel10 = getFormulaInfo(TwoWindingsTransformerField.R.name(),
-            List.of(filter2, filter3),
-            Operator.PERCENTAGE,
-            ReferenceFieldOrValue.builder().value(200.).build(),
-            ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.R.name()).build());
+        FormulaModel formulaInfos10 = getFormulaInfo(TwoWindingsTransformerField.R.name(),
+                List.of(filter2, filter3),
+                Operator.PERCENTAGE,
+                ReferenceFieldOrValue.builder().value(200.).build(),
+                ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.R.name()).build());
 
-        FormulaModel formulaModel11 = getFormulaInfo(TwoWindingsTransformerField.G.name(),
-            List.of(filter4, filter2),
-            Operator.ADDITION,
-            ReferenceFieldOrValue.builder().value(25.).build(),
-            ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.G.name()).build());
+        FormulaModel formulaInfos11 = getFormulaInfo(TwoWindingsTransformerField.G.name(),
+                List.of(filter4, filter2),
+                Operator.ADDITION,
+                ReferenceFieldOrValue.builder().value(25.).build(),
+                ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.G.name()).build());
 
-        FormulaModel formulaModel12 = getFormulaInfo(TwoWindingsTransformerField.B.name(),
-            List.of(filter1, filter3),
-            Operator.MULTIPLICATION,
-            ReferenceFieldOrValue.builder().value(2.5).build(),
-            ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.B.name()).build());
+        FormulaModel formulaInfos12 = getFormulaInfo(TwoWindingsTransformerField.B.name(),
+                List.of(filter1, filter3),
+                Operator.MULTIPLICATION,
+                ReferenceFieldOrValue.builder().value(2.5).build(),
+                ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.B.name()).build());
 
-        FormulaModel formulaModel13 = getFormulaInfo(TwoWindingsTransformerField.RATED_U1.name(),
-            List.of(filter2),
-            Operator.ADDITION,
-            ReferenceFieldOrValue.builder().value(15.).build(),
-            ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATED_U1.name()).build());
+        FormulaModel formulaInfos13 = getFormulaInfo(TwoWindingsTransformerField.RATED_U1.name(),
+                List.of(filter2),
+                Operator.ADDITION,
+                ReferenceFieldOrValue.builder().value(15.).build(),
+                ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATED_U1.name()).build());
 
-        FormulaModel formulaModel14 = getFormulaInfo(TwoWindingsTransformerField.RATED_U2.name(),
-            List.of(filter3, filter2),
-            Operator.PERCENTAGE,
-            ReferenceFieldOrValue.builder().value(50.).build(),
-            ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATED_U2.name()).build());
+        FormulaModel formulaInfos14 = getFormulaInfo(TwoWindingsTransformerField.RATED_U2.name(),
+                List.of(filter3, filter2),
+                Operator.PERCENTAGE,
+                ReferenceFieldOrValue.builder().value(50.).build(),
+                ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATED_U2.name()).build());
 
-        FormulaModel formulaModel15 = getFormulaInfo(TwoWindingsTransformerField.RATED_S.name(),
-            List.of(filter1, filter2),
-            Operator.PERCENTAGE,
-            ReferenceFieldOrValue.builder().value(200.).build(),
-            ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATED_S.name()).build());
-
-        // High tap position is always equals to lowTapPosition + steps.size() - 1 and its modification is ignored
-        FormulaModel formulaModel16 = getFormulaInfo(TwoWindingsTransformerField.RATIO_HIGH_TAP_POSITION.name(),
-            List.of(filter1),
-            Operator.ADDITION,
-            ReferenceFieldOrValue.builder().value(2.).build(),
-            ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name()).build());
+        FormulaModel formulaInfos15 = getFormulaInfo(TwoWindingsTransformerField.RATED_S.name(),
+                List.of(filter1, filter2),
+                Operator.PERCENTAGE,
+                ReferenceFieldOrValue.builder().value(200.).build(),
+                ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATED_S.name()).build());
 
         // High tap position is always equals to lowTapPosition + steps.size() - 1 and its modification is ignored
-        FormulaModel formulaModel17 = getFormulaInfo(TwoWindingsTransformerField.PHASE_HIGH_TAP_POSITION.name(),
-            List.of(filter3),
-            Operator.ADDITION,
-            ReferenceFieldOrValue.builder().value(2.).build(),
-            ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.PHASE_TAP_POSITION.name()).build());
+        FormulaModel formulaInfos16 = getFormulaInfo(TwoWindingsTransformerField.RATIO_HIGH_TAP_POSITION.name(),
+                List.of(filter1),
+                Operator.ADDITION,
+                ReferenceFieldOrValue.builder().value(2.).build(),
+                ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name()).build());
 
-        FormulaModel formulaModel18 = getFormulaInfo(TwoWindingsTransformerField.RATIO_TAP_POSITION.name(),
+        // High tap position is always equals to lowTapPosition + steps.size() - 1 and its modification is ignored
+        FormulaModel formulaInfos17 = getFormulaInfo(TwoWindingsTransformerField.PHASE_HIGH_TAP_POSITION.name(),
+                List.of(filter3),
+                Operator.ADDITION,
+                ReferenceFieldOrValue.builder().value(2.).build(),
+                ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.PHASE_TAP_POSITION.name()).build());
+
+        FormulaModel formulaInfos18 = getFormulaInfo(TwoWindingsTransformerField.RATIO_TAP_POSITION.name(),
             List.of(filter5),
             Operator.SUBTRACTION,
             ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATIO_HIGH_TAP_POSITION.name()).build(),
             ReferenceFieldOrValue.builder().value(2.).build());
 
-        FormulaModel formulaModel19 = getFormulaInfo(TwoWindingsTransformerField.PHASE_TAP_POSITION.name(),
+        FormulaModel formulaInfos19 = getFormulaInfo(TwoWindingsTransformerField.PHASE_TAP_POSITION.name(),
             List.of(filter6),
             Operator.SUBTRACTION,
             ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.PHASE_HIGH_TAP_POSITION.name()).build(),
             ReferenceFieldOrValue.builder().value(2.).build());
 
-        return List.of(formulaModel1,
-            formulaModel2,
-            formulaModel3,
-            formulaModel4,
-            formulaModel5,
-            formulaModel6,
-            formulaModel7,
-            formulaModel8,
-            formulaModel9,
-            formulaModel10,
-            formulaModel11,
-            formulaModel12,
-            formulaModel13,
-            formulaModel14,
-            formulaModel15,
-            formulaModel16,
-            formulaModel17,
-            formulaModel18,
-            formulaModel19);
+        return List.of(formulaInfos1,
+                formulaInfos2,
+                formulaInfos3,
+                formulaInfos4,
+                formulaInfos5,
+                formulaInfos6,
+                formulaInfos7,
+                formulaInfos8,
+                formulaInfos9,
+                formulaInfos10,
+                formulaInfos11,
+                formulaInfos12,
+                formulaInfos13,
+                formulaInfos14,
+                formulaInfos15,
+                formulaInfos16,
+                formulaInfos17,
+                formulaInfos18,
+                formulaInfos19);
     }
 
     @Override
@@ -435,99 +435,99 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
 
     private static void addRatioTapChangerSteps(RatioTapChangerAdder ratioTapChangerAdder) {
         ratioTapChangerAdder.beginStep()
-            .setR(39.78473)
-            .setX(39.784725)
-            .setG(0.0)
-            .setB(0.0)
-            .setRho(15.0)
-            .endStep()
-            .beginStep()
-            .setR(39.78474)
-            .setX(39.784726)
-            .setG(0.0)
-            .setB(0.0)
-            .setRho(15.0)
-            .endStep()
-            .beginStep()
-            .setR(39.78473)
-            .setX(39.784725)
-            .setG(0.0)
-            .setB(0.0)
-            .setRho(15.0)
-            .endStep()
-            .beginStep()
-            .setR(39.78474)
-            .setX(39.784726)
-            .setG(0.0)
-            .setB(0.0)
-            .setRho(15.0)
-            .endStep()
-            .beginStep()
-            .setR(39.78473)
-            .setX(39.784725)
-            .setG(0.0)
-            .setB(0.0)
-            .setRho(5.0)
-            .endStep()
-            .beginStep()
-            .setR(39.78474)
-            .setX(39.784726)
-            .setG(0.0)
-            .setB(0.0)
-            .setRho(15.0)
-            .endStep()
-            .add();
+                .setR(39.78473)
+                .setX(39.784725)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(15.0)
+                .endStep()
+                .beginStep()
+                .setR(39.78474)
+                .setX(39.784726)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(15.0)
+                .endStep()
+                .beginStep()
+                .setR(39.78473)
+                .setX(39.784725)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(15.0)
+                .endStep()
+                .beginStep()
+                .setR(39.78474)
+                .setX(39.784726)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(15.0)
+                .endStep()
+                .beginStep()
+                .setR(39.78473)
+                .setX(39.784725)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(5.0)
+                .endStep()
+                .beginStep()
+                .setR(39.78474)
+                .setX(39.784726)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(15.0)
+                .endStep()
+                .add();
     }
 
     private static void addPhaseTapChangerSteps(PhaseTapChangerAdder phaseTapChangerAdder) {
         phaseTapChangerAdder.beginStep()
-            .setR(39.78473)
-            .setX(39.784725)
-            .setG(0.0)
-            .setB(0.0)
-            .setRho(15.0)
-            .setAlpha(1.)
-            .endStep()
-            .beginStep()
-            .setR(39.78475)
-            .setX(39.784727)
-            .setG(0.0)
-            .setB(0.0)
-            .setRho(15.0)
-            .setAlpha(1.1)
-            .endStep()
-            .beginStep()
-            .setR(39.78473)
-            .setX(39.784725)
-            .setG(0.0)
-            .setB(0.0)
-            .setRho(15.0)
-            .setAlpha(1.)
-            .endStep()
-            .beginStep()
-            .setR(39.78475)
-            .setX(39.784727)
-            .setG(0.0)
-            .setB(0.0)
-            .setRho(15.0)
-            .setAlpha(1.1)
-            .endStep()
-            .beginStep()
-            .setR(39.78473)
-            .setX(39.784725)
-            .setG(0.0)
-            .setB(0.0)
-            .setRho(15.0)
-            .setAlpha(1.)
-            .endStep()
-            .beginStep()
-            .setR(39.78475)
-            .setX(39.784727)
-            .setG(0.0)
-            .setB(0.0)
-            .setRho(15.0)
-            .setAlpha(1.1)
-            .endStep()
-            .add();
+                .setR(39.78473)
+                .setX(39.784725)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(15.0)
+                .setAlpha(1.)
+                .endStep()
+                .beginStep()
+                .setR(39.78475)
+                .setX(39.784727)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(15.0)
+                .setAlpha(1.1)
+                .endStep()
+                .beginStep()
+                .setR(39.78473)
+                .setX(39.784725)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(15.0)
+                .setAlpha(1.)
+                .endStep()
+                .beginStep()
+                .setR(39.78475)
+                .setX(39.784727)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(15.0)
+                .setAlpha(1.1)
+                .endStep()
+                .beginStep()
+                .setR(39.78473)
+                .setX(39.784725)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(15.0)
+                .setAlpha(1.)
+                .endStep()
+                .beginStep()
+                .setR(39.78475)
+                .setX(39.784727)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(15.0)
+                .setAlpha(1.1)
+                .endStep()
+                .add();
     }
 }

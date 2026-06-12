@@ -36,38 +36,38 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
 
     @Override
     protected ModificationModel buildModification() {
-        List<EquipmentAttributeModificationModel> equipmentAttributeModificationModel = new ArrayList<>(
-            Arrays.asList(
-                EquipmentAttributeModificationModel.builder()
-                    .equipmentId("v1d1")
-                    .equipmentAttributeName("open")
-                    .equipmentAttributeValue(false)
-                    .equipmentType(IdentifiableType.SWITCH)
-                    .build(),
-                EquipmentAttributeModificationModel.builder()
-                    .equipmentId("v1b")
-                    .equipmentAttributeName("open")
-                    .equipmentAttributeValue(false)
-                    .equipmentType(IdentifiableType.SWITCH)
-                    .build(),
-                EquipmentAttributeModificationModel.builder()
-                    .equipmentId("v1blcc")
-                    .equipmentAttributeName("open")
-                    .equipmentAttributeValue(false)
-                    .equipmentType(IdentifiableType.SWITCH)
-                    .build(),
-                EquipmentAttributeModificationModel.builder()
-                    .equipmentId("v1dlcc")
-                    .equipmentAttributeName("open")
-                    .equipmentAttributeValue(false)
-                    .equipmentType(IdentifiableType.SWITCH)
-                    .build()
-            )
+        List<EquipmentAttributeModificationModel> equipmentAttributeModificationInfos = new ArrayList<>(
+                Arrays.asList(
+                        EquipmentAttributeModificationModel.builder()
+                                .equipmentId("v1d1")
+                                .equipmentAttributeName("open")
+                                .equipmentAttributeValue(false)
+                                .equipmentType(IdentifiableType.SWITCH)
+                                .build(),
+                        EquipmentAttributeModificationModel.builder()
+                                .equipmentId("v1b")
+                                .equipmentAttributeName("open")
+                                .equipmentAttributeValue(false)
+                                .equipmentType(IdentifiableType.SWITCH)
+                                .build(),
+                        EquipmentAttributeModificationModel.builder()
+                                .equipmentId("v1blcc")
+                                .equipmentAttributeName("open")
+                                .equipmentAttributeValue(false)
+                                .equipmentType(IdentifiableType.SWITCH)
+                                .build(),
+                        EquipmentAttributeModificationModel.builder()
+                                .equipmentId("v1dlcc")
+                                .equipmentAttributeName("open")
+                                .equipmentAttributeValue(false)
+                                .equipmentType(IdentifiableType.SWITCH)
+                                .build()
+                )
         );
         return VoltageLevelTopologyModificationModel.builder()
-            .equipmentId("v1")
-            .equipmentAttributeModificationList(equipmentAttributeModificationModel)
-            .build();
+                .equipmentId("v1")
+                .equipmentAttributeModificationList(equipmentAttributeModificationInfos)
+                .build();
     }
 
     @Override
@@ -98,20 +98,20 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("VOLTAGE_LEVEL_TOPOLOGY_MODIFICATION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("VOLTAGE_LEVEL_TOPOLOGY_MODIFICATION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("v1", createdValues.get("equipmentId"));
     }
 
     private void testCheckWithVoltageLevelNotFound() {
-        VoltageLevelTopologyModificationModel modificationModel = VoltageLevelTopologyModificationModel.builder()
-            .equipmentId("v1NotFound")
-            .equipmentAttributeModificationList(List.of())
-            .build();
+        VoltageLevelTopologyModificationModel modificationInfos = VoltageLevelTopologyModificationModel.builder()
+                .equipmentId("v1NotFound")
+                .equipmentAttributeModificationList(List.of())
+                .build();
 
-        VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationModel);
+        VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationInfos);
         applyModification(voltageLevelTopologyModification);
         Network network = getNetwork();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(network));
@@ -122,12 +122,12 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
     private void testCheckWithEmptyEquipmentAttributeModifications() {
         List<EquipmentAttributeModificationModel> emptyEquipmentAttributeModifications = new ArrayList<>();
 
-        VoltageLevelTopologyModificationModel modificationModel = VoltageLevelTopologyModificationModel.builder()
-            .equipmentId("v1")
-            .equipmentAttributeModificationList(emptyEquipmentAttributeModifications)
-            .build();
+        VoltageLevelTopologyModificationModel modificationInfos = VoltageLevelTopologyModificationModel.builder()
+                .equipmentId("v1")
+                .equipmentAttributeModificationList(emptyEquipmentAttributeModifications)
+                .build();
 
-        VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationModel);
+        VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationInfos);
         Network network = getNetwork();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(network));
 
@@ -137,21 +137,21 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
 
     private void testCheckWithEquipmentAttributeNotFound() {
         List<EquipmentAttributeModificationModel> equipmentAttributeModifications = new ArrayList<>(
-            Collections.singletonList(EquipmentAttributeModificationModel.builder()
-                .equipmentId("v1d1NotFound")
-                .equipmentAttributeName("open")
-                .equipmentAttributeValue(false)
-                .equipmentType(IdentifiableType.SWITCH)
-                .build()
-            )
+                Collections.singletonList(EquipmentAttributeModificationModel.builder()
+                        .equipmentId("v1d1NotFound")
+                        .equipmentAttributeName("open")
+                        .equipmentAttributeValue(false)
+                        .equipmentType(IdentifiableType.SWITCH)
+                        .build()
+                )
         );
 
-        VoltageLevelTopologyModificationModel modificationModel = VoltageLevelTopologyModificationModel.builder()
-            .equipmentId("v1")
-            .equipmentAttributeModificationList(equipmentAttributeModifications)
-            .build();
+        VoltageLevelTopologyModificationModel modificationInfos = VoltageLevelTopologyModificationModel.builder()
+                .equipmentId("v1")
+                .equipmentAttributeModificationList(equipmentAttributeModifications)
+                .build();
 
-        VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationModel);
+        VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationInfos);
         Network network = getNetwork();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(network));
 
@@ -160,25 +160,25 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
 
     private void testCheckLogMessages() {
         List<EquipmentAttributeModificationModel> equipmentAttributeModifications = new ArrayList<>(
-            Collections.singletonList(EquipmentAttributeModificationModel.builder()
-                .equipmentId("v1d1")
-                .equipmentAttributeName("open")
-                .equipmentAttributeValue(false)
-                .equipmentType(IdentifiableType.SWITCH)
-                .build()
-            )
+                Collections.singletonList(EquipmentAttributeModificationModel.builder()
+                        .equipmentId("v1d1")
+                        .equipmentAttributeName("open")
+                        .equipmentAttributeValue(false)
+                        .equipmentType(IdentifiableType.SWITCH)
+                        .build()
+                )
         );
 
-        VoltageLevelTopologyModificationModel modificationModel = VoltageLevelTopologyModificationModel.builder()
-            .equipmentId("v1")
-            .equipmentAttributeModificationList(equipmentAttributeModifications)
-            .build();
+        VoltageLevelTopologyModificationModel modificationInfos = VoltageLevelTopologyModificationModel.builder()
+                .equipmentId("v1")
+                .equipmentAttributeModificationList(equipmentAttributeModifications)
+                .build();
 
-        ReportNode report = modificationModel.createSubReportNode(ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test").build());
+        ReportNode report = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
         assertEquals("Voltage Level topology modification v1", report.getMessage());
-        modificationModel.toModification().apply(getNetwork(), report);
+        modificationInfos.toModification().apply(getNetwork(), report);
         assertLogMessage("Voltage level 'v1' topology has been modified", "network.modification.voltageLevelTopologyModified", report);
     }
 

@@ -33,9 +33,9 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
 
     @Override
     public void checkModification() {
-        BatteryCreationModel batteryCreationModel = (BatteryCreationModel) buildModification();
-        batteryCreationModel.setBusOrBusbarSectionId("notFoundBus");
-        assertThrows(NetworkModificationException.class, () -> batteryCreationModel.toModification().check(getNetwork()));
+        BatteryCreationModel batteryCreationInfos = (BatteryCreationModel) buildModification();
+        batteryCreationInfos.setBusOrBusbarSectionId("notFoundBus");
+        assertThrows(NetworkModificationException.class, () -> batteryCreationInfos.toModification().check(getNetwork()));
     }
 
     @Override
@@ -46,50 +46,50 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return BatteryCreationModel.builder()
-            .equipmentId("idBattery2")
-            .equipmentName("nameBattery2")
-            .voltageLevelId("v1")
-            .busOrBusbarSectionId("bus1")
-            .minP(100.0)
-            .maxP(600.0)
-            .targetP(400.)
-            .targetQ(50.)
-            .minQ(20.0)
-            .maxQ(25.0)
-            .droop(5f)
-            .stepUpTransformerX(60.0)
-            .directTransX(61.0)
-            .participate(true)
-            .reactiveCapabilityCurve(true)
-            .reactiveCapabilityCurvePoints(Arrays.asList(new ReactiveCapabilityCurvePointsModel(2.0, 3.0, 3.1),
-                new ReactiveCapabilityCurvePointsModel(5.6, 9.8, 10.8)))
-            .connectionName("top")
-            .connectionDirection(ConnectablePosition.Direction.TOP)
-            .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
-            .build();
+                .equipmentId("idBattery2")
+                .equipmentName("nameBattery2")
+                .voltageLevelId("v1")
+                .busOrBusbarSectionId("bus1")
+                .minP(100.0)
+                .maxP(600.0)
+                .targetP(400.)
+                .targetQ(50.)
+                .minQ(20.0)
+                .maxQ(25.0)
+                .droop(5f)
+                .stepUpTransformerX(60.0)
+                .directTransX(61.0)
+                .participate(true)
+                .reactiveCapabilityCurve(true)
+                .reactiveCapabilityCurvePoints(Arrays.asList(new ReactiveCapabilityCurvePointsModel(2.0, 3.0, 3.1),
+                        new ReactiveCapabilityCurvePointsModel(5.6, 9.8, 10.8)))
+                .connectionName("top")
+                .connectionDirection(ConnectablePosition.Direction.TOP)
+                .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+                .build();
     }
 
     @Override
     protected void assertAfterNetworkModificationApplication() {
         assertNotNull(getNetwork().getBattery("idBattery2"));
         assertEquals(1, getNetwork().getVoltageLevel("v1").getBatteryStream()
-            .filter(transformer -> transformer.getId().equals("idBattery2")).count());
+                .filter(transformer -> transformer.getId().equals("idBattery2")).count());
         assertEquals(PROPERTY_VALUE, getNetwork().getBattery("idBattery2").getProperty(PROPERTY_NAME));
     }
 
     @Test
     void testCreateWithBusbarSectionErrors() throws Exception {
-        BatteryCreationModel batteryCreationModel = (BatteryCreationModel) buildModification();
-        batteryCreationModel.setBusOrBusbarSectionId("notFoundBus");
+        BatteryCreationModel batteryCreationInfos = (BatteryCreationModel) buildModification();
+        batteryCreationInfos.setBusOrBusbarSectionId("notFoundBus");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class,
-            () -> batteryCreationModel.toModification().apply(getNetwork()));
+                () -> batteryCreationInfos.toModification().apply(getNetwork()));
         assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("BATTERY_CREATION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("BATTERY_CREATION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("idBattery2", createdValues.get("equipmentId"));
         Battery battery = getNetwork().getBattery("idBattery2");
@@ -102,24 +102,24 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
     @Test
     void testCreateWithDroopNull() {
         Network network = getNetwork();
-        BatteryCreationModel batteryCreationModel = BatteryCreationModel.builder()
-            .equipmentId("idBattery2")
-            .equipmentName("nameBattery2")
-            .voltageLevelId("v1")
-            .busOrBusbarSectionId("bus1")
-            .minP(100.0)
-            .maxP(600.0)
-            .targetP(400.)
-            .targetQ(50.)
-            .minQ(20.0)
-            .maxQ(25.0)
-            .droop(null)
-            .participate(false)
-            .reactiveCapabilityCurve(false)
-            .connectionName("top")
-            .connectionDirection(ConnectablePosition.Direction.TOP)
-            .build();
-        batteryCreationModel.toModification().apply(network);
+        BatteryCreationModel batteryCreationInfos = BatteryCreationModel.builder()
+                .equipmentId("idBattery2")
+                .equipmentName("nameBattery2")
+                .voltageLevelId("v1")
+                .busOrBusbarSectionId("bus1")
+                .minP(100.0)
+                .maxP(600.0)
+                .targetP(400.)
+                .targetQ(50.)
+                .minQ(20.0)
+                .maxQ(25.0)
+                .droop(null)
+                .participate(false)
+                .reactiveCapabilityCurve(false)
+                .connectionName("top")
+                .connectionDirection(ConnectablePosition.Direction.TOP)
+                .build();
+        batteryCreationInfos.toModification().apply(network);
         Battery battery = network.getBattery("idBattery2");
         assertNotNull(battery.getExtension(ActivePowerControl.class));
         ActivePowerControl activePowerControl = battery.getExtension(ActivePowerControl.class);

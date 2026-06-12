@@ -24,21 +24,21 @@ import static org.gridsuite.modification.NetworkModificationException.Type.VOLTA
  */
 
 public class VoltageLevelTopologyModification extends AbstractModification {
-    private final VoltageLevelTopologyModificationModel modificationModel;
+    private final VoltageLevelTopologyModificationModel modificationInfos;
 
-    public VoltageLevelTopologyModification(VoltageLevelTopologyModificationModel voltageLevelTopologyModificationModel) {
-        this.modificationModel = voltageLevelTopologyModificationModel;
+    public VoltageLevelTopologyModification(VoltageLevelTopologyModificationModel voltageLevelTopologyModificationInfos) {
+        this.modificationInfos = voltageLevelTopologyModificationInfos;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        VoltageLevel voltageLevel = network.getVoltageLevel(modificationModel.getEquipmentId());
+        VoltageLevel voltageLevel = network.getVoltageLevel(modificationInfos.getEquipmentId());
         if (voltageLevel == null) {
-            throw new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, modificationModel.getEquipmentId());
+            throw new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, modificationInfos.getEquipmentId());
         }
-        if (!modificationModel.getEquipmentAttributeModificationList().isEmpty()) {
-            for (EquipmentAttributeModificationModel equipmentAttributeModificationModel : modificationModel.getEquipmentAttributeModificationList()) {
-                EquipmentAttributeModification equipmentAttributeModification = new EquipmentAttributeModification(equipmentAttributeModificationModel);
+        if (!modificationInfos.getEquipmentAttributeModificationList().isEmpty()) {
+            for (EquipmentAttributeModificationModel equipmentAttributeModificationInfos : modificationInfos.getEquipmentAttributeModificationList()) {
+                EquipmentAttributeModification equipmentAttributeModification = new EquipmentAttributeModification(equipmentAttributeModificationInfos);
                 equipmentAttributeModification.check(network);
             }
         } else {
@@ -48,15 +48,15 @@ public class VoltageLevelTopologyModification extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        for (EquipmentAttributeModificationModel equipmentAttributeModificationModel : modificationModel.getEquipmentAttributeModificationList()) {
-            EquipmentAttributeModification equipmentAttributeModification = new EquipmentAttributeModification(equipmentAttributeModificationModel);
+        for (EquipmentAttributeModificationModel equipmentAttributeModificationInfos : modificationInfos.getEquipmentAttributeModificationList()) {
+            EquipmentAttributeModification equipmentAttributeModification = new EquipmentAttributeModification(equipmentAttributeModificationInfos);
             equipmentAttributeModification.apply(network, subReportNode);
         }
         subReportNode.newReportNode()
-            .withMessageTemplate("network.modification.voltageLevelTopologyModified")
-            .withUntypedValue("id", modificationModel.getEquipmentId())
-            .withSeverity(TypedValue.DEBUG_SEVERITY)
-            .add();
+                .withMessageTemplate("network.modification.voltageLevelTopologyModified")
+                .withUntypedValue("id", modificationInfos.getEquipmentId())
+                .withSeverity(TypedValue.DEBUG_SEVERITY)
+                .add();
     }
 
     @Override

@@ -60,26 +60,26 @@ class CreateCouplingDeviceTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("ADD_COUPLING_DEVICE", modificationModel.getMessageType());
-        // Map<String, String> updatedValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("ADD_COUPLING_DEVICE", modificationInfos.getMessageType());
+        // Map<String, String> updatedValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("v1", updatedValues.get("voltageLevelId"));
     }
 
     @Test
     void testCreateCouplingDeviceFail() {
-        CreateCouplingDeviceModel createCouplingDeviceModel = CreateCouplingDeviceModel.builder()
+        CreateCouplingDeviceModel createCouplingDeviceInfos = CreateCouplingDeviceModel.builder()
             .voltageLevelId("v1")
             .couplingDeviceInfos(CouplingDeviceModel.builder()
                 .busbarSectionId1("bbs1")
                 .busbarSectionId2("bbs2")
                 .build())
             .build();
-        // Map<String, String> updatedValues = createCouplingDeviceModel.getMapMessageValues();
+        // Map<String, String> updatedValues = createCouplingDeviceInfos.getMapMessageValues();
         // assertEquals("v1", updatedValues.get("voltageLevelId"));
         Network network = getNetwork();
-        AbstractModification modification = createCouplingDeviceModel.toModification();
+        AbstractModification modification = createCouplingDeviceInfos.toModification();
         ReportNode report = ReportNode.newRootReportNode()
             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test")

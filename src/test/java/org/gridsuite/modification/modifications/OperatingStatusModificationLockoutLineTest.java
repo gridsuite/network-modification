@@ -19,7 +19,6 @@ import org.gridsuite.modification.report.NetworkModificationReportResourceBundle
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.Test;
-
 import java.util.UUID;
 import static com.powsybl.iidm.network.extensions.OperatingStatus.Status.FORCED_OUTAGE;
 import static com.powsybl.iidm.network.extensions.OperatingStatus.Status.PLANNED_OUTAGE;
@@ -48,27 +47,27 @@ class OperatingStatusModificationLockoutLineTest extends AbstractNetworkModifica
         createSwitch(getNetwork().getVoltageLevel("vl2"), "br22", "br22", switchKind, false, false, isFictitious, 0, 3);
 
         return getNetwork().newLine()
-            .setId("line1")
-            .setName("line1")
-            .setVoltageLevel1("vl1")
-            .setVoltageLevel2("vl2")
-            .setR(0.1)
-            .setX(10.0)
-            .setG1(0.0)
-            .setG2(0.0)
-            .setB1(0.0)
-            .setB2(0.0)
-            .setNode1(3)
-            .setNode2(3)
-            .add();
+                .setId("line1")
+                .setName("line1")
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setR(0.1)
+                .setX(10.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0)
+                .setNode1(3)
+                .setNode2(3)
+                .add();
     }
 
     @Override
     protected ModificationModel buildModification() {
         return OperatingStatusModificationModel.builder()
-            .equipmentId(TARGET_LINE_ID)
-            .energizedVoltageLevelId("energizedVoltageLevelId")
-            .action(OperatingStatusModificationModel.ActionType.LOCKOUT).build();
+                .equipmentId(TARGET_LINE_ID)
+                .energizedVoltageLevelId("energizedVoltageLevelId")
+                .action(OperatingStatusModificationModel.ActionType.LOCKOUT).build();
     }
 
     @Override
@@ -77,11 +76,11 @@ class OperatingStatusModificationLockoutLineTest extends AbstractNetworkModifica
     }
 
     private void testLockoutLine(String lineID) throws Exception {
-        OperatingStatusModificationModel modificationModel = (OperatingStatusModificationModel) buildModification();
-        modificationModel.setEquipmentId(lineID);
-        modificationModel.setAction(OperatingStatusModificationModel.ActionType.LOCKOUT);
+        OperatingStatusModificationModel modificationInfos = (OperatingStatusModificationModel) buildModification();
+        modificationInfos.setEquipmentId(lineID);
+        modificationInfos.setAction(OperatingStatusModificationModel.ActionType.LOCKOUT);
         assertNull(getNetwork().getLine(lineID).getExtension(OperatingStatus.class));
-        modificationModel.toModification().apply(getNetwork());
+        modificationInfos.toModification().apply(getNetwork());
         TestUtils.assertOperatingStatus(getNetwork(), lineID, TARGET_BRANCH_STATUS);
     }
 
@@ -130,16 +129,16 @@ class OperatingStatusModificationLockoutLineTest extends AbstractNetworkModifica
     @Override
     protected void checkModification() {
         // line not existing
-        OperatingStatusModificationModel modificationModel = (OperatingStatusModificationModel) buildModification();
-        modificationModel.setEquipmentId("notFound");
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> modificationModel.toModification().check(getNetwork()));
+        OperatingStatusModificationModel modificationInfos = (OperatingStatusModificationModel) buildModification();
+        modificationInfos.setEquipmentId("notFound");
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> modificationInfos.toModification().check(getNetwork()));
         assertEquals("EQUIPMENT_NOT_FOUND : notFound", exception.getMessage());
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("OPERATING_STATUS_MODIFICATION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("OPERATING_STATUS_MODIFICATION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("energizedVoltageLevelId", createdValues.get("energizedVoltageLevelId"));
         // assertEquals("LOCKOUT", createdValues.get("action"));
@@ -149,9 +148,9 @@ class OperatingStatusModificationLockoutLineTest extends AbstractNetworkModifica
     @Test
     void testCreateSubReportNode() {
         ReportNode reportNode = ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test")
-            .build();
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build();
 
         OperatingStatusModificationModel modification = (OperatingStatusModificationModel) buildModification();
 

@@ -53,7 +53,7 @@ class HvdcLineByFilterDeletionTest extends AbstractByFilterDeletionTest {
     @Override
     protected Map<UUID, FilterEquipments> getTestFilters() {
         FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(
-            new IdentifiableAttributes(HVDC_LINE_ID_1, IdentifiableType.HVDC_LINE, null)
+                new IdentifiableAttributes(HVDC_LINE_ID_1, IdentifiableType.HVDC_LINE, null)
         )).build();
         return Map.of(FILTER_ID_1, filter1);
     }

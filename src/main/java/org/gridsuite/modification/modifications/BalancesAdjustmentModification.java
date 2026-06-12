@@ -42,12 +42,12 @@ import static org.gridsuite.modification.utils.LoadFlowParametersUtils.mapLoadFl
 public class BalancesAdjustmentModification extends AbstractModification {
     private static final Logger LOGGER = LoggerFactory.getLogger(BalancesAdjustmentModification.class);
 
-    private final BalancesAdjustmentModificationModel balancesAdjustmentModificationModel;
+    private final BalancesAdjustmentModificationModel balancesAdjustmentModificationInfos;
 
     protected ILoadFlowService loadFlowService;
 
-    public BalancesAdjustmentModification(BalancesAdjustmentModificationModel balancesAdjustmentModificationModel) {
-        this.balancesAdjustmentModificationModel = balancesAdjustmentModificationModel;
+    public BalancesAdjustmentModification(BalancesAdjustmentModificationModel balancesAdjustmentModificationInfos) {
+        this.balancesAdjustmentModificationInfos = balancesAdjustmentModificationInfos;
     }
 
     @Override
@@ -63,18 +63,18 @@ public class BalancesAdjustmentModification extends AbstractModification {
     private BalanceComputationParameters createBalanceComputationParameters(ReportNode reportNode) {
         BalanceComputationParameters parameters = BalanceComputationParameters.load();
         parameters.getScalingParameters().setPriority(ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED);
-        parameters.setWithLoadFlow(balancesAdjustmentModificationModel.isWithLoadFlow());
+        parameters.setWithLoadFlow(balancesAdjustmentModificationInfos.isWithLoadFlow());
 
-        if (!balancesAdjustmentModificationModel.isWithLoadFlow()) {
+        if (!balancesAdjustmentModificationInfos.isWithLoadFlow()) {
             return parameters;
         }
 
-        LoadFlowParametersModel loadFlowParametersModel = getLoadFlowParametersModel(reportNode);
+        LoadFlowParametersModel loadFlowParametersInfos = getLoadFlowParametersInfos(reportNode);
 
-        if (loadFlowParametersModel != null &&
-            loadFlowParametersModel.getProvider().equals("OpenLoadFlow")) {
+        if (loadFlowParametersInfos != null &&
+                loadFlowParametersInfos.getProvider().equals("OpenLoadFlow")) {
 
-            LoadFlowParameters loadFlowParameters = mapLoadFlowPrameters(loadFlowParametersModel);
+            LoadFlowParameters loadFlowParameters = mapLoadFlowPrameters(loadFlowParametersInfos);
             parameters.setLoadFlowParameters(loadFlowParameters);
         }
 
@@ -82,54 +82,54 @@ public class BalancesAdjustmentModification extends AbstractModification {
         return parameters;
     }
 
-    private LoadFlowParametersModel getLoadFlowParametersModel(ReportNode reportNode) {
-        if (balancesAdjustmentModificationModel.getLoadFlowParametersId() == null) {
+    private LoadFlowParametersModel getLoadFlowParametersInfos(ReportNode reportNode) {
+        if (balancesAdjustmentModificationInfos.getLoadFlowParametersId() == null) {
             reportUsingDefaultParameters(reportNode, "Load flow parameters ID is null");
             return null;
         }
 
-        LoadFlowParametersModel loadFlowParametersModel = loadFlowService.getLoadFlowParametersInfos(
-            balancesAdjustmentModificationModel.getLoadFlowParametersId()
+        LoadFlowParametersModel loadFlowParametersInfos = loadFlowService.getLoadFlowParametersInfos(
+                balancesAdjustmentModificationInfos.getLoadFlowParametersId()
         );
 
-        if (loadFlowParametersModel == null) {
+        if (loadFlowParametersInfos == null) {
             reportUsingDefaultParameters(reportNode,
-                "Load flow parameters with id " + balancesAdjustmentModificationModel.getLoadFlowParametersId() + " not found");
+                    "Load flow parameters with id " + balancesAdjustmentModificationInfos.getLoadFlowParametersId() + " not found");
             return null;
         }
 
-        if (loadFlowParametersModel.getProvider() == null) {
+        if (loadFlowParametersInfos.getProvider() == null) {
             reportUsingDefaultParameters(reportNode,
-                "Load flow provider is null in parameters with id " + balancesAdjustmentModificationModel.getLoadFlowParametersId());
+                    "Load flow provider is null in parameters with id " + balancesAdjustmentModificationInfos.getLoadFlowParametersId());
             return null;
         }
 
-        return loadFlowParametersModel;
+        return loadFlowParametersInfos;
     }
 
     private void reportUsingDefaultParameters(ReportNode reportNode, String reason) {
         reportNode.newReportNode()
-            .withMessageTemplate("network.modification.balancesAdjustment.usingDefaultLoadFlowParameters")
-            .withUntypedValue("reason", reason)
-            .withSeverity(TypedValue.INFO_SEVERITY)
-            .add();
+                .withMessageTemplate("network.modification.balancesAdjustment.usingDefaultLoadFlowParameters")
+                .withUntypedValue("reason", reason)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
 
         LOGGER.info("Using default load flow parameters: {}", reason);
     }
 
     private void overrideBalanceComputationParameters(BalanceComputationParameters parameters) {
-        parameters.setMaxNumberIterations(balancesAdjustmentModificationModel.getMaxNumberIterations());
-        parameters.setThresholdNetPosition(balancesAdjustmentModificationModel.getThresholdNetPosition());
+        parameters.setMaxNumberIterations(balancesAdjustmentModificationInfos.getMaxNumberIterations());
+        parameters.setThresholdNetPosition(balancesAdjustmentModificationInfos.getThresholdNetPosition());
         parameters.setMismatchMode(BalanceComputationParameters.MismatchMode.MAX);
-        parameters.setSubtractLoadFlowBalancing(balancesAdjustmentModificationModel.isSubtractLoadFlowBalancing());
+        parameters.setSubtractLoadFlowBalancing(balancesAdjustmentModificationInfos.isSubtractLoadFlowBalancing());
         parameters.getLoadFlowParameters().setCountriesToBalance(
-            new HashSet<>(balancesAdjustmentModificationModel.getCountriesToBalance())
+                new HashSet<>(balancesAdjustmentModificationInfos.getCountriesToBalance())
         );
-        parameters.getLoadFlowParameters().setBalanceType(balancesAdjustmentModificationModel.getBalanceType());
-        parameters.getLoadFlowParameters().setTransformerVoltageControlOn(balancesAdjustmentModificationModel.isWithRatioTapChangers());
+        parameters.getLoadFlowParameters().setBalanceType(balancesAdjustmentModificationInfos.getBalanceType());
+        parameters.getLoadFlowParameters().setTransformerVoltageControlOn(balancesAdjustmentModificationInfos.isWithRatioTapChangers());
 
         parameters.getLoadFlowParameters().getExtension(OpenLoadFlowParameters.class)
-            .setSlackDistributionFailureBehavior(OpenLoadFlowParameters.SlackDistributionFailureBehavior.FAIL);
+                .setSlackDistributionFailureBehavior(OpenLoadFlowParameters.SlackDistributionFailureBehavior.FAIL);
     }
 
     @SneakyThrows
@@ -149,25 +149,25 @@ public class BalancesAdjustmentModification extends AbstractModification {
     }
 
     private List<BalanceComputationArea> createBalanceComputationAreas(Network network, ReportNode reportNode) {
-        return balancesAdjustmentModificationModel
-            .getAreas()
-            .stream()
-            .map(areaModel ->
-                new BalanceComputationArea(
-                    areaModel.getName(),
-                    new CountryAreaFactory(areaModel.getCountries().toArray(Country[]::new)),
-                    createScalable(areaModel, network, reportNode),
-                    areaModel.getNetPosition()
+        return balancesAdjustmentModificationInfos
+                .getAreas()
+                .stream()
+                .map(areaInfos ->
+                        new BalanceComputationArea(
+                                areaInfos.getName(),
+                                new CountryAreaFactory(areaInfos.getCountries().toArray(Country[]::new)),
+                                createScalable(areaInfos, network, reportNode),
+                                areaInfos.getNetPosition()
+                        )
                 )
-            )
-            .toList();
+                .toList();
     }
 
-    private Scalable createScalable(BalancesAdjustmentAreaModel balancesAdjustmentAreaModel, Network network, ReportNode reportNode) {
+    private Scalable createScalable(BalancesAdjustmentAreaModel balancesAdjustmentAreaInfos, Network network, ReportNode reportNode) {
         return createScalable(
-            balancesAdjustmentAreaModel.getShiftEquipmentType(),
-            balancesAdjustmentAreaModel.getShiftType(),
-            balancesAdjustmentAreaModel.getCountries(),
+            balancesAdjustmentAreaInfos.getShiftEquipmentType(),
+            balancesAdjustmentAreaInfos.getShiftType(),
+            balancesAdjustmentAreaInfos.getCountries(),
             network,
             reportNode
         );

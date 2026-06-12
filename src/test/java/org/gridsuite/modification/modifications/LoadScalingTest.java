@@ -21,7 +21,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
@@ -166,11 +165,11 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
         LoadScaling loadScaling = (LoadScaling) loadScalingInfo.toModification();
         loadScaling.initApplicationContext(filterService, null);
         ReportNode report = loadScalingInfo.createSubReportNode(ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test").build());
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
         loadScaling.apply(getNetwork(), report);
         assertLogMessage(loadScalingInfo.getErrorType().name() + ": There is no valid equipment ID among the provided filter(s)",
-            "network.modification.invalidFilters", report);
+                "network.modification.invalidFilters", report);
     }
 
     @Test
@@ -178,13 +177,13 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
         Map<UUID, FilterEquipments> filters = Map.of(FILTER_ID_5, FilterEquipments.builder()
                 .filterId(FILTER_ID_5)
                 .identifiableAttributes(List.of(new IdentifiableAttributes(LOAD_ID_9, IdentifiableType.LOAD, 0.0),
-                    new IdentifiableAttributes(LOAD_ID_10, IdentifiableType.LOAD, 9.0)))
+                        new IdentifiableAttributes(LOAD_ID_10, IdentifiableType.LOAD, 9.0)))
                 .build(),
-            FILTER_WRONG_ID_2, FilterEquipments.builder()
-                .filterId(FILTER_WRONG_ID_2)
-                .identifiableAttributes(
-                    List.of(new IdentifiableAttributes(LOAD_WRONG_ID_1, IdentifiableType.LOAD, 2.0)))
-                .build());
+                FILTER_WRONG_ID_2, FilterEquipments.builder()
+                        .filterId(FILTER_WRONG_ID_2)
+                        .identifiableAttributes(
+                                List.of(new IdentifiableAttributes(LOAD_WRONG_ID_1, IdentifiableType.LOAD, 2.0)))
+                        .build());
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filters);
 
         FilterModel filter = FilterModel.builder()
@@ -326,8 +325,8 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
         // disconnect some loads (must not be taken into account by the variation modification)
         loadsToDisconnect.forEach(l -> getNetwork().getLoad(l).getTerminal().disconnect());
         List<String> modifiedLoads = Stream.of("LD1", "LD2", "LD3", "LD4", "LD5", "LD6")
-            .filter(l -> !loadsToDisconnect.contains(l))
-            .toList();
+                .filter(l -> !loadsToDisconnect.contains(l))
+                .toList();
 
         List<IdentifiableAttributes> identifiableAttributes = List.of(
             new IdentifiableAttributes("LD1", IdentifiableType.LOAD, 0.0),
@@ -340,20 +339,20 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filters);
 
         FilterModel filter = FilterModel.builder()
-            .name("filter")
-            .id(FILTER_ID_ALL_LOADS)
-            .build();
+                .name("filter")
+                .id(FILTER_ID_ALL_LOADS)
+                .build();
         final double variationValue = 100D;
         ScalingVariationModel variation = ScalingVariationModel.builder()
-            .variationMode(variationMode)
-            .reactiveVariationMode(ReactiveVariationMode.CONSTANT_Q)
-            .variationValue(variationValue)
-            .filters(List.of(filter))
-            .build();
+                .variationMode(variationMode)
+                .reactiveVariationMode(ReactiveVariationMode.CONSTANT_Q)
+                .variationValue(variationValue)
+                .filters(List.of(filter))
+                .build();
         LoadScalingModel loadScalingInfo = LoadScalingModel.builder()
-            .variationType(VariationType.TARGET_P)
-            .variations(List.of(variation))
-            .build();
+                .variationType(VariationType.TARGET_P)
+                .variations(List.of(variation))
+                .build();
 
         LoadScaling loadScaling = (LoadScaling) loadScalingInfo.toModification();
         loadScaling.initApplicationContext(filterService, null);
@@ -361,9 +360,9 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
 
         // If we sum the P0 for all expected modified loads, we should have the requested variation value
         double connectedLoadsConstantP = modifiedLoads
-            .stream()
-            .map(g -> getNetwork().getLoad(g).getP0())
-            .reduce(0D, Double::sum);
+                .stream()
+                .map(g -> getNetwork().getLoad(g).getP0())
+                .reduce(0D, Double::sum);
         assertEquals(variationValue, connectedLoadsConstantP, 0.001D);
     }
 

@@ -38,25 +38,25 @@ class TabularGeneratorModificationsTest extends AbstractNetworkModificationTest 
     @Override
     protected ModificationModel buildModification() {
         List<ModificationModel> modifications = List.of(
-            GeneratorModificationModel.builder().equipmentId("idGenerator").maxP(new AttributeModification<>(500., OperationType.SET)).build(),
-            GeneratorModificationModel.builder().equipmentId("v5generator").maxP(new AttributeModification<>(500., OperationType.SET)).build(),
-            GeneratorModificationModel.builder().equipmentId("v6generator").maxP(new AttributeModification<>(500., OperationType.SET)).build(),
-            GeneratorModificationModel.builder().equipmentId("unknownGenerator").maxP(new AttributeModification<>(500., OperationType.SET)).build()
+                GeneratorModificationModel.builder().equipmentId("idGenerator").maxP(new AttributeModification<>(500., OperationType.SET)).build(),
+                GeneratorModificationModel.builder().equipmentId("v5generator").maxP(new AttributeModification<>(500., OperationType.SET)).build(),
+                GeneratorModificationModel.builder().equipmentId("v6generator").maxP(new AttributeModification<>(500., OperationType.SET)).build(),
+                GeneratorModificationModel.builder().equipmentId("unknownGenerator").maxP(new AttributeModification<>(500., OperationType.SET)).build()
         );
         return TabularModificationModel.builder()
-            .modificationType(ModificationType.GENERATOR_MODIFICATION)
-            .modifications(modifications)
-            .build();
+                .modificationType(ModificationType.GENERATOR_MODIFICATION)
+                .modifications(modifications)
+                .build();
     }
 
     @Test
     @Override
     public void testApply() {
-        ModificationModel modificationModel = buildModification();
-        ReportNode reportNode = modificationModel.createSubReportNode(ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test").build());
-        modificationModel.toModification().apply(getNetwork(), reportNode);
+        ModificationModel modificationInfos = buildModification();
+        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+        modificationInfos.toModification().apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication(reportNode);
     }
 
@@ -82,23 +82,23 @@ class TabularGeneratorModificationsTest extends AbstractNetworkModificationTest 
             GeneratorModificationModel.builder().equipmentId("v5Generator").maxP(new AttributeModification<>(-200., OperationType.SET)).build(),
             GeneratorModificationModel.builder().equipmentId("unknownGenerator").maxP(new AttributeModification<>(500., OperationType.SET)).build()
         );
-        ModificationModel modificationModel = TabularModificationModel.builder()
-            .modificationType(ModificationType.GENERATOR_MODIFICATION)
-            .modifications(modifications)
-            .build();
-        ReportNode reportNode = modificationModel.createSubReportNode(ReportNode.newRootReportNode()
+        ModificationModel modificationInfos = TabularModificationModel.builder()
+                .modificationType(ModificationType.GENERATOR_MODIFICATION)
+                .modifications(modifications)
+                .build();
+        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test").build());
-        modificationModel.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification().apply(getNetwork(), reportNode);
 
         assertLogMessage("Tabular modification: No generators have been modified", "network.modification.tabular.modification.error", reportNode);
         assertLogMessage("Modification errors", "network.modification.tabular.modification.error.equipmentError", reportNode);
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals(ModificationType.GENERATOR_MODIFICATION.name(), createdValues.get("tabularModificationType"));
     }

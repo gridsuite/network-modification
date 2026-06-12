@@ -40,12 +40,12 @@ class ModificationModelTest {
 
     @Test
     void testCreateSubReportNodeThrowsUnsupportedOperationException() {
-        ModificationModel modificationModel = new TestModificationModel();
+        ModificationModel modificationInfos = new TestModificationModel();
         ReportNode mockReportNode = ReportNode.newRootReportNode().withMessageTemplate("test").build();
 
         UnsupportedOperationException exception = assertThrows(
             UnsupportedOperationException.class,
-            () -> modificationModel.createSubReportNode(mockReportNode),
+            () -> modificationInfos.createSubReportNode(mockReportNode),
             "createSubReportNode should throw UnsupportedOperationException when not implemented"
         );
 
@@ -56,11 +56,11 @@ class ModificationModelTest {
 
     @Test
     void testToModificationThrowsUnsupportedOperationException() {
-        ModificationModel modificationModel = new TestModificationModel();
+        ModificationModel modificationInfos = new TestModificationModel();
 
         UnsupportedOperationException exception = assertThrows(
             UnsupportedOperationException.class,
-            modificationModel::toModification,
+            modificationInfos::toModification,
             "toModification should throw UnsupportedOperationException when not implemented"
         );
 

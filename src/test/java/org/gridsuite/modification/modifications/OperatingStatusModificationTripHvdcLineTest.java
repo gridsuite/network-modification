@@ -40,9 +40,9 @@ class OperatingStatusModificationTripHvdcLineTest extends AbstractNetworkModific
     @Override
     protected ModificationModel buildModification() {
         return OperatingStatusModificationModel.builder()
-            .equipmentId(TARGET_HVDC_LINE_ID)
-            .energizedVoltageLevelId("energizedVoltageLevelId")
-            .action(OperatingStatusModificationModel.ActionType.TRIP).build();
+                .equipmentId(TARGET_HVDC_LINE_ID)
+                .energizedVoltageLevelId("energizedVoltageLevelId")
+                .action(OperatingStatusModificationModel.ActionType.TRIP).build();
     }
 
     @Override
@@ -52,9 +52,9 @@ class OperatingStatusModificationTripHvdcLineTest extends AbstractNetworkModific
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("OPERATING_STATUS_MODIFICATION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("OPERATING_STATUS_MODIFICATION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("energizedVoltageLevelId", createdValues.get("energizedVoltageLevelId"));
         // assertEquals("TRIP", createdValues.get("action"));

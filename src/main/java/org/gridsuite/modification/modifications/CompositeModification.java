@@ -23,13 +23,13 @@ import static org.gridsuite.modification.modifications.byfilter.AbstractModifica
  */
 public class CompositeModification extends AbstractModification {
 
-    private final CompositeModificationModel compositeModificationModel;
+    private final CompositeModificationModel compositeModificationInfos;
 
     protected IFilterService filterService;
     protected ILoadFlowService loadFlowService;
 
-    public CompositeModification(CompositeModificationModel compositeModificationModel) {
-        this.compositeModificationModel = compositeModificationModel;
+    public CompositeModification(CompositeModificationModel compositeModificationInfos) {
+        this.compositeModificationInfos = compositeModificationInfos;
     }
 
     @Override
@@ -45,25 +45,27 @@ public class CompositeModification extends AbstractModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
-        compositeModificationModel.getModificationsInfos().forEach(modif -> {
-                ReportNode modifNode = modif.createSubReportNode(subReportNode);
-                AbstractModification modification = modif.toModification();
-                try {
-                    modification.check(network);
-                    modification.initApplicationContext(filterService, loadFlowService);
-                    modification.apply(network, namingStrategy, modifNode);
-                } catch (Exception e) {
-                    // in case of error in a network modification, the composite modification doesn't interrupt its execution :
-                    // the following modifications will be carried out
-                    modifNode.newReportNode()
-                            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                            .withMessageTemplate("network.modification.composite.exception.report")
-                            .withUntypedValue("modificationName", modif.toModification().getName())
-                            .withUntypedValue(VALUE_KEY_ERROR_MESSAGE, e.getMessage())
-                            .withSeverity(TypedValue.ERROR_SEVERITY)
-                            .add();
-                }
-            }
+        compositeModificationInfos.getModificationsInfos().stream()
+                .forEach(
+                        modif -> {
+                            ReportNode modifNode = modif.createSubReportNode(subReportNode);
+                            AbstractModification modification = modif.toModification();
+                            try {
+                                modification.check(network);
+                                modification.initApplicationContext(filterService, loadFlowService);
+                                modification.apply(network, namingStrategy, modifNode);
+                            } catch (Exception e) {
+                                // in case of error in a network modification, the composite modification doesn't interrupt its execution :
+                                // the following modifications will be carried out
+                                modifNode.newReportNode()
+                                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                                        .withMessageTemplate("network.modification.composite.exception.report")
+                                        .withUntypedValue("modificationName", modif.toModification().getName())
+                                        .withUntypedValue(VALUE_KEY_ERROR_MESSAGE, e.getMessage())
+                                        .withSeverity(TypedValue.ERROR_SEVERITY)
+                                        .add();
+                            }
+                        }
         );
     }
 

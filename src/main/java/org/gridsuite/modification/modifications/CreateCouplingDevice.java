@@ -17,10 +17,10 @@ import org.gridsuite.modification.model.CreateCouplingDeviceModel;
  */
 public class CreateCouplingDevice extends AbstractModification {
 
-    private final CreateCouplingDeviceModel createCouplingDeviceModel;
+    private final CreateCouplingDeviceModel createCouplingDeviceInfos;
 
-    public CreateCouplingDevice(CreateCouplingDeviceModel createCouplingDeviceModel) {
-        this.createCouplingDeviceModel = createCouplingDeviceModel;
+    public CreateCouplingDevice(CreateCouplingDeviceModel createCouplingDeviceInfos) {
+        this.createCouplingDeviceInfos = createCouplingDeviceInfos;
     }
 
     /**
@@ -30,8 +30,8 @@ public class CreateCouplingDevice extends AbstractModification {
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         new CreateCouplingDeviceBuilder()
-            .withBusOrBusbarSectionId1(createCouplingDeviceModel.getCouplingDeviceInfos().getBusbarSectionId1())
-            .withBusOrBusbarSectionId2(createCouplingDeviceModel.getCouplingDeviceInfos().getBusbarSectionId2())
+            .withBusOrBusbarSectionId1(createCouplingDeviceInfos.getCouplingDeviceInfos().getBusbarSectionId1())
+            .withBusOrBusbarSectionId2(createCouplingDeviceInfos.getCouplingDeviceInfos().getBusbarSectionId2())
             .build().apply(network, false, subReportNode);
     }
 

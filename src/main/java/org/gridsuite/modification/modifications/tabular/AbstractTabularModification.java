@@ -24,13 +24,13 @@ public abstract class AbstractTabularModification extends AbstractModification {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractTabularModification.class);
 
-    protected final TabularBaseModel modificationModel;
+    protected final TabularBaseModel modificationInfos;
 
-    protected AbstractTabularModification(TabularBaseModel modificationModel) {
-        this.modificationModel = modificationModel;
+    protected AbstractTabularModification(TabularBaseModel modificationInfos) {
+        this.modificationInfos = modificationInfos;
     }
 
-    public abstract void specificCheck(EquipmentModificationModel equipmentModificationModel, Network network, ReportNode subReportNode);
+    public abstract void specificCheck(EquipmentModificationModel equipmentModificationInfos, Network network, ReportNode subReportNode);
 
     public abstract String defaultMessage();
 
@@ -39,53 +39,53 @@ public abstract class AbstractTabularModification extends AbstractModification {
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         int applicationFailuresCount = 0;
-        for (var modifModel : modificationModel.getModifications()) {
-            EquipmentModificationModel equipmentModificationModel = (EquipmentModificationModel) modifModel;
+        for (var modifInfos : modificationInfos.getModifications()) {
+            EquipmentModificationModel equipmentModificationInfos = (EquipmentModificationModel) modifInfos;
             ReportNode modifReportNode = subReportNode.newReportNode()
-                .withMessageTemplate(baseTemplateMessage() + ".equipmentId")
-                .withUntypedValue("equipmentId", equipmentModificationModel.getEquipmentId())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
+                    .withMessageTemplate(baseTemplateMessage() + ".equipmentId")
+                    .withUntypedValue("equipmentId", equipmentModificationInfos.getEquipmentId())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
             try {
-                AbstractModification modification = equipmentModificationModel.toModification();
+                AbstractModification modification = equipmentModificationInfos.toModification();
                 modification.check(network);
-                specificCheck(equipmentModificationModel, network, modifReportNode);
+                specificCheck(equipmentModificationInfos, network, modifReportNode);
                 modification.apply(network, modifReportNode);
             } catch (Exception e) {
                 applicationFailuresCount++;
                 ReportNode errorReportNode = modifReportNode.newReportNode()
-                    .withMessageTemplate(baseTemplateMessage() + ".error.equipmentError")
-                    .withSeverity(TypedValue.ERROR_SEVERITY)
-                    .add();
+                        .withMessageTemplate(baseTemplateMessage() + ".error.equipmentError")
+                        .withSeverity(TypedValue.ERROR_SEVERITY)
+                        .add();
                 errorReportNode.newReportNode()
-                    .withMessageTemplate(baseTemplateMessage() + ".exception")
-                    .withUntypedValue("message", e.getMessage())
-                    .withSeverity(TypedValue.ERROR_SEVERITY)
-                    .add();
+                        .withMessageTemplate(baseTemplateMessage() + ".exception")
+                        .withUntypedValue("message", e.getMessage())
+                        .withSeverity(TypedValue.ERROR_SEVERITY)
+                        .add();
                 LOGGER.warn(e.getMessage());
             }
         }
-        if (modificationModel.getModifications().size() == applicationFailuresCount) {
+        if (modificationInfos.getModifications().size() == applicationFailuresCount) {
             subReportNode.newReportNode()
-                .withMessageTemplate(baseTemplateMessage() + ".error")
-                .withUntypedValue(DEFAULT_MESSAGE_KEY, defaultMessage())
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .add();
+                    .withMessageTemplate(baseTemplateMessage() + ".error")
+                    .withUntypedValue(DEFAULT_MESSAGE_KEY, defaultMessage())
+                    .withSeverity(TypedValue.ERROR_SEVERITY)
+                    .add();
         } else if (applicationFailuresCount > 0) {
             subReportNode.newReportNode()
-                .withMessageTemplate(baseTemplateMessage() + ".partial")
-                .withUntypedValue("modificationsCount", modificationModel.getModifications().size() - applicationFailuresCount)
-                .withUntypedValue("failuresCount", applicationFailuresCount)
-                .withUntypedValue(DEFAULT_MESSAGE_KEY, defaultMessage())
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .add();
+                    .withMessageTemplate(baseTemplateMessage() + ".partial")
+                    .withUntypedValue("modificationsCount", modificationInfos.getModifications().size() - applicationFailuresCount)
+                    .withUntypedValue("failuresCount", applicationFailuresCount)
+                    .withUntypedValue(DEFAULT_MESSAGE_KEY, defaultMessage())
+                    .withSeverity(TypedValue.ERROR_SEVERITY)
+                    .add();
         } else {
             subReportNode.newReportNode()
-                .withMessageTemplate(baseTemplateMessage())
-                .withUntypedValue("modificationsCount", modificationModel.getModifications().size())
-                .withUntypedValue(DEFAULT_MESSAGE_KEY, defaultMessage())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
+                    .withMessageTemplate(baseTemplateMessage())
+                    .withUntypedValue("modificationsCount", modificationInfos.getModifications().size())
+                    .withUntypedValue(DEFAULT_MESSAGE_KEY, defaultMessage())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
         }
     }
 }

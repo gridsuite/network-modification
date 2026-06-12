@@ -37,62 +37,62 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         List<ModificationModel> creations = List.of(
-            ShuntCompensatorCreationModel.builder()
-                .equipmentId("id1").equipmentName("name1").voltageLevelId("v1").busOrBusbarSectionId("1.1")
-                .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
-                .sectionCount(1).maximumSectionCount(1)
-                .maxSusceptance(2.)
-                .build(),
-            ShuntCompensatorCreationModel.builder()
-                .equipmentId("id2").equipmentName("name2").voltageLevelId("v2").busOrBusbarSectionId("1A")
-                .connectionName("feederId2").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false)
-                .sectionCount(5).maximumSectionCount(10)
-                .shuntCompensatorType(ShuntCompensatorType.REACTOR).maxQAtNominalV(2.)
-                .build(),
-            ShuntCompensatorCreationModel.builder()
-                .equipmentId("id3").equipmentName("name3").voltageLevelId("v3").busOrBusbarSectionId("3A")
-                .connectionName("feederId3").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
-                .sectionCount(6).maximumSectionCount(8)
-                .maxSusceptance(88.)
-                .build(),
-            ShuntCompensatorCreationModel.builder()
-                .equipmentId("id4").equipmentName("name4").voltageLevelId("v4").busOrBusbarSectionId("1.A")
-                .connectionName("feederId4").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false)
-                .sectionCount(2).maximumSectionCount(2)
-                .shuntCompensatorType(ShuntCompensatorType.CAPACITOR).maxQAtNominalV(7.)
-                .build(),
-            ShuntCompensatorCreationModel.builder()
-                .equipmentId("id5").equipmentName("name5").voltageLevelId("v5").busOrBusbarSectionId("1A1")
-                .connectionName("name5").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
-                .sectionCount(15).maximumSectionCount(20)
-                .shuntCompensatorType(ShuntCompensatorType.CAPACITOR).maxQAtNominalV(2.)
-                .build()
+                ShuntCompensatorCreationModel.builder()
+                        .equipmentId("id1").equipmentName("name1").voltageLevelId("v1").busOrBusbarSectionId("1.1")
+                        .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
+                        .sectionCount(1).maximumSectionCount(1)
+                        .maxSusceptance(2.)
+                        .build(),
+                ShuntCompensatorCreationModel.builder()
+                        .equipmentId("id2").equipmentName("name2").voltageLevelId("v2").busOrBusbarSectionId("1A")
+                        .connectionName("feederId2").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false)
+                        .sectionCount(5).maximumSectionCount(10)
+                        .shuntCompensatorType(ShuntCompensatorType.REACTOR).maxQAtNominalV(2.)
+                        .build(),
+                ShuntCompensatorCreationModel.builder()
+                        .equipmentId("id3").equipmentName("name3").voltageLevelId("v3").busOrBusbarSectionId("3A")
+                        .connectionName("feederId3").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
+                        .sectionCount(6).maximumSectionCount(8)
+                        .maxSusceptance(88.)
+                        .build(),
+                ShuntCompensatorCreationModel.builder()
+                        .equipmentId("id4").equipmentName("name4").voltageLevelId("v4").busOrBusbarSectionId("1.A")
+                        .connectionName("feederId4").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false)
+                        .sectionCount(2).maximumSectionCount(2)
+                        .shuntCompensatorType(ShuntCompensatorType.CAPACITOR).maxQAtNominalV(7.)
+                        .build(),
+                ShuntCompensatorCreationModel.builder()
+                        .equipmentId("id5").equipmentName("name5").voltageLevelId("v5").busOrBusbarSectionId("1A1")
+                        .connectionName("name5").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
+                        .sectionCount(15).maximumSectionCount(20)
+                        .shuntCompensatorType(ShuntCompensatorType.CAPACITOR).maxQAtNominalV(2.)
+                        .build()
         );
         return TabularCreationModel.builder()
-            .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
-            .modifications(creations)
-            .build();
+                .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
+                .modifications(creations)
+                .build();
     }
 
     @Test
     void testAllModificationsHaveSucceeded() {
         List<ModificationModel> creations = List.of(
-            ShuntCompensatorCreationModel.builder()
-                .equipmentId("id1").equipmentName("name1").voltageLevelId("v1").busOrBusbarSectionId("1.1")
-                .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
-                .sectionCount(1).maximumSectionCount(1)
-                .shuntCompensatorType(ShuntCompensatorType.CAPACITOR).maxSusceptance(2.)
-                .build()
+                ShuntCompensatorCreationModel.builder()
+                        .equipmentId("id1").equipmentName("name1").voltageLevelId("v1").busOrBusbarSectionId("1.1")
+                        .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
+                        .sectionCount(1).maximumSectionCount(1)
+                        .shuntCompensatorType(ShuntCompensatorType.CAPACITOR).maxSusceptance(2.)
+                        .build()
         );
 
-        ModificationModel creationModel = TabularCreationModel.builder()
-            .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
-            .modifications(creations)
-            .build();
-        ReportNode reportNode = creationModel.createSubReportNode(ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test").build());
-        creationModel.toModification().apply(getNetwork(), reportNode);
+        ModificationModel creationInfos = TabularCreationModel.builder()
+                .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
+                .modifications(creations)
+                .build();
+        ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+        creationInfos.toModification().apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: 1 shunt compensator have been created", "network.modification.tabular.creation", reportNode);
         assertLogMessage("Creation of id1", "network.modification.tabular.creation.equipmentId", reportNode);
     }
@@ -100,21 +100,21 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
     @Test
     void testAllModificationsHaveFailed() {
         List<ModificationModel> creations = List.of(
-            ShuntCompensatorCreationModel.builder()
-                .equipmentId("id1").equipmentName("name1").voltageLevelId("v1").busOrBusbarSectionId("1.1")
-                .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
-                .sectionCount(15).maximumSectionCount(1)
-                .shuntCompensatorType(ShuntCompensatorType.CAPACITOR).maxSusceptance(2.)
-                .build()
+                ShuntCompensatorCreationModel.builder()
+                        .equipmentId("id1").equipmentName("name1").voltageLevelId("v1").busOrBusbarSectionId("1.1")
+                        .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
+                        .sectionCount(15).maximumSectionCount(1)
+                        .shuntCompensatorType(ShuntCompensatorType.CAPACITOR).maxSusceptance(2.)
+                        .build()
         );
-        ModificationModel creationModel = TabularCreationModel.builder()
-            .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
-            .modifications(creations)
-            .build();
-        ReportNode reportNode = creationModel.createSubReportNode(ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test").build());
-        creationModel.toModification().apply(getNetwork(), reportNode);
+        ModificationModel creationInfos = TabularCreationModel.builder()
+                .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
+                .modifications(creations)
+                .build();
+        ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+        creationInfos.toModification().apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: No shunt compensator have been created", "network.modification.tabular.creation.error", reportNode);
         assertLogMessage("Creation errors", "network.modification.tabular.creation.error.equipmentError", reportNode);
     }
@@ -133,9 +133,9 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals(ModificationType.TABULAR_CREATION.name(), modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals(ModificationType.TABULAR_CREATION.name(), modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals(ModificationType.SHUNT_COMPENSATOR_CREATION.name(), createdValues.get("tabularCreationType"));
     }
@@ -143,53 +143,53 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
     @Test
     void testCheckCreationConflict() {
         var shuntCreation = ShuntCompensatorCreationModel
-            .builder()
-            .equipmentId("id1").equipmentName("name1").voltageLevelId("v1").busOrBusbarSectionId("1.1")
-            .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
-            .sectionCount(1).maximumSectionCount(1)
-            .shuntCompensatorType(ShuntCompensatorType.REACTOR)
-            .maxQAtNominalV(1.0)
-            .maxSusceptance(10.0)
-            .build();
+                .builder()
+                .equipmentId("id1").equipmentName("name1").voltageLevelId("v1").busOrBusbarSectionId("1.1")
+                .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
+                .sectionCount(1).maximumSectionCount(1)
+                .shuntCompensatorType(ShuntCompensatorType.REACTOR)
+                .maxQAtNominalV(1.0)
+                .maxSusceptance(10.0)
+                .build();
 
         var shuntCreation2 = ShuntCompensatorCreationModel
-            .builder()
-            .equipmentId("id2").equipmentName("name2").voltageLevelId("v1").busOrBusbarSectionId("1.1")
-            .connectionName("feederId2").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(101).terminalConnected(true)
-            .sectionCount(1).maximumSectionCount(1)
-            .shuntCompensatorType(ShuntCompensatorType.REACTOR)
-            .maxSusceptance(20.0)
-            .build();
+                .builder()
+                .equipmentId("id2").equipmentName("name2").voltageLevelId("v1").busOrBusbarSectionId("1.1")
+                .connectionName("feederId2").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(101).terminalConnected(true)
+                .sectionCount(1).maximumSectionCount(1)
+                .shuntCompensatorType(ShuntCompensatorType.REACTOR)
+                .maxSusceptance(20.0)
+                .build();
 
         var shuntCreation3 = ShuntCompensatorCreationModel
-            .builder()
-            .equipmentId("id3").equipmentName("name3").voltageLevelId("v1").busOrBusbarSectionId("1.1")
-            .connectionName("feederId3").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(103).terminalConnected(true)
-            .sectionCount(1).maximumSectionCount(1)
-            .maxQAtNominalV(1.0)
-            .maxSusceptance(20.0)
-            .build();
+                .builder()
+                .equipmentId("id3").equipmentName("name3").voltageLevelId("v1").busOrBusbarSectionId("1.1")
+                .connectionName("feederId3").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(103).terminalConnected(true)
+                .sectionCount(1).maximumSectionCount(1)
+                .maxQAtNominalV(1.0)
+                .maxSusceptance(20.0)
+                .build();
 
-        var tabularCreationModel = TabularCreationModel
-            .builder()
-            .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
-            .modifications(List.of(shuntCreation, shuntCreation2, shuntCreation3))
-            .build();
+        var tabularCreationInfos = TabularCreationModel
+                .builder()
+                .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
+                .modifications(List.of(shuntCreation, shuntCreation2, shuntCreation3))
+                .build();
 
-        ReportNode reportNode = tabularCreationModel.createSubReportNode(ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test").build());
-        tabularCreationModel.toModification().apply(getNetwork(), reportNode);
+        ReportNode reportNode = tabularCreationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+        tabularCreationInfos.toModification().apply(getNetwork(), reportNode);
 
         assertLogMessage("Tabular creation: Input for maximum susceptance has been ignored since it is not possible to simultaneously set"
                 + " type, maximum reactive power and maximum susceptance for shunt compensator with id id1",
-            "network.modification.tabular.creation.shuntCompensator.maxSusceptanceIgnored.1", reportNode);
+                "network.modification.tabular.creation.shuntCompensator.maxSusceptanceIgnored.1", reportNode);
         assertLogMessage("Tabular creation: Input for maximum susceptance has been ignored since it is not possible to simultaneously set"
                 + " type and maximum susceptance for shunt compensator with id id2",
-            "network.modification.tabular.creation.shuntCompensator.maxSusceptanceIgnored.2", reportNode);
+                "network.modification.tabular.creation.shuntCompensator.maxSusceptanceIgnored.2", reportNode);
         assertLogMessage("Tabular creation: Input for maximum susceptance has been ignored since it is not possible to simultaneously set"
                 + " maximum reactive power and maximum susceptance for shunt compensator with id id3",
-            "network.modification.tabular.creation.shuntCompensator.maxSusceptanceIgnored.3", reportNode);
+                "network.modification.tabular.creation.shuntCompensator.maxSusceptanceIgnored.3", reportNode);
 
     }
 

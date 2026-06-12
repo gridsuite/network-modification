@@ -43,21 +43,21 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return VoltageLevelModificationModel.builder()
-            .equipmentId("v1")
-            .equipmentName(new AttributeModification<>("test 1", OperationType.SET))
-            .nominalV(new AttributeModification<>(420D, OperationType.SET))
-            .lowVoltageLimit(new AttributeModification<>(30D, OperationType.SET))
-            .highVoltageLimit(new AttributeModification<>(50D, OperationType.SET))
-            .ipMax(new AttributeModification<>(0.8, OperationType.SET))
-            .ipMin(new AttributeModification<>(0.7, OperationType.SET))
-            .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
-            .busbarSectionVMeasurements(List.of(
-                BusbarSectionVMeasurementModel.builder()
-                    .busbarSectionId("1.1")
-                    .vMeasurementValue(new AttributeModification<>(MEASUREMENT_V_VALUE, OperationType.SET))
-                    .vMeasurementValidity(new AttributeModification<>(MEASUREMENT_V_VALID, OperationType.SET))
-                    .build()))
-            .build();
+                .equipmentId("v1")
+                .equipmentName(new AttributeModification<>("test 1", OperationType.SET))
+                .nominalV(new AttributeModification<>(420D, OperationType.SET))
+                .lowVoltageLimit(new AttributeModification<>(30D, OperationType.SET))
+                .highVoltageLimit(new AttributeModification<>(50D, OperationType.SET))
+                .ipMax(new AttributeModification<>(0.8, OperationType.SET))
+                .ipMin(new AttributeModification<>(0.7, OperationType.SET))
+                .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+                .busbarSectionVMeasurements(List.of(
+                    BusbarSectionVMeasurementModel.builder()
+                        .busbarSectionId("1.1")
+                        .vMeasurementValue(new AttributeModification<>(MEASUREMENT_V_VALUE, OperationType.SET))
+                        .vMeasurementValidity(new AttributeModification<>(MEASUREMENT_V_VALID, OperationType.SET))
+                        .build()))
+                .build();
     }
 
     @Override
@@ -92,11 +92,11 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
         VoltageLevelModificationModel infos = (VoltageLevelModificationModel) buildModification();
         applyModification(infos);
 
-        VoltageLevelModificationModel updatedModel = VoltageLevelModificationModel.builder()
-            .equipmentId("v1")
-            .ipMax(new AttributeModification<>(0.9, OperationType.SET))
-            .build();
-        applyModification(updatedModel);
+        VoltageLevelModificationModel updatedInfos = VoltageLevelModificationModel.builder()
+                .equipmentId("v1")
+                .ipMax(new AttributeModification<>(0.9, OperationType.SET))
+                .build();
+        applyModification(updatedInfos);
         VoltageLevel voltageLevel = getNetwork().getVoltageLevel("v1");
         assertNotNull(voltageLevel);
 
@@ -105,11 +105,11 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
         assertEquals(0.9, identifiableShortCircuit1.getIpMax(), 0);
         assertEquals(0.7, identifiableShortCircuit1.getIpMin(), 0);
 
-        VoltageLevelModificationModel updatedModel2 = VoltageLevelModificationModel.builder()
-            .equipmentId("v1")
-            .ipMin(new AttributeModification<>(0.2, OperationType.SET))
-            .build();
-        applyModification(updatedModel2);
+        VoltageLevelModificationModel updatedInfos2 = VoltageLevelModificationModel.builder()
+                .equipmentId("v1")
+                .ipMin(new AttributeModification<>(0.2, OperationType.SET))
+                .build();
+        applyModification(updatedInfos2);
         IdentifiableShortCircuit<VoltageLevel> identifiableShortCircuit2 = voltageLevel.getExtension(IdentifiableShortCircuit.class);
         assertEquals(0.9, identifiableShortCircuit2.getIpMax(), 0);
         assertEquals(0.2, identifiableShortCircuit2.getIpMin(), 0);
@@ -119,8 +119,8 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
         final String vlWithBothIcc = "v3";
 
         VoltageLevelModificationModel vli = VoltageLevelModificationModel.builder()
-            .equipmentId(vlWithBothIcc)
-            .build();
+                .equipmentId(vlWithBothIcc)
+                .build();
         if (ipMin != null) {
             vli.setIpMin(new AttributeModification<>(ipMin, OperationType.SET));
         }
@@ -180,9 +180,9 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
     private void testSetIpMinOnEquipmentWithoutExtension() {
         final String vlWithNoIcc = "v2";
         VoltageLevelModificationModel vli = VoltageLevelModificationModel.builder()
-            .equipmentId(vlWithNoIcc)
-            .ipMin(new AttributeModification<>(10.0, OperationType.SET))
-            .build();
+                .equipmentId(vlWithNoIcc)
+                .ipMin(new AttributeModification<>(10.0, OperationType.SET))
+                .build();
         Network network = getNetwork();
         VoltageLevelModification voltageLevelModification = (VoltageLevelModification) vli.toModification();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelModification.check(network));
@@ -229,13 +229,13 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
     void testSetIpMaxOnEquipmentWitOnlyIpMaxExtension() {
         final String vlName = "v2"; // has no ICC
         getNetwork().getVoltageLevel(vlName)
-            .newExtension(IdentifiableShortCircuitAdder.class).withIpMax(30.0).add();
+                .newExtension(IdentifiableShortCircuitAdder.class).withIpMax(30.0).add();
 
         final double targetIpMax = 29.0;
         VoltageLevelModificationModel vli = VoltageLevelModificationModel.builder()
-            .equipmentId(vlName)
-            .ipMax(new AttributeModification<>(targetIpMax, OperationType.SET))
-            .build();
+                .equipmentId(vlName)
+                .ipMax(new AttributeModification<>(targetIpMax, OperationType.SET))
+                .build();
         applyModification(vli);
         // check the update has been made
         VoltageLevel voltageLevelUpdated = getNetwork().getVoltageLevel(vlName);
@@ -256,17 +256,17 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
         final double updatedValue = 380.0;
         final boolean updatedValidity = false;
         ReportNode rootNode = ReportNode.newRootReportNode()
-            .withMessageTemplate("test")
-            .build();
+                .withMessageTemplate("test")
+                .build();
         VoltageLevelModificationModel updateModif = VoltageLevelModificationModel.builder()
-            .equipmentId("v1")
-            .busbarSectionVMeasurements(List.of(
-                BusbarSectionVMeasurementModel.builder()
-                    .busbarSectionId("1.1")
-                    .vMeasurementValue(new AttributeModification<>(updatedValue, OperationType.SET))
-                    .vMeasurementValidity(new AttributeModification<>(updatedValidity, OperationType.SET))
-                    .build()))
-            .build();
+                .equipmentId("v1")
+                .busbarSectionVMeasurements(List.of(
+                    BusbarSectionVMeasurementModel.builder()
+                        .busbarSectionId("1.1")
+                        .vMeasurementValue(new AttributeModification<>(updatedValue, OperationType.SET))
+                        .vMeasurementValidity(new AttributeModification<>(updatedValidity, OperationType.SET))
+                        .build()))
+                .build();
         updateModif.toModification().apply(getNetwork(), rootNode);
 
         assertBusbarSectionMeasurement(getNetwork().getBusbarSection("1.1"), updatedValue, updatedValidity);
@@ -275,12 +275,12 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
 
     private void assertVoltageMeasurementReportNodes(ReportNode rootNode, Double oldValue, Double newValue, Boolean oldValidity, Boolean newValidity) {
         Optional<ReportNode> stateEstimationDataNode = rootNode.getChildren().stream()
-            .filter(node -> node.getMessageKey().equals("network.modification.stateEstimationData"))
-            .findFirst();
+                .filter(node -> node.getMessageKey().equals("network.modification.stateEstimationData"))
+                .findFirst();
         assertThat(stateEstimationDataNode).isPresent();
         Optional<ReportNode> measurementsNodeOpt = stateEstimationDataNode.get().getChildren().stream()
-            .filter(node -> node.getMessageKey().equals("network.modification.voltageLevel.busbarSection.measurements"))
-            .findFirst();
+                .filter(node -> node.getMessageKey().equals("network.modification.voltageLevel.busbarSection.measurements"))
+                .findFirst();
         assertThat(measurementsNodeOpt).isPresent();
         ReportNode measurementsNode = measurementsNodeOpt.get();
         assertThat(measurementsNode.getChildren()).hasSize(2);
@@ -301,9 +301,9 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("VOLTAGE_LEVEL_MODIFICATION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("VOLTAGE_LEVEL_MODIFICATION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("v1", createdValues.get("equipmentId"));
     }

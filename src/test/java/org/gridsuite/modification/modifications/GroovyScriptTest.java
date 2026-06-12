@@ -11,7 +11,6 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.model.GroovyScriptModel;
 import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.utils.NetworkCreation;
-
 import java.util.UUID;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.GROOVY_SCRIPT_EMPTY;
@@ -31,8 +30,8 @@ class GroovyScriptTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return GroovyScriptModel.builder()
-            .script("network.getGenerator('idGenerator').targetP=12\n")
-            .build();
+                .script("network.getGenerator('idGenerator').targetP=12\n")
+                .build();
     }
 
     @Override
@@ -42,23 +41,23 @@ class GroovyScriptTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void checkModification() {
-        GroovyScriptModel groovyScriptModel = (GroovyScriptModel) buildModification();
-        groovyScriptModel.setScript("");
+        GroovyScriptModel groovyScriptInfos = (GroovyScriptModel) buildModification();
+        groovyScriptInfos.setScript("");
         // apply empty groovy script
-        Exception exception = assertThrows(NetworkModificationException.class, () -> groovyScriptModel.toModification().check(getNetwork()));
+        Exception exception = assertThrows(NetworkModificationException.class, () -> groovyScriptInfos.toModification().check(getNetwork()));
         assertEquals(new NetworkModificationException(GROOVY_SCRIPT_EMPTY).getMessage(),
-            exception.getMessage());
+                exception.getMessage());
 
-        groovyScriptModel.setScript("      ");
+        groovyScriptInfos.setScript("      ");
         // apply blank groovy script
-        exception = assertThrows(NetworkModificationException.class, () -> groovyScriptModel.toModification().check(getNetwork()));
+        exception = assertThrows(NetworkModificationException.class, () -> groovyScriptInfos.toModification().check(getNetwork()));
         assertEquals(new NetworkModificationException(GROOVY_SCRIPT_EMPTY).getMessage(),
-            exception.getMessage());
+                exception.getMessage());
 
-        groovyScriptModel.setScript("network.getGenerator('there is no generator').targetP=12\n");
+        groovyScriptInfos.setScript("network.getGenerator('there is no generator').targetP=12\n");
         // apply groovy script with unknown generator
-        exception = assertThrows(Exception.class, () -> groovyScriptModel.toModification().apply(getNetwork()));
+        exception = assertThrows(Exception.class, () -> groovyScriptInfos.toModification().apply(getNetwork()));
         assertEquals("Cannot set property 'targetP' on null object",
-            exception.getMessage());
+                exception.getMessage());
     }
 }

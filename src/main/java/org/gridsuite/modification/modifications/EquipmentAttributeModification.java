@@ -22,43 +22,43 @@ import static org.gridsuite.modification.NetworkModificationException.Type.WRONG
  */
 public class EquipmentAttributeModification extends AbstractModification {
 
-    private final EquipmentAttributeModificationModel modificationModel;
+    private final EquipmentAttributeModificationModel modificationInfos;
 
-    public EquipmentAttributeModification(EquipmentAttributeModificationModel modificationModel) {
-        this.modificationModel = modificationModel;
+    public EquipmentAttributeModification(EquipmentAttributeModificationModel modificationInfos) {
+        this.modificationInfos = modificationInfos;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        Identifiable<?> identifiable = network.getIdentifiable(modificationModel.getEquipmentId());
+        Identifiable<?> identifiable = network.getIdentifiable(modificationInfos.getEquipmentId());
         if (identifiable == null) {
-            throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, modificationModel.getEquipmentId());
+            throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, modificationInfos.getEquipmentId());
         }
-        if (identifiable.getType() != modificationModel.getEquipmentType()) {
-            throw new NetworkModificationException(WRONG_EQUIPMENT_TYPE,
-                String.format("Type of '%s' is not %s but %s", modificationModel.getEquipmentId(), modificationModel.getEquipmentType(), identifiable.getType()));
+        if (identifiable.getType() != modificationInfos.getEquipmentType()) {
+            throw new NetworkModificationException(WRONG_EQUIPMENT_TYPE, String.format("Type of '%s' is not %s but %s", modificationInfos.getEquipmentId(), modificationInfos.getEquipmentType(),
+                    identifiable.getType()));
         }
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        Identifiable<?> identifiable = network.getIdentifiable(modificationModel.getEquipmentId());
+        Identifiable<?> identifiable = network.getIdentifiable(modificationInfos.getEquipmentId());
         if (identifiable instanceof Switch) {
-            changeSwitchAttribute((Switch) identifiable, modificationModel.getEquipmentAttributeName(), modificationModel.getEquipmentAttributeValue(), subReportNode);
+            changeSwitchAttribute((Switch) identifiable, modificationInfos.getEquipmentAttributeName(), modificationInfos.getEquipmentAttributeValue(), subReportNode);
         } else if (identifiable instanceof Injection) {
             if (identifiable instanceof Generator) {
-                changeGeneratorAttribute((Generator) identifiable, modificationModel.getEquipmentAttributeName(), modificationModel.getEquipmentAttributeValue(), subReportNode);
+                changeGeneratorAttribute((Generator) identifiable, modificationInfos.getEquipmentAttributeName(), modificationInfos.getEquipmentAttributeValue(), subReportNode);
             }
         } else if (identifiable instanceof Branch) {
             if (identifiable instanceof Line) {
-                changeLineAttribute((Line) identifiable, modificationModel.getEquipmentAttributeName(), modificationModel.getEquipmentAttributeValue(), subReportNode);
+                changeLineAttribute((Line) identifiable, modificationInfos.getEquipmentAttributeName(), modificationInfos.getEquipmentAttributeValue(), subReportNode);
             } else if (identifiable instanceof TwoWindingsTransformer) {
-                changeTwoWindingsTransformerAttribute((TwoWindingsTransformer) identifiable,
-                    modificationModel.getEquipmentAttributeName(), modificationModel.getEquipmentAttributeValue(), subReportNode);
+                changeTwoWindingsTransformerAttribute((TwoWindingsTransformer) identifiable, modificationInfos.getEquipmentAttributeName(), modificationInfos.getEquipmentAttributeValue(),
+                        subReportNode);
             }
         } else if (identifiable instanceof ThreeWindingsTransformer) {
-            changeThreeWindingsTransformerAttribute((ThreeWindingsTransformer) identifiable,
-                modificationModel.getEquipmentAttributeName(), modificationModel.getEquipmentAttributeValue(), subReportNode);
+            changeThreeWindingsTransformerAttribute((ThreeWindingsTransformer) identifiable, modificationInfos.getEquipmentAttributeName(), modificationInfos.getEquipmentAttributeValue(),
+                    subReportNode);
         } else if (identifiable instanceof HvdcLine) {
             // no hvdc line modifications yet
         }

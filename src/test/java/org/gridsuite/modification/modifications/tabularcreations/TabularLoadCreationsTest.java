@@ -94,14 +94,14 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
                 .build()
         );
 
-        ModificationModel creationModel = TabularCreationModel.builder()
+        ModificationModel creationInfos = TabularCreationModel.builder()
             .modificationType(ModificationType.LOAD_CREATION)
             .modifications(creations)
             .build();
-        ReportNode reportNode = creationModel.createSubReportNode(ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test").build());
-        creationModel.toModification().apply(getNetwork(), reportNode);
+        ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+        creationInfos.toModification().apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: 1 load have been created", "network.modification.tabular.creation", reportNode);
         assertLogMessage("Creation of id1", "network.modification.tabular.creation.equipmentId", reportNode);
     }
@@ -125,22 +125,22 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
                 .loadType(LoadType.AUXILIARY).p0(Double.NaN).q0(-100)
                 .build()
         );
-        ModificationModel creationModel = TabularCreationModel.builder()
-            .modificationType(ModificationType.LOAD_CREATION)
-            .modifications(creations)
-            .build();
-        ReportNode reportNode = creationModel.createSubReportNode(ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test").build());
-        creationModel.toModification().apply(getNetwork(), reportNode);
+        ModificationModel creationInfos = TabularCreationModel.builder()
+                .modificationType(ModificationType.LOAD_CREATION)
+                .modifications(creations)
+                .build();
+        ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+        creationInfos.toModification().apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: No loads have been created", "network.modification.tabular.creation.error", reportNode);
         assertLogMessage("Creation errors", "network.modification.tabular.creation.error.equipmentError", reportNode);
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals(ModificationType.TABULAR_CREATION.name(), modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals(ModificationType.TABULAR_CREATION.name(), modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals(ModificationType.LOAD_CREATION.name(), createdValues.get("tabularCreationType"));
     }

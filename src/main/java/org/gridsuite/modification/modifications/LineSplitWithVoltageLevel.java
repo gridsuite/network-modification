@@ -26,25 +26,25 @@ import static org.gridsuite.modification.NetworkModificationException.Type.LINE_
  */
 public class LineSplitWithVoltageLevel extends AbstractModification {
 
-    private final LineSplitWithVoltageLevelModel modificationModel;
+    private final LineSplitWithVoltageLevelModel modificationInfos;
 
-    public LineSplitWithVoltageLevel(LineSplitWithVoltageLevelModel modificationModel) {
-        this.modificationModel = modificationModel;
+    public LineSplitWithVoltageLevel(LineSplitWithVoltageLevelModel modificationInfos) {
+        this.modificationInfos = modificationInfos;
     }
 
     @Override
     public void check(@NonNull Network network) throws NetworkModificationException {
-        if (network.getLine(modificationModel.getLineToSplitId()) == null) {
-            throw new NetworkModificationException(LINE_NOT_FOUND, modificationModel.getLineToSplitId());
+        if (network.getLine(modificationInfos.getLineToSplitId()) == null) {
+            throw new NetworkModificationException(LINE_NOT_FOUND, modificationInfos.getLineToSplitId());
         }
-        ModificationUtils.getInstance().controlNewOrExistingVoltageLevel(modificationModel.getMayNewVoltageLevelInfos(),
-            modificationModel.getExistingVoltageLevelId(), modificationModel.getBbsOrBusId(), network);
+        ModificationUtils.getInstance().controlNewOrExistingVoltageLevel(modificationInfos.getMayNewVoltageLevelInfos(),
+                modificationInfos.getExistingVoltageLevelId(), modificationInfos.getBbsOrBusId(), network);
         // check future lines don't exist
-        if (network.getLine(modificationModel.getNewLine1Id()) != null) {
-            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationModel.getNewLine1Id());
+        if (network.getLine(modificationInfos.getNewLine1Id()) != null) {
+            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationInfos.getNewLine1Id());
         }
-        if (network.getLine(modificationModel.getNewLine2Id()) != null) {
-            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationModel.getNewLine2Id());
+        if (network.getLine(modificationInfos.getNewLine2Id()) != null) {
+            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationInfos.getNewLine2Id());
         }
     }
 
@@ -55,19 +55,19 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
-        VoltageLevelCreationModel mayNewVL = modificationModel.getMayNewVoltageLevelInfos();
+        VoltageLevelCreationModel mayNewVL = modificationInfos.getMayNewVoltageLevelInfos();
         if (mayNewVL != null) {
             ModificationUtils.getInstance().createVoltageLevel(mayNewVL, subReportNode, network, namingStrategy);
         }
         ConnectVoltageLevelOnLine algo = new ConnectVoltageLevelOnLineBuilder()
-            .withPositionPercent(modificationModel.getPercent())
-            .withBusbarSectionOrBusId(modificationModel.getBbsOrBusId())
-            .withLine1Id(modificationModel.getNewLine1Id())
-            .withLine1Name(modificationModel.getNewLine1Name())
-            .withLine2Id(modificationModel.getNewLine2Id())
-            .withLine2Name(modificationModel.getNewLine2Name())
-            .withLine(network.getLine(modificationModel.getLineToSplitId()))
-            .build();
+                .withPositionPercent(modificationInfos.getPercent())
+                .withBusbarSectionOrBusId(modificationInfos.getBbsOrBusId())
+                .withLine1Id(modificationInfos.getNewLine1Id())
+                .withLine1Name(modificationInfos.getNewLine1Name())
+                .withLine2Id(modificationInfos.getNewLine2Id())
+                .withLine2Name(modificationInfos.getNewLine2Name())
+                .withLine(network.getLine(modificationInfos.getLineToSplitId()))
+                .build();
 
         algo.apply(network, true, subReportNode);
     }

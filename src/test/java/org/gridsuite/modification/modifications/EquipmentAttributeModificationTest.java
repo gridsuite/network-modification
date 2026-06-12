@@ -25,9 +25,9 @@ class EquipmentAttributeModificationTest extends AbstractNetworkModificationTest
 
     @Override
     public void checkModification() {
-        EquipmentAttributeModificationModel switchStatusModificationModel = (EquipmentAttributeModificationModel) buildModification();
-        switchStatusModificationModel.setEquipmentId("notFound");
-        assertThrows(NetworkModificationException.class, () -> switchStatusModificationModel.toModification().check(getNetwork()));
+        EquipmentAttributeModificationModel switchStatusModificationInfos = (EquipmentAttributeModificationModel) buildModification();
+        switchStatusModificationInfos.setEquipmentId("notFound");
+        assertThrows(NetworkModificationException.class, () -> switchStatusModificationInfos.toModification().check(getNetwork()));
     }
 
     @Override
@@ -53,21 +53,21 @@ class EquipmentAttributeModificationTest extends AbstractNetworkModificationTest
     @Test
     void testWithErrors() throws Exception {
         // bad equipment attribute name
-        EquipmentAttributeModificationModel switchStatusModificationModel = EquipmentAttributeModificationModel.builder()
+        EquipmentAttributeModificationModel switchStatusModificationInfos = EquipmentAttributeModificationModel.builder()
             .equipmentType(IdentifiableType.SWITCH)
             .equipmentAttributeName("close") // bad
             .equipmentAttributeValue(true)
             .equipmentId("v1b1")
             .build();
 
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> switchStatusModificationModel.toModification().apply(getNetwork()));
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> switchStatusModificationInfos.toModification().apply(getNetwork()));
         assertEquals("ATTRIBUTE_NOT_EDITABLE : SWITCH attribute 'close' not editable", exception.getMessage());
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("EQUIPMENT_ATTRIBUTE_MODIFICATION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("EQUIPMENT_ATTRIBUTE_MODIFICATION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("open", createdValues.get("equipmentAttributeName"));
         // assertEquals("v1b1", createdValues.get("equipmentId"));

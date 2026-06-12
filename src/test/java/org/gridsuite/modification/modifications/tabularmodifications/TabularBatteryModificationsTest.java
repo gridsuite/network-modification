@@ -39,25 +39,25 @@ class TabularBatteryModificationsTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         List<ModificationModel> modifications = List.of(
-            BatteryModificationModel.builder().equipmentId("v1Battery").maxP(new AttributeModification<>(50., OperationType.SET)).build(),
-            BatteryModificationModel.builder().equipmentId("v2Battery").minP(new AttributeModification<>(5., OperationType.SET)).build(),
-            BatteryModificationModel.builder().equipmentId("v3Battery").targetP(new AttributeModification<>(5., OperationType.SET)).build(),
-            BatteryModificationModel.builder().equipmentId("unknownBattery").targetQ(new AttributeModification<>(500., OperationType.SET)).build()
+                BatteryModificationModel.builder().equipmentId("v1Battery").maxP(new AttributeModification<>(50., OperationType.SET)).build(),
+                BatteryModificationModel.builder().equipmentId("v2Battery").minP(new AttributeModification<>(5., OperationType.SET)).build(),
+                BatteryModificationModel.builder().equipmentId("v3Battery").targetP(new AttributeModification<>(5., OperationType.SET)).build(),
+                BatteryModificationModel.builder().equipmentId("unknownBattery").targetQ(new AttributeModification<>(500., OperationType.SET)).build()
         );
         return TabularModificationModel.builder()
-            .modificationType(ModificationType.BATTERY_MODIFICATION)
-            .modifications(modifications)
-            .build();
+                .modificationType(ModificationType.BATTERY_MODIFICATION)
+                .modifications(modifications)
+                .build();
     }
 
     @Test
     @Override
     public void testApply() {
-        ModificationModel modificationModel = buildModification();
-        ReportNode reportNode = modificationModel.createSubReportNode(ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test").build());
-        modificationModel.toModification().apply(getNetwork(), reportNode);
+        ModificationModel modificationInfos = buildModification();
+        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+        modificationInfos.toModification().apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication(reportNode);
     }
 
@@ -77,9 +77,9 @@ class TabularBatteryModificationsTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals(ModificationType.BATTERY_MODIFICATION.name(), createdValues.get("tabularModificationType"));
     }

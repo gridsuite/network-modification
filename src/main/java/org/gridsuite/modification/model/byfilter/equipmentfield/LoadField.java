@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.LoadType;
 import jakarta.validation.constraints.NotNull;
 import org.gridsuite.modification.model.AttributeModification;
 import org.gridsuite.modification.model.OperationType;
-
 import static org.gridsuite.modification.modifications.LoadModification.modifyP0;
 import static org.gridsuite.modification.modifications.LoadModification.modifyQ0;
 

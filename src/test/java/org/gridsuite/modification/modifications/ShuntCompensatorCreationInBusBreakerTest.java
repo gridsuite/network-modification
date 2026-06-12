@@ -13,7 +13,6 @@ import org.gridsuite.modification.model.FreePropertyModel;
 import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.model.ShuntCompensatorCreationModel;
 import org.gridsuite.modification.utils.NetworkCreation;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -52,7 +51,7 @@ class ShuntCompensatorCreationInBusBreakerTest extends AbstractNetworkModificati
             .connectionName("cn2")
             .connectionDirection(ConnectablePosition.Direction.UNDEFINED)
             .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
-            .build();
+                .build();
     }
 
     @Override
@@ -63,9 +62,9 @@ class ShuntCompensatorCreationInBusBreakerTest extends AbstractNetworkModificati
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("SHUNT_COMPENSATOR_CREATION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("SHUNT_COMPENSATOR_CREATION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("shuntOneId", createdValues.get("equipmentId"));
     }

@@ -44,24 +44,24 @@ class ShuntCompensatorByFormulaModificationTest extends AbstractByFormulaModific
     void testCreateWithWarning() throws Exception {
         IdentifiableAttributes identifiableAttributes = new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_1, getIdentifiableType(), 1.0);
         FilterEquipments filter = FilterEquipments.builder().filterId(FILTER_WITH_ONE_WRONG_ID)
-            .identifiableAttributes(List.of(identifiableAttributes))
-            .notFoundEquipments(List.of("wrongId"))
-            .build();
+                .identifiableAttributes(List.of(identifiableAttributes))
+                .notFoundEquipments(List.of("wrongId"))
+                .build();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_WITH_ONE_WRONG_ID, filter));
 
-        FormulaModel formulaModel = FormulaModel.builder()
-            .filters(List.of(filterWithOneWrongId))
-            .editedField(ShuntCompensatorField.MAXIMUM_SECTION_COUNT.name())
-            .fieldOrValue1(ReferenceFieldOrValue.builder().value(2.).build())
-            .operator(Operator.ADDITION)
-            .fieldOrValue2(ReferenceFieldOrValue.builder().value(3.).build())
-            .build();
+        FormulaModel formulaInfos = FormulaModel.builder()
+                .filters(List.of(filterWithOneWrongId))
+                .editedField(ShuntCompensatorField.MAXIMUM_SECTION_COUNT.name())
+                .fieldOrValue1(ReferenceFieldOrValue.builder().value(2.).build())
+                .operator(Operator.ADDITION)
+                .fieldOrValue2(ReferenceFieldOrValue.builder().value(3.).build())
+                .build();
 
-        ByFormulaModificationModel modificationModel = ByFormulaModificationModel.builder()
-            .identifiableType(getIdentifiableType())
-            .formulaInfosList(List.of(formulaModel))
-            .build();
-        apply(modificationModel);
+        ByFormulaModificationModel modificationInfos = ByFormulaModificationModel.builder()
+                .identifiableType(getIdentifiableType())
+                .formulaInfosList(List.of(formulaInfos))
+                .build();
+        apply(modificationInfos);
         assertEquals(5, getNetwork().getShuntCompensator(SHUNT_COMPENSATOR_ID_1).getMaximumSectionCount(), 0);
     }
 
@@ -75,60 +75,60 @@ class ShuntCompensatorByFormulaModificationTest extends AbstractByFormulaModific
     @Override
     protected Map<UUID, FilterEquipments> getTestFilters() {
         FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(
-                new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_1, getIdentifiableType(), 1.0),
-                new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_2, getIdentifiableType(), 2.0)))
+            new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_1, getIdentifiableType(), 1.0),
+            new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_2, getIdentifiableType(), 2.0)))
             .build();
 
         FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(
-                new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_3, getIdentifiableType(), 2.0),
-                new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_6, getIdentifiableType(), 7.0)))
+            new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_3, getIdentifiableType(), 2.0),
+            new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_6, getIdentifiableType(), 7.0)))
             .build();
 
         FilterEquipments filter3 = FilterEquipments.builder().filterId(FILTER_ID_3).identifiableAttributes(List.of(
-                new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_4, getIdentifiableType(), 5.0),
-                new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_5, getIdentifiableType(), 6.0)))
+            new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_4, getIdentifiableType(), 5.0),
+            new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_5, getIdentifiableType(), 6.0)))
             .build();
 
         FilterEquipments filter4 = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(
-                new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_1, getIdentifiableType(), 1.0),
-                new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_5, getIdentifiableType(), 6.0)))
+            new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_1, getIdentifiableType(), 1.0),
+            new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_5, getIdentifiableType(), 6.0)))
             .build();
 
         FilterEquipments filter5 = FilterEquipments.builder().filterId(FILTER_ID_5).identifiableAttributes(List.of(
-                new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_3, getIdentifiableType(), 2.0),
-                new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_2, getIdentifiableType(), 2.0)))
+            new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_3, getIdentifiableType(), 2.0),
+            new IdentifiableAttributes(SHUNT_COMPENSATOR_ID_2, getIdentifiableType(), 2.0)))
             .build();
 
         return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3, FILTER_ID_4, filter4, FILTER_ID_5, filter5);
     }
 
     @Override
-    protected List<FormulaModel> getFormulaModel() {
-        FormulaModel formulaModel1 = getFormulaInfo(ShuntCompensatorField.MAXIMUM_SECTION_COUNT.name(),
-            List.of(filter1, filter2),
-            Operator.PERCENTAGE,
-            ReferenceFieldOrValue.builder().value(200.).build(),
-            ReferenceFieldOrValue.builder().equipmentField(ShuntCompensatorField.MAXIMUM_SECTION_COUNT.name()).build());
+    protected List<FormulaModel> getFormulaInfos() {
+        FormulaModel formulaInfos1 = getFormulaInfo(ShuntCompensatorField.MAXIMUM_SECTION_COUNT.name(),
+                List.of(filter1, filter2),
+                Operator.PERCENTAGE,
+                ReferenceFieldOrValue.builder().value(200.).build(),
+                ReferenceFieldOrValue.builder().equipmentField(ShuntCompensatorField.MAXIMUM_SECTION_COUNT.name()).build());
 
-        FormulaModel formulaModel2 = getFormulaInfo(ShuntCompensatorField.SECTION_COUNT.name(),
-            List.of(filter3),
-            Operator.SUBTRACTION,
-            ReferenceFieldOrValue.builder().equipmentField(ShuntCompensatorField.MAXIMUM_SECTION_COUNT.name()).build(),
-            ReferenceFieldOrValue.builder().value(2.).build());
+        FormulaModel formulaInfos2 = getFormulaInfo(ShuntCompensatorField.SECTION_COUNT.name(),
+                List.of(filter3),
+                Operator.SUBTRACTION,
+                ReferenceFieldOrValue.builder().equipmentField(ShuntCompensatorField.MAXIMUM_SECTION_COUNT.name()).build(),
+                ReferenceFieldOrValue.builder().value(2.).build());
 
-        FormulaModel formulaModel3 = getFormulaInfo(ShuntCompensatorField.MAX_SUSCEPTANCE.name(),
-            List.of(filter4),
-            Operator.ADDITION,
-            ReferenceFieldOrValue.builder().equipmentField(ShuntCompensatorField.MAX_SUSCEPTANCE.name()).build(),
-            ReferenceFieldOrValue.builder().value(5.).build());
+        FormulaModel formulaInfos3 = getFormulaInfo(ShuntCompensatorField.MAX_SUSCEPTANCE.name(),
+                List.of(filter4),
+                Operator.ADDITION,
+                ReferenceFieldOrValue.builder().equipmentField(ShuntCompensatorField.MAX_SUSCEPTANCE.name()).build(),
+                ReferenceFieldOrValue.builder().value(5.).build());
 
-        FormulaModel formulaModel4 = getFormulaInfo(ShuntCompensatorField.MAX_Q_AT_NOMINAL_V.name(),
-            List.of(filter5),
-            Operator.DIVISION,
-            ReferenceFieldOrValue.builder().equipmentField(ShuntCompensatorField.MAX_Q_AT_NOMINAL_V.name()).build(),
-            ReferenceFieldOrValue.builder().value(2.).build());
+        FormulaModel formulaInfos4 = getFormulaInfo(ShuntCompensatorField.MAX_Q_AT_NOMINAL_V.name(),
+                List.of(filter5),
+                Operator.DIVISION,
+                ReferenceFieldOrValue.builder().equipmentField(ShuntCompensatorField.MAX_Q_AT_NOMINAL_V.name()).build(),
+                ReferenceFieldOrValue.builder().value(2.).build());
 
-        return List.of(formulaModel1, formulaModel2, formulaModel3, formulaModel4);
+        return List.of(formulaInfos1, formulaInfos2, formulaInfos3, formulaInfos4);
     }
 
     @Override

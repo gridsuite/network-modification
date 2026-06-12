@@ -51,18 +51,18 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
 
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_ID_1, filterLine1, FILTER_ID_4, filterLine2));
 
-        IntegerAssignmentModel assignmentModel = IntegerAssignmentModel.builder()
-            .filters(List.of(filter1, filter4))
-            .editedField(LineField.R.name())
-            .value(4)
-            .build();
+        IntegerAssignmentModel assignmentInfos = IntegerAssignmentModel.builder()
+                .filters(List.of(filter1, filter4))
+                .editedField(LineField.R.name())
+                .value(4)
+                .build();
 
-        ModificationByAssignmentModel modificationModel = ModificationByAssignmentModel.builder()
-            .equipmentType(getIdentifiableType())
-            .assignmentInfosList(List.of(assignmentModel))
-            .build();
+        ModificationByAssignmentModel modificationInfos = ModificationByAssignmentModel.builder()
+                .equipmentType(getIdentifiableType())
+                .assignmentInfosList(List.of(assignmentInfos))
+                .build();
 
-        apply(modificationModel);
+        apply(modificationInfos);
 
         assertEquals(4, getNetwork().getLine(LINE_ID_1).getR());
         assertEquals(4, getNetwork().getLine(LINE_ID_2).getR());
@@ -72,8 +72,8 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
     protected void createEquipments() {
         createLineWithLimits(getNetwork(), LINE_ID_1, LINE_ID_1, "v1", "v2", 21, 21, 2,
             1, 3, 4, 0.001, 0.0015,
-            "line_1", 11, ConnectablePosition.Direction.TOP,
-            "line_1", 22, ConnectablePosition.Direction.BOTTOM);
+                "line_1", 11, ConnectablePosition.Direction.TOP,
+                "line_1", 22, ConnectablePosition.Direction.BOTTOM);
 
         createLineWithLimits(getNetwork(), LINE_ID_2, LINE_ID_2, "v1", "v2", 33, 44, 3,
             3, 5, 1, 0.002, 0.0025,
@@ -127,78 +127,78 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
     }
 
     @Override
-    protected List<AssignmentModel<?>> getAssignmentModel() {
-        DoubleAssignmentModel assignmentModel1 = DoubleAssignmentModel.builder()
-            .filters(List.of(filter1))
-            .editedField(LineField.X.name())
-            .value(20.)
-            .build();
+    protected List<AssignmentModel<?>> getAssignmentInfos() {
+        DoubleAssignmentModel assignmentInfos1 = DoubleAssignmentModel.builder()
+                .filters(List.of(filter1))
+                .editedField(LineField.X.name())
+                .value(20.)
+                .build();
 
-        IntegerAssignmentModel assignmentModel2 = IntegerAssignmentModel.builder()
-            .filters(List.of(filter2))
-            .editedField(LineField.R.name())
-            .value(40)
-            .build();
+        IntegerAssignmentModel assignmentInfos2 = IntegerAssignmentModel.builder()
+                .filters(List.of(filter2))
+                .editedField(LineField.R.name())
+                .value(40)
+                .build();
 
-        IntegerAssignmentModel assignmentModel3 = IntegerAssignmentModel.builder()
-            .filters(List.of(filter2))
-            .editedField(LineField.G1.name())
-            .value(35)
-            .build();
+        IntegerAssignmentModel assignmentInfos3 = IntegerAssignmentModel.builder()
+                .filters(List.of(filter2))
+                .editedField(LineField.G1.name())
+                .value(35)
+                .build();
 
-        DoubleAssignmentModel assignmentModel4 = DoubleAssignmentModel.builder()
-            .filters(List.of(filter1))
-            .editedField(LineField.G2.name())
-            .value(10.)
-            .build();
+        DoubleAssignmentModel assignmentInfos4 = DoubleAssignmentModel.builder()
+                .filters(List.of(filter1))
+                .editedField(LineField.G2.name())
+                .value(10.)
+                .build();
 
-        DoubleAssignmentModel assignmentModel5 = DoubleAssignmentModel.builder()
-            .filters(List.of(filter4))
-            .editedField(LineField.B1.name())
-            .value(21.)
-            .build();
+        DoubleAssignmentModel assignmentInfos5 = DoubleAssignmentModel.builder()
+                .filters(List.of(filter4))
+                .editedField(LineField.B1.name())
+                .value(21.)
+                .build();
 
-        IntegerAssignmentModel assignmentModel6 = IntegerAssignmentModel.builder()
-            .filters(List.of(filter3))
-            .editedField(LineField.B2.name())
-            .value(90)
-            .build();
+        IntegerAssignmentModel assignmentInfos6 = IntegerAssignmentModel.builder()
+                .filters(List.of(filter3))
+                .editedField(LineField.B2.name())
+                .value(90)
+                .build();
 
-        StringAssignmentModel assignmentModel7 = StringAssignmentModel.builder()
+        StringAssignmentModel assignmentInfos7 = StringAssignmentModel.builder()
             .filters(List.of(filter1))
             .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID1.name())
             .value("group1")
             .build();
 
-        StringAssignmentModel assignmentModel8 = StringAssignmentModel.builder()
+        StringAssignmentModel assignmentInfos8 = StringAssignmentModel.builder()
             .filters(List.of(filter2))
             .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID2.name())
             .value("group2")
             .build();
 
-        StringAssignmentModel assignmentModel9 = StringAssignmentModel.builder()
+        StringAssignmentModel assignmentInfos9 = StringAssignmentModel.builder()
             .filters(List.of(filter3))
             .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID1.name())
             .value(null)
             .build();
 
-        StringAssignmentModel assignmentModel10 = StringAssignmentModel.builder()
+        StringAssignmentModel assignmentInfos10 = StringAssignmentModel.builder()
             .filters(List.of(filter3))
             .editedField(LineField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID2.name())
             .value("")
             .build();
 
-        List<AssignmentModel<?>> infosList = super.getAssignmentModel();
-        infosList.addAll(List.of(assignmentModel1,
-            assignmentModel2,
-            assignmentModel3,
-            assignmentModel4,
-            assignmentModel5,
-            assignmentModel6,
-            assignmentModel7,
-            assignmentModel8,
-            assignmentModel9,
-            assignmentModel10));
+        List<AssignmentModel<?>> infosList = super.getAssignmentInfos();
+        infosList.addAll(List.of(assignmentInfos1,
+                assignmentInfos2,
+                assignmentInfos3,
+                assignmentInfos4,
+                assignmentInfos5,
+                assignmentInfos6,
+                assignmentInfos7,
+                assignmentInfos8,
+                assignmentInfos9,
+                assignmentInfos10));
 
         return infosList;
     }

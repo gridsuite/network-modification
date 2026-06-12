@@ -29,16 +29,16 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
     private static final String UNSUPPORTED_CONNECTABLE = "MoveVoltageLevelFeederBays is not implemented for %s";
     private static final String INVALID_CONNECTION_SIDE = "Invalid connection side: %s for branch %s";
 
-    private final MoveVoltageLevelFeederBaysModel modificationModel;
+    private final MoveVoltageLevelFeederBaysModel modificationInfos;
 
-    public MoveVoltageLevelFeederBays(MoveVoltageLevelFeederBaysModel modificationModel) {
-        this.modificationModel = modificationModel;
+    public MoveVoltageLevelFeederBays(MoveVoltageLevelFeederBaysModel modificationInfos) {
+        this.modificationInfos = modificationInfos;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        VoltageLevel voltageLevel = getVoltageLevelOrThrow(network, modificationModel.getVoltageLevelId());
-        for (MoveFeederBayModel info : modificationModel.getFeederBays()) {
+        VoltageLevel voltageLevel = getVoltageLevelOrThrow(network, modificationInfos.getVoltageLevelId());
+        for (MoveFeederBayModel info : modificationInfos.getFeederBays()) {
             checkBusOrBusbarSectionExist(voltageLevel, info);
             checkConnectable(network, info);
         }
@@ -54,11 +54,11 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
 
     private void checkBusOrBusbarSectionExist(VoltageLevel voltageLevel, MoveFeederBayModel info) {
         boolean busOrBusbarSectionExists = voltageLevel.getTopologyKind().equals(TopologyKind.NODE_BREAKER)
-            ? voltageLevel.getNodeBreakerView().getBusbarSection(info.getBusbarSectionId()) != null
-            : voltageLevel.getBusBreakerView().getBus(info.getBusbarSectionId()) != null;
+                ? voltageLevel.getNodeBreakerView().getBusbarSection(info.getBusbarSectionId()) != null
+                : voltageLevel.getBusBreakerView().getBus(info.getBusbarSectionId()) != null;
         if (!busOrBusbarSectionExists) {
             throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(BUSBAR_NOT_FOUND,
-                info.getBusbarSectionId(), info.getEquipmentId(), modificationModel.getVoltageLevelId()));
+                    info.getBusbarSectionId(), info.getEquipmentId(), modificationInfos.getVoltageLevelId()));
         }
     }
 
@@ -71,16 +71,16 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        for (MoveFeederBayModel info : modificationModel.getFeederBays()) {
+        for (MoveFeederBayModel info : modificationInfos.getFeederBays()) {
             Connectable<?> connectable = network.getConnectable(info.getEquipmentId());
             if (connectable != null) {
                 modifyConnectablePosition(network, connectable, info, subReportNode);
             } else {
                 subReportNode.newReportNode()
-                    .withMessageTemplate("network.modification.moveFeederBaysConnectableNotFoundWarning")
-                    .withUntypedValue("id", info.getEquipmentId())
-                    .withSeverity(TypedValue.WARN_SEVERITY)
-                    .add();
+                        .withMessageTemplate("network.modification.moveFeederBaysConnectableNotFoundWarning")
+                        .withUntypedValue("id", info.getEquipmentId())
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .add();
             }
         }
     }
@@ -90,52 +90,50 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
         return ModificationType.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS.name();
     }
 
-    private void modifyConnectablePosition(Network network, Connectable<?> connectable, MoveFeederBayModel newConnectablePositionModel, ReportNode subReportNode) {
+    private void modifyConnectablePosition(Network network, Connectable<?> connectable, MoveFeederBayModel newConnectablePositionInfos, ReportNode subReportNode) {
         ConnectablePosition<?> oldConnectablePosition = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<?> connectablePositionAdder = connectable.newExtension(ConnectablePositionAdder.class);
 
         switch (connectable) {
             case Injection<?> injection -> {
-                InjectionModificationModel injectionModificationModel = buildInjectionModificationModel(newConnectablePositionModel);
-                ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(oldConnectablePosition, connectablePositionAdder, injection, injectionModificationModel, subReportNode);
+                InjectionModificationModel injectionModificationInfos = buildInjectionModificationInfos(newConnectablePositionInfos);
+                ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(oldConnectablePosition, connectablePositionAdder, injection, injectionModificationInfos, subReportNode);
             }
             case Branch<?> branch -> {
-                BranchModificationModel branchModificationModel = buildBranchModificationModel(newConnectablePositionModel);
-                ModificationUtils.getInstance().modifyBranchConnectivityAttributes(oldConnectablePosition, connectablePositionAdder, branch, branchModificationModel, subReportNode);
+                BranchModificationModel branchModificationInfos = buildBranchModificationInfos(newConnectablePositionInfos);
+                ModificationUtils.getInstance().modifyBranchConnectivityAttributes(oldConnectablePosition, connectablePositionAdder, branch, branchModificationInfos, subReportNode);
             }
-            default ->
-                throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
+            default -> throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
         }
-        moveFeederBay(network, connectable, newConnectablePositionModel, subReportNode);
+        moveFeederBay(network, connectable, newConnectablePositionInfos, subReportNode);
     }
 
-    private InjectionModificationModel buildInjectionModificationModel(MoveFeederBayModel newConnectablePositionModel) {
-        InjectionModificationModel injectionModel = new InjectionModificationModel();
-        injectionModel.setEquipmentId(newConnectablePositionModel.getEquipmentId());
-        setConnectionAttributes(injectionModel::setConnectionPosition,
-            injectionModel::setConnectionName,
-            injectionModel::setConnectionDirection,
-            newConnectablePositionModel);
-        return injectionModel;
+    private InjectionModificationModel buildInjectionModificationInfos(MoveFeederBayModel newConnectablePositionInfos) {
+        InjectionModificationModel injectionInfos = new InjectionModificationModel();
+        injectionInfos.setEquipmentId(newConnectablePositionInfos.getEquipmentId());
+        setConnectionAttributes(injectionInfos::setConnectionPosition,
+                injectionInfos::setConnectionName,
+                injectionInfos::setConnectionDirection,
+                newConnectablePositionInfos);
+        return injectionInfos;
     }
 
-    private BranchModificationModel buildBranchModificationModel(MoveFeederBayModel info) {
-        BranchModificationModel branchModel = new BranchModificationModel();
-        branchModel.setEquipmentId(info.getEquipmentId());
+    private BranchModificationModel buildBranchModificationInfos(MoveFeederBayModel info) {
+        BranchModificationModel branchInfos = new BranchModificationModel();
+        branchInfos.setEquipmentId(info.getEquipmentId());
         ThreeSides connectionSide = ThreeSides.valueOf(info.getConnectionSide());
         switch (connectionSide) {
-            case ONE -> setConnectionAttributes(branchModel::setConnectionPosition1,
-                branchModel::setConnectionName1,
-                branchModel::setConnectionDirection1,
-                info);
-            case TWO -> setConnectionAttributes(branchModel::setConnectionPosition2,
-                branchModel::setConnectionName2,
-                branchModel::setConnectionDirection2,
-                info);
-            default ->
-                throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(INVALID_CONNECTION_SIDE, info.getConnectionSide(), branchModel.getEquipmentId()));
+            case ONE -> setConnectionAttributes(branchInfos::setConnectionPosition1,
+                    branchInfos::setConnectionName1,
+                    branchInfos::setConnectionDirection1,
+                    info);
+            case TWO -> setConnectionAttributes(branchInfos::setConnectionPosition2,
+                    branchInfos::setConnectionName2,
+                    branchInfos::setConnectionDirection2,
+                    info);
+            default -> throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(INVALID_CONNECTION_SIDE, info.getConnectionSide(), branchInfos.getEquipmentId()));
         }
-        return branchModel;
+        return branchInfos;
     }
 
     private void setConnectionAttributes(java.util.function.Consumer<AttributeModification<Integer>> setPosition,
@@ -159,10 +157,10 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
         String targetBusbarId = info.getBusbarSectionId();
         if (!currentBusbarId.equals(targetBusbarId)) {
             ModificationUtils.getInstance().moveFeederBay(
-                connectable, terminal,
-                new AttributeModification<>(modificationModel.getVoltageLevelId(), OperationType.SET),
-                new AttributeModification<>(targetBusbarId, OperationType.SET),
-                subReportNode);
+                    connectable, terminal,
+                    new AttributeModification<>(modificationInfos.getVoltageLevelId(), OperationType.SET),
+                    new AttributeModification<>(targetBusbarId, OperationType.SET),
+                    subReportNode);
         }
     }
 
@@ -176,11 +174,10 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
                     yield branch.getTerminal(side);
                 } catch (IllegalArgumentException e) {
                     throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR,
-                        String.format(INVALID_CONNECTION_SIDE, info.getConnectionSide(), branch.getId()));
+                            String.format(INVALID_CONNECTION_SIDE, info.getConnectionSide(), branch.getId()));
                 }
             }
-            default ->
-                throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
+            default -> throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
         };
     }
 }

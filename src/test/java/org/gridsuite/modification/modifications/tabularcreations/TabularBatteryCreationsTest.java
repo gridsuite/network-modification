@@ -69,10 +69,8 @@ class TabularBatteryCreationsTest extends AbstractNetworkModificationTest {
                 .minP(0).maxP(800)
                 .targetP(700).targetQ(20D)
                 .participate(false)
-                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(
-                    ReactiveCapabilityCurvePointsModel.builder().p(1.).minQ(2.).maxQ(3.).build(),
-                    ReactiveCapabilityCurvePointsModel.builder().p(5.).minQ(6.).maxQ(7.).build(),
-                    ReactiveCapabilityCurvePointsModel.builder().p(9.).minQ(10.).maxQ(11.).build()))
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsModel.builder().p(1.).minQ(2.).maxQ(3.).build(),
+                        ReactiveCapabilityCurvePointsModel.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsModel.builder().p(9.).minQ(10.).maxQ(11.).build()))
                 .build(),
             BatteryCreationModel.builder()
                 .equipmentId("id5").voltageLevelId("v5").busOrBusbarSectionId("1A1")
@@ -86,10 +84,8 @@ class TabularBatteryCreationsTest extends AbstractNetworkModificationTest {
                 .connectionName("v6battery").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .minP(0).maxP(200).targetQ(400D)
                 .targetP(150)
-                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(
-                    ReactiveCapabilityCurvePointsModel.builder().p(1.).minQ(2.).maxQ(3.).build(),
-                    ReactiveCapabilityCurvePointsModel.builder().p(5.).minQ(6.).maxQ(7.).build(),
-                    ReactiveCapabilityCurvePointsModel.builder().p(9.).minQ(10.).maxQ(11.).build()))
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsModel.builder().p(1.).minQ(2.).maxQ(3.).build(),
+                        ReactiveCapabilityCurvePointsModel.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsModel.builder().p(9.).minQ(10.).maxQ(11.).build()))
                 .build(),
             BatteryCreationModel.builder()
                 .equipmentId("id7").voltageLevelId("v6").busOrBusbarSectionId("1B1")
@@ -97,10 +93,8 @@ class TabularBatteryCreationsTest extends AbstractNetworkModificationTest {
                 .minP(0).maxP(200).targetQ(400D)
                 .targetP(150)
                 .minQ(1.).maxQ(100.)
-                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(
-                    ReactiveCapabilityCurvePointsModel.builder().p(1.).minQ(2.).maxQ(3.).build(),
-                    ReactiveCapabilityCurvePointsModel.builder().p(5.).minQ(6.).maxQ(7.).build(),
-                    ReactiveCapabilityCurvePointsModel.builder().p(9.).minQ(10.).maxQ(11.).build()))
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsModel.builder().p(1.).minQ(2.).maxQ(3.).build(),
+                        ReactiveCapabilityCurvePointsModel.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsModel.builder().p(9.).minQ(10.).maxQ(11.).build()))
                 .build()
         );
         return TabularCreationModel.builder()
@@ -141,14 +135,14 @@ class TabularBatteryCreationsTest extends AbstractNetworkModificationTest {
                 .build()
         );
 
-        ModificationModel creationModel = TabularCreationModel.builder()
+        ModificationModel creationInfos = TabularCreationModel.builder()
             .modificationType(ModificationType.BATTERY_CREATION)
             .modifications(creations)
             .build();
-        ReportNode reportNode = creationModel.createSubReportNode(ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test").build());
-        creationModel.toModification().apply(getNetwork(), reportNode);
+        ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+        creationInfos.toModification().apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: 1 battery have been created", "network.modification.tabular.creation", reportNode);
         assertLogMessage("Creation of id1", "network.modification.tabular.creation.equipmentId", reportNode);
     }
@@ -185,48 +179,42 @@ class TabularBatteryCreationsTest extends AbstractNetworkModificationTest {
                 .connectionName("v4battery").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .minP(0).maxP(200)
                 .targetP(150)
-                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(
-                    ReactiveCapabilityCurvePointsModel.builder().maxQ(3.).build(),
-                    ReactiveCapabilityCurvePointsModel.builder().maxQ(3.).build(),
-                    ReactiveCapabilityCurvePointsModel.builder().maxQ(3.).build()))
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsModel.builder().maxQ(3.).build(),
+                        ReactiveCapabilityCurvePointsModel.builder().maxQ(3.).build(), ReactiveCapabilityCurvePointsModel.builder().maxQ(3.).build()))
                 .build(),
             BatteryCreationModel.builder()
                 .equipmentId("id5").voltageLevelId("v5").busOrBusbarSectionId("1A1")
                 .connectionName("v5battery").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .minP(0).maxP(200)
                 .targetP(150)
-                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(
-                    ReactiveCapabilityCurvePointsModel.builder().p(3.).build(),
-                    ReactiveCapabilityCurvePointsModel.builder().p(3.).build(),
-                    ReactiveCapabilityCurvePointsModel.builder().p(3.).build()))
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsModel.builder().p(3.).build(),
+                        ReactiveCapabilityCurvePointsModel.builder().p(3.).build(), ReactiveCapabilityCurvePointsModel.builder().p(3.).build()))
                 .build(),
             BatteryCreationModel.builder()
                 .equipmentId("id6").voltageLevelId("v5").busOrBusbarSectionId("1A1")
                 .connectionName("v6battery").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .minP(0).maxP(200)
                 .targetP(150)
-                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(
-                    ReactiveCapabilityCurvePointsModel.builder().minQ(1.).p(3.).build(),
-                    ReactiveCapabilityCurvePointsModel.builder().minQ(1.).p(3.).build(),
-                    ReactiveCapabilityCurvePointsModel.builder().minQ(1.).p(3.).build()))
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsModel.builder().minQ(1.).p(3.).build(),
+                        ReactiveCapabilityCurvePointsModel.builder().minQ(1.).p(3.).build(), ReactiveCapabilityCurvePointsModel.builder().minQ(1.).p(3.).build()))
                 .build()
         );
-        ModificationModel creationModel = TabularCreationModel.builder()
-            .modificationType(ModificationType.BATTERY_CREATION)
-            .modifications(creations)
-            .build();
-        ReportNode reportNode = creationModel.createSubReportNode(ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test").build());
-        creationModel.toModification().apply(getNetwork(), reportNode);
+        ModificationModel creationInfos = TabularCreationModel.builder()
+                .modificationType(ModificationType.BATTERY_CREATION)
+                .modifications(creations)
+                .build();
+        ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+        creationInfos.toModification().apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: No batteries have been created", "network.modification.tabular.creation.error", reportNode);
         assertLogMessage("Creation errors", "network.modification.tabular.creation.error.equipmentError", reportNode);
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals(ModificationType.TABULAR_CREATION.name(), modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals(ModificationType.TABULAR_CREATION.name(), modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals(ModificationType.BATTERY_CREATION.name(), createdValues.get("tabularCreationType"));
     }

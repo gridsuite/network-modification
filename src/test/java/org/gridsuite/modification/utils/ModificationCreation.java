@@ -43,24 +43,24 @@ public final class ModificationCreation {
 
     public static BatteryCreationModel getCreationBattery(String vlId, String batteryId, String batteryName, String busOrBusbarSectionId) {
         return BatteryCreationModel.builder()
-            .equipmentId(batteryId)
-            .equipmentName(batteryName)
-            .voltageLevelId(vlId)
-            .busOrBusbarSectionId(busOrBusbarSectionId)
-            .minP(100.0)
-            .maxP(600.0)
-            .targetP(400.)
-            .targetQ(50.)
-            .minQ(20.0)
-            .maxQ(25.0)
-            .droop(5f)
-            .participate(true)
-            .reactiveCapabilityCurve(true)
-            .reactiveCapabilityCurvePoints(Arrays.asList(new ReactiveCapabilityCurvePointsModel(2.0, 3.0, 3.1),
-                new ReactiveCapabilityCurvePointsModel(5.6, 9.8, 10.8)))
-            .connectionName("top")
-            .connectionDirection(ConnectablePosition.Direction.TOP)
-            .build();
+                .equipmentId(batteryId)
+                .equipmentName(batteryName)
+                .voltageLevelId(vlId)
+                .busOrBusbarSectionId(busOrBusbarSectionId)
+                .minP(100.0)
+                .maxP(600.0)
+                .targetP(400.)
+                .targetQ(50.)
+                .minQ(20.0)
+                .maxQ(25.0)
+                .droop(5f)
+                .participate(true)
+                .reactiveCapabilityCurve(true)
+                .reactiveCapabilityCurvePoints(Arrays.asList(new ReactiveCapabilityCurvePointsModel(2.0, 3.0, 3.1),
+                        new ReactiveCapabilityCurvePointsModel(5.6, 9.8, 10.8)))
+                .connectionName("top")
+                .connectionDirection(ConnectablePosition.Direction.TOP)
+                .build();
     }
 
     public static GeneratorCreationModel getCreationGenerator(String vlId, String generatorId, String generatorName, String busOrBusbarSectionId,
@@ -98,7 +98,7 @@ public final class ModificationCreation {
 
     public static GeneratorModificationModel getModificationGenerator(String generatorId, String generatorName) {
         GeneratorModificationModel.GeneratorModificationModelBuilder builder = GeneratorModificationModel.builder()
-            .equipmentId(generatorId);
+                .equipmentId(generatorId);
 
         if (generatorName != null) {
             builder.equipmentName(AttributeModification.toAttributeModification(generatorName, OperationType.SET));

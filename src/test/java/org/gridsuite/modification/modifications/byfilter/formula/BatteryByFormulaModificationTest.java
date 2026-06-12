@@ -45,23 +45,23 @@ class BatteryByFormulaModificationTest extends AbstractByFormulaModificationTest
     void testCreateWithWarning() throws Exception {
         IdentifiableAttributes identifiableAttributes = new IdentifiableAttributes(BATTERY_ID_1, getIdentifiableType(), 1.0);
         FilterEquipments filter = FilterEquipments.builder().filterId(FILTER_WITH_ONE_WRONG_ID)
-            .identifiableAttributes(List.of(identifiableAttributes))
-            .notFoundEquipments(List.of("wrongId"))
-            .build();
+                .identifiableAttributes(List.of(identifiableAttributes))
+                .notFoundEquipments(List.of("wrongId"))
+                .build();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_WITH_ONE_WRONG_ID, filter));
-        FormulaModel formulaModel = FormulaModel.builder()
-            .filters(List.of(filterWithOneWrongId))
-            .editedField(BatteryField.ACTIVE_POWER_SET_POINT.name())
-            .fieldOrValue1(ReferenceFieldOrValue.builder().value(55.).build())
-            .operator(Operator.ADDITION)
-            .fieldOrValue2(ReferenceFieldOrValue.builder().value(20.).build())
-            .build();
+        FormulaModel formulaInfos = FormulaModel.builder()
+                .filters(List.of(filterWithOneWrongId))
+                .editedField(BatteryField.ACTIVE_POWER_SET_POINT.name())
+                .fieldOrValue1(ReferenceFieldOrValue.builder().value(55.).build())
+                .operator(Operator.ADDITION)
+                .fieldOrValue2(ReferenceFieldOrValue.builder().value(20.).build())
+                .build();
 
-        ByFormulaModificationModel modificationModel = ByFormulaModificationModel.builder()
-            .identifiableType(getIdentifiableType())
-            .formulaInfosList(List.of(formulaModel))
-            .build();
-        apply(modificationModel);
+        ByFormulaModificationModel modificationInfos = ByFormulaModificationModel.builder()
+                .identifiableType(getIdentifiableType())
+                .formulaInfosList(List.of(formulaInfos))
+                .build();
+        apply(modificationInfos);
         assertEquals(75, getNetwork().getBattery(BATTERY_ID_1).getTargetP(), 0);
     }
 
@@ -112,41 +112,41 @@ class BatteryByFormulaModificationTest extends AbstractByFormulaModificationTest
     }
 
     @Override
-    protected List<FormulaModel> getFormulaModel() {
+    protected List<FormulaModel> getFormulaInfos() {
         ReferenceFieldOrValue maxActivePowerRef = ReferenceFieldOrValue.builder().equipmentField(BatteryField.MAXIMUM_ACTIVE_POWER.name()).build();
         ReferenceFieldOrValue minActivePowerRef = ReferenceFieldOrValue.builder().equipmentField(BatteryField.MINIMUM_ACTIVE_POWER.name()).build();
 
-        FormulaModel formulaModel1 = getFormulaInfo(BatteryField.MAXIMUM_ACTIVE_POWER.name(),
-            List.of(filter1, filter2),
-            Operator.ADDITION,
-            maxActivePowerRef,
-            ReferenceFieldOrValue.builder().value(50.).build());
+        FormulaModel formulaInfos1 = getFormulaInfo(BatteryField.MAXIMUM_ACTIVE_POWER.name(),
+                List.of(filter1, filter2),
+                Operator.ADDITION,
+                maxActivePowerRef,
+                ReferenceFieldOrValue.builder().value(50.).build());
 
-        FormulaModel formulaModel2 = getFormulaInfo(BatteryField.MINIMUM_ACTIVE_POWER.name(),
-            List.of(filter3),
-            Operator.PERCENTAGE,
-            ReferenceFieldOrValue.builder().value(30.).build(),
-            minActivePowerRef);
+        FormulaModel formulaInfos2 = getFormulaInfo(BatteryField.MINIMUM_ACTIVE_POWER.name(),
+                List.of(filter3),
+                Operator.PERCENTAGE,
+                ReferenceFieldOrValue.builder().value(30.).build(),
+                minActivePowerRef);
 
-        FormulaModel formulaModel3 = getFormulaInfo(BatteryField.ACTIVE_POWER_SET_POINT.name(),
-            List.of(filter5),
-            Operator.SUBTRACTION,
-            maxActivePowerRef,
-            minActivePowerRef);
+        FormulaModel formulaInfos3 = getFormulaInfo(BatteryField.ACTIVE_POWER_SET_POINT.name(),
+                List.of(filter5),
+                Operator.SUBTRACTION,
+                maxActivePowerRef,
+                minActivePowerRef);
 
-        FormulaModel formulaModel4 = getFormulaInfo(BatteryField.REACTIVE_POWER_SET_POINT.name(),
-            List.of(filter4),
-            Operator.DIVISION,
-            ReferenceFieldOrValue.builder().equipmentField(BatteryField.REACTIVE_POWER_SET_POINT.name()).build(),
-            ReferenceFieldOrValue.builder().value(2.).build());
+        FormulaModel formulaInfos4 = getFormulaInfo(BatteryField.REACTIVE_POWER_SET_POINT.name(),
+                List.of(filter4),
+                Operator.DIVISION,
+                ReferenceFieldOrValue.builder().equipmentField(BatteryField.REACTIVE_POWER_SET_POINT.name()).build(),
+                ReferenceFieldOrValue.builder().value(2.).build());
 
-        FormulaModel formulaModel5 = getFormulaInfo(BatteryField.DROOP.name(),
-            List.of(filter4),
-            Operator.MULTIPLICATION,
-            ReferenceFieldOrValue.builder().equipmentField(BatteryField.DROOP.name()).build(),
-            ReferenceFieldOrValue.builder().value(2.).build());
+        FormulaModel formulaInfos5 = getFormulaInfo(BatteryField.DROOP.name(),
+                List.of(filter4),
+                Operator.MULTIPLICATION,
+                ReferenceFieldOrValue.builder().equipmentField(BatteryField.DROOP.name()).build(),
+                ReferenceFieldOrValue.builder().value(2.).build());
 
-        return List.of(formulaModel1, formulaModel2, formulaModel3, formulaModel4, formulaModel5);
+        return List.of(formulaInfos1, formulaInfos2, formulaInfos3, formulaInfos4, formulaInfos5);
     }
 
     @Override

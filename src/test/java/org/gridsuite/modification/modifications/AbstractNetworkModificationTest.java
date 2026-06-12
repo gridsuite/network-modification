@@ -12,7 +12,6 @@ import org.gridsuite.modification.model.ModificationModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.UUID;
 
 /**
@@ -23,7 +22,6 @@ import java.util.UUID;
  * <li>If you want to add a test specific to a modification, add it in its own class.</li>
  * </ul>
  */
-
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
@@ -73,8 +71,8 @@ public abstract class AbstractNetworkModificationTest {
     protected abstract void checkModification();
 
     @SuppressWarnings("java:S1130") // Exceptions are throws by overrides
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
         // commented out: getMessageValues() was removed from ModificationModel during refactoring
-        // assertEquals("{}", modificationModel.getMessageValues());
+        // assertEquals("{}", modificationInfos.getMessageValues());
     }
 }

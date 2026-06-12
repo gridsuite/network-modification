@@ -37,34 +37,34 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
         OperationalLimitsGroupModel limitsGroup = new OperationalLimitsGroupModel();
         limitsGroup.setId("groupId");
         limitsGroup.setApplicability(OperationalLimitsGroupModel.Applicability.SIDE1);
-        CurrentLimitsModel currentLimitsModel = new CurrentLimitsModel();
-        currentLimitsModel.setPermanentLimit(1.0);
-        limitsGroup.setCurrentLimits(currentLimitsModel);
+        CurrentLimitsModel currentLimitsInfos = new CurrentLimitsModel();
+        currentLimitsInfos.setPermanentLimit(1.0);
+        limitsGroup.setCurrentLimits(currentLimitsInfos);
         operationalLimitsList.add(limitsGroup);
         return LineCreationModel.builder()
-            .equipmentId(lineName)
-            .r(50.6)
-            .x(25.3)
-            .properties(propertiesList)
-            .operationalLimitsGroups(operationalLimitsList)
-            .build();
+                .equipmentId(lineName)
+                .r(50.6)
+                .x(25.3)
+                .properties(propertiesList)
+                .operationalLimitsGroups(operationalLimitsList)
+                .build();
     }
 
     private static VoltageLevelCreationModel getNewVoltageLevel() {
         return VoltageLevelCreationModel.builder()
-            .equipmentId("newVoltageLevel")
-            .equipmentName("NewVoltageLevel")
-            .nominalV(379.3)
-            .substationId("s1")
-            .lowVoltageLimit(0.0)
-            .highVoltageLimit(10.0)
-            .ipMin(0.0)
-            .ipMax(10.0)
-            .busbarCount(2)
-            .sectionCount(2)
-            .switchKinds(List.of(SwitchKind.BREAKER))
-            .couplingDevices(Collections.singletonList(CouplingDeviceModel.builder().busbarSectionId1("bbs.nw").busbarSectionId2("bbs.ne").build()))
-            .build();
+                .equipmentId("newVoltageLevel")
+                .equipmentName("NewVoltageLevel")
+                .nominalV(379.3)
+                .substationId("s1")
+                .lowVoltageLimit(0.0)
+                .highVoltageLimit(10.0)
+                .ipMin(0.0)
+                .ipMax(10.0)
+                .busbarCount(2)
+                .sectionCount(2)
+                .switchKinds(List.of(SwitchKind.BREAKER))
+                .couplingDevices(Collections.singletonList(CouplingDeviceModel.builder().busbarSectionId1("bbs.nw").busbarSectionId2("bbs.ne").build()))
+                .build();
     }
 
     @Override
@@ -72,36 +72,36 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
         Network network = NetworkCreation.create(networkUuid, true);
         Line oldLine = network.getLine("line3");
         oldLine.newOperationalLimitsGroup1("group1")
-            .newCurrentLimits()
-            .setPermanentLimit(100.0)
-            .beginTemporaryLimit().setName("20'")
-            .setValue(120.0)
-            .setAcceptableDuration(1200)
-            .endTemporaryLimit()
-            .add();
+                .newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(120.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
         oldLine.newOperationalLimitsGroup1("group2").newCurrentLimits()
-            .setPermanentLimit(110.0)
-            .beginTemporaryLimit().setName("20'")
-            .setValue(130.0)
-            .setAcceptableDuration(1200)
-            .endTemporaryLimit()
-            .add();
+                .setPermanentLimit(110.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(130.0)
+                .setAcceptableDuration(1200)
+                .endTemporaryLimit()
+                .add();
         oldLine.getOperationalLimitsGroup1("group2").ifPresent(olg -> olg.setProperty("prop", "propvalue"));
         oldLine.setSelectedOperationalLimitsGroup1("group2");
         oldLine.newOperationalLimitsGroup2("group3").newCurrentLimits()
-            .setPermanentLimit(10.0)
-            .beginTemporaryLimit().setName("20'")
-            .setValue(12.0)
-            .setAcceptableDuration(600)
-            .endTemporaryLimit()
-            .add();
+                .setPermanentLimit(10.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(12.0)
+                .setAcceptableDuration(600)
+                .endTemporaryLimit()
+                .add();
         oldLine.newOperationalLimitsGroup2("group4").newCurrentLimits()
-            .setPermanentLimit(11.0)
-            .beginTemporaryLimit().setName("20'")
-            .setValue(13.0)
-            .setAcceptableDuration(600)
-            .endTemporaryLimit()
-            .add();
+                .setPermanentLimit(11.0)
+                .beginTemporaryLimit().setName("20'")
+                .setValue(13.0)
+                .setAcceptableDuration(600)
+                .endTemporaryLimit()
+                .add();
         oldLine.getOperationalLimitsGroup2("group4").ifPresent(olg -> olg.setProperty("prop1", "propvalue1"));
         oldLine.setSelectedOperationalLimitsGroup2("group3");
         return network;
@@ -110,19 +110,19 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationModel buildModification() {
         return LineAttachToVoltageLevelModel.builder()
-            .lineToAttachToId("line3")
-            .percent(10.0)
-            .attachmentPointId("AttPointId")   // created VL
-            .attachmentPointName("attPointName")
-            .mayNewVoltageLevelInfos(getNewVoltageLevel())
-            .existingVoltageLevelId(null)     // use existing VL
-            .bbsOrBusId("1.A")
-            .attachmentLine(getAttachmentLine("attachmentLine"))   // created Line
-            .newLine1Id("nl1")
-            .newLine1Name("NewLine1")
-            .newLine2Id("nl2")
-            .newLine2Name("NewLine2")
-            .build();
+                .lineToAttachToId("line3")
+                .percent(10.0)
+                .attachmentPointId("AttPointId")   // created VL
+                .attachmentPointName("attPointName")
+                .mayNewVoltageLevelInfos(getNewVoltageLevel())
+                .existingVoltageLevelId(null)     // use existing VL
+                .bbsOrBusId("1.A")
+                .attachmentLine(getAttachmentLine("attachmentLine"))   // created Line
+                .newLine1Id("nl1")
+                .newLine1Name("NewLine1")
+                .newLine2Id("nl2")
+                .newLine2Name("NewLine2")
+                .build();
     }
 
     @Override
@@ -167,7 +167,7 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
     private void tryToCreateLineWithExistingId(LineAttachToVoltageLevelModel tryWithExistingLine, String existingLineId) throws Exception {
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> tryWithExistingLine.toModification().check(getNetwork()));
         assertEquals(new NetworkModificationException(LINE_ALREADY_EXISTS, existingLineId).getMessage(),
-            exception.getMessage());
+                exception.getMessage());
     }
 
     @Override
@@ -176,7 +176,7 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
         lineAttachToAbsentLine.setLineToAttachToId("absent_line_id");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lineAttachToAbsentLine.toModification().check(getNetwork()));
         assertEquals(new NetworkModificationException(LINE_NOT_FOUND, "absent_line_id").getMessage(),
-            exception.getMessage());
+                exception.getMessage());
     }
 
     @Test
@@ -198,13 +198,13 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
         tryWithAttachmentPointId.setAttachmentPointId("v5");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> tryWithAttachmentPointId.toModification().check(getNetwork()));
         assertEquals(new NetworkModificationException(VOLTAGE_LEVEL_ALREADY_EXISTS, "v5").getMessage(),
-            exception.getMessage());
+                exception.getMessage());
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("LINE_ATTACH_TO_VOLTAGE_LEVEL", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("LINE_ATTACH_TO_VOLTAGE_LEVEL", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("line3", createdValues.get("lineToAttachToId"));
     }

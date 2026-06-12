@@ -16,9 +16,7 @@ import org.gridsuite.modification.report.NetworkModificationReportResourceBundle
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.Test;
-
 import java.util.UUID;
-
 import static com.powsybl.iidm.network.extensions.OperatingStatus.Status.FORCED_OUTAGE;
 import static com.powsybl.iidm.network.extensions.OperatingStatus.Status.PLANNED_OUTAGE;
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
@@ -44,9 +42,9 @@ class OperatingStatusModificationTripLineTest extends AbstractNetworkModificatio
     @Override
     protected ModificationModel buildModification() {
         return OperatingStatusModificationModel.builder()
-            .equipmentId(TARGET_LINE_ID)
-            .energizedVoltageLevelId("energizedVoltageLevelId")
-            .action(OperatingStatusModificationModel.ActionType.TRIP).build();
+                .equipmentId(TARGET_LINE_ID)
+                .energizedVoltageLevelId("energizedVoltageLevelId")
+                .action(OperatingStatusModificationModel.ActionType.TRIP).build();
     }
 
     @Override
@@ -55,9 +53,9 @@ class OperatingStatusModificationTripLineTest extends AbstractNetworkModificatio
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("OPERATING_STATUS_MODIFICATION", modificationModel.getMessageType());
-        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("OPERATING_STATUS_MODIFICATION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("energizedVoltageLevelId", createdValues.get("energizedVoltageLevelId"));
         // assertEquals("TRIP", createdValues.get("action"));
@@ -75,9 +73,9 @@ class OperatingStatusModificationTripLineTest extends AbstractNetworkModificatio
     @Test
     void testCreateSubReportNode() {
         ReportNode reportNode = ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test")
-            .build();
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build();
 
         OperatingStatusModificationModel modification = (OperatingStatusModificationModel) buildModification();
 

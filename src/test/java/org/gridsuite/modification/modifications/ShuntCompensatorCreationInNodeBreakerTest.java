@@ -13,7 +13,6 @@ import org.gridsuite.modification.model.FreePropertyModel;
 import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.model.ShuntCompensatorCreationModel;
 import org.gridsuite.modification.utils.NetworkCreation;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -34,18 +33,18 @@ class ShuntCompensatorCreationInNodeBreakerTest extends AbstractNetworkModificat
     @Override
     protected ModificationModel buildModification() {
         return ShuntCompensatorCreationModel.builder()
-            .equipmentId("shuntOneId")
-            .equipmentName("hop")
-            .maximumSectionCount(10)
-            .sectionCount(6)
-            .maxSusceptance(0.)
-            .voltageLevelId("v2")
-            .busOrBusbarSectionId("1B")
-            .connectionName("cn")
-            .connectionPosition(99)
-            .connectionDirection(ConnectablePosition.Direction.UNDEFINED)
-            .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
-            .build();
+                .equipmentId("shuntOneId")
+                .equipmentName("hop")
+                .maximumSectionCount(10)
+                .sectionCount(6)
+                .maxSusceptance(0.)
+                .voltageLevelId("v2")
+                .busOrBusbarSectionId("1B")
+                .connectionName("cn")
+                .connectionPosition(99)
+                .connectionDirection(ConnectablePosition.Direction.UNDEFINED)
+                .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+                .build();
     }
 
     @Override
@@ -77,9 +76,9 @@ class ShuntCompensatorCreationInNodeBreakerTest extends AbstractNetworkModificat
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        // assertEquals("SHUNT_COMPENSATOR_CREATION", modificationModel.getMessageType());
-        // Map<String, String> updatedValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("SHUNT_COMPENSATOR_CREATION", modificationInfos.getMessageType());
+        // Map<String, String> updatedValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
         // });
         // assertEquals("shuntOneId", updatedValues.get("equipmentId"));
     }
