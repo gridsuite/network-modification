@@ -77,6 +77,8 @@ public final class ModificationUtils {
     public static final String FIELD_MIN_ACTIVE_POWER = "Minimum active power";
     public static final String FIELD_PLANNED_ACTIVE_POWER_SET_POINT = "Planned active power set point";
     public static final String FIELD_ACTIVE_POWER_TARGET = "Active power target";
+    private static final String VALUE = "value";
+    private static final String VALIDITY = "validity";
 
     public static String applicabilityToString(OperationalLimitsGroupInfos.Applicability applicability) {
         return switch (applicability) {
@@ -2214,6 +2216,70 @@ public final class ModificationUtils {
             reportModifications(subReporter, activePowerRegulationReports, "network.modification.ActivePowerRegulationCreated");
         }
 
+    }
+
+    public ReportNode applyMeasurementsAndBuildModificationReport(Injection<?> injection, InjectionModificationInfos injectionModificationInfos, ReportNode subReportNode) {
+        Double pValue = injectionModificationInfos.getPMeasurementValue() != null ? injectionModificationInfos.getPMeasurementValue().getValue() : null;
+        Double qValue = injectionModificationInfos.getQMeasurementValue() != null ? injectionModificationInfos.getQMeasurementValue().getValue() : null;
+        Boolean pValidity = injectionModificationInfos.getPMeasurementValidity() != null ? injectionModificationInfos.getPMeasurementValidity().getValue() : null;
+        Boolean qValidity = injectionModificationInfos.getQMeasurementValidity() != null ? injectionModificationInfos.getQMeasurementValidity().getValue() : null;
+
+        if (pValue == null && pValidity == null && qValue == null && qValidity == null) {
+            // no measurement modification requested
+            return null;
+        }
+        Measurements<?> measurements = (Measurements<?>) injection.getExtension(Measurements.class);
+        if (measurements == null) {
+            MeasurementsAdder<?> measurementsAdder = injection.newExtension(MeasurementsAdder.class);
+            measurements = measurementsAdder.add();
+        }
+        // measurements update
+        List<ReportNode> reports = new ArrayList<>();
+        upsertMeasurement(measurements, Measurement.Type.ACTIVE_POWER, pValue, pValidity, reports);
+        upsertMeasurement(measurements, Measurement.Type.REACTIVE_POWER, qValue, qValidity, reports);
+        // report changes
+        ReportNode estimSubReportNode = null;
+        if (!reports.isEmpty()) {
+            estimSubReportNode = subReportNode.newReportNode().withMessageTemplate("network.modification.stateEstimationData").add();
+            reportModifications(estimSubReportNode, reports, "network.modification.measurements");
+        }
+        return estimSubReportNode;
+    }
+
+    private void upsertMeasurement(Measurements<?> measurements, Measurement.Type type, Double value, Boolean requestedValidity, List<ReportNode> reports) {
+        if (value == null && requestedValidity == null) {
+            return;
+        }
+        String measurementType = (type == Measurement.Type.ACTIVE_POWER ? "Active power" : "Reactive power") + " measurement ";
+        Measurement measurement = getExistingMeasurement(measurements, type);
+        if (measurement != null) { // update measurement
+            if (value != null) {
+                double oldValue = measurement.getValue();
+                measurement.setValue(value);
+                reports.add(buildModificationReport(oldValue, value, measurementType + VALUE, TypedValue.INFO_SEVERITY));
+            }
+            if (requestedValidity != null) {
+                boolean oldValidity = measurement.isValid();
+
+                updateMeasurementValidity(measurement, requestedValidity);
+                reports.add(buildModificationReport(oldValidity, requestedValidity, measurementType + VALIDITY, TypedValue.INFO_SEVERITY));
+            }
+        } else {
+            var measurementAdder = measurements.newMeasurement().setId(UUID.randomUUID().toString()).setType(type);
+            if (value != null) {
+                measurementAdder.setValue(value);
+                reports.add(buildModificationReport(null, value, measurementType + VALUE, TypedValue.INFO_SEVERITY));
+            }
+            if (requestedValidity != null) {
+                measurementAdder.setValid(requestedValidity);
+                reports.add(buildModificationReport(null, requestedValidity, measurementType + VALIDITY, TypedValue.INFO_SEVERITY));
+            }
+            measurementAdder.add();
+        }
+    }
+
+    private Measurement getExistingMeasurement(Measurements<?> measurements, Measurement.Type type) {
+        return measurements.getMeasurements(type).stream().findFirst().orElse(null);
     }
 
     public static void updateMeasurementValidity(Measurement measurement, boolean requestedValidity) {
