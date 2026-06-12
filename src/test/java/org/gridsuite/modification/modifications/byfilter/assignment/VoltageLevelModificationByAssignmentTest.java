@@ -230,13 +230,15 @@ class VoltageLevelModificationByAssignmentTest extends AbstractModificationByAss
         assertEquals("Assignment on filters : filter6", reportNode.getChildren().getFirst().getChildren().get(7).getMessage());
         assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(7).getChildren().getFirst().getMessage());
         assertEquals("Edited field : LOW_SHORT_CIRCUIT_CURRENT_LIMIT", reportNode.getChildren().getFirst().getChildren().get(7).getChildren().get(1).getMessage());
-        assertEquals("Cannot modify equipment v7 : MODIFY_VOLTAGE_LEVEL_ERROR : Voltage level 'v7' :  Low short circuit current limit (220.0) must be inferior to High short circuit current limit (200.0)",
+        assertEquals("Cannot modify equipment v7 : MODIFY_VOLTAGE_LEVEL_ERROR : Voltage level 'v7' :  "
+                + "Low short circuit current limit (220.0) must be inferior to High short circuit current limit (200.0)",
             reportNode.getChildren().getFirst().getChildren().get(7).getChildren().get(2).getMessage());
 
         assertEquals("Assignment on filters : filter6", reportNode.getChildren().getFirst().getChildren().get(8).getMessage());
         assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(8).getChildren().getFirst().getMessage());
         assertEquals("Edited field : HIGH_SHORT_CIRCUIT_CURRENT_LIMIT", reportNode.getChildren().getFirst().getChildren().get(8).getChildren().get(1).getMessage());
-        assertEquals("Cannot modify equipment v7 : MODIFY_VOLTAGE_LEVEL_ERROR : Voltage level 'v7' :  High short circuit current limit (80.0) must be superior to Low short circuit current limit (100.0)",
+        assertEquals("Cannot modify equipment v7 : MODIFY_VOLTAGE_LEVEL_ERROR : Voltage level 'v7' :  "
+                + "High short circuit current limit (80.0) must be superior to Low short circuit current limit (100.0)",
             reportNode.getChildren().getFirst().getChildren().get(8).getChildren().get(2).getMessage());
     }
 

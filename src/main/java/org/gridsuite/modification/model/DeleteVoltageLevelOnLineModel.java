@@ -15,7 +15,6 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.DeleteVoltageLevelOnLine;
 
-
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
  */

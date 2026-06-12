@@ -70,7 +70,7 @@ public class EquipmentAttributeModificationModel extends EquipmentModificationMo
     }
 
     private void checkSwitchStatusModificationInfos() {
-        if (!equipmentAttributeName.equals("open")) {
+        if (!"open".equals(equipmentAttributeName)) {
             throw new NetworkModificationException(EQUIPMENT_ATTRIBUTE_NAME_ERROR, "For switch status, the attribute name is only 'open'");
         }
         Set<Boolean> possibleValues = Set.of(true, false);

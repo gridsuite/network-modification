@@ -243,7 +243,8 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         GeneratorModification generatorModification = (GeneratorModification) generatorModificationModel.toModification();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class,
             () -> generatorModification.check(network));
-        assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : Active power 110.0 is expected to be equal to 0 or within the range of minimum active power and maximum active power: [0.0, 100.0]",
+        assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : Active power 110.0 is expected to be equal to 0"
+                + " or within the range of minimum active power and maximum active power: [0.0, 100.0]",
             exception.getMessage());
 
     }

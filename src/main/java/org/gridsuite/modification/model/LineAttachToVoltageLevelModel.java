@@ -15,7 +15,6 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LineAttachToVoltageLevel;
 
-
 /**
  * @author Nicolas NOIR <nicolas.noir at rte-france.com>
  */

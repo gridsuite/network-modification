@@ -17,8 +17,8 @@ import org.gridsuite.modification.model.CompositeModificationModel;
 import org.gridsuite.modification.model.ModificationModel;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 

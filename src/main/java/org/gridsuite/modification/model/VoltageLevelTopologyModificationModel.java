@@ -21,7 +21,7 @@ import org.gridsuite.modification.modifications.VoltageLevelTopologyModification
 import java.util.List;
 
 /**
- * @author REHILI Ghazwa <ghazwarhili@gmail.com>
+ * @author REHILI Ghazwa <ghazwarhili at gmail.com>
  */
 
 @SuperBuilder

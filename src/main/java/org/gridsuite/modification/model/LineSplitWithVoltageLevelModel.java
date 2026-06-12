@@ -15,7 +15,6 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LineSplitWithVoltageLevel;
 
-
 /**
  * @author Laurent GARNIER <laurent.garnier at rte-france.com>
  */

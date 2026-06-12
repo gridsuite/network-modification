@@ -34,7 +34,9 @@ public class LoadScaling extends AbstractScaling {
     }
 
     @Override
-    protected void applyVentilationVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationModel scalingVariationModel, Double distributionKeys) {
+    protected void applyVentilationVariation(Network network, ReportNode subReportNode,
+                                             Set<IdentifiableAttributes> identifiableAttributes,
+                                             ScalingVariationModel scalingVariationModel, Double distributionKeys) {
         if (distributionKeys != null) {
             AtomicReference<Double> sum = new AtomicReference<>(0D);
             List<Double> percentages = new ArrayList<>();

@@ -991,7 +991,8 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
         String message = assertThrows(NetworkModificationException.class, () -> processPhaseTapRegulation(null, adder, false,
             regulationCurrentLimiterModeModification, regulationValueModification, null, regulatingModification, regulationReports)).getMessage();
-        assertEquals("CREATE_TWO_WINDINGS_TRANSFORMER_ERROR : Regulation value must be positive if regulation mode is CURRENT_LIMITER when creating tap phase changer with regulation enabled", message);
+        assertEquals("CREATE_TWO_WINDINGS_TRANSFORMER_ERROR : Regulation value must be positive if regulation mode is CURRENT_LIMITER"
+            + " when creating tap phase changer with regulation enabled", message);
         // modification
         String message2 = assertThrows(NetworkModificationException.class, () -> processPhaseTapRegulation(phaseTapChanger, null, true,
             regulationCurrentLimiterModeModification, regulationValueModification, null, regulatingModification, regulationReports)).getMessage();
@@ -1101,4 +1102,3 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertEquals("1", reactivePowerMeasurement.getProperty("validity"));
     }
 }
-

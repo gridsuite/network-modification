@@ -28,8 +28,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
 class GeneratorCreationInBusBreakerTest extends AbstractNetworkModificationTest {
-    private static String PROPERTY_NAME = "property-name";
-    private static String PROPERTY_VALUE = "property-value";
+    private static final String PROPERTY_NAME = "property-name";
+    private static final String PROPERTY_VALUE = "property-value";
 
     @Override
     protected Network createNetwork(UUID networkUuid) {

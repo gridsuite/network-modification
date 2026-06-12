@@ -210,12 +210,14 @@ public class VoltageInitModification extends AbstractModification {
                     if (t.getRatioTapChangerPosition() != null) {
                         final int oldTapPosition = threeWindingsTransformer.getLeg(t.getLegSide()).getRatioTapChanger().getTapPosition();
                         threeWindingsTransformer.getLeg(t.getLegSide()).getRatioTapChanger().setTapPosition(t.getRatioTapChangerPosition());
-                        reports3WT.add(ModificationUtils.buildModificationReport(oldTapPosition, t.getRatioTapChangerPosition(), "Leg " + t.getLegSide().name() + " ratio tap changer position", TypedValue.DETAIL_SEVERITY));
+                        reports3WT.add(ModificationUtils.buildModificationReport(oldTapPosition, t.getRatioTapChangerPosition(),
+                            "Leg " + t.getLegSide().name() + " ratio tap changer position", TypedValue.DETAIL_SEVERITY));
                     }
                     if (t.getRatioTapChangerTargetV() != null) {
                         final double oldTapTargetV = threeWindingsTransformer.getLeg(t.getLegSide()).getRatioTapChanger().getTargetV();
                         threeWindingsTransformer.getLeg(t.getLegSide()).getRatioTapChanger().setTargetV(t.getRatioTapChangerTargetV());
-                        reports3WT.add(ModificationUtils.buildModificationReport(oldTapTargetV, t.getRatioTapChangerTargetV(), "Leg " + t.getLegSide().name() + " ratio tap changer target voltage", TypedValue.DETAIL_SEVERITY));
+                        reports3WT.add(ModificationUtils.buildModificationReport(oldTapTargetV, t.getRatioTapChangerTargetV(),
+                            "Leg " + t.getLegSide().name() + " ratio tap changer target voltage", TypedValue.DETAIL_SEVERITY));
                     }
                 }
             } else {

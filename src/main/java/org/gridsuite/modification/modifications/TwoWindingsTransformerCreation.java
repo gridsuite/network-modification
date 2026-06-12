@@ -86,7 +86,9 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         completeTwoWindingsTransformerCreation(network, twoWindingsTransformer, modificationModel, subReportNode);
     }
 
-    private TwoWindingsTransformerAdder createTwoWindingsTransformerAdder(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, TwoWindingsTransformerCreationModel twoWindingsTransformerCreationModel, boolean withSwitch1, boolean withSwitch2) {
+    private TwoWindingsTransformerAdder createTwoWindingsTransformerAdder(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2,
+                                                                          TwoWindingsTransformerCreationModel twoWindingsTransformerCreationModel,
+                                                                          boolean withSwitch1, boolean withSwitch2) {
         Optional<Substation> optS1 = voltageLevel1.getSubstation();
         Optional<Substation> optS2 = voltageLevel2.getSubstation();
         Substation s1 = optS1.orElse(null);
@@ -123,7 +125,9 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         return twoWindingsTransformerAdder;
     }
 
-    private void addTapChangersToTwoWindingsTransformer(Network network, TwoWindingsTransformerCreationModel twoWindingsTransformerCreationModel, TwoWindingsTransformer twt, ReportNode subReportNode) {
+    private void addTapChangersToTwoWindingsTransformer(Network network,
+                                                        TwoWindingsTransformerCreationModel twoWindingsTransformerCreationModel,
+                                                        TwoWindingsTransformer twt, ReportNode subReportNode) {
         if (twoWindingsTransformerCreationModel.getRatioTapChanger() != null) {
             addRatioTapChangersToTwoWindingsTransformer(network, twoWindingsTransformerCreationModel, twt, subReportNode);
         }
@@ -133,7 +137,9 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         }
     }
 
-    private void addPhaseTapChangersToTwoWindingsTransformer(Network network, TwoWindingsTransformerCreationModel twoWindingsTransformerCreationModel, TwoWindingsTransformer twt, ReportNode subReportNode) {
+    private void addPhaseTapChangersToTwoWindingsTransformer(Network network,
+                                                             TwoWindingsTransformerCreationModel twoWindingsTransformerCreationModel,
+                                                             TwoWindingsTransformer twt, ReportNode subReportNode) {
         List<ReportNode> regulatedTerminalReports = new ArrayList<>();
         List<ReportNode> regulationReports = new ArrayList<>();
         List<ReportNode> tapsReports = new ArrayList<>();
@@ -155,7 +161,8 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         if (terminal != null) {
             phaseTapChangerAdder.setRegulationTerminal(terminal);
             regulatedTerminalReports.add(getInstance().buildCreationReport(phaseTapChangerModel.getTerminalRefConnectableVlId(), "Voltage level"));
-            regulatedTerminalReports.add(getInstance().buildCreationReport(phaseTapChangerModel.getTerminalRefConnectableType() + " : " + phaseTapChangerModel.getTerminalRefConnectableId(), "Equipment"));
+            regulatedTerminalReports.add(getInstance().buildCreationReport(
+                phaseTapChangerModel.getTerminalRefConnectableType() + " : " + phaseTapChangerModel.getTerminalRefConnectableId(), "Equipment"));
         }
 
         phaseTapChangerAdder.setRegulating(phaseTapChangerModel.isRegulating())
@@ -184,7 +191,9 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         }
     }
 
-    private void addRatioTapChangersToTwoWindingsTransformer(Network network, TwoWindingsTransformerCreationModel twoWindingsTransformerCreationModel, TwoWindingsTransformer twt, ReportNode subReportNode) {
+    private void addRatioTapChangersToTwoWindingsTransformer(Network network,
+                                                             TwoWindingsTransformerCreationModel twoWindingsTransformerCreationModel,
+                                                             TwoWindingsTransformer twt, ReportNode subReportNode) {
         List<ReportNode> regulatedTerminalReports = new ArrayList<>();
         List<ReportNode> regulationReports = new ArrayList<>();
         List<ReportNode> tapsReports = new ArrayList<>();
@@ -196,7 +205,8 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
             ratioTapChangerModel.getTerminalRefConnectableVlId());
         if (terminal != null) {
             regulatedTerminalReports.add(getInstance().buildCreationReport(ratioTapChangerModel.getTerminalRefConnectableVlId(), "Voltage level"));
-            regulatedTerminalReports.add(getInstance().buildCreationReport(ratioTapChangerModel.getTerminalRefConnectableType() + " : " + ratioTapChangerModel.getTerminalRefConnectableId(), "Equipment"));
+            regulatedTerminalReports.add(getInstance().buildCreationReport(
+                ratioTapChangerModel.getTerminalRefConnectableType() + " : " + ratioTapChangerModel.getTerminalRefConnectableId(), "Equipment"));
         }
 
         Double targetDeadband = ratioTapChangerModel.getTargetDeadband();
@@ -236,7 +246,9 @@ public class TwoWindingsTransformerCreation extends AbstractModification {
         }
     }
 
-    private void create2WTInOtherBreaker(Network network, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, TwoWindingsTransformerCreationModel twoWindingsTransformerCreationModel, boolean withSwitch1, boolean withSwitch2, ReportNode subReportNode) {
+    private void create2WTInOtherBreaker(Network network, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2,
+                                         TwoWindingsTransformerCreationModel twoWindingsTransformerCreationModel,
+                                         boolean withSwitch1, boolean withSwitch2, ReportNode subReportNode) {
         var twoWindingsTransformer = createTwoWindingsTransformerAdder(voltageLevel1, voltageLevel2, twoWindingsTransformerCreationModel, withSwitch1, withSwitch2).add();
         completeTwoWindingsTransformerCreation(network, twoWindingsTransformer, modificationModel, subReportNode);
     }

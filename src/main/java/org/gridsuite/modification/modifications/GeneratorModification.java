@@ -96,7 +96,9 @@ public class GeneratorModification extends AbstractInjectionModification {
         }
     }
 
-    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerGenerator(GeneratorModificationModel modificationModel, Generator generator, NetworkModificationException.Type exceptionType, String errorMessage) {
+    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerGenerator(GeneratorModificationModel modificationModel, Generator generator,
+                                                                           NetworkModificationException.Type exceptionType,
+                                                                           String errorMessage) {
         ModificationUtils.getInstance().checkActivePowerZeroOrBetweenMinAndMaxActivePower(
             modificationModel.getTargetP(),
             modificationModel.getMinP(),
@@ -129,7 +131,8 @@ public class GeneratorModification extends AbstractInjectionModification {
             .add();
 
         if (modificationModel.getEquipmentName() != null && modificationModel.getEquipmentName().getValue() != null) {
-            ModificationUtils.getInstance().applyElementaryModifications(generator::setName, () -> generator.getOptionalName().orElse("No value"), modificationModel.getEquipmentName(), subReportNode, "Name");
+            ModificationUtils.getInstance().applyElementaryModifications(generator::setName,
+                () -> generator.getOptionalName().orElse("No value"), modificationModel.getEquipmentName(), subReportNode, "Name");
         }
         ModificationUtils.getInstance().applyElementaryModifications(generator::setEnergySource, generator::getEnergySource, modificationModel.getEnergySource(), subReportNode, "Energy source");
         modifyGeneratorVoltageLevelBusOrBusBarSectionAttributes(modificationModel, generator, subReportNode);
@@ -150,7 +153,8 @@ public class GeneratorModification extends AbstractInjectionModification {
                                                               Generator generator, ReportNode subReportNode, ReportNode subReportNodeLimits) {
         ReactiveCapabilityCurveAdder adder = generator.newReactiveCapabilityCurve();
         List<ReactiveCapabilityCurvePointsModel> modificationPoints = modificationModel.getReactiveCapabilityCurvePoints();
-        Collection<ReactiveCapabilityCurve.Point> points = generator.getReactiveLimits().getKind() == ReactiveLimitsKind.CURVE ? generator.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints() : List.of();
+        Collection<ReactiveCapabilityCurve.Point> points = generator.getReactiveLimits().getKind() == ReactiveLimitsKind.CURVE
+            ? generator.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints() : List.of();
         ModificationUtils.getInstance().modifyReactiveCapabilityCurvePoints(points, modificationPoints, adder, subReportNode, subReportNodeLimits);
     }
 
@@ -256,7 +260,8 @@ public class GeneratorModification extends AbstractInjectionModification {
         }
     }
 
-    private static boolean addForcedOutageRate(AttributeModification<Double> forcedOutageRate, GeneratorStartupAdder generatorStartupAdder, GeneratorStartup generatorStartup, List<ReportNode> reports) {
+    private static boolean addForcedOutageRate(AttributeModification<Double> forcedOutageRate, GeneratorStartupAdder generatorStartupAdder,
+                                               GeneratorStartup generatorStartup, List<ReportNode> reports) {
         Double oldForcedOutageRate = generatorStartup != null ? generatorStartup.getForcedOutageRate() : Double.NaN;
         if (forcedOutageRate != null) {
             generatorStartupAdder
@@ -274,7 +279,8 @@ public class GeneratorModification extends AbstractInjectionModification {
         return false;
     }
 
-    private static boolean addPlannedOutageRate(AttributeModification<Double> plannedOutageRate, GeneratorStartupAdder generatorStartupAdder, GeneratorStartup generatorStartup, List<ReportNode> reports) {
+    private static boolean addPlannedOutageRate(AttributeModification<Double> plannedOutageRate, GeneratorStartupAdder generatorStartupAdder,
+                                                GeneratorStartup generatorStartup, List<ReportNode> reports) {
         Double oldPlannedOutageRate = generatorStartup != null ? generatorStartup.getPlannedOutageRate() : Double.NaN;
         if (plannedOutageRate != null) {
             generatorStartupAdder
@@ -445,7 +451,8 @@ public class GeneratorModification extends AbstractInjectionModification {
 
     private void modifyGeneratorSetpointsAttributes(GeneratorModificationModel modificationModel,
                                                     Generator generator, ReportNode subReportNode) {
-        ReportNode reportActivePower = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(generator::setTargetP, generator::getTargetP, modificationModel.getTargetP(), "Active power");
+        ReportNode reportActivePower = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
+            generator::setTargetP, generator::getTargetP, modificationModel.getTargetP(), "Active power");
 
         ReportNode reportReactivePower = modifyTargetQ(generator, modificationModel.getTargetQ());
 

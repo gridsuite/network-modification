@@ -54,7 +54,9 @@ public class BatteryModification extends AbstractInjectionModification {
         }
     }
 
-    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(BatteryModificationModel modificationModel, Battery battery, NetworkModificationException.Type exceptionType, String errorMessage) {
+    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(BatteryModificationModel modificationModel, Battery battery,
+                                                                         NetworkModificationException.Type exceptionType,
+                                                                         String errorMessage) {
         ModificationUtils.getInstance().checkActivePowerZeroOrBetweenMinAndMaxActivePower(
             modificationModel.getTargetP(),
             modificationModel.getMinP(),
@@ -88,7 +90,8 @@ public class BatteryModification extends AbstractInjectionModification {
             .add();
 
         if (batteryModificationModel.getEquipmentName() != null && batteryModificationModel.getEquipmentName().getValue() != null) {
-            ModificationUtils.getInstance().applyElementaryModifications(battery::setName, () -> battery.getOptionalName().orElse("No value"), batteryModificationModel.getEquipmentName(), subReportNode, "Name");
+            ModificationUtils.getInstance().applyElementaryModifications(battery::setName,
+                () -> battery.getOptionalName().orElse("No value"), batteryModificationModel.getEquipmentName(), subReportNode, "Name");
         }
         modifyBatteryVoltageLevelBusOrBusBarSectionAttributes(batteryModificationModel, battery, subReportNode);
         modifyBatteryLimitsAttributes(batteryModificationModel, battery, subReportNode);
@@ -148,7 +151,8 @@ public class BatteryModification extends AbstractInjectionModification {
 
         ReactiveCapabilityCurveAdder adder = battery.newReactiveCapabilityCurve();
         List<ReactiveCapabilityCurvePointsModel> modificationPoints = modificationModel.getReactiveCapabilityCurvePoints();
-        Collection<ReactiveCapabilityCurve.Point> points = battery.getReactiveLimits().getKind() == ReactiveLimitsKind.CURVE ? battery.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints() : List.of();
+        Collection<ReactiveCapabilityCurve.Point> points = battery.getReactiveLimits().getKind() == ReactiveLimitsKind.CURVE
+            ? battery.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints() : List.of();
         ModificationUtils.getInstance().modifyReactiveCapabilityCurvePoints(points, modificationPoints, adder, subReportNode, subReportNodeLimits);
     }
 
@@ -203,4 +207,3 @@ public class BatteryModification extends AbstractInjectionModification {
         return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, battery, modificationModel, subReportNode);
     }
 }
-

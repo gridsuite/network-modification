@@ -18,7 +18,6 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.CreateVoltageLevelSection;
 
-
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
  */

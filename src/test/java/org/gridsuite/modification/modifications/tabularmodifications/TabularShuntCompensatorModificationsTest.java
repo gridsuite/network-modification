@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 /**
- * @author SARTORI David <david.sartori_externe@rte-france.com>
+ * @author SARTORI David <david.sartori_externe at rte-france.com>
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
 class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificationTest {
@@ -58,8 +58,12 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
     @Override
     protected ModificationModel buildModification() {
         List<ModificationModel> modifications = List.of(
-            ShuntCompensatorModificationModel.builder().equipmentId("v2shunt").maximumSectionCount(new AttributeModification<>(100, OperationType.SET)).sectionCount(new AttributeModification<>(10, OperationType.SET)).build(),
-            ShuntCompensatorModificationModel.builder().equipmentId("v5shunt").maximumSectionCount(new AttributeModification<>(200, OperationType.SET)).sectionCount(new AttributeModification<>(20, OperationType.SET)).build()
+            ShuntCompensatorModificationModel.builder().equipmentId("v2shunt")
+                .maximumSectionCount(new AttributeModification<>(100, OperationType.SET))
+                .sectionCount(new AttributeModification<>(10, OperationType.SET)).build(),
+            ShuntCompensatorModificationModel.builder().equipmentId("v5shunt")
+                .maximumSectionCount(new AttributeModification<>(200, OperationType.SET))
+                .sectionCount(new AttributeModification<>(20, OperationType.SET)).build()
         );
         return TabularModificationModel.builder()
             .modificationType(ModificationType.SHUNT_COMPENSATOR_MODIFICATION)

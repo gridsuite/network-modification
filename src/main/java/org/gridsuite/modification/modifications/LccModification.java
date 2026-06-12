@@ -146,7 +146,8 @@ public class LccModification extends AbstractModification {
         }
 
         if (converterStationModificationModel.getPowerFactor() != null) {
-            ModificationUtils.checkIsInInterval(errorMessage, converterStationModificationModel.getPowerFactor().getValue(), new Pair<>(0.f, 1.f), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Power factor");
+            ModificationUtils.checkIsInInterval(errorMessage, converterStationModificationModel.getPowerFactor().getValue(),
+                new Pair<>(0.f, 1.f), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Power factor");
             characteristicsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setPowerFactor,
                 converterStation::getPowerFactor, converterStationModificationModel.getPowerFactor(), "Power factor"));
         }

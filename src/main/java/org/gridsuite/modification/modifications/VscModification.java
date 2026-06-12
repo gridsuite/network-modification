@@ -178,7 +178,8 @@ public class VscModification extends AbstractModification {
                 modificationModel.getEquipmentName(), "Name"));
         }
         if (modificationModel.getNominalV() != null) {
-            characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setNominalV, hvdcLine::getNominalV, modificationModel.getNominalV(), "DC nominal voltage"));
+            characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(
+                hvdcLine::setNominalV, hvdcLine::getNominalV, modificationModel.getNominalV(), "DC nominal voltage"));
         }
         if (modificationModel.getR() != null) {
             characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setR, hvdcLine::getR, modificationModel.getR(), "DC resistance"));
@@ -195,11 +196,14 @@ public class VscModification extends AbstractModification {
 
         List<ReportNode> setPointsReports = new ArrayList<>();
         if (modificationModel.getActivePowerSetpoint() != null) {
-            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setActivePowerSetpoint, hvdcLine::getActivePowerSetpoint, modificationModel.getActivePowerSetpoint(), "ActivePowerSetpoint"));
+            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(
+                hvdcLine::setActivePowerSetpoint, hvdcLine::getActivePowerSetpoint,
+                modificationModel.getActivePowerSetpoint(), "ActivePowerSetpoint"));
         }
 
         if (modificationModel.getConvertersMode() != null) {
-            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setConvertersMode, hvdcLine::getConvertersMode, modificationModel.getConvertersMode(), "Converters mode"));
+            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(
+                hvdcLine::setConvertersMode, hvdcLine::getConvertersMode, modificationModel.getConvertersMode(), "Converters mode"));
         }
         return setPointsReports;
     }
@@ -367,7 +371,9 @@ public class VscModification extends AbstractModification {
     }
 
     private static boolean isConverterStationModified(ConverterStationModificationModel converterStationModificationModel) {
-        return converterStationModificationModel.getEquipmentName() != null && converterStationModificationModel.getEquipmentName().getValue() != null || converterStationModificationModel.getLossFactor() != null
+        return converterStationModificationModel.getEquipmentName() != null
+            && converterStationModificationModel.getEquipmentName().getValue() != null
+            || converterStationModificationModel.getLossFactor() != null
             || converterStationModificationModel.getReactivePowerSetpoint() != null
             || converterStationModificationModel.getVoltageRegulationOn() != null
             || converterStationModificationModel.getVoltageSetpoint() != null || converterStationModificationModel.getReactiveCapabilityCurvePoints() != null
@@ -379,7 +385,8 @@ public class VscModification extends AbstractModification {
 
         ReactiveCapabilityCurveAdder adder = vscConverterStation.newReactiveCapabilityCurve();
         List<ReactiveCapabilityCurvePointsModel> modificationPoints = modificationModel.getReactiveCapabilityCurvePoints();
-        Collection<ReactiveCapabilityCurve.Point> points = vscConverterStation.getReactiveLimits().getKind() == ReactiveLimitsKind.CURVE ? vscConverterStation.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints() : List.of();
+        Collection<ReactiveCapabilityCurve.Point> points = vscConverterStation.getReactiveLimits().getKind() == ReactiveLimitsKind.CURVE
+            ? vscConverterStation.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints() : List.of();
         ModificationUtils.getInstance().modifyReactiveCapabilityCurvePoints(points, modificationPoints, adder, subReporter, subReportNodeLimits);
     }
 

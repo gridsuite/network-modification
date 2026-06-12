@@ -109,11 +109,17 @@ public abstract class AbstractScaling extends AbstractModification {
 
     protected abstract void applyStackingUpVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationModel scalingVariationModel);
 
-    protected abstract void applyVentilationVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationModel scalingVariationModel, Double distributionKeys);
+    protected abstract void applyVentilationVariation(Network network, ReportNode subReportNode,
+                                                       Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationModel scalingVariationModel,
+                                                       Double distributionKeys);
 
-    protected abstract void applyRegularDistributionVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationModel scalingVariationModel);
+    protected abstract void applyRegularDistributionVariation(Network network, ReportNode subReportNode,
+                                                              Set<IdentifiableAttributes> identifiableAttributes,
+                                                              ScalingVariationModel scalingVariationModel);
 
-    protected abstract void applyProportionalToPmaxVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationModel scalingVariationModel);
+    protected abstract void applyProportionalToPmaxVariation(Network network, ReportNode subReportNode,
+                                                            Set<IdentifiableAttributes> identifiableAttributes,
+                                                            ScalingVariationModel scalingVariationModel);
 
     protected abstract void applyProportionalVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationModel scalingVariationModel);
 

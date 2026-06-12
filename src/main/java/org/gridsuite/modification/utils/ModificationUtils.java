@@ -1289,7 +1289,9 @@ public final class ModificationUtils {
     }
 
     public void modifyMinMaxReactiveLimits(MinMaxReactiveLimits minMaxReactiveLimits, MinMaxReactiveLimitsAdder newMinMaxReactiveLimits,
-                                           ReportNode subReportNode, ReportNode subReportNodeLimits, AttributeModification<Double> minimumReactivePower, AttributeModification<Double> maximumReactivePower) {
+                                           ReportNode subReportNode, ReportNode subReportNodeLimits,
+                                           AttributeModification<Double> minimumReactivePower,
+                                           AttributeModification<Double> maximumReactivePower) {
         List<ReportNode> reports = new ArrayList<>();
 
         if (minimumReactivePower != null
@@ -1438,13 +1440,18 @@ public final class ModificationUtils {
         }
     }
 
-    public void checkMaxReactivePowerGreaterThanMinReactivePower(MinMaxReactiveLimits minMaxReactiveLimits, AttributeModification<Double> minimumReactivePowerInfo, AttributeModification<Double> maximumReactivePowerInfo, NetworkModificationException.Type exceptionType, String errorMessage) {
+    public void checkMaxReactivePowerGreaterThanMinReactivePower(MinMaxReactiveLimits minMaxReactiveLimits,
+                                                                 AttributeModification<Double> minimumReactivePowerInfo,
+                                                                 AttributeModification<Double> maximumReactivePowerInfo,
+                                                                 NetworkModificationException.Type exceptionType,
+                                                                 String errorMessage) {
         double previousMinimumReactivePower = minMaxReactiveLimits.getMinQ();
         double previousMaximumReactivePower = minMaxReactiveLimits.getMaxQ();
         double minReactivePower = minimumReactivePowerInfo != null ? minimumReactivePowerInfo.getValue() : previousMinimumReactivePower;
         double maxReactivePower = maximumReactivePowerInfo != null ? maximumReactivePowerInfo.getValue() : previousMaximumReactivePower;
         if (minReactivePower > maxReactivePower) {
-            throw new NetworkModificationException(exceptionType, errorMessage + "maximum reactive power " + maxReactivePower + " is expected to be greater than or equal to minimum reactive power " + minReactivePower);
+            throw new NetworkModificationException(exceptionType, errorMessage + "maximum reactive power " + maxReactivePower
+                + " is expected to be greater than or equal to minimum reactive power " + minReactivePower);
         }
     }
 
@@ -1491,7 +1498,8 @@ public final class ModificationUtils {
                 // all modifications are null
                 // and regulating terminal is local
                 // the regulation should be local or regulating terminal modifications must be provided
-                throw new NetworkModificationException(exceptionType, errorMessage + "Regulation is set to Distant but regulating terminal is local and there is no modification about regulating terminal");
+                throw new NetworkModificationException(exceptionType, errorMessage
+                    + "Regulation is set to Distant but regulating terminal is local and there is no modification about regulating terminal");
             }
             // all modifications are null but oldRegulatingTerminal is not
             // we will retrieve the old regulating terminal
@@ -1509,13 +1517,21 @@ public final class ModificationUtils {
         }
     }
 
-    public void checkActivePowerZeroOrBetweenMinAndMaxActivePower(AttributeModification<Double> activePowerModel, AttributeModification<Double> minActivePowerModel, AttributeModification<Double> maxActivePowerModel, Double previousMinActivePower, Double previousMaxActivePower, Double previousActivePower, NetworkModificationException.Type exceptionType, String errorMessage) {
+    public void checkActivePowerZeroOrBetweenMinAndMaxActivePower(AttributeModification<Double> activePowerModel,
+                                                                 AttributeModification<Double> minActivePowerModel,
+                                                                 AttributeModification<Double> maxActivePowerModel,
+                                                                 Double previousMinActivePower, Double previousMaxActivePower,
+                                                                 Double previousActivePower,
+                                                                 NetworkModificationException.Type exceptionType,
+                                                                 String errorMessage) {
         Double minActivePower = minActivePowerModel != null ? minActivePowerModel.getValue() : previousMinActivePower;
         Double maxActivePower = maxActivePowerModel != null ? maxActivePowerModel.getValue() : previousMaxActivePower;
         Double activePower = activePowerModel != null ? activePowerModel.getValue() : previousActivePower;
 
         if (activePower != 0 && (activePower < minActivePower || activePower > maxActivePower)) {
-            throw new NetworkModificationException(exceptionType, errorMessage + "Active power " + activePower + " is expected to be equal to 0 or within the range of minimum active power and maximum active power: [" + minActivePower + ", " + maxActivePower + "]");
+            throw new NetworkModificationException(exceptionType, errorMessage + "Active power " + activePower
+                + " is expected to be equal to 0 or within the range of minimum active power and maximum active power: ["
+                + minActivePower + ", " + maxActivePower + "]");
         }
     }
 
@@ -1579,10 +1595,12 @@ public final class ModificationUtils {
             throw makeEquipmentException(creationModel.getErrorType(), creationModel.getEquipmentId(), equipmentName, "maximum susceptance is not set");
         }
         if (Objects.nonNull(creationModel.getMaxSusceptance()) && Objects.nonNull(creationModel.getMinSusceptance()) && creationModel.getMaxSusceptance() < creationModel.getMinSusceptance()) {
-            throw makeEquipmentException(creationModel.getErrorType(), creationModel.getEquipmentId(), equipmentName, "maximum susceptance is expected to be greater than or equal to minimum susceptance");
+            throw makeEquipmentException(creationModel.getErrorType(), creationModel.getEquipmentId(), equipmentName,
+                "maximum susceptance is expected to be greater than or equal to minimum susceptance");
         }
         if (Objects.nonNull(creationModel.getMaxQAtNominalV()) && Objects.nonNull(creationModel.getMinQAtNominalV()) && creationModel.getMaxQAtNominalV() < creationModel.getMinQAtNominalV()) {
-            throw makeEquipmentException(creationModel.getErrorType(), creationModel.getEquipmentId(), equipmentName, "maximum Q at nominal voltage is expected to be greater than or equal to minimum Q");
+            throw makeEquipmentException(creationModel.getErrorType(), creationModel.getEquipmentId(), equipmentName,
+                "maximum Q at nominal voltage is expected to be greater than or equal to minimum Q");
         }
 
         // check set points
@@ -1718,7 +1736,9 @@ public final class ModificationUtils {
     }
 
     @Nullable
-    public static Map<UUID, FilterEquipments> getUuidFilterEquipmentsMap(IFilterService filterService, Network network, ReportNode subReportNode, Map<UUID, String> filters, NetworkModificationException.Type errorType) {
+    public static Map<UUID, FilterEquipments> getUuidFilterEquipmentsMap(IFilterService filterService, Network network,
+                                                                         ReportNode subReportNode, Map<UUID, String> filters,
+                                                                         NetworkModificationException.Type errorType) {
         Map<UUID, FilterEquipments> exportFilters = filterService.getUuidFilterEquipmentsMap(network, filters);
 
         boolean isValidFilter = ModificationUtils.getInstance().isValidFilter(subReportNode, errorType, exportFilters);
@@ -1881,13 +1901,17 @@ public final class ModificationUtils {
         return value != null ? Double.parseDouble(value) : Double.NaN;
     }
 
-    public static void checkIsValueInferior(String errorMessage, Double minValueToCheck, Double maxValue, NetworkModificationException.Type exceptionType, String minValueName, String maxValueName) throws NetworkModificationException {
+    public static void checkIsValueInferior(String errorMessage, Double minValueToCheck, Double maxValue,
+                                            NetworkModificationException.Type exceptionType,
+                                            String minValueName, String maxValueName) throws NetworkModificationException {
         if (minValueToCheck != null && !Double.isNaN(minValueToCheck) && maxValue != null && !Double.isNaN(maxValue) && maxValue < minValueToCheck) {
             throw new NetworkModificationException(exceptionType, errorMessage + " " + minValueName + " (" + minValueToCheck + ") must be inferior to " + maxValueName + " (" + maxValue + ")");
         }
     }
 
-    public static void checkIsValueSuperior(String errorMessage, Double minValue, Double maxValueToCheck, NetworkModificationException.Type exceptionType, String minValueName, String maxValueName) throws NetworkModificationException {
+    public static void checkIsValueSuperior(String errorMessage, Double minValue, Double maxValueToCheck,
+                                            NetworkModificationException.Type exceptionType,
+                                            String minValueName, String maxValueName) throws NetworkModificationException {
         if (minValue != null && !Double.isNaN(minValue) && maxValueToCheck != null && !Double.isNaN(maxValueToCheck) && maxValueToCheck < minValue) {
             throw new NetworkModificationException(exceptionType, errorMessage + " " + maxValueName + " (" + maxValueToCheck + ") must be superior to " + minValueName + " (" + minValue + ")");
         }
@@ -1917,27 +1941,36 @@ public final class ModificationUtils {
         }
     }
 
-    public static void checkIsInInterval(String errorMessage, Float valueToCheck, Pair<Float, Float> interval, NetworkModificationException.Type exceptionType, String valueName) throws NetworkModificationException {
+    public static void checkIsInInterval(String errorMessage, Float valueToCheck, Pair<Float, Float> interval,
+                                         NetworkModificationException.Type exceptionType,
+                                         String valueName) throws NetworkModificationException {
         if (valueToCheck != null && (valueToCheck < interval.getFirst() || valueToCheck > interval.getSecond())) {
             throw new NetworkModificationException(exceptionType, errorMessage + "must have " + valueName + "  " + interval.getFirst() + " and " + interval.getSecond());
         }
     }
 
-    public static void checkLimitsGroupExist(String errorMessage, String limitsGroupIdToSet, NetworkModificationException.Type exceptionType, List<String> existingOperationalLimitsGroupIds, int side) throws NetworkModificationException {
+    public static void checkLimitsGroupExist(String errorMessage, String limitsGroupIdToSet,
+                                             NetworkModificationException.Type exceptionType,
+                                             List<String> existingOperationalLimitsGroupIds,
+                                             int side) throws NetworkModificationException {
         if (StringUtils.hasText(limitsGroupIdToSet) && !existingOperationalLimitsGroupIds.contains(limitsGroupIdToSet)) {
             throw new NetworkModificationException(exceptionType, errorMessage +
                 String.format("missing limit set %s applicable on side %d : equipment ignored", limitsGroupIdToSet, side));
         }
     }
 
-    public static void checkActivePowerValue(String errorMessage, String fieldName, double newValue, double minP, double maxP, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+    public static void checkActivePowerValue(String errorMessage, String fieldName, double newValue,
+                                             double minP, double maxP,
+                                             NetworkModificationException.Type exceptionType) throws NetworkModificationException {
         if (newValue > maxP || newValue < minP) {
             String message = String.format("Invalid value %.2f field %s should be within interval [%.2f; %.2f]", newValue, fieldName, minP, maxP);
             throw new NetworkModificationException(exceptionType, errorMessage + message);
         }
     }
 
-    public static void checkPowerValues(String errorMessage, double minP, double maxP, double targetP, Double plannedActivePowerSetPoint, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+    public static void checkPowerValues(String errorMessage, double minP, double maxP, double targetP,
+                                        Double plannedActivePowerSetPoint,
+                                        NetworkModificationException.Type exceptionType) throws NetworkModificationException {
         if (targetP != 0) { // exception for the rule minP <= targetP <= maxP
             checkActivePowerValue(errorMessage, FIELD_ACTIVE_POWER_TARGET, targetP, minP, maxP, exceptionType);
         }
@@ -1948,25 +1981,33 @@ public final class ModificationUtils {
         checkMaximumActivePower(errorMessage, minP, targetP, plannedActivePowerSetPoint, maxP, exceptionType);
     }
 
-    public static void checkMinimumActivePower(String errorMessage, double maxP, double targetP, Double pImp, double newValue, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+    public static void checkMinimumActivePower(String errorMessage, double maxP, double targetP, Double pImp,
+                                               double newValue,
+                                               NetworkModificationException.Type exceptionType) throws NetworkModificationException {
         // targetP = 0 is an exception to the rule
         double pMin = targetP != 0 ? Math.min(targetP, maxP) : maxP;
         if (pImp != null) {
             pMin = Math.min(pMin, pImp);
         }
         if (pMin < newValue) {
-            throw new NetworkModificationException(exceptionType, errorMessage + String.format("Invalid value %.2f of field %s should be be smaller or equal to %.2f", newValue, FIELD_MIN_ACTIVE_POWER, pMin));
+            throw new NetworkModificationException(exceptionType, errorMessage
+                + String.format("Invalid value %.2f of field %s should be be smaller or equal to %.2f",
+                newValue, FIELD_MIN_ACTIVE_POWER, pMin));
         }
     }
 
-    public static void checkMaximumActivePower(String errorMessage, double minP, double targetP, Double plannedActivePowerSetPoint, double newValue, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+    public static void checkMaximumActivePower(String errorMessage, double minP, double targetP,
+                                               Double plannedActivePowerSetPoint, double newValue,
+                                               NetworkModificationException.Type exceptionType) throws NetworkModificationException {
         // targetP = 0 is an exception to the rule
         double pMax = targetP != 0 ? Math.max(targetP, minP) : minP;
         if (plannedActivePowerSetPoint != null) {
             pMax = Math.max(pMax, plannedActivePowerSetPoint);
         }
         if (pMax > newValue) {
-            throw new NetworkModificationException(exceptionType, errorMessage + String.format("Invalid value %.2f of field %s should be be greater or equal to %.2f", newValue, FIELD_MAX_ACTIVE_POWER, pMax));
+            throw new NetworkModificationException(exceptionType, errorMessage
+                + String.format("Invalid value %.2f of field %s should be be greater or equal to %.2f",
+                newValue, FIELD_MAX_ACTIVE_POWER, pMax));
         }
     }
 

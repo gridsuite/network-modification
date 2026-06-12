@@ -6,10 +6,10 @@
  */
 package org.gridsuite.modification.dto;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.powsybl.commons.report.ReportNode;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.ModificationModel;

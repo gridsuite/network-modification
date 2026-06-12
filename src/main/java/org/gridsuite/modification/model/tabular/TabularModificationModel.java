@@ -15,7 +15,6 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.tabular.TabularModification;
 
-
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */

@@ -69,7 +69,10 @@ class TabularBatteryCreationsTest extends AbstractNetworkModificationTest {
                 .minP(0).maxP(800)
                 .targetP(700).targetQ(20D)
                 .participate(false)
-                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsModel.builder().p(1.).minQ(2.).maxQ(3.).build(), ReactiveCapabilityCurvePointsModel.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsModel.builder().p(9.).minQ(10.).maxQ(11.).build()))
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(
+                    ReactiveCapabilityCurvePointsModel.builder().p(1.).minQ(2.).maxQ(3.).build(),
+                    ReactiveCapabilityCurvePointsModel.builder().p(5.).minQ(6.).maxQ(7.).build(),
+                    ReactiveCapabilityCurvePointsModel.builder().p(9.).minQ(10.).maxQ(11.).build()))
                 .build(),
             BatteryCreationModel.builder()
                 .equipmentId("id5").voltageLevelId("v5").busOrBusbarSectionId("1A1")
@@ -83,7 +86,10 @@ class TabularBatteryCreationsTest extends AbstractNetworkModificationTest {
                 .connectionName("v6battery").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .minP(0).maxP(200).targetQ(400D)
                 .targetP(150)
-                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsModel.builder().p(1.).minQ(2.).maxQ(3.).build(), ReactiveCapabilityCurvePointsModel.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsModel.builder().p(9.).minQ(10.).maxQ(11.).build()))
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(
+                    ReactiveCapabilityCurvePointsModel.builder().p(1.).minQ(2.).maxQ(3.).build(),
+                    ReactiveCapabilityCurvePointsModel.builder().p(5.).minQ(6.).maxQ(7.).build(),
+                    ReactiveCapabilityCurvePointsModel.builder().p(9.).minQ(10.).maxQ(11.).build()))
                 .build(),
             BatteryCreationModel.builder()
                 .equipmentId("id7").voltageLevelId("v6").busOrBusbarSectionId("1B1")
@@ -91,7 +97,10 @@ class TabularBatteryCreationsTest extends AbstractNetworkModificationTest {
                 .minP(0).maxP(200).targetQ(400D)
                 .targetP(150)
                 .minQ(1.).maxQ(100.)
-                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsModel.builder().p(1.).minQ(2.).maxQ(3.).build(), ReactiveCapabilityCurvePointsModel.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsModel.builder().p(9.).minQ(10.).maxQ(11.).build()))
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(
+                    ReactiveCapabilityCurvePointsModel.builder().p(1.).minQ(2.).maxQ(3.).build(),
+                    ReactiveCapabilityCurvePointsModel.builder().p(5.).minQ(6.).maxQ(7.).build(),
+                    ReactiveCapabilityCurvePointsModel.builder().p(9.).minQ(10.).maxQ(11.).build()))
                 .build()
         );
         return TabularCreationModel.builder()
@@ -176,21 +185,30 @@ class TabularBatteryCreationsTest extends AbstractNetworkModificationTest {
                 .connectionName("v4battery").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .minP(0).maxP(200)
                 .targetP(150)
-                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsModel.builder().maxQ(3.).build(), ReactiveCapabilityCurvePointsModel.builder().maxQ(3.).build(), ReactiveCapabilityCurvePointsModel.builder().maxQ(3.).build()))
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(
+                    ReactiveCapabilityCurvePointsModel.builder().maxQ(3.).build(),
+                    ReactiveCapabilityCurvePointsModel.builder().maxQ(3.).build(),
+                    ReactiveCapabilityCurvePointsModel.builder().maxQ(3.).build()))
                 .build(),
             BatteryCreationModel.builder()
                 .equipmentId("id5").voltageLevelId("v5").busOrBusbarSectionId("1A1")
                 .connectionName("v5battery").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .minP(0).maxP(200)
                 .targetP(150)
-                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsModel.builder().p(3.).build(), ReactiveCapabilityCurvePointsModel.builder().p(3.).build(), ReactiveCapabilityCurvePointsModel.builder().p(3.).build()))
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(
+                    ReactiveCapabilityCurvePointsModel.builder().p(3.).build(),
+                    ReactiveCapabilityCurvePointsModel.builder().p(3.).build(),
+                    ReactiveCapabilityCurvePointsModel.builder().p(3.).build()))
                 .build(),
             BatteryCreationModel.builder()
                 .equipmentId("id6").voltageLevelId("v5").busOrBusbarSectionId("1A1")
                 .connectionName("v6battery").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .minP(0).maxP(200)
                 .targetP(150)
-                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsModel.builder().minQ(1.).p(3.).build(), ReactiveCapabilityCurvePointsModel.builder().minQ(1.).p(3.).build(), ReactiveCapabilityCurvePointsModel.builder().minQ(1.).p(3.).build()))
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(
+                    ReactiveCapabilityCurvePointsModel.builder().minQ(1.).p(3.).build(),
+                    ReactiveCapabilityCurvePointsModel.builder().minQ(1.).p(3.).build(),
+                    ReactiveCapabilityCurvePointsModel.builder().minQ(1.).p(3.).build()))
                 .build()
         );
         ModificationModel creationModel = TabularCreationModel.builder()

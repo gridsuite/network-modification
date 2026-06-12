@@ -19,7 +19,6 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.OperatingStatusModification;
 
-
 import static org.gridsuite.modification.NetworkModificationException.Type.OPERATING_ACTION_TYPE_EMPTY;
 
 /**
