@@ -9,10 +9,7 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
-import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
-import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
-import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRangeAdder;
+import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ConverterStationModificationInfos;
 import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
@@ -21,10 +18,7 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_VSC_ERROR;
 import static org.gridsuite.modification.NetworkModificationException.Type.WRONG_HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL;
@@ -365,6 +359,9 @@ public class VscModification extends AbstractModification {
                 setPointsReports, "network.modification.Setpoints");
         }
 
+        // measurements
+        ModificationUtils.getInstance().applyMeasurementsAndBuildModificationReport(converterStation, converterStationModificationInfos, converterStationReportNode);
+
         // limits
         modifyVscReactiveLimitsAttributes(converterStationModificationInfos, converterStation, converterStationReportNode, converterStationReportNode);
     }
@@ -375,7 +372,9 @@ public class VscModification extends AbstractModification {
                 || converterStationModificationInfos.getReactivePowerSetpoint() != null
                 || converterStationModificationInfos.getVoltageRegulationOn() != null
                 || converterStationModificationInfos.getVoltageSetpoint() != null || converterStationModificationInfos.getReactiveCapabilityCurvePoints() != null
-                || converterStationModificationInfos.getMinQ() != null || converterStationModificationInfos.getMaxQ() != null;
+                || converterStationModificationInfos.getMinQ() != null || converterStationModificationInfos.getMaxQ() != null
+                || converterStationModificationInfos.getPMeasurementValue() != null || converterStationModificationInfos.getPMeasurementValidity() != null
+                || converterStationModificationInfos.getQMeasurementValue() != null || converterStationModificationInfos.getQMeasurementValidity() != null;
     }
 
     private void modifyVscReactiveCapabilityCurvePoints(ConverterStationModificationInfos modificationInfos,
