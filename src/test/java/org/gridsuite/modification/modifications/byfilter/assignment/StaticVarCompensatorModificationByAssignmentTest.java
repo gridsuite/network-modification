@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.gridsuite.modification.modifications.AbstractInjectionModification.getExistingMeasurement;
+import static org.gridsuite.modification.utils.MeasurementUtils.getExistingMeasurement;
 import static org.gridsuite.modification.utils.NetworkUtil.createStaticVarCompensator;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 

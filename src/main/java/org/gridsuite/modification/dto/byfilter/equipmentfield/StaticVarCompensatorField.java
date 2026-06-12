@@ -12,9 +12,7 @@ import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 import jakarta.validation.constraints.NotNull;
-
-import static org.gridsuite.modification.modifications.AbstractInjectionModification.getExistingMeasurement;
-import static org.gridsuite.modification.modifications.AbstractInjectionModification.upsertMeasurement;
+import org.gridsuite.modification.utils.MeasurementUtils;
 
 /**
  * @author David Braquart <david.braquart at rte-france.com>
@@ -29,7 +27,7 @@ public enum StaticVarCompensatorField {
         if (measurements == null) {
             return null;
         }
-        Measurement measurement = getExistingMeasurement(measurements, Measurement.Type.REACTIVE_POWER);
+        Measurement measurement = MeasurementUtils.getExistingMeasurement(measurements, Measurement.Type.REACTIVE_POWER);
         if (measurement == null) {
             return null;
         }
@@ -47,8 +45,8 @@ public enum StaticVarCompensatorField {
             measurements = measurementsAdder.add();
         }
         switch (field) {
-            case REACTIVE_POWER_MEASUREMENT_VALUE -> upsertMeasurement(measurements, Measurement.Type.REACTIVE_POWER, Double.parseDouble(newValue), null, null);
-            case REACTIVE_POWER_MEASUREMENT_VALIDITY -> upsertMeasurement(measurements, Measurement.Type.REACTIVE_POWER, null, Boolean.parseBoolean(newValue), null);
+            case REACTIVE_POWER_MEASUREMENT_VALUE -> MeasurementUtils.upsertMeasurement(measurements, Measurement.Type.REACTIVE_POWER, Double.parseDouble(newValue), null);
+            case REACTIVE_POWER_MEASUREMENT_VALIDITY -> MeasurementUtils.upsertMeasurement(measurements, Measurement.Type.REACTIVE_POWER, null, Boolean.parseBoolean(newValue));
         }
     }
 }
