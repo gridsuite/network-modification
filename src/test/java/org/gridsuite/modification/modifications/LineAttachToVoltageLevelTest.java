@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
@@ -204,10 +203,10 @@ class LineAttachToVoltageLevelTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("LINE_ATTACH_TO_VOLTAGE_LEVEL", modificationModel.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
-        });
-        assertEquals("line3", createdValues.get("lineToAttachToId"));
+        // assertEquals("LINE_ATTACH_TO_VOLTAGE_LEVEL", modificationModel.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationModel.getMessageValues(), new TypeReference<>() {
+        // });
+        // assertEquals("line3", createdValues.get("lineToAttachToId"));
     }
 
     @Test

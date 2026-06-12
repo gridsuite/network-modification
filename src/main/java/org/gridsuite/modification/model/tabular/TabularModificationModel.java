@@ -15,8 +15,6 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.tabular.TabularModification;
 
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
@@ -42,10 +40,4 @@ public class TabularModificationModel extends TabularBaseModel {
                 .add();
     }
 
-    @Override
-    public Map<String, String> getMapMessageValues() {
-        Map<String, String> mapMessageValues = new HashMap<>();
-        mapMessageValues.put("tabularModificationType", getModificationType().name());
-        return mapMessageValues;
-    }
 }

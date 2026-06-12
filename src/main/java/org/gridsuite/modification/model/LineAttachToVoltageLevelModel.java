@@ -15,7 +15,6 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LineAttachToVoltageLevel;
 
-import java.util.Map;
 
 /**
  * @author Nicolas NOIR <nicolas.noir at rte-france.com>
@@ -80,8 +79,4 @@ public class LineAttachToVoltageLevelModel extends ModificationModel {
         return reportNode.newReportNode().withMessageTemplate("network.modification.lineAttachToVoltageLevel").add();
     }
 
-    @Override
-    public Map<String, String> getMapMessageValues() {
-        return Map.of("lineToAttachToId", getLineToAttachToId());
-    }
 }

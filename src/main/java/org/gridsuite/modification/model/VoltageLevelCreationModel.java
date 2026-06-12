@@ -19,9 +19,7 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VoltageLevelCreation;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Laurent GARNIER <laurent.garnier at rte-france.com>
@@ -72,17 +70,6 @@ public class VoltageLevelCreationModel extends EquipmentCreationModel {
     @Override
     public AbstractModification toModification() {
         return new VoltageLevelCreation(this);
-    }
-
-    @Override
-    public Map<String, String> getMapMessageValues() {
-        if (getSubstationCreation() != null) {
-            Map<String, String> mapMessageValues = new HashMap<>();
-            mapMessageValues.put("voltageLevelEquipmentId", getEquipmentId());
-            mapMessageValues.put("substationEquipmentId", getSubstationCreation().getEquipmentId());
-            return mapMessageValues;
-        }
-        return Map.of("equipmentId", getEquipmentId());
     }
 
     @Override

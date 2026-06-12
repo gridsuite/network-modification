@@ -18,6 +18,8 @@ import org.gridsuite.modification.model.ModificationModel;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -41,12 +43,6 @@ public class CompositeModificationInfos implements ModificationInfos {
     @Schema(description = "Modification flag")
     @Builder.Default
     private Boolean stashed = false;
-
-    @Schema(description = "Message type")
-    private String messageType;
-
-    @Schema(description = "Message values")
-    private String messageValues;
 
     @Schema(description = "Modification activated (defaults to true at creation when not provided)")
     private Boolean activated;
@@ -80,5 +76,12 @@ public class CompositeModificationInfos implements ModificationInfos {
             .modificationsInfos(modificationsInfos.stream().map(ModificationInfos::toModel).toList())
             .maxDepth(maxDepth)
             .build();
+    }
+
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        Map<String, String> mapMessageValues = new HashMap<>();
+        mapMessageValues.put("name", getName());
+        return mapMessageValues;
     }
 }

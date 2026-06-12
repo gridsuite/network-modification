@@ -18,8 +18,6 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.CreateVoltageLevelSection;
 
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
@@ -70,10 +68,4 @@ public class CreateVoltageLevelSectionModel extends ModificationModel {
                 .add();
     }
 
-    @Override
-    public Map<String, String> getMapMessageValues() {
-        Map<String, String> mapMessageValues = new HashMap<>();
-        mapMessageValues.put("voltageLevelId", getVoltageLevelId());
-        return mapMessageValues;
-    }
 }

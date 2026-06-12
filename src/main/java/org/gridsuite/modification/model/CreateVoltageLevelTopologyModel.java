@@ -18,9 +18,7 @@ import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.CreateVoltageLevelTopology;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -48,13 +46,6 @@ public class CreateVoltageLevelTopologyModel extends ModificationModel {
         return reportNode.newReportNode().withMessageTemplate("network.modification.createVoltageLevelTopology")
             .withUntypedValue("voltageLevelId", getVoltageLevelId())
             .add();
-    }
-
-    @Override
-    public Map<String, String> getMapMessageValues() {
-        Map<String, String> mapMessageValues = new HashMap<>();
-        mapMessageValues.put("voltageLevelId", getVoltageLevelId());
-        return mapMessageValues;
     }
 
     @Override

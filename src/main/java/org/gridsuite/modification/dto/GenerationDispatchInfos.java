@@ -41,12 +41,6 @@ public class GenerationDispatchInfos extends GenerationDispatchModel implements 
     @Builder.Default
     private Boolean stashed = false;
 
-    @Schema(description = "Message type")
-    private String messageType;
-
-    @Schema(description = "Message values")
-    private String messageValues;
-
     @Schema(description = "Modification activated (defaults to true at creation when not provided)")
     private Boolean activated;
 

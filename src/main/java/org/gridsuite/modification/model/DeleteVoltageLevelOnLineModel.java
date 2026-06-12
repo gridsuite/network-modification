@@ -15,8 +15,6 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.DeleteVoltageLevelOnLine;
 
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
@@ -53,13 +51,4 @@ public class DeleteVoltageLevelOnLineModel extends ModificationModel {
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode().withMessageTemplate("network.modification.deleteVoltageLevelOnLine").add();
     }
-
-    @Override
-    public Map<String, String> getMapMessageValues() {
-        Map<String, String> mapMessageValues = new HashMap<>();
-        mapMessageValues.put("lineToAttachTo1Id", getLineToAttachTo1Id());
-        mapMessageValues.put("lineToAttachTo2Id", getLineToAttachTo2Id());
-        return mapMessageValues;
-    }
-
 }

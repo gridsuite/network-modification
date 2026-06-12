@@ -15,7 +15,6 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LinesAttachToSplitLines;
 
-import java.util.Map;
 
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
@@ -70,8 +69,4 @@ public class LinesAttachToSplitLinesModel extends ModificationModel {
                 .add();
     }
 
-    @Override
-    public Map<String, String> getMapMessageValues() {
-        return Map.of("attachedLineId", getAttachedLineId());
-    }
 }

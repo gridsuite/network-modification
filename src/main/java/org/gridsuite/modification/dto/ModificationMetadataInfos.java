@@ -7,6 +7,8 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,21 +26,27 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
 @Setter
+@JsonTypeName("MODIFICATION_METADATA")
 public class ModificationMetadataInfos implements ModificationInfos {
 
     private UUID uuid;
-    private ModificationType type;
     private Instant date;
     private Boolean stashed;
+    @JsonProperty(access = JsonProperty.Access.READ_WRITE)
     private String messageType;
+    @JsonProperty(access = JsonProperty.Access.READ_WRITE)
     private String messageValues;
+    private Integer maxDepth;
     private Boolean activated;
     private String description;
 
     @Override
+    public ModificationType getType() {
+        return ModificationType.MODIFICATION_METADATA;
+    }
+
+    @Override
     public ModificationModel toModel() {
-        ModificationModel model = new ModificationModel();
-        model.setType(type);
-        return model;
+        throw new UnsupportedOperationException("ModificationMetadataInfos cannot be converted to a ModificationModel");
     }
 }

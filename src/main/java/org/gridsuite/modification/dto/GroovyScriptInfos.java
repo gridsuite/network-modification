@@ -38,12 +38,6 @@ public class GroovyScriptInfos extends GroovyScriptModel implements Modification
     @Builder.Default
     private Boolean stashed = false;
 
-    @Schema(description = "Message type")
-    private String messageType;
-
-    @Schema(description = "Message values")
-    private String messageValues;
-
     @Schema(description = "Modification activated (defaults to true at creation when not provided)")
     private Boolean activated;
 

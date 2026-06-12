@@ -16,7 +16,6 @@ import lombok.experimental.SuperBuilder;
 import org.springframework.lang.NonNull;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -36,9 +35,4 @@ public class EquipmentModificationModel extends ModificationModel {
     @Schema(description = "free properties")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<FreePropertyModel> properties;
-
-    @Override
-    public Map<String, String> getMapMessageValues() {
-        return Map.of("equipmentId", getEquipmentId());
-    }
 }

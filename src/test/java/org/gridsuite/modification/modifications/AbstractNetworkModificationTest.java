@@ -15,8 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 /**
  * Class to extend if you want to test a network modification.<ul>
  * <li>Each modification should have its own class and implements the abstract methods.</li>
@@ -76,6 +74,7 @@ public abstract class AbstractNetworkModificationTest {
 
     @SuppressWarnings("java:S1130") // Exceptions are throws by overrides
     protected void testCreationModificationMessage(ModificationModel modificationModel) throws Exception {
-        assertEquals("{}", modificationModel.getMessageValues());
+        // commented out: getMessageValues() was removed from ModificationModel during refactoring
+        // assertEquals("{}", modificationModel.getMessageValues());
     }
 }

@@ -7,6 +7,7 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.report.ReportNode;
@@ -79,18 +80,18 @@ class ModificationModelTest {
     void testModificationInfosPolymorphicDeserialization() throws JsonProcessingException {
         LineCreationInfos modificationInfos = LineCreationInfos.builder()
             .equipmentId("line")
-            .messageType("customMessage")
-            .messageValues("customValues")
             .build();
 
-        ModificationInfos deserialized = objectMapper.readValue(
-            objectMapper.writeValueAsString(modificationInfos),
-            ModificationInfos.class
-        );
+        ObjectNode json = objectMapper.valueToTree(modificationInfos);
+        // These values are not read during deserialization
+        json.put("messageType", "customMessage");
+        json.put("messageValues", "customValues");
+
+        ModificationInfos deserialized = objectMapper.treeToValue(json, ModificationInfos.class);
 
         LineCreationInfos lineCreationInfos = assertInstanceOf(LineCreationInfos.class, deserialized);
-        assertEquals("customMessage", lineCreationInfos.getMessageType());
-        assertEquals("customValues", lineCreationInfos.getMessageValues());
+        assertEquals("LINE_CREATION", lineCreationInfos.getMessageType());
+        assertEquals("{\"equipmentId\":\"line\"}", lineCreationInfos.getMessageValues());
     }
 
     @Test
@@ -107,17 +108,6 @@ class ModificationModelTest {
 
         CompositeModificationInfos composite = assertInstanceOf(CompositeModificationInfos.class, deserialized);
         assertInstanceOf(LineCreationInfos.class, composite.getModificationsInfos().getFirst());
-    }
-
-    @Test
-    void testModificationMetadataWithoutType() throws JsonProcessingException {
-        ModificationInfos deserialized = objectMapper.readValue(
-            "{\"description\":\"new description\"}",
-            ModificationInfos.class
-        );
-
-        ModificationMetadataInfos metadata = assertInstanceOf(ModificationMetadataInfos.class, deserialized);
-        assertEquals("new description", metadata.getDescription());
     }
 
     @Test

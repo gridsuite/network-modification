@@ -19,8 +19,6 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.OperatingStatusModification;
 
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.OPERATING_ACTION_TYPE_EMPTY;
 
@@ -78,15 +76,4 @@ public class OperatingStatusModificationModel extends EquipmentModificationModel
         }
     }
 
-    @Override
-    public Map<String, String> getMapMessageValues() {
-        Map<String, String> mapMessageValues = new HashMap<>();
-        mapMessageValues.put("action", getAction().name());
-        mapMessageValues.put("equipmentId", getEquipmentId());
-        if (getEnergizedVoltageLevelId() != null) {
-            mapMessageValues.put("energizedVoltageLevelId", getEnergizedVoltageLevelId());
-        }
-        return mapMessageValues;
-
-    }
 }

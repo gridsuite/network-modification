@@ -13,6 +13,8 @@ import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.model.CreateVoltageLevelTopologyModel;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -36,15 +38,16 @@ public class CreateVoltageLevelTopologyInfos extends CreateVoltageLevelTopologyM
     @Builder.Default
     private Boolean stashed = false;
 
-    @Schema(description = "Message type")
-    private String messageType;
-
-    @Schema(description = "Message values")
-    private String messageValues;
-
     @Schema(description = "Modification activated (defaults to true at creation when not provided)")
     private Boolean activated;
 
     @Schema(description = "User description")
     private String description;
+
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        Map<String, String> mapMessageValues = new HashMap<>();
+        mapMessageValues.put("voltageLevelId", getVoltageLevelId());
+        return mapMessageValues;
+    }
 }

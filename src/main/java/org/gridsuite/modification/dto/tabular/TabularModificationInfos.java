@@ -18,6 +18,9 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.model.tabular.TabularModificationModel;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
@@ -42,5 +45,12 @@ public class TabularModificationInfos extends AbstractTabularBaseInfos implement
             .csvFilename(csvFilename)
             .modificationType(modificationType)
             .build();
+    }
+
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        Map<String, String> mapMessageValues = new HashMap<>();
+        mapMessageValues.put("tabularModificationType", getModificationType().name());
+        return mapMessageValues;
     }
 }

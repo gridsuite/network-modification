@@ -18,7 +18,6 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -62,21 +61,6 @@ public class ModificationModel {
 
     public void setType(ModificationType type) {
         this.type.set(type);
-    }
-
-    @JsonIgnore
-    public Map<String, String> getMapMessageValues() {
-        return Map.of();
-    }
-
-    @JsonIgnore
-    public String getMessageType() {
-        return getType().name();
-    }
-
-    @JsonIgnore
-    public String getMessageValues() {
-        return getMapMessageValues().toString();
     }
 
     @JsonIgnore

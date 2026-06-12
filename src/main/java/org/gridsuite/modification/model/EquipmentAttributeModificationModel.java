@@ -21,8 +21,6 @@ import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.EquipmentAttributeModification;
 import org.springframework.lang.NonNull;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.*;
@@ -69,17 +67,6 @@ public class EquipmentAttributeModificationModel extends EquipmentModificationMo
         if (equipmentType == IdentifiableType.SWITCH) {
             checkSwitchStatusModificationInfos();
         }
-    }
-
-    @Override
-    public Map<String, String> getMapMessageValues() {
-        Map<String, String> mapMessageValues = new HashMap<>();
-        mapMessageValues.put("equipmentAttributeName", getEquipmentAttributeName());
-        mapMessageValues.put("equipmentId", getEquipmentId());
-        mapMessageValues.put("equipmentAttributeValue", getEquipmentAttributeValue() != null
-                    ? getEquipmentAttributeValue().toString()
-                    : null);
-        return mapMessageValues;
     }
 
     private void checkSwitchStatusModificationInfos() {

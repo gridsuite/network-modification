@@ -20,9 +20,7 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.ByFilterDeletion;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
@@ -53,10 +51,4 @@ public class ByFilterDeletionModel extends ModificationModel {
         return reportNode.newReportNode().withMessageTemplate("network.modification.byFilter.deletion").add();
     }
 
-    @Override
-    public Map<String, String> getMapMessageValues() {
-        Map<String, String> mapMessageValues = new HashMap<>();
-        mapMessageValues.put("equipmentType", getEquipmentType().name());
-        return mapMessageValues;
-    }
 }

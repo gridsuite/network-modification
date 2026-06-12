@@ -14,6 +14,8 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.EquipmentAttributeModificationModel;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -38,15 +40,20 @@ public class EquipmentAttributeModificationInfos extends EquipmentAttributeModif
     @Builder.Default
     private Boolean stashed = false;
 
-    @Schema(description = "Message type")
-    private String messageType;
-
-    @Schema(description = "Message values")
-    private String messageValues;
-
     @Schema(description = "Modification activated (defaults to true at creation when not provided)")
     private Boolean activated;
 
     @Schema(description = "User description")
     private String description;
+
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        Map<String, String> mapMessageValues = new HashMap<>();
+        mapMessageValues.put("equipmentAttributeName", getEquipmentAttributeName());
+        mapMessageValues.put("equipmentId", getEquipmentId());
+        mapMessageValues.put("equipmentAttributeValue", getEquipmentAttributeValue() != null
+                    ? getEquipmentAttributeValue().toString()
+                    : null);
+        return mapMessageValues;
+    }
 }

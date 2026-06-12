@@ -7,8 +7,11 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.tabular.LimitSetsTabularModificationInfos;
 import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
@@ -16,6 +19,7 @@ import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
 import org.gridsuite.modification.model.ModificationModel;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -25,8 +29,7 @@ import java.util.UUID;
     use = JsonTypeInfo.Id.NAME,
     property = "type",
     include = JsonTypeInfo.As.EXISTING_PROPERTY,
-    visible = true,
-    defaultImpl = ModificationMetadataInfos.class
+    visible = true
 )
 @JsonSubTypes({
     @JsonSubTypes.Type(SubstationCreationInfos.class),
@@ -79,7 +82,8 @@ import java.util.UUID;
     @JsonSubTypes.Type(GroovyScriptInfos.class),
     @JsonSubTypes.Type(BalancesAdjustmentModificationInfos.class),
     @JsonSubTypes.Type(ByFilterDeletionInfos.class),
-    @JsonSubTypes.Type(EquipmentDeletionInfos.class)
+    @JsonSubTypes.Type(EquipmentDeletionInfos.class),
+    @JsonSubTypes.Type(ModificationMetadataInfos.class)
 })
 public interface ModificationInfos {
 
@@ -103,15 +107,21 @@ public interface ModificationInfos {
 
     void setStashed(Boolean stashed);
 
-    @JsonIgnore(false)
-    String getMessageType();
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    default String getMessageType() {
+        return getType() == null ? null : getType().name();
+    }
 
-    void setMessageType(String messageType);
+    @SneakyThrows
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    default String getMessageValues() {
+        return new ObjectMapper().writeValueAsString(getMapMessageValues());
+    }
 
-    @JsonIgnore(false)
-    String getMessageValues();
-
-    void setMessageValues(String messageValues);
+    @JsonIgnore
+    default Map<String, String> getMapMessageValues() {
+        return Map.of();
+    }
 
     Boolean getActivated();
 

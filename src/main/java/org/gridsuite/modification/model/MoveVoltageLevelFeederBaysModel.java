@@ -18,7 +18,6 @@ import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.MoveVoltageLevelFeederBays;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -49,10 +48,5 @@ public class MoveVoltageLevelFeederBaysModel extends ModificationModel {
             .withMessageTemplate("network.modification.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS")
             .withUntypedValue("voltageLevelId", getVoltageLevelId())
             .add();
-    }
-
-    @Override
-    public Map<String, String> getMapMessageValues() {
-        return Map.of("voltageLevelId", getVoltageLevelId());
     }
 }

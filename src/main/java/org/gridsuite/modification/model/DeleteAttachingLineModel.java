@@ -19,8 +19,6 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.DeleteAttachingLine;
 
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
@@ -61,12 +59,4 @@ public class DeleteAttachingLineModel extends ModificationModel {
         return reportNode.newReportNode().withMessageTemplate("network.modification.deleteAttachingLine").add();
     }
 
-    @Override
-    public Map<String, String> getMapMessageValues() {
-        Map<String, String> mapMessageValues = new HashMap<>();
-        mapMessageValues.put("attachedLineId", getAttachedLineId());
-        mapMessageValues.put("lineToAttachTo1Id", getLineToAttachTo1Id());
-        mapMessageValues.put("lineToAttachTo2Id", getLineToAttachTo2Id());
-        return mapMessageValues;
-    }
 }

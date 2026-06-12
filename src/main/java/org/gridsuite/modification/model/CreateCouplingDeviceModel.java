@@ -18,9 +18,6 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.CreateCouplingDevice;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
@@ -52,10 +49,4 @@ public class CreateCouplingDeviceModel extends ModificationModel {
             .add();
     }
 
-    @Override
-    public Map<String, String> getMapMessageValues() {
-        Map<String, String> mapMessageValues = new HashMap<>();
-        mapMessageValues.put("voltageLevelId", getVoltageLevelId());
-        return mapMessageValues;
-    }
 }
