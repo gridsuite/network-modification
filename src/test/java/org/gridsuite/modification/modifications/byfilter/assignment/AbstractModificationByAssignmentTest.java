@@ -11,14 +11,14 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.IFilterService;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.FilterInfos;
-import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.byfilter.DataType;
-import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.PropertyAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField;
+import org.gridsuite.modification.model.FilterEquipments;
+import org.gridsuite.modification.model.FilterModel;
+import org.gridsuite.modification.model.ModificationByAssignmentModel;
+import org.gridsuite.modification.model.ModificationModel;
+import org.gridsuite.modification.model.byfilter.DataType;
+import org.gridsuite.modification.model.byfilter.assignment.AssignmentModel;
+import org.gridsuite.modification.model.byfilter.assignment.PropertyAssignmentModel;
+import org.gridsuite.modification.model.byfilter.equipmentfield.PropertyField;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
@@ -49,13 +49,13 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     protected static final UUID FILTER_ID_6 = UUID.randomUUID();
     protected static final UUID FILTER_WITH_ALL_WRONG_IDS = UUID.randomUUID();
     protected static final UUID FILTER_WITH_ONE_WRONG_ID = UUID.randomUUID();
-    protected final FilterInfos filter1 = new FilterInfos(FILTER_ID_1, "filter1");
-    protected final FilterInfos filter2 = new FilterInfos(FILTER_ID_2, "filter2");
-    protected final FilterInfos filter3 = new FilterInfos(FILTER_ID_3, "filter3");
-    protected final FilterInfos filter4 = new FilterInfos(FILTER_ID_4, "filter4");
-    protected final FilterInfos filter5 = new FilterInfos(FILTER_ID_5, "filter5");
-    protected final FilterInfos filter6 = new FilterInfos(FILTER_ID_6, "filter6");
-    protected final FilterInfos filterWithOneWrongId = new FilterInfos(FILTER_WITH_ONE_WRONG_ID, "filterWithOneWrongId");
+    protected final FilterModel filter1 = new FilterModel(FILTER_ID_1, "filter1");
+    protected final FilterModel filter2 = new FilterModel(FILTER_ID_2, "filter2");
+    protected final FilterModel filter3 = new FilterModel(FILTER_ID_3, "filter3");
+    protected final FilterModel filter4 = new FilterModel(FILTER_ID_4, "filter4");
+    protected final FilterModel filter5 = new FilterModel(FILTER_ID_5, "filter5");
+    protected final FilterModel filter6 = new FilterModel(FILTER_ID_6, "filter6");
+    protected final FilterModel filterWithOneWrongId = new FilterModel(FILTER_WITH_ONE_WRONG_ID, "filterWithOneWrongId");
     protected final ReportNode reportNode = ReportNode.newRootReportNode()
             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test")
@@ -74,7 +74,7 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     @Test
     @Override
     public void testApply() throws Exception {
-        ModificationInfos modificationInfo = buildModification();
+        ModificationModel modificationInfo = buildModification();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(getTestFilters());
         AbstractModification modification = modificationInfo.toModification();
         modification.initApplicationContext(filterService, null);
@@ -88,11 +88,10 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     }
 
     @Override
-    protected ModificationByAssignmentInfos buildModification() {
-        return ModificationByAssignmentInfos.builder()
+    protected ModificationModel buildModification() {
+        return ModificationByAssignmentModel.builder()
                 .equipmentType(getIdentifiableType())
-                .assignmentInfosList(getAssignmentInfos())
-                .stashed(false)
+            .assignmentInfosList(getAssignmentInfos())
                 .build();
     }
 
@@ -100,7 +99,7 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     protected void checkModification() {
     }
 
-    protected void apply(ModificationByAssignmentInfos modificationByAssignmentInfos) {
+    protected void apply(ModificationByAssignmentModel modificationByAssignmentInfos) {
         AbstractModification modification = modificationByAssignmentInfos.toModification();
         modification.initApplicationContext(filterService, null);
         modification.apply(getNetwork());
@@ -110,8 +109,8 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
 
     protected abstract Map<UUID, FilterEquipments> getTestFilters();
 
-    protected List<AssignmentInfos<?>> getAssignmentInfos() {
-        PropertyAssignmentInfos spyAssignmentInfos = spy(PropertyAssignmentInfos.builder()
+    protected List<AssignmentModel<?>> getAssignmentInfos() {
+        PropertyAssignmentModel spyAssignmentInfos = spy(PropertyAssignmentModel.builder()
                 .editedField(PropertyField.FREE_PROPERTIES.name())
                 .propertyName("propertyName")
                 .value("propertyValue")

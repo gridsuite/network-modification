@@ -11,8 +11,8 @@ import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.*;
-import org.gridsuite.modification.dto.tabular.LimitSetsTabularModificationInfos;
+import org.gridsuite.modification.model.*;
+import org.gridsuite.modification.model.tabular.LimitSetsTabularModificationModel;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -27,7 +27,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static org.gridsuite.modification.dto.AttributeModification.toAttributeModification;
+import static org.gridsuite.modification.model.AttributeModification.toAttributeModification;
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessageWithoutRank;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,22 +41,22 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        return LimitSetsTabularModificationInfos.builder()
+    protected ModificationModel buildModification() {
+        return LimitSetsTabularModificationModel.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
+                        LineModificationModel.builder().equipmentId("line1")
                                 .selectedOperationalLimitsGroupId1(new AttributeModification<>("", OperationType.UNSET))
                                 .operationalLimitsGroups(
                                         List.of(
-                                                OperationalLimitsGroupModificationInfos.builder()
+                                                OperationalLimitsGroupModificationModel.builder()
                                                         .id("DEFAULT")
-                                                        .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                        .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                         .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                                         .temporaryLimitsModificationType(TemporaryLimitModificationType.REPLACE)
-                                                        .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                        .currentLimits(CurrentLimitsModificationModel.builder()
                                                                 .temporaryLimits(List.of(
-                                                                        CurrentTemporaryLimitModificationInfos.builder()
+                                                                        CurrentTemporaryLimitModificationModel.builder()
                                                                                 .modificationType(TemporaryLimitModificationType.REPLACE)
                                                                                 .name(toAttributeModification("test1", OperationType.SET))
                                                                                 .acceptableDuration(toAttributeModification(2, OperationType.SET))
@@ -64,14 +64,14 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                                                 .build()
                                                                 )).build())
                                                         .build(),
-                                                OperationalLimitsGroupModificationInfos.builder()
+                                                OperationalLimitsGroupModificationModel.builder()
                                                         .id("DEFAULT")
-                                                        .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                        .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                         .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                                         .temporaryLimitsModificationType(TemporaryLimitModificationType.ADD)
-                                                        .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                        .currentLimits(CurrentLimitsModificationModel.builder()
                                                                 .temporaryLimits(List.of(
-                                                                        CurrentTemporaryLimitModificationInfos.builder()
+                                                                        CurrentTemporaryLimitModificationModel.builder()
                                                                                 .modificationType(TemporaryLimitModificationType.ADD)
                                                                                 .name(toAttributeModification("test2", OperationType.SET))
                                                                                 .acceptableDuration(toAttributeModification(1, OperationType.SET))
@@ -80,20 +80,20 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                                 )).build())
                                                         .build()))
                                 .build(),
-                        LineModificationInfos.builder()
+                        LineModificationModel.builder()
                                 .equipmentId("line2")
                                 .selectedOperationalLimitsGroupId1(new AttributeModification<>("DEFAULT", OperationType.SET))
                                 .selectedOperationalLimitsGroupId2(new AttributeModification<>("", OperationType.UNSET))
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.ADD)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.ADD)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .permanentLimit(99.)
                                                         .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.ADD)
                                                                         .name(toAttributeModification("test1", OperationType.SET))
                                                                         .acceptableDuration(toAttributeModification(1, OperationType.SET))
@@ -103,34 +103,34 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                 .build()))
                                 .build(),
                         // Should generate an warning because there's no match for this temporary limit modification
-                        LineModificationInfos.builder().equipmentId("line1").operationalLimitsGroups(List.of(OperationalLimitsGroupModificationInfos.builder()
+                        LineModificationModel.builder().equipmentId("line1").operationalLimitsGroups(List.of(OperationalLimitsGroupModificationModel.builder()
                                         .id("DEFAULT")
-                                        .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                        .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                         .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                         .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY)
-                                        .currentLimits(CurrentLimitsModificationInfos.builder()
+                                        .currentLimits(CurrentLimitsModificationModel.builder()
                                                 .temporaryLimits(List.of(
                                                         // throws a warning
-                                                        CurrentTemporaryLimitModificationInfos.builder()
+                                                        CurrentTemporaryLimitModificationModel.builder()
                                                                 .modificationType(TemporaryLimitModificationType.MODIFY)
                                                                 .name(toAttributeModification("test0", OperationType.SET))
                                                                 .acceptableDuration(toAttributeModification(3, OperationType.SET))
                                                                 .value(toAttributeModification(10., OperationType.SET))
                                                                 .build(),
                                                         // valid modification
-                                                        CurrentTemporaryLimitModificationInfos.builder()
+                                                        CurrentTemporaryLimitModificationModel.builder()
                                                                 .modificationType(TemporaryLimitModificationType.MODIFY)
                                                                 .name(toAttributeModification("test1", OperationType.SET))
                                                                 .acceptableDuration(toAttributeModification(2, OperationType.SET))
                                                                 .value(toAttributeModification(50., OperationType.SET))
                                                                 .build(),
-                                                        CurrentTemporaryLimitModificationInfos.builder()
+                                                        CurrentTemporaryLimitModificationModel.builder()
                                                                 .modificationType(TemporaryLimitModificationType.ADD)
                                                                 .name(toAttributeModification("test2_plus", OperationType.SET))
                                                                 .acceptableDuration(toAttributeModification(1, OperationType.SET))
                                                                 .value(toAttributeModification(25., OperationType.SET))
                                                                 .build(),
-                                                        CurrentTemporaryLimitModificationInfos.builder()
+                                                        CurrentTemporaryLimitModificationModel.builder()
                                                                 .modificationType(TemporaryLimitModificationType.DELETE)
                                                                 .name(toAttributeModification("test2", OperationType.SET))
                                                                 .acceptableDuration(toAttributeModification(1, OperationType.SET))
@@ -140,31 +140,31 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                         .build()))
                                 .build(),
                         //Should fail since provided operational limit group already exists on this side
-                        LineModificationInfos.builder()
+                        LineModificationModel.builder()
                                 .equipmentId("line2")
                                 .selectedOperationalLimitsGroupId1(new AttributeModification<>("DEFAULT", OperationType.SET))
                                 .selectedOperationalLimitsGroupId2(new AttributeModification<>("DEFAULT", OperationType.SET))
-                                .operationalLimitsGroups(List.of(OperationalLimitsGroupModificationInfos.builder()
+                                .operationalLimitsGroups(List.of(OperationalLimitsGroupModificationModel.builder()
                                         .id("DEFAULT")
-                                        .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                        .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                         .modificationType(OperationalLimitsGroupModificationType.ADD)
                                         .temporaryLimitsModificationType(TemporaryLimitModificationType.ADD)
                                         .build()))
                                 .build(),
                         //group0 already exists in network for this equipment
-                        LineModificationInfos.builder()
+                        LineModificationModel.builder()
                                 .equipmentId("line2")
                                 .selectedOperationalLimitsGroupId2(new AttributeModification<>("group0", OperationType.SET))
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("group0")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE2)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE2)
                                                 .modificationType(OperationalLimitsGroupModificationType.REPLACE)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.ADD)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .permanentLimit(99.)
                                                         .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.ADD)
                                                                         .name(toAttributeModification("test1", OperationType.SET))
                                                                         .acceptableDuration(toAttributeModification(1, OperationType.SET))
@@ -174,27 +174,27 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                 .build()))
                                 .build(),
                         //group0 already exists in network for this equipment, so MODIFY_OR_ADD will be a modification
-                        LineModificationInfos.builder()
+                        LineModificationModel.builder()
                                 .equipmentId("line2")
                                 .selectedOperationalLimitsGroupId2(new AttributeModification<>("group0", OperationType.SET))
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("group0")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE2)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE2)
                                                 .modificationType(OperationalLimitsGroupModificationType.MODIFY_OR_ADD)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.ADD)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .permanentLimit(100.)
                                                         .build())
                                                 .build()))
                                 .build(),
-                        LineModificationInfos.builder()
+                        LineModificationModel.builder()
                                 .equipmentId("line2")
                                 .selectedOperationalLimitsGroupId2(new AttributeModification<>("group0", OperationType.SET))
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("UNKNOWN")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE2)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE2)
                                                 .build()))
                                 .build())
                 )
@@ -204,7 +204,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
     @Test
     @Override
     public void testApply() {
-        ModificationInfos modificationInfos = buildModification();
+        ModificationModel modificationInfos = buildModification();
         ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
@@ -217,19 +217,19 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      */
     @Test
     void testModifyTemporaryLimitNameOnly() {
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+        ModificationModel modificationInfos = LimitSetsTabularModificationModel.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
+                        LineModificationModel.builder().equipmentId("line1")
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.MODIFY)
                                                                         .name(toAttributeModification("renamed_limit", OperationType.SET))
                                                                         .acceptableDuration(toAttributeModification(32, OperationType.SET))
@@ -259,19 +259,19 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      */
     @Test
     void testModifyTemporaryLimitValueOnly() {
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+        ModificationModel modificationInfos = LimitSetsTabularModificationModel.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
+                        LineModificationModel.builder().equipmentId("line1")
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.MODIFY)
                                                                         .name(toAttributeModification("name32", OperationType.SET)) // No name modification
                                                                         .acceptableDuration(toAttributeModification(32, OperationType.SET))
@@ -302,19 +302,19 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      */
     @Test
     void testDeleteTemporaryLimit() {
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+        ModificationModel modificationInfos = LimitSetsTabularModificationModel.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
+                        LineModificationModel.builder().equipmentId("line1")
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.DELETE)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.DELETE)
                                                                         .name(toAttributeModification("test1", OperationType.SET))
                                                                         .acceptableDuration(toAttributeModification(32, OperationType.SET))
@@ -343,19 +343,19 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      */
     @Test
     void testModifyOrAddNonExistentLimit() {
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+        ModificationModel modificationInfos = LimitSetsTabularModificationModel.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
+                        LineModificationModel.builder().equipmentId("line1")
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY_OR_ADD)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.MODIFY_OR_ADD)
                                                                         .name(toAttributeModification("new_limit", OperationType.SET))
                                                                         .acceptableDuration(toAttributeModification(5, OperationType.SET))
@@ -395,19 +395,19 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
         String existingName = existingLimits.getTemporaryLimit(32).getName();
         double existingValue = existingLimits.getTemporaryLimit(32).getValue();
 
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+        ModificationModel modificationInfos = LimitSetsTabularModificationModel.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
+                        LineModificationModel.builder().equipmentId("line1")
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.MODIFY)
                                                                         .name(null) // Keep existing
                                                                         .acceptableDuration(toAttributeModification(32, OperationType.SET))
@@ -442,7 +442,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
     @ParameterizedTest(name = "[{index}] {0} with missing {1} should log {2} and skip the change")
     @MethodSource("missingTemporaryLimitFieldCases")
     void testTemporaryLimitMissingFieldIsSkipped(TemporaryLimitModificationType op, MissingField missing, String expectedKey, String expectedMessage) {
-        ModificationInfos modificationInfos = buildMissingFieldModification(op, missing);
+        ModificationModel modificationInfos = buildMissingFieldModification(op, missing);
 
         ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
@@ -475,7 +475,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                         "Missing acceptable duration for temporary limit to " + op + ": ignored")));
     }
 
-    private static ModificationInfos buildMissingFieldModification(TemporaryLimitModificationType op, MissingField missing) {
+    private static ModificationModel buildMissingFieldModification(TemporaryLimitModificationType op, MissingField missing) {
         AttributeModification<String> name = (missing == MissingField.NAME)
                 ? toAttributeModification(null, OperationType.SET)
                 : toAttributeModification("name32", OperationType.SET);
@@ -483,19 +483,19 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 ? toAttributeModification(null, OperationType.SET)
                 : toAttributeModification(32, OperationType.SET);
 
-        return LimitSetsTabularModificationInfos.builder()
+        return LimitSetsTabularModificationModel.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
+                        LineModificationModel.builder().equipmentId("line1")
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                                 .temporaryLimitsModificationType(op)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(op)
                                                                         .name(name)
                                                                         .acceptableDuration(duration)
@@ -515,19 +515,19 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
     @ParameterizedTest(name = "[{index}] null modification type with OLG {0} should log temporaryLimitsMissingModificationType and skip the change")
     @MethodSource("nullModificationTypeOlgCases")
     void testTemporaryLimitNullModificationTypeIsSkipped(OperationalLimitsGroupModificationType olgType) {
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+        ModificationModel modificationInfos = LimitSetsTabularModificationModel.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
+                        LineModificationModel.builder().equipmentId("line1")
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                 .modificationType(olgType)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(null)
                                                                         .name(toAttributeModification("name32", OperationType.SET))
                                                                         .acceptableDuration(toAttributeModification(32, OperationType.SET))
@@ -566,21 +566,21 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      */
     @Test
     void testTemporaryLimitWrongModificationTypeIsForcedToAddOnAdd() {
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+        ModificationModel modificationInfos = LimitSetsTabularModificationModel.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line2")
+                        LineModificationModel.builder().equipmentId("line2")
                                 .selectedOperationalLimitsGroupId1(new AttributeModification<>("DEFAULT", OperationType.SET))
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.ADD)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .permanentLimit(99.)
                                                         .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.MODIFY)
                                                                         .name(toAttributeModification("test1", OperationType.SET))
                                                                         .acceptableDuration(toAttributeModification(1, OperationType.SET))
@@ -617,20 +617,20 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      */
     @Test
     void testTemporaryLimitWrongModificationTypeIsForcedToAddOnReplace() {
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+        ModificationModel modificationInfos = LimitSetsTabularModificationModel.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
+                        LineModificationModel.builder().equipmentId("line1")
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.REPLACE)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .permanentLimit(99.)
                                                         .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.MODIFY)
                                                                         .name(toAttributeModification("test1", OperationType.SET))
                                                                         .acceptableDuration(toAttributeModification(7, OperationType.SET))
@@ -666,19 +666,19 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      */
     @Test
     void testAddTemporaryLimitWithSameDurationIsSkipped() {
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+        ModificationModel modificationInfos = LimitSetsTabularModificationModel.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
+                        LineModificationModel.builder().equipmentId("line1")
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.ADD)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.ADD)
                                                                         .name(toAttributeModification("different_name", OperationType.SET))
                                                                         .acceptableDuration(toAttributeModification(32, OperationType.SET))
@@ -705,19 +705,19 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      */
     @Test
     void testAddTemporaryLimitWithSameNameIsSkipped() {
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+        ModificationModel modificationInfos = LimitSetsTabularModificationModel.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
+                        LineModificationModel.builder().equipmentId("line1")
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.ADD)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.ADD)
                                                                         .name(toAttributeModification("name32", OperationType.SET))
                                                                         .acceptableDuration(toAttributeModification(99, OperationType.SET))
@@ -744,27 +744,27 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      */
     @Test
     void testAddTemporaryLimitConflictingWithDeletedInSameBatchSucceeds() {
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+        ModificationModel modificationInfos = LimitSetsTabularModificationModel.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
+                        LineModificationModel.builder().equipmentId("line1")
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY_OR_ADD)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .temporaryLimits(List.of(
                                                                 // delete the existing limit at duration 32
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.DELETE)
                                                                         .name(toAttributeModification("name32", OperationType.SET))
                                                                         .acceptableDuration(toAttributeModification(32, OperationType.SET))
                                                                         .value(toAttributeModification(15., OperationType.SET))
                                                                         .build(),
                                                                 // add a new limit reusing the freed duration
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.ADD)
                                                                         .name(toAttributeModification("brand_new", OperationType.SET))
                                                                         .acceptableDuration(toAttributeModification(32, OperationType.SET))
@@ -796,19 +796,19 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      */
     @Test
     void testModifyTemporaryLimitWithDuplicateName() {
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+        ModificationModel modificationInfos = LimitSetsTabularModificationModel.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
+                        LineModificationModel.builder().equipmentId("line1")
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.MODIFY)
                                                                         // name33 already used by another existing limit (duration 33)
                                                                         .name(toAttributeModification("name33", OperationType.SET))
@@ -843,19 +843,19 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      */
     @Test
     void testModifyOrAddTemporaryLimitWithDuplicateName() {
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+        ModificationModel modificationInfos = LimitSetsTabularModificationModel.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
+                        LineModificationModel.builder().equipmentId("line1")
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY_OR_ADD)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.MODIFY_OR_ADD)
                                                                         // name33 already used by an existing limit (duration 33)
                                                                         .name(toAttributeModification("name33", OperationType.SET))
@@ -890,19 +890,19 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      */
     @Test
     void testModifyOrAddOnExistingLimit() {
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+        ModificationModel modificationInfos = LimitSetsTabularModificationModel.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
+                        LineModificationModel.builder().equipmentId("line1")
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY_OR_ADD)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.MODIFY_OR_ADD)
                                                                         .name(toAttributeModification("name32", OperationType.SET))
                                                                         .acceptableDuration(toAttributeModification(32, OperationType.SET))
@@ -935,19 +935,19 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      */
     @Test
     void testReplaceTemporaryLimitOnExistingReplacesNameAndValue() {
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+        ModificationModel modificationInfos = LimitSetsTabularModificationModel.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
+                        LineModificationModel.builder().equipmentId("line1")
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.REPLACE)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.REPLACE)
                                                                         .name(toAttributeModification("renamed", OperationType.SET))
                                                                         .acceptableDuration(toAttributeModification(32, OperationType.SET))
@@ -978,19 +978,19 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      */
     @Test
     void testReplaceTemporaryLimitWithEmptyValueDoesNotPreservePrevious() {
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+        ModificationModel modificationInfos = LimitSetsTabularModificationModel.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
+                        LineModificationModel.builder().equipmentId("line1")
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.REPLACE)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .temporaryLimits(List.of(
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.REPLACE)
                                                                         .name(toAttributeModification("renamed", OperationType.SET))
                                                                         .acceptableDuration(toAttributeModification(32, OperationType.SET))
@@ -1023,27 +1023,27 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
      */
     @Test
     void testAddTemporaryLimitDuplicateWithEarlierInBatchAddIsSkipped() {
-        ModificationInfos modificationInfos = LimitSetsTabularModificationInfos.builder()
+        ModificationModel modificationInfos = LimitSetsTabularModificationModel.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(List.of(
-                        LineModificationInfos.builder().equipmentId("line1")
+                        LineModificationModel.builder().equipmentId("line1")
                                 .operationalLimitsGroups(List.of(
-                                        OperationalLimitsGroupModificationInfos.builder()
+                                        OperationalLimitsGroupModificationModel.builder()
                                                 .id("DEFAULT")
-                                                .applicability(OperationalLimitsGroupInfos.Applicability.SIDE1)
+                                                .applicability(OperationalLimitsGroupModel.Applicability.SIDE1)
                                                 .modificationType(OperationalLimitsGroupModificationType.MODIFY)
                                                 .temporaryLimitsModificationType(TemporaryLimitModificationType.MODIFY_OR_ADD)
-                                                .currentLimits(CurrentLimitsModificationInfos.builder()
+                                                .currentLimits(CurrentLimitsModificationModel.builder()
                                                         .temporaryLimits(List.of(
                                                                 // first ADD: fresh duration 50, accepted and recorded in the working set
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.ADD)
                                                                         .name(toAttributeModification("first_new", OperationType.SET))
                                                                         .acceptableDuration(toAttributeModification(50, OperationType.SET))
                                                                         .value(toAttributeModification(11., OperationType.SET))
                                                                         .build(),
                                                                 // second ADD: same duration 50, must be rejected as duplicate
-                                                                CurrentTemporaryLimitModificationInfos.builder()
+                                                                CurrentTemporaryLimitModificationModel.builder()
                                                                         .modificationType(TemporaryLimitModificationType.ADD)
                                                                         .name(toAttributeModification("second_new", OperationType.SET))
                                                                         .acceptableDuration(toAttributeModification(50, OperationType.SET))

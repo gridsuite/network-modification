@@ -9,7 +9,7 @@ package org.gridsuite.modification.utils;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
-import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 
 import java.io.IOException;
@@ -27,7 +27,7 @@ public final class MergingLimitsTestUtils {
 
     }
 
-    public static void testModificationMergedLimits(Network network, ModificationInfos modificationInfos, String replacementLineId, String expectedReportNodePath) throws IOException {
+    public static void testModificationMergedLimits(Network network, ModificationModel modificationInfos, String replacementLineId, String expectedReportNodePath) throws IOException {
         Line line1 = network.getLine("l1");
         line1.newOperationalLimitsGroup1("groupNotMergedSide1");
         assertTrue(line1.getOperationalLimitsGroup1("group1").isPresent());

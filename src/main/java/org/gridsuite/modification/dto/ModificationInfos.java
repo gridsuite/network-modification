@@ -7,25 +7,20 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.dto.tabular.LimitSetsTabularModificationInfos;
 import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
 import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
-import org.gridsuite.modification.modifications.AbstractModification;
+import org.gridsuite.modification.model.ModificationModel;
 
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -33,124 +28,110 @@ import java.util.concurrent.atomic.AtomicReference;
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     property = "type",
-    include = JsonTypeInfo.As.EXISTING_PROPERTY
+    include = JsonTypeInfo.As.EXISTING_PROPERTY,
+    visible = true
 )
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = GroovyScriptInfos.class),
-    @JsonSubTypes.Type(value = BatteryCreationInfos.class),
-    @JsonSubTypes.Type(value = BatteryModificationInfos.class),
-    @JsonSubTypes.Type(value = LoadCreationInfos.class),
-    @JsonSubTypes.Type(value = LoadModificationInfos.class),
-    @JsonSubTypes.Type(value = GeneratorCreationInfos.class),
-    @JsonSubTypes.Type(value = GeneratorModificationInfos.class),
-    @JsonSubTypes.Type(value = LineCreationInfos.class),
-    @JsonSubTypes.Type(value = LineModificationInfos.class),
-    @JsonSubTypes.Type(value = SubstationCreationInfos.class),
-    @JsonSubTypes.Type(value = SubstationModificationInfos.class),
-    @JsonSubTypes.Type(value = VoltageLevelCreationInfos.class),
-    @JsonSubTypes.Type(value = VoltageLevelModificationInfos.class),
-    @JsonSubTypes.Type(value = ShuntCompensatorCreationInfos.class),
-    @JsonSubTypes.Type(value = ShuntCompensatorModificationInfos.class),
-    @JsonSubTypes.Type(value = StaticVarCompensatorCreationInfos.class),
-    @JsonSubTypes.Type(value = TwoWindingsTransformerCreationInfos.class),
-    @JsonSubTypes.Type(value = TwoWindingsTransformerModificationInfos.class),
-    @JsonSubTypes.Type(value = EquipmentDeletionInfos.class),
-    @JsonSubTypes.Type(value = ByFilterDeletionInfos.class),
-    @JsonSubTypes.Type(value = LineSplitWithVoltageLevelInfos.class),
-    @JsonSubTypes.Type(value = LineAttachToVoltageLevelInfos.class),
-    @JsonSubTypes.Type(value = LinesAttachToSplitLinesInfos.class),
-    @JsonSubTypes.Type(value = OperatingStatusModificationInfos.class),
-    @JsonSubTypes.Type(value = EquipmentAttributeModificationInfos.class),
-    @JsonSubTypes.Type(value = GeneratorScalingInfos.class),
-    @JsonSubTypes.Type(value = LoadScalingInfos.class),
-    @JsonSubTypes.Type(value = DeleteVoltageLevelOnLineInfos.class),
-    @JsonSubTypes.Type(value = DeleteAttachingLineInfos.class),
-    @JsonSubTypes.Type(value = GenerationDispatchInfos.class),
-    @JsonSubTypes.Type(value = VoltageInitModificationInfos.class),
-    @JsonSubTypes.Type(value = VscCreationInfos.class),
-    @JsonSubTypes.Type(value = LccCreationInfos.class),
-    @JsonSubTypes.Type(value = LccConverterStationCreationInfos.class),
-    @JsonSubTypes.Type(value = ConverterStationCreationInfos.class),
-    @JsonSubTypes.Type(value = TabularModificationInfos.class),
-    @JsonSubTypes.Type(value = ByFormulaModificationInfos.class),
-    @JsonSubTypes.Type(value = ModificationByAssignmentInfos.class),
-    @JsonSubTypes.Type(value = VscModificationInfos.class),
-    @JsonSubTypes.Type(value = ConverterStationModificationInfos.class),
-    @JsonSubTypes.Type(value = TabularCreationInfos.class),
-    @JsonSubTypes.Type(value = CompositeModificationInfos.class),
-    @JsonSubTypes.Type(value = LccModificationInfos.class),
-    @JsonSubTypes.Type(value = LccConverterStationModificationInfos.class),
-    @JsonSubTypes.Type(value = VoltageLevelTopologyModificationInfos.class),
-    @JsonSubTypes.Type(value = CreateCouplingDeviceInfos.class),
-    @JsonSubTypes.Type(value = BalancesAdjustmentModificationInfos.class),
-    @JsonSubTypes.Type(value = CreateVoltageLevelTopologyInfos.class),
-    @JsonSubTypes.Type(value = LimitSetsTabularModificationInfos.class),
-    @JsonSubTypes.Type(value = CreateVoltageLevelSectionInfos.class),
-    @JsonSubTypes.Type(value = MoveVoltageLevelFeederBaysInfos.class),
+    @JsonSubTypes.Type(SubstationCreationInfos.class),
+    @JsonSubTypes.Type(VoltageLevelCreationInfos.class),
+    @JsonSubTypes.Type(LineCreationInfos.class),
+    @JsonSubTypes.Type(TwoWindingsTransformerCreationInfos.class),
+    @JsonSubTypes.Type(GeneratorCreationInfos.class),
+    @JsonSubTypes.Type(LoadCreationInfos.class),
+    @JsonSubTypes.Type(BatteryCreationInfos.class),
+    @JsonSubTypes.Type(ShuntCompensatorCreationInfos.class),
+    @JsonSubTypes.Type(StaticVarCompensatorCreationInfos.class),
+    @JsonSubTypes.Type(VscCreationInfos.class),
+    @JsonSubTypes.Type(ConverterStationCreationInfos.class),
+    @JsonSubTypes.Type(LccCreationInfos.class),
+    @JsonSubTypes.Type(LccConverterStationCreationInfos.class),
+    @JsonSubTypes.Type(CreateVoltageLevelSectionInfos.class),
+    @JsonSubTypes.Type(SubstationModificationInfos.class),
+    @JsonSubTypes.Type(VoltageLevelModificationInfos.class),
+    @JsonSubTypes.Type(LineModificationInfos.class),
+    @JsonSubTypes.Type(TwoWindingsTransformerModificationInfos.class),
+    @JsonSubTypes.Type(GeneratorModificationInfos.class),
+    @JsonSubTypes.Type(LoadModificationInfos.class),
+    @JsonSubTypes.Type(BatteryModificationInfos.class),
+    @JsonSubTypes.Type(ShuntCompensatorModificationInfos.class),
+    @JsonSubTypes.Type(VscModificationInfos.class),
+    @JsonSubTypes.Type(ConverterStationModificationInfos.class),
+    @JsonSubTypes.Type(ByFormulaModificationInfos.class),
+    @JsonSubTypes.Type(ModificationByAssignmentInfos.class),
+    @JsonSubTypes.Type(EquipmentAttributeModificationInfos.class),
+    @JsonSubTypes.Type(LccModificationInfos.class),
+    @JsonSubTypes.Type(LccConverterStationModificationInfos.class),
+    @JsonSubTypes.Type(VoltageLevelTopologyModificationInfos.class),
+    @JsonSubTypes.Type(CreateCouplingDeviceInfos.class),
+    @JsonSubTypes.Type(CreateVoltageLevelTopologyInfos.class),
+    @JsonSubTypes.Type(MoveVoltageLevelFeederBaysInfos.class),
+    @JsonSubTypes.Type(TabularCreationInfos.class),
+    @JsonSubTypes.Type(TabularModificationInfos.class),
+    @JsonSubTypes.Type(LimitSetsTabularModificationInfos.class),
+    @JsonSubTypes.Type(LineAttachToVoltageLevelInfos.class),
+    @JsonSubTypes.Type(LineSplitWithVoltageLevelInfos.class),
+    @JsonSubTypes.Type(LinesAttachToSplitLinesInfos.class),
+    @JsonSubTypes.Type(DeleteAttachingLineInfos.class),
+    @JsonSubTypes.Type(DeleteVoltageLevelOnLineInfos.class),
+    @JsonSubTypes.Type(GenerationDispatchInfos.class),
+    @JsonSubTypes.Type(LoadScalingInfos.class),
+    @JsonSubTypes.Type(GeneratorScalingInfos.class),
+    @JsonSubTypes.Type(OperatingStatusModificationInfos.class),
+    @JsonSubTypes.Type(CompositeModificationInfos.class),
+    @JsonSubTypes.Type(VoltageInitModificationInfos.class),
+    @JsonSubTypes.Type(GroovyScriptInfos.class),
+    @JsonSubTypes.Type(BalancesAdjustmentModificationInfos.class),
+    @JsonSubTypes.Type(ByFilterDeletionInfos.class),
+    @JsonSubTypes.Type(EquipmentDeletionInfos.class),
+    @JsonSubTypes.Type(ModificationMetadataInfos.class)
 })
-@SuperBuilder
-@NoArgsConstructor
-@Getter
-@Setter
-@ToString
-@Schema(description = "Modification attributes")
-public class ModificationInfos {
-    @Schema(description = "Modification id")
-    private UUID uuid;
+public interface ModificationInfos {
 
-    @Schema(description = "Modification type")
-    @Setter(AccessLevel.NONE)
-    private final AtomicReference<ModificationType> type = new AtomicReference<>(null); // Only accessor (automatically initialized)
+    ModificationType getType();
 
-    @Schema(description = "Modification date")
-    private Instant date;
+    default void setType(ModificationType type) {
+        if (type != getType()) {
+            throw new IllegalArgumentException("Unexpected modification type: " + type);
+        }
+    }
 
-    @Schema(description = "Modification flag")
-    @Builder.Default
-    private Boolean stashed = false;
+    UUID getUuid();
 
-    @Schema(description = "Message type")
-    private String messageType;
+    void setUuid(UUID uuid);
 
-    @Schema(description = "Message values")
-    private String messageValues;
+    Instant getDate();
 
-    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
-    private Boolean activated;
+    void setDate(Instant date);
 
-    @Schema(description = "User description")
-    private String description;
+    Boolean getStashed();
 
-    @JsonIgnore
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        throw new UnsupportedOperationException("Method createSubReportNode must be implemented in subclass " + this.getClass().getSimpleName());
+    void setStashed(Boolean stashed);
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    default String getMessageType() {
+        return getType() == null ? null : getType().name();
+    }
+
+    @SneakyThrows
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    default String getMessageValues() {
+        return new ObjectMapper().writeValueAsString(getMapMessageValues());
     }
 
     @JsonIgnore
-    public AbstractModification toModification() {
-        throw new UnsupportedOperationException("Method toModification must be implemented in subclass " + this.getClass().getSimpleName());
-    }
-
-    @JsonIgnore
-    public final NetworkModificationException.Type getErrorType() {
-        return NetworkModificationException.Type.valueOf(this.getClass().getAnnotation(ModificationErrorTypeName.class).value());
-    }
-
-    public final ModificationType getType() {
-        return type.get() != null ? type.get() : ModificationType.valueOf(this.getClass().getAnnotation(JsonTypeName.class).value());
-    }
-
-    public void setType(ModificationType type) {
-        this.type.set(type);
-    }
-
-    @JsonIgnore
-    public Map<String, String> getMapMessageValues() {
+    default Map<String, String> getMapMessageValues() {
         return Map.of();
     }
 
-    @JsonIgnore
-    public void check() {
-        // To check input DTO before hypothesis creation. Nothing to check here
+    Boolean getActivated();
+
+    void setActivated(Boolean activated);
+
+    String getDescription();
+
+    void setDescription(String description);
+
+    default ModificationModel toModel() {
+        return (ModificationModel) this;
     }
 }

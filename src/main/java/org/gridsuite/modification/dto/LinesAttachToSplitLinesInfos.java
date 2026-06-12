@@ -7,14 +7,19 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.LinesAttachToSplitLines;
+import org.gridsuite.modification.model.LinesAttachToSplitLinesModel;
+import java.time.Instant;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
@@ -28,46 +33,22 @@ import java.util.Map;
 @Schema(description = "Line attach to split line")
 @JsonTypeName("LINES_ATTACH_TO_SPLIT_LINES")
 @ModificationErrorTypeName("LINE_ATTACH_ERROR")
-public class LinesAttachToSplitLinesInfos extends ModificationInfos {
+public class LinesAttachToSplitLinesInfos extends LinesAttachToSplitLinesModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "line 1 id")
-    private String lineToAttachTo1Id;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "line 2 id")
-    private String lineToAttachTo2Id;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "attachment line id")
-    private String attachedLineId;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Schema(description = "ID for the existing voltage level")
-    private String voltageLevelId;
-
-    @Schema(description = "bus bar section or bus id")
-    private String bbsBusId;
-
-    @Schema(description = "replacing line 1 ID")
-    private String replacingLine1Id;
-
-    @Schema(description = "replacing line 1 name")
-    private String replacingLine1Name;
-
-    @Schema(description = "replacing line 1 ID")
-    private String replacingLine2Id;
-
-    @Schema(description = "replacing line 2 name")
-    private String replacingLine2Name;
-
-    @Override
-    public AbstractModification toModification() {
-        return new LinesAttachToSplitLines(this);
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.linesAttachToSplitLines")
-                .add();
-    }
+    @Schema(description = "User description")
+    private String description;
 
     @Override
     public Map<String, String> getMapMessageValues() {

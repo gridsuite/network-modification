@@ -12,9 +12,9 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.util.Pair;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.LccConverterStationModificationInfos;
-import org.gridsuite.modification.dto.LccModificationInfos;
-import org.gridsuite.modification.dto.LccShuntCompensatorModificationInfos;
+import org.gridsuite.modification.model.LccConverterStationModificationModel;
+import org.gridsuite.modification.model.LccModificationModel;
+import org.gridsuite.modification.model.LccShuntCompensatorModificationModel;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -29,9 +29,9 @@ import static org.gridsuite.modification.utils.ModificationUtils.NO_VALUE;
 
 public class LccModification extends AbstractModification {
 
-    private final LccModificationInfos modificationInfos;
+    private final LccModificationModel modificationInfos;
 
-    public LccModification(LccModificationInfos lccModificationInfos) {
+    public LccModification(LccModificationModel lccModificationInfos) {
         this.modificationInfos = lccModificationInfos;
     }
 
@@ -46,7 +46,7 @@ public class LccModification extends AbstractModification {
         modifyLcc(network, hvdcLine, modificationInfos, subReportNode);
     }
 
-    private static void modifyCharacteristics(HvdcLine hvdcLine, LccModificationInfos modificationInfos, ReportNode subReportNode) {
+    private static void modifyCharacteristics(HvdcLine hvdcLine, LccModificationModel modificationInfos, ReportNode subReportNode) {
         List<ReportNode> characteristicsReportsContainer = new ArrayList<>();
         String errorMessage = "Lcc '" + modificationInfos.getEquipmentId() + "' : ";
 
@@ -95,7 +95,7 @@ public class LccModification extends AbstractModification {
 
     }
 
-    private void modifyLcc(@Nonnull Network network, @Nonnull HvdcLine hvdcLine, LccModificationInfos modificationInfos, ReportNode subReportNode) {
+    private void modifyLcc(@Nonnull Network network, @Nonnull HvdcLine hvdcLine, LccModificationModel modificationInfos, ReportNode subReportNode) {
 
         modifyCharacteristics(hvdcLine, modificationInfos, subReportNode);
 
@@ -113,7 +113,7 @@ public class LccModification extends AbstractModification {
     }
 
     private void modifyConverterStation(@Nonnull Network network,
-                                        @Nonnull LccConverterStationModificationInfos converterStationModificationInfos,
+                                        @Nonnull LccConverterStationModificationModel converterStationModificationInfos,
                                         String logFieldName,
                                         ReportNode subReportNode) {
 
@@ -165,9 +165,9 @@ public class LccModification extends AbstractModification {
     }
 
     private void modifyShuntCompensatorsOnSide(Network network, VoltageLevel voltageLevel,
-                                              @Nonnull LccConverterStationModificationInfos converterStationInfos, ReportNode reportNode) {
+                                              @Nonnull LccConverterStationModificationModel converterStationInfos, ReportNode reportNode) {
 
-        List<LccShuntCompensatorModificationInfos> shuntCompensatorsOnSide = converterStationInfos.getShuntCompensatorsOnSide();
+        List<LccShuntCompensatorModificationModel> shuntCompensatorsOnSide = converterStationInfos.getShuntCompensatorsOnSide();
 
         Optional.ofNullable(shuntCompensatorsOnSide).ifPresent(shuntCompensators ->
             shuntCompensators.forEach(infos -> {
@@ -179,7 +179,7 @@ public class LccModification extends AbstractModification {
             }));
     }
 
-    private static void modifyShuntCompensator(VoltageLevel voltageLevel, List<ReportNode> nodes, LccShuntCompensatorModificationInfos infos, ShuntCompensator shuntCompensator) {
+    private static void modifyShuntCompensator(VoltageLevel voltageLevel, List<ReportNode> nodes, LccShuntCompensatorModificationModel infos, ShuntCompensator shuntCompensator) {
 
         if (shuntCompensator == null) {
             nodes.add(ReportNode.newRootReportNode()

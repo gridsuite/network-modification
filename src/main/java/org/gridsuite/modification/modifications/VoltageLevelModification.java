@@ -12,24 +12,16 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
-import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
-import com.powsybl.iidm.network.extensions.Measurement;
-import com.powsybl.iidm.network.extensions.Measurements;
-import com.powsybl.iidm.network.extensions.MeasurementsAdder;
+import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.AttributeModification;
-import org.gridsuite.modification.dto.BusbarSectionVMeasurementInfos;
-import org.gridsuite.modification.dto.VoltageLevelModificationInfos;
+import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.model.BusbarSectionVMeasurementModel;
+import org.gridsuite.modification.model.VoltageLevelModificationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_VOLTAGE_LEVEL_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
@@ -42,9 +34,9 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
 public class VoltageLevelModification extends AbstractModification {
 
     public static final String ERROR_MESSAGE = "Voltage level '%s' : ";
-    private final VoltageLevelModificationInfos modificationInfos;
+    private final VoltageLevelModificationModel modificationInfos;
 
-    public VoltageLevelModification(VoltageLevelModificationInfos voltageLevelModificationInfos) {
+    public VoltageLevelModification(VoltageLevelModificationModel voltageLevelModificationInfos) {
         this.modificationInfos = voltageLevelModificationInfos;
     }
 
@@ -136,7 +128,7 @@ public class VoltageLevelModification extends AbstractModification {
         }
     }
 
-    private void applyBusbarSectionVoltageMeasurement(BusbarSection bbs, BusbarSectionVMeasurementInfos vMeasInfo, List<ReportNode> reports) {
+    private void applyBusbarSectionVoltageMeasurement(BusbarSection bbs, BusbarSectionVMeasurementModel vMeasInfo, List<ReportNode> reports) {
         Double vValue = vMeasInfo.getVMeasurementValue() != null ? vMeasInfo.getVMeasurementValue().getValue() : null;
         Boolean vValidity = vMeasInfo.getVMeasurementValidity() != null ? vMeasInfo.getVMeasurementValidity().getValue() : null;
         if (vValue == null && vValidity == null) {

@@ -6,13 +6,18 @@
  */
 package org.gridsuite.modification.dto;
 
-import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.model.InjectionCreationModel;
+
+import java.time.Instant;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -23,22 +28,25 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Injection creation")
-public class InjectionCreationInfos extends EquipmentCreationInfos {
-    @Schema(description = "Voltage level id")
-    private String voltageLevelId;
+public class InjectionCreationInfos extends InjectionCreationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "Bus id")
-    private String busOrBusbarSectionId;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "Connection Name")
-    private String connectionName;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "Connection Direction")
-    private ConnectablePosition.Direction connectionDirection;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Schema(description = "Connection Position")
-    private Integer connectionPosition;
+    @Schema(description = "User description")
+    private String description;
 
-    @Schema(description = "Connected")
-    private boolean terminalConnected;
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        return Map.of("equipmentId", getEquipmentId());
+    }
 }

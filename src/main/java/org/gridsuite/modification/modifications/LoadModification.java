@@ -13,8 +13,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.AttributeModification;
-import org.gridsuite.modification.dto.LoadModificationInfos;
+import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.model.LoadModificationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -25,7 +25,7 @@ import static org.gridsuite.modification.NetworkModificationException.Type.LOAD_
  */
 public class LoadModification extends AbstractInjectionModification {
 
-    public LoadModification(LoadModificationInfos modificationInfos) {
+    public LoadModification(LoadModificationModel modificationInfos) {
         super(modificationInfos);
     }
 
@@ -53,7 +53,7 @@ public class LoadModification extends AbstractInjectionModification {
     }
 
     private void modifyLoad(Load load, ReportNode subReportNode) {
-        LoadModificationInfos loadModificationInfos = (LoadModificationInfos) modificationInfos;
+        LoadModificationModel loadModificationInfos = (LoadModificationModel) modificationInfos;
         subReportNode.newReportNode()
             .withMessageTemplate("network.modification.loadModification")
             .withUntypedValue("id", loadModificationInfos.getEquipmentId())
@@ -80,7 +80,7 @@ public class LoadModification extends AbstractInjectionModification {
         ModificationUtils.getInstance().applyElementaryModifications(load::setP0, load::getP0, p0, subReportNode, "Constant active power");
     }
 
-    private void modifyLoadVoltageLevelBusOrBusBarSectionAttributes(LoadModificationInfos modificationInfos,
+    private void modifyLoadVoltageLevelBusOrBusBarSectionAttributes(LoadModificationModel modificationInfos,
                                                                     Load load, ReportNode subReportNode) {
         ModificationUtils.getInstance().moveFeederBay(
                 load, load.getTerminal(),
@@ -90,7 +90,7 @@ public class LoadModification extends AbstractInjectionModification {
         );
     }
 
-    private ReportNode modifyLoadConnectivityAttributes(LoadModificationInfos loadModificationInfos,
+    private ReportNode modifyLoadConnectivityAttributes(LoadModificationModel loadModificationInfos,
                                                         Load load, ReportNode subReportNode) {
         ConnectablePosition<Load> connectablePosition = load.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<Load> connectablePositionAdder = load.newExtension(ConnectablePositionAdder.class);

@@ -7,16 +7,18 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.GroovyScript;
+import org.gridsuite.modification.model.GroovyScriptModel;
+
+import java.time.Instant;
+import java.util.UUID;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -29,19 +31,20 @@ import org.gridsuite.modification.modifications.GroovyScript;
 @Schema(description = "Groovy script modification")
 @JsonTypeName("GROOVY_SCRIPT")
 @ModificationErrorTypeName("GROOVY_SCRIPT_ERROR")
-public class GroovyScriptInfos extends ModificationInfos {
-    @Schema(description = "Groovy script")
-    private String script;
+public class GroovyScriptInfos extends GroovyScriptModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Override
-    public AbstractModification toModification() {
-        return new GroovyScript(this);
-    }
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.groovyScript")
-                .add();
-    }
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
+
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
+
+    @Schema(description = "User description")
+    private String description;
 }

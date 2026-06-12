@@ -6,7 +6,7 @@
  */
 package org.gridsuite.modification;
 
-import org.gridsuite.modification.dto.LoadFlowParametersInfos;
+import org.gridsuite.modification.model.LoadFlowParametersModel;
 
 import java.util.UUID;
 
@@ -14,5 +14,5 @@ import java.util.UUID;
  * @author Achour BERRAHMA <achour.berrahma at rte-france.com>
  */
 public interface ILoadFlowService {
-    LoadFlowParametersInfos getLoadFlowParametersInfos(UUID loadFlowParametersUuid);
+    LoadFlowParametersModel getLoadFlowParametersInfos(UUID loadFlowParametersUuid);
 }

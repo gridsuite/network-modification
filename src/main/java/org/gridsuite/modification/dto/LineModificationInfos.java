@@ -7,17 +7,18 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.LineModification;
-import java.util.List;
+import org.gridsuite.modification.model.LineModificationModel;
+import java.time.Instant;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
@@ -31,36 +32,25 @@ import java.util.List;
 @Schema(description = "Line modification")
 @JsonTypeName("LINE_MODIFICATION")
 @ModificationErrorTypeName("MODIFY_LINE_ERROR")
-public class LineModificationInfos extends BranchModificationInfos {
+public class LineModificationInfos extends LineModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "Shunt conductance Side 1")
-    private AttributeModification<Double> g1;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "Shunt susceptance Side 1")
-    private AttributeModification<Double> b1;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "Shunt conductance Side 2")
-    private AttributeModification<Double> g2;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Schema(description = "Shunt susceptance Side 2")
-    private AttributeModification<Double> b2;
-
-    @Schema(description = "segments used from catalog to generate limits")
-    private List<LineSegmentInfos> lineSegments;
-
-    @Schema(description = "apply limits from catalog segments")
-    private boolean applySegmentsLimits;
+    @Schema(description = "User description")
+    private String description;
 
     @Override
-    public AbstractModification toModification() {
-        return new LineModification(this);
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.line.modification")
-                .withUntypedValue("lineId", getEquipmentId())
-                .add();
+    public Map<String, String> getMapMessageValues() {
+        return Map.of("equipmentId", getEquipmentId());
     }
 }

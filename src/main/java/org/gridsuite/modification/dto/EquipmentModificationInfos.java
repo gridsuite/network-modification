@@ -6,16 +6,17 @@
  */
 package org.gridsuite.modification.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.springframework.lang.NonNull;
-import java.util.List;
+import org.gridsuite.modification.model.EquipmentModificationModel;
+import java.time.Instant;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -27,14 +28,22 @@ import java.util.Map;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Equipment modification")
-public class EquipmentModificationInfos extends ModificationInfos {
-    @Schema(description = "Equipment ID")
-    @NonNull
-    private String equipmentId;
+public class EquipmentModificationInfos extends EquipmentModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "free properties")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<FreePropertyInfos> properties;
+    @Schema(description = "Modification date")
+    private Instant date;
+
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
+
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
+
+    @Schema(description = "User description")
+    private String description;
 
     @Override
     public Map<String, String> getMapMessageValues() {

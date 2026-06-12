@@ -7,15 +7,16 @@
 package org.gridsuite.modification.dto.tabular;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.tabular.TabularCreation;
+import org.gridsuite.modification.model.ModificationModel;
+import org.gridsuite.modification.model.tabular.TabularCreationModel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,19 +31,20 @@ import java.util.Map;
 @Schema(description = "Tabular creation")
 @JsonTypeName("TABULAR_CREATION")
 @ModificationErrorTypeName("TABULAR_CREATION_ERROR")
-public class TabularCreationInfos extends TabularBaseInfos {
-
+public class TabularCreationInfos extends AbstractTabularBaseInfos implements ModificationInfos {
     @Override
-    public AbstractModification toModification() {
-        return new TabularCreation(this);
+    public ModificationType getType() {
+        return ModificationType.TABULAR_CREATION;
     }
 
     @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.tabularCreation")
-                .withUntypedValue("creationType", formatEquipmentTypeName())
-                .add();
+    public ModificationModel toModel() {
+        return TabularCreationModel.builder()
+            .modifications(modifications.stream().map(ModificationInfos::toModel).toList())
+            .properties(properties)
+            .csvFilename(csvFilename)
+            .modificationType(modificationType)
+            .build();
     }
 
     @Override

@@ -11,13 +11,13 @@ import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.ByFormulaModificationInfos;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
-import org.gridsuite.modification.dto.byfilter.equipmentfield.ShuntCompensatorField;
-import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
-import org.gridsuite.modification.dto.byfilter.formula.Operator;
-import org.gridsuite.modification.dto.byfilter.formula.ReferenceFieldOrValue;
+import org.gridsuite.modification.model.ByFormulaModificationModel;
+import org.gridsuite.modification.model.FilterEquipments;
+import org.gridsuite.modification.model.IdentifiableAttributes;
+import org.gridsuite.modification.model.byfilter.equipmentfield.ShuntCompensatorField;
+import org.gridsuite.modification.model.byfilter.formula.FormulaModel;
+import org.gridsuite.modification.model.byfilter.formula.Operator;
+import org.gridsuite.modification.model.byfilter.formula.ReferenceFieldOrValue;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -49,7 +49,7 @@ class ShuntCompensatorByFormulaModificationTest extends AbstractByFormulaModific
                 .build();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_WITH_ONE_WRONG_ID, filter));
 
-        FormulaInfos formulaInfos = FormulaInfos.builder()
+        FormulaModel formulaInfos = FormulaModel.builder()
                 .filters(List.of(filterWithOneWrongId))
                 .editedField(ShuntCompensatorField.MAXIMUM_SECTION_COUNT.name())
                 .fieldOrValue1(ReferenceFieldOrValue.builder().value(2.).build())
@@ -57,10 +57,9 @@ class ShuntCompensatorByFormulaModificationTest extends AbstractByFormulaModific
                 .fieldOrValue2(ReferenceFieldOrValue.builder().value(3.).build())
                 .build();
 
-        ByFormulaModificationInfos modificationInfos = ByFormulaModificationInfos.builder()
+        ByFormulaModificationModel modificationInfos = ByFormulaModificationModel.builder()
                 .identifiableType(getIdentifiableType())
                 .formulaInfosList(List.of(formulaInfos))
-                .stashed(false)
                 .build();
         apply(modificationInfos);
         assertEquals(5, getNetwork().getShuntCompensator(SHUNT_COMPENSATOR_ID_1).getMaximumSectionCount(), 0);
@@ -104,26 +103,26 @@ class ShuntCompensatorByFormulaModificationTest extends AbstractByFormulaModific
     }
 
     @Override
-    protected List<FormulaInfos> getFormulaInfos() {
-        FormulaInfos formulaInfos1 = getFormulaInfo(ShuntCompensatorField.MAXIMUM_SECTION_COUNT.name(),
+    protected List<FormulaModel> getFormulaInfos() {
+        FormulaModel formulaInfos1 = getFormulaInfo(ShuntCompensatorField.MAXIMUM_SECTION_COUNT.name(),
                 List.of(filter1, filter2),
                 Operator.PERCENTAGE,
                 ReferenceFieldOrValue.builder().value(200.).build(),
                 ReferenceFieldOrValue.builder().equipmentField(ShuntCompensatorField.MAXIMUM_SECTION_COUNT.name()).build());
 
-        FormulaInfos formulaInfos2 = getFormulaInfo(ShuntCompensatorField.SECTION_COUNT.name(),
+        FormulaModel formulaInfos2 = getFormulaInfo(ShuntCompensatorField.SECTION_COUNT.name(),
                 List.of(filter3),
                 Operator.SUBTRACTION,
                 ReferenceFieldOrValue.builder().equipmentField(ShuntCompensatorField.MAXIMUM_SECTION_COUNT.name()).build(),
                 ReferenceFieldOrValue.builder().value(2.).build());
 
-        FormulaInfos formulaInfos3 = getFormulaInfo(ShuntCompensatorField.MAX_SUSCEPTANCE.name(),
+        FormulaModel formulaInfos3 = getFormulaInfo(ShuntCompensatorField.MAX_SUSCEPTANCE.name(),
                 List.of(filter4),
                 Operator.ADDITION,
                 ReferenceFieldOrValue.builder().equipmentField(ShuntCompensatorField.MAX_SUSCEPTANCE.name()).build(),
                 ReferenceFieldOrValue.builder().value(5.).build());
 
-        FormulaInfos formulaInfos4 = getFormulaInfo(ShuntCompensatorField.MAX_Q_AT_NOMINAL_V.name(),
+        FormulaModel formulaInfos4 = getFormulaInfo(ShuntCompensatorField.MAX_Q_AT_NOMINAL_V.name(),
                 List.of(filter5),
                 Operator.DIVISION,
                 ReferenceFieldOrValue.builder().equipmentField(ShuntCompensatorField.MAX_Q_AT_NOMINAL_V.name()).build(),

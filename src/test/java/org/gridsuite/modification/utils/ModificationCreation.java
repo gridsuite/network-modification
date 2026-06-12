@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.*;
 
 import java.util.Arrays;
 
@@ -25,10 +25,8 @@ public final class ModificationCreation {
         throw new IllegalStateException("Utility class");
     }
 
-    public static VoltageLevelCreationInfos getCreationVoltageLevel(String substationId, String voltageLevelId, String voltageLevelName) {
-        return VoltageLevelCreationInfos.builder()
-            .stashed(false)
-            .activated(true)
+    public static VoltageLevelCreationModel getCreationVoltageLevel(String substationId, String voltageLevelId, String voltageLevelName) {
+        return VoltageLevelCreationModel.builder()
             .equipmentId(voltageLevelId)
             .equipmentName(voltageLevelName)
             .substationId(substationId)
@@ -40,13 +38,11 @@ public final class ModificationCreation {
             .busbarCount(2)
             .sectionCount(2)
             .switchKinds(Arrays.asList(SwitchKind.BREAKER))
-            .couplingDevices(Arrays.asList(CouplingDeviceInfos.builder().busbarSectionId1("1A").busbarSectionId2("1B").build())).build();
+            .couplingDevices(Arrays.asList(CouplingDeviceModel.builder().busbarSectionId1("1A").busbarSectionId2("1B").build())).build();
     }
 
-    public static BatteryCreationInfos getCreationBattery(String vlId, String batteryId, String batteryName, String busOrBusbarSectionId) {
-        return BatteryCreationInfos.builder()
-                .stashed(false)
-                .activated(true)
+    public static BatteryCreationModel getCreationBattery(String vlId, String batteryId, String batteryName, String busOrBusbarSectionId) {
+        return BatteryCreationModel.builder()
                 .equipmentId(batteryId)
                 .equipmentName(batteryName)
                 .voltageLevelId(vlId)
@@ -60,18 +56,16 @@ public final class ModificationCreation {
                 .droop(5f)
                 .participate(true)
                 .reactiveCapabilityCurve(true)
-                .reactiveCapabilityCurvePoints(Arrays.asList(new ReactiveCapabilityCurvePointsInfos(2.0, 3.0, 3.1),
-                        new ReactiveCapabilityCurvePointsInfos(5.6, 9.8, 10.8)))
+                .reactiveCapabilityCurvePoints(Arrays.asList(new ReactiveCapabilityCurvePointsModel(2.0, 3.0, 3.1),
+                        new ReactiveCapabilityCurvePointsModel(5.6, 9.8, 10.8)))
                 .connectionName("top")
                 .connectionDirection(ConnectablePosition.Direction.TOP)
                 .build();
     }
 
-    public static GeneratorCreationInfos getCreationGenerator(String vlId, String generatorId, String generatorName, String busOrBusbarSectionId,
+    public static GeneratorCreationModel getCreationGenerator(String vlId, String generatorId, String generatorName, String busOrBusbarSectionId,
                                                               String regulatingTerminalId, String regulatingTerminalType, String regulatingTerminalVlId) {
-        return GeneratorCreationInfos.builder()
-            .stashed(false)
-            .activated(true)
+        return GeneratorCreationModel.builder()
             .equipmentId(generatorId)
             .equipmentName(generatorName)
             .voltageLevelId(vlId)
@@ -95,17 +89,15 @@ public final class ModificationCreation {
             .regulatingTerminalVlId(regulatingTerminalVlId)
             .qPercent(25.)
             .reactiveCapabilityCurve(true)
-            .reactiveCapabilityCurvePoints(Arrays.asList(new ReactiveCapabilityCurvePointsInfos(2.0, 3.0, 3.1),
-                new ReactiveCapabilityCurvePointsInfos(5.6, 9.8, 10.8)))
+            .reactiveCapabilityCurvePoints(Arrays.asList(new ReactiveCapabilityCurvePointsModel(2.0, 3.0, 3.1),
+                new ReactiveCapabilityCurvePointsModel(5.6, 9.8, 10.8)))
             .connectionName("top")
             .connectionDirection(ConnectablePosition.Direction.TOP)
             .build();
     }
 
-    public static GeneratorModificationInfos getModificationGenerator(String generatorId, String generatorName) {
-        GeneratorModificationInfos.GeneratorModificationInfosBuilder builder = GeneratorModificationInfos.builder()
-                .stashed(false)
-                .activated(true)
+    public static GeneratorModificationModel getModificationGenerator(String generatorId, String generatorName) {
+        GeneratorModificationModel.GeneratorModificationModelBuilder builder = GeneratorModificationModel.builder()
                 .equipmentId(generatorId);
 
         if (generatorName != null) {
@@ -115,10 +107,8 @@ public final class ModificationCreation {
         return builder.build();
     }
 
-    public static LoadCreationInfos getCreationLoad(String vlId, String loadId, String loadName, String busOrBusBarSectionId, LoadType loadType) {
-        return LoadCreationInfos.builder()
-            .stashed(false)
-            .activated(true)
+    public static LoadCreationModel getCreationLoad(String vlId, String loadId, String loadName, String busOrBusBarSectionId, LoadType loadType) {
+        return LoadCreationModel.builder()
             .equipmentId(loadId)
             .equipmentName(loadName)
             .voltageLevelId(vlId)
@@ -131,10 +121,8 @@ public final class ModificationCreation {
             .build();
     }
 
-    public static LoadModificationInfos getModificationLoad(String loadId, String vlId, String loadName, String busOrBusbarSectionId, LoadType loadType, Long activePower, Long reactivePower) {
-        LoadModificationInfos.LoadModificationInfosBuilder builder = LoadModificationInfos.builder()
-            .stashed(false)
-            .activated(true)
+    public static LoadModificationModel getModificationLoad(String loadId, String vlId, String loadName, String busOrBusbarSectionId, LoadType loadType, Long activePower, Long reactivePower) {
+        LoadModificationModel.LoadModificationModelBuilder builder = LoadModificationModel.builder()
             .equipmentId(loadId);
 
         if (loadName != null) {
@@ -164,10 +152,8 @@ public final class ModificationCreation {
         return builder.build();
     }
 
-    public static VoltageLevelModificationInfos getModificationVoltageLevel(String vlId, String vlName) {
-        VoltageLevelModificationInfos.VoltageLevelModificationInfosBuilder builder = VoltageLevelModificationInfos.builder()
-            .stashed(false)
-            .activated(true)
+    public static VoltageLevelModificationModel getModificationVoltageLevel(String vlId, String vlName) {
+        VoltageLevelModificationModel.VoltageLevelModificationModelBuilder builder = VoltageLevelModificationModel.builder()
             .equipmentId(vlId);
 
         builder.equipmentName(AttributeModification.toAttributeModification(vlName, OperationType.SET));
@@ -175,11 +161,11 @@ public final class ModificationCreation {
         return builder.build();
     }
 
-    public static FreePropertyInfos getFreeProperty() {
+    public static FreePropertyModel getFreeProperty() {
         return getFreeProperty(PROPERTY_NAME, PROPERTY_VALUE);
     }
 
-    public static FreePropertyInfos getFreeProperty(String name, String value) {
-        return FreePropertyInfos.builder().name(name).value(value).build();
+    public static FreePropertyModel getFreeProperty(String name, String value) {
+        return FreePropertyModel.builder().name(name).value(value).build();
     }
 }

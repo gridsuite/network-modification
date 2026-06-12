@@ -7,19 +7,20 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.CreateCouplingDevice;
+import org.gridsuite.modification.model.CreateCouplingDeviceModel;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -32,25 +33,22 @@ import java.util.Map;
 @Schema(description = "Coupling device creation")
 @JsonTypeName("CREATE_COUPLING_DEVICE")
 @ModificationErrorTypeName("CREATE_COUPLING_DEVICE_ERROR")
-public class CreateCouplingDeviceInfos extends ModificationInfos {
+public class CreateCouplingDeviceInfos extends CreateCouplingDeviceModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "VoltageLevelId")
-    private String voltageLevelId;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "Coupling device information")
-    private CouplingDeviceInfos couplingDeviceInfos;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Override
-    public AbstractModification toModification() {
-        return new CreateCouplingDevice(this);
-    }
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.createCouplingDevice")
-            .withUntypedValue("voltageLevelId", getVoltageLevelId())
-            .add();
-    }
+    @Schema(description = "User description")
+    private String description;
 
     @Override
     public Map<String, String> getMapMessageValues() {

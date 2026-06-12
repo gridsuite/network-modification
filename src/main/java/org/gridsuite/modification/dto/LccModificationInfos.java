@@ -8,17 +8,19 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.HvdcLine;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.LccModification;
+import org.gridsuite.modification.model.LccModificationModel;
+
+import java.time.Instant;
+import java.util.Map;
+import java.util.UUID;
 
 @SuperBuilder
 @NoArgsConstructor
@@ -28,38 +30,25 @@ import org.gridsuite.modification.modifications.LccModification;
 @Schema(description = "LCC modification")
 @JsonTypeName("LCC_MODIFICATION")
 @ModificationErrorTypeName("MODIFY_LCC_ERROR")
-public class LccModificationInfos extends BasicEquipmentModificationInfos {
-    @Schema(description = "DC nominal voltage")
-    private AttributeModification<Double> nominalV;
+public class LccModificationInfos extends LccModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "DC resistance")
-    private AttributeModification<Double> r;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "Maximum active power")
-    private AttributeModification<Double> maxP;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "Converters mode")
-    private AttributeModification<HvdcLine.ConvertersMode> convertersMode;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Schema(description = "Active power setpoint")
-    private AttributeModification<Double> activePowerSetpoint;
-
-    @Schema(description = "Converter station 1")
-    private LccConverterStationModificationInfos converterStation1;
-
-    @Schema(description = "Converter station 2")
-    private LccConverterStationModificationInfos converterStation2;
+    @Schema(description = "User description")
+    private String description;
 
     @Override
-    public AbstractModification toModification() {
-        return new LccModification(this);
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-            .withMessageTemplate("network.modification.lcc.modification")
-            .withUntypedValue("lccId", getEquipmentId())
-            .add();
+    public Map<String, String> getMapMessageValues() {
+        return Map.of("equipmentId", getEquipmentId());
     }
 }

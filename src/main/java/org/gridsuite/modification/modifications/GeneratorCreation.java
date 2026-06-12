@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuitAdder;
 import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.GeneratorCreationInfos;
+import org.gridsuite.modification.model.GeneratorCreationModel;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -33,9 +33,9 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
  */
 public class GeneratorCreation extends AbstractModification {
 
-    private final GeneratorCreationInfos modificationInfos;
+    private final GeneratorCreationModel modificationInfos;
 
-    public GeneratorCreation(GeneratorCreationInfos modificationInfos) {
+    public GeneratorCreation(GeneratorCreationModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 
@@ -95,7 +95,7 @@ public class GeneratorCreation extends AbstractModification {
         return "GeneratorCreation";
     }
 
-    private void createGeneratorInNodeBreaker(VoltageLevel voltageLevel, GeneratorCreationInfos generatorCreationInfos, Network network, ReportNode subReportNode) {
+    private void createGeneratorInNodeBreaker(VoltageLevel voltageLevel, GeneratorCreationModel generatorCreationInfos, Network network, ReportNode subReportNode) {
         GeneratorAdder generatorAdder = createGeneratorAdderInNodeBreaker(voltageLevel, generatorCreationInfos);
         createInjectionInNodeBreaker(voltageLevel, generatorCreationInfos, network, generatorAdder, subReportNode);
 
@@ -105,7 +105,7 @@ public class GeneratorCreation extends AbstractModification {
         addExtensionsToGenerator(generatorCreationInfos, generator, voltageLevel, subReportNode);
     }
 
-    private GeneratorAdder createGeneratorAdderInNodeBreaker(VoltageLevel voltageLevel, GeneratorCreationInfos generatorCreationInfos) {
+    private GeneratorAdder createGeneratorAdderInNodeBreaker(VoltageLevel voltageLevel, GeneratorCreationModel generatorCreationInfos) {
         Terminal terminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
             generatorCreationInfos.getRegulatingTerminalId(),
             generatorCreationInfos.getRegulatingTerminalType(),
@@ -131,7 +131,7 @@ public class GeneratorCreation extends AbstractModification {
         return generatorAdder;
     }
 
-    private void addExtensionsToGenerator(GeneratorCreationInfos generatorCreationInfos, Generator generator,
+    private void addExtensionsToGenerator(GeneratorCreationModel generatorCreationInfos, Generator generator,
                                           VoltageLevel voltageLevel, ReportNode subReportNode) {
         if (generatorCreationInfos.getEquipmentName() != null) {
             ModificationUtils.getInstance().reportElementaryCreation(subReportNode, generatorCreationInfos.getEquipmentName(), "Name");
@@ -154,7 +154,7 @@ public class GeneratorCreation extends AbstractModification {
         createGeneratorStartUp(generatorCreationInfos, generator, subReportNode);
     }
 
-    private void createGeneratorInBusBreaker(VoltageLevel voltageLevel, GeneratorCreationInfos generatorCreationInfos, ReportNode subReportNode) {
+    private void createGeneratorInBusBreaker(VoltageLevel voltageLevel, GeneratorCreationModel generatorCreationInfos, ReportNode subReportNode) {
         Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, generatorCreationInfos.getBusOrBusbarSectionId());
 
         // creating the generator
@@ -182,7 +182,7 @@ public class GeneratorCreation extends AbstractModification {
                 .add();
     }
 
-    private ReportNode reportGeneratorSetPoints(GeneratorCreationInfos generatorCreationInfos, ReportNode subReportNode) {
+    private ReportNode reportGeneratorSetPoints(GeneratorCreationModel generatorCreationInfos, ReportNode subReportNode) {
         List<ReportNode> setPointReports = new ArrayList<>();
         setPointReports.add(ModificationUtils.getInstance()
                 .buildCreationReport(generatorCreationInfos.getTargetP(), "Active power"));
@@ -193,7 +193,7 @@ public class GeneratorCreation extends AbstractModification {
         return ModificationUtils.getInstance().reportModifications(subReportNode, setPointReports, "network.modification.SetPointCreated");
     }
 
-    private void createGeneratorVoltageRegulation(GeneratorCreationInfos generatorCreationInfos, Generator generator, VoltageLevel voltageLevel, ReportNode subReportNode) {
+    private void createGeneratorVoltageRegulation(GeneratorCreationModel generatorCreationInfos, Generator generator, VoltageLevel voltageLevel, ReportNode subReportNode) {
         List<ReportNode> voltageReports = new ArrayList<>();
         voltageReports.add(ModificationUtils.getInstance()
                 .createEnabledDisabledReport("network.modification.VoltageRegulationOn", modificationInfos.isVoltageRegulationOn()));
@@ -227,7 +227,7 @@ public class GeneratorCreation extends AbstractModification {
 
     }
 
-    private void updateGeneratorRegulatingTerminal(GeneratorCreationInfos generatorCreationInfos, Generator generator,
+    private void updateGeneratorRegulatingTerminal(GeneratorCreationModel generatorCreationInfos, Generator generator,
                                                    Terminal terminal, List<ReportNode> voltageReports) {
         if (generatorCreationInfos.getRegulatingTerminalId() != null
                 && generatorCreationInfos.getRegulatingTerminalType() != null
@@ -243,7 +243,7 @@ public class GeneratorCreation extends AbstractModification {
         }
     }
 
-    private ReportNode reportGeneratorActiveLimits(GeneratorCreationInfos generatorCreationInfos, ReportNode subReportNode) {
+    private ReportNode reportGeneratorActiveLimits(GeneratorCreationModel generatorCreationInfos, ReportNode subReportNode) {
         ReportNode subReportNodeLimits = subReportNode.newReportNode().withMessageTemplate("network.modification.limits").add();
         List<ReportNode> limitsReports = new ArrayList<>();
         limitsReports.add(ModificationUtils.getInstance().buildCreationReport(
@@ -258,7 +258,7 @@ public class GeneratorCreation extends AbstractModification {
         return subReportNodeLimits;
     }
 
-    private void createGeneratorStartUp(GeneratorCreationInfos generatorCreationInfos, Generator generator, ReportNode subReportNode) {
+    private void createGeneratorStartUp(GeneratorCreationModel generatorCreationInfos, Generator generator, ReportNode subReportNode) {
         if (generatorCreationInfos.getPlannedActivePowerSetPoint() != null
                 || generatorCreationInfos.getMarginalCost() != null
                 || generatorCreationInfos.getPlannedOutageRate() != null

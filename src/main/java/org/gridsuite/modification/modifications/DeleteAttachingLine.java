@@ -11,7 +11,7 @@ import com.powsybl.iidm.modification.topology.RevertCreateLineOnLine;
 import com.powsybl.iidm.modification.topology.RevertCreateLineOnLineBuilder;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.DeleteAttachingLineInfos;
+import org.gridsuite.modification.model.DeleteAttachingLineModel;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
@@ -22,9 +22,9 @@ import static org.gridsuite.modification.utils.ModificationLimitsUtils.applyReve
  */
 public class DeleteAttachingLine extends AbstractModification {
 
-    private final DeleteAttachingLineInfos modificationInfos;
+    private final DeleteAttachingLineModel modificationInfos;
 
-    public DeleteAttachingLine(DeleteAttachingLineInfos modificationInfos) {
+    public DeleteAttachingLine(DeleteAttachingLineModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 

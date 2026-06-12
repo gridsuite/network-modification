@@ -11,8 +11,8 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.EquipmentDeletionInfos;
-import org.gridsuite.modification.dto.HvdcLccDeletionInfos;
+import org.gridsuite.modification.model.EquipmentDeletionModel;
+import org.gridsuite.modification.model.HvdcLccDeletionModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.List;
@@ -26,9 +26,9 @@ import static org.gridsuite.modification.NetworkModificationException.Type.EQUIP
  */
 public class EquipmentDeletion extends AbstractModification {
 
-    private final EquipmentDeletionInfos modificationInfos;
+    private final EquipmentDeletionModel modificationInfos;
 
-    public EquipmentDeletion(EquipmentDeletionInfos modificationInfos) {
+    public EquipmentDeletion(EquipmentDeletionModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 
@@ -70,7 +70,7 @@ public class EquipmentDeletion extends AbstractModification {
     }
 
     private void removeHvdcLine(Network network, ReportNode subReportNode) {
-        HvdcLccDeletionInfos specificInfos = (HvdcLccDeletionInfos) modificationInfos.getEquipmentInfos();
+        HvdcLccDeletionModel specificInfos = (HvdcLccDeletionModel) modificationInfos.getEquipmentInfos();
         List<String> shuntCompensatorIds = List.of();
         if (specificInfos != null) {
             shuntCompensatorIds = Stream.concat(
@@ -89,7 +89,7 @@ public class EquipmentDeletion extends AbstractModification {
                             return mcsInfo.isConnectedToHvdc();
                         }
                     })
-                    .map(HvdcLccDeletionInfos.ShuntCompensatorInfos::getId)
+                    .map(HvdcLccDeletionModel.ShuntCompensatorModel::getId)
                     .collect(Collectors.toList());
         }
         RemoveHvdcLine algo = new RemoveHvdcLineBuilder()

@@ -8,19 +8,18 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.IdentifiableType;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
-import org.gridsuite.modification.modifications.byfilter.ModificationByAssignment;
+import org.gridsuite.modification.model.ModificationByAssignmentModel;
 
-import java.util.List;
+import java.time.Instant;
+import java.util.UUID;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
@@ -33,20 +32,20 @@ import java.util.List;
 @ModificationErrorTypeName("MODIFICATION_BY_ASSIGNMENT_ERROR")
 @ToString(callSuper = true)
 @Schema(description = "Modification by assignment")
-public class ModificationByAssignmentInfos extends ModificationInfos {
-    @Schema(description = "Equipment type")
-    private IdentifiableType equipmentType;
+public class ModificationByAssignmentInfos extends ModificationByAssignmentModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "list of modifications")
-    private List<? extends AssignmentInfos<?>> assignmentInfosList;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Override
-    public ModificationByAssignment toModification() {
-        return new ModificationByAssignment(this);
-    }
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.modificationByAssignment").add();
-    }
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
+
+    @Schema(description = "User description")
+    private String description;
 }

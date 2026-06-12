@@ -7,14 +7,19 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.LineAttachToVoltageLevel;
+import org.gridsuite.modification.model.LineAttachToVoltageLevelModel;
+import java.time.Instant;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Nicolas NOIR <nicolas.noir at rte-france.com>
@@ -28,56 +33,22 @@ import java.util.Map;
 @Schema(description = "Line attach to voltage level")
 @JsonTypeName("LINE_ATTACH_TO_VOLTAGE_LEVEL")
 @ModificationErrorTypeName("LINE_ATTACH_ERROR")
-public class LineAttachToVoltageLevelInfos extends ModificationInfos {
+public class LineAttachToVoltageLevelInfos extends LineAttachToVoltageLevelModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "line to attach to ID")
-    private String lineToAttachToId;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "percentage of line length from side 1")
-    private double percent;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "attachment point id")
-    private String attachmentPointId;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Schema(description = "attachment point name")
-    private String attachmentPointName;
-
-    @Schema(description = "details about attachment point, may be null")
-    private VoltageLevelCreationInfos attachmentPointDetailInformation;
-
-    @Schema(description = "possible new voltage level to create before inserting it, may be null")
-    private VoltageLevelCreationInfos mayNewVoltageLevelInfos;
-
-    @Schema(description = "if no new voltage level, ID for the existing voltage level")
-    private String existingVoltageLevelId;
-
-    @Schema(description = "bus bar section or bus id")
-    private String bbsOrBusId;
-
-    @Schema(description = "attachment line")
-    private LineCreationInfos attachmentLine;
-
-    @Schema(description = "new line 1 ID")
-    private String newLine1Id;
-
-    @Schema(description = "new line 1 name")
-    private String newLine1Name;
-
-    @Schema(description = "new line 1 ID")
-    private String newLine2Id;
-
-    @Schema(description = "new line 2 name")
-    private String newLine2Name;
-
-    @Override
-    public AbstractModification toModification() {
-        return new LineAttachToVoltageLevel(this);
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.lineAttachToVoltageLevel").add();
-    }
+    @Schema(description = "User description")
+    private String description;
 
     @Override
     public Map<String, String> getMapMessageValues() {

@@ -5,15 +5,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package org.gridsuite.modification.dto;
-import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.model.BranchModificationModel;
 
-import java.util.List;
+import java.time.Instant;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
@@ -24,86 +27,25 @@ import java.util.List;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Branch creation")
-public class BranchModificationInfos extends BasicEquipmentModificationInfos {
+public class BranchModificationInfos extends BranchModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "Series resistance")
-    private AttributeModification<Double> r;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "Series reactance")
-    private AttributeModification<Double> x;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "Defines how operationalLimitsGroups are applied")
-    private OperationalLimitsGroupsModificationType operationalLimitsGroupsModificationType;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Schema(description = "If true the operationalLimitsGroups is used, otherwise it is ignored")
-    private Boolean enableOLGModification;
+    @Schema(description = "User description")
+    private String description;
 
-    @Schema(description = "Operational limit groups on side 1 and 2")
-    private List<OperationalLimitsGroupModificationInfos> operationalLimitsGroups;
-
-    @Schema(description = "Selected operational limits group on Side 1")
-    private AttributeModification<String> selectedOperationalLimitsGroupId1;
-
-    @Schema(description = "Selected operational limits group on Side 2")
-    private AttributeModification<String> selectedOperationalLimitsGroupId2;
-
-    @Schema(description = "Voltage level id modification 1")
-    private AttributeModification<String> voltageLevelId1;
-
-    @Schema(description = "Voltage level id modification 2")
-    private AttributeModification<String> voltageLevelId2;
-
-    @Schema(description = "Bus id modification 1")
-    private AttributeModification<String> busOrBusbarSectionId1;
-
-    @Schema(description = "Bus id modification 2")
-    private AttributeModification<String> busOrBusbarSectionId2;
-
-    @Schema(description = "Connection Name 1")
-    private AttributeModification<String> connectionName1;
-
-    @Schema(description = "Connection Name 2")
-    private AttributeModification<String> connectionName2;
-
-    @Schema(description = "Connection Direction 1")
-    private AttributeModification<ConnectablePosition.Direction> connectionDirection1;
-
-    @Schema(description = "Connection Direction 2")
-    private AttributeModification<ConnectablePosition.Direction> connectionDirection2;
-
-    @Schema(description = "Connection Position 1")
-    private AttributeModification<Integer> connectionPosition1;
-
-    @Schema(description = "Connection Position 2")
-    private AttributeModification<Integer> connectionPosition2;
-
-    @Schema(description = "Connected 1")
-    private AttributeModification<Boolean> terminal1Connected;
-
-    @Schema(description = "Connected 2")
-    private AttributeModification<Boolean> terminal2Connected;
-
-    @Schema(description = "P1 measurement value")
-    private AttributeModification<Double> p1MeasurementValue;
-
-    @Schema(description = "P1 measurement validity")
-    private AttributeModification<Boolean> p1MeasurementValidity;
-
-    @Schema(description = "P2 measurement value")
-    private AttributeModification<Double> p2MeasurementValue;
-
-    @Schema(description = "P2 measurement validity")
-    private AttributeModification<Boolean> p2MeasurementValidity;
-
-    @Schema(description = "Q1 measurement value")
-    private AttributeModification<Double> q1MeasurementValue;
-
-    @Schema(description = "Q1 measurement validity")
-    private AttributeModification<Boolean> q1MeasurementValidity;
-
-    @Schema(description = "Q2 measurement value")
-    private AttributeModification<Double> q2MeasurementValue;
-
-    @Schema(description = "Q2 measurement validity")
-    private AttributeModification<Boolean> q2MeasurementValidity;
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        return Map.of("equipmentId", getEquipmentId());
+    }
 }

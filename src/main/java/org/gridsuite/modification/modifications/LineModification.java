@@ -11,9 +11,9 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.AttributeModification;
-import org.gridsuite.modification.dto.BranchModificationInfos;
-import org.gridsuite.modification.dto.LineModificationInfos;
+import org.gridsuite.modification.model.AttributeModification;
+import org.gridsuite.modification.model.BranchModificationModel;
+import org.gridsuite.modification.model.LineModificationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -31,7 +31,7 @@ public class LineModification extends AbstractBranchModification {
     private static final String MAGNETIZING_CONDUCTANCE_MESSAGE = "Magnetizing conductance";
     public static final String ERROR_MESSAGE = "Line '%s' : ";
 
-    public LineModification(LineModificationInfos modificationInfos) {
+    public LineModification(LineModificationModel modificationInfos) {
         super(modificationInfos);
     }
 
@@ -46,7 +46,7 @@ public class LineModification extends AbstractBranchModification {
                 modificationInfos.getBusOrBusbarSectionId1(), line.getTerminal1());
         ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId2(),
                 modificationInfos.getBusOrBusbarSectionId2(), line.getTerminal2());
-        LineModificationInfos lineModificationInfos = (LineModificationInfos) modificationInfos;
+        LineModificationModel lineModificationInfos = (LineModificationModel) modificationInfos;
         if (lineModificationInfos.getR() != null) {
             checkIsNotNegativeValue(errorMessage, lineModificationInfos.getR().getValue(), MODIFY_LINE_ERROR, "Resistance R");
         }
@@ -70,26 +70,26 @@ public class LineModification extends AbstractBranchModification {
         return "LineModification";
     }
 
-    private void modifyLine(Line line, BranchModificationInfos lineModificationInfos, ReportNode subReportNode) {
+    private void modifyLine(Line line, BranchModificationModel lineModificationInfos, ReportNode subReportNode) {
         modifyBranch(line, lineModificationInfos, subReportNode, "network.modification.lineModification");
         updateMeasurements(line, lineModificationInfos, subReportNode);
         PropertiesUtils.applyProperties(line, subReportNode, modificationInfos.getProperties(), "network.modification.LineProperties");
     }
 
     @Override
-    protected void modifyCharacteristics(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode) {
+    protected void modifyCharacteristics(Branch<?> branch, BranchModificationModel branchModificationInfos, ReportNode subReportNode) {
         Line line = (Line) branch;
         ReportNode characteristicsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.characteristics").add();
         modifyR(line, branchModificationInfos.getR(), characteristicsReporter);
         modifyX(line, branchModificationInfos.getX(), characteristicsReporter);
 
-        LineModificationInfos lineModificationInfos = (LineModificationInfos) branchModificationInfos;
+        LineModificationModel lineModificationInfos = (LineModificationModel) branchModificationInfos;
         modifySide1Characteristics(line, lineModificationInfos, characteristicsReporter);
         modifySide2Characteristics(line, lineModificationInfos, characteristicsReporter);
 
     }
 
-    private void modifySide1Characteristics(Line line, LineModificationInfos lineModificationInfos,
+    private void modifySide1Characteristics(Line line, LineModificationModel lineModificationInfos,
                                             ReportNode characteristicsReportNode) {
         if (lineModificationInfos.getG1() != null && lineModificationInfos.getG1().getValue() != null
             || lineModificationInfos.getB1() != null && lineModificationInfos.getB1().getValue() != null) {
@@ -99,7 +99,7 @@ public class LineModification extends AbstractBranchModification {
         }
     }
 
-    private void modifySide2Characteristics(Line line, LineModificationInfos lineModificationInfos,
+    private void modifySide2Characteristics(Line line, LineModificationModel lineModificationInfos,
                                             ReportNode characteristicsReportNode) {
         if (lineModificationInfos.getG2() != null && lineModificationInfos.getG2().getValue() != null
             || lineModificationInfos.getB2() != null && lineModificationInfos.getB2().getValue() != null) {
@@ -110,8 +110,8 @@ public class LineModification extends AbstractBranchModification {
     }
 
     @Override
-    protected boolean characteristicsModified(BranchModificationInfos branchModificationInfos) {
-        LineModificationInfos lineModificationInfos = (LineModificationInfos) branchModificationInfos;
+    protected boolean characteristicsModified(BranchModificationModel branchModificationInfos) {
+        LineModificationModel lineModificationInfos = (LineModificationModel) branchModificationInfos;
         return super.characteristicsModified(branchModificationInfos)
             || lineModificationInfos.getG1() != null
             && lineModificationInfos.getG1().getValue() != null

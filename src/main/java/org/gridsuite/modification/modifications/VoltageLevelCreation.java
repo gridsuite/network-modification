@@ -11,7 +11,7 @@ import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
+import org.gridsuite.modification.model.VoltageLevelCreationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_VOLTAGE_LEVEL_ERROR;
@@ -22,9 +22,9 @@ import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegat
  */
 public class VoltageLevelCreation extends AbstractModification {
 
-    private final VoltageLevelCreationInfos modificationInfos;
+    private final VoltageLevelCreationModel modificationInfos;
 
-    public VoltageLevelCreation(VoltageLevelCreationInfos modificationInfos) {
+    public VoltageLevelCreation(VoltageLevelCreationModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 

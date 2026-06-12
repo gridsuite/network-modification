@@ -10,23 +10,9 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.dto.AttributeModification;
-import org.gridsuite.modification.dto.FreePropertyInfos;
-import org.gridsuite.modification.dto.LccConverterStationCreationInfos;
-import org.gridsuite.modification.dto.LccConverterStationModificationInfos;
-import org.gridsuite.modification.dto.LccCreationInfos;
-import org.gridsuite.modification.dto.LccModificationInfos;
-import org.gridsuite.modification.dto.LccShuntCompensatorInfos;
-import org.gridsuite.modification.dto.LccShuntCompensatorModificationInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.OperationType;
+import org.gridsuite.modification.model.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
@@ -45,8 +31,8 @@ class LccModificationTest extends AbstractInjectionModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        return LccModificationInfos.builder()
+    protected ModificationModel buildModification() {
+        return LccModificationModel.builder()
             .equipmentId("hvdcLine")
             .equipmentName(new AttributeModification<>("newV1Lcc", OperationType.SET))
             .nominalV(new AttributeModification<>(40., OperationType.SET))
@@ -56,19 +42,19 @@ class LccModificationTest extends AbstractInjectionModificationTest {
             .convertersMode(new AttributeModification<>(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, OperationType.SET))
             .converterStation1(buildLccConverterStationModificationInfos1())
             .converterStation2(buildLccConverterStationModificationInfos2())
-            .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+            .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
             .build();
     }
 
-    private static LccConverterStationModificationInfos buildLccConverterStationModificationInfos1() {
+    private static LccConverterStationModificationModel buildLccConverterStationModificationInfos1() {
 
-        LccShuntCompensatorModificationInfos filter1 = new LccShuntCompensatorModificationInfos("ShuntStation1Id1",
+        LccShuntCompensatorModificationModel filter1 = new LccShuntCompensatorModificationModel("ShuntStation1Id1",
             "ShuntStation1Name1", 0.1, true, false);
 
-        LccShuntCompensatorModificationInfos filter2 = new LccShuntCompensatorModificationInfos("ShuntStation1Id2",
+        LccShuntCompensatorModificationModel filter2 = new LccShuntCompensatorModificationModel("ShuntStation1Id2",
             "ShuntStation1Name2", 0.1, false, false);
 
-        return LccConverterStationModificationInfos.builder()
+        return LccConverterStationModificationModel.builder()
             .equipmentId("v1lcc")
             .equipmentName(new AttributeModification<>("lcc1Station1Name", OperationType.SET))
             .lossFactor(new AttributeModification<>(40.f, OperationType.SET))
@@ -77,8 +63,8 @@ class LccModificationTest extends AbstractInjectionModificationTest {
             .build();
     }
 
-    private static LccConverterStationModificationInfos buildLccConverterStationModificationInfos2() {
-        return LccConverterStationModificationInfos.builder()
+    private static LccConverterStationModificationModel buildLccConverterStationModificationInfos2() {
+        return LccConverterStationModificationModel.builder()
             .equipmentId("v2lcc")
             .equipmentName(new AttributeModification<>("lcc2Station2Name", OperationType.SET))
             .lossFactor(new AttributeModification<>(40.f, OperationType.SET))
@@ -87,8 +73,8 @@ class LccModificationTest extends AbstractInjectionModificationTest {
             .build();
     }
 
-    private LccConverterStationModificationInfos buildLccConverterStationModificationInfos2WithNullInfos() {
-        return LccConverterStationModificationInfos.builder()
+    private LccConverterStationModificationModel buildLccConverterStationModificationInfos2WithNullInfos() {
+        return LccConverterStationModificationModel.builder()
             .equipmentId("v2lcc")
             .equipmentName(new AttributeModification<>("newV2lcc", OperationType.SET))
             .lossFactor(null)
@@ -97,11 +83,11 @@ class LccModificationTest extends AbstractInjectionModificationTest {
             .build();
     }
 
-    public LccConverterStationCreationInfos buildLccConverterStationCreationInfos1() {
-        LccShuntCompensatorInfos filter1 = new LccShuntCompensatorInfos("shuntId1", "shuntName1", 110.0, true);
-        LccShuntCompensatorInfos filter2 = new LccShuntCompensatorInfos("shuntId2", "shuntName2", 100.0, false);
+    public LccConverterStationCreationModel buildLccConverterStationCreationInfos1() {
+        LccShuntCompensatorModel filter1 = new LccShuntCompensatorModel("shuntId1", "shuntName1", 110.0, true);
+        LccShuntCompensatorModel filter2 = new LccShuntCompensatorModel("shuntId2", "shuntName2", 100.0, false);
 
-        return LccConverterStationCreationInfos.builder()
+        return LccConverterStationCreationModel.builder()
             .equipmentId("stationId1")
             .equipmentName("stationName1")
             .lossFactor(40F)
@@ -114,8 +100,8 @@ class LccModificationTest extends AbstractInjectionModificationTest {
             .build();
     }
 
-    public LccConverterStationModificationInfos buildLccConverterStationModificationInfosWithShunts(List<LccShuntCompensatorModificationInfos> shuntInfos) {
-        return LccConverterStationModificationInfos.builder()
+    public LccConverterStationModificationModel buildLccConverterStationModificationInfosWithShunts(List<LccShuntCompensatorModificationModel> shuntInfos) {
+        return LccConverterStationModificationModel.builder()
             .equipmentId("stationId1")
             .equipmentName(null)
             .lossFactor(null)
@@ -124,11 +110,11 @@ class LccModificationTest extends AbstractInjectionModificationTest {
             .build();
     }
 
-    public LccConverterStationCreationInfos buildLccConverterStationCreationInfos2() {
-        LccShuntCompensatorInfos filter1 = new LccShuntCompensatorInfos("shunt2Id1", "shunt2Name1", 90.0, true);
-        LccShuntCompensatorInfos filter2 = new LccShuntCompensatorInfos("shunt2Id2", "shunt2Name2", 100.0, false);
+    public LccConverterStationCreationModel buildLccConverterStationCreationInfos2() {
+        LccShuntCompensatorModel filter1 = new LccShuntCompensatorModel("shunt2Id1", "shunt2Name1", 90.0, true);
+        LccShuntCompensatorModel filter2 = new LccShuntCompensatorModel("shunt2Id2", "shunt2Name2", 100.0, false);
 
-        return LccConverterStationCreationInfos.builder()
+        return LccConverterStationCreationModel.builder()
             .equipmentId("stationId2")
             .equipmentName("stationName2")
             .lossFactor(40F)
@@ -142,8 +128,7 @@ class LccModificationTest extends AbstractInjectionModificationTest {
     }
 
     private void buildAndApplyLccCreationWithShuntCompensator(Network network) {
-        LccCreationInfos creationInfos = LccCreationInfos.builder()
-            .stashed(false)
+        LccCreationModel creationInfos = LccCreationModel.builder()
             .equipmentId("lcc1")
             .equipmentName("lcc1Name")
             .nominalV(39.)
@@ -153,7 +138,7 @@ class LccModificationTest extends AbstractInjectionModificationTest {
             .activePowerSetpoint(5.)
             .converterStation1(buildLccConverterStationCreationInfos1())
             .converterStation2(buildLccConverterStationCreationInfos2())
-            .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+            .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
             .build();
 
         LccCreation lccCreation = new LccCreation(creationInfos);
@@ -182,7 +167,7 @@ class LccModificationTest extends AbstractInjectionModificationTest {
     void testModificationWithNullValues() throws Exception {
         var networkUuid = UUID.randomUUID();
         Network networkWithoutExt = NetworkCreation.createWithLcc(networkUuid);
-        LccModificationInfos modificationInfos = (LccModificationInfos) buildModification();
+        LccModificationModel modificationInfos = (LccModificationModel) buildModification();
         modificationInfos.setEquipmentName(null);
         modificationInfos.setNominalV(null);
         modificationInfos.setR(null);
@@ -192,7 +177,7 @@ class LccModificationTest extends AbstractInjectionModificationTest {
         modificationInfos.setConverterStation1(null);
         modificationInfos.setConverterStation2(null);
 
-        LccConverterStationModificationInfos converterStationModificationInfos = buildLccConverterStationModificationInfos2WithNullInfos();
+        LccConverterStationModificationModel converterStationModificationInfos = buildLccConverterStationModificationInfos2WithNullInfos();
         modificationInfos.setConverterStation2(converterStationModificationInfos);
 
         LccModification lccModification = new LccModification(modificationInfos);
@@ -230,18 +215,18 @@ class LccModificationTest extends AbstractInjectionModificationTest {
         Network networkWithoutExt = NetworkCreation.createWithLcc(networkUuid);
         buildAndApplyLccCreationWithShuntCompensator(networkWithoutExt);
 
-        LccModificationInfos modificationInfos = (LccModificationInfos) buildModification();
+        LccModificationModel modificationInfos = (LccModificationModel) buildModification();
 
-        LccShuntCompensatorModificationInfos shuntInfos = new LccShuntCompensatorModificationInfos("shuntId1",
+        LccShuntCompensatorModificationModel shuntInfos = new LccShuntCompensatorModificationModel("shuntId1",
             "newName", 50.0, false, false);
-        LccShuntCompensatorModificationInfos shuntInfos2 = new LccShuntCompensatorModificationInfos("shuntId2",
+        LccShuntCompensatorModificationModel shuntInfos2 = new LccShuntCompensatorModificationModel("shuntId2",
             null, null, null, true);
 
         // does not exist : will do nothing
-        LccShuntCompensatorModificationInfos shuntInfos3 = new LccShuntCompensatorModificationInfos("shuntId3",
+        LccShuntCompensatorModificationModel shuntInfos3 = new LccShuntCompensatorModificationModel("shuntId3",
             "newName2", 60.0, null, false);
 
-        LccConverterStationModificationInfos converterStationModificationInfos =
+        LccConverterStationModificationModel converterStationModificationInfos =
             buildLccConverterStationModificationInfosWithShunts(List.of(shuntInfos, shuntInfos2, shuntInfos3));
 
         modificationInfos.setConverterStation1(converterStationModificationInfos);

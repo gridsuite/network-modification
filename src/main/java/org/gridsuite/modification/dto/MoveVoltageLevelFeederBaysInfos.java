@@ -7,18 +7,18 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.MoveVoltageLevelFeederBays;
+import org.gridsuite.modification.model.MoveVoltageLevelFeederBaysModel;
 
-import java.util.List;
+import java.time.Instant;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -30,26 +30,22 @@ import java.util.Map;
 @Schema(description = "Move voltage level feeder bays")
 @JsonTypeName("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS")
 @ModificationErrorTypeName("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR")
-public class MoveVoltageLevelFeederBaysInfos extends ModificationInfos {
+public class MoveVoltageLevelFeederBaysInfos extends MoveVoltageLevelFeederBaysModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "Voltage level id")
-    private String voltageLevelId;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "Feeder bays list")
-    private List<MoveFeederBayInfos> feederBays;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Override
-    public AbstractModification toModification() {
-        return new MoveVoltageLevelFeederBays(this);
-    }
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-            .withMessageTemplate("network.modification.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS")
-            .withUntypedValue("voltageLevelId", getVoltageLevelId())
-            .add();
-    }
+    @Schema(description = "User description")
+    private String description;
 
     @Override
     public Map<String, String> getMapMessageValues() {

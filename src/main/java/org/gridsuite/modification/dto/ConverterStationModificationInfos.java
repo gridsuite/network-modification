@@ -8,13 +8,17 @@ package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import java.util.List;
+import org.gridsuite.modification.model.ConverterStationModificationModel;
+import java.time.Instant;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author jamal kheyyad <jamal.kheyyad at rte-france.com>
@@ -27,29 +31,25 @@ import java.util.List;
 @Schema(description = "Converter station modification")
 @JsonTypeName("CONVERTER_STATION_MODIFICATION")
 @ModificationErrorTypeName("MODIFY_CONVERTER_STATION_ERROR")
-public class ConverterStationModificationInfos extends InjectionModificationInfos {
-    @Schema(description = "Loss Factor")
-    private AttributeModification<Float> lossFactor;
+public class ConverterStationModificationInfos extends ConverterStationModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "Reactive power set point ")
-    private AttributeModification<Double> reactivePowerSetpoint;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "Voltage regulation")
-    private AttributeModification<Boolean> voltageRegulationOn;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "Voltage set point")
-    private AttributeModification<Double> voltageSetpoint;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Schema(description = "Reactive capability curve")
-    private AttributeModification<Boolean> reactiveCapabilityCurve;
+    @Schema(description = "User description")
+    private String description;
 
-    @Schema(description = "Minimum reactive power")
-    private AttributeModification<Double> minQ;
-
-    @Schema(description = "Maximum reactive power")
-    private AttributeModification<Double> maxQ;
-
-    @Schema(description = "Reactive capability curve points")
-    private List<ReactiveCapabilityCurvePointsInfos> reactiveCapabilityCurvePoints;
-
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        return Map.of("equipmentId", getEquipmentId());
+    }
 }

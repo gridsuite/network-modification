@@ -20,7 +20,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.CreateVoltageLevelSectionInfos;
+import org.gridsuite.modification.model.CreateVoltageLevelSectionModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,9 +33,9 @@ import static org.gridsuite.modification.NetworkModificationException.Type.CREAT
  */
 public class CreateVoltageLevelSection extends AbstractModification {
 
-    private final CreateVoltageLevelSectionInfos modificationInfos;
+    private final CreateVoltageLevelSectionModel modificationInfos;
 
-    public CreateVoltageLevelSection(CreateVoltageLevelSectionInfos modificationInfos) {
+    public CreateVoltageLevelSection(CreateVoltageLevelSectionModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 

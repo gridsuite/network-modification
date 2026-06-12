@@ -8,8 +8,8 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.GroovyScriptInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.model.GroovyScriptModel;
+import org.gridsuite.modification.model.ModificationModel;
 import org.gridsuite.modification.utils.NetworkCreation;
 import java.util.UUID;
 
@@ -28,9 +28,8 @@ class GroovyScriptTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        return GroovyScriptInfos.builder()
-                .stashed(false)
+    protected ModificationModel buildModification() {
+        return GroovyScriptModel.builder()
                 .script("network.getGenerator('idGenerator').targetP=12\n")
                 .build();
     }
@@ -42,7 +41,7 @@ class GroovyScriptTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void checkModification() {
-        GroovyScriptInfos groovyScriptInfos = (GroovyScriptInfos) buildModification();
+        GroovyScriptModel groovyScriptInfos = (GroovyScriptModel) buildModification();
         groovyScriptInfos.setScript("");
         // apply empty groovy script
         Exception exception = assertThrows(NetworkModificationException.class, () -> groovyScriptInfos.toModification().check(getNetwork()));

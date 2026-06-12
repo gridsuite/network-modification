@@ -8,17 +8,18 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.VoltageLevelTopologyModification;
+import org.gridsuite.modification.model.VoltageLevelTopologyModificationModel;
 
-import java.util.List;
+import java.time.Instant;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author REHILI Ghazwa <ghazwarhili at gmail.com>
@@ -31,21 +32,25 @@ import java.util.List;
 @Schema(description = "Voltage level topology modification")
 @JsonTypeName("VOLTAGE_LEVEL_TOPOLOGY_MODIFICATION")
 @ModificationErrorTypeName("MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR")
-public class VoltageLevelTopologyModificationInfos extends EquipmentModificationInfos {
+public class VoltageLevelTopologyModificationInfos extends VoltageLevelTopologyModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "Switch attribute modification list")
-    private List<EquipmentAttributeModificationInfos> equipmentAttributeModificationList;
+    @Schema(description = "Modification date")
+    private Instant date;
+
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
+
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
+
+    @Schema(description = "User description")
+    private String description;
 
     @Override
-    public AbstractModification toModification() {
-        return new VoltageLevelTopologyModification(this);
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.VOLTAGE_LEVEL_TOPOLOGY_MODIFICATION")
-                .withUntypedValue("voltageLevelId", getEquipmentId())
-                .add();
+    public Map<String, String> getMapMessageValues() {
+        return Map.of("equipmentId", getEquipmentId());
     }
 }

@@ -8,17 +8,17 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.GenerationDispatch;
+import org.gridsuite.modification.model.GenerationDispatchModel;
 
-import java.util.List;
+import java.time.Instant;
+import java.util.UUID;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -30,34 +30,20 @@ import java.util.List;
 @Schema(description = "Generation dispatch creation")
 @JsonTypeName("GENERATION_DISPATCH")
 @ModificationErrorTypeName("GENERATION_DISPATCH_ERROR")
-public class GenerationDispatchInfos extends ModificationInfos {
-    @Schema(description = "loss coefficient")
-    private Double lossCoefficient;
+public class GenerationDispatchInfos extends GenerationDispatchModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "default outage rate")
-    private Double defaultOutageRate;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "generators without outage")
-    private List<GeneratorsFilterInfos> generatorsWithoutOutage;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "generators with fixed supply")
-    private List<GeneratorsFilterInfos> generatorsWithFixedSupply;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Schema(description = "generators frequency reserve")
-    private List<GeneratorsFrequencyReserveInfos> generatorsFrequencyReserve;
-
-    @Schema(description = "substations hierarchy for ordering generators with marginal cost")
-    private List<SubstationsGeneratorsOrderingInfos> substationsGeneratorsOrdering;
-
-    @Override
-    public AbstractModification toModification() {
-        return new GenerationDispatch(this);
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.generationDispatch")
-                .add();
-    }
+    @Schema(description = "User description")
+    private String description;
 }

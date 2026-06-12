@@ -12,11 +12,11 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
-import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.equipmentfield.VoltageLevelField;
+import org.gridsuite.modification.model.FilterEquipments;
+import org.gridsuite.modification.model.IdentifiableAttributes;
+import org.gridsuite.modification.model.byfilter.assignment.AssignmentModel;
+import org.gridsuite.modification.model.byfilter.assignment.DoubleAssignmentModel;
+import org.gridsuite.modification.model.byfilter.equipmentfield.VoltageLevelField;
 
 import java.util.List;
 import java.util.Map;
@@ -118,56 +118,56 @@ class VoltageLevelModificationByAssignmentTest extends AbstractModificationByAss
     }
 
     @Override
-    protected List<AssignmentInfos<?>> getAssignmentInfos() {
-        DoubleAssignmentInfos assignmentInfos1 = DoubleAssignmentInfos.builder()
+    protected List<AssignmentModel<?>> getAssignmentInfos() {
+        DoubleAssignmentModel assignmentInfos1 = DoubleAssignmentModel.builder()
             .editedField(VoltageLevelField.LOW_VOLTAGE_LIMIT.name())
             .value(10.)
             .filters(List.of(filter1, filter2))
             .build();
 
-        DoubleAssignmentInfos assignmentInfos2 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos2 = DoubleAssignmentModel.builder()
             .editedField(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name())
             .value(120.)
             .filters(List.of(filter3))
             .build();
 
-        DoubleAssignmentInfos assignmentInfos3 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos3 = DoubleAssignmentModel.builder()
             .editedField(VoltageLevelField.NOMINAL_VOLTAGE.name())
             .value(150.)
             .filters(List.of(filter4))
             .build();
 
-        DoubleAssignmentInfos assignmentInfos4 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos4 = DoubleAssignmentModel.builder()
                 .editedField(VoltageLevelField.LOW_SHORT_CIRCUIT_CURRENT_LIMIT.name())
                 .value(2.)
                 .filters(List.of(filter5))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos5 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos5 = DoubleAssignmentModel.builder()
                 .editedField(VoltageLevelField.HIGH_SHORT_CIRCUIT_CURRENT_LIMIT.name())
                 .value(80.)
                 .filters(List.of(filter4, filter5))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos6 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos6 = DoubleAssignmentModel.builder()
                 .editedField(VoltageLevelField.LOW_VOLTAGE_LIMIT.name())
                 .value(440.)
                 .filters(List.of(filter6))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos7 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos7 = DoubleAssignmentModel.builder()
                 .editedField(VoltageLevelField.HIGH_VOLTAGE_LIMIT.name())
                 .value(360.)
                 .filters(List.of(filter6))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos8 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos8 = DoubleAssignmentModel.builder()
                 .editedField(VoltageLevelField.LOW_SHORT_CIRCUIT_CURRENT_LIMIT.name())
                 .value(220.)
                 .filters(List.of(filter6))
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos9 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos9 = DoubleAssignmentModel.builder()
                 .editedField(VoltageLevelField.HIGH_SHORT_CIRCUIT_CURRENT_LIMIT.name())
                 .value(80.)
                 .filters(List.of(filter6))
@@ -230,15 +230,15 @@ class VoltageLevelModificationByAssignmentTest extends AbstractModificationByAss
         assertEquals("Assignment on filters : filter6", reportNode.getChildren().getFirst().getChildren().get(7).getMessage());
         assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(7).getChildren().getFirst().getMessage());
         assertEquals("Edited field : LOW_SHORT_CIRCUIT_CURRENT_LIMIT", reportNode.getChildren().getFirst().getChildren().get(7).getChildren().get(1).getMessage());
-        assertEquals("Cannot modify equipment v7 : MODIFY_VOLTAGE_LEVEL_ERROR : Voltage level 'v7' :  Low short circuit current limit (220.0) must be inferior to High short circuit current limit "
-                + "(200.0)",
+        assertEquals("Cannot modify equipment v7 : MODIFY_VOLTAGE_LEVEL_ERROR : Voltage level 'v7' :  "
+                + "Low short circuit current limit (220.0) must be inferior to High short circuit current limit (200.0)",
                 reportNode.getChildren().getFirst().getChildren().get(7).getChildren().get(2).getMessage());
 
         assertEquals("Assignment on filters : filter6", reportNode.getChildren().getFirst().getChildren().get(8).getMessage());
         assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(8).getChildren().getFirst().getMessage());
         assertEquals("Edited field : HIGH_SHORT_CIRCUIT_CURRENT_LIMIT", reportNode.getChildren().getFirst().getChildren().get(8).getChildren().get(1).getMessage());
-        assertEquals("Cannot modify equipment v7 : MODIFY_VOLTAGE_LEVEL_ERROR : Voltage level 'v7' :  High short circuit current limit (80.0) must be superior to Low short circuit current limit "
-                + "(100.0)",
+        assertEquals("Cannot modify equipment v7 : MODIFY_VOLTAGE_LEVEL_ERROR : Voltage level 'v7' :  "
+                + "High short circuit current limit (80.0) must be superior to Low short circuit current limit (100.0)",
                 reportNode.getChildren().getFirst().getChildren().get(8).getChildren().get(2).getMessage());
     }
 

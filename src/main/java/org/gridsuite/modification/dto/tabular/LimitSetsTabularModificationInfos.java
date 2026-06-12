@@ -12,7 +12,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
+import org.gridsuite.modification.model.ModificationModel;
+import org.gridsuite.modification.model.tabular.LimitSetsTabularModificationModel;
 
 /**
  * @author Hugo Marcellin <hugo.marcelin at rte-france.com>
@@ -24,5 +28,19 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 @Schema(description = "Limit sets tabular modification")
 @JsonTypeName("LIMIT_SETS_TABULAR_MODIFICATION")
 @ModificationErrorTypeName("LIMIT_SETS_TABULAR_MODIFICATION_ERROR")
-public class LimitSetsTabularModificationInfos extends TabularModificationInfos {
+public class LimitSetsTabularModificationInfos extends AbstractTabularBaseInfos implements ModificationInfos {
+    @Override
+    public ModificationType getType() {
+        return ModificationType.LIMIT_SETS_TABULAR_MODIFICATION;
+    }
+
+    @Override
+    public ModificationModel toModel() {
+        return LimitSetsTabularModificationModel.builder()
+            .modifications(modifications.stream().map(ModificationInfos::toModel).toList())
+            .properties(properties)
+            .csvFilename(csvFilename)
+            .modificationType(modificationType)
+            .build();
+    }
 }

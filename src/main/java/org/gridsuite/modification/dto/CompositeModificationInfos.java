@@ -8,20 +8,23 @@ package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.CompositeModification;
+import org.gridsuite.modification.model.CompositeModificationModel;
+import org.gridsuite.modification.model.ModificationModel;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
@@ -34,7 +37,22 @@ import java.util.Map;
 @Schema(description = "Composite modification")
 @JsonTypeName("COMPOSITE_MODIFICATION")
 @ModificationErrorTypeName("COMPOSITE_MODIFICATION_ERROR")
-public class CompositeModificationInfos extends ModificationInfos {
+public class CompositeModificationInfos implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
+
+    @Schema(description = "Modification date")
+    private Instant date;
+
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
+
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
+
+    @Schema(description = "User description")
+    private String description;
 
     @Schema(description = "composite modification name")
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -51,16 +69,17 @@ public class CompositeModificationInfos extends ModificationInfos {
     private Integer maxDepth;
 
     @Override
-    public AbstractModification toModification() {
-        return new CompositeModification(this);
+    public ModificationType getType() {
+        return ModificationType.COMPOSITE_MODIFICATION;
     }
 
     @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.composite.apply")
-                .withUntypedValue("modificationName", getName())
-                .add();
+    public ModificationModel toModel() {
+        return CompositeModificationModel.builder()
+            .name(name)
+            .modificationsInfos(modificationsInfos.stream().map(ModificationInfos::toModel).toList())
+            .maxDepth(maxDepth)
+            .build();
     }
 
     @Override

@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
-import org.gridsuite.modification.dto.InjectionModificationInfos;
+import org.gridsuite.modification.model.InjectionModificationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.ArrayList;
@@ -26,13 +26,13 @@ public abstract class AbstractInjectionModification extends AbstractModification
 
     private static final String VALUE = "value";
     private static final String VALIDITY = "validity";
-    protected final InjectionModificationInfos modificationInfos;
+    protected final InjectionModificationModel modificationInfos;
 
-    protected AbstractInjectionModification(InjectionModificationInfos modificationInfos) {
+    protected AbstractInjectionModification(InjectionModificationModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 
-    protected ReportNode updateMeasurements(Injection<?> injection, InjectionModificationInfos injectionModificationInfos, ReportNode subReportNode) {
+    protected ReportNode updateMeasurements(Injection<?> injection, InjectionModificationModel injectionModificationInfos, ReportNode subReportNode) {
         Double pValue = injectionModificationInfos.getPMeasurementValue() != null ? injectionModificationInfos.getPMeasurementValue().getValue() : null;
         Double qValue = injectionModificationInfos.getQMeasurementValue() != null ? injectionModificationInfos.getQMeasurementValue().getValue() : null;
         Boolean pValidity = injectionModificationInfos.getPMeasurementValidity() != null ? injectionModificationInfos.getPMeasurementValidity().getValue() : null;

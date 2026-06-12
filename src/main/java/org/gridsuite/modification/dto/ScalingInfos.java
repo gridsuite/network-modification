@@ -7,14 +7,16 @@
 package org.gridsuite.modification.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.VariationType;
+import org.gridsuite.modification.model.ScalingModel;
 
-import java.util.List;
+import java.time.Instant;
+import java.util.UUID;
 
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
@@ -25,11 +27,20 @@ import java.util.List;
 @Setter
 @Schema(description = "Scaling infos")
 @ToString(callSuper = true)
-public class ScalingInfos extends ModificationInfos {
-    @Schema(description = "scaling variations")
-    private List<ScalingVariationInfos> variations;
+public class ScalingInfos extends ScalingModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "variation type")
-    private VariationType variationType;
+    @Schema(description = "Modification date")
+    private Instant date;
 
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
+
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
+
+    @Schema(description = "User description")
+    private String description;
 }

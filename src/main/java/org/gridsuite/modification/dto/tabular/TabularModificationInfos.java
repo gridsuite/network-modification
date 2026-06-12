@@ -7,13 +7,16 @@
 package org.gridsuite.modification.dto.tabular;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.tabular.TabularModification;
+import org.gridsuite.modification.model.ModificationModel;
+import org.gridsuite.modification.model.tabular.TabularModificationModel;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,18 +30,20 @@ import java.util.Map;
 @Schema(description = "Tabular modification")
 @JsonTypeName("TABULAR_MODIFICATION")
 @ModificationErrorTypeName("TABULAR_MODIFICATION_ERROR")
-public class TabularModificationInfos extends TabularBaseInfos {
+public class TabularModificationInfos extends AbstractTabularBaseInfos implements ModificationInfos {
     @Override
-    public AbstractModification toModification() {
-        return new TabularModification(this);
+    public ModificationType getType() {
+        return ModificationType.TABULAR_MODIFICATION;
     }
 
     @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.tabularModification")
-                .withUntypedValue("modificationType", formatEquipmentTypeName())
-                .add();
+    public ModificationModel toModel() {
+        return TabularModificationModel.builder()
+            .modifications(modifications.stream().map(ModificationInfos::toModel).toList())
+            .properties(properties)
+            .csvFilename(csvFilename)
+            .modificationType(modificationType)
+            .build();
     }
 
     @Override

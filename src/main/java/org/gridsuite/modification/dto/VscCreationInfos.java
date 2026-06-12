@@ -8,17 +8,19 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.HvdcLine;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.VscCreation;
+import org.gridsuite.modification.model.VscCreationModel;
+
+import java.time.Instant;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Seddik Yengui <seddik.yengui at rte-france.com>
@@ -32,53 +34,25 @@ import org.gridsuite.modification.modifications.VscCreation;
 @Schema(description = "VSC creation")
 @JsonTypeName("VSC_CREATION")
 @ModificationErrorTypeName("CREATE_VSC_ERROR")
-public class VscCreationInfos extends EquipmentCreationInfos {
-    @Schema(description = "DC nominal voltage")
-    private Double nominalV;
+public class VscCreationInfos extends VscCreationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "DC resistance")
-    private Double r;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "Maximum active power ")
-    private Double maxP;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "Operator active power limit (Side1->Side2)")
-    private Float operatorActivePowerLimitFromSide1ToSide2;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Schema(description = "Operator active power limit (Side2->Side1)")
-    private Float operatorActivePowerLimitFromSide2ToSide1;
-
-    @Schema(description = "Converters mode")
-    private HvdcLine.ConvertersMode convertersMode;
-
-    @Schema(description = "Active power setpoint")
-    private Double activePowerSetpoint;
-
-    @Schema(description = "Angle droop active power control ")
-    private Boolean angleDroopActivePowerControl;
-
-    @Schema(description = "p0")
-    private Float p0;
-
-    @Schema(description = "droop")
-    private Float droop;
-
-    @Schema(description = "Converter station 1")
-    private ConverterStationCreationInfos converterStation1;
-
-    @Schema(description = "Converter station 2")
-    private ConverterStationCreationInfos converterStation2;
+    @Schema(description = "User description")
+    private String description;
 
     @Override
-    public AbstractModification toModification() {
-        return new VscCreation(this);
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.vsc.creation")
-                .withUntypedValue("vscId", getEquipmentId())
-                .add();
+    public Map<String, String> getMapMessageValues() {
+        return Map.of("equipmentId", getEquipmentId());
     }
 }

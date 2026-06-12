@@ -8,17 +8,19 @@ package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.Country;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.SubstationModification;
+import org.gridsuite.modification.model.SubstationModificationModel;
+
+import java.time.Instant;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author David Braquart <david.braquart at rte-france.com>
@@ -32,20 +34,25 @@ import org.gridsuite.modification.modifications.SubstationModification;
 @Schema(description = "Substation modification")
 @JsonTypeName("SUBSTATION_MODIFICATION")
 @ModificationErrorTypeName("MODIFY_SUBSTATION_ERROR")
-public class SubstationModificationInfos extends BasicEquipmentModificationInfos {
-    @Schema(description = "country modification")
-    private AttributeModification<Country> country;
+public class SubstationModificationInfos extends SubstationModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
+
+    @Schema(description = "Modification date")
+    private Instant date;
+
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
+
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
+
+    @Schema(description = "User description")
+    private String description;
 
     @Override
-    public AbstractModification toModification() {
-        return new SubstationModification(this);
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.substation.modification")
-                .withUntypedValue("substationId", this.getEquipmentId())
-                .add();
+    public Map<String, String> getMapMessageValues() {
+        return Map.of("equipmentId", getEquipmentId());
     }
 }

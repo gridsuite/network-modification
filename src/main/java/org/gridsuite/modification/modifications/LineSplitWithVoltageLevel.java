@@ -13,8 +13,8 @@ import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.LineSplitWithVoltageLevelInfos;
-import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
+import org.gridsuite.modification.model.LineSplitWithVoltageLevelModel;
+import org.gridsuite.modification.model.VoltageLevelCreationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.lang.NonNull;
 
@@ -26,9 +26,9 @@ import static org.gridsuite.modification.NetworkModificationException.Type.LINE_
  */
 public class LineSplitWithVoltageLevel extends AbstractModification {
 
-    private final LineSplitWithVoltageLevelInfos modificationInfos;
+    private final LineSplitWithVoltageLevelModel modificationInfos;
 
-    public LineSplitWithVoltageLevel(LineSplitWithVoltageLevelInfos modificationInfos) {
+    public LineSplitWithVoltageLevel(LineSplitWithVoltageLevelModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 
@@ -55,7 +55,7 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
-        VoltageLevelCreationInfos mayNewVL = modificationInfos.getMayNewVoltageLevelInfos();
+        VoltageLevelCreationModel mayNewVL = modificationInfos.getMayNewVoltageLevelInfos();
         if (mayNewVL != null) {
             ModificationUtils.getInstance().createVoltageLevel(mayNewVL, subReportNode, network, namingStrategy);
         }

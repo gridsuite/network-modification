@@ -7,20 +7,19 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.SwitchKind;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.CreateVoltageLevelTopology;
+import org.gridsuite.modification.model.CreateVoltageLevelTopologyModel;
 
+import java.time.Instant;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -32,33 +31,27 @@ import java.util.Map;
 @ToString(callSuper = true)
 @Schema(description = "voltage level topology creation")
 @JsonTypeName("CREATE_VOLTAGE_LEVEL_TOPOLOGY")
-public class CreateVoltageLevelTopologyInfos extends ModificationInfos {
+public class CreateVoltageLevelTopologyInfos extends CreateVoltageLevelTopologyModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "voltageLevelId")
-    private String voltageLevelId;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "switchKinds")
-    private List<SwitchKind> switchKinds;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "sectionCount")
-    private Integer sectionCount;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.createVoltageLevelTopology")
-            .withUntypedValue("voltageLevelId", getVoltageLevelId())
-            .add();
-    }
+    @Schema(description = "User description")
+    private String description;
 
     @Override
     public Map<String, String> getMapMessageValues() {
         Map<String, String> mapMessageValues = new HashMap<>();
         mapMessageValues.put("voltageLevelId", getVoltageLevelId());
         return mapMessageValues;
-    }
-
-    @Override
-    public AbstractModification toModification() {
-        return new CreateVoltageLevelTopology(this);
     }
 }

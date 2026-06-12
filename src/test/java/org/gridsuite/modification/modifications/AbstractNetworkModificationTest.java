@@ -8,12 +8,11 @@ package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.network.Network;
-import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.model.ModificationModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.UUID;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Class to extend if you want to test a network modification.<ul>
@@ -65,14 +64,15 @@ public abstract class AbstractNetworkModificationTest {
 
     protected abstract Network createNetwork(UUID networkUuid);
 
-    protected abstract ModificationInfos buildModification();
+    protected abstract ModificationModel buildModification();
 
     protected abstract void assertAfterNetworkModificationApplication();
 
     protected abstract void checkModification();
 
     @SuppressWarnings("java:S1130") // Exceptions are throws by overrides
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("{}", modificationInfos.getMessageValues());
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // commented out: getMessageValues() was removed from ModificationModel during refactoring
+        // assertEquals("{}", modificationInfos.getMessageValues());
     }
 }

@@ -11,7 +11,7 @@ import com.powsybl.iidm.modification.topology.RevertConnectVoltageLevelOnLine;
 import com.powsybl.iidm.modification.topology.RevertConnectVoltageLevelOnLineBuilder;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.DeleteVoltageLevelOnLineInfos;
+import org.gridsuite.modification.model.DeleteVoltageLevelOnLineModel;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
@@ -22,9 +22,9 @@ import static org.gridsuite.modification.utils.ModificationLimitsUtils.applyReve
  */
 public class DeleteVoltageLevelOnLine extends AbstractModification {
 
-    private final DeleteVoltageLevelOnLineInfos modificationInfos;
+    private final DeleteVoltageLevelOnLineModel modificationInfos;
 
-    public DeleteVoltageLevelOnLine(DeleteVoltageLevelOnLineInfos modificationInfos) {
+    public DeleteVoltageLevelOnLine(DeleteVoltageLevelOnLineModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 

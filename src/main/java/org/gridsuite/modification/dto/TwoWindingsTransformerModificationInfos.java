@@ -7,13 +7,19 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.TwoWindingsTransformerModification;
+import org.gridsuite.modification.model.TwoWindingsTransformerModificationModel;
+
+import java.time.Instant;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Florent MILLOT <florent.millot at rte-france.com>
@@ -26,47 +32,25 @@ import org.gridsuite.modification.modifications.TwoWindingsTransformerModificati
 @Schema(description = "Two windings transformer modification")
 @JsonTypeName("TWO_WINDINGS_TRANSFORMER_MODIFICATION")
 @ModificationErrorTypeName("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR")
-public class TwoWindingsTransformerModificationInfos extends BranchModificationInfos {
+public class TwoWindingsTransformerModificationInfos extends TwoWindingsTransformerModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "Magnetizing conductance")
-    private AttributeModification<Double> g;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "Magnetizing susceptance")
-    private AttributeModification<Double> b;
-
-    @Schema(description = "Side 1 rated voltage")
-    private AttributeModification<Double> ratedU1;
-
-    @Schema(description = "Side 2 rated voltage")
-    private AttributeModification<Double> ratedU2;
-
-    @Schema(description = "Rated conductance in Siemens")
-    private AttributeModification<Double> ratedS;
-
-    @Schema(description = "Ratio tap changer")
+    @Schema(description = "Modification flag")
     @Builder.Default
-    private RatioTapChangerModificationInfos ratioTapChanger = new RatioTapChangerModificationInfos();
+    private Boolean stashed = false;
 
-    @Schema(description = "Phase tap changer")
-    @Builder.Default
-    private PhaseTapChangerModificationInfos phaseTapChanger = new PhaseTapChangerModificationInfos();
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Schema(description = "Ratio tap changer to be estimated status")
-    private AttributeModification<Boolean> ratioTapChangerToBeEstimated;
-
-    @Schema(description = "Phase tap changer to be estimated status")
-    private AttributeModification<Boolean> phaseTapChangerToBeEstimated;
+    @Schema(description = "User description")
+    private String description;
 
     @Override
-    public AbstractModification toModification() {
-        return new TwoWindingsTransformerModification(this);
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.twoWindingsTransformerModification.modification")
-                .withUntypedValue("twoWindingsTransformerId", getEquipmentId())
-                .add();
+    public Map<String, String> getMapMessageValues() {
+        return Map.of("equipmentId", getEquipmentId());
     }
 }

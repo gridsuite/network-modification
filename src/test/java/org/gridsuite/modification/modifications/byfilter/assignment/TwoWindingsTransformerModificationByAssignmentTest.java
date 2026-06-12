@@ -10,14 +10,14 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
-import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.IntegerAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.StringAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.equipmentfield.TwoWindingsTransformerField;
+import org.gridsuite.modification.model.FilterEquipments;
+import org.gridsuite.modification.model.IdentifiableAttributes;
+import org.gridsuite.modification.model.ModificationByAssignmentModel;
+import org.gridsuite.modification.model.byfilter.assignment.AssignmentModel;
+import org.gridsuite.modification.model.byfilter.assignment.DoubleAssignmentModel;
+import org.gridsuite.modification.model.byfilter.assignment.IntegerAssignmentModel;
+import org.gridsuite.modification.model.byfilter.assignment.StringAssignmentModel;
+import org.gridsuite.modification.model.byfilter.equipmentfield.TwoWindingsTransformerField;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -49,16 +49,15 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         IdentifiableAttributes identifiableAttributes2 = new IdentifiableAttributes(TWT_ID_6, getIdentifiableType(), 1.);
         FilterEquipments filter = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(identifiableAttributes1, identifiableAttributes2)).build();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_ID_4, filter));
-        DoubleAssignmentInfos assignmentInfos = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos = DoubleAssignmentModel.builder()
                 .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
                 .value(1.)
                 .filters(List.of(filter4))
                 .build();
 
-        ModificationByAssignmentInfos modificationInfos = ModificationByAssignmentInfos.builder()
+        ModificationByAssignmentModel modificationInfos = ModificationByAssignmentModel.builder()
                 .equipmentType(getIdentifiableType())
                 .assignmentInfosList(List.of(assignmentInfos))
-                .stashed(false)
                 .build();
         apply(modificationInfos);
 
@@ -70,16 +69,15 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         IdentifiableAttributes identifiableAttributes4 = new IdentifiableAttributes(TWT_ID_2, getIdentifiableType(), 1.);
         FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(identifiableAttributes3, identifiableAttributes4)).build();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_ID_1, filter2));
-        DoubleAssignmentInfos assignmentInfos2 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos2 = DoubleAssignmentModel.builder()
                 .editedField(TwoWindingsTransformerField.PHASE_TAP_POSITION.name())
                 .value(1.)
                 .filters(List.of(filter1))
                 .build();
 
-        ModificationByAssignmentInfos modificationInfos2 = ModificationByAssignmentInfos.builder()
+        ModificationByAssignmentModel modificationInfos2 = ModificationByAssignmentModel.builder()
                 .equipmentType(getIdentifiableType())
-                .assignmentInfosList(List.of(assignmentInfos2))
-                .stashed(false)
+            .assignmentInfosList(List.of(assignmentInfos2))
                 .build();
         apply(modificationInfos2);
 
@@ -98,16 +96,15 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
 
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_ID_1, filterTwt1, FILTER_ID_4, filterTwt2));
 
-        IntegerAssignmentInfos assignmentInfos = IntegerAssignmentInfos.builder()
+        IntegerAssignmentModel assignmentInfos = IntegerAssignmentModel.builder()
                 .filters(List.of(filter1, filter4))
                 .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
                 .value(4)
                 .build();
 
-        ModificationByAssignmentInfos modificationInfos = ModificationByAssignmentInfos.builder()
+        ModificationByAssignmentModel modificationInfos = ModificationByAssignmentModel.builder()
                 .equipmentType(getIdentifiableType())
                 .assignmentInfosList(List.of(assignmentInfos))
-                .stashed(false)
                 .build();
 
         apply(modificationInfos);
@@ -230,136 +227,136 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
     }
 
     @Override
-    protected List<AssignmentInfos<?>> getAssignmentInfos() {
-        DoubleAssignmentInfos assignmentInfos1 = DoubleAssignmentInfos.builder()
+    protected List<AssignmentModel<?>> getAssignmentInfos() {
+        DoubleAssignmentModel assignmentInfos1 = DoubleAssignmentModel.builder()
                 .filters(List.of(filter1))
                 .editedField(TwoWindingsTransformerField.TARGET_V.name())
                 .value(2.)
                 .build();
 
-        IntegerAssignmentInfos assignmentInfos2 = IntegerAssignmentInfos.builder()
+        IntegerAssignmentModel assignmentInfos2 = IntegerAssignmentModel.builder()
                 .filters(List.of(filter2))
                 .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
                 .value(4)
                 .build();
 
-        IntegerAssignmentInfos assignmentInfos3 = IntegerAssignmentInfos.builder()
+        IntegerAssignmentModel assignmentInfos3 = IntegerAssignmentModel.builder()
                 .filters(List.of(filter2))
                 .editedField(TwoWindingsTransformerField.RATIO_LOW_TAP_POSITION.name())
                 .value(4)
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos4 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos4 = DoubleAssignmentModel.builder()
                 .filters(List.of(filter1))
                 .editedField(TwoWindingsTransformerField.RATIO_TARGET_DEADBAND.name())
                 .value(5.)
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos5 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos5 = DoubleAssignmentModel.builder()
                 .filters(List.of(filter4))
                 .editedField(TwoWindingsTransformerField.REGULATION_VALUE.name())
                 .value(2.)
                 .build();
 
-        IntegerAssignmentInfos assignmentInfos6 = IntegerAssignmentInfos.builder()
+        IntegerAssignmentModel assignmentInfos6 = IntegerAssignmentModel.builder()
                 .filters(List.of(filter3))
                 .editedField(TwoWindingsTransformerField.PHASE_TAP_POSITION.name())
                 .value(2)
                 .build();
 
-        IntegerAssignmentInfos assignmentInfos7 = IntegerAssignmentInfos.builder()
+        IntegerAssignmentModel assignmentInfos7 = IntegerAssignmentModel.builder()
                 .filters(List.of(filter3))
                 .editedField(TwoWindingsTransformerField.PHASE_LOW_TAP_POSITION.name())
                 .value(2)
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos8 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos8 = DoubleAssignmentModel.builder()
                 .filters(List.of(filter4))
                 .editedField(TwoWindingsTransformerField.PHASE_TARGET_DEADBAND.name())
                 .value(10.)
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos9 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos9 = DoubleAssignmentModel.builder()
                 .filters(List.of(filter1, filter4))
                 .editedField(TwoWindingsTransformerField.X.name())
                 .value(20.)
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos10 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos10 = DoubleAssignmentModel.builder()
                 .filters(List.of(filter2, filter3))
                 .editedField(TwoWindingsTransformerField.R.name())
                 .value(2.)
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos11 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos11 = DoubleAssignmentModel.builder()
                 .filters(List.of(filter4, filter2))
                 .editedField(TwoWindingsTransformerField.G.name())
                 .value(25.)
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos12 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos12 = DoubleAssignmentModel.builder()
                 .filters(List.of(filter1, filter3))
                 .editedField(TwoWindingsTransformerField.B.name())
                 .value(2.5)
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos13 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos13 = DoubleAssignmentModel.builder()
                 .filters(List.of(filter2))
                 .editedField(TwoWindingsTransformerField.RATED_U1.name())
                 .value(15.)
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos14 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos14 = DoubleAssignmentModel.builder()
                 .filters(List.of(filter3, filter2))
                 .editedField(TwoWindingsTransformerField.RATED_U2.name())
                 .value(0.5)
                 .build();
 
-        DoubleAssignmentInfos assignmentInfos15 = DoubleAssignmentInfos.builder()
+        DoubleAssignmentModel assignmentInfos15 = DoubleAssignmentModel.builder()
                 .filters(List.of(filter1, filter2))
                 .editedField(TwoWindingsTransformerField.RATED_S.name())
                 .value(2.)
                 .build();
 
-        StringAssignmentInfos assignmentInfos16 = StringAssignmentInfos.builder()
+        StringAssignmentModel assignmentInfos16 = StringAssignmentModel.builder()
             .filters(List.of(filter1))
             .editedField(TwoWindingsTransformerField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID1.name())
             .value("group1")
             .build();
 
-        StringAssignmentInfos assignmentInfos17 = StringAssignmentInfos.builder()
+        StringAssignmentModel assignmentInfos17 = StringAssignmentModel.builder()
             .filters(List.of(filter2))
             .editedField(TwoWindingsTransformerField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID2.name())
             .value("group2")
             .build();
 
-        StringAssignmentInfos assignmentInfos18 = StringAssignmentInfos.builder()
+        StringAssignmentModel assignmentInfos18 = StringAssignmentModel.builder()
             .filters(List.of(filter3))
             .editedField(TwoWindingsTransformerField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID1.name())
             .value(null)
             .build();
 
-        StringAssignmentInfos assignmentInfos19 = StringAssignmentInfos.builder()
+        StringAssignmentModel assignmentInfos19 = StringAssignmentModel.builder()
             .filters(List.of(filter3))
             .editedField(TwoWindingsTransformerField.SELECTED_OPERATIONAL_LIMITS_GROUP_ID2.name())
             .value("")
             .build();
 
         // High tap position is always equals to lowTapPosition + steps.size() - 1 and its modification is ignored
-        IntegerAssignmentInfos assignmentInfos20 = IntegerAssignmentInfos.builder()
+        IntegerAssignmentModel assignmentInfos20 = IntegerAssignmentModel.builder()
             .filters(List.of(filter1))
             .editedField(TwoWindingsTransformerField.RATIO_HIGH_TAP_POSITION.name())
             .value(10)
             .build();
 
         // High tap position is always equals to lowTapPosition + steps.size() - 1 and its modification is ignored
-        IntegerAssignmentInfos assignmentInfos21 = IntegerAssignmentInfos.builder()
+        IntegerAssignmentModel assignmentInfos21 = IntegerAssignmentModel.builder()
             .filters(List.of(filter3))
             .editedField(TwoWindingsTransformerField.PHASE_HIGH_TAP_POSITION.name())
             .value(10)
             .build();
 
-        List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
+        List<AssignmentModel<?>> infosList = super.getAssignmentInfos();
         infosList.addAll(List.of(assignmentInfos1,
                 assignmentInfos2,
                 assignmentInfos3,

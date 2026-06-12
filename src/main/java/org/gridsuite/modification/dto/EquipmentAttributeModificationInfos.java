@@ -7,23 +7,19 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.IdentifiableType;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.EquipmentAttributeModification;
-import org.springframework.lang.NonNull;
+import org.gridsuite.modification.model.EquipmentAttributeModificationModel;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import java.util.UUID;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -36,38 +32,22 @@ import static org.gridsuite.modification.NetworkModificationException.Type.*;
 @Schema(description = "Equipment attribute modification")
 @JsonTypeName("EQUIPMENT_ATTRIBUTE_MODIFICATION")
 @ModificationErrorTypeName("MODIFICATION_ERROR")
-public class EquipmentAttributeModificationInfos extends EquipmentModificationInfos {
-    @Schema(description = "Equipment attribute name")
-    private String equipmentAttributeName;
+public class EquipmentAttributeModificationInfos extends EquipmentAttributeModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "Equipment attribute value")
-    private Object equipmentAttributeValue;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "Equipment type")
-    @NonNull
-    private IdentifiableType equipmentType;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Override
-    public AbstractModification toModification() {
-        return new EquipmentAttributeModification(this);
-    }
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.equipmentAttributeModification")
-                .withUntypedValue("EquipmentType", equipmentType.name())
-                .withUntypedValue("EquipmentId", getEquipmentId())
-                .add();
-    }
-
-    @Override
-    public void check() {
-        super.check();
-        if (equipmentType == IdentifiableType.SWITCH) {
-            checkSwitchStatusModificationInfos();
-        }
-    }
+    @Schema(description = "User description")
+    private String description;
 
     @Override
     public Map<String, String> getMapMessageValues() {
@@ -78,15 +58,5 @@ public class EquipmentAttributeModificationInfos extends EquipmentModificationIn
                     ? getEquipmentAttributeValue().toString()
                     : null);
         return mapMessageValues;
-    }
-
-    private void checkSwitchStatusModificationInfos() {
-        if (!"open".equals(equipmentAttributeName)) {
-            throw new NetworkModificationException(EQUIPMENT_ATTRIBUTE_NAME_ERROR, "For switch status, the attribute name is only 'open'");
-        }
-        Set<Boolean> possibleValues = Set.of(true, false);
-        if (!possibleValues.contains(equipmentAttributeValue)) {
-            throw new NetworkModificationException(EQUIPMENT_ATTRIBUTE_VALUE_ERROR, "For switch status, the attribute values are only " + possibleValues);
-        }
     }
 }

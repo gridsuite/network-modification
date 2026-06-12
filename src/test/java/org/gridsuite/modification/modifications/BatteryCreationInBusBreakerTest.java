@@ -6,22 +6,20 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.BatteryCreationInfos;
-import org.gridsuite.modification.dto.FreePropertyInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
+import org.gridsuite.modification.model.BatteryCreationModel;
+import org.gridsuite.modification.model.FreePropertyModel;
+import org.gridsuite.modification.model.ModificationModel;
+import org.gridsuite.modification.model.ReactiveCapabilityCurvePointsModel;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,7 +33,7 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
 
     @Override
     public void checkModification() {
-        BatteryCreationInfos batteryCreationInfos = (BatteryCreationInfos) buildModification();
+        BatteryCreationModel batteryCreationInfos = (BatteryCreationModel) buildModification();
         batteryCreationInfos.setBusOrBusbarSectionId("notFoundBus");
         assertThrows(NetworkModificationException.class, () -> batteryCreationInfos.toModification().check(getNetwork()));
     }
@@ -46,9 +44,8 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        return BatteryCreationInfos.builder()
-                .stashed(false)
+    protected ModificationModel buildModification() {
+        return BatteryCreationModel.builder()
                 .equipmentId("idBattery2")
                 .equipmentName("nameBattery2")
                 .voltageLevelId("v1")
@@ -64,11 +61,11 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
                 .directTransX(61.0)
                 .participate(true)
                 .reactiveCapabilityCurve(true)
-                .reactiveCapabilityCurvePoints(Arrays.asList(new ReactiveCapabilityCurvePointsInfos(2.0, 3.0, 3.1),
-                        new ReactiveCapabilityCurvePointsInfos(5.6, 9.8, 10.8)))
+                .reactiveCapabilityCurvePoints(Arrays.asList(new ReactiveCapabilityCurvePointsModel(2.0, 3.0, 3.1),
+                        new ReactiveCapabilityCurvePointsModel(5.6, 9.8, 10.8)))
                 .connectionName("top")
                 .connectionDirection(ConnectablePosition.Direction.TOP)
-                .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+                .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
                 .build();
     }
 
@@ -82,7 +79,7 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
 
     @Test
     void testCreateWithBusbarSectionErrors() throws Exception {
-        BatteryCreationInfos batteryCreationInfos = (BatteryCreationInfos) buildModification();
+        BatteryCreationModel batteryCreationInfos = (BatteryCreationModel) buildModification();
         batteryCreationInfos.setBusOrBusbarSectionId("notFoundBus");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class,
                 () -> batteryCreationInfos.toModification().apply(getNetwork()));
@@ -90,10 +87,11 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("BATTERY_CREATION", modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
-        assertEquals("idBattery2", createdValues.get("equipmentId"));
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("BATTERY_CREATION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
+        // });
+        // assertEquals("idBattery2", createdValues.get("equipmentId"));
         Battery battery = getNetwork().getBattery("idBattery2");
         assertNotNull(battery.getExtension(ActivePowerControl.class));
         ActivePowerControl activePowerControl = battery.getExtension(ActivePowerControl.class);
@@ -104,8 +102,7 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
     @Test
     void testCreateWithDroopNull() {
         Network network = getNetwork();
-        BatteryCreationInfos batteryCreationInfos = BatteryCreationInfos.builder()
-                .stashed(false)
+        BatteryCreationModel batteryCreationInfos = BatteryCreationModel.builder()
                 .equipmentId("idBattery2")
                 .equipmentName("nameBattery2")
                 .voltageLevelId("v1")

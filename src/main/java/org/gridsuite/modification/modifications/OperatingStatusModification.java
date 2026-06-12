@@ -8,17 +8,13 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
-import com.powsybl.iidm.modification.tripping.BranchTripping;
-import com.powsybl.iidm.modification.tripping.BusbarSectionTripping;
-import com.powsybl.iidm.modification.tripping.HvdcLineTripping;
-import com.powsybl.iidm.modification.tripping.ThreeWindingsTransformerTripping;
-import com.powsybl.iidm.modification.tripping.Tripping;
+import com.powsybl.iidm.modification.tripping.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.OperatingStatusModificationInfos;
+import org.gridsuite.modification.model.OperatingStatusModificationModel;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,12 +32,12 @@ import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
  */
 public class OperatingStatusModification extends AbstractModification {
 
-    private final OperatingStatusModificationInfos modificationInfos;
+    private final OperatingStatusModificationModel modificationInfos;
     private static final Logger LOGGER = LoggerFactory.getLogger(OperatingStatusModification.class);
 
     private static final String EQUIPMENT_TYPE = "equipmentType";
 
-    public OperatingStatusModification(OperatingStatusModificationInfos modificationInfos) {
+    public OperatingStatusModification(OperatingStatusModificationModel modificationInfos) {
         this.modificationInfos = modificationInfos;
     }
 

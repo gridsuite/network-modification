@@ -8,7 +8,7 @@ package org.gridsuite.modification;
 
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.filter.AbstractFilter;
-import org.gridsuite.modification.dto.FilterEquipments;
+import org.gridsuite.modification.model.FilterEquipments;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;

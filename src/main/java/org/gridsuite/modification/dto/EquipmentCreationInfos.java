@@ -7,11 +7,17 @@
 package org.gridsuite.modification.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.model.EquipmentCreationModel;
+
+import java.time.Instant;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -22,7 +28,25 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @ToString(callSuper = true)
 @Schema(description = "Equipment creation")
-public class EquipmentCreationInfos extends EquipmentModificationInfos {
-    @Schema(description = "Equipment name")
-    private String equipmentName;
+public class EquipmentCreationInfos extends EquipmentCreationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
+
+    @Schema(description = "Modification date")
+    private Instant date;
+
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
+
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
+
+    @Schema(description = "User description")
+    private String description;
+
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        return Map.of("equipmentId", getEquipmentId());
+    }
 }

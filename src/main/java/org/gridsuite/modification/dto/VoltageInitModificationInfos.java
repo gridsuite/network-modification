@@ -7,20 +7,19 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.VoltageInitModification;
+import org.gridsuite.modification.model.VoltageInitModificationModel;
 
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -32,43 +31,22 @@ import java.util.Map;
 @Schema(description = "Voltage init modification infos")
 @JsonTypeName("VOLTAGE_INIT_MODIFICATION")
 @ModificationErrorTypeName("VOLTAGE_INIT_MODIFICATION_ERROR")
-public class VoltageInitModificationInfos extends ModificationInfos {
-    @Schema(description = "generators modifications")
-    private List<VoltageInitGeneratorModificationInfos> generators;
+public class VoltageInitModificationInfos extends VoltageInitModificationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "transformers modifications")
-    private List<VoltageInitTransformerModificationInfos> transformers;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "static var compensator modifications")
-    private List<VoltageInitStaticVarCompensatorModificationInfos> staticVarCompensators;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "vsc converter station modifications")
-    private List<VoltageInitVscConverterStationModificationInfos> vscConverterStations;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Schema(description = "shunt compensator modifications")
-    private List<VoltageInitShuntCompensatorModificationInfos> shuntCompensators;
-
-    @Schema(description = "buses modifications")
-    private List<VoltageInitBusModificationInfos> buses;
-
-    @Schema(description = "root network name")
-    private String rootNetworkName;
-
-    @Schema(description = "node name")
-    private String nodeName;
-
-    @Schema(description = "computation date")
-    private Instant computationDate;
-
-    @Override
-    public AbstractModification toModification() {
-        return new VoltageInitModification(this);
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.voltageInitModification").add();
-    }
+    @Schema(description = "User description")
+    private String description;
 
     @Override
     public Map<String, String> getMapMessageValues() {

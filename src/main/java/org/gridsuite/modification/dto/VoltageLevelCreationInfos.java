@@ -7,21 +7,20 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.SwitchKind;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.VoltageLevelCreation;
+import org.gridsuite.modification.model.VoltageLevelCreationModel;
 
+import java.time.Instant;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Laurent GARNIER <laurent.garnier at rte-france.com>
@@ -34,45 +33,22 @@ import java.util.Map;
 @Schema(description = "Voltage level creation")
 @JsonTypeName("VOLTAGE_LEVEL_CREATION")
 @ModificationErrorTypeName("CREATE_VOLTAGE_LEVEL_ERROR")
-public class VoltageLevelCreationInfos extends EquipmentCreationInfos {
+public class VoltageLevelCreationInfos extends VoltageLevelCreationModel implements ModificationInfos {
+    @Schema(description = "Modification id")
+    private UUID uuid;
 
-    @Schema(description = "substation id")
-    private String substationId;
+    @Schema(description = "Modification date")
+    private Instant date;
 
-    @Schema(description = "nominal voltage in kV")
-    private double nominalV;
+    @Schema(description = "Modification flag")
+    @Builder.Default
+    private Boolean stashed = false;
 
-    @Schema(description = "low voltage limit in kV")
-    private Double lowVoltageLimit;
+    @Schema(description = "Modification activated (defaults to true at creation when not provided)")
+    private Boolean activated;
 
-    @Schema(description = "high voltage limit  in kV")
-    private Double highVoltageLimit;
-
-    @Schema(description = "low short-circuit current limit in A")
-    private Double ipMin;
-
-    @Schema(description = "high short-circuit current limit in A")
-    private Double ipMax;
-
-    @Schema(description = "busbar Count")
-    private int busbarCount;
-
-    @Schema(description = "section Count")
-    private int sectionCount;
-
-    @Schema(description = "switchKinds")
-    private List<SwitchKind> switchKinds;
-
-    @Schema(description = "coupling devices infos")
-    private List<CouplingDeviceInfos> couplingDevices;
-
-    @Schema(description = "substation Creation infos")
-    private SubstationCreationInfos substationCreation;
-
-    @Override
-    public AbstractModification toModification() {
-        return new VoltageLevelCreation(this);
-    }
+    @Schema(description = "User description")
+    private String description;
 
     @Override
     public Map<String, String> getMapMessageValues() {
@@ -83,13 +59,5 @@ public class VoltageLevelCreationInfos extends EquipmentCreationInfos {
             return mapMessageValues;
         }
         return Map.of("equipmentId", getEquipmentId());
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.voltageLevel.creation")
-                .withUntypedValue("voltageLevelId", getEquipmentId())
-                .add();
     }
 }

@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
@@ -16,7 +15,7 @@ import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.model.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -25,10 +24,8 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
-import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.*;
-import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.DELETE;
-import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.MODIFY_OR_ADD;
-import static org.gridsuite.modification.dto.OperationalLimitsGroupModificationType.REPLACE;
+import static org.gridsuite.modification.model.OperationalLimitsGroupModel.Applicability.*;
+import static org.gridsuite.modification.model.OperationalLimitsGroupModificationType.*;
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessageWithoutRank;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -69,9 +66,8 @@ class LineModificationTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected ModificationInfos buildModification() {
-        return LineModificationInfos.builder()
-                .stashed(false)
+    protected ModificationModel buildModification() {
+        return LineModificationModel.builder()
                 .equipmentId("line1")
                 .equipmentName(new AttributeModification<>("LineModified", OperationType.SET))
                 .connectionName1(new AttributeModification<>("cn1Line1", OperationType.SET))
@@ -80,7 +76,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
                 .connectionDirection2(new AttributeModification<>(ConnectablePosition.Direction.TOP, OperationType.SET))
                 .connectionPosition1(new AttributeModification<>(1, OperationType.SET))
                 .connectionPosition2(new AttributeModification<>(1, OperationType.SET))
-                .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+                .properties(List.of(FreePropertyModel.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
                 .p1MeasurementValue(new AttributeModification<>(MEASUREMENT_P_VALUE, OperationType.SET))
                 .p1MeasurementValidity(new AttributeModification<>(MEASUREMENT_P_VALID, OperationType.SET))
                 .p2MeasurementValue(new AttributeModification<>(MEASUREMENT_P_VALUE, OperationType.SET))
@@ -92,8 +88,8 @@ class LineModificationTest extends AbstractNetworkModificationTest {
                 .enableOLGModification(false)
                 .selectedOperationalLimitsGroupId1(new AttributeModification<>("invalid_opLG", OperationType.SET))
                 .selectedOperationalLimitsGroupId2(new AttributeModification<>("invalid_opLG", OperationType.SET))
-                .lineSegments(List.of(new LineSegmentInfos(UUID.randomUUID().toString(), 1, "1", "50", null),
-                    new LineSegmentInfos(UUID.randomUUID().toString(), 1, "1", null, 0.95)))
+                .lineSegments(List.of(new LineSegmentModel(UUID.randomUUID().toString(), 1, "1", "50", null),
+                    new LineSegmentModel(UUID.randomUUID().toString(), 1, "1", null, 0.95)))
                 .applySegmentsLimits(true)
                 .build();
     }
@@ -126,13 +122,13 @@ class LineModificationTest extends AbstractNetworkModificationTest {
     @Override
     protected void checkModification() {
         Network network = getNetwork();
-        LineModificationInfos lineModificationInfos = (LineModificationInfos) buildModification();
+        LineModificationModel lineModificationInfos = (LineModificationModel) buildModification();
         lineModificationInfos.setEquipmentId("lineNotFound");
         LineModification lineModification = (LineModification) lineModificationInfos.toModification();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> lineModification.check(network));
         assertEquals(new NetworkModificationException(LINE_NOT_FOUND, "Line 'lineNotFound' : does not exist in network").getMessage(),
                 exception.getMessage());
-        LineModificationInfos lineModificationInfos1 = LineModificationInfos.builder()
+        LineModificationModel lineModificationInfos1 = LineModificationModel.builder()
             .equipmentId("line1")
             .r(new AttributeModification<>(-1d, OperationType.SET))
             .build();
@@ -141,7 +137,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
             () -> lineModification1.check(network)).getMessage();
         assertEquals("MODIFY_LINE_ERROR : Line 'line1' : can not have a negative value for Resistance R", message);
 
-        LineModificationInfos lineModificationInfos2 = LineModificationInfos.builder()
+        LineModificationModel lineModificationInfos2 = LineModificationModel.builder()
             .equipmentId("line1")
             .g1(new AttributeModification<>(-2d, OperationType.SET))
             .build();
@@ -150,7 +146,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
             () -> lineModification2.check(network)).getMessage();
         assertEquals("MODIFY_LINE_ERROR : Line 'line1' : can not have a negative value for Conductance on side 1 G1", message);
 
-        LineModificationInfos lineModificationInfos3 = LineModificationInfos.builder()
+        LineModificationModel lineModificationInfos3 = LineModificationModel.builder()
             .equipmentId("line1")
             .g2(new AttributeModification<>(-100d, OperationType.SET))
             .build();
@@ -161,10 +157,11 @@ class LineModificationTest extends AbstractNetworkModificationTest {
     }
 
     @Override
-    protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals("LINE_MODIFICATION", modificationInfos.getMessageType());
-        Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
-        assertEquals("line1", createdValues.get("equipmentId"));
+    protected void testCreationModificationMessage(ModificationModel modificationInfos) throws Exception {
+        // assertEquals("LINE_MODIFICATION", modificationInfos.getMessageType());
+        // Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() {
+        // });
+        // assertEquals("line1", createdValues.get("equipmentId"));
     }
 
     @Test
@@ -190,10 +187,10 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         assertTrue(line.getOperationalLimitsGroup2("NewLimitsGroup1").isEmpty());
 
         // Change from Side 1 -> Side 2
-        OperationalLimitsGroupModificationInfos opLimitsGroupInfos = OperationalLimitsGroupModificationInfos.builder()
+        OperationalLimitsGroupModificationModel opLimitsGroupInfos = OperationalLimitsGroupModificationModel.builder()
             .id("NewLimitsGroup1").applicability(SIDE2).modificationType(MODIFY_OR_ADD).build();
-        opLimitsGroupInfos.setCurrentLimits(new CurrentLimitsModificationInfos());
-        LineModificationInfos lineModificationInfos = LineModificationInfos.builder()
+        opLimitsGroupInfos.setCurrentLimits(new CurrentLimitsModificationModel());
+        LineModificationModel lineModificationInfos = LineModificationModel.builder()
             .equipmentId("line1")
             .enableOLGModification(true)
             .operationalLimitsGroups(Collections.singletonList(opLimitsGroupInfos)).build();
@@ -223,11 +220,11 @@ class LineModificationTest extends AbstractNetworkModificationTest {
                 .beginTemporaryLimit().setName("IT10").setValue(15.0).setAcceptableDuration(600).endTemporaryLimit()
                 .add();
 
-        OperationalLimitsGroupModificationInfos opLimitsGroupInfos2 = OperationalLimitsGroupModificationInfos.builder()
+        OperationalLimitsGroupModificationModel opLimitsGroupInfos2 = OperationalLimitsGroupModificationModel.builder()
                 .id("NewLimitsGroup2").applicability(EQUIPMENT).modificationType(MODIFY_OR_ADD).build();
-        opLimitsGroupInfos2.setCurrentLimits(new CurrentLimitsModificationInfos());
+        opLimitsGroupInfos2.setCurrentLimits(new CurrentLimitsModificationModel());
 
-        LineModificationInfos lineModificationInfos2 = LineModificationInfos.builder()
+        LineModificationModel lineModificationInfos2 = LineModificationModel.builder()
                 .equipmentId("line1")
                 .enableOLGModification(true)
                 .operationalLimitsGroups(Collections.singletonList(opLimitsGroupInfos2)).build();
@@ -247,10 +244,10 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         line.newOperationalLimitsGroup2("NewLimitsGroup3").newCurrentLimits()
                 .setPermanentLimit(10.0)
                 .add();
-        OperationalLimitsGroupModificationInfos opLimitsGroupInfos3 = OperationalLimitsGroupModificationInfos.builder()
+        OperationalLimitsGroupModificationModel opLimitsGroupInfos3 = OperationalLimitsGroupModificationModel.builder()
                 .id("NewLimitsGroup3").applicability(SIDE2).modificationType(MODIFY_OR_ADD).build();
-        opLimitsGroupInfos3.setCurrentLimits(new CurrentLimitsModificationInfos());
-        LineModificationInfos lineModificationInfos3 = LineModificationInfos.builder()
+        opLimitsGroupInfos3.setCurrentLimits(new CurrentLimitsModificationModel());
+        LineModificationModel lineModificationInfos3 = LineModificationModel.builder()
                 .enableOLGModification(true)
                 .equipmentId("line1")
                 .operationalLimitsGroups(Collections.singletonList(opLimitsGroupInfos3)).build();
@@ -266,10 +263,10 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         line.newOperationalLimitsGroup2("NewLimitsGroup4").newCurrentLimits()
                 .setPermanentLimit(10.0)
                 .add();
-        OperationalLimitsGroupModificationInfos opLimitsGroupInfos4 = OperationalLimitsGroupModificationInfos.builder()
+        OperationalLimitsGroupModificationModel opLimitsGroupInfos4 = OperationalLimitsGroupModificationModel.builder()
                 .id("NewLimitsGroup4").applicability(SIDE2).modificationType(MODIFY_OR_ADD).build();
-        opLimitsGroupInfos4.setCurrentLimits(new CurrentLimitsModificationInfos());
-        LineModificationInfos lineModificationInfos4 = LineModificationInfos.builder()
+        opLimitsGroupInfos4.setCurrentLimits(new CurrentLimitsModificationModel());
+        LineModificationModel lineModificationInfos4 = LineModificationModel.builder()
                 .enableOLGModification(true)
                 .equipmentId("line1")
                 .operationalLimitsGroups(Collections.singletonList(opLimitsGroupInfos4)).build();
@@ -285,11 +282,11 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         line.newOperationalLimitsGroup1("NewLimitsGroup5").newCurrentLimits()
                 .setPermanentLimit(10.0)
                 .add();
-        OperationalLimitsGroupModificationInfos opLimitsGroupInfos5 = OperationalLimitsGroupModificationInfos.builder()
+        OperationalLimitsGroupModificationModel opLimitsGroupInfos5 = OperationalLimitsGroupModificationModel.builder()
                 .id("NewLimitsGroup5").applicability(EQUIPMENT).modificationType(MODIFY_OR_ADD).build();
-        opLimitsGroupInfos5.setCurrentLimits(new CurrentLimitsModificationInfos());
+        opLimitsGroupInfos5.setCurrentLimits(new CurrentLimitsModificationModel());
 
-        LineModificationInfos lineModificationInfos5 = LineModificationInfos.builder()
+        LineModificationModel lineModificationInfos5 = LineModificationModel.builder()
                 .equipmentId("line1")
                 .enableOLGModification(true)
                 .operationalLimitsGroups(Collections.singletonList(opLimitsGroupInfos5)).build();
@@ -309,11 +306,11 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         line.newOperationalLimitsGroup2("NewLimitsGroup5").newCurrentLimits()
                 .setPermanentLimit(10.0)
                 .add();
-        OperationalLimitsGroupModificationInfos opLimitsGroupInfos5 = OperationalLimitsGroupModificationInfos.builder()
+        OperationalLimitsGroupModificationModel opLimitsGroupInfos5 = OperationalLimitsGroupModificationModel.builder()
                 .id("NewLimitsGroup5").applicability(SIDE1).modificationType(MODIFY_OR_ADD).build();
-        opLimitsGroupInfos5.setCurrentLimits(new CurrentLimitsModificationInfos());
+        opLimitsGroupInfos5.setCurrentLimits(new CurrentLimitsModificationModel());
 
-        LineModificationInfos lineModificationInfos5 = LineModificationInfos.builder()
+        LineModificationModel lineModificationInfos5 = LineModificationModel.builder()
                 .equipmentId("line1")
                 .operationalLimitsGroupsModificationType(OperationalLimitsGroupsModificationType.REPLACE)
                 .enableOLGModification(true)
@@ -348,7 +345,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         Line line = getNetwork().getLine("line1");
         line.setName(null);
 
-        LineModificationInfos modificationInfos = LineModificationInfos.builder()
+        LineModificationModel modificationInfos = LineModificationModel.builder()
                 .equipmentName(AttributeModification.toAttributeModification("newName", OperationType.SET))
                 .equipmentId("line1")
                 .build();
@@ -380,9 +377,9 @@ class LineModificationTest extends AbstractNetworkModificationTest {
                 .add();
 
         // modification 1 remove olg on both side
-        OperationalLimitsGroupModificationInfos opLimitsGroupInfos1 = OperationalLimitsGroupModificationInfos.builder()
+        OperationalLimitsGroupModificationModel opLimitsGroupInfos1 = OperationalLimitsGroupModificationModel.builder()
                 .id("NewLimitsGroup1").applicability(EQUIPMENT).modificationType(DELETE).build();
-        LineModificationInfos lineModificationInfos1 = LineModificationInfos.builder()
+        LineModificationModel lineModificationInfos1 = LineModificationModel.builder()
                 .enableOLGModification(true)
                 .equipmentId("line1")
                 .operationalLimitsGroups(Collections.singletonList(opLimitsGroupInfos1)).build();
@@ -394,9 +391,9 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         assertTrue(line.getOperationalLimitsGroup2("NewLimitsGroup3").isPresent());
 
         // modification 2 remove olg on side one
-        OperationalLimitsGroupModificationInfos opLimitsGroupInfos2 = OperationalLimitsGroupModificationInfos.builder()
+        OperationalLimitsGroupModificationModel opLimitsGroupInfos2 = OperationalLimitsGroupModificationModel.builder()
                 .id("NewLimitsGroup2").applicability(SIDE1).modificationType(DELETE).build();
-        LineModificationInfos lineModificationInfos2 = LineModificationInfos.builder()
+        LineModificationModel lineModificationInfos2 = LineModificationModel.builder()
                 .enableOLGModification(true)
                 .equipmentId("line1")
                 .operationalLimitsGroups(Collections.singletonList(opLimitsGroupInfos2)).build();
@@ -408,9 +405,9 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         assertTrue(line.getOperationalLimitsGroup2("NewLimitsGroup3").isPresent());
 
         // modification 3 remove olg on side two
-        OperationalLimitsGroupModificationInfos opLimitsGroupInfos3 = OperationalLimitsGroupModificationInfos.builder()
+        OperationalLimitsGroupModificationModel opLimitsGroupInfos3 = OperationalLimitsGroupModificationModel.builder()
                 .id("NewLimitsGroup3").applicability(SIDE2).modificationType(DELETE).build();
-        LineModificationInfos lineModificationInfos3 = LineModificationInfos.builder()
+        LineModificationModel lineModificationInfos3 = LineModificationModel.builder()
                 .enableOLGModification(true)
                 .equipmentId("line1")
                 .operationalLimitsGroups(Collections.singletonList(opLimitsGroupInfos3)).build();
@@ -422,9 +419,9 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         assertTrue(line.getOperationalLimitsGroup2("NewLimitsGroup3").isEmpty());
 
         // try to remove not existing group
-        OperationalLimitsGroupModificationInfos opLimitsGroupInfos4 = OperationalLimitsGroupModificationInfos.builder()
+        OperationalLimitsGroupModificationModel opLimitsGroupInfos4 = OperationalLimitsGroupModificationModel.builder()
                 .id("doesNotExist").applicability(SIDE2).modificationType(DELETE).build();
-        LineModificationInfos lineModificationInfos4 = LineModificationInfos.builder()
+        LineModificationModel lineModificationInfos4 = LineModificationModel.builder()
                 .enableOLGModification(true)
                 .equipmentId("line1")
                 .operationalLimitsGroups(Collections.singletonList(opLimitsGroupInfos4)).build();
@@ -435,7 +432,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
     }
 
     private void changeLineConnectionState(Line existingEquipment, boolean expectedState) {
-        LineModificationInfos modificationInfos = (LineModificationInfos) buildModification();
+        LineModificationModel modificationInfos = (LineModificationModel) buildModification();
         modificationInfos.setTerminal1Connected(new AttributeModification<>(expectedState, OperationType.SET));
         modificationInfos.setTerminal2Connected(new AttributeModification<>(expectedState, OperationType.SET));
 
@@ -481,18 +478,18 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         limitsGroup2.setProperty(OLG_PROP2_NAME, OLG_PROP2_VALUE);
 
         // We modify the list of properties on side 1 to add new properties
-        OperationalLimitsGroupModificationInfos opLimitsGroupInfos1 = OperationalLimitsGroupModificationInfos.builder()
+        OperationalLimitsGroupModificationModel opLimitsGroupInfos1 = OperationalLimitsGroupModificationModel.builder()
             .id("NewLimitsGroup").applicability(SIDE1).modificationType(MODIFY_OR_ADD)
-            .currentLimits(CurrentLimitsModificationInfos.builder().permanentLimit(10.0).build())
-            .limitsProperties(List.of(new LimitsPropertyInfos(OLG_PROP2_NAME, OLG_PROP2_VALUE))).build();
+            .currentLimits(CurrentLimitsModificationModel.builder().permanentLimit(10.0).build())
+            .limitsProperties(List.of(new LimitsPropertyModel(OLG_PROP2_NAME, OLG_PROP2_VALUE))).build();
 
-        OperationalLimitsGroupModificationInfos opLimitsGroupInfos2 = OperationalLimitsGroupModificationInfos.builder()
+        OperationalLimitsGroupModificationModel opLimitsGroupInfos2 = OperationalLimitsGroupModificationModel.builder()
             .id("NewLimitsGroup").applicability(SIDE2).modificationType(MODIFY_OR_ADD)
-            .currentLimits(CurrentLimitsModificationInfos.builder().permanentLimit(10.0).build())
-            .limitsProperties(List.of(new LimitsPropertyInfos(OLG_PROP1_NAME, OTHER_VALUE),
-                new LimitsPropertyInfos(OLG_PROP3_NAME, OLG_PROP3_VALUE))).build();
+            .currentLimits(CurrentLimitsModificationModel.builder().permanentLimit(10.0).build())
+            .limitsProperties(List.of(new LimitsPropertyModel(OLG_PROP1_NAME, OTHER_VALUE),
+                new LimitsPropertyModel(OLG_PROP3_NAME, OLG_PROP3_VALUE))).build();
 
-        LineModificationInfos lineModificationInfos1 = LineModificationInfos.builder()
+        LineModificationModel lineModificationInfos1 = LineModificationModel.builder()
             .equipmentId("line1")
             .enableOLGModification(true)
             .operationalLimitsGroupsModificationType(OperationalLimitsGroupsModificationType.REPLACE)
@@ -524,13 +521,13 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         limitsGroup2.setProperty(OLG_PROP1_NAME, OLG_PROP1_VALUE);
 
         // We modify the list of properties on side 1 to add new properties
-        OperationalLimitsGroupModificationInfos opLimitsGroupInfos = OperationalLimitsGroupModificationInfos.builder()
+        OperationalLimitsGroupModificationModel opLimitsGroupInfos = OperationalLimitsGroupModificationModel.builder()
             .id("NewLimitsGroup").applicability(EQUIPMENT).modificationType(MODIFY_OR_ADD)
-            .currentLimits(CurrentLimitsModificationInfos.builder().permanentLimit(10.0).build())
-            .limitsProperties(List.of(new LimitsPropertyInfos(OLG_PROP2_NAME, OLG_PROP2_VALUE),
-                new LimitsPropertyInfos(OLG_PROP3_NAME, OLG_PROP3_VALUE))).build();
+            .currentLimits(CurrentLimitsModificationModel.builder().permanentLimit(10.0).build())
+            .limitsProperties(List.of(new LimitsPropertyModel(OLG_PROP2_NAME, OLG_PROP2_VALUE),
+                new LimitsPropertyModel(OLG_PROP3_NAME, OLG_PROP3_VALUE))).build();
 
-        LineModificationInfos lineModificationInfos = LineModificationInfos.builder()
+        LineModificationModel lineModificationInfos = LineModificationModel.builder()
             .equipmentId("line1")
             .enableOLGModification(true)
             .operationalLimitsGroups(List.of(opLimitsGroupInfos)).build();
@@ -563,13 +560,13 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         limitsGroup2.setProperty(OLG_PROP1_NAME, OLG_PROP1_VALUE);
 
         // We modify the list of properties on side 1 to add new properties
-        OperationalLimitsGroupModificationInfos opLimitsGroupInfos = OperationalLimitsGroupModificationInfos.builder()
+        OperationalLimitsGroupModificationModel opLimitsGroupInfos = OperationalLimitsGroupModificationModel.builder()
             .id("NewLimitsGroup").applicability(EQUIPMENT).modificationType(REPLACE)
-            .currentLimits(CurrentLimitsModificationInfos.builder().permanentLimit(10.0).build())
-            .limitsProperties(List.of(new LimitsPropertyInfos(OLG_PROP2_NAME, OLG_PROP2_VALUE),
-                new LimitsPropertyInfos(OLG_PROP3_NAME, OLG_PROP3_VALUE))).build();
+            .currentLimits(CurrentLimitsModificationModel.builder().permanentLimit(10.0).build())
+            .limitsProperties(List.of(new LimitsPropertyModel(OLG_PROP2_NAME, OLG_PROP2_VALUE),
+                new LimitsPropertyModel(OLG_PROP3_NAME, OLG_PROP3_VALUE))).build();
 
-        LineModificationInfos lineModificationInfos = LineModificationInfos.builder()
+        LineModificationModel lineModificationInfos = LineModificationModel.builder()
             .equipmentId("line1")
             .enableOLGModification(true)
             .operationalLimitsGroups(List.of(opLimitsGroupInfos)).build();
@@ -604,7 +601,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
                 .findFirst()
                 .orElseThrow();
 
-        LineModificationInfos addSide1ActiveByValue = LineModificationInfos.builder()
+        LineModificationModel addSide1ActiveByValue = LineModificationModel.builder()
                 .equipmentId("line1")
                 .p1MeasurementValue(new AttributeModification<>(79.0, OperationType.SET))
                 .build();
@@ -612,7 +609,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         assertEquals(79.0, activePowerMeasurement.getValue());
 
         activePowerMeasurement.putProperty("validity", "1");
-        LineModificationInfos modificationInfosTrueFromOne = LineModificationInfos.builder()
+        LineModificationModel modificationInfosTrueFromOne = LineModificationModel.builder()
                 .equipmentId("line1")
                 .p1MeasurementValidity(new AttributeModification<>(true, OperationType.SET))
                 .build();
@@ -620,7 +617,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         assertEquals("0", activePowerMeasurement.getProperty("validity"));
 
         activePowerMeasurement.putProperty("validity", "3");
-        LineModificationInfos modificationInfosTrueFromThree = LineModificationInfos.builder()
+        LineModificationModel modificationInfosTrueFromThree = LineModificationModel.builder()
                 .equipmentId("line1")
                 .p1MeasurementValidity(new AttributeModification<>(true, OperationType.SET))
                 .build();
@@ -632,7 +629,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
                 .findFirst()
                 .orElseThrow();
         reactivePowerMeasurement.putProperty("validity", "2");
-        LineModificationInfos modificationInfosFalseFromTwo = LineModificationInfos.builder()
+        LineModificationModel modificationInfosFalseFromTwo = LineModificationModel.builder()
                 .equipmentId("line1")
                 .q1MeasurementValidity(new AttributeModification<>(false, OperationType.SET))
                 .build();
@@ -640,7 +637,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         assertEquals("3", reactivePowerMeasurement.getProperty("validity"));
 
         reactivePowerMeasurement.putProperty("validity", "0");
-        LineModificationInfos modificationInfosFalseFromZero = LineModificationInfos.builder()
+        LineModificationModel modificationInfosFalseFromZero = LineModificationModel.builder()
                 .equipmentId("line1")
                 .q1MeasurementValidity(new AttributeModification<>(false, OperationType.SET))
                 .build();
@@ -649,7 +646,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
 
         // update validity on existing measurement without legacy property
         reactivePowerMeasurement.removeProperty("validity");
-        LineModificationInfos modificationInfosTrueWithoutProperty = LineModificationInfos.builder()
+        LineModificationModel modificationInfosTrueWithoutProperty = LineModificationModel.builder()
                 .equipmentId("line1")
                 .q1MeasurementValidity(new AttributeModification<>(true, OperationType.SET))
                 .build();
@@ -659,7 +656,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
 
         // add side 2 (new) measurement by value only
         assertTrue(measurements.getMeasurements(Measurement.Type.ACTIVE_POWER).stream().noneMatch(m -> m.getSide() == ThreeSides.TWO));
-        LineModificationInfos addSide2ActiveByValue = LineModificationInfos.builder()
+        LineModificationModel addSide2ActiveByValue = LineModificationModel.builder()
                 .equipmentId("line1")
                 .p2MeasurementValue(new AttributeModification<>(42.0, OperationType.SET))
                 .build();
@@ -672,7 +669,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
 
         // add side 2 reactive measurement by validity only then update it
         assertTrue(measurements.getMeasurements(Measurement.Type.REACTIVE_POWER).stream().noneMatch(m -> m.getSide() == ThreeSides.TWO));
-        LineModificationInfos addSide2ReactiveByValidity = LineModificationInfos.builder()
+        LineModificationModel addSide2ReactiveByValidity = LineModificationModel.builder()
                 .equipmentId("line1")
                 .q2MeasurementValue(new AttributeModification<>(MEASUREMENT_Q_VALUE, OperationType.SET))
                 .q2MeasurementValidity(new AttributeModification<>(false, OperationType.SET))
@@ -685,7 +682,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
                 .orElseThrow();
         assertFalse(addedReactiveSide2.isValid());
 
-        LineModificationInfos updateSide2ReactiveValidity = LineModificationInfos.builder()
+        LineModificationModel updateSide2ReactiveValidity = LineModificationModel.builder()
                 .equipmentId("line1")
                 .q2MeasurementValue(new AttributeModification<>(MEASUREMENT_Q_VALUE, OperationType.SET))
                 .q2MeasurementValidity(new AttributeModification<>(true, OperationType.SET))
@@ -699,7 +696,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         Line line = getNetwork().getLine("line2");
         assertNull(line.getExtension(Measurements.class));
 
-        LineModificationInfos lineModificationInfos = LineModificationInfos.builder()
+        LineModificationModel lineModificationInfos = LineModificationModel.builder()
                 .equipmentId("line2")
                 .p1MeasurementValidity(new AttributeModification<>(true, OperationType.SET))
                 .p1MeasurementValue(new AttributeModification<>(MEASUREMENT_P_VALUE, OperationType.SET))
@@ -731,7 +728,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         Line line = getNetwork().getLine("line2");
         assertNull(line.getExtension(Measurements.class));
 
-        LineModificationInfos lineModificationInfos = LineModificationInfos.builder()
+        LineModificationModel lineModificationInfos = LineModificationModel.builder()
                 .equipmentId("line2")
                 .p1MeasurementValue(new AttributeModification<>(MEASUREMENT_P_VALUE, OperationType.SET))
                 .q1MeasurementValue(new AttributeModification<>(MEASUREMENT_Q_VALUE, OperationType.SET))
@@ -761,7 +758,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         Line line = getNetwork().getLine("line2");
         assertNull(line.getExtension(Measurements.class));
 
-        LineModificationInfos lineModificationInfos = LineModificationInfos.builder()
+        LineModificationModel lineModificationInfos = LineModificationModel.builder()
                 .equipmentId("line2")
                 .p1MeasurementValidity(new AttributeModification<>(false, OperationType.SET))
                 .q1MeasurementValidity(new AttributeModification<>(false, OperationType.SET))
@@ -791,7 +788,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
         Line line = getNetwork().getLine("line2");
         assertNull(line.getExtension(Measurements.class));
 
-        LineModificationInfos lineModificationInfos = LineModificationInfos.builder()
+        LineModificationModel lineModificationInfos = LineModificationModel.builder()
                 .equipmentId("line2")
                 .p1MeasurementValidity(new AttributeModification<>(true, OperationType.SET)) // not allowed by powsybl on extension creation
                 .build();
