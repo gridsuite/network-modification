@@ -22,7 +22,6 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.model.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.CollectionUtils;
-
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,7 +29,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toCollection;
@@ -39,6 +37,7 @@ import static org.gridsuite.modification.NetworkModificationException.Type.GENER
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
+@SuppressWarnings("checkstyle:LambdaBodyLength")
 public class GenerationDispatch extends AbstractModification {
     private static final String POWER_TO_DISPATCH = "network.modification.PowerToDispatch";
     private static final String STACKING = "network.modification.Stacking";
@@ -124,6 +123,7 @@ public class GenerationDispatch extends AbstractModification {
         return bus != null && bus.getSynchronousComponent().getNum() != componentNum;
     }
 
+    @SuppressWarnings("checkstyle:LambdaBodyLength")
     private static double computeHvdcBalance(Component component) {
         AtomicDouble balance = new AtomicDouble(0.);
 
@@ -298,7 +298,7 @@ public class GenerationDispatch extends AbstractModification {
 
         @Override
         public void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
-            if (identifiable.getType() == IdentifiableType.GENERATOR && attribute.equals("targetP") && Double.compare((double) oldValue, (double) newValue) != 0) {
+            if (identifiable.getType() == IdentifiableType.GENERATOR && "targetP".equals(attribute) && Double.compare((double) oldValue, (double) newValue) != 0) {
                 updatedGenerators.add((Generator) identifiable);
             }
         }

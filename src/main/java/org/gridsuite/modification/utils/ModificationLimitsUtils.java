@@ -103,6 +103,7 @@ public final class ModificationLimitsUtils {
                                                            String line1Id,
                                                            String line2Id,
                                                            String newLineId,
+                                                           @SuppressWarnings("checkstyle:LambdaBodyLength")
                                                            ReportNode reportNode) {
         Map<String, OperationalLimitsGroup> limitGroupMapOnLine1 = groupsOnLine1.stream().collect(Collectors.toMap(OperationalLimitsGroup::getId, Function.identity()));
         Map<String, OperationalLimitsGroup> limitGroupMapOnLine2 = groupsOnLine2.stream().collect(Collectors.toMap(OperationalLimitsGroup::getId, Function.identity()));
@@ -147,6 +148,7 @@ public final class ModificationLimitsUtils {
                                                                 OperationalLimitsGroup groupOnLine2,
                                                                 String newLineId,
                                                                 String line1Id,
+                                                                @SuppressWarnings("checkstyle:LambdaBodyLength")
                                                                 String line2Id) {
         List<ReportNode> reportNodes = new ArrayList<>();
         groupOnLine1.getPropertyNames().forEach(propertyNameLine1 -> {
@@ -199,6 +201,7 @@ public final class ModificationLimitsUtils {
                                                        CurrentLimitsAdder adder,
                                                        String line1Id,
                                                        String line2Id,
+                                                       @SuppressWarnings("checkstyle:LambdaBodyLength")
                                                        TwoSides side) {
         List<ReportNode> reportNodes = new ArrayList<>();
         adder.setPermanentLimit(Math.min(currentLimitsLine1.getPermanentLimit(), currentLimitsLine2.getPermanentLimit()));

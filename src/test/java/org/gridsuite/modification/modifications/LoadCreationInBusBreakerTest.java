@@ -24,7 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
 class LoadCreationInBusBreakerTest extends AbstractNetworkModificationTest {
+    @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
     private static String PROPERTY_NAME = "property-name";
+    @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
     private static String PROPERTY_VALUE = "property-value";
 
     @Override

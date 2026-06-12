@@ -14,7 +14,6 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ReactiveVariationMode;
 import org.gridsuite.modification.VariationMode;
-
 import java.util.List;
 import java.util.UUID;
 

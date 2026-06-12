@@ -98,6 +98,7 @@ class VscModificationTest extends AbstractNetworkModificationTest {
     }
 
     @Override
+    @SuppressWarnings("checkstyle:AvoidNestedBlocks")
     protected void assertAfterNetworkModificationApplication() {
         HvdcLine hvdcLine = getNetwork().getHvdcLine("hvdcLine");
         assertNotNull(hvdcLine);

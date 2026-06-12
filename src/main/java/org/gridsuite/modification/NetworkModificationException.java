@@ -11,9 +11,7 @@ import com.powsybl.iidm.network.IdentifiableType;
 import lombok.NonNull;
 import org.gridsuite.modification.dto.OperatingStatusModificationInfos;
 import org.springframework.http.HttpStatus;
-
 import java.util.Objects;
-
 import static org.gridsuite.modification.NetworkModificationException.Type.ATTRIBUTE_NOT_EDITABLE;
 
 /**

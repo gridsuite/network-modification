@@ -75,6 +75,7 @@ public final class NetworkCreation {
         return network;
     }
 
+    @SuppressWarnings("checkstyle:MethodLength")
     public static Network create(UUID uuid, boolean createHvdcLine, NetworkFactory networkFactory) {
         Network network = networkFactory.createNetwork(uuid.toString(), "test");
 
@@ -293,7 +294,8 @@ public final class NetworkCreation {
             .add();
 
         // create lines
-        createLineWithLimits(network, "line1", "line1", "v3", "v4", 8, 4, 1.0, 1.0, 1.0, 2.0, 1.0, 2.0, "cn1line1", 1, ConnectablePosition.Direction.TOP, "cn2line1", 1, ConnectablePosition.Direction.TOP);
+        createLineWithLimits(network, "line1", "line1", "v3", "v4", 8, 4, 1.0, 1.0, 1.0, 2.0, 1.0, 2.0, "cn1line1", 1, ConnectablePosition.Direction.TOP, "cn2line1", 1,
+                ConnectablePosition.Direction.TOP);
         createSwitch(v3, "v3dl1", "v3dl1", SwitchKind.DISCONNECTOR, true, false, false, 0, 7);
         createSwitch(v3, "v3bl1", "v3bl1", SwitchKind.BREAKER, true, false, false, 7, 8);
         createSwitch(v4, "v4dl1", "v4dl1", SwitchKind.DISCONNECTOR, true, false, false, 0, 3);
@@ -315,7 +317,8 @@ public final class NetworkCreation {
                 .endTemporaryLimit()
                 .add();
 
-        createLineWithLimits(network, "line2", "line2", "v1", "v3", 31, 31, 10.0, 5.0, 3.5, 5.5, 4.5, 6.5, "cn1line2", 2, ConnectablePosition.Direction.TOP, "cn2line2", 2, ConnectablePosition.Direction.TOP);
+        createLineWithLimits(network, "line2", "line2", "v1", "v3", 31, 31, 10.0, 5.0, 3.5, 5.5, 4.5, 6.5, "cn1line2", 2, ConnectablePosition.Direction.TOP, "cn2line2", 2,
+                ConnectablePosition.Direction.TOP);
         createSwitch(v1, "v1dl2", "v1dl2", SwitchKind.DISCONNECTOR, true, false, false, 0, 30);
         createSwitch(v1, "v1bl2", "v1bl2", SwitchKind.BREAKER, true, false, false, 30, 31);
         createSwitch(v3, "v3dl2", "v3dl2", SwitchKind.DISCONNECTOR, true, false, false, 0, 30);
@@ -354,7 +357,8 @@ public final class NetworkCreation {
         createSwitch(v2Variant, "dsc21Variant", "disc21Variant", SwitchKind.DISCONNECTOR, true, false, false, 0, 3);
         createSwitch(v2Variant, "break21Variant", "break21Variant", SwitchKind.BREAKER, true, false, false, 3, 4);
 
-        createLineWithLimits(network, "line1Variant", "line1Variant", "v1Variant", "v2Variant", 4, 4, 10.0, 5.0, 3.5, 5.5, 4.5, 6.5, "cn1line1Variant", 1, ConnectablePosition.Direction.TOP, "cn2line1Variant", 1, ConnectablePosition.Direction.TOP);
+        createLineWithLimits(network, "line1Variant", "line1Variant", "v1Variant", "v2Variant", 4, 4, 10.0, 5.0, 3.5, 5.5, 4.5, 6.5, "cn1line1Variant", 1, ConnectablePosition.Direction.TOP,
+                "cn2line1Variant", 1, ConnectablePosition.Direction.TOP);
 
         network.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
 

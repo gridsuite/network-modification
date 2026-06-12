@@ -25,7 +25,7 @@ import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author REHILI Ghazwa <ghazwarhili@gmail.com>
+ * @author REHILI Ghazwa <ghazwarhili at gmail.com>
  */
 class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTest {
 

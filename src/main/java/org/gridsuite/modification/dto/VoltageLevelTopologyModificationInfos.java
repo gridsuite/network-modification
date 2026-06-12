@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * @author REHILI Ghazwa <ghazwarhili@gmail.com>
+ * @author REHILI Ghazwa <ghazwarhili at gmail.com>
  */
 
 @SuperBuilder

@@ -21,7 +21,6 @@ import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
-
 import static com.powsybl.iidm.network.extensions.OperatingStatus.Status.FORCED_OUTAGE;
 import static com.powsybl.iidm.network.extensions.OperatingStatus.Status.PLANNED_OUTAGE;
 import static org.gridsuite.modification.utils.NetworkUtil.createSwitch;
