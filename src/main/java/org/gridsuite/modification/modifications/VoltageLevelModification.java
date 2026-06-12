@@ -29,9 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_VOLTAGE_LEVEL_ERROR;
+import static org.gridsuite.modification.utils.MeasurementUtils.upsertMeasurement;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
@@ -146,35 +146,7 @@ public class VoltageLevelModification extends AbstractModification {
         if (measurements == null) {
             measurements = (Measurements<?>) bbs.newExtension(MeasurementsAdder.class).add();
         }
-        upsertVoltageMeasurement(measurements, vValue, vValidity, reports);
-    }
-
-    private void upsertVoltageMeasurement(Measurements<?> measurements, Double value, Boolean requestedValidity, List<ReportNode> reports) {
-        String fieldPrefix = "Voltage measurement ";
-        Measurement existing = measurements.getMeasurements(Measurement.Type.VOLTAGE).stream().findFirst().orElse(null);
-        if (existing != null) {
-            if (value != null) {
-                double oldValue = existing.getValue();
-                existing.setValue(value);
-                reports.add(ModificationUtils.buildModificationReport(oldValue, value, fieldPrefix + "value", TypedValue.INFO_SEVERITY));
-            }
-            if (requestedValidity != null) {
-                boolean oldValidity = existing.isValid();
-                ModificationUtils.updateMeasurementValidity(existing, requestedValidity);
-                reports.add(ModificationUtils.buildModificationReport(oldValidity, requestedValidity, fieldPrefix + "validity", TypedValue.INFO_SEVERITY));
-            }
-        } else {
-            var adder = measurements.newMeasurement().setId(UUID.randomUUID().toString()).setType(Measurement.Type.VOLTAGE);
-            if (value != null) {
-                adder.setValue(value);
-                reports.add(ModificationUtils.buildModificationReport(null, value, fieldPrefix + "value", TypedValue.INFO_SEVERITY));
-            }
-            if (requestedValidity != null) {
-                adder.setValid(requestedValidity);
-                reports.add(ModificationUtils.buildModificationReport(null, requestedValidity, fieldPrefix + "validity", TypedValue.INFO_SEVERITY));
-            }
-            adder.add();
-        }
+        upsertMeasurement(measurements, Measurement.Type.VOLTAGE, vValue, vValidity, reports);
     }
 
     @Override
