@@ -33,8 +33,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class StaticVarCompensatorModificationByAssignmentTest extends AbstractModificationByAssignmentTest {
     private static final String SVC_ID_1 = "svc1";
     private static final String SVC_ID_2 = "svc2";
-    private static final Double REACTIVE_POWER_MEASUREMENT_VALUE_FOR_SVC1 = 25.;
-    private static final boolean REACTIVE_POWER_MEASUREMENT_VALIDITY_FOR_SVC2 = false;
+    private static final Double NEW_POWER_MEASUREMENT_VALUE = 25.;
+    private static final boolean NEW_POWER_MEASUREMENT_VALIDITY = false;
 
     @Override
     protected void createEquipments() {
@@ -55,13 +55,13 @@ class StaticVarCompensatorModificationByAssignmentTest extends AbstractModificat
     protected List<AssignmentInfos<?>> getAssignmentInfos() {
         DoubleAssignmentInfos assignmentInfos1 = DoubleAssignmentInfos.builder()
                 .editedField(StaticVarCompensatorField.REACTIVE_POWER_MEASUREMENT_VALUE.name())
-                .value(REACTIVE_POWER_MEASUREMENT_VALUE_FOR_SVC1)
+                .value(NEW_POWER_MEASUREMENT_VALUE)
                 .filters(List.of(filter1))
                 .build();
 
         BooleanAssignmentInfos assignmentInfos2 = BooleanAssignmentInfos.builder()
                 .editedField(StaticVarCompensatorField.REACTIVE_POWER_MEASUREMENT_VALIDITY.name())
-                .value(REACTIVE_POWER_MEASUREMENT_VALIDITY_FOR_SVC2)
+                .value(NEW_POWER_MEASUREMENT_VALIDITY)
                 .filters(List.of(filter1))
                 .build();
 
@@ -84,8 +84,10 @@ class StaticVarCompensatorModificationByAssignmentTest extends AbstractModificat
         Measurement svc2Measurement = getExistingMeasurement(ms2, Measurement.Type.REACTIVE_POWER);
         assertNotNull(svc2Measurement);
 
-        assertThat(svc1Measurement.getValue()).isEqualTo(REACTIVE_POWER_MEASUREMENT_VALUE_FOR_SVC1);
-        assertThat(svc2Measurement.isValid()).isEqualTo(REACTIVE_POWER_MEASUREMENT_VALIDITY_FOR_SVC2);
+        assertThat(svc1Measurement.getValue()).isEqualTo(NEW_POWER_MEASUREMENT_VALUE);
+        assertThat(svc2Measurement.getValue()).isEqualTo(NEW_POWER_MEASUREMENT_VALUE);
+        assertThat(svc1Measurement.isValid()).isEqualTo(NEW_POWER_MEASUREMENT_VALIDITY);
+        assertThat(svc2Measurement.isValid()).isEqualTo(NEW_POWER_MEASUREMENT_VALIDITY);
     }
 
     @Override
