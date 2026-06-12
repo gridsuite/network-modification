@@ -10,12 +10,13 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.dto.CompositeModificationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.ModificationReferenceInfos;
 import org.gridsuite.modification.utils.ModificationCreation;
 import org.gridsuite.modification.utils.NetworkCreation;
-import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,11 +43,11 @@ class ModificationReferenceTest extends AbstractNetworkModificationTest {
 
     @Override
     protected ModificationInfos buildModification() {
-        ModificationInfos modificationInfo = ModificationCreation.getCreationLoad("v1", "idLoad", "nameLoad", "1.1", LoadType.UNDEFINED);
+        ModificationInfos compositeInfo = buildCompositeModification();
         return ModificationReferenceInfos.builder()
             .referenceType(ModificationReferenceInfos.Type.BASIC)
             .referenceId(UUID.randomUUID())
-            .referenceInfos(modificationInfo)
+            .referenceInfos(compositeInfo)
             .stashed(false)
             .build();
     }
@@ -60,12 +61,17 @@ class ModificationReferenceTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
-        assertEquals(ModificationType.MODIFICATION_REFERENCE.name(), modificationInfos.getMessageType());
+        assertEquals(ModificationType.COMPOSITE_MODIFICATION.name(), modificationInfos.getMessageType());
     }
 
-    @Test
-    void testMapMessageValues() {
-        ModificationInfos modifications = buildModification();
-        assertTrue(modifications.getMapMessageValues().isEmpty());
+    private ModificationInfos buildCompositeModification() {
+        List<ModificationInfos> modifications = List.of(
+            ModificationCreation.getCreationLoad("v1", "idLoad", "nameLoad", "1.1", LoadType.UNDEFINED)
+        );
+        return CompositeModificationInfos.builder()
+            .name("composite")
+            .modificationsInfos(modifications)
+            .stashed(false)
+            .build();
     }
 }
