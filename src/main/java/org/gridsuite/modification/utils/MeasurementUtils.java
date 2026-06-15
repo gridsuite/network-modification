@@ -56,7 +56,7 @@ public final class MeasurementUtils {
         upsertSideMeasurement(measurements, type, null, requestedValue, requestedValidity, reports);
     }
 
-    /** Upsert a measurement and append change entries to {@code reports} (used by branch modification). */
+    /** Upsert a measurement on a given side, and append change entries to {@code reports} (used by branch modification). */
     public static void upsertSideMeasurement(Measurements<?> measurements, Measurement.Type type, ThreeSides side, Double requestedValue, Boolean requestedValidity, List<ReportNode> reports) {
         if (requestedValue == null && requestedValidity == null) {
             return;
@@ -67,16 +67,12 @@ public final class MeasurementUtils {
             if (requestedValue != null) {
                 double oldValue = measurement.getValue();
                 measurement.setValue(requestedValue);
-                if (reports != null) {
-                    reports.add(ModificationUtils.buildModificationReport(oldValue, requestedValue, logFieldPrefix + VALUE, TypedValue.INFO_SEVERITY));
-                }
+                addReport(reports, oldValue, requestedValue, logFieldPrefix + VALUE);
             }
             if (requestedValidity != null) {
                 boolean oldValidity = measurement.isValid();
                 updateMeasurementValidity(measurement, requestedValidity);
-                if (reports != null) {
-                    reports.add(ModificationUtils.buildModificationReport(oldValidity, requestedValidity, logFieldPrefix + VALIDITY, TypedValue.INFO_SEVERITY));
-                }
+                addReport(reports, oldValidity, requestedValidity, logFieldPrefix + VALIDITY);
             }
         } else { // add new measurement
             var measurementAdder = measurements.newMeasurement().setId(UUID.randomUUID().toString()).setType(type);
@@ -85,17 +81,19 @@ public final class MeasurementUtils {
             }
             if (requestedValue != null) {
                 measurementAdder.setValue(requestedValue);
-                if (reports != null) {
-                    reports.add(ModificationUtils.buildModificationReport(null, requestedValue, logFieldPrefix + VALUE, TypedValue.INFO_SEVERITY));
-                }
+                addReport(reports, null, requestedValue, logFieldPrefix + VALUE);
             }
             if (requestedValidity != null) {
                 measurementAdder.setValid(requestedValidity);
-                if (reports != null) {
-                    reports.add(ModificationUtils.buildModificationReport(null, requestedValidity, logFieldPrefix + VALIDITY, TypedValue.INFO_SEVERITY));
-                }
+                addReport(reports, null, requestedValidity, logFieldPrefix + VALIDITY);
             }
             measurementAdder.add();
+        }
+    }
+
+    private static void addReport(List<ReportNode> reports, Object oldValue, Object newValue, String fieldName) {
+        if (reports != null) {
+            reports.add(ModificationUtils.buildModificationReport(oldValue, newValue, fieldName, TypedValue.INFO_SEVERITY));
         }
     }
 
