@@ -116,7 +116,7 @@ class LccCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
                 .lossFactor(40F)
                 .powerFactor(1F)
                 .voltageLevelId("v2")
-                .busOrBusbarSectionId("1.1")
+                .busOrBusbarSectionId("1A")
                 .connectionName("top")
                 .connectionDirection(ConnectablePosition.Direction.TOP)
                 .shuntCompensatorsOnSide(List.of())

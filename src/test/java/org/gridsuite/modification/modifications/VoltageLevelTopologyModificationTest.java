@@ -46,7 +46,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
                                 .equipmentType(IdentifiableType.SWITCH)
                                 .build(),
                         EquipmentAttributeModificationInfos.builder()
-                                .equipmentId("v1b")
+                                .equipmentId("v1b1")
                                 .equipmentAttributeName("open")
                                 .equipmentAttributeValue(false)
                                 .equipmentType(IdentifiableType.SWITCH)

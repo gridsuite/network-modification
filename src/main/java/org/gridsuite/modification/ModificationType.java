@@ -11,6 +11,7 @@ package org.gridsuite.modification;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public enum ModificationType {
+    MODIFICATION_REFERENCE,
     EQUIPMENT_ATTRIBUTE_MODIFICATION,
     LOAD_CREATION,
     LOAD_MODIFICATION,
