@@ -20,6 +20,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.BRANCH_MODIFICATION_ERROR;
+import static org.gridsuite.modification.utils.MeasurementUtils.upsertSideMeasurement;
 import static org.gridsuite.modification.utils.ModificationUtils.NO_VALUE;
 
 /**
@@ -30,7 +31,6 @@ public abstract class AbstractBranchModification extends AbstractModification {
     public static final String DURATION = "duration";
     public static final String NAME = "name";
     public static final String VALUE = "value";
-    private static final String VALIDITY = "validity";
     public static final String LIMIT_ACCEPTABLE_DURATION = "limitAcceptableDuration";
     public static final String OPERATIONAL_LIMITS_GROUP_NAME = "operationalLimitsGroupName";
     public static final String SIDE = "side";
@@ -191,12 +191,12 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
         // Side 1 measurements update
         List<ReportNode> side1Reports = new ArrayList<>();
-        upsertMeasurement(measurements, Measurement.Type.ACTIVE_POWER, ThreeSides.ONE, p1Value, p1Validity, side1Reports);
-        upsertMeasurement(measurements, Measurement.Type.REACTIVE_POWER, ThreeSides.ONE, q1Value, q1Validity, side1Reports);
+        upsertSideMeasurement(measurements, Measurement.Type.ACTIVE_POWER, ThreeSides.ONE, p1Value, p1Validity, side1Reports);
+        upsertSideMeasurement(measurements, Measurement.Type.REACTIVE_POWER, ThreeSides.ONE, q1Value, q1Validity, side1Reports);
         // Side 2 measurements update
         List<ReportNode> side2Reports = new ArrayList<>();
-        upsertMeasurement(measurements, Measurement.Type.ACTIVE_POWER, ThreeSides.TWO, p2Value, p2Validity, side2Reports);
-        upsertMeasurement(measurements, Measurement.Type.REACTIVE_POWER, ThreeSides.TWO, q2Value, q2Validity, side2Reports);
+        upsertSideMeasurement(measurements, Measurement.Type.ACTIVE_POWER, ThreeSides.TWO, p2Value, p2Validity, side2Reports);
+        upsertSideMeasurement(measurements, Measurement.Type.REACTIVE_POWER, ThreeSides.TWO, q2Value, q2Validity, side2Reports);
         // report changes
         ReportNode estimSubReportNode = null;
         if (!side1Reports.isEmpty() || !side2Reports.isEmpty()) {
@@ -209,42 +209,6 @@ public abstract class AbstractBranchModification extends AbstractModification {
             ModificationUtils.getInstance().reportModifications(estimSubReportNode, side2Reports, "network.modification.measurementsSide2");
         }
         return estimSubReportNode;
-    }
-
-    private void upsertMeasurement(Measurements<?> measurements, Measurement.Type type, ThreeSides side, Double value, Boolean requestedValidity, List<ReportNode> reports) {
-        if (value == null && requestedValidity == null) {
-            return;
-        }
-        String measurementType = (type == Measurement.Type.ACTIVE_POWER ? "Active power" : "Reactive power") + " measurement ";
-        Measurement m = getExistingMeasurement(measurements, type, side);
-        if (m != null) { // update measurement
-            if (value != null) {
-                double oldValue = m.getValue();
-                m.setValue(value);
-                reports.add(ModificationUtils.buildModificationReport(oldValue, value, measurementType + VALUE, TypedValue.INFO_SEVERITY));
-            }
-            if (requestedValidity != null) {
-                boolean oldValidity = m.isValid();
-
-                ModificationUtils.updateMeasurementValidity(m, requestedValidity);
-                reports.add(ModificationUtils.buildModificationReport(oldValidity, requestedValidity, measurementType + VALIDITY, TypedValue.INFO_SEVERITY));
-            }
-        } else { // add new measurement
-            var mAdder = measurements.newMeasurement().setId(UUID.randomUUID().toString()).setType(type).setSide(side);
-            if (value != null) {
-                mAdder.setValue(value);
-                reports.add(ModificationUtils.buildModificationReport(null, value, measurementType + VALUE, TypedValue.INFO_SEVERITY));
-            }
-            if (requestedValidity != null) {
-                mAdder.setValid(requestedValidity);
-                reports.add(ModificationUtils.buildModificationReport(null, requestedValidity, measurementType + VALIDITY, TypedValue.INFO_SEVERITY));
-            }
-            mAdder.add();
-        }
-    }
-
-    private Measurement getExistingMeasurement(Measurements<?> measurements, Measurement.Type type, ThreeSides side) {
-        return measurements.getMeasurements(type).stream().filter(m -> m.getSide() == side).findFirst().orElse(null);
     }
 
     private void updateConnections(Branch<?> branch, BranchModificationInfos branchModificationInfos) {
