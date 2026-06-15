@@ -30,6 +30,7 @@ import java.util.UUID;
 public class ModificationMetadataInfos implements ModificationInfos {
 
     private UUID uuid;
+    private ModificationType type;
     private Instant date;
     private Boolean stashed;
     @JsonProperty(access = JsonProperty.Access.READ_WRITE)
@@ -39,11 +40,6 @@ public class ModificationMetadataInfos implements ModificationInfos {
     private Integer maxDepth;
     private Boolean activated;
     private String description;
-
-    @Override
-    public ModificationType getType() {
-        return ModificationType.MODIFICATION_METADATA;
-    }
 
     @Override
     public ModificationModel toModel() {

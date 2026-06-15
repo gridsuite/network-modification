@@ -82,8 +82,7 @@ import java.util.UUID;
     @JsonSubTypes.Type(GroovyScriptInfos.class),
     @JsonSubTypes.Type(BalancesAdjustmentModificationInfos.class),
     @JsonSubTypes.Type(ByFilterDeletionInfos.class),
-    @JsonSubTypes.Type(EquipmentDeletionInfos.class),
-    @JsonSubTypes.Type(ModificationMetadataInfos.class)
+    @JsonSubTypes.Type(EquipmentDeletionInfos.class)
 })
 public interface ModificationInfos {
 

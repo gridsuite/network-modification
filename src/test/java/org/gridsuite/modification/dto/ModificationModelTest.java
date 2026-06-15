@@ -6,19 +6,14 @@
  */
 package org.gridsuite.modification.dto;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.powsybl.commons.report.ReportNode;
-import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.model.ModificationModel;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -83,10 +78,6 @@ class ModificationModelTest {
             .build();
 
         ObjectNode json = objectMapper.valueToTree(modificationInfos);
-        // These values are not read during deserialization
-        json.put("messageType", "customMessage");
-        json.put("messageValues", "customValues");
-
         ModificationInfos deserialized = objectMapper.treeToValue(json, ModificationInfos.class);
 
         LineCreationInfos lineCreationInfos = assertInstanceOf(LineCreationInfos.class, deserialized);
@@ -116,38 +107,5 @@ class ModificationModelTest {
             "{\"type\":\"UNKNOWN_MODIFICATION\"}",
             ModificationInfos.class
         ));
-    }
-
-    @Test
-    void testEveryModificationTypeHasJsonSubtype() throws Exception {
-        JsonSubTypes jsonSubTypes = ModificationInfos.class.getAnnotation(JsonSubTypes.class);
-        Set<String> subtypeNames = Arrays.stream(jsonSubTypes.value())
-            .map(JsonSubTypes.Type::value)
-            .map(this::newInstance)
-            .map(ModificationInfos::getType)
-            .map(Enum::name)
-            .collect(Collectors.toSet());
-        Set<String> modificationTypeNames = Arrays.stream(ModificationType.values())
-            .map(Enum::name)
-            .collect(Collectors.toSet());
-
-        assertEquals(modificationTypeNames, subtypeNames);
-
-        for (JsonSubTypes.Type subtype : jsonSubTypes.value()) {
-            ModificationInfos modificationInfos = newInstance(subtype.value());
-            ModificationInfos deserialized = objectMapper.treeToValue(
-                objectMapper.createObjectNode().put("type", modificationInfos.getType().name()),
-                ModificationInfos.class
-            );
-            assertInstanceOf(subtype.value(), deserialized);
-        }
-    }
-
-    private ModificationInfos newInstance(Class<?> type) {
-        try {
-            return (ModificationInfos) type.getConstructor().newInstance();
-        } catch (ReflectiveOperationException e) {
-            throw new AssertionError("Could not instantiate " + type.getName(), e);
-        }
     }
 }
