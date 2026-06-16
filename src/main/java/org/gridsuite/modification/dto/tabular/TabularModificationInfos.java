@@ -12,7 +12,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.ModificationModel;
@@ -31,10 +30,6 @@ import java.util.Map;
 @JsonTypeName("TABULAR_MODIFICATION")
 @ModificationErrorTypeName("TABULAR_MODIFICATION_ERROR")
 public class TabularModificationInfos extends AbstractTabularBaseInfos implements ModificationInfos {
-    @Override
-    public ModificationType getType() {
-        return ModificationType.TABULAR_MODIFICATION;
-    }
 
     @Override
     public ModificationModel toModel() {

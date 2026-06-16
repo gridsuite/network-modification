@@ -12,7 +12,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.model.ModificationModel;
@@ -29,10 +28,6 @@ import org.gridsuite.modification.model.tabular.LimitSetsTabularModificationMode
 @JsonTypeName("LIMIT_SETS_TABULAR_MODIFICATION")
 @ModificationErrorTypeName("LIMIT_SETS_TABULAR_MODIFICATION_ERROR")
 public class LimitSetsTabularModificationInfos extends AbstractTabularBaseInfos implements ModificationInfos {
-    @Override
-    public ModificationType getType() {
-        return ModificationType.LIMIT_SETS_TABULAR_MODIFICATION;
-    }
 
     @Override
     public ModificationModel toModel() {

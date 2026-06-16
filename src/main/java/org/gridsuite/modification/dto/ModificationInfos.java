@@ -6,10 +6,7 @@
  */
 package org.gridsuite.modification.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.gridsuite.modification.ModificationType;
@@ -86,7 +83,9 @@ import java.util.UUID;
 })
 public interface ModificationInfos {
 
-    ModificationType getType();
+    default ModificationType getType() {
+        return ModificationType.valueOf(this.getClass().getAnnotation(JsonTypeName.class).value());
+    }
 
     default void setType(ModificationType type) {
         if (type != getType()) {
