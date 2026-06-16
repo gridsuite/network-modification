@@ -9,10 +9,17 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.LoadCreationInfos;
+import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
+
+import java.util.List;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.LOAD_ALREADY_EXISTS;
 import static org.gridsuite.modification.utils.ModificationUtils.createInjectionInNodeBreaker;
@@ -20,44 +27,55 @@ import static org.gridsuite.modification.utils.ModificationUtils.createInjection
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
+@NoArgsConstructor
+@Getter
+@AllArgsConstructor
+@Builder
 public class LoadCreation extends AbstractModification {
 
-    private final LoadCreationInfos modificationInfos;
-
-    public LoadCreation(LoadCreationInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
-    }
+    private String equipmentId;
+    private List<FreePropertyInfos> properties;
+    private String equipmentName;
+    private String voltageLevelId;
+    private String busOrBusbarSectionId;
+    private String connectionName;
+    private ConnectablePosition.Direction connectionDirection;
+    private Integer connectionPosition;
+    private boolean terminalConnected;
+    private LoadType loadType;
+    private double p0;
+    private double q0;
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (network.getLoad(modificationInfos.getEquipmentId()) != null) {
-            throw new NetworkModificationException(LOAD_ALREADY_EXISTS, modificationInfos.getEquipmentId());
+        if (network.getLoad(equipmentId) != null) {
+            throw new NetworkModificationException(LOAD_ALREADY_EXISTS, equipmentId);
         }
-        ModificationUtils.getInstance().controlConnectivity(network, modificationInfos.getVoltageLevelId(),
-                modificationInfos.getBusOrBusbarSectionId());
+        ModificationUtils.getInstance().controlConnectivity(network, voltageLevelId,
+                busOrBusbarSectionId);
     }
 
     @Override
     public void apply(Network network, ReportNode subReporter) {
         // create the load in the network
-        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId());
+        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
         if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            LoadAdder loadAdder = createLoadAdderInNodeBreaker(voltageLevel, modificationInfos);
-            createInjectionInNodeBreaker(voltageLevel, modificationInfos, network, loadAdder, subReporter);
+            LoadAdder loadAdder = createLoadAdderInNodeBreaker(voltageLevel);
+            createInjectionInNodeBreaker(voltageLevel, equipmentId, busOrBusbarSectionId, connectionName, connectionDirection, connectionPosition, network, loadAdder, subReporter);
         } else {
-            createLoadInBusBreaker(voltageLevel, modificationInfos);
+            createLoadInBusBreaker(voltageLevel);
             subReporter.newReportNode()
                 .withMessageTemplate("network.modification.loadCreated")
-                .withUntypedValue("id", modificationInfos.getEquipmentId())
+                .withUntypedValue("id", equipmentId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
         }
         reportElementaryCreations(subReporter);
-        ModificationUtils.getInstance().disconnectCreatedInjection(modificationInfos, network.getLoad(modificationInfos.getEquipmentId()), subReporter);
+        ModificationUtils.getInstance().disconnectCreatedInjection(terminalConnected, equipmentId, network.getLoad(equipmentId), subReporter);
 
         // properties
-        Load load = network.getLoad(modificationInfos.getEquipmentId());
-        PropertiesUtils.applyProperties(load, subReporter, modificationInfos.getProperties(), "network.modification.LoadProperties");
+        Load load = network.getLoad(equipmentId);
+        PropertiesUtils.applyProperties(load, subReporter, properties, "network.modification.LoadProperties");
     }
 
     @Override
@@ -66,44 +84,45 @@ public class LoadCreation extends AbstractModification {
     }
 
     private void reportElementaryCreations(ReportNode subReportNode) {
-        if (modificationInfos.getEquipmentName() != null) {
+        if (equipmentName != null) {
             ModificationUtils.getInstance()
-                    .reportElementaryCreation(subReportNode, modificationInfos.getEquipmentName(), "Name");
+                    .reportElementaryCreation(subReportNode, equipmentName, "Name");
         }
 
-        if (modificationInfos.getLoadType() != null) {
+        if (loadType != null) {
             ModificationUtils.getInstance()
-                    .reportElementaryCreation(subReportNode, modificationInfos.getLoadType(), "Type");
+                    .reportElementaryCreation(subReportNode, loadType, "Type");
         }
 
         ModificationUtils.getInstance()
-                .reportElementaryCreation(subReportNode, modificationInfos.getP0(), "Active power");
+                .reportElementaryCreation(subReportNode, p0, "Active power");
 
         ModificationUtils.getInstance()
-                .reportElementaryCreation(subReportNode, modificationInfos.getQ0(), "Reactive power");
+                .reportElementaryCreation(subReportNode, q0, "Reactive power");
     }
 
-    private LoadAdder createLoadAdderInNodeBreaker(VoltageLevel voltageLevel, LoadCreationInfos loadCreationInfos) {
+    private LoadAdder createLoadAdderInNodeBreaker(VoltageLevel voltageLevel) {
         // creating the load adder
         return voltageLevel.newLoad()
-            .setId(loadCreationInfos.getEquipmentId())
-            .setName(loadCreationInfos.getEquipmentName())
-            .setLoadType(loadCreationInfos.getLoadType())
-            .setP0(loadCreationInfos.getP0())
-            .setQ0(loadCreationInfos.getQ0());
+            .setId(equipmentId)
+            .setName(equipmentName)
+            .setLoadType(loadType)
+            .setP0(p0)
+            .setQ0(q0);
     }
 
-    private Load createLoadInBusBreaker(VoltageLevel voltageLevel, LoadCreationInfos loadCreationInfos) {
-        Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, loadCreationInfos.getBusOrBusbarSectionId());
+    private Load createLoadInBusBreaker(VoltageLevel voltageLevel) {
+        Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, busOrBusbarSectionId);
 
         // creating the load
         return voltageLevel.newLoad()
-            .setId(loadCreationInfos.getEquipmentId())
-            .setName(loadCreationInfos.getEquipmentName())
-            .setLoadType(loadCreationInfos.getLoadType())
+            .setId(equipmentId)
+            .setName(equipmentName)
+            .setLoadType(loadType)
             .setBus(bus.getId())
             .setConnectableBus(bus.getId())
-            .setP0(loadCreationInfos.getP0())
-            .setQ0(loadCreationInfos.getQ0()).add();
+            .setP0(p0)
+            .setQ0(q0).add();
     }
+
 }

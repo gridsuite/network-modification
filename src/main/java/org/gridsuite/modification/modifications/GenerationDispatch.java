@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.gridsuite.filter.AbstractFilter;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
@@ -38,6 +39,7 @@ import static org.gridsuite.modification.NetworkModificationException.Type.GENER
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 @SuppressWarnings("checkstyle:LambdaBodyLength")
+@NoArgsConstructor
 public class GenerationDispatch extends AbstractModification {
     private static final String POWER_TO_DISPATCH = "network.modification.PowerToDispatch";
     private static final String STACKING = "network.modification.Stacking";
@@ -52,12 +54,28 @@ public class GenerationDispatch extends AbstractModification {
     private static final String GENERATORS_WITHOUT_OUTAGE = "generatorsWithoutOutage";
     private static final String GENERATORS_FREQUENCY_RESERVE = "generatorsFrequencyReserve";
 
-    private final GenerationDispatchInfos generationDispatchInfos;
+    private Double lossCoefficient;
+    private Double defaultOutageRate;
+    private List<GeneratorsFilterInfos> generatorsWithoutOutage;
+    private List<GeneratorsFilterInfos> generatorsWithFixedSupply;
+    private List<GeneratorsFrequencyReserveInfos> generatorsFrequencyReserve;
+    private List<SubstationsGeneratorsOrderingInfos> substationsGeneratorsOrdering;
 
     protected IFilterService filterService;
 
-    public GenerationDispatch(GenerationDispatchInfos generationDispatchInfos) {
-        this.generationDispatchInfos = generationDispatchInfos;
+    @Builder
+    public GenerationDispatch(Double lossCoefficient,
+                              Double defaultOutageRate,
+                              List<GeneratorsFilterInfos> generatorsWithoutOutage,
+                              List<GeneratorsFilterInfos> generatorsWithFixedSupply,
+                              List<GeneratorsFrequencyReserveInfos> generatorsFrequencyReserve,
+                              List<SubstationsGeneratorsOrderingInfos> substationsGeneratorsOrdering) {
+        this.lossCoefficient = lossCoefficient;
+        this.defaultOutageRate = defaultOutageRate;
+        this.generatorsWithoutOutage = generatorsWithoutOutage;
+        this.generatorsWithFixedSupply = generatorsWithFixedSupply;
+        this.generatorsFrequencyReserve = generatorsFrequencyReserve;
+        this.substationsGeneratorsOrdering = substationsGeneratorsOrdering;
     }
 
     private static void report(ReportNode reportNode, String key, Map<String, Object> values, TypedValue severity) {
@@ -347,11 +365,9 @@ public class GenerationDispatch extends AbstractModification {
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        double lossCoefficient = generationDispatchInfos.getLossCoefficient();
         if (lossCoefficient < 0. || lossCoefficient > 100.) {
             throw new NetworkModificationException(GENERATION_DISPATCH_ERROR, "The loss coefficient must be between 0 and 100");
         }
-        double defaultOutageRate = generationDispatchInfos.getDefaultOutageRate();
         if (defaultOutageRate < 0. || defaultOutageRate > 100.) {
             throw new NetworkModificationException(GENERATION_DISPATCH_ERROR, "The default outage rate must be between 0 and 100");
         }
@@ -394,15 +410,15 @@ public class GenerationDispatch extends AbstractModification {
     }
 
     private List<String> collectGeneratorsWithoutOutage(Network network, ReportNode subReportNode) {
-        return exportFilters(generationDispatchInfos.getGeneratorsWithoutOutage(), network, subReportNode, GENERATORS_WITHOUT_OUTAGE);
+        return exportFilters(generatorsWithoutOutage, network, subReportNode, GENERATORS_WITHOUT_OUTAGE);
     }
 
     private List<String> collectGeneratorsWithFixedSupply(Network network, ReportNode subReportNode) {
-        return exportFilters(generationDispatchInfos.getGeneratorsWithFixedSupply(), network, subReportNode, GENERATORS_WITH_FIXED_SUPPLY);
+        return exportFilters(generatorsWithFixedSupply, network, subReportNode, GENERATORS_WITH_FIXED_SUPPLY);
     }
 
     private List<GeneratorsFrequencyReserve> collectGeneratorsWithFrequencyReserve(Network network, ReportNode subReportNode) {
-        return generationDispatchInfos.getGeneratorsFrequencyReserve().stream().map(g -> {
+        return generatorsFrequencyReserve.stream().map(g -> {
             List<String> generators = exportFilters(g.getGeneratorsFilters(), network, subReportNode, GENERATORS_FREQUENCY_RESERVE);
             return GeneratorsFrequencyReserve.builder().generators(generators).frequencyReserve(g.getFrequencyReserve()).build();
         }).collect(Collectors.toList());
@@ -430,7 +446,7 @@ public class GenerationDispatch extends AbstractModification {
                 !Double.isNaN(startupExtension.getPlannedOutageRate())) {
                 res *= (1. - startupExtension.getForcedOutageRate()) * (1. - startupExtension.getPlannedOutageRate());
             } else {
-                res *= 1. - generationDispatchInfos.getDefaultOutageRate() / 100.;
+                res *= 1. - defaultOutageRate / 100.;
             }
         }
         double genFrequencyReserve = computeGenFrequencyReserve(generator, generatorsFrequencyReserve);
@@ -456,9 +472,9 @@ public class GenerationDispatch extends AbstractModification {
 
     private boolean checkMissingFilters(ReportNode subReportNode) {
         Map<UUID, String> filterNamesByUuid = new LinkedHashMap<>();
-        generationDispatchInfos.getGeneratorsWithoutOutage().forEach(filterInfos -> filterNamesByUuid.put(filterInfos.getId(), filterInfos.getName()));
-        generationDispatchInfos.getGeneratorsWithFixedSupply().forEach(filterInfos -> filterNamesByUuid.put(filterInfos.getId(), filterInfos.getName()));
-        generationDispatchInfos.getGeneratorsFrequencyReserve().forEach(frequencyReserveInfos ->
+        generatorsWithoutOutage.forEach(filterInfos -> filterNamesByUuid.put(filterInfos.getId(), filterInfos.getName()));
+        generatorsWithFixedSupply.forEach(filterInfos -> filterNamesByUuid.put(filterInfos.getId(), filterInfos.getName()));
+        generatorsFrequencyReserve.forEach(frequencyReserveInfos ->
             frequencyReserveInfos.getGeneratorsFilters().forEach(filterInfos -> filterNamesByUuid.put(filterInfos.getId(), filterInfos.getName()))
         );
         if (!filterNamesByUuid.isEmpty()) {
@@ -525,7 +541,7 @@ public class GenerationDispatch extends AbstractModification {
             reportDisconnectedGenerators(disconnectedGenerators, componentNum, powerToDispatchReportNode);
 
             // get total value of connected loads in the connected component
-            double totalDemand = computeTotalDemand(component, generationDispatchInfos.getLossCoefficient());
+            double totalDemand = computeTotalDemand(component, lossCoefficient);
             report(powerToDispatchReportNode, "network.modification.TotalDemand",
                 Map.of("totalDemand", round(totalDemand)), TypedValue.INFO_SEVERITY);
 
@@ -555,7 +571,7 @@ public class GenerationDispatch extends AbstractModification {
 
             // get adjustable generators in the component
             List<Generator> adjustableGenerators = computeAdjustableGenerators(network, component, generatorsWithFixedSupply,
-                                                                               generationDispatchInfos.getSubstationsGeneratorsOrdering(),
+                                                                               substationsGeneratorsOrdering,
                                                                                powerToDispatchReportNode);
 
             double realized = 0.;

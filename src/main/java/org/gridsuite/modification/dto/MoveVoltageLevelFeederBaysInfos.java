@@ -40,7 +40,10 @@ public class MoveVoltageLevelFeederBaysInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new MoveVoltageLevelFeederBays(this);
+        return MoveVoltageLevelFeederBays.builder()
+                .voltageLevelId(voltageLevelId)
+                .feederBays(feederBays)
+                .build();
     }
 
     @Override

@@ -35,7 +35,12 @@ import static org.gridsuite.modification.modifications.AbstractBranchModificatio
  */
 public class OperationalLimitsGroupModification {
     private final Branch<?> modifiedBranch; // branch modified by the network modification
-    private final OperationalLimitsGroupModificationInfos olgModifInfos;
+    private final String id;
+    private final OperationalLimitsGroupModificationType modificationType;
+    private final OperationalLimitsGroupInfos.Applicability applicability;
+    private final List<LimitsPropertyInfos> limitsProperties;
+    private final CurrentLimitsModificationInfos currentLimitsModificationInfos;
+    private final TemporaryLimitModificationType temporaryLimitsModificationType;
     private final ReportNode olgsReportNode;
     List<ReportNode> limitsReportsSide1;
     List<ReportNode> limitsReportsSide2;
@@ -44,10 +49,20 @@ public class OperationalLimitsGroupModification {
 
     public OperationalLimitsGroupModification(
             Branch<?> modifiedBranch,
-            OperationalLimitsGroupModificationInfos olgModifInfos,
+            String id,
+            OperationalLimitsGroupModificationType modificationType,
+            OperationalLimitsGroupInfos.Applicability applicability,
+            List<LimitsPropertyInfos> limitsProperties,
+            CurrentLimitsModificationInfos currentLimitsModificationInfos,
+            TemporaryLimitModificationType temporaryLimitsModificationType,
             ReportNode limitSetsReportNode) {
         this.modifiedBranch = modifiedBranch;
-        this.olgModifInfos = olgModifInfos;
+        this.id = id;
+        this.modificationType = modificationType;
+        this.applicability = applicability;
+        this.limitsProperties = limitsProperties;
+        this.currentLimitsModificationInfos = currentLimitsModificationInfos;
+        this.temporaryLimitsModificationType = temporaryLimitsModificationType;
         olgsReportNode = limitSetsReportNode;
         limitsReportsSide1 = new ArrayList<>();
         limitsReportsSide2 = new ArrayList<>();
@@ -63,17 +78,17 @@ public class OperationalLimitsGroupModification {
     }
 
     private OperationalLimitsGroup modifiedOperationalLimitsGroup1() {
-        return modifiedBranch.getOperationalLimitsGroup1(olgModifInfos.getId()).orElse(null);
+        return modifiedBranch.getOperationalLimitsGroup1(id).orElse(null);
     }
 
     private OperationalLimitsGroup modifiedOperationalLimitsGroup2() {
-        return modifiedBranch.getOperationalLimitsGroup2(olgModifInfos.getId()).orElse(null);
+        return modifiedBranch.getOperationalLimitsGroup2(id).orElse(null);
     }
 
     protected void applyModificationToOperationalLimitsGroup() {
-        switch (olgModifInfos.getModificationType()) {
+        switch (modificationType) {
             case OperationalLimitsGroupModificationType.MODIFY_OR_ADD:
-                switch (olgModifInfos.getApplicability()) {
+                switch (applicability) {
                     case EQUIPMENT:
                         if (modifiedOperationalLimitsGroup1() == null && modifiedOperationalLimitsGroup2() == null) {
                             addOlg(EQUIPMENT);
@@ -95,31 +110,31 @@ public class OperationalLimitsGroupModification {
                         break;
                     case SIDE1:
                         if (modifiedOperationalLimitsGroup1() == null) {
-                            addOlg(olgModifInfos.getApplicability());
+                            addOlg(applicability);
                         } else {
-                            modifyOLG(olgModifInfos.getApplicability());
+                            modifyOLG(applicability);
                         }
                         break;
                     case SIDE2:
                         if (modifiedOperationalLimitsGroup2() == null) {
-                            addOlg(olgModifInfos.getApplicability());
+                            addOlg(applicability);
                         } else {
-                            modifyOLG(olgModifInfos.getApplicability());
+                            modifyOLG(applicability);
                         }
                         break;
                 }
                 break;
             case OperationalLimitsGroupModificationType.MODIFY:
                 if (applicableOnSide1() && modifiedOperationalLimitsGroup1() == null) {
-                    throw new PowsyblException("Cannot modify operational limit group " + olgModifInfos.getId() + " which has not been found in equipment side 1");
+                    throw new PowsyblException("Cannot modify operational limit group " + id + " which has not been found in equipment side 1");
                 }
                 if (applicableOnSide2() && modifiedOperationalLimitsGroup2() == null) {
-                    throw new PowsyblException("Cannot modify operational limit group " + olgModifInfos.getId() + " which has not been found in equipment side 2");
+                    throw new PowsyblException("Cannot modify operational limit group " + id + " which has not been found in equipment side 2");
                 }
-                modifyOLG(olgModifInfos.getApplicability());
+                modifyOLG(applicability);
                 break;
             case OperationalLimitsGroupModificationType.ADD:
-                addOlg(olgModifInfos.getApplicability());
+                addOlg(applicability);
                 break;
             case OperationalLimitsGroupModificationType.REPLACE:
                 replaceOlg();
@@ -130,11 +145,11 @@ public class OperationalLimitsGroupModification {
     }
 
     private boolean applicableOnSide1() {
-        return olgModifInfos.getApplicability() == SIDE1 || olgModifInfos.getApplicability() == EQUIPMENT;
+        return applicability == SIDE1 || applicability == EQUIPMENT;
     }
 
     private boolean applicableOnSide2() {
-        return olgModifInfos.getApplicability() == SIDE2 || olgModifInfos.getApplicability() == EQUIPMENT;
+        return applicability == SIDE2 || applicability == EQUIPMENT;
     }
 
     private void modifyOLG(OperationalLimitsGroupInfos.Applicability applicability) {
@@ -160,7 +175,7 @@ public class OperationalLimitsGroupModification {
         if (!limitsReportsSide1.isEmpty() || !limitsReportsSide2.isEmpty()) {
             ReportNode limitSetReport = olgsReportNode.newReportNode()
                     .withMessageTemplate("network.modification.operationalLimitsGroupModified")
-                    .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, olgModifInfos.getId())
+                    .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, id)
                     .withUntypedValue(SIDE, ModificationUtils.applicabilityToString(applicability))
                     .withSeverity(TypedValue.INFO_SEVERITY).add();
             createLogNodeForSide(limitSetReport, "network.modification.operationalLimitsGroupModified.detail", SIDE1);
@@ -183,7 +198,7 @@ public class OperationalLimitsGroupModification {
     }
 
     private void modifyProperties(OperationalLimitsGroup limitsGroup, OperationalLimitsGroupInfos.Applicability applicability) {
-        if (limitsGroup == null || olgModifInfos == null) {
+        if (limitsGroup == null) {
             return;
         }
 
@@ -193,8 +208,8 @@ public class OperationalLimitsGroupModification {
         List<LimitsPropertyInfos> propertiesToAdd = new ArrayList<>();
         List<String> propertiesToRemove;
 
-        if (!CollectionUtils.isEmpty(olgModifInfos.getLimitsProperties())) {
-            for (LimitsPropertyInfos propertyInfos : olgModifInfos.getLimitsProperties()) {
+        if (!CollectionUtils.isEmpty(limitsProperties)) {
+            for (LimitsPropertyInfos propertyInfos : limitsProperties) {
                 if (currentProperties.contains(propertyInfos.name())) {
                     propertiesToModify.add(propertyInfos);
                 } else {
@@ -249,7 +264,7 @@ public class OperationalLimitsGroupModification {
             CurrentLimitsAdder limitsAdder,
             CurrentLimits currentLimits,
             OperationalLimitsGroupInfos.Applicability applicability) {
-        CurrentLimitsModificationInfos currentLimitsInfos = olgModifInfos.getCurrentLimits();
+        CurrentLimitsModificationInfos currentLimitsInfos = currentLimitsModificationInfos;
         boolean hasPermanent = currentLimitsInfos.getPermanentLimit() != null;
         if (hasPermanent) {
             if (!(currentLimits != null && currentLimits.getPermanentLimit() == currentLimitsInfos.getPermanentLimit())) {
@@ -275,19 +290,19 @@ public class OperationalLimitsGroupModification {
             if (modifiedOperationalLimitsGroup1() != null) {
                 throw new PowsyblException("Cannot add " + modifiedOperationalLimitsGroup1().getId() + " operational limit group, one with the given name already exists");
             }
-            addOlgOnSide(modifiedBranch.newOperationalLimitsGroup1(olgModifInfos.getId()), SIDE1);
+            addOlgOnSide(modifiedBranch.newOperationalLimitsGroup1(id), SIDE1);
         }
         if (applicability == EQUIPMENT || applicability == SIDE2) {
             if (modifiedOperationalLimitsGroup2() != null) {
                 throw new PowsyblException("Cannot add " + modifiedOperationalLimitsGroup2().getId() + " operational limit group, one with the given name already exists");
             }
-            addOlgOnSide(modifiedBranch.newOperationalLimitsGroup2(olgModifInfos.getId()), SIDE2);
+            addOlgOnSide(modifiedBranch.newOperationalLimitsGroup2(id), SIDE2);
         }
 
         if (!limitsReportsSide1.isEmpty() || !limitsReportsSide2.isEmpty()) {
             ReportNode limitSetReport = olgsReportNode.newReportNode()
                     .withMessageTemplate("network.modification.operationalLimitsGroupAdded")
-                    .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, olgModifInfos.getId())
+                    .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, id)
                     .withUntypedValue(SIDE, ModificationUtils.applicabilityToString(applicability))
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
@@ -308,7 +323,7 @@ public class OperationalLimitsGroupModification {
                 modifiedOlg.removeCurrentLimits();
                 removeAllProperties(modifiedOlg);
             }
-            OperationalLimitsGroup newOperationalLimitsGroup = modifiedBranch.newOperationalLimitsGroup1(olgModifInfos.getId());
+            OperationalLimitsGroup newOperationalLimitsGroup = modifiedBranch.newOperationalLimitsGroup1(id);
             modifyCurrentLimits(newOperationalLimitsGroup.newCurrentLimits(), null, SIDE1);
             addProperties(newOperationalLimitsGroup, SIDE1);
         }
@@ -318,7 +333,7 @@ public class OperationalLimitsGroupModification {
                 modifiedOlg.removeCurrentLimits();
                 removeAllProperties(modifiedOlg);
             }
-            OperationalLimitsGroup newOperationalLimitsGroup = modifiedBranch.newOperationalLimitsGroup2(olgModifInfos.getId());
+            OperationalLimitsGroup newOperationalLimitsGroup = modifiedBranch.newOperationalLimitsGroup2(id);
             modifyCurrentLimits(newOperationalLimitsGroup.newCurrentLimits(), null, SIDE2);
             addProperties(newOperationalLimitsGroup, SIDE2);
         }
@@ -326,8 +341,8 @@ public class OperationalLimitsGroupModification {
         if (!limitsReportsSide1.isEmpty() || !limitsReportsSide2.isEmpty()) {
             ReportNode limitSetReport = olgsReportNode.newReportNode()
                     .withMessageTemplate("network.modification.operationalLimitsGroupReplaced")
-                    .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, olgModifInfos.getId())
-                    .withUntypedValue(SIDE, ModificationUtils.applicabilityToString(olgModifInfos.getApplicability()))
+                    .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, id)
+                    .withUntypedValue(SIDE, ModificationUtils.applicabilityToString(applicability))
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
             createLogNodeForSide(limitSetReport, ModificationUtils.OPERATIONAL_LIMITS_GROUP_ADDED_LOG_DETAIL, SIDE1);
@@ -336,11 +351,11 @@ public class OperationalLimitsGroupModification {
     }
 
     private void addProperties(OperationalLimitsGroup limitsGroup, OperationalLimitsGroupInfos.Applicability applicability) {
-        if (limitsGroup == null || CollectionUtils.isEmpty(olgModifInfos.getLimitsProperties())) {
+        if (limitsGroup == null || CollectionUtils.isEmpty(limitsProperties)) {
             return;
         }
 
-        olgModifInfos.getLimitsProperties().forEach((LimitsPropertyInfos property) -> {
+        limitsProperties.forEach((LimitsPropertyInfos property) -> {
             addToLogsOnSide(ReportNode.newRootReportNode()
                     .withMessageTemplate("network.modification.propertyAdded")
                     .withUntypedValue(NAME, property.name())
@@ -353,11 +368,11 @@ public class OperationalLimitsGroupModification {
     }
 
     public void removeOlg() {
-        String olgId = olgModifInfos.getId();
+        String olgId = id;
         if (applicableOnSide1() && modifiedBranch.getOperationalLimitsGroup1(olgId).isEmpty() ||
             applicableOnSide2() && modifiedBranch.getOperationalLimitsGroup2(olgId).isEmpty()) {
             throw new PowsyblException(
-                    "Cannot delete operational limit group " + olgId + " which has not been found in equipment on " + ModificationUtils.applicabilityToString(olgModifInfos.getApplicability()));
+                    "Cannot delete operational limit group " + olgId + " which has not been found in equipment on " + ModificationUtils.applicabilityToString(applicability));
         }
         if (applicableOnSide1()) {
             modifiedBranch.removeOperationalLimitsGroup1(olgId);
@@ -368,7 +383,7 @@ public class OperationalLimitsGroupModification {
         olgsReportNode.newReportNode()
                 .withMessageTemplate("network.modification.operationalLimitsGroupDeleted")
                 .withUntypedValue(OPERATIONAL_LIMITS_GROUP_NAME, olgId)
-                .withUntypedValue(SIDE, ModificationUtils.applicabilityToString(olgModifInfos.getApplicability()))
+                .withUntypedValue(SIDE, ModificationUtils.applicabilityToString(applicability))
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
@@ -387,7 +402,7 @@ public class OperationalLimitsGroupModification {
                     .withMessageTemplate("network.modification.propertyDeleted")
                     .withUntypedValue(NAME, propertyName)
                     .withSeverity(TypedValue.DETAIL_SEVERITY).build(),
-                    olgModifInfos.getApplicability());
+                    applicability);
         }
     }
 
@@ -395,12 +410,12 @@ public class OperationalLimitsGroupModification {
      * This function removes all the temporary limits of the 'currentLimits' concerned and recreates them (except in case of deletion)
      */
     protected void modifyTemporaryLimits(CurrentLimitsAdder limitsAdder, CurrentLimits currentLimits, OperationalLimitsGroupInfos.Applicability applicability) {
-        CurrentLimitsModificationInfos currentLimitsInfos = olgModifInfos.getCurrentLimits();
+        CurrentLimitsModificationInfos currentLimitsInfos = currentLimitsModificationInfos;
 
         // we create a mutable list of temporary limits to be able to remove the limits that are modified in this current modification
         // those left at the end of the network modification are those that have not been modified (or deleted)
         List<LoadingLimits.TemporaryLimit> unmodifiedTemporaryLimits = new ArrayList<>();
-        boolean areLimitsReplaced = TemporaryLimitModificationType.REPLACE.equals(olgModifInfos.getTemporaryLimitsModificationType());
+        boolean areLimitsReplaced = TemporaryLimitModificationType.REPLACE.equals(temporaryLimitsModificationType);
         if (currentLimits != null) {
             unmodifiedTemporaryLimits.addAll(currentLimits.getTemporaryLimits());
         }
@@ -485,8 +500,8 @@ public class OperationalLimitsGroupModification {
      * @return true if the limit may proceed, false if it must be skipped.
      */
     private boolean checkTemporaryLimitModificationType(CurrentTemporaryLimitModificationInfos limit, OperationalLimitsGroupInfos.Applicability applicability) {
-        if (olgModifInfos.getModificationType() == OperationalLimitsGroupModificationType.ADD
-                || olgModifInfos.getModificationType() == OperationalLimitsGroupModificationType.REPLACE) {
+        if (modificationType == OperationalLimitsGroupModificationType.ADD
+                || modificationType == OperationalLimitsGroupModificationType.REPLACE) {
             // If we aren't modifying or deleting an existing limit set, temporary limit modification is necessarily of ADD type
             if (limit.getModificationType() != TemporaryLimitModificationType.ADD) {
                 addToLogsOnSide(ReportNode.newRootReportNode()
@@ -498,8 +513,8 @@ public class OperationalLimitsGroupModification {
                     applicability);
                 limit.setModificationType(TemporaryLimitModificationType.ADD);
             }
-        } else if (olgModifInfos.getModificationType() == OperationalLimitsGroupModificationType.MODIFY
-                || olgModifInfos.getModificationType() == OperationalLimitsGroupModificationType.MODIFY_OR_ADD) {
+        } else if (modificationType == OperationalLimitsGroupModificationType.MODIFY
+                || modificationType == OperationalLimitsGroupModificationType.MODIFY_OR_ADD) {
             // For MODIFY / MODIFY_OR_ADD, the modification type is required (DELETE bypasses individual limit processing).
             if (limit.getModificationType() == null) {
                 addToLogsOnSide(ReportNode.newRootReportNode()
@@ -584,7 +599,7 @@ public class OperationalLimitsGroupModification {
 
         int duration = limit.getAcceptableDuration().getValue();
         String name = limit.getName().getValue();
-        List<CurrentTemporaryLimitModificationInfos> batch = olgModifInfos.getCurrentLimits().getTemporaryLimits();
+        List<CurrentTemporaryLimitModificationInfos> batch = currentLimitsModificationInfos.getTemporaryLimits();
 
         boolean existingByDuration = workingTemporaryLimits.containsKey(duration);
         Optional<Map.Entry<Integer, String>> existingByName = workingTemporaryLimits.entrySet().stream()
@@ -647,7 +662,7 @@ public class OperationalLimitsGroupModification {
         List<LoadingLimits.TemporaryLimit> unmodifiedTemporaryLimits,
         Map<Integer, String> workingTemporaryLimits,
         OperationalLimitsGroupInfos.Applicability applicability) {
-        CurrentLimitsModificationInfos currentLimitsInfos = olgModifInfos.getCurrentLimits();
+        CurrentLimitsModificationInfos currentLimitsInfos = currentLimitsModificationInfos;
         if (!preModificationCheck(limit, applicability)) {
             return false;
         }

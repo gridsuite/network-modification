@@ -62,7 +62,14 @@ public class VoltageInitModificationInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new VoltageInitModification(this);
+        return VoltageInitModification.builder()
+                .generators(getGenerators())
+                .transformers(getTransformers())
+                .staticVarCompensators(getStaticVarCompensators())
+                .vscConverterStations(getVscConverterStations())
+                .shuntCompensators(getShuntCompensators())
+                .buses(getBuses())
+                .build();
     }
 
     @Override

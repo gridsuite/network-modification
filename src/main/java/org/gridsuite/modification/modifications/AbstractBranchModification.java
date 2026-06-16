@@ -10,6 +10,8 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.olg.OperationalLimitsGroupsModification;
@@ -26,6 +28,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.NO_VALUE;
 /**
  * @author Florent MILLOT <florent.millot at rte-france.com>
  */
+@NoArgsConstructor
+@Getter
 public abstract class AbstractBranchModification extends AbstractModification {
 
     public static final String DURATION = "duration";
@@ -36,50 +40,74 @@ public abstract class AbstractBranchModification extends AbstractModification {
     public static final String SIDE = "side";
     public static final String APPLICABILITY = "applicability";
 
-    protected final BranchModificationInfos modificationInfos;
+    protected String equipmentId;
+    protected List<FreePropertyInfos> properties;
+    protected AttributeModification<String> equipmentName;
+    protected AttributeModification<Double> r;
+    protected AttributeModification<Double> x;
+    protected OperationalLimitsGroupsModificationType operationalLimitsGroupsModificationType;
+    protected Boolean enableOLGModification;
+    protected List<OperationalLimitsGroupModificationInfos> operationalLimitsGroups;
+    protected AttributeModification<String> selectedOperationalLimitsGroupId1;
+    protected AttributeModification<String> selectedOperationalLimitsGroupId2;
+    protected AttributeModification<String> voltageLevelId1;
+    protected AttributeModification<String> voltageLevelId2;
+    protected AttributeModification<String> busOrBusbarSectionId1;
+    protected AttributeModification<String> busOrBusbarSectionId2;
+    protected AttributeModification<String> connectionName1;
+    protected AttributeModification<String> connectionName2;
+    protected AttributeModification<ConnectablePosition.Direction> connectionDirection1;
+    protected AttributeModification<ConnectablePosition.Direction> connectionDirection2;
+    protected AttributeModification<Integer> connectionPosition1;
+    protected AttributeModification<Integer> connectionPosition2;
+    protected AttributeModification<Boolean> terminal1Connected;
+    protected AttributeModification<Boolean> terminal2Connected;
+    protected AttributeModification<Double> p1MeasurementValue;
+    protected AttributeModification<Boolean> p1MeasurementValidity;
+    protected AttributeModification<Double> p2MeasurementValue;
+    protected AttributeModification<Boolean> p2MeasurementValidity;
+    protected AttributeModification<Double> q1MeasurementValue;
+    protected AttributeModification<Boolean> q1MeasurementValidity;
+    protected AttributeModification<Double> q2MeasurementValue;
+    protected AttributeModification<Boolean> q2MeasurementValidity;
 
-    protected AbstractBranchModification(BranchModificationInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
-    }
-
-    protected void modifyBranch(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode, String reporterKey) {
+    protected void modifyBranch(Branch<?> branch, ReportNode subReportNode, String reporterKey) {
         subReportNode.newReportNode()
                 .withMessageTemplate(reporterKey)
-                .withUntypedValue("id", branchModificationInfos.getEquipmentId())
+                .withUntypedValue("id", equipmentId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
-        if (branchModificationInfos.getEquipmentName() != null && modificationInfos.getEquipmentName().getValue() != null) {
+        if (equipmentName != null && equipmentName.getValue() != null) {
             ModificationUtils.getInstance().applyElementaryModifications(
                     branch::setName,
                     () -> branch.getOptionalName().orElse(NO_VALUE),
-                    modificationInfos.getEquipmentName(),
+                    equipmentName,
                     subReportNode,
                     "Name"
             );
         }
 
-        modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide1(modificationInfos, branch, subReportNode);
-        modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide2(modificationInfos, branch, subReportNode);
-        modifyBranchConnectivityAttributes(branchModificationInfos, branch, subReportNode);
+        modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide1(branch, subReportNode);
+        modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide2(branch, subReportNode);
+        modifyBranchConnectivityAttributes(branch, subReportNode);
 
-        if (characteristicsModified(branchModificationInfos)) {
-            modifyCharacteristics(branch, branchModificationInfos, subReportNode);
+        if (characteristicsModified()) {
+            modifyCharacteristics(branch, subReportNode);
         }
 
         List<ReportNode> activeOLGReports = new ArrayList<>();
 
         ReportNode limitsReportNode = null;
-        boolean modifyOLG = branchModificationInfos.getEnableOLGModification() == null
-            || branchModificationInfos.getEnableOLGModification();
+        boolean modifyOLG = enableOLGModification == null || enableOLGModification;
 
         if (modifyOLG) {
             limitsReportNode = subReportNode.newReportNode().withMessageTemplate("network.modification.limits").add();
             ReportNode limitSetsReportNode = limitsReportNode.newReportNode().withMessageTemplate("network.modification.limitsSets").add();
             new OperationalLimitsGroupsModification(
                     branch,
-                    branchModificationInfos.getOperationalLimitsGroups(),
+                    operationalLimitsGroups,
                     limitSetsReportNode
-            ).modifyOperationalLimitsGroups(branchModificationInfos.getOperationalLimitsGroupsModificationType());
+            ).modifyOperationalLimitsGroups(operationalLimitsGroupsModificationType);
         }
 
         applySelectedOLGs(branch, activeOLGReports);
@@ -90,22 +118,22 @@ public abstract class AbstractBranchModification extends AbstractModification {
             }
             ModificationUtils.getInstance().reportModifications(limitsReportNode, activeOLGReports, "network.modification.activeLimitsSets");
         }
-        updateConnections(branch, branchModificationInfos);
+        updateConnections(branch);
     }
 
     private void applySelectedOLGs(Branch<?> branch, List<ReportNode> activeOLGReports) {
-        if (modificationInfos.getSelectedOperationalLimitsGroupId1() != null) {
+        if (selectedOperationalLimitsGroupId1 != null) {
             modifySelectedOperationalLimitsGroup(
                     branch,
-                    modificationInfos.getSelectedOperationalLimitsGroupId1(),
+                    selectedOperationalLimitsGroupId1,
                     TwoSides.ONE,
                     activeOLGReports
             );
         }
-        if (modificationInfos.getSelectedOperationalLimitsGroupId2() != null) {
+        if (selectedOperationalLimitsGroupId2 != null) {
             modifySelectedOperationalLimitsGroup(
                     branch,
-                    modificationInfos.getSelectedOperationalLimitsGroupId2(),
+                    selectedOperationalLimitsGroupId2,
                     TwoSides.TWO,
                     activeOLGReports);
         }
@@ -171,15 +199,15 @@ public abstract class AbstractBranchModification extends AbstractModification {
         }
     }
 
-    public ReportNode updateMeasurements(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode) {
-        Double p1Value = branchModificationInfos.getP1MeasurementValue() != null ? branchModificationInfos.getP1MeasurementValue().getValue() : null;
-        Double q1Value = branchModificationInfos.getQ1MeasurementValue() != null ? branchModificationInfos.getQ1MeasurementValue().getValue() : null;
-        Double p2Value = branchModificationInfos.getP2MeasurementValue() != null ? branchModificationInfos.getP2MeasurementValue().getValue() : null;
-        Double q2Value = branchModificationInfos.getQ2MeasurementValue() != null ? branchModificationInfos.getQ2MeasurementValue().getValue() : null;
-        Boolean p1Validity = branchModificationInfos.getP1MeasurementValidity() != null ? branchModificationInfos.getP1MeasurementValidity().getValue() : null;
-        Boolean q1Validity = branchModificationInfos.getQ1MeasurementValidity() != null ? branchModificationInfos.getQ1MeasurementValidity().getValue() : null;
-        Boolean p2Validity = branchModificationInfos.getP2MeasurementValidity() != null ? branchModificationInfos.getP2MeasurementValidity().getValue() : null;
-        Boolean q2Validity = branchModificationInfos.getQ2MeasurementValidity() != null ? branchModificationInfos.getQ2MeasurementValidity().getValue() : null;
+    public ReportNode updateMeasurements(Branch<?> branch, ReportNode subReportNode) {
+        Double p1Value = p1MeasurementValue != null ? p1MeasurementValue.getValue() : null;
+        Double q1Value = q1MeasurementValue != null ? q1MeasurementValue.getValue() : null;
+        Double p2Value = p2MeasurementValue != null ? p2MeasurementValue.getValue() : null;
+        Double q2Value = q2MeasurementValue != null ? q2MeasurementValue.getValue() : null;
+        Boolean p1Validity = p1MeasurementValidity != null ? p1MeasurementValidity.getValue() : null;
+        Boolean q1Validity = q1MeasurementValidity != null ? q1MeasurementValidity.getValue() : null;
+        Boolean p2Validity = p2MeasurementValidity != null ? p2MeasurementValidity.getValue() : null;
+        Boolean q2Validity = q2MeasurementValidity != null ? q2MeasurementValidity.getValue() : null;
         if (p1Value == null && p1Validity == null && q1Value == null && q1Validity == null && p2Value == null && p2Validity == null && q2Value == null && q2Validity == null) {
             // no measurement modification requested
             return null;
@@ -211,16 +239,16 @@ public abstract class AbstractBranchModification extends AbstractModification {
         return estimSubReportNode;
     }
 
-    private void updateConnections(Branch<?> branch, BranchModificationInfos branchModificationInfos) {
+    private void updateConnections(Branch<?> branch) {
         List<TwoSides> errorSides = new ArrayList<>();
         List<String> errorTypes = new ArrayList<>();
-        if (branchModificationInfos.getTerminal1Connected() != null && !updateConnection(branch, TwoSides.ONE, modificationInfos.getTerminal1Connected().getValue())) {
+        if (terminal1Connected != null && !updateConnection(branch, TwoSides.ONE, terminal1Connected.getValue())) {
             errorSides.add(TwoSides.ONE);
-            errorTypes.add(Boolean.TRUE.equals(modificationInfos.getTerminal1Connected().getValue()) ? "connect" : "disconnect");
+            errorTypes.add(Boolean.TRUE.equals(terminal1Connected.getValue()) ? "connect" : "disconnect");
         }
-        if (branchModificationInfos.getTerminal2Connected() != null && !updateConnection(branch, TwoSides.TWO, modificationInfos.getTerminal2Connected().getValue())) {
+        if (terminal2Connected != null && !updateConnection(branch, TwoSides.TWO, terminal2Connected.getValue())) {
             errorSides.add(TwoSides.TWO);
-            errorTypes.add(Boolean.TRUE.equals(modificationInfos.getTerminal2Connected().getValue()) ? "connect" : "disconnect");
+            errorTypes.add(Boolean.TRUE.equals(terminal2Connected.getValue()) ? "connect" : "disconnect");
         }
         if (!errorSides.isEmpty()) {
             throw new NetworkModificationException(BRANCH_MODIFICATION_ERROR,
@@ -262,39 +290,37 @@ public abstract class AbstractBranchModification extends AbstractModification {
                 .endTemporaryLimit();
     }
 
-    protected boolean characteristicsModified(BranchModificationInfos branchModificationInfos) {
-        return branchModificationInfos.getX() != null
-                && branchModificationInfos.getX().getValue() != null
-                || branchModificationInfos.getR() != null
-                && branchModificationInfos.getR().getValue() != null;
+    protected boolean characteristicsModified() {
+        return x != null
+                && x.getValue() != null
+                || r != null
+                && r.getValue() != null;
     }
 
-    protected abstract void modifyCharacteristics(Branch<?> branch, BranchModificationInfos branchModificationInfos,
-                                                  ReportNode subReportNode);
+    protected abstract void modifyCharacteristics(Branch<?> branch, ReportNode subReportNode);
 
-    private ReportNode modifyBranchConnectivityAttributes(BranchModificationInfos branchModificationInfos,
-                                                          Branch<?> branch, ReportNode subReportNode) {
+    private ReportNode modifyBranchConnectivityAttributes(Branch<?> branch, ReportNode subReportNode) {
         ConnectablePosition<?> connectablePosition = (ConnectablePosition<?>) branch.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<?> connectablePositionAdder = branch.newExtension(ConnectablePositionAdder.class);
-        return ModificationUtils.getInstance().modifyBranchConnectivityAttributes(connectablePosition, connectablePositionAdder, branch, branchModificationInfos, subReportNode);
+        return ModificationUtils.getInstance().modifyBranchConnectivityAttributes(connectablePosition, connectablePositionAdder, branch,
+                equipmentId, voltageLevelId1, voltageLevelId2, busOrBusbarSectionId1, busOrBusbarSectionId2, connectionName1, connectionName2,
+                connectionDirection1, connectionDirection2, connectionPosition1, connectionPosition2, terminal1Connected, terminal2Connected, subReportNode);
     }
 
-    private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide1(BranchModificationInfos modificationInfos,
-                                                                           Branch<?> branch, ReportNode subReportNode) {
+    private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide1(Branch<?> branch, ReportNode subReportNode) {
         ModificationUtils.getInstance().moveFeederBay(
                 (Connectable<?>) branch, branch.getTerminal1(),
-                modificationInfos.getVoltageLevelId1(),
-                modificationInfos.getBusOrBusbarSectionId1(),
+                voltageLevelId1,
+                busOrBusbarSectionId1,
                 subReportNode
         );
     }
 
-    private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide2(BranchModificationInfos modificationInfos,
-                                                                           Branch<?> branch, ReportNode subReportNode) {
+    private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide2(Branch<?> branch, ReportNode subReportNode) {
         ModificationUtils.getInstance().moveFeederBay(
                 (Connectable<?>) branch, branch.getTerminal2(),
-                modificationInfos.getVoltageLevelId2(),
-                modificationInfos.getBusOrBusbarSectionId2(),
+                voltageLevelId2,
+                busOrBusbarSectionId2,
                 subReportNode
         );
     }

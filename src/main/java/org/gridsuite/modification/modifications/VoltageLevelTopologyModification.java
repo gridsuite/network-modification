@@ -11,10 +11,16 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentAttributeModificationInfos;
-import org.gridsuite.modification.dto.VoltageLevelTopologyModificationInfos;
+import org.gridsuite.modification.dto.FreePropertyInfos;
+
+import java.util.List;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR;
 import static org.gridsuite.modification.NetworkModificationException.Type.VOLTAGE_LEVEL_NOT_FOUND;
@@ -23,22 +29,24 @@ import static org.gridsuite.modification.NetworkModificationException.Type.VOLTA
  * @author REHILI Ghazwa <ghazwarhili at gmail.com>
  */
 
+@NoArgsConstructor
+@Getter
+@AllArgsConstructor
+@Builder
 public class VoltageLevelTopologyModification extends AbstractModification {
-    private final VoltageLevelTopologyModificationInfos modificationInfos;
-
-    public VoltageLevelTopologyModification(VoltageLevelTopologyModificationInfos voltageLevelTopologyModificationInfos) {
-        this.modificationInfos = voltageLevelTopologyModificationInfos;
-    }
+    private String equipmentId;
+    private List<FreePropertyInfos> properties;
+    private List<EquipmentAttributeModificationInfos> equipmentAttributeModificationList;
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        VoltageLevel voltageLevel = network.getVoltageLevel(modificationInfos.getEquipmentId());
+        VoltageLevel voltageLevel = network.getVoltageLevel(equipmentId);
         if (voltageLevel == null) {
-            throw new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, modificationInfos.getEquipmentId());
+            throw new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, equipmentId);
         }
-        if (!modificationInfos.getEquipmentAttributeModificationList().isEmpty()) {
-            for (EquipmentAttributeModificationInfos equipmentAttributeModificationInfos : modificationInfos.getEquipmentAttributeModificationList()) {
-                EquipmentAttributeModification equipmentAttributeModification = new EquipmentAttributeModification(equipmentAttributeModificationInfos);
+        if (!equipmentAttributeModificationList.isEmpty()) {
+            for (EquipmentAttributeModificationInfos equipmentAttributeModificationInfos : equipmentAttributeModificationList) {
+                AbstractModification equipmentAttributeModification = equipmentAttributeModificationInfos.toModification();
                 equipmentAttributeModification.check(network);
             }
         } else {
@@ -48,13 +56,13 @@ public class VoltageLevelTopologyModification extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        for (EquipmentAttributeModificationInfos equipmentAttributeModificationInfos : modificationInfos.getEquipmentAttributeModificationList()) {
-            EquipmentAttributeModification equipmentAttributeModification = new EquipmentAttributeModification(equipmentAttributeModificationInfos);
+        for (EquipmentAttributeModificationInfos equipmentAttributeModificationInfos : equipmentAttributeModificationList) {
+            AbstractModification equipmentAttributeModification = equipmentAttributeModificationInfos.toModification();
             equipmentAttributeModification.apply(network, subReportNode);
         }
         subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.voltageLevelTopologyModified")
-                .withUntypedValue("id", modificationInfos.getEquipmentId())
+                .withUntypedValue("id", equipmentId)
                 .withSeverity(TypedValue.DEBUG_SEVERITY)
                 .add();
     }
@@ -64,4 +72,3 @@ public class VoltageLevelTopologyModification extends AbstractModification {
         return ModificationType.VOLTAGE_LEVEL_TOPOLOGY_MODIFICATION.toString();
     }
 }
-

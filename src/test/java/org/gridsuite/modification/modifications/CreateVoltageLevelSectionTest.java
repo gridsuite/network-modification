@@ -50,25 +50,47 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
     @Override
     public void checkModification() {
         Network network = getNetwork();
-        CreateVoltageLevelSectionInfos voltageLevelSectionInfos = (CreateVoltageLevelSectionInfos) buildModification();
-        voltageLevelSectionInfos.setBusbarIndex(1);
-        AbstractModification modification = voltageLevelSectionInfos.toModification();
+        CreateVoltageLevelSection voltageLevelSection = CreateVoltageLevelSection.builder()
+            .voltageLevelId("v1")
+            .busbarSectionId("bbs1")
+            .busbarIndex(1) // Wrong BBS index
+            .afterBusbarSectionId(true)
+            .leftSwitchKind("BREAKER")
+            .rightSwitchKind("DISCONNECTOR")
+            .allBusbars(false)
+            .switchOpen(true)
+            .build();
 
-        assertEquals("CREATE_VOLTAGE_LEVEL_SECTION", modification.getName());
-        String message = assertThrows(NetworkModificationException.class, () -> modification.check(network)).getMessage();
+        assertEquals("CREATE_VOLTAGE_LEVEL_SECTION", voltageLevelSection.getName());
+        String message = assertThrows(NetworkModificationException.class, () -> voltageLevelSection.check(network)).getMessage();
         assertEquals("BUSBAR_SECTION_NOT_FOUND : 1 is not the busbar index of the busbar section bbs1 in voltage level v1", message);
 
-        voltageLevelSectionInfos.setVoltageLevelId("notFoundVoltageLevel");
-        voltageLevelSectionInfos.setBusbarSectionId("bbs1");
-        voltageLevelSectionInfos.setBusbarIndex(1);
+        CreateVoltageLevelSection voltageLevelSection2 = CreateVoltageLevelSection.builder()
+            .voltageLevelId("notFoundVoltageLevel")
+            .busbarSectionId("bbs1")
+            .busbarIndex(1)
+            .afterBusbarSectionId(true)
+            .leftSwitchKind("BREAKER")
+            .rightSwitchKind("DISCONNECTOR")
+            .allBusbars(false)
+            .switchOpen(true)
+            .build();
         message = assertThrows(NetworkModificationException.class,
-                () -> modification.check(network)).getMessage();
+                () -> voltageLevelSection2.check(network)).getMessage();
         assertEquals("CREATE_VOLTAGE_LEVEL_ERROR : Voltage level not found: notFoundVoltageLevel", message);
 
-        voltageLevelSectionInfos.setVoltageLevelId("v1");
-        voltageLevelSectionInfos.setBusbarSectionId("notFoundBusbar");
+        CreateVoltageLevelSection voltageLevelSection3 = CreateVoltageLevelSection.builder()
+            .voltageLevelId("v1")
+            .busbarSectionId("notFoundBusbar")
+            .busbarIndex(1)
+            .afterBusbarSectionId(true)
+            .leftSwitchKind("BREAKER")
+            .rightSwitchKind("DISCONNECTOR")
+            .allBusbars(false)
+            .switchOpen(true)
+            .build();
         message = assertThrows(NetworkModificationException.class,
-                () -> modification.check(network)).getMessage();
+                () -> voltageLevelSection3.check(network)).getMessage();
         assertEquals("BUSBAR_SECTION_NOT_FOUND : notFoundBusbar not found in voltage level v1", message);
     }
 

@@ -59,7 +59,17 @@ public class LinesAttachToSplitLinesInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new LinesAttachToSplitLines(this);
+        return LinesAttachToSplitLines.builder()
+                .lineToAttachTo1Id(lineToAttachTo1Id)
+                .lineToAttachTo2Id(lineToAttachTo2Id)
+                .attachedLineId(attachedLineId)
+                .voltageLevelId(voltageLevelId)
+                .bbsBusId(bbsBusId)
+                .replacingLine1Id(replacingLine1Id)
+                .replacingLine1Name(replacingLine1Name)
+                .replacingLine2Id(replacingLine2Id)
+                .replacingLine2Name(replacingLine2Name)
+                .build();
     }
 
     @Override

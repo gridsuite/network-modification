@@ -10,23 +10,39 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.ModificationReferenceInfos;
+
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
+@NoArgsConstructor
+@Getter
 public class ModificationReference extends AbstractModification {
 
-    private final ModificationReferenceInfos modificationReferenceInfos;
+    private UUID referenceId;
+    private ModificationReferenceInfos.Type referenceType;
+    private ModificationInfos referenceInfos;
 
     protected IFilterService filterService;
     protected ILoadFlowService loadFlowService;
 
-    public ModificationReference(ModificationReferenceInfos modificationReferenceInfos) {
-        this.modificationReferenceInfos = modificationReferenceInfos;
+    @Builder
+    public ModificationReference(UUID referenceId,
+                                 ModificationReferenceInfos.Type referenceType,
+                                 ModificationInfos referenceInfos) {
+        this.referenceId = referenceId;
+        this.referenceType = referenceType;
+        this.referenceInfos = referenceInfos;
     }
 
     @Override
@@ -38,7 +54,10 @@ public class ModificationReference extends AbstractModification {
     @Override
     public void check(Network network) {
         super.check(network);
-        modificationReferenceInfos.check();
+        Objects.requireNonNull(referenceId, "referenceId is required");
+        Objects.requireNonNull(referenceType, "referenceType is required");
+        Objects.requireNonNull(referenceInfos, "referenceInfos is required");
+        referenceInfos.check();
     }
 
     @Override
@@ -48,10 +67,10 @@ public class ModificationReference extends AbstractModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
-        AbstractModification modification = modificationReferenceInfos.getReferenceInfos().toModification();
+        AbstractModification modification = referenceInfos.toModification();
         modification.check(network);
         modification.initApplicationContext(filterService, loadFlowService);
-        modification.apply(network, namingStrategy, modificationReferenceInfos.getReferenceInfos().createSubReportNode(subReportNode));
+        modification.apply(network, namingStrategy, referenceInfos.createSubReportNode(subReportNode));
     }
 
     @Override

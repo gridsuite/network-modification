@@ -53,7 +53,13 @@ public class DeleteAttachingLineInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new DeleteAttachingLine(this);
+        return DeleteAttachingLine.builder()
+                .lineToAttachTo1Id(getLineToAttachTo1Id())
+                .lineToAttachTo2Id(getLineToAttachTo2Id())
+                .attachedLineId(getAttachedLineId())
+                .replacingLine1Id(getReplacingLine1Id())
+                .replacingLine1Name(getReplacingLine1Name())
+                .build();
     }
 
     @Override

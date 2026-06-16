@@ -112,7 +112,46 @@ public class GeneratorModificationInfos extends InjectionModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new GeneratorModification(this);
+        return GeneratorModification.builder()
+            .equipmentId(getEquipmentId())
+            .properties(getProperties())
+            .equipmentName(getEquipmentName())
+            .voltageLevelId(getVoltageLevelId())
+            .busOrBusbarSectionId(getBusOrBusbarSectionId())
+            .connectionName(getConnectionName())
+            .connectionDirection(getConnectionDirection())
+            .connectionPosition(getConnectionPosition())
+            .terminalConnected(getTerminalConnected())
+            .pMeasurementValue(getPMeasurementValue())
+            .pMeasurementValidity(getPMeasurementValidity())
+            .qMeasurementValue(getQMeasurementValue())
+            .qMeasurementValidity(getQMeasurementValidity())
+            .energySource(energySource)
+            .minP(minP)
+            .maxP(maxP)
+            .ratedS(ratedS)
+            .targetP(targetP)
+            .targetQ(targetQ)
+            .voltageRegulationOn(voltageRegulationOn)
+            .targetV(targetV)
+            .plannedActivePowerSetPoint(plannedActivePowerSetPoint)
+            .marginalCost(marginalCost)
+            .plannedOutageRate(plannedOutageRate)
+            .forcedOutageRate(forcedOutageRate)
+            .minQ(minQ)
+            .maxQ(maxQ)
+            .reactiveCapabilityCurvePoints(reactiveCapabilityCurvePoints)
+            .participate(participate)
+            .droop(droop)
+            .directTransX(directTransX)
+            .stepUpTransformerX(stepUpTransformerX)
+            .voltageRegulationType(voltageRegulationType)
+            .regulatingTerminalId(regulatingTerminalId)
+            .regulatingTerminalType(regulatingTerminalType)
+            .regulatingTerminalVlId(regulatingTerminalVlId)
+            .qPercent(qPercent)
+            .reactiveCapabilityCurve(reactiveCapabilityCurve)
+            .build();
     }
 
     @Override

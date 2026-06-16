@@ -111,7 +111,41 @@ public class GeneratorCreationInfos extends InjectionCreationInfos implements Re
 
     @Override
     public AbstractModification toModification() {
-        return new GeneratorCreation(this);
+        return GeneratorCreation.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentName(getEquipmentName())
+                .voltageLevelId(getVoltageLevelId())
+                .busOrBusbarSectionId(getBusOrBusbarSectionId())
+                .connectionName(getConnectionName())
+                .connectionDirection(getConnectionDirection())
+                .connectionPosition(getConnectionPosition())
+                .terminalConnected(isTerminalConnected())
+                .energySource(getEnergySource())
+                .minP(getMinP())
+                .maxP(getMaxP())
+                .ratedS(getRatedS())
+                .targetP(getTargetP())
+                .targetQ(getTargetQ())
+                .voltageRegulationOn(isVoltageRegulationOn())
+                .targetV(getTargetV())
+                .plannedActivePowerSetPoint(getPlannedActivePowerSetPoint())
+                .marginalCost(getMarginalCost())
+                .plannedOutageRate(getPlannedOutageRate())
+                .forcedOutageRate(getForcedOutageRate())
+                .minQ(getMinQ())
+                .maxQ(getMaxQ())
+                .reactiveCapabilityCurvePoints(getReactiveCapabilityCurvePoints())
+                .participate(getParticipate())
+                .droop(getDroop())
+                .directTransX(getDirectTransX())
+                .stepUpTransformerX(getStepUpTransformerX())
+                .regulatingTerminalId(getRegulatingTerminalId())
+                .regulatingTerminalType(getRegulatingTerminalType())
+                .regulatingTerminalVlId(getRegulatingTerminalVlId())
+                .qPercent(getQPercent())
+                .reactiveCapabilityCurve(getReactiveCapabilityCurve())
+                .build();
     }
 
     @Override

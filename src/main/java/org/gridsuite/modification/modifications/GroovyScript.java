@@ -11,26 +11,30 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.GroovyScriptInfos;
+
 import static org.gridsuite.modification.NetworkModificationException.Type.GROOVY_SCRIPT_EMPTY;
 
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
  */
+@NoArgsConstructor
+@Getter
+@AllArgsConstructor
+@Builder
 public class GroovyScript extends AbstractModification {
 
-    private final GroovyScriptInfos modificationInfos;
-
-    public GroovyScript(GroovyScriptInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
-    }
+    private String script;
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (StringUtils.isBlank(modificationInfos.getScript())) {
+        if (StringUtils.isBlank(script)) {
             throw new NetworkModificationException(GROOVY_SCRIPT_EMPTY);
         }
     }
@@ -41,7 +45,7 @@ public class GroovyScript extends AbstractModification {
         var binding = new Binding();
         binding.setProperty("network", network);
         var shell = new GroovyShell(binding, conf);
-        shell.evaluate(modificationInfos.getScript());
+        shell.evaluate(script);
 
         subReportNode.newReportNode()
             .withMessageTemplate("network.modification.groovyScriptApplied")

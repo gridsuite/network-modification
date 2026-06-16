@@ -52,7 +52,10 @@ public class CompositeModificationInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new CompositeModification(this);
+        return CompositeModification.builder()
+                .modificationsInfos(getModificationsInfos())
+                .maxDepth(getMaxDepth())
+                .build();
     }
 
     @Override

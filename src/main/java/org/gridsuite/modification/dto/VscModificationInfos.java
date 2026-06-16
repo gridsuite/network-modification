@@ -60,7 +60,23 @@ public class VscModificationInfos extends BasicEquipmentModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new VscModification(this);
+        return VscModification.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentName(getEquipmentName())
+                .nominalV(getNominalV())
+                .r(getR())
+                .maxP(getMaxP())
+                .operatorActivePowerLimitFromSide1ToSide2(getOperatorActivePowerLimitFromSide1ToSide2())
+                .operatorActivePowerLimitFromSide2ToSide1(getOperatorActivePowerLimitFromSide2ToSide1())
+                .convertersMode(getConvertersMode())
+                .activePowerSetpoint(getActivePowerSetpoint())
+                .angleDroopActivePowerControl(getAngleDroopActivePowerControl())
+                .p0(getP0())
+                .droop(getDroop())
+                .converterStation1(getConverterStation1())
+                .converterStation2(getConverterStation2())
+                .build();
     }
 
     @Override

@@ -8,10 +8,14 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
-import org.gridsuite.modification.dto.InjectionModificationInfos;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.gridsuite.modification.dto.AttributeModification;
+import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.utils.MeasurementUtils;
 import org.gridsuite.modification.utils.ModificationUtils;
 
@@ -21,19 +25,29 @@ import java.util.List;
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
+@NoArgsConstructor
+@Getter
 public abstract class AbstractInjectionModification extends AbstractModification {
 
-    protected final InjectionModificationInfos modificationInfos;
+    protected String equipmentId;
+    protected List<FreePropertyInfos> properties;
+    protected AttributeModification<String> equipmentName;
+    protected AttributeModification<String> voltageLevelId;
+    protected AttributeModification<String> busOrBusbarSectionId;
+    protected AttributeModification<String> connectionName;
+    protected AttributeModification<ConnectablePosition.Direction> connectionDirection;
+    protected AttributeModification<Integer> connectionPosition;
+    protected AttributeModification<Boolean> terminalConnected;
+    protected AttributeModification<Double> pMeasurementValue;
+    protected AttributeModification<Boolean> pMeasurementValidity;
+    protected AttributeModification<Double> qMeasurementValue;
+    protected AttributeModification<Boolean> qMeasurementValidity;
 
-    protected AbstractInjectionModification(InjectionModificationInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
-    }
-
-    protected ReportNode updateMeasurements(Injection<?> injection, InjectionModificationInfos injectionModificationInfos, ReportNode subReportNode) {
-        Double pValue = injectionModificationInfos.getPMeasurementValue() != null ? injectionModificationInfos.getPMeasurementValue().getValue() : null;
-        Double qValue = injectionModificationInfos.getQMeasurementValue() != null ? injectionModificationInfos.getQMeasurementValue().getValue() : null;
-        Boolean pValidity = injectionModificationInfos.getPMeasurementValidity() != null ? injectionModificationInfos.getPMeasurementValidity().getValue() : null;
-        Boolean qValidity = injectionModificationInfos.getQMeasurementValidity() != null ? injectionModificationInfos.getQMeasurementValidity().getValue() : null;
+    protected ReportNode updateMeasurements(Injection<?> injection, ReportNode subReportNode) {
+        Double pValue = pMeasurementValue != null ? pMeasurementValue.getValue() : null;
+        Double qValue = qMeasurementValue != null ? qMeasurementValue.getValue() : null;
+        Boolean pValidity = pMeasurementValidity != null ? pMeasurementValidity.getValue() : null;
+        Boolean qValidity = qMeasurementValidity != null ? qMeasurementValidity.getValue() : null;
 
         if (pValue == null && pValidity == null && qValue == null && qValidity == null) {
             // no measurement modification requested

@@ -11,25 +11,36 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
-import org.gridsuite.modification.dto.CompositeModificationInfos;
+import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
+
+import java.util.List;
 
 import static org.gridsuite.modification.modifications.byfilter.AbstractModificationByAssignment.VALUE_KEY_ERROR_MESSAGE;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
  */
+@NoArgsConstructor
+@Getter
 public class CompositeModification extends AbstractModification {
 
-    private final CompositeModificationInfos compositeModificationInfos;
+    private List<ModificationInfos> modificationsInfos;
+    private Integer maxDepth;
 
     protected IFilterService filterService;
     protected ILoadFlowService loadFlowService;
 
-    public CompositeModification(CompositeModificationInfos compositeModificationInfos) {
-        this.compositeModificationInfos = compositeModificationInfos;
+    @Builder
+    public CompositeModification(List<ModificationInfos> modificationsInfos,
+                                 Integer maxDepth) {
+        this.modificationsInfos = modificationsInfos;
+        this.maxDepth = maxDepth;
     }
 
     @Override
@@ -45,7 +56,7 @@ public class CompositeModification extends AbstractModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
-        compositeModificationInfos.getModificationsInfos().stream()
+        modificationsInfos.stream()
                 .filter(modificationInfos -> Boolean.TRUE.equals(modificationInfos.getActivated())
                         && Boolean.FALSE.equals(modificationInfos.getStashed()))
                 .forEach(
@@ -68,7 +79,7 @@ public class CompositeModification extends AbstractModification {
                                         .add();
                             }
                         }
-        );
+            );
     }
 
     @Override

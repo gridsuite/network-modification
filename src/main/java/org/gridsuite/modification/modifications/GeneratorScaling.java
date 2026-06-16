@@ -13,8 +13,10 @@ import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.VariationType;
-import org.gridsuite.modification.dto.GeneratorScalingInfos;
 import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.dto.ScalingVariationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -29,10 +31,12 @@ import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
  */
 
+@NoArgsConstructor
 public class GeneratorScaling extends AbstractScaling {
 
-    public GeneratorScaling(GeneratorScalingInfos generatorScalableInfos) {
-        super(generatorScalableInfos);
+    @Builder
+    public GeneratorScaling(List<ScalingVariationInfos> variations, VariationType variationType, NetworkModificationException.Type errorType) {
+        super(variations, variationType, errorType);
     }
 
     @Override
@@ -179,7 +183,7 @@ public class GeneratorScaling extends AbstractScaling {
 
     @Override
     protected double getAsked(ScalingVariationInfos generatorScalingVariation, AtomicReference<Double> sum) {
-        return scalingInfos.getVariationType() == VariationType.DELTA_P
+        return variationType == VariationType.DELTA_P
                 ? generatorScalingVariation.getVariationValue()
                 : generatorScalingVariation.getVariationValue() - sum.get();
     }

@@ -10,9 +10,10 @@ package org.gridsuite.modification.modifications.byfilter;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.DataType;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
@@ -29,13 +30,18 @@ import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyFie
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
  */
+@NoArgsConstructor
+@Getter
 public class ModificationByAssignment extends AbstractModificationByAssignment {
 
-    private final ModificationByAssignmentInfos modificationInfos;
+    private IdentifiableType equipmentType;
+    private List<? extends AssignmentInfos<?>> assignmentInfosList;
 
-    public ModificationByAssignment(ModificationByAssignmentInfos modificationInfos) {
+    @Builder
+    public ModificationByAssignment(IdentifiableType equipmentType, List<? extends AssignmentInfos<?>> assignmentInfosList) {
         super();
-        this.modificationInfos = modificationInfos;
+        this.equipmentType = equipmentType;
+        this.assignmentInfosList = assignmentInfosList;
     }
 
     @Override
@@ -44,18 +50,13 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
     }
 
     @Override
-    public ModificationInfos getModificationInfos() {
-        return modificationInfos;
-    }
-
-    @Override
     public IdentifiableType getEquipmentType() {
-        return modificationInfos.getEquipmentType();
+        return equipmentType;
     }
 
     @Override
     public List<AbstractAssignmentInfos> getAssignmentInfosList() {
-        return Collections.unmodifiableList(modificationInfos.getAssignmentInfosList());
+        return Collections.unmodifiableList(assignmentInfosList);
     }
 
     @Override

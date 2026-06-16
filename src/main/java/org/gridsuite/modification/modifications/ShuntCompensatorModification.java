@@ -12,9 +12,12 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
-import org.gridsuite.modification.dto.ShuntCompensatorModificationInfos;
+import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorType;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -30,63 +33,104 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
  */
 
+@NoArgsConstructor
+@Getter
 public class ShuntCompensatorModification extends AbstractInjectionModification {
     private static final String SWITCHED_ON_Q_AT_NOMINALV_LOG_MESSAGE = "Switched-on Q at nominal voltage";
+    private AttributeModification<Integer> maximumSectionCount;
+    private AttributeModification<Integer> sectionCount;
+    private AttributeModification<Double> maxSusceptance;
+    private AttributeModification<Double> maxQAtNominalV;
+    private AttributeModification<ShuntCompensatorType> shuntCompensatorType;
 
-    public ShuntCompensatorModification(ShuntCompensatorModificationInfos shuntCompensatorModificationInfos) {
-        super(shuntCompensatorModificationInfos);
+    @Builder
+    public ShuntCompensatorModification(String equipmentId,
+                                        List<FreePropertyInfos> properties,
+                                        AttributeModification<String> equipmentName,
+                                        AttributeModification<String> voltageLevelId,
+                                        AttributeModification<String> busOrBusbarSectionId,
+                                        AttributeModification<String> connectionName,
+                                        AttributeModification<ConnectablePosition.Direction> connectionDirection,
+                                        AttributeModification<Integer> connectionPosition,
+                                        AttributeModification<Boolean> terminalConnected,
+                                        AttributeModification<Double> pMeasurementValue,
+                                        AttributeModification<Boolean> pMeasurementValidity,
+                                        AttributeModification<Double> qMeasurementValue,
+                                        AttributeModification<Boolean> qMeasurementValidity,
+                                        AttributeModification<Integer> maximumSectionCount,
+                                        AttributeModification<Integer> sectionCount,
+                                        AttributeModification<Double> maxSusceptance,
+                                        AttributeModification<Double> maxQAtNominalV,
+                                        AttributeModification<ShuntCompensatorType> shuntCompensatorType) {
+        this.equipmentId = equipmentId;
+        this.properties = properties;
+        this.equipmentName = equipmentName;
+        this.voltageLevelId = voltageLevelId;
+        this.busOrBusbarSectionId = busOrBusbarSectionId;
+        this.connectionName = connectionName;
+        this.connectionDirection = connectionDirection;
+        this.connectionPosition = connectionPosition;
+        this.terminalConnected = terminalConnected;
+        this.pMeasurementValue = pMeasurementValue;
+        this.pMeasurementValidity = pMeasurementValidity;
+        this.qMeasurementValue = qMeasurementValue;
+        this.qMeasurementValidity = qMeasurementValidity;
+        this.maximumSectionCount = maximumSectionCount;
+        this.sectionCount = sectionCount;
+        this.maxSusceptance = maxSusceptance;
+        this.maxQAtNominalV = maxQAtNominalV;
+        this.shuntCompensatorType = shuntCompensatorType;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        ShuntCompensatorModificationInfos shuntCompensatorModificationInfos = (ShuntCompensatorModificationInfos) modificationInfos;
-        ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorModificationInfos.getEquipmentId());
+        ShuntCompensator shuntCompensator = network.getShuntCompensator(equipmentId);
         if (shuntCompensator == null) {
             throw new NetworkModificationException(SHUNT_COMPENSATOR_NOT_FOUND,
-                    String.format("Shunt compensator %s does not exist in network", shuntCompensatorModificationInfos.getEquipmentId()));
+                    String.format("Shunt compensator %s does not exist in network", equipmentId));
         }
-        ModificationUtils.getInstance().checkVoltageLevelModification(network, shuntCompensatorModificationInfos.getVoltageLevelId(),
-                shuntCompensatorModificationInfos.getBusOrBusbarSectionId(), shuntCompensator.getTerminal());
-        int maximumSectionCount = shuntCompensatorModificationInfos.getMaximumSectionCount() != null
-                ? shuntCompensatorModificationInfos.getMaximumSectionCount().getValue()
+        ModificationUtils.getInstance().checkVoltageLevelModification(network, voltageLevelId,
+                busOrBusbarSectionId, shuntCompensator.getTerminal());
+        int newMaximumSectionCount = maximumSectionCount != null
+                ? maximumSectionCount.getValue()
                 : shuntCompensator.getMaximumSectionCount();
 
-        int sectionCount = shuntCompensatorModificationInfos.getSectionCount() != null
-                ? shuntCompensatorModificationInfos.getSectionCount().getValue()
+        int newSectionCount = sectionCount != null
+                ? sectionCount.getValue()
                 : shuntCompensator.getSectionCount();
 
-        if (shuntCompensatorModificationInfos.getMaximumSectionCount() != null && shuntCompensatorModificationInfos.getMaximumSectionCount().getValue() < 1) {
+        if (maximumSectionCount != null && maximumSectionCount.getValue() < 1) {
             throw new NetworkModificationException(MODIFY_SHUNT_COMPENSATOR_ERROR, "Maximum section count should be greater or equal to 1");
         }
 
-        if (sectionCount < 0 || maximumSectionCount < 1 || sectionCount > maximumSectionCount) {
-            throw new NetworkModificationException(MODIFY_SHUNT_COMPENSATOR_ERROR, String.format("Section count should be between 0 and Maximum section count (%d), actual : %d", maximumSectionCount,
-                    sectionCount));
+        if (newSectionCount < 0 || newMaximumSectionCount < 1 || newSectionCount > newMaximumSectionCount) {
+            throw new NetworkModificationException(MODIFY_SHUNT_COMPENSATOR_ERROR, String.format(
+                    "Section count should be between 0 and Maximum section count (%d), actual : %d", newMaximumSectionCount,
+                    newSectionCount));
         }
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        ShuntCompensatorModificationInfos shuntCompensatorModificationInfos = (ShuntCompensatorModificationInfos) modificationInfos;
-        ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorModificationInfos.getEquipmentId());
+        ShuntCompensator shuntCompensator = network.getShuntCompensator(equipmentId);
         VoltageLevel voltageLevel = shuntCompensator.getTerminal().getVoltageLevel();
 
         subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.shuntCompensatorModification.withId")
-                .withUntypedValue("id", shuntCompensatorModificationInfos.getEquipmentId())
+                .withUntypedValue("id", equipmentId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
 
-        ModificationUtils.getInstance().applyElementaryModifications(shuntCompensator::setName, () -> shuntCompensator.getOptionalName().orElse("No value"), modificationInfos.getEquipmentName(),
+        ModificationUtils.getInstance().applyElementaryModifications(shuntCompensator::setName, () -> shuntCompensator.getOptionalName().orElse("No value"), equipmentName,
                 subReportNode, "Name");
 
         if (shuntCompensator.getModelType() == ShuntCompensatorModelType.LINEAR) {
             applyModificationOnLinearModel(subReportNode, shuntCompensator, voltageLevel);
         }
-        modifyShuntCompensatorVoltageLevelBusOrBusBarSectionAttributes(shuntCompensatorModificationInfos, shuntCompensator, subReportNode);
-        modifyShuntCompensatorConnectivityAttributes(shuntCompensatorModificationInfos, shuntCompensator, subReportNode);
-        updateMeasurements(shuntCompensator, shuntCompensatorModificationInfos, subReportNode);
-        PropertiesUtils.applyProperties(shuntCompensator, subReportNode, shuntCompensatorModificationInfos.getProperties(), "network.modification.ShuntCompensatorProperties");
+        modifyShuntCompensatorVoltageLevelBusOrBusBarSectionAttributes(shuntCompensator, subReportNode);
+        modifyShuntCompensatorConnectivityAttributes(shuntCompensator, subReportNode);
+        updateMeasurements(shuntCompensator, subReportNode);
+        PropertiesUtils.applyProperties(shuntCompensator, subReportNode, properties, "network.modification.ShuntCompensatorProperties");
     }
 
     @Override
@@ -123,7 +167,6 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
     }
 
     private void applyModificationOnLinearModel(ReportNode subReportNode, ShuntCompensator shuntCompensator, VoltageLevel voltageLevel) {
-        ShuntCompensatorModificationInfos shuntCompensatorModificationInfos = (ShuntCompensatorModificationInfos) modificationInfos;
         List<ReportNode> reports = new ArrayList<>();
         ShuntCompensatorLinearModel model = shuntCompensator.getModel(ShuntCompensatorLinearModel.class);
         var shuntCompensatorType = model.getBPerSection() > 0 ? ShuntCompensatorType.CAPACITOR : ShuntCompensatorType.REACTOR;
@@ -133,34 +176,34 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
         double oldSwitchedOnSusceptance = oldSusceptancePerSection * shuntCompensator.getSectionCount();
         double oldSwitchedOnQAtNominalV = oldQAtNominalV * shuntCompensator.getSectionCount();
 
-        if (shuntCompensatorModificationInfos.getShuntCompensatorType() != null || shuntCompensatorModificationInfos.getMaxQAtNominalV() != null) {
-            shuntCompensatorModificationInfos.setMaxSusceptance(null);
+        if (this.shuntCompensatorType != null || maxQAtNominalV != null) {
+            maxSusceptance = null;
         }
 
         // due to cross validation between maximum section count and section count, we need to modify section count first
         // when maximum section count old value is greater than the new one
-        if (shuntCompensatorModificationInfos.getMaximumSectionCount() != null && shuntCompensatorModificationInfos.getMaximumSectionCount().getValue() < shuntCompensator.getMaximumSectionCount()) {
-            modifySectionCount(shuntCompensatorModificationInfos.getSectionCount(), reports, shuntCompensator);
-            modifyMaximumSectionCount(shuntCompensatorModificationInfos.getMaximumSectionCount(),
-                    shuntCompensatorModificationInfos.getMaxSusceptance(),
-                    shuntCompensatorModificationInfos.getMaxQAtNominalV(),
+        if (maximumSectionCount != null && maximumSectionCount.getValue() < shuntCompensator.getMaximumSectionCount()) {
+            modifySectionCount(sectionCount, reports, shuntCompensator);
+            modifyMaximumSectionCount(maximumSectionCount,
+                    maxSusceptance,
+                    maxQAtNominalV,
                     reports, shuntCompensator, model);
         } else {
-            modifyMaximumSectionCount(shuntCompensatorModificationInfos.getMaximumSectionCount(),
-                    shuntCompensatorModificationInfos.getMaxSusceptance(),
-                    shuntCompensatorModificationInfos.getMaxQAtNominalV(),
+            modifyMaximumSectionCount(maximumSectionCount,
+                    maxSusceptance,
+                    maxQAtNominalV,
                     reports, shuntCompensator, model);
-            modifySectionCount(shuntCompensatorModificationInfos.getSectionCount(), reports, shuntCompensator);
+            modifySectionCount(sectionCount, reports, shuntCompensator);
         }
 
-        int maximumSectionCount = shuntCompensatorModificationInfos.getMaximumSectionCount() != null ? shuntCompensatorModificationInfos.getMaximumSectionCount().getValue(
+        int newMaximumSectionCount = maximumSectionCount != null ? maximumSectionCount.getValue(
                 ) : shuntCompensator.getMaximumSectionCount();
-        int sectionCount = shuntCompensatorModificationInfos.getSectionCount() != null ? shuntCompensatorModificationInfos.getSectionCount().getValue() : shuntCompensator.getSectionCount();
+        int newSectionCount = sectionCount != null ? sectionCount.getValue() : shuntCompensator.getSectionCount();
 
-        if (shuntCompensatorModificationInfos.getShuntCompensatorType() != null) {
-            reports.add(ModificationUtils.getInstance().buildModificationReport(shuntCompensatorType, shuntCompensatorModificationInfos.getShuntCompensatorType().getValue(), "Type"));
-            shuntCompensatorType = shuntCompensatorModificationInfos.getShuntCompensatorType().getValue();
-            if (shuntCompensatorModificationInfos.getMaxQAtNominalV() == null) {
+        if (this.shuntCompensatorType != null) {
+            reports.add(ModificationUtils.getInstance().buildModificationReport(shuntCompensatorType, this.shuntCompensatorType.getValue(), "Type"));
+            shuntCompensatorType = this.shuntCompensatorType.getValue();
+            if (maxQAtNominalV == null) {
                 // we retrieve the absolute value of susceptance per section, then we determine the sign using the type
                 double bPerSectionAbsoluteValue = Math.abs(oldSusceptancePerSection);
                 double newBPerSection = shuntCompensatorType == ShuntCompensatorType.CAPACITOR ? bPerSectionAbsoluteValue : -bPerSectionAbsoluteValue;
@@ -168,15 +211,15 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
             }
         }
 
-        if (shuntCompensatorModificationInfos.getMaxQAtNominalV() != null) {
-            modifyMaximumQAtNominalVoltage(shuntCompensatorModificationInfos.getMaxQAtNominalV(), voltageLevel, maximumSectionCount, reports, model, shuntCompensatorType);
+        if (maxQAtNominalV != null) {
+            modifyMaximumQAtNominalVoltage(maxQAtNominalV, voltageLevel, newMaximumSectionCount, reports, model, shuntCompensatorType);
         }
-        if (shuntCompensatorModificationInfos.getMaxSusceptance() != null) {
-            modifyMaxSusceptance(shuntCompensatorModificationInfos.getMaxSusceptance(), maximumSectionCount, reports, model);
+        if (maxSusceptance != null) {
+            modifyMaxSusceptance(maxSusceptance, newMaximumSectionCount, reports, model);
         }
 
-        reportSwitchedOnAndPerSectionValues(reports, oldQAtNominalV, oldSwitchedOnQAtNominalV, oldSusceptancePerSection, oldSwitchedOnSusceptance, oldMaxQAtNominalV, sectionCount,
-                maximumSectionCount);
+        reportSwitchedOnAndPerSectionValues(reports, oldQAtNominalV, oldSwitchedOnQAtNominalV, oldSusceptancePerSection, oldSwitchedOnSusceptance, oldMaxQAtNominalV, newSectionCount,
+                newMaximumSectionCount);
 
         reports.forEach(report -> insertReportNode(subReportNode, report));
     }
@@ -218,42 +261,40 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
 
     private void reportSwitchedOnAndPerSectionValues(List<ReportNode> reports, double oldQAtNominalV, double oldSwitchedOnQAtNominalV, double oldSusceptancePerSection, double oldSwitchedOnSusceptance,
             double oldMaxQAtNominalV, int sectionCount, int maximumSectionCount) {
-        ShuntCompensatorModificationInfos shuntCompensatorModificationInfos = (ShuntCompensatorModificationInfos) modificationInfos;
-        if (shuntCompensatorModificationInfos.getMaxQAtNominalV() != null) {
-            double newQatNominalV = shuntCompensatorModificationInfos.getMaxQAtNominalV().getValue() / maximumSectionCount;
+        if (maxQAtNominalV != null) {
+            double newQatNominalV = maxQAtNominalV.getValue() / maximumSectionCount;
             double newSwitchedOnQAtNominalV = newQatNominalV * sectionCount;
             reports.add(ModificationUtils.getInstance().buildModificationReport(oldQAtNominalV, newQatNominalV, "Q at nominal voltage per section"));
             reports.add(ModificationUtils.getInstance().buildModificationReport(oldSwitchedOnQAtNominalV, newSwitchedOnQAtNominalV, SWITCHED_ON_Q_AT_NOMINALV_LOG_MESSAGE));
-        } else if (shuntCompensatorModificationInfos.getMaxSusceptance() != null) {
-            double newSusceptancePerSection = shuntCompensatorModificationInfos.getMaxSusceptance().getValue() / maximumSectionCount;
+        } else if (maxSusceptance != null) {
+            double newSusceptancePerSection = maxSusceptance.getValue() / maximumSectionCount;
             double newSwitchedOnSusceptance = newSusceptancePerSection * sectionCount;
             reports.add(ModificationUtils.getInstance().buildModificationReport(oldSusceptancePerSection, newSusceptancePerSection, "Susceptance per section"));
             reports.add(ModificationUtils.getInstance().buildModificationReport(oldSwitchedOnSusceptance, newSwitchedOnSusceptance, "Switched-on susceptance"));
-        } else if (shuntCompensatorModificationInfos.getMaximumSectionCount() != null) {
+        } else if (this.maximumSectionCount != null) {
             double newQatNominalV = oldMaxQAtNominalV / maximumSectionCount;
             double newSwitchedOnQAtNominalV = newQatNominalV * sectionCount;
             reports.add(ModificationUtils.getInstance().buildModificationReport(oldQAtNominalV, newQatNominalV, "Q at nominal voltage per section"));
             reports.add(ModificationUtils.getInstance().buildModificationReport(oldSwitchedOnQAtNominalV, newSwitchedOnQAtNominalV, SWITCHED_ON_Q_AT_NOMINALV_LOG_MESSAGE));
-        } else if (shuntCompensatorModificationInfos.getSectionCount() != null) {
+        } else if (this.sectionCount != null) {
             double newSwitchedOnQAtNominalV = oldQAtNominalV * sectionCount;
             reports.add(ModificationUtils.getInstance().buildModificationReport(oldSwitchedOnQAtNominalV, newSwitchedOnQAtNominalV, SWITCHED_ON_Q_AT_NOMINALV_LOG_MESSAGE));
         }
     }
 
-    private void modifyShuntCompensatorVoltageLevelBusOrBusBarSectionAttributes(ShuntCompensatorModificationInfos modificationInfos,
-                                                                                ShuntCompensator shuntCompensator, ReportNode subReportNode) {
+    private void modifyShuntCompensatorVoltageLevelBusOrBusBarSectionAttributes(ShuntCompensator shuntCompensator, ReportNode subReportNode) {
         ModificationUtils.getInstance().moveFeederBay(
                 shuntCompensator, shuntCompensator.getTerminal(),
-                modificationInfos.getVoltageLevelId(),
-                modificationInfos.getBusOrBusbarSectionId(),
+                voltageLevelId,
+                busOrBusbarSectionId,
                 subReportNode
         );
     }
 
-    private ReportNode modifyShuntCompensatorConnectivityAttributes(ShuntCompensatorModificationInfos modificationInfos,
-                                                        ShuntCompensator shuntCompensator, ReportNode subReportNode) {
+    private ReportNode modifyShuntCompensatorConnectivityAttributes(ShuntCompensator shuntCompensator, ReportNode subReportNode) {
         ConnectablePosition<ShuntCompensator> connectablePosition = shuntCompensator.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<ShuntCompensator> connectablePositionAdder = shuntCompensator.newExtension(ConnectablePositionAdder.class);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, shuntCompensator, modificationInfos, subReportNode);
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, shuntCompensator,
+                equipmentId, voltageLevelId, busOrBusbarSectionId, connectionName, connectionDirection, connectionPosition, terminalConnected, subReportNode);
     }
 }

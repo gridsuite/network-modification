@@ -10,10 +10,15 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.commons.math3.util.Pair;
 import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.dto.AttributeModification;
+import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.LccConverterStationModificationInfos;
-import org.gridsuite.modification.dto.LccModificationInfos;
 import org.gridsuite.modification.dto.LccShuntCompensatorModificationInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -27,13 +32,22 @@ import java.util.Optional;
 
 import static org.gridsuite.modification.utils.ModificationUtils.NO_VALUE;
 
+@NoArgsConstructor
+@Getter
+@AllArgsConstructor
+@Builder
 public class LccModification extends AbstractModification {
 
-    private final LccModificationInfos modificationInfos;
-
-    public LccModification(LccModificationInfos lccModificationInfos) {
-        this.modificationInfos = lccModificationInfos;
-    }
+    private String equipmentId;
+    private List<FreePropertyInfos> properties;
+    private AttributeModification<String> equipmentName;
+    private AttributeModification<Double> nominalV;
+    private AttributeModification<Double> r;
+    private AttributeModification<Double> maxP;
+    private AttributeModification<HvdcLine.ConvertersMode> convertersMode;
+    private AttributeModification<Double> activePowerSetpoint;
+    private LccConverterStationModificationInfos converterStation1;
+    private LccConverterStationModificationInfos converterStation2;
 
     @Override
     public String getName() {
@@ -42,51 +56,51 @@ public class LccModification extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        HvdcLine hvdcLine = ModificationUtils.getInstance().getHvdcLine(network, modificationInfos.getEquipmentId());
-        modifyLcc(network, hvdcLine, modificationInfos, subReportNode);
+        HvdcLine hvdcLine = ModificationUtils.getInstance().getHvdcLine(network, equipmentId);
+        modifyLcc(network, hvdcLine, subReportNode);
     }
 
-    private static void modifyCharacteristics(HvdcLine hvdcLine, LccModificationInfos modificationInfos, ReportNode subReportNode) {
+    private void modifyCharacteristics(HvdcLine hvdcLine, ReportNode subReportNode) {
         List<ReportNode> characteristicsReportsContainer = new ArrayList<>();
-        String errorMessage = "Lcc '" + modificationInfos.getEquipmentId() + "' : ";
+        String errorMessage = "Lcc '" + equipmentId + "' : ";
 
         //Name
-        if (modificationInfos.getEquipmentName() != null) {
+        if (equipmentName != null) {
             characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setName,
                 () -> hvdcLine.getOptionalName().orElse(NO_VALUE),
-                modificationInfos.getEquipmentName(), "Name"));
+                equipmentName, "Name"));
         }
 
         // Nominal Voltage
-        if (modificationInfos.getNominalV() != null) {
-            ModificationUtils.checkIsNotNegativeValue(errorMessage, modificationInfos.getNominalV().getValue(), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Nominal voltage");
+        if (nominalV != null) {
+            ModificationUtils.checkIsNotNegativeValue(errorMessage, nominalV.getValue(), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Nominal voltage");
             characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setNominalV,
-                hvdcLine::getNominalV, modificationInfos.getNominalV(), "DC nominal voltage"));
+                hvdcLine::getNominalV, nominalV, "DC nominal voltage"));
         }
 
         // DC resistance
-        if (modificationInfos.getR() != null) {
-            ModificationUtils.checkIsNotNegativeValue(errorMessage, modificationInfos.getR().getValue(), NetworkModificationException.Type.MODIFY_LCC_ERROR, "DC resistance");
+        if (r != null) {
+            ModificationUtils.checkIsNotNegativeValue(errorMessage, r.getValue(), NetworkModificationException.Type.MODIFY_LCC_ERROR, "DC resistance");
             characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setR,
-                hvdcLine::getR, modificationInfos.getR(), "DC resistance"));
+                hvdcLine::getR, r, "DC resistance"));
         }
 
         // Maximum active power
-        if (modificationInfos.getMaxP() != null) {
+        if (maxP != null) {
             characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setMaxP,
-                hvdcLine::getMaxP, modificationInfos.getMaxP(), "Power max"));
+                hvdcLine::getMaxP, maxP, "Power max"));
         }
 
         // Converters mode
-        if (modificationInfos.getConvertersMode() != null) {
+        if (convertersMode != null) {
             characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setConvertersMode,
-                hvdcLine::getConvertersMode, modificationInfos.getConvertersMode(), "Converters Mode"));
+                hvdcLine::getConvertersMode, convertersMode, "Converters Mode"));
         }
 
         // Active power setpoint
-        if (modificationInfos.getActivePowerSetpoint() != null) {
+        if (activePowerSetpoint != null) {
             characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setActivePowerSetpoint,
-                hvdcLine::getActivePowerSetpoint, modificationInfos.getActivePowerSetpoint(), "Active Power Set Point"));
+                hvdcLine::getActivePowerSetpoint, activePowerSetpoint, "Active Power Set Point"));
         }
 
         if (!characteristicsReportsContainer.isEmpty()) {
@@ -95,19 +109,19 @@ public class LccModification extends AbstractModification {
 
     }
 
-    private void modifyLcc(@Nonnull Network network, @Nonnull HvdcLine hvdcLine, LccModificationInfos modificationInfos, ReportNode subReportNode) {
+    private void modifyLcc(@Nonnull Network network, @Nonnull HvdcLine hvdcLine, ReportNode subReportNode) {
 
-        modifyCharacteristics(hvdcLine, modificationInfos, subReportNode);
+        modifyCharacteristics(hvdcLine, subReportNode);
 
         // Properties
-        PropertiesUtils.applyProperties(hvdcLine, subReportNode, modificationInfos.getProperties(), "network.modification.LCC_Properties");
+        PropertiesUtils.applyProperties(hvdcLine, subReportNode, properties, "network.modification.LCC_Properties");
 
         // stations
-        if (modificationInfos.getConverterStation1() != null) {
-            modifyConverterStation(network, modificationInfos.getConverterStation1(), "1", subReportNode);
+        if (converterStation1 != null) {
+            modifyConverterStation(network, converterStation1, "1", subReportNode);
         }
-        if (modificationInfos.getConverterStation2() != null) {
-            modifyConverterStation(network, modificationInfos.getConverterStation2(), "2", subReportNode);
+        if (converterStation2 != null) {
+            modifyConverterStation(network, converterStation2, "2", subReportNode);
         }
 
     }

@@ -56,7 +56,18 @@ public class LccCreationInfos extends EquipmentCreationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new LccCreation(this);
+        return LccCreation.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentName(getEquipmentName())
+                .nominalV(getNominalV())
+                .r(getR())
+                .maxP(getMaxP())
+                .convertersMode(getConvertersMode())
+                .activePowerSetpoint(getActivePowerSetpoint())
+                .converterStation1(getConverterStation1())
+                .converterStation2(getConverterStation2())
+                .build();
     }
 
     @Override

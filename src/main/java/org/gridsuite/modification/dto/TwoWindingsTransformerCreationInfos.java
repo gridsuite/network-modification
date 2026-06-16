@@ -55,7 +55,35 @@ public class TwoWindingsTransformerCreationInfos extends BranchCreationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new TwoWindingsTransformerCreation(this);
+        return TwoWindingsTransformerCreation.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentName(getEquipmentName())
+                .r(getR())
+                .x(getX())
+                .voltageLevelId1(getVoltageLevelId1())
+                .voltageLevelId2(getVoltageLevelId2())
+                .busOrBusbarSectionId1(getBusOrBusbarSectionId1())
+                .busOrBusbarSectionId2(getBusOrBusbarSectionId2())
+                .operationalLimitsGroups(getOperationalLimitsGroups())
+                .selectedOperationalLimitsGroupId1(getSelectedOperationalLimitsGroupId1())
+                .selectedOperationalLimitsGroupId2(getSelectedOperationalLimitsGroupId2())
+                .connectionName1(getConnectionName1())
+                .connectionDirection1(getConnectionDirection1())
+                .connectionName2(getConnectionName2())
+                .connectionDirection2(getConnectionDirection2())
+                .connectionPosition1(getConnectionPosition1())
+                .connectionPosition2(getConnectionPosition2())
+                .connected1(isConnected1())
+                .connected2(isConnected2())
+                .g(g)
+                .b(b)
+                .ratedU1(ratedU1)
+                .ratedU2(ratedU2)
+                .ratedS(ratedS)
+                .ratioTapChanger(ratioTapChanger)
+                .phaseTapChanger(phaseTapChanger)
+                .build();
     }
 
     @Override

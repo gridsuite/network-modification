@@ -71,7 +71,23 @@ public class VscCreationInfos extends EquipmentCreationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new VscCreation(this);
+        return VscCreation.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentName(getEquipmentName())
+                .nominalV(nominalV)
+                .r(r)
+                .maxP(maxP)
+                .operatorActivePowerLimitFromSide1ToSide2(operatorActivePowerLimitFromSide1ToSide2)
+                .operatorActivePowerLimitFromSide2ToSide1(operatorActivePowerLimitFromSide2ToSide1)
+                .convertersMode(convertersMode)
+                .activePowerSetpoint(activePowerSetpoint)
+                .angleDroopActivePowerControl(angleDroopActivePowerControl)
+                .p0(p0)
+                .droop(droop)
+                .converterStation1(converterStation1)
+                .converterStation2(converterStation2)
+                .build();
     }
 
     @Override

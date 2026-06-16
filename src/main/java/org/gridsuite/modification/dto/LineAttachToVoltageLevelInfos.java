@@ -71,7 +71,21 @@ public class LineAttachToVoltageLevelInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new LineAttachToVoltageLevel(this);
+        return LineAttachToVoltageLevel.builder()
+                .lineToAttachToId(getLineToAttachToId())
+                .percent(getPercent())
+                .attachmentPointId(getAttachmentPointId())
+                .attachmentPointName(getAttachmentPointName())
+                .attachmentPointDetailInformation(getAttachmentPointDetailInformation())
+                .mayNewVoltageLevelInfos(getMayNewVoltageLevelInfos())
+                .existingVoltageLevelId(getExistingVoltageLevelId())
+                .bbsOrBusId(getBbsOrBusId())
+                .attachmentLine(getAttachmentLine())
+                .newLine1Id(getNewLine1Id())
+                .newLine1Name(getNewLine1Name())
+                .newLine2Id(getNewLine2Id())
+                .newLine2Name(getNewLine2Name())
+                .build();
     }
 
     @Override

@@ -30,7 +30,10 @@ import java.util.Map;
 public class TabularModificationInfos extends TabularBaseInfos {
     @Override
     public AbstractModification toModification() {
-        return new TabularModification(this);
+        return TabularModification.builder()
+                .modifications(getModifications())
+                .modificationType(getModificationType())
+                .build();
     }
 
     @Override

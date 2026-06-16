@@ -71,7 +71,22 @@ public class VoltageLevelCreationInfos extends EquipmentCreationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new VoltageLevelCreation(this);
+        return VoltageLevelCreation.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentName(getEquipmentName())
+                .substationId(substationId)
+                .nominalV(nominalV)
+                .lowVoltageLimit(lowVoltageLimit)
+                .highVoltageLimit(highVoltageLimit)
+                .ipMin(ipMin)
+                .ipMax(ipMax)
+                .busbarCount(busbarCount)
+                .sectionCount(sectionCount)
+                .switchKinds(switchKinds)
+                .couplingDevices(couplingDevices)
+                .substationCreation(substationCreation)
+                .build();
     }
 
     @Override

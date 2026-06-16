@@ -9,25 +9,32 @@ package org.gridsuite.modification.modifications.tabular;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentModificationInfos;
+import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorCreationInfos;
-import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
+
+import java.util.List;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.TABULAR_CREATION_ERROR;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
+@NoArgsConstructor
 public class TabularCreation extends AbstractTabularModification {
 
-    public TabularCreation(TabularCreationInfos modificationInfos) {
-        super(modificationInfos);
+    @Builder
+    public TabularCreation(List<ModificationInfos> modifications, ModificationType modificationType) {
+        super(modifications, modificationType);
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (modificationInfos == null) {
+        if (modifications == null) {
             throw new NetworkModificationException(TABULAR_CREATION_ERROR, "No tabular creation to apply !!");
         }
     }
@@ -39,7 +46,7 @@ public class TabularCreation extends AbstractTabularModification {
 
     @Override
     public String defaultMessage() {
-        return modificationInfos.formatEquipmentTypeName() + " have been created";
+        return formatEquipmentTypeName() + " have been created";
     }
 
     @Override

@@ -38,7 +38,11 @@ public class VoltageLevelTopologyModificationInfos extends EquipmentModification
 
     @Override
     public AbstractModification toModification() {
-        return new VoltageLevelTopologyModification(this);
+        return VoltageLevelTopologyModification.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentAttributeModificationList(getEquipmentAttributeModificationList())
+                .build();
     }
 
     @Override

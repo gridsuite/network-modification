@@ -156,7 +156,7 @@ class LccModificationTest extends AbstractInjectionModificationTest {
             .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
             .build();
 
-        LccCreation lccCreation = new LccCreation(creationInfos);
+        LccCreation lccCreation = (LccCreation) creationInfos.toModification();
         lccCreation.apply(network);
     }
 
@@ -195,7 +195,7 @@ class LccModificationTest extends AbstractInjectionModificationTest {
         LccConverterStationModificationInfos converterStationModificationInfos = buildLccConverterStationModificationInfos2WithNullInfos();
         modificationInfos.setConverterStation2(converterStationModificationInfos);
 
-        LccModification lccModification = new LccModification(modificationInfos);
+        LccModification lccModification = (LccModification) modificationInfos.toModification();
         assertEquals("LCC_Modification", lccModification.getName());
         ReportNode subReporter = ReportNode.NO_OP;
         ComputationManager computationManager = new LocalComputationManager();
@@ -245,7 +245,7 @@ class LccModificationTest extends AbstractInjectionModificationTest {
             buildLccConverterStationModificationInfosWithShunts(List.of(shuntInfos, shuntInfos2, shuntInfos3));
 
         modificationInfos.setConverterStation1(converterStationModificationInfos);
-        LccModification lccModification = new LccModification(modificationInfos);
+        LccModification lccModification = (LccModification) modificationInfos.toModification();
         lccModification.apply(networkWithoutExt);
 
         ShuntCompensator shuntCompensator1 = networkWithoutExt.getShuntCompensator("shuntId1");

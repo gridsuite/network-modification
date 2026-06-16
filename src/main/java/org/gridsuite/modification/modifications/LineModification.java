@@ -10,12 +10,20 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
-import org.gridsuite.modification.dto.BranchModificationInfos;
-import org.gridsuite.modification.dto.LineModificationInfos;
+import org.gridsuite.modification.dto.FreePropertyInfos;
+import org.gridsuite.modification.dto.LineSegmentInfos;
+import org.gridsuite.modification.dto.OperationalLimitsGroupModificationInfos;
+import org.gridsuite.modification.dto.OperationalLimitsGroupsModificationType;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
+
+import java.util.List;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_LINE_ERROR;
@@ -25,44 +33,122 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
  */
+@NoArgsConstructor
+@Getter
 public class LineModification extends AbstractBranchModification {
 
     private static final String MAGNETIZING_SUSCEPTANCE_MESSAGE = "Magnetizing susceptance";
     private static final String MAGNETIZING_CONDUCTANCE_MESSAGE = "Magnetizing conductance";
     public static final String ERROR_MESSAGE = "Line '%s' : ";
+    private AttributeModification<Double> g1;
+    private AttributeModification<Double> b1;
+    private AttributeModification<Double> g2;
+    private AttributeModification<Double> b2;
+    private List<LineSegmentInfos> lineSegments;
+    private boolean applySegmentsLimits;
 
-    public LineModification(LineModificationInfos modificationInfos) {
-        super(modificationInfos);
+    @Builder
+    public LineModification(String equipmentId,
+                            List<FreePropertyInfos> properties,
+                            AttributeModification<String> equipmentName,
+                            AttributeModification<Double> r,
+                            AttributeModification<Double> x,
+                            OperationalLimitsGroupsModificationType operationalLimitsGroupsModificationType,
+                            Boolean enableOLGModification,
+                            List<OperationalLimitsGroupModificationInfos> operationalLimitsGroups,
+                            AttributeModification<String> selectedOperationalLimitsGroupId1,
+                            AttributeModification<String> selectedOperationalLimitsGroupId2,
+                            AttributeModification<String> voltageLevelId1,
+                            AttributeModification<String> voltageLevelId2,
+                            AttributeModification<String> busOrBusbarSectionId1,
+                            AttributeModification<String> busOrBusbarSectionId2,
+                            AttributeModification<String> connectionName1,
+                            AttributeModification<String> connectionName2,
+                            AttributeModification<ConnectablePosition.Direction> connectionDirection1,
+                            AttributeModification<ConnectablePosition.Direction> connectionDirection2,
+                            AttributeModification<Integer> connectionPosition1,
+                            AttributeModification<Integer> connectionPosition2,
+                            AttributeModification<Boolean> terminal1Connected,
+                            AttributeModification<Boolean> terminal2Connected,
+                            AttributeModification<Double> p1MeasurementValue,
+                            AttributeModification<Boolean> p1MeasurementValidity,
+                            AttributeModification<Double> p2MeasurementValue,
+                            AttributeModification<Boolean> p2MeasurementValidity,
+                            AttributeModification<Double> q1MeasurementValue,
+                            AttributeModification<Boolean> q1MeasurementValidity,
+                            AttributeModification<Double> q2MeasurementValue,
+                            AttributeModification<Boolean> q2MeasurementValidity,
+                            AttributeModification<Double> g1,
+                            AttributeModification<Double> b1,
+                            AttributeModification<Double> g2,
+                            AttributeModification<Double> b2,
+                            List<LineSegmentInfos> lineSegments,
+                            boolean applySegmentsLimits) {
+        this.equipmentId = equipmentId;
+        this.properties = properties;
+        this.equipmentName = equipmentName;
+        this.r = r;
+        this.x = x;
+        this.operationalLimitsGroupsModificationType = operationalLimitsGroupsModificationType;
+        this.enableOLGModification = enableOLGModification;
+        this.operationalLimitsGroups = operationalLimitsGroups;
+        this.selectedOperationalLimitsGroupId1 = selectedOperationalLimitsGroupId1;
+        this.selectedOperationalLimitsGroupId2 = selectedOperationalLimitsGroupId2;
+        this.voltageLevelId1 = voltageLevelId1;
+        this.voltageLevelId2 = voltageLevelId2;
+        this.busOrBusbarSectionId1 = busOrBusbarSectionId1;
+        this.busOrBusbarSectionId2 = busOrBusbarSectionId2;
+        this.connectionName1 = connectionName1;
+        this.connectionName2 = connectionName2;
+        this.connectionDirection1 = connectionDirection1;
+        this.connectionDirection2 = connectionDirection2;
+        this.connectionPosition1 = connectionPosition1;
+        this.connectionPosition2 = connectionPosition2;
+        this.terminal1Connected = terminal1Connected;
+        this.terminal2Connected = terminal2Connected;
+        this.p1MeasurementValue = p1MeasurementValue;
+        this.p1MeasurementValidity = p1MeasurementValidity;
+        this.p2MeasurementValue = p2MeasurementValue;
+        this.p2MeasurementValidity = p2MeasurementValidity;
+        this.q1MeasurementValue = q1MeasurementValue;
+        this.q1MeasurementValidity = q1MeasurementValidity;
+        this.q2MeasurementValue = q2MeasurementValue;
+        this.q2MeasurementValidity = q2MeasurementValidity;
+        this.g1 = g1;
+        this.b1 = b1;
+        this.g2 = g2;
+        this.b2 = b2;
+        this.lineSegments = lineSegments;
+        this.applySegmentsLimits = applySegmentsLimits;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        Line line = network.getLine(modificationInfos.getEquipmentId());
-        String errorMessage = "Line '" + modificationInfos.getEquipmentId() + "' : ";
+        Line line = network.getLine(equipmentId);
+        String errorMessage = "Line '" + equipmentId + "' : ";
         if (line == null) {
             throw new NetworkModificationException(LINE_NOT_FOUND, errorMessage + "does not exist in network");
         }
-        ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId1(),
-                modificationInfos.getBusOrBusbarSectionId1(), line.getTerminal1());
-        ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId2(),
-                modificationInfos.getBusOrBusbarSectionId2(), line.getTerminal2());
-        LineModificationInfos lineModificationInfos = (LineModificationInfos) modificationInfos;
-        if (lineModificationInfos.getR() != null) {
-            checkIsNotNegativeValue(errorMessage, lineModificationInfos.getR().getValue(), MODIFY_LINE_ERROR, "Resistance R");
+        ModificationUtils.getInstance().checkVoltageLevelModification(network, voltageLevelId1,
+                busOrBusbarSectionId1, line.getTerminal1());
+        ModificationUtils.getInstance().checkVoltageLevelModification(network, voltageLevelId2,
+                busOrBusbarSectionId2, line.getTerminal2());
+        if (r != null) {
+            checkIsNotNegativeValue(errorMessage, r.getValue(), MODIFY_LINE_ERROR, "Resistance R");
         }
-        if (lineModificationInfos.getG1() != null) {
-            checkIsNotNegativeValue(errorMessage, lineModificationInfos.getG1().getValue(), MODIFY_LINE_ERROR, "Conductance on side 1 G1");
+        if (g1 != null) {
+            checkIsNotNegativeValue(errorMessage, g1.getValue(), MODIFY_LINE_ERROR, "Conductance on side 1 G1");
         }
-        if (lineModificationInfos.getG2() != null) {
-            checkIsNotNegativeValue(errorMessage, lineModificationInfos.getG2().getValue(), MODIFY_LINE_ERROR, "Conductance on side 2 G2");
+        if (g2 != null) {
+            checkIsNotNegativeValue(errorMessage, g2.getValue(), MODIFY_LINE_ERROR, "Conductance on side 2 G2");
         }
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        Line line = network.getLine(modificationInfos.getEquipmentId());
+        Line line = network.getLine(equipmentId);
         // modify the line in the network
-        modifyLine(line, modificationInfos, subReportNode);
+        modifyLine(line, subReportNode);
     }
 
     @Override
@@ -70,57 +156,53 @@ public class LineModification extends AbstractBranchModification {
         return "LineModification";
     }
 
-    private void modifyLine(Line line, BranchModificationInfos lineModificationInfos, ReportNode subReportNode) {
-        modifyBranch(line, lineModificationInfos, subReportNode, "network.modification.lineModification");
-        updateMeasurements(line, lineModificationInfos, subReportNode);
-        PropertiesUtils.applyProperties(line, subReportNode, modificationInfos.getProperties(), "network.modification.LineProperties");
+    private void modifyLine(Line line, ReportNode subReportNode) {
+        modifyBranch(line, subReportNode, "network.modification.lineModification");
+        updateMeasurements(line, subReportNode);
+        PropertiesUtils.applyProperties(line, subReportNode, properties, "network.modification.LineProperties");
     }
 
     @Override
-    protected void modifyCharacteristics(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode) {
+    protected void modifyCharacteristics(Branch<?> branch, ReportNode subReportNode) {
         Line line = (Line) branch;
         ReportNode characteristicsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.characteristics").add();
-        modifyR(line, branchModificationInfos.getR(), characteristicsReporter);
-        modifyX(line, branchModificationInfos.getX(), characteristicsReporter);
+        modifyR(line, r, characteristicsReporter);
+        modifyX(line, x, characteristicsReporter);
 
-        LineModificationInfos lineModificationInfos = (LineModificationInfos) branchModificationInfos;
-        modifySide1Characteristics(line, lineModificationInfos, characteristicsReporter);
-        modifySide2Characteristics(line, lineModificationInfos, characteristicsReporter);
+        modifySide1Characteristics(line, characteristicsReporter);
+        modifySide2Characteristics(line, characteristicsReporter);
 
     }
 
-    private void modifySide1Characteristics(Line line, LineModificationInfos lineModificationInfos,
-                                            ReportNode characteristicsReportNode) {
-        if (lineModificationInfos.getG1() != null && lineModificationInfos.getG1().getValue() != null
-            || lineModificationInfos.getB1() != null && lineModificationInfos.getB1().getValue() != null) {
+    private void modifySide1Characteristics(Line line, ReportNode characteristicsReportNode) {
+        if (g1 != null && g1.getValue() != null
+            || b1 != null && b1.getValue() != null) {
             ReportNode side1ReportNode = characteristicsReportNode.newReportNode().withMessageTemplate("network.modification.side1Characteristics").add();
-            modifyG1(line, lineModificationInfos.getG1(), side1ReportNode);
-            modifyB1(line, lineModificationInfos.getB1(), side1ReportNode);
+            modifyG1(line, g1, side1ReportNode);
+            modifyB1(line, b1, side1ReportNode);
         }
     }
 
-    private void modifySide2Characteristics(Line line, LineModificationInfos lineModificationInfos,
-                                            ReportNode characteristicsReportNode) {
-        if (lineModificationInfos.getG2() != null && lineModificationInfos.getG2().getValue() != null
-            || lineModificationInfos.getB2() != null && lineModificationInfos.getB2().getValue() != null) {
+    private void modifySide2Characteristics(Line line, ReportNode characteristicsReportNode) {
+        if (g2 != null && g2.getValue() != null
+            || b2 != null && b2.getValue() != null) {
             ReportNode side2Reporter = characteristicsReportNode.newReportNode().withMessageTemplate("network.modification.side2Characteristics").add();
-            modifyG2(line, lineModificationInfos.getG2(), side2Reporter);
-            modifyB2(line, lineModificationInfos.getB2(), side2Reporter);
+            modifyG2(line, g2, side2Reporter);
+            modifyB2(line, b2, side2Reporter);
         }
     }
 
     @Override
-    protected boolean characteristicsModified(BranchModificationInfos branchModificationInfos) {
-        LineModificationInfos lineModificationInfos = (LineModificationInfos) branchModificationInfos;
-        return super.characteristicsModified(branchModificationInfos)
-            || lineModificationInfos.getG1() != null
-            && lineModificationInfos.getG1().getValue() != null
-            || lineModificationInfos.getB1() != null
-            && lineModificationInfos.getB1().getValue() != null
-            || lineModificationInfos.getG2() != null
-            && lineModificationInfos.getG2().getValue() != null
-            || lineModificationInfos.getB2() != null
-            && lineModificationInfos.getB2().getValue() != null;
+    protected boolean characteristicsModified() {
+        return super.characteristicsModified()
+            || g1 != null
+            && g1.getValue() != null
+            || b1 != null
+            && b1.getValue() != null
+            || g2 != null
+            && g2.getValue() != null
+            || b2 != null
+            && b2.getValue() != null;
     }
 
     public static void modifyX(Line line, AttributeModification<Double> modifX, ReportNode reportNode) {

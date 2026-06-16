@@ -96,7 +96,37 @@ public class StaticVarCompensatorCreationInfos extends InjectionCreationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new StaticVarCompensatorCreation(this);
+        return StaticVarCompensatorCreation.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentName(getEquipmentName())
+                .voltageLevelId(getVoltageLevelId())
+                .busOrBusbarSectionId(getBusOrBusbarSectionId())
+                .connectionName(getConnectionName())
+                .connectionDirection(getConnectionDirection())
+                .connectionPosition(getConnectionPosition())
+                .terminalConnected(isTerminalConnected())
+                .maxSusceptance(maxSusceptance)
+                .minSusceptance(minSusceptance)
+                .maxQAtNominalV(maxQAtNominalV)
+                .minQAtNominalV(minQAtNominalV)
+                .regulationMode(regulationMode)
+                .voltageSetpoint(voltageSetpoint)
+                .reactivePowerSetpoint(reactivePowerSetpoint)
+                .voltageRegulationType(voltageRegulationType)
+                .regulatingTerminalId(regulatingTerminalId)
+                .regulatingTerminalType(regulatingTerminalType)
+                .regulatingTerminalVlId(regulatingTerminalVlId)
+                .regulating(regulating)
+                .standbyAutomatonOn(standbyAutomatonOn)
+                .standby(standby)
+                .b0(b0)
+                .q0(q0)
+                .lowVoltageSetpoint(lowVoltageSetpoint)
+                .highVoltageSetpoint(highVoltageSetpoint)
+                .lowVoltageThreshold(lowVoltageThreshold)
+                .highVoltageThreshold(highVoltageThreshold)
+                .build();
     }
 
     @Override

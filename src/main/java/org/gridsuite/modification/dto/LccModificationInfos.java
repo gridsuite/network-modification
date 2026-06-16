@@ -52,7 +52,18 @@ public class LccModificationInfos extends BasicEquipmentModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new LccModification(this);
+        return LccModification.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentName(getEquipmentName())
+                .nominalV(getNominalV())
+                .r(getR())
+                .maxP(getMaxP())
+                .convertersMode(getConvertersMode())
+                .activePowerSetpoint(getActivePowerSetpoint())
+                .converterStation1(getConverterStation1())
+                .converterStation2(getConverterStation2())
+                .build();
     }
 
     @Override
