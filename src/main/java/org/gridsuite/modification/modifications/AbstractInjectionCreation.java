@@ -18,7 +18,7 @@ import java.util.List;
  */
 @Setter
 @Getter
-public abstract class AbstractInjectionCreation extends AbstractEquipmentCreation {
+public abstract class AbstractInjectionCreation extends AbstractEquipmentCreation implements InjectionCreation {
 
     protected String voltageLevelId;
     protected String busOrBusbarSectionId;

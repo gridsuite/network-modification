@@ -19,6 +19,7 @@ import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VscCreation;
+import org.gridsuite.modification.modifications.data.VscConverterStationCreation;
 
 /**
  * @author Seddik Yengui <seddik.yengui at rte-france.com>
@@ -85,9 +86,28 @@ public class VscCreationInfos extends EquipmentCreationInfos {
                 .angleDroopActivePowerControl(angleDroopActivePowerControl)
                 .p0(p0)
                 .droop(droop)
-                .converterStation1(converterStation1)
-                .converterStation2(converterStation2)
-                .build();
+            .converterStation1(converterStationCreation(converterStation1))
+            .converterStation2(converterStationCreation(converterStation2))
+            .build();
+    }
+
+    private VscConverterStationCreation converterStationCreation(ConverterStationCreationInfos converterStationCreationInfos) {
+        return VscConverterStationCreation.builder().lossFactor(converterStationCreationInfos.getLossFactor())
+            .reactivePowerSetpoint(converterStationCreationInfos.getReactivePowerSetpoint())
+            .voltageRegulationOn(converterStationCreationInfos.getVoltageRegulationOn())
+            .voltageSetpoint(converterStationCreationInfos.getVoltageSetpoint())
+            .reactiveCapabilityCurve(converterStationCreationInfos.getReactiveCapabilityCurve())
+            .minQ(converterStationCreationInfos.getMinQ()).maxQ(converterStationCreationInfos.getMaxQ())
+            .reactiveCapabilityCurvePoints(converterStationCreationInfos.getReactiveCapabilityCurvePoints())
+            .equipmentId(converterStationCreationInfos.getEquipmentId()).properties(converterStationCreationInfos.getProperties())
+            .equipmentName(converterStationCreationInfos.getEquipmentName())
+            .voltageLevelId(converterStationCreationInfos.getVoltageLevelId())
+            .busOrBusbarSectionId(converterStationCreationInfos.getBusOrBusbarSectionId())
+            .connectionName(converterStationCreationInfos.getConnectionName())
+            .connectionDirection(converterStationCreationInfos.getConnectionDirection())
+            .connectionPosition(converterStationCreationInfos.getConnectionPosition())
+            .terminalConnected(converterStationCreationInfos.isTerminalConnected())
+            .build();
     }
 
     @Override

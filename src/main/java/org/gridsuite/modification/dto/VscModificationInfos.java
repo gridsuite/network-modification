@@ -9,6 +9,7 @@ import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VscModification;
+import org.gridsuite.modification.modifications.data.VscConverterStationModification;
 
 /**
  * @author jamal kheyyad <jamal.kheyyad at rte-france.com>
@@ -74,9 +75,36 @@ public class VscModificationInfos extends BasicEquipmentModificationInfos {
                 .angleDroopActivePowerControl(getAngleDroopActivePowerControl())
                 .p0(getP0())
                 .droop(getDroop())
-                .converterStation1(getConverterStation1())
-                .converterStation2(getConverterStation2())
+                .converterStation1(converterStationModification(converterStation1))
+                .converterStation2(converterStationModification(converterStation2))
                 .build();
+    }
+
+    private VscConverterStationModification converterStationModification(ConverterStationModificationInfos converterStationModificationInfos) {
+        if (converterStationModificationInfos == null) {
+            return null;
+        }
+        return VscConverterStationModification.builder().lossFactor(converterStationModificationInfos.getLossFactor())
+            .reactivePowerSetpoint(converterStationModificationInfos.getReactivePowerSetpoint())
+            .voltageRegulationOn(converterStationModificationInfos.getVoltageRegulationOn())
+            .voltageSetpoint(converterStationModificationInfos.getVoltageSetpoint())
+            .reactiveCapabilityCurve(converterStationModificationInfos.getReactiveCapabilityCurve())
+            .minQ(converterStationModificationInfos.getMinQ()).maxQ(converterStationModificationInfos.getMaxQ())
+            .reactiveCapabilityCurvePoints(converterStationModificationInfos.getReactiveCapabilityCurvePoints())
+            .equipmentId(converterStationModificationInfos.getEquipmentId())
+            .properties(converterStationModificationInfos.getProperties())
+            .equipmentName(converterStationModificationInfos.getEquipmentName())
+            .voltageLevelId(converterStationModificationInfos.getVoltageLevelId())
+            .busOrBusbarSectionId(converterStationModificationInfos.getBusOrBusbarSectionId())
+            .connectionName(converterStationModificationInfos.getConnectionName())
+            .connectionDirection(converterStationModificationInfos.getConnectionDirection())
+            .connectionPosition(converterStationModificationInfos.getConnectionPosition())
+            .terminalConnected(converterStationModificationInfos.getTerminalConnected())
+            .pMeasurementValue(converterStationModificationInfos.getPMeasurementValue())
+            .pMeasurementValidity(converterStationModificationInfos.getPMeasurementValidity())
+            .qMeasurementValue(converterStationModificationInfos.getQMeasurementValue())
+            .qMeasurementValidity(converterStationModificationInfos.getQMeasurementValidity())
+            .build();
     }
 
     @Override

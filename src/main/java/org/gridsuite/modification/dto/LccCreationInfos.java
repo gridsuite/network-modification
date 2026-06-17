@@ -19,6 +19,7 @@ import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LccCreation;
+import org.gridsuite.modification.modifications.data.LccConverterStationCreation;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
@@ -65,9 +66,25 @@ public class LccCreationInfos extends EquipmentCreationInfos {
                 .maxP(getMaxP())
                 .convertersMode(getConvertersMode())
                 .activePowerSetpoint(getActivePowerSetpoint())
-                .converterStation1(getConverterStation1())
-                .converterStation2(getConverterStation2())
+                .converterStation1(converterStationCreation(getConverterStation1()))
+                .converterStation2(converterStationCreation(getConverterStation2()))
                 .build();
+    }
+
+    private LccConverterStationCreation converterStationCreation(LccConverterStationCreationInfos converterStationCreationInfos) {
+        return LccConverterStationCreation.builder()
+            .lossFactor(converterStationCreationInfos.getLossFactor())
+            .powerFactor(converterStationCreationInfos.getPowerFactor())
+            .shuntCompensatorsOnSide(converterStationCreationInfos.getShuntCompensatorsOnSide())
+            .equipmentId(converterStationCreationInfos.getEquipmentId())
+            .properties(converterStationCreationInfos.getProperties())
+            .equipmentName(converterStationCreationInfos.getEquipmentName())
+            .voltageLevelId(converterStationCreationInfos.getVoltageLevelId())
+            .busOrBusbarSectionId(converterStationCreationInfos.getBusOrBusbarSectionId())
+            .connectionName(converterStationCreationInfos.getConnectionName())
+            .connectionDirection(converterStationCreationInfos.getConnectionDirection())
+            .connectionPosition(converterStationCreationInfos.getConnectionPosition())
+            .terminalConnected(converterStationCreationInfos.isTerminalConnected()).build();
     }
 
     @Override

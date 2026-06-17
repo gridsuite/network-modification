@@ -27,7 +27,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public abstract class AbstractInjectionModification extends AbstractEquipmentModification {
+public abstract class AbstractInjectionModification extends AbstractEquipmentModification implements InjectionModification {
 
     protected AttributeModification<String> voltageLevelId;
     protected AttributeModification<String> busOrBusbarSectionId;
