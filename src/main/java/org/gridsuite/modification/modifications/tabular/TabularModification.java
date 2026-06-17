@@ -10,34 +10,25 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentModificationInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorModificationInfos;
-
-import java.util.List;
+import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.TABULAR_MODIFICATION_ERROR;
 
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-@Getter
-@Setter
 public class TabularModification extends AbstractTabularModification {
 
-    @Builder
-    public TabularModification(List<ModificationInfos> modifications, ModificationType modificationType) {
-        super(modifications, modificationType);
+    public TabularModification(TabularModificationInfos modificationInfos) {
+        super(modificationInfos);
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (modifications == null) {
+        if (modificationInfos == null) {
             throw new NetworkModificationException(TABULAR_MODIFICATION_ERROR, "No tabular modification to apply !!");
         }
     }
@@ -49,7 +40,7 @@ public class TabularModification extends AbstractTabularModification {
 
     @Override
     public String defaultMessage() {
-        return formatEquipmentTypeName() + " have been modified";
+        return modificationInfos.formatEquipmentTypeName() + " have been modified";
     }
 
     @Override

@@ -34,10 +34,7 @@ public class TabularCreationInfos extends TabularBaseInfos {
 
     @Override
     public AbstractModification toModification() {
-        return TabularCreation.builder()
-                .modifications(getModifications())
-                .modificationType(getModificationType())
-                .build();
+        return new TabularCreation(this);
     }
 
     @Override

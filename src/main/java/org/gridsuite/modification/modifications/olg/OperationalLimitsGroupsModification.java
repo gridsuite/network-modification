@@ -60,12 +60,7 @@ public class OperationalLimitsGroupsModification {
 
             new OperationalLimitsGroupModification(
                     modifiedBranch,
-                    opLGModifInfos.getId(),
-                    opLGModifInfos.getModificationType(),
-                    opLGModifInfos.getApplicability(),
-                    opLGModifInfos.getLimitsProperties(),
-                    opLGModifInfos.getCurrentLimits(),
-                    opLGModifInfos.getTemporaryLimitsModificationType(),
+                    opLGModifInfos,
                     olgsReportNode
             ).applyModificationToOperationalLimitsGroup();
         }
@@ -91,12 +86,10 @@ public class OperationalLimitsGroupsModification {
         for (Map.Entry<String, OperationalLimitsGroupInfos.Applicability> deletedOlg : olgsToBeDeleted.entrySet()) {
             new OperationalLimitsGroupModification(
                     modifiedBranch,
-                    deletedOlg.getKey(),
-                    null,
-                    deletedOlg.getValue(),
-                    null,
-                    null,
-                    null,
+                    OperationalLimitsGroupModificationInfos.builder()
+                            .id(deletedOlg.getKey())
+                            .applicability(deletedOlg.getValue())
+                            .build(),
                     olgsReportNode
             ).removeOlg();
         }
