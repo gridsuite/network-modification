@@ -13,9 +13,7 @@ import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.filter.AbstractFilter;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
@@ -39,7 +37,8 @@ import static org.gridsuite.modification.NetworkModificationException.Type.GENER
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 @SuppressWarnings("checkstyle:LambdaBodyLength")
-@NoArgsConstructor
+@Getter
+@Setter
 public class GenerationDispatch extends AbstractModification {
     private static final String POWER_TO_DISPATCH = "network.modification.PowerToDispatch";
     private static final String STACKING = "network.modification.Stacking";

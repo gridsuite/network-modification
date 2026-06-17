@@ -15,10 +15,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuitAdder;
 import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
@@ -36,21 +33,10 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
  */
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Setter
 @Getter
-public class GeneratorCreation extends AbstractModification implements ReactiveLimitsHolderInfos {
+public class GeneratorCreation extends AbstractInjectionCreation implements ReactiveLimitsHolderInfos {
 
-    private String equipmentId;
-    private List<FreePropertyInfos> properties;
-    private String equipmentName;
-    private String voltageLevelId;
-    private String busOrBusbarSectionId;
-    private String connectionName;
-    private ConnectablePosition.Direction connectionDirection;
-    private Integer connectionPosition;
-    private boolean terminalConnected;
     private EnergySource energySource;
     private double minP;
     private double maxP;
@@ -75,6 +61,46 @@ public class GeneratorCreation extends AbstractModification implements ReactiveL
     private String regulatingTerminalVlId;
     private Double qPercent;
     private Boolean reactiveCapabilityCurve;
+
+    @Builder
+    public GeneratorCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName,
+                             String voltageLevelId, String busOrBusbarSectionId, String connectionName,
+                             ConnectablePosition.Direction connectionDirection, Integer connectionPosition,
+                             boolean terminalConnected, EnergySource energySource, double minP, double maxP,
+                             Double ratedS, double targetP, Double targetQ, boolean voltageRegulationOn, Double targetV,
+                             Double plannedActivePowerSetPoint, Double marginalCost, Double plannedOutageRate,
+                             Double forcedOutageRate, Double minQ, Double maxQ,
+                             List<ReactiveCapabilityCurvePointsInfos> reactiveCapabilityCurvePoints,
+                             Boolean participate, Float droop, Double directTransX, Double stepUpTransformerX,
+                             String regulatingTerminalId, String regulatingTerminalType, String regulatingTerminalVlId,
+                             Double qPercent, Boolean reactiveCapabilityCurve) {
+        super(equipmentId, properties, equipmentName, voltageLevelId, busOrBusbarSectionId, connectionName,
+            connectionDirection, connectionPosition, terminalConnected);
+        this.energySource = energySource;
+        this.minP = minP;
+        this.maxP = maxP;
+        this.ratedS = ratedS;
+        this.targetP = targetP;
+        this.targetQ = targetQ;
+        this.voltageRegulationOn = voltageRegulationOn;
+        this.targetV = targetV;
+        this.plannedActivePowerSetPoint = plannedActivePowerSetPoint;
+        this.marginalCost = marginalCost;
+        this.plannedOutageRate = plannedOutageRate;
+        this.forcedOutageRate = forcedOutageRate;
+        this.minQ = minQ;
+        this.maxQ = maxQ;
+        this.reactiveCapabilityCurvePoints = reactiveCapabilityCurvePoints;
+        this.participate = participate;
+        this.droop = droop;
+        this.directTransX = directTransX;
+        this.stepUpTransformerX = stepUpTransformerX;
+        this.regulatingTerminalId = regulatingTerminalId;
+        this.regulatingTerminalType = regulatingTerminalType;
+        this.regulatingTerminalVlId = regulatingTerminalVlId;
+        this.qPercent = qPercent;
+        this.reactiveCapabilityCurve = reactiveCapabilityCurve;
+    }
 
     @Override
     public void check(Network network) throws NetworkModificationException {

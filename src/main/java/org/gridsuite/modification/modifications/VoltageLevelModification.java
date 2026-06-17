@@ -17,10 +17,7 @@ import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.BusbarSectionVMeasurementInfos;
@@ -43,22 +40,34 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
  */
 
-@NoArgsConstructor
 @Getter
-@AllArgsConstructor
-@Builder
-public class VoltageLevelModification extends AbstractModification {
+@Setter
+public class VoltageLevelModification extends AbstractEquipmentModification {
 
     public static final String ERROR_MESSAGE = "Voltage level '%s' : ";
-    private String equipmentId;
-    private List<FreePropertyInfos> properties;
-    private AttributeModification<String> equipmentName;
+
     private AttributeModification<Double> nominalV;
     private AttributeModification<Double> lowVoltageLimit;
     private AttributeModification<Double> highVoltageLimit;
     private AttributeModification<Double> ipMin;
     private AttributeModification<Double> ipMax;
     private List<BusbarSectionVMeasurementInfos> busbarSectionVMeasurements;
+
+    @Builder
+    public VoltageLevelModification(String equipmentId, List<FreePropertyInfos> properties,
+                                    AttributeModification<String> equipmentName, AttributeModification<Double> nominalV,
+                                    AttributeModification<Double> lowVoltageLimit,
+                                    AttributeModification<Double> highVoltageLimit, AttributeModification<Double> ipMin,
+                                    AttributeModification<Double> ipMax,
+                                    List<BusbarSectionVMeasurementInfos> busbarSectionVMeasurements) {
+        super(equipmentId, properties, equipmentName);
+        this.nominalV = nominalV;
+        this.lowVoltageLimit = lowVoltageLimit;
+        this.highVoltageLimit = highVoltageLimit;
+        this.ipMin = ipMin;
+        this.ipMax = ipMax;
+        this.busbarSectionVMeasurements = busbarSectionVMeasurements;
+    }
 
     @Override
     public void check(Network network) throws NetworkModificationException {

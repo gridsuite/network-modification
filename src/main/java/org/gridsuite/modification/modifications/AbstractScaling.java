@@ -11,7 +11,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
@@ -31,7 +31,7 @@ import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
  */
-@NoArgsConstructor
+@Setter
 @Getter
 public abstract class AbstractScaling extends AbstractModification {
     protected List<ScalingVariationInfos> variations;

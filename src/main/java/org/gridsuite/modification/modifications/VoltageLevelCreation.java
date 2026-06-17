@@ -11,10 +11,7 @@ import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -27,15 +24,10 @@ import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegat
 /**
  * @author walid Sahnoun <walid.sahnoun at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
-@AllArgsConstructor
-@Builder
-public class VoltageLevelCreation extends AbstractModification {
+@Setter
+public class VoltageLevelCreation extends AbstractEquipmentCreation {
 
-    private String equipmentId;
-    private List<FreePropertyInfos> properties;
-    private String equipmentName;
     private String substationId;
     private double nominalV;
     private Double lowVoltageLimit;
@@ -47,6 +39,26 @@ public class VoltageLevelCreation extends AbstractModification {
     private List<SwitchKind> switchKinds;
     private List<CouplingDeviceInfos> couplingDevices;
     private SubstationCreationInfos substationCreation;
+
+    @Builder
+    public VoltageLevelCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName,
+                                String substationId, double nominalV, Double lowVoltageLimit, Double highVoltageLimit,
+                                Double ipMin, Double ipMax, int busbarCount, int sectionCount,
+                                List<SwitchKind> switchKinds,
+                                List<CouplingDeviceInfos> couplingDevices, SubstationCreationInfos substationCreation) {
+        super(equipmentId, properties, equipmentName);
+        this.substationId = substationId;
+        this.nominalV = nominalV;
+        this.lowVoltageLimit = lowVoltageLimit;
+        this.highVoltageLimit = highVoltageLimit;
+        this.ipMin = ipMin;
+        this.ipMax = ipMax;
+        this.busbarCount = busbarCount;
+        this.sectionCount = sectionCount;
+        this.switchKinds = switchKinds;
+        this.couplingDevices = couplingDevices;
+        this.substationCreation = substationCreation;
+    }
 
     @Override
     public void check(Network network) throws NetworkModificationException {

@@ -19,10 +19,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.openloadflow.OpenLoadFlowParameters;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
+import lombok.*;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.dto.*;
@@ -40,8 +37,8 @@ import static org.gridsuite.modification.utils.LoadFlowParametersUtils.mapLoadFl
 /**
  * @author Joris Mancini <joris.mancini_externe at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 public class BalancesAdjustmentModification extends AbstractModification {
     private static final Logger LOGGER = LoggerFactory.getLogger(BalancesAdjustmentModification.class);
 

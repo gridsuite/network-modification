@@ -11,10 +11,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.gridsuite.modification.NetworkModificationException;
@@ -24,8 +21,8 @@ import static org.gridsuite.modification.NetworkModificationException.Type.GROOV
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 @AllArgsConstructor
 @Builder
 public class GroovyScript extends AbstractModification {

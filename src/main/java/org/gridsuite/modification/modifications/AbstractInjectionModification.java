@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.utils.MeasurementUtils;
@@ -25,13 +25,10 @@ import java.util.List;
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
-public abstract class AbstractInjectionModification extends AbstractModification {
+@Setter
+public abstract class AbstractInjectionModification extends AbstractEquipmentModification {
 
-    protected String equipmentId;
-    protected List<FreePropertyInfos> properties;
-    protected AttributeModification<String> equipmentName;
     protected AttributeModification<String> voltageLevelId;
     protected AttributeModification<String> busOrBusbarSectionId;
     protected AttributeModification<String> connectionName;
@@ -42,6 +39,31 @@ public abstract class AbstractInjectionModification extends AbstractModification
     protected AttributeModification<Boolean> pMeasurementValidity;
     protected AttributeModification<Double> qMeasurementValue;
     protected AttributeModification<Boolean> qMeasurementValidity;
+
+    public AbstractInjectionModification(String equipmentId, List<FreePropertyInfos> properties,
+                                         AttributeModification<String> equipmentName,
+                                         AttributeModification<String> voltageLevelId,
+                                         AttributeModification<String> busOrBusbarSectionId,
+                                         AttributeModification<String> connectionName,
+                                         AttributeModification<ConnectablePosition.Direction> connectionDirection,
+                                         AttributeModification<Integer> connectionPosition,
+                                         AttributeModification<Boolean> terminalConnected,
+                                         AttributeModification<Double> pMeasurementValue,
+                                         AttributeModification<Boolean> pMeasurementValidity,
+                                         AttributeModification<Double> qMeasurementValue,
+                                         AttributeModification<Boolean> qMeasurementValidity) {
+        super(equipmentId, properties, equipmentName);
+        this.voltageLevelId = voltageLevelId;
+        this.busOrBusbarSectionId = busOrBusbarSectionId;
+        this.connectionName = connectionName;
+        this.connectionDirection = connectionDirection;
+        this.connectionPosition = connectionPosition;
+        this.terminalConnected = terminalConnected;
+        this.pMeasurementValue = pMeasurementValue;
+        this.pMeasurementValidity = pMeasurementValidity;
+        this.qMeasurementValue = qMeasurementValue;
+        this.qMeasurementValidity = qMeasurementValidity;
+    }
 
     protected ReportNode updateMeasurements(Injection<?> injection, ReportNode subReportNode) {
         Double pValue = pMeasurementValue != null ? pMeasurementValue.getValue() : null;

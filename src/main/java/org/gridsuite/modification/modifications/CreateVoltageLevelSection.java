@@ -18,10 +18,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 
@@ -34,8 +31,8 @@ import static org.gridsuite.modification.NetworkModificationException.Type.CREAT
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 @AllArgsConstructor
 @Builder
 public class CreateVoltageLevelSection extends AbstractModification {

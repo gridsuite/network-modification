@@ -10,10 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
@@ -34,37 +31,37 @@ import static org.gridsuite.modification.utils.ModificationUtils.createBranchInN
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
-@AllArgsConstructor
-@Builder
-public class LineCreation extends AbstractModification {
+@Setter
+public class LineCreation extends AbstractBranchCreation {
 
-    private String equipmentId;
-    private List<FreePropertyInfos> properties;
-    private String equipmentName;
-    private double r;
-    private double x;
-    private String voltageLevelId1;
-    private String voltageLevelId2;
-    private String busOrBusbarSectionId1;
-    private String busOrBusbarSectionId2;
-    private List<OperationalLimitsGroupInfos> operationalLimitsGroups;
-    private String selectedOperationalLimitsGroupId1;
-    private String selectedOperationalLimitsGroupId2;
-    private String connectionName1;
-    private ConnectablePosition.Direction connectionDirection1;
-    private String connectionName2;
-    private ConnectablePosition.Direction connectionDirection2;
-    private Integer connectionPosition1;
-    private Integer connectionPosition2;
-    private boolean connected1;
-    private boolean connected2;
     private Double g1;
     private Double b1;
     private Double g2;
     private Double b2;
     private List<LineSegmentInfos> lineSegments;
+
+    @Builder
+    public LineCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName,
+                        String busOrBusbarSectionId2, double r, double x, String voltageLevelId1,
+                        String voltageLevelId2, String busOrBusbarSectionId1,
+                        List<OperationalLimitsGroupInfos> operationalLimitsGroups,
+                        String selectedOperationalLimitsGroupId1, String selectedOperationalLimitsGroupId2,
+                        String connectionName1, ConnectablePosition.Direction connectionDirection1,
+                        String connectionName2, ConnectablePosition.Direction connectionDirection2,
+                        Integer connectionPosition1, Integer connectionPosition2, boolean connected1,
+                        boolean connected2, Double g1, Double b1, Double g2, Double b2,
+                        List<LineSegmentInfos> lineSegments) {
+        super(equipmentId, properties, equipmentName, busOrBusbarSectionId2, r, x, voltageLevelId1, voltageLevelId2,
+            busOrBusbarSectionId1, operationalLimitsGroups, selectedOperationalLimitsGroupId1,
+            selectedOperationalLimitsGroupId2, connectionName1, connectionDirection1, connectionName2,
+            connectionDirection2, connectionPosition1, connectionPosition2, connected1, connected2);
+        this.g1 = g1;
+        this.b1 = b1;
+        this.g2 = g2;
+        this.b2 = b2;
+        this.lineSegments = lineSegments;
+    }
 
     @Override
     public void check(Network network) throws NetworkModificationException {

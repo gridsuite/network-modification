@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -29,8 +29,8 @@ import static org.gridsuite.modification.NetworkModificationException.Type.LOAD_
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 public class LoadModification extends AbstractInjectionModification {
 
     private AttributeModification<LoadType> loadType;
@@ -38,10 +38,8 @@ public class LoadModification extends AbstractInjectionModification {
     private AttributeModification<Double> q0;
 
     @Builder
-    public LoadModification(String equipmentId,
-                            List<FreePropertyInfos> properties,
-                            AttributeModification<String> equipmentName,
-                            AttributeModification<String> voltageLevelId,
+    public LoadModification(String equipmentId, List<FreePropertyInfos> properties,
+                            AttributeModification<String> equipmentName, AttributeModification<String> voltageLevelId,
                             AttributeModification<String> busOrBusbarSectionId,
                             AttributeModification<String> connectionName,
                             AttributeModification<ConnectablePosition.Direction> connectionDirection,
@@ -52,21 +50,10 @@ public class LoadModification extends AbstractInjectionModification {
                             AttributeModification<Double> qMeasurementValue,
                             AttributeModification<Boolean> qMeasurementValidity,
                             AttributeModification<LoadType> loadType,
-                            AttributeModification<Double> p0,
-                            AttributeModification<Double> q0) {
-        this.equipmentId = equipmentId;
-        this.properties = properties;
-        this.equipmentName = equipmentName;
-        this.voltageLevelId = voltageLevelId;
-        this.busOrBusbarSectionId = busOrBusbarSectionId;
-        this.connectionName = connectionName;
-        this.connectionDirection = connectionDirection;
-        this.connectionPosition = connectionPosition;
-        this.terminalConnected = terminalConnected;
-        this.pMeasurementValue = pMeasurementValue;
-        this.pMeasurementValidity = pMeasurementValidity;
-        this.qMeasurementValue = qMeasurementValue;
-        this.qMeasurementValidity = qMeasurementValidity;
+                            AttributeModification<Double> p0, AttributeModification<Double> q0) {
+        super(equipmentId, properties, equipmentName, voltageLevelId, busOrBusbarSectionId, connectionName,
+            connectionDirection, connectionPosition, terminalConnected, pMeasurementValue, pMeasurementValidity,
+            qMeasurementValue, qMeasurementValidity);
         this.loadType = loadType;
         this.p0 = p0;
         this.q0 = q0;

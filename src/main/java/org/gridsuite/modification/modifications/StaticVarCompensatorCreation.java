@@ -12,10 +12,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.VoltageRegulationType;
@@ -34,21 +31,10 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
-@AllArgsConstructor
-@Builder
-public class StaticVarCompensatorCreation extends AbstractModification {
+@Setter
+public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
 
-    private String equipmentId;
-    private List<FreePropertyInfos> properties;
-    private String equipmentName;
-    private String voltageLevelId;
-    private String busOrBusbarSectionId;
-    private String connectionName;
-    private ConnectablePosition.Direction connectionDirection;
-    private Integer connectionPosition;
-    private boolean terminalConnected;
     private Double maxSusceptance;
     private Double minSusceptance;
     private Double maxQAtNominalV;
@@ -69,6 +55,43 @@ public class StaticVarCompensatorCreation extends AbstractModification {
     private Double highVoltageSetpoint;
     private Double lowVoltageThreshold;
     private Double highVoltageThreshold;
+
+    @Builder
+    public StaticVarCompensatorCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName,
+                                        String voltageLevelId, String busOrBusbarSectionId, String connectionName,
+                                        ConnectablePosition.Direction connectionDirection, Integer connectionPosition,
+                                        boolean terminalConnected, Double maxSusceptance, Double minSusceptance,
+                                        Double maxQAtNominalV, Double minQAtNominalV,
+                                        StaticVarCompensator.RegulationMode regulationMode, Double voltageSetpoint,
+                                        Double reactivePowerSetpoint, VoltageRegulationType voltageRegulationType,
+                                        String regulatingTerminalId, String regulatingTerminalType,
+                                        String regulatingTerminalVlId, boolean regulating, boolean standbyAutomatonOn,
+                                        boolean standby, Double b0, Double q0, Double lowVoltageSetpoint,
+                                        Double highVoltageSetpoint, Double lowVoltageThreshold,
+                                        Double highVoltageThreshold) {
+        super(equipmentId, properties, equipmentName, voltageLevelId, busOrBusbarSectionId, connectionName,
+            connectionDirection, connectionPosition, terminalConnected);
+        this.maxSusceptance = maxSusceptance;
+        this.minSusceptance = minSusceptance;
+        this.maxQAtNominalV = maxQAtNominalV;
+        this.minQAtNominalV = minQAtNominalV;
+        this.regulationMode = regulationMode;
+        this.voltageSetpoint = voltageSetpoint;
+        this.reactivePowerSetpoint = reactivePowerSetpoint;
+        this.voltageRegulationType = voltageRegulationType;
+        this.regulatingTerminalId = regulatingTerminalId;
+        this.regulatingTerminalType = regulatingTerminalType;
+        this.regulatingTerminalVlId = regulatingTerminalVlId;
+        this.regulating = regulating;
+        this.standbyAutomatonOn = standbyAutomatonOn;
+        this.standby = standby;
+        this.b0 = b0;
+        this.q0 = q0;
+        this.lowVoltageSetpoint = lowVoltageSetpoint;
+        this.highVoltageSetpoint = highVoltageSetpoint;
+        this.lowVoltageThreshold = lowVoltageThreshold;
+        this.highVoltageThreshold = highVoltageThreshold;
+    }
 
     @Override
     public void check(Network network) throws NetworkModificationException {

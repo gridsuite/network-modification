@@ -12,7 +12,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.NetworkModificationException.Type;
 import org.gridsuite.modification.dto.*;
@@ -25,15 +25,9 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 public class VoltageInitModification extends AbstractModification {
-    private List<VoltageInitGeneratorModificationInfos> generators;
-    private List<VoltageInitTransformerModificationInfos> transformers;
-    private List<VoltageInitStaticVarCompensatorModificationInfos> staticVarCompensators;
-    private List<VoltageInitVscConverterStationModificationInfos> vscConverterStations;
-    private List<VoltageInitShuntCompensatorModificationInfos> shuntCompensators;
-    private List<VoltageInitBusModificationInfos> buses;
 
     private static final String GENERATORS_KEY = "network.modification.GeneratorsModifications";
     private static final String TWO_WINDINGS_TRANSFORMERS_KEY = "network.modification.2WindingsTransformersModifications";
@@ -48,6 +42,13 @@ public class VoltageInitModification extends AbstractModification {
     private static final String REACTIVE_POWER_SET_POINT = "Reactive power set point";
     private static final String SECTION_COUNT = "Section count";
     private static final String COUNT = "count";
+
+    private List<VoltageInitGeneratorModificationInfos> generators;
+    private List<VoltageInitTransformerModificationInfos> transformers;
+    private List<VoltageInitStaticVarCompensatorModificationInfos> staticVarCompensators;
+    private List<VoltageInitVscConverterStationModificationInfos> vscConverterStations;
+    private List<VoltageInitShuntCompensatorModificationInfos> shuntCompensators;
+    private List<VoltageInitBusModificationInfos> buses;
 
     @Builder
     public VoltageInitModification(List<VoltageInitGeneratorModificationInfos> generators,

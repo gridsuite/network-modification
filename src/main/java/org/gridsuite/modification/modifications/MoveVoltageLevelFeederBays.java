@@ -11,10 +11,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
@@ -28,8 +25,8 @@ import static org.gridsuite.modification.NetworkModificationException.Type.MOVE_
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 @AllArgsConstructor
 @Builder
 public class MoveVoltageLevelFeederBays extends AbstractModification {

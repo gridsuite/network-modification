@@ -10,10 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -27,24 +24,26 @@ import static org.gridsuite.modification.utils.ModificationUtils.createInjection
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
-@AllArgsConstructor
-@Builder
-public class LoadCreation extends AbstractModification {
+@Setter
+public class LoadCreation extends AbstractInjectionCreation {
 
-    private String equipmentId;
-    private List<FreePropertyInfos> properties;
-    private String equipmentName;
-    private String voltageLevelId;
-    private String busOrBusbarSectionId;
-    private String connectionName;
-    private ConnectablePosition.Direction connectionDirection;
-    private Integer connectionPosition;
-    private boolean terminalConnected;
     private LoadType loadType;
     private double p0;
     private double q0;
+
+    @Builder
+    public LoadCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName,
+                        String voltageLevelId,
+                        String busOrBusbarSectionId, String connectionName,
+                        ConnectablePosition.Direction connectionDirection, Integer connectionPosition,
+                        boolean terminalConnected, LoadType loadType, double p0, double q0) {
+        super(equipmentId, properties, equipmentName, voltageLevelId, busOrBusbarSectionId, connectionName,
+            connectionDirection, connectionPosition, terminalConnected);
+        this.loadType = loadType;
+        this.p0 = p0;
+        this.q0 = q0;
+    }
 
     @Override
     public void check(Network network) throws NetworkModificationException {

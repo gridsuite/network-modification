@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -28,8 +28,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 public class GeneratorModification extends AbstractInjectionModification {
 
     private static final String LIMITS = "network.modification.limits";
@@ -37,6 +37,7 @@ public class GeneratorModification extends AbstractInjectionModification {
     private static final String SETPOINTS = "network.modification.Setpoints";
     private static final String TARGET_VOLTAGE = "Target Voltage";
     public static final String ERROR_MESSAGE = "Generator '%s' : ";
+
     private AttributeModification<EnergySource> energySource;
     private AttributeModification<Double> minP;
     private AttributeModification<Double> maxP;
@@ -64,8 +65,7 @@ public class GeneratorModification extends AbstractInjectionModification {
     private AttributeModification<Boolean> reactiveCapabilityCurve;
 
     @Builder
-    public GeneratorModification(String equipmentId,
-                                 List<FreePropertyInfos> properties,
+    public GeneratorModification(String equipmentId, List<FreePropertyInfos> properties,
                                  AttributeModification<String> equipmentName,
                                  AttributeModification<String> voltageLevelId,
                                  AttributeModification<String> busOrBusbarSectionId,
@@ -77,23 +77,18 @@ public class GeneratorModification extends AbstractInjectionModification {
                                  AttributeModification<Boolean> pMeasurementValidity,
                                  AttributeModification<Double> qMeasurementValue,
                                  AttributeModification<Boolean> qMeasurementValidity,
-                                 AttributeModification<EnergySource> energySource,
-                                 AttributeModification<Double> minP,
-                                 AttributeModification<Double> maxP,
-                                 AttributeModification<Double> ratedS,
-                                 AttributeModification<Double> targetP,
-                                 AttributeModification<Double> targetQ,
+                                 AttributeModification<EnergySource> energySource, AttributeModification<Double> minP,
+                                 AttributeModification<Double> maxP, AttributeModification<Double> ratedS,
+                                 AttributeModification<Double> targetP, AttributeModification<Double> targetQ,
                                  AttributeModification<Boolean> voltageRegulationOn,
                                  AttributeModification<Double> targetV,
                                  AttributeModification<Double> plannedActivePowerSetPoint,
                                  AttributeModification<Double> marginalCost,
                                  AttributeModification<Double> plannedOutageRate,
-                                 AttributeModification<Double> forcedOutageRate,
-                                 AttributeModification<Double> minQ,
+                                 AttributeModification<Double> forcedOutageRate, AttributeModification<Double> minQ,
                                  AttributeModification<Double> maxQ,
                                  List<ReactiveCapabilityCurvePointsInfos> reactiveCapabilityCurvePoints,
-                                 AttributeModification<Boolean> participate,
-                                 AttributeModification<Float> droop,
+                                 AttributeModification<Boolean> participate, AttributeModification<Float> droop,
                                  AttributeModification<Double> directTransX,
                                  AttributeModification<Double> stepUpTransformerX,
                                  AttributeModification<VoltageRegulationType> voltageRegulationType,
@@ -102,19 +97,9 @@ public class GeneratorModification extends AbstractInjectionModification {
                                  AttributeModification<String> regulatingTerminalVlId,
                                  AttributeModification<Double> qPercent,
                                  AttributeModification<Boolean> reactiveCapabilityCurve) {
-        this.equipmentId = equipmentId;
-        this.properties = properties;
-        this.equipmentName = equipmentName;
-        this.voltageLevelId = voltageLevelId;
-        this.busOrBusbarSectionId = busOrBusbarSectionId;
-        this.connectionName = connectionName;
-        this.connectionDirection = connectionDirection;
-        this.connectionPosition = connectionPosition;
-        this.terminalConnected = terminalConnected;
-        this.pMeasurementValue = pMeasurementValue;
-        this.pMeasurementValidity = pMeasurementValidity;
-        this.qMeasurementValue = qMeasurementValue;
-        this.qMeasurementValidity = qMeasurementValidity;
+        super(equipmentId, properties, equipmentName, voltageLevelId, busOrBusbarSectionId, connectionName,
+            connectionDirection, connectionPosition, terminalConnected, pMeasurementValue, pMeasurementValidity,
+            qMeasurementValue, qMeasurementValidity);
         this.energySource = energySource;
         this.minP = minP;
         this.maxP = maxP;

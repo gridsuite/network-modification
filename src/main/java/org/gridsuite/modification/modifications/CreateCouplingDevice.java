@@ -8,17 +8,14 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.ModificationType;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 @AllArgsConstructor
 @Builder
 public class CreateCouplingDevice extends AbstractModification {

@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -30,11 +30,12 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 public class BatteryModification extends AbstractInjectionModification {
 
     public static final String ERROR_MESSAGE = "Battery '%s' : ";
+
     private AttributeModification<Double> minP;
     private AttributeModification<Double> maxP;
     private AttributeModification<Double> targetP;
@@ -49,8 +50,7 @@ public class BatteryModification extends AbstractInjectionModification {
     private AttributeModification<Boolean> reactiveCapabilityCurve;
 
     @Builder
-    public BatteryModification(String equipmentId,
-                               List<FreePropertyInfos> properties,
+    public BatteryModification(String equipmentId, List<FreePropertyInfos> properties,
                                AttributeModification<String> equipmentName,
                                AttributeModification<String> voltageLevelId,
                                AttributeModification<String> busOrBusbarSectionId,
@@ -61,32 +61,17 @@ public class BatteryModification extends AbstractInjectionModification {
                                AttributeModification<Double> pMeasurementValue,
                                AttributeModification<Boolean> pMeasurementValidity,
                                AttributeModification<Double> qMeasurementValue,
-                               AttributeModification<Boolean> qMeasurementValidity,
-                               AttributeModification<Double> minP,
-                               AttributeModification<Double> maxP,
-                               AttributeModification<Double> targetP,
-                               AttributeModification<Double> targetQ,
-                               AttributeModification<Boolean> participate,
-                               AttributeModification<Float> droop,
-                               AttributeModification<Double> directTransX,
-                               AttributeModification<Double> stepUpTransformerX,
-                               AttributeModification<Double> minQ,
+                               AttributeModification<Boolean> qMeasurementValidity, AttributeModification<Double> minP,
+                               AttributeModification<Double> maxP, AttributeModification<Double> targetP,
+                               AttributeModification<Double> targetQ, AttributeModification<Boolean> participate,
+                               AttributeModification<Float> droop, AttributeModification<Double> directTransX,
+                               AttributeModification<Double> stepUpTransformerX, AttributeModification<Double> minQ,
                                AttributeModification<Double> maxQ,
                                List<ReactiveCapabilityCurvePointsInfos> reactiveCapabilityCurvePoints,
                                AttributeModification<Boolean> reactiveCapabilityCurve) {
-        this.equipmentId = equipmentId;
-        this.properties = properties;
-        this.equipmentName = equipmentName;
-        this.voltageLevelId = voltageLevelId;
-        this.busOrBusbarSectionId = busOrBusbarSectionId;
-        this.connectionName = connectionName;
-        this.connectionDirection = connectionDirection;
-        this.connectionPosition = connectionPosition;
-        this.terminalConnected = terminalConnected;
-        this.pMeasurementValue = pMeasurementValue;
-        this.pMeasurementValidity = pMeasurementValidity;
-        this.qMeasurementValue = qMeasurementValue;
-        this.qMeasurementValidity = qMeasurementValidity;
+        super(equipmentId, properties, equipmentName, voltageLevelId, busOrBusbarSectionId, connectionName,
+            connectionDirection, connectionPosition, terminalConnected, pMeasurementValue, pMeasurementValidity,
+            qMeasurementValue, qMeasurementValidity);
         this.minP = minP;
         this.maxP = maxP;
         this.targetP = targetP;

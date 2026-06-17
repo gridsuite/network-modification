@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
@@ -36,8 +36,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 public class ByFilterDeletion extends AbstractModification {
 
     private IdentifiableType equipmentType;

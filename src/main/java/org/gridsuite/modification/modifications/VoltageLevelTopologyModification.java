@@ -11,10 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentAttributeModificationInfos;
@@ -29,14 +26,18 @@ import static org.gridsuite.modification.NetworkModificationException.Type.VOLTA
  * @author REHILI Ghazwa <ghazwarhili at gmail.com>
  */
 
-@NoArgsConstructor
 @Getter
-@AllArgsConstructor
-@Builder
-public class VoltageLevelTopologyModification extends AbstractModification {
-    private String equipmentId;
-    private List<FreePropertyInfos> properties;
+@Setter
+public class VoltageLevelTopologyModification extends AbstractEquipmentBase {
+
     private List<EquipmentAttributeModificationInfos> equipmentAttributeModificationList;
+
+    @Builder
+    public VoltageLevelTopologyModification(String equipmentId, List<FreePropertyInfos> properties,
+                                            List<EquipmentAttributeModificationInfos> equipmentAttributeModificationList) {
+        super(equipmentId, properties);
+        this.equipmentAttributeModificationList = equipmentAttributeModificationList;
+    }
 
     @Override
     public void check(Network network) throws NetworkModificationException {

@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.DataType;
@@ -30,8 +30,8 @@ import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyFie
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 public class ModificationByAssignment extends AbstractModificationByAssignment {
 
     private IdentifiableType equipmentType;

@@ -4,26 +4,25 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import java.util.List;
 
-@NoArgsConstructor
 @Getter
-@AllArgsConstructor
-@Builder
-public class SubstationCreation extends AbstractModification {
+@Setter
+public class SubstationCreation extends AbstractEquipmentCreation {
 
-    private String equipmentId;
-    private List<FreePropertyInfos> properties;
-    private String equipmentName;
     private Country country;
+
+    @Builder
+    public SubstationCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName,
+                              Country country) {
+        super(equipmentId, properties, equipmentName);
+        this.country = country;
+    }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {

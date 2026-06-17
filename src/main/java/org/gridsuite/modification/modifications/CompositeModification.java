@@ -13,7 +13,7 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -26,8 +26,8 @@ import static org.gridsuite.modification.modifications.byfilter.AbstractModifica
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 public class CompositeModification extends AbstractModification {
 
     private List<ModificationInfos> modificationsInfos;

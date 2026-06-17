@@ -9,8 +9,6 @@ package org.gridsuite.modification.modifications.tabular;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.EquipmentModificationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -23,8 +21,6 @@ import java.util.List;
 /**
  * @author David Braquart <david.braquart at rte-france.com>
  */
-@NoArgsConstructor
-@Getter
 public abstract class AbstractTabularModification extends AbstractModification {
 
     protected static final String DEFAULT_MESSAGE_KEY = "defaultMessage";

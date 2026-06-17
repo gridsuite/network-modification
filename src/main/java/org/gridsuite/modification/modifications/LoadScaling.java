@@ -13,7 +13,8 @@ import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.VariationMode;
 import org.gridsuite.modification.VariationType;
@@ -28,7 +29,8 @@ import java.util.stream.Collectors;
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
  */
-@NoArgsConstructor
+@Getter
+@Setter
 public class LoadScaling extends AbstractScaling {
 
     @Builder

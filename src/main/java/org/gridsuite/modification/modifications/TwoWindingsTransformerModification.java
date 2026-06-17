@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimated;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimatedAdder;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.lang3.BooleanUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
@@ -33,13 +33,14 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
 /**
  * @author Florent MILLOT <florent.millot at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 public class TwoWindingsTransformerModification extends AbstractBranchModification {
 
     public static final String MAGNETIZING_CONDUCTANCE_FIELD_NAME = "Magnetizing conductance";
     private static final String TARGET_DEADBAND = "Target deadband";
     public static final String ERROR_MESSAGE = "Two windings transformer '%s' : ";
+
     private AttributeModification<Double> g;
     private AttributeModification<Double> b;
     private AttributeModification<Double> ratedU1;
@@ -51,8 +52,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
     private AttributeModification<Boolean> phaseTapChangerToBeEstimated;
 
     @Builder
-    public TwoWindingsTransformerModification(String equipmentId,
-                                              List<FreePropertyInfos> properties,
+    public TwoWindingsTransformerModification(String equipmentId, List<FreePropertyInfos> properties,
                                               AttributeModification<String> equipmentName,
                                               AttributeModification<Double> r,
                                               AttributeModification<Double> x,
@@ -81,8 +81,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                                               AttributeModification<Boolean> q1MeasurementValidity,
                                               AttributeModification<Double> q2MeasurementValue,
                                               AttributeModification<Boolean> q2MeasurementValidity,
-                                              AttributeModification<Double> g,
-                                              AttributeModification<Double> b,
+                                              AttributeModification<Double> g, AttributeModification<Double> b,
                                               AttributeModification<Double> ratedU1,
                                               AttributeModification<Double> ratedU2,
                                               AttributeModification<Double> ratedS,
@@ -90,36 +89,14 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                                               PhaseTapChangerModificationInfos phaseTapChanger,
                                               AttributeModification<Boolean> ratioTapChangerToBeEstimated,
                                               AttributeModification<Boolean> phaseTapChangerToBeEstimated) {
-        this.equipmentId = equipmentId;
-        this.properties = properties;
-        this.equipmentName = equipmentName;
-        this.r = r;
-        this.x = x;
-        this.operationalLimitsGroupsModificationType = operationalLimitsGroupsModificationType;
-        this.enableOLGModification = enableOLGModification;
-        this.operationalLimitsGroups = operationalLimitsGroups;
-        this.selectedOperationalLimitsGroupId1 = selectedOperationalLimitsGroupId1;
-        this.selectedOperationalLimitsGroupId2 = selectedOperationalLimitsGroupId2;
-        this.voltageLevelId1 = voltageLevelId1;
-        this.voltageLevelId2 = voltageLevelId2;
-        this.busOrBusbarSectionId1 = busOrBusbarSectionId1;
-        this.busOrBusbarSectionId2 = busOrBusbarSectionId2;
-        this.connectionName1 = connectionName1;
-        this.connectionName2 = connectionName2;
-        this.connectionDirection1 = connectionDirection1;
-        this.connectionDirection2 = connectionDirection2;
-        this.connectionPosition1 = connectionPosition1;
-        this.connectionPosition2 = connectionPosition2;
-        this.terminal1Connected = terminal1Connected;
-        this.terminal2Connected = terminal2Connected;
-        this.p1MeasurementValue = p1MeasurementValue;
-        this.p1MeasurementValidity = p1MeasurementValidity;
-        this.p2MeasurementValue = p2MeasurementValue;
-        this.p2MeasurementValidity = p2MeasurementValidity;
-        this.q1MeasurementValue = q1MeasurementValue;
-        this.q1MeasurementValidity = q1MeasurementValidity;
-        this.q2MeasurementValue = q2MeasurementValue;
-        this.q2MeasurementValidity = q2MeasurementValidity;
+        super(equipmentId, properties, equipmentName, r, x, operationalLimitsGroupsModificationType,
+            enableOLGModification,
+            operationalLimitsGroups, selectedOperationalLimitsGroupId1, selectedOperationalLimitsGroupId2,
+            voltageLevelId1,
+            voltageLevelId2, busOrBusbarSectionId1, busOrBusbarSectionId2, connectionName1, connectionName2,
+            connectionDirection1, connectionDirection2, connectionPosition1, connectionPosition2, terminal1Connected,
+            terminal2Connected, p1MeasurementValue, p1MeasurementValidity, p2MeasurementValue, p2MeasurementValidity,
+            q1MeasurementValue, q1MeasurementValidity, q2MeasurementValue, q2MeasurementValidity);
         this.g = g;
         this.b = b;
         this.ratedU1 = ratedU1;

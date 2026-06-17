@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
@@ -31,8 +31,8 @@ import static org.gridsuite.modification.NetworkModificationException.Type.BY_FO
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 public class ByFormulaModification extends AbstractModificationByAssignment {
     private IdentifiableType identifiableType;
     private List<FormulaInfos> formulaInfosList;

@@ -11,10 +11,7 @@ import com.powsybl.iidm.modification.topology.ReplaceTeePointByVoltageLevelOnLin
 import com.powsybl.iidm.modification.topology.ReplaceTeePointByVoltageLevelOnLineBuilder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 
@@ -24,8 +21,8 @@ import static org.gridsuite.modification.NetworkModificationException.Type.LINE_
 /**
  * @author David Braquart <david.braquart at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 @AllArgsConstructor
 @Builder
 public class LinesAttachToSplitLines extends AbstractModification {

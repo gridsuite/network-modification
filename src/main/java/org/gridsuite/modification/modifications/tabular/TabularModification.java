@@ -11,7 +11,8 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentModificationInfos;
@@ -25,7 +26,8 @@ import static org.gridsuite.modification.NetworkModificationException.Type.TABUL
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-@NoArgsConstructor
+@Getter
+@Setter
 public class TabularModification extends AbstractTabularModification {
 
     @Builder

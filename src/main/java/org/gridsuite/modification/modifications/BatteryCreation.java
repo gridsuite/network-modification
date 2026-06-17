@@ -12,10 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -32,21 +29,10 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
  */
-@NoArgsConstructor
+@Setter
 @Getter
-@AllArgsConstructor
-@Builder
-public class BatteryCreation extends AbstractModification implements ReactiveLimitsHolderInfos {
+public class BatteryCreation extends AbstractInjectionCreation implements ReactiveLimitsHolderInfos {
 
-    private String equipmentId;
-    private List<FreePropertyInfos> properties;
-    private String equipmentName;
-    private String voltageLevelId;
-    private String busOrBusbarSectionId;
-    private String connectionName;
-    private ConnectablePosition.Direction connectionDirection;
-    private Integer connectionPosition;
-    private boolean terminalConnected;
     private double minP;
     private double maxP;
     private Double minQ;
@@ -59,6 +45,29 @@ public class BatteryCreation extends AbstractModification implements ReactiveLim
     private Double directTransX;
     private Double stepUpTransformerX;
     private Boolean reactiveCapabilityCurve;
+
+    @Builder
+    public BatteryCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName,
+                           String voltageLevelId, String busOrBusbarSectionId, String connectionName,
+                           ConnectablePosition.Direction connectionDirection, Integer connectionPosition,
+                           boolean terminalConnected, double minP, double maxP, Double minQ, Double maxQ,
+                           List<ReactiveCapabilityCurvePointsInfos> reactiveCapabilityCurvePoints,
+                           double targetP, Double targetQ, Boolean participate, Float droop, Double directTransX,
+                           Double stepUpTransformerX, Boolean reactiveCapabilityCurve) {
+        super(equipmentId, properties, equipmentName, voltageLevelId, busOrBusbarSectionId, connectionName, connectionDirection, connectionPosition, terminalConnected);
+        this.minP = minP;
+        this.maxP = maxP;
+        this.minQ = minQ;
+        this.maxQ = maxQ;
+        this.reactiveCapabilityCurvePoints = reactiveCapabilityCurvePoints;
+        this.targetP = targetP;
+        this.targetQ = targetQ;
+        this.participate = participate;
+        this.droop = droop;
+        this.directTransX = directTransX;
+        this.stepUpTransformerX = stepUpTransformerX;
+        this.reactiveCapabilityCurve = reactiveCapabilityCurve;
+    }
 
     @Override
     public void check(Network network) throws NetworkModificationException {

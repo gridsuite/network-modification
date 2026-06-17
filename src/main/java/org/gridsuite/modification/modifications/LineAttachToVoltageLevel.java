@@ -14,10 +14,7 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 import groovyjarjarantlr4.v4.runtime.misc.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.LineCreationInfos;
 import org.gridsuite.modification.dto.SubstationCreationInfos;
@@ -31,8 +28,8 @@ import static org.gridsuite.modification.modifications.LineCreation.addLimits;
 /**
  * @author David Braquart <david.braquart at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 @AllArgsConstructor
 @Builder
 public class LineAttachToVoltageLevel extends AbstractModification {

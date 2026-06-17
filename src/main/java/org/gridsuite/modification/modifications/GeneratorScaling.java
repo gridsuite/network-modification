@@ -14,7 +14,8 @@ import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.VariationType;
 import org.gridsuite.modification.dto.IdentifiableAttributes;
@@ -30,8 +31,8 @@ import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
  */
-
-@NoArgsConstructor
+@Getter
+@Setter
 public class GeneratorScaling extends AbstractScaling {
 
     @Builder

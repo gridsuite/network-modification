@@ -12,7 +12,7 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.ModificationType;
@@ -25,8 +25,8 @@ import java.util.UUID;
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 public class ModificationReference extends AbstractModification {
 
     private UUID referenceId;

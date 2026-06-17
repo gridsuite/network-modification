@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -32,11 +32,12 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
  */
-
-@NoArgsConstructor
 @Getter
+@Setter
 public class ShuntCompensatorModification extends AbstractInjectionModification {
+
     private static final String SWITCHED_ON_Q_AT_NOMINALV_LOG_MESSAGE = "Switched-on Q at nominal voltage";
+
     private AttributeModification<Integer> maximumSectionCount;
     private AttributeModification<Integer> sectionCount;
     private AttributeModification<Double> maxSusceptance;
@@ -44,8 +45,7 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
     private AttributeModification<ShuntCompensatorType> shuntCompensatorType;
 
     @Builder
-    public ShuntCompensatorModification(String equipmentId,
-                                        List<FreePropertyInfos> properties,
+    public ShuntCompensatorModification(String equipmentId, List<FreePropertyInfos> properties,
                                         AttributeModification<String> equipmentName,
                                         AttributeModification<String> voltageLevelId,
                                         AttributeModification<String> busOrBusbarSectionId,
@@ -62,19 +62,9 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
                                         AttributeModification<Double> maxSusceptance,
                                         AttributeModification<Double> maxQAtNominalV,
                                         AttributeModification<ShuntCompensatorType> shuntCompensatorType) {
-        this.equipmentId = equipmentId;
-        this.properties = properties;
-        this.equipmentName = equipmentName;
-        this.voltageLevelId = voltageLevelId;
-        this.busOrBusbarSectionId = busOrBusbarSectionId;
-        this.connectionName = connectionName;
-        this.connectionDirection = connectionDirection;
-        this.connectionPosition = connectionPosition;
-        this.terminalConnected = terminalConnected;
-        this.pMeasurementValue = pMeasurementValue;
-        this.pMeasurementValidity = pMeasurementValidity;
-        this.qMeasurementValue = qMeasurementValue;
-        this.qMeasurementValidity = qMeasurementValidity;
+        super(equipmentId, properties, equipmentName, voltageLevelId, busOrBusbarSectionId, connectionName,
+            connectionDirection, connectionPosition, terminalConnected, pMeasurementValue, pMeasurementValidity,
+            qMeasurementValue, qMeasurementValidity);
         this.maximumSectionCount = maximumSectionCount;
         this.sectionCount = sectionCount;
         this.maxSusceptance = maxSusceptance;

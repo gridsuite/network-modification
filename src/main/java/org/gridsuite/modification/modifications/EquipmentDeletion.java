@@ -10,10 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AbstractEquipmentDeletionInfos;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -29,16 +26,20 @@ import static org.gridsuite.modification.NetworkModificationException.Type.EQUIP
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
-@AllArgsConstructor
-@Builder
-public class EquipmentDeletion extends AbstractModification {
+@Setter
+public class EquipmentDeletion extends AbstractEquipmentBase {
 
-    private String equipmentId;
-    private List<FreePropertyInfos> properties;
     private IdentifiableType equipmentType;
     private AbstractEquipmentDeletionInfos equipmentInfos;
+
+    @Builder
+    public EquipmentDeletion(String equipmentId, List<FreePropertyInfos> properties, IdentifiableType equipmentType,
+                             AbstractEquipmentDeletionInfos equipmentInfos) {
+        super(equipmentId, properties);
+        this.equipmentType = equipmentType;
+        this.equipmentInfos = equipmentInfos;
+    }
 
     @Override
     public void check(Network network) throws NetworkModificationException {

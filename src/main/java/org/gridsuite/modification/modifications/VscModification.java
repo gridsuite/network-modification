@@ -13,10 +13,7 @@ import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRangeAdder;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.ConverterStationModificationInfos;
@@ -41,21 +38,15 @@ import static org.gridsuite.modification.utils.ModificationUtils.checkIsPercenta
 /**
  * @author jamal kheyyad <jamal.kheyyad at rte-france.com>
  */
-
-@NoArgsConstructor
 @Getter
-@AllArgsConstructor
-@Builder
-public class VscModification extends AbstractModification {
+@Setter
+public class VscModification extends AbstractEquipmentModification {
     public static final String NO_VALUE = "No value";
     public static final String ANGLE_DROOP_ACTIVE_POWER_CONTROL_FIELD = "AngleDroopActivePowerControl";
     public static final String DROOP_FIELD = "Droop";
     public static final String P0_FIELD = "P0";
     public static final String ACTIVE_POWER_CONTROL_DROOP_P0_REQUIRED_ERROR_MSG = "Angle droop active power control, Droop and P0 must be all provided or none";
 
-    private String equipmentId;
-    private List<FreePropertyInfos> properties;
-    private AttributeModification<String> equipmentName;
     private AttributeModification<Double> nominalV;
     private AttributeModification<Double> r;
     private AttributeModification<Double> maxP;
@@ -68,6 +59,32 @@ public class VscModification extends AbstractModification {
     private AttributeModification<Float> droop;
     private ConverterStationModificationInfos converterStation1;
     private ConverterStationModificationInfos converterStation2;
+
+    @Builder
+    public VscModification(String equipmentId, List<FreePropertyInfos> properties,
+                           AttributeModification<String> equipmentName, AttributeModification<Double> nominalV,
+                           AttributeModification<Double> r, AttributeModification<Double> maxP,
+                           AttributeModification<Float> operatorActivePowerLimitFromSide1ToSide2,
+                           AttributeModification<Float> operatorActivePowerLimitFromSide2ToSide1,
+                           AttributeModification<HvdcLine.ConvertersMode> convertersMode,
+                           AttributeModification<Double> activePowerSetpoint,
+                           AttributeModification<Boolean> angleDroopActivePowerControl, AttributeModification<Float> p0,
+                           AttributeModification<Float> droop, ConverterStationModificationInfos converterStation1,
+                           ConverterStationModificationInfos converterStation2) {
+        super(equipmentId, properties, equipmentName);
+        this.nominalV = nominalV;
+        this.r = r;
+        this.maxP = maxP;
+        this.operatorActivePowerLimitFromSide1ToSide2 = operatorActivePowerLimitFromSide1ToSide2;
+        this.operatorActivePowerLimitFromSide2ToSide1 = operatorActivePowerLimitFromSide2ToSide1;
+        this.convertersMode = convertersMode;
+        this.activePowerSetpoint = activePowerSetpoint;
+        this.angleDroopActivePowerControl = angleDroopActivePowerControl;
+        this.p0 = p0;
+        this.droop = droop;
+        this.converterStation1 = converterStation1;
+        this.converterStation2 = converterStation2;
+    }
 
     public static boolean shouldCreateDroopActivePowerControlExtension(boolean isPresentAngleDroopActivePowerControl, boolean isPresentDroop, boolean isPresentP0) {
         return isPresentAngleDroopActivePowerControl && isPresentDroop && isPresentP0;

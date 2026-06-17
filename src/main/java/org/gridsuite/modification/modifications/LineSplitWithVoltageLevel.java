@@ -12,10 +12,7 @@ import com.powsybl.iidm.modification.topology.ConnectVoltageLevelOnLineBuilder;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -27,8 +24,8 @@ import static org.gridsuite.modification.NetworkModificationException.Type.LINE_
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 @AllArgsConstructor
 @Builder
 public class LineSplitWithVoltageLevel extends AbstractModification {

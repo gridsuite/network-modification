@@ -11,10 +11,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -28,16 +25,18 @@ import static org.gridsuite.modification.NetworkModificationException.Type.SUBST
 /*
  * @author David Braquart <david.braquart at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
-@AllArgsConstructor
-@Builder
-public class SubstationModification extends AbstractModification {
+@Setter
+public class SubstationModification extends AbstractEquipmentModification {
 
-    private String equipmentId;
-    private List<FreePropertyInfos> properties;
-    private AttributeModification<String> equipmentName;
     private AttributeModification<Country> country;
+
+    @Builder
+    public SubstationModification(String equipmentId, List<FreePropertyInfos> properties,
+                                  AttributeModification<String> equipmentName, AttributeModification<Country> country) {
+        super(equipmentId, properties, equipmentName);
+        this.country = country;
+    }
 
     @Override
     public void check(Network network) throws NetworkModificationException {

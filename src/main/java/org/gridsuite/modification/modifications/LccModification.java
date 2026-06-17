@@ -10,10 +10,7 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.apache.commons.math3.util.Pair;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
@@ -32,15 +29,10 @@ import java.util.Optional;
 
 import static org.gridsuite.modification.utils.ModificationUtils.NO_VALUE;
 
-@NoArgsConstructor
 @Getter
-@AllArgsConstructor
-@Builder
-public class LccModification extends AbstractModification {
+@Setter
+public class LccModification extends AbstractEquipmentModification {
 
-    private String equipmentId;
-    private List<FreePropertyInfos> properties;
-    private AttributeModification<String> equipmentName;
     private AttributeModification<Double> nominalV;
     private AttributeModification<Double> r;
     private AttributeModification<Double> maxP;
@@ -48,6 +40,24 @@ public class LccModification extends AbstractModification {
     private AttributeModification<Double> activePowerSetpoint;
     private LccConverterStationModificationInfos converterStation1;
     private LccConverterStationModificationInfos converterStation2;
+
+    @Builder
+    public LccModification(String equipmentId, List<FreePropertyInfos> properties,
+                           AttributeModification<String> equipmentName, AttributeModification<Double> nominalV,
+                           AttributeModification<Double> r, AttributeModification<Double> maxP,
+                           AttributeModification<HvdcLine.ConvertersMode> convertersMode,
+                           AttributeModification<Double> activePowerSetpoint,
+                           LccConverterStationModificationInfos converterStation1,
+                           LccConverterStationModificationInfos converterStation2) {
+        super(equipmentId, properties, equipmentName);
+        this.nominalV = nominalV;
+        this.r = r;
+        this.maxP = maxP;
+        this.convertersMode = convertersMode;
+        this.activePowerSetpoint = activePowerSetpoint;
+        this.converterStation1 = converterStation1;
+        this.converterStation2 = converterStation2;
+    }
 
     @Override
     public String getName() {

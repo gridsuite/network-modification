@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -33,8 +33,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 public class LineModification extends AbstractBranchModification {
 
     private static final String MAGNETIZING_SUSCEPTANCE_MESSAGE = "Magnetizing susceptance";
@@ -48,10 +48,8 @@ public class LineModification extends AbstractBranchModification {
     private boolean applySegmentsLimits;
 
     @Builder
-    public LineModification(String equipmentId,
-                            List<FreePropertyInfos> properties,
-                            AttributeModification<String> equipmentName,
-                            AttributeModification<Double> r,
+    public LineModification(String equipmentId, List<FreePropertyInfos> properties,
+                            AttributeModification<String> equipmentName, AttributeModification<Double> r,
                             AttributeModification<Double> x,
                             OperationalLimitsGroupsModificationType operationalLimitsGroupsModificationType,
                             Boolean enableOLGModification,
@@ -77,43 +75,18 @@ public class LineModification extends AbstractBranchModification {
                             AttributeModification<Double> q1MeasurementValue,
                             AttributeModification<Boolean> q1MeasurementValidity,
                             AttributeModification<Double> q2MeasurementValue,
-                            AttributeModification<Boolean> q2MeasurementValidity,
-                            AttributeModification<Double> g1,
-                            AttributeModification<Double> b1,
-                            AttributeModification<Double> g2,
-                            AttributeModification<Double> b2,
-                            List<LineSegmentInfos> lineSegments,
+                            AttributeModification<Boolean> q2MeasurementValidity, AttributeModification<Double> g1,
+                            AttributeModification<Double> b1, AttributeModification<Double> g2,
+                            AttributeModification<Double> b2, List<LineSegmentInfos> lineSegments,
                             boolean applySegmentsLimits) {
-        this.equipmentId = equipmentId;
-        this.properties = properties;
-        this.equipmentName = equipmentName;
-        this.r = r;
-        this.x = x;
-        this.operationalLimitsGroupsModificationType = operationalLimitsGroupsModificationType;
-        this.enableOLGModification = enableOLGModification;
-        this.operationalLimitsGroups = operationalLimitsGroups;
-        this.selectedOperationalLimitsGroupId1 = selectedOperationalLimitsGroupId1;
-        this.selectedOperationalLimitsGroupId2 = selectedOperationalLimitsGroupId2;
-        this.voltageLevelId1 = voltageLevelId1;
-        this.voltageLevelId2 = voltageLevelId2;
-        this.busOrBusbarSectionId1 = busOrBusbarSectionId1;
-        this.busOrBusbarSectionId2 = busOrBusbarSectionId2;
-        this.connectionName1 = connectionName1;
-        this.connectionName2 = connectionName2;
-        this.connectionDirection1 = connectionDirection1;
-        this.connectionDirection2 = connectionDirection2;
-        this.connectionPosition1 = connectionPosition1;
-        this.connectionPosition2 = connectionPosition2;
-        this.terminal1Connected = terminal1Connected;
-        this.terminal2Connected = terminal2Connected;
-        this.p1MeasurementValue = p1MeasurementValue;
-        this.p1MeasurementValidity = p1MeasurementValidity;
-        this.p2MeasurementValue = p2MeasurementValue;
-        this.p2MeasurementValidity = p2MeasurementValidity;
-        this.q1MeasurementValue = q1MeasurementValue;
-        this.q1MeasurementValidity = q1MeasurementValidity;
-        this.q2MeasurementValue = q2MeasurementValue;
-        this.q2MeasurementValidity = q2MeasurementValidity;
+        super(equipmentId, properties, equipmentName, r, x, operationalLimitsGroupsModificationType,
+            enableOLGModification,
+            operationalLimitsGroups, selectedOperationalLimitsGroupId1, selectedOperationalLimitsGroupId2,
+            voltageLevelId1,
+            voltageLevelId2, busOrBusbarSectionId1, busOrBusbarSectionId2, connectionName1, connectionName2,
+            connectionDirection1, connectionDirection2, connectionPosition1, connectionPosition2, terminal1Connected,
+            terminal2Connected, p1MeasurementValue, p1MeasurementValidity, p2MeasurementValue, p2MeasurementValidity,
+            q1MeasurementValue, q1MeasurementValidity, q2MeasurementValue, q2MeasurementValidity);
         this.g1 = g1;
         this.b1 = b1;
         this.g2 = g2;

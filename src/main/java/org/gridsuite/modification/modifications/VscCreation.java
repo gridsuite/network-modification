@@ -12,10 +12,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRangeAdder;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ConverterStationCreationInfos;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -32,18 +29,13 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
  * @author Seddik Yengui <seddik.yengui at rte-france.com>
  */
 
-@NoArgsConstructor
 @Getter
-@AllArgsConstructor
-@Builder
-public class VscCreation extends AbstractModification {
+@Setter
+public class VscCreation extends AbstractEquipmentCreation {
 
     public static final String VSC_SETPOINTS = "network.modification.vscSetPoints";
     public static final String VSC_CHARACTERISTICS = "network.modification.vscCharacteristics";
 
-    private String equipmentId;
-    private List<FreePropertyInfos> properties;
-    private String equipmentName;
     private Double nominalV;
     private Double r;
     private Double maxP;
@@ -56,6 +48,28 @@ public class VscCreation extends AbstractModification {
     private Float droop;
     private ConverterStationCreationInfos converterStation1;
     private ConverterStationCreationInfos converterStation2;
+
+    @Builder
+    public VscCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName, Double nominalV,
+                       Double r, Double maxP, Float operatorActivePowerLimitFromSide1ToSide2,
+                       Float operatorActivePowerLimitFromSide2ToSide1, HvdcLine.ConvertersMode convertersMode,
+                       Double activePowerSetpoint, Boolean angleDroopActivePowerControl, Float p0, Float droop,
+                       ConverterStationCreationInfos converterStation1,
+                       ConverterStationCreationInfos converterStation2) {
+        super(equipmentId, properties, equipmentName);
+        this.nominalV = nominalV;
+        this.r = r;
+        this.maxP = maxP;
+        this.operatorActivePowerLimitFromSide1ToSide2 = operatorActivePowerLimitFromSide1ToSide2;
+        this.operatorActivePowerLimitFromSide2ToSide1 = operatorActivePowerLimitFromSide2ToSide1;
+        this.convertersMode = convertersMode;
+        this.activePowerSetpoint = activePowerSetpoint;
+        this.angleDroopActivePowerControl = angleDroopActivePowerControl;
+        this.p0 = p0;
+        this.droop = droop;
+        this.converterStation1 = converterStation1;
+        this.converterStation2 = converterStation2;
+    }
 
     @Override
     public void check(Network network) throws NetworkModificationException {

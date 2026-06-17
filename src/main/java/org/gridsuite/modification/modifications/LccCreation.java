@@ -12,10 +12,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.CreateFeederBay;
 import com.powsybl.iidm.modification.topology.CreateFeederBayBuilder;
 import com.powsybl.iidm.network.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -38,17 +35,12 @@ import static org.gridsuite.modification.utils.ModificationUtils.reportInjection
  * @author Rehili Ghazwa <ghazwa.rehili at rte-france.com>
  */
 
-@NoArgsConstructor
 @Getter
-@AllArgsConstructor
-@Builder
-public class LccCreation extends AbstractModification {
+@Setter
+public class LccCreation extends AbstractEquipmentCreation {
     public static final String EQUIPMENT_CONNECTED_TO_HVDC = "network.modification.equipmentConnectedToHvdc";
     public static final String EQUIPMENT_NOT_CONNECTED_TO_HVDC = "network.modification.equipmentNotConnectedToHvdc";
 
-    private String equipmentId;
-    private List<FreePropertyInfos> properties;
-    private String equipmentName;
     private Double nominalV;
     private Double r;
     private Double maxP;
@@ -56,6 +48,21 @@ public class LccCreation extends AbstractModification {
     private Double activePowerSetpoint;
     private LccConverterStationCreationInfos converterStation1;
     private LccConverterStationCreationInfos converterStation2;
+
+    @Builder
+    public LccCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName, Double nominalV,
+                       Double r, Double maxP, HvdcLine.ConvertersMode convertersMode, Double activePowerSetpoint,
+                       LccConverterStationCreationInfos converterStation1,
+                       LccConverterStationCreationInfos converterStation2) {
+        super(equipmentId, properties, equipmentName);
+        this.nominalV = nominalV;
+        this.r = r;
+        this.maxP = maxP;
+        this.convertersMode = convertersMode;
+        this.activePowerSetpoint = activePowerSetpoint;
+        this.converterStation1 = converterStation1;
+        this.converterStation2 = converterStation2;
+    }
 
     @Override
     public void check(Network network) throws NetworkModificationException {

@@ -17,10 +17,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import com.powsybl.iidm.network.util.SwitchPredicates;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.OperatingStatusModificationInfos;
@@ -40,19 +37,24 @@ import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
 /**
  * @author Ghazwa REHILI <ghazwa.rehili at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
-@AllArgsConstructor
-@Builder
-public class OperatingStatusModification extends AbstractModification {
+@Setter
+public class OperatingStatusModification extends AbstractEquipmentBase {
 
-    private String equipmentId;
-    private List<FreePropertyInfos> properties;
+    private static final Logger LOGGER = LoggerFactory.getLogger(OperatingStatusModification.class);
+    private static final String EQUIPMENT_TYPE = "equipmentType";
+
     private OperatingStatusModificationInfos.ActionType action;
     private String energizedVoltageLevelId;
-    private static final Logger LOGGER = LoggerFactory.getLogger(OperatingStatusModification.class);
 
-    private static final String EQUIPMENT_TYPE = "equipmentType";
+    @Builder
+    public OperatingStatusModification(String equipmentId, List<FreePropertyInfos> properties,
+                                       OperatingStatusModificationInfos.ActionType action,
+                                       String energizedVoltageLevelId) {
+        super(equipmentId, properties);
+        this.action = action;
+        this.energizedVoltageLevelId = energizedVoltageLevelId;
+    }
 
     @Override
     public void check(Network network) throws NetworkModificationException {

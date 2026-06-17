@@ -10,10 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorType;
@@ -29,26 +26,31 @@ import static org.gridsuite.modification.utils.ModificationUtils.createInjection
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
-@AllArgsConstructor
-@Builder
-public class ShuntCompensatorCreation extends AbstractModification {
+@Setter
+public class ShuntCompensatorCreation extends AbstractInjectionCreation {
 
-    private String equipmentId;
-    private List<FreePropertyInfos> properties;
-    private String equipmentName;
-    private String voltageLevelId;
-    private String busOrBusbarSectionId;
-    private String connectionName;
-    private ConnectablePosition.Direction connectionDirection;
-    private Integer connectionPosition;
-    private boolean terminalConnected;
     private Integer maximumSectionCount;
     private Integer sectionCount;
     private Double maxSusceptance;
     private Double maxQAtNominalV;
     private ShuntCompensatorType shuntCompensatorType;
+
+    @Builder
+    public ShuntCompensatorCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName,
+                                    String voltageLevelId, String busOrBusbarSectionId, String connectionName,
+                                    ConnectablePosition.Direction connectionDirection, Integer connectionPosition,
+                                    boolean terminalConnected, Integer maximumSectionCount, Integer sectionCount,
+                                    Double maxSusceptance, Double maxQAtNominalV,
+                                    ShuntCompensatorType shuntCompensatorType) {
+        super(equipmentId, properties, equipmentName, voltageLevelId, busOrBusbarSectionId, connectionName,
+            connectionDirection, connectionPosition, terminalConnected);
+        this.maximumSectionCount = maximumSectionCount;
+        this.sectionCount = sectionCount;
+        this.maxSusceptance = maxSusceptance;
+        this.maxQAtNominalV = maxQAtNominalV;
+        this.shuntCompensatorType = shuntCompensatorType;
+    }
 
     @Override
     public void check(Network network) throws NetworkModificationException {

@@ -10,10 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.RevertConnectVoltageLevelOnLine;
 import com.powsybl.iidm.modification.topology.RevertConnectVoltageLevelOnLineBuilder;
 import com.powsybl.iidm.network.Network;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
@@ -23,8 +20,8 @@ import static org.gridsuite.modification.utils.ModificationLimitsUtils.applyReve
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
  */
-@NoArgsConstructor
 @Getter
+@Setter
 @AllArgsConstructor
 @Builder
 public class DeleteVoltageLevelOnLine extends AbstractModification {
