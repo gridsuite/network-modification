@@ -256,8 +256,7 @@ public class VscCreation extends AbstractEquipmentCreation {
         if (vscConverterStationCreation.getVoltageSetpoint() != null) {
             converterStationAdder.setVoltageSetpoint(vscConverterStationCreation.getVoltageSetpoint());
         }
-        createInjectionInNodeBreaker(voltageLevel, vscConverterStationCreation.getEquipmentId(), vscConverterStationCreation.getBusOrBusbarSectionId(),
-                vscConverterStationCreation.getConnectionName(), vscConverterStationCreation.getConnectionDirection(), vscConverterStationCreation.getConnectionPosition(),
+        createInjectionInNodeBreaker(voltageLevel, vscConverterStationCreation,
                 network, converterStationAdder, subReportNode);
         VscConverterStation vscConverterStation = ModificationUtils.getInstance()
                 .getVscConverterStation(network, vscConverterStationCreation.getEquipmentId());
@@ -292,9 +291,7 @@ public class VscCreation extends AbstractEquipmentCreation {
     private void addExtensionsAndReports(VscConverterStation vscConverterStation,
                                          VscConverterStationCreation vscConverterStationCreation,
                                          ReportNode subReporter) {
-        reportInjectionCreationConnectivity(vscConverterStationCreation.getVoltageLevelId(), vscConverterStationCreation.getBusOrBusbarSectionId(),
-                vscConverterStationCreation.getConnectionName(), vscConverterStationCreation.getConnectionDirection(), vscConverterStationCreation.getConnectionPosition(),
-                vscConverterStationCreation.isTerminalConnected(), vscConverterStationCreation.getEquipmentId(), subReporter);
+        reportInjectionCreationConnectivity(vscConverterStationCreation, subReporter);
 
         ModificationUtils.getInstance().reportModifications(subReporter,
                 List.of(ModificationUtils.getInstance().buildCreationReport(vscConverterStationCreation.getLossFactor(), "Loss Factor")),

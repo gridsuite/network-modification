@@ -99,44 +99,61 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
 
         switch (connectable) {
             case Injection<?> injection -> {
-                InjectionModificationInfos injectionModificationInfos = buildInjectionModificationInfos(newConnectablePositionInfos);
-                ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(oldConnectablePosition, connectablePositionAdder, injection, injectionModificationInfos, subReportNode);
+                AbstractInjectionModification injectionModification = buildInjectionModification(newConnectablePositionInfos);
+                ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(oldConnectablePosition, connectablePositionAdder, injection, injectionModification, subReportNode);
             }
             case Branch<?> branch -> {
-                BranchModificationInfos branchModificationInfos = buildBranchModificationInfos(newConnectablePositionInfos);
-                ModificationUtils.getInstance().modifyBranchConnectivityAttributes(oldConnectablePosition, connectablePositionAdder, branch, branchModificationInfos, subReportNode);
+                AbstractBranchModification branchModification = buildBranchModification(newConnectablePositionInfos);
+                ModificationUtils.getInstance().modifyBranchConnectivityAttributes(oldConnectablePosition, connectablePositionAdder, branch, branchModification, subReportNode);
             }
             default -> throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(UNSUPPORTED_CONNECTABLE, connectable.getClass()));
         }
         moveFeederBay(network, connectable, newConnectablePositionInfos, subReportNode);
     }
 
-    private InjectionModificationInfos buildInjectionModificationInfos(MoveFeederBayInfos newConnectablePositionInfos) {
-        InjectionModificationInfos injectionInfos = new InjectionModificationInfos();
-        injectionInfos.setEquipmentId(newConnectablePositionInfos.getEquipmentId());
-        setConnectionAttributes(injectionInfos::setConnectionPosition,
-                injectionInfos::setConnectionName,
-                injectionInfos::setConnectionDirection,
-                newConnectablePositionInfos);
-        return injectionInfos;
+    private AbstractInjectionModification buildInjectionModification(MoveFeederBayInfos newConnectablePositionInfos) {
+        AbstractInjectionModification injectionModification = new AbstractInjectionModification() {
+            @Override
+            public String getName() {
+                return "";
+            }
+        };
+        injectionModification.setEquipmentId(newConnectablePositionInfos.getEquipmentId());
+        setConnectionAttributes(injectionModification::setConnectionPosition,
+            injectionModification::setConnectionName,
+            injectionModification::setConnectionDirection,
+            newConnectablePositionInfos);
+        return injectionModification;
     }
 
-    private BranchModificationInfos buildBranchModificationInfos(MoveFeederBayInfos info) {
-        BranchModificationInfos branchInfos = new BranchModificationInfos();
-        branchInfos.setEquipmentId(info.getEquipmentId());
+    private AbstractBranchModification buildBranchModification(MoveFeederBayInfos info) {
+        AbstractBranchModification branchModification = new AbstractBranchModification() {
+            @Override
+            protected void modifyCharacteristics(Branch<?> branch, ReportNode subReportNode) {
+
+            }
+
+            @Override
+            public String getName() {
+                return "";
+            }
+        };
+        branchModification.setEquipmentId(info.getEquipmentId());
         ThreeSides connectionSide = ThreeSides.valueOf(info.getConnectionSide());
         switch (connectionSide) {
-            case ONE -> setConnectionAttributes(branchInfos::setConnectionPosition1,
-                    branchInfos::setConnectionName1,
-                    branchInfos::setConnectionDirection1,
+            case ONE -> setConnectionAttributes(branchModification::setConnectionPosition1,
+                    branchModification::setConnectionName1,
+                    branchModification::setConnectionDirection1,
                     info);
-            case TWO -> setConnectionAttributes(branchInfos::setConnectionPosition2,
-                    branchInfos::setConnectionName2,
-                    branchInfos::setConnectionDirection2,
+            case TWO -> setConnectionAttributes(branchModification::setConnectionPosition2,
+                    branchModification::setConnectionName2,
+                    branchModification::setConnectionDirection2,
                     info);
-            default -> throw new NetworkModificationException(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR, String.format(INVALID_CONNECTION_SIDE, info.getConnectionSide(), branchInfos.getEquipmentId()));
+            default -> throw new NetworkModificationException(
+                MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR,
+                String.format(INVALID_CONNECTION_SIDE, info.getConnectionSide(), branchModification.getEquipmentId()));
         }
-        return branchInfos;
+        return branchModification;
     }
 
     private void setConnectionAttributes(java.util.function.Consumer<AttributeModification<Integer>> setPosition,

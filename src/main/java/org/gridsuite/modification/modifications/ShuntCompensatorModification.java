@@ -284,7 +284,6 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
     private ReportNode modifyShuntCompensatorConnectivityAttributes(ShuntCompensator shuntCompensator, ReportNode subReportNode) {
         ConnectablePosition<ShuntCompensator> connectablePosition = shuntCompensator.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<ShuntCompensator> connectablePositionAdder = shuntCompensator.newExtension(ConnectablePositionAdder.class);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, shuntCompensator,
-                equipmentId, voltageLevelId, busOrBusbarSectionId, connectionName, connectionDirection, connectionPosition, terminalConnected, subReportNode);
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, shuntCompensator, this, subReportNode);
     }
 }

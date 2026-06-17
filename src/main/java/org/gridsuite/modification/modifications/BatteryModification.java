@@ -246,7 +246,6 @@ public class BatteryModification extends AbstractInjectionModification {
     private ReportNode modifyBatteryConnectivityAttributes(Battery battery, ReportNode subReportNode) {
         ConnectablePosition<Battery> connectablePosition = battery.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<Battery> connectablePositionAdder = battery.newExtension(ConnectablePositionAdder.class);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, battery,
-                equipmentId, voltageLevelId, busOrBusbarSectionId, connectionName, connectionDirection, connectionPosition, terminalConnected, subReportNode);
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, battery, this, subReportNode);
     }
 }

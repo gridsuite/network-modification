@@ -583,7 +583,6 @@ public class GeneratorModification extends AbstractInjectionModification {
     private ReportNode modifyGeneratorConnectivityAttributes(Generator generator, ReportNode subReportNode) {
         ConnectablePosition<Generator> connectablePosition = generator.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<Generator> connectablePositionAdder = generator.newExtension(ConnectablePositionAdder.class);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, generator,
-                equipmentId, voltageLevelId, busOrBusbarSectionId, connectionName, connectionDirection, connectionPosition, terminalConnected, subReportNode);
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, generator, this, subReportNode);
     }
 }

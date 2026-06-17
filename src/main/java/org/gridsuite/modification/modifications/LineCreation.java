@@ -84,14 +84,12 @@ public class LineCreation extends AbstractBranchCreation {
         ReportNode characteristicsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.Characteristics").add();
         if (voltageLevel1.getTopologyKind() == TopologyKind.NODE_BREAKER &&
                 voltageLevel2.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            LineAdder lineAdder = ModificationUtils.getInstance().createLineAdder(network, voltageLevel1, voltageLevel2, equipmentId, equipmentName,
-                    voltageLevelId1, voltageLevelId2, busOrBusbarSectionId1, busOrBusbarSectionId2, r, x, g1, b1, g2, b2, false, false);
-            createBranchInNodeBreaker(voltageLevel1, voltageLevel2, equipmentId, busOrBusbarSectionId1, busOrBusbarSectionId2, connectionName1, connectionName2,
-                    connectionDirection1, connectionDirection2, connectionPosition1, connectionPosition2, network, lineAdder, characteristicsReporter);
+            LineAdder lineAdder = ModificationUtils.getInstance().createLineAdder(network, voltageLevel1, voltageLevel2, this, false, false);
+            createBranchInNodeBreaker(voltageLevel1, voltageLevel2, this, network, lineAdder, characteristicsReporter);
         } else {
             addLine(network, voltageLevel1, voltageLevel2, true, true, characteristicsReporter);
         }
-        ModificationUtils.getInstance().disconnectBranch(connected1, connected2, equipmentId, network.getLine(equipmentId), characteristicsReporter);
+        ModificationUtils.getInstance().disconnectBranch(this, network.getLine(equipmentId), characteristicsReporter);
         Line line = network.getLine(equipmentId);
 
         addLimits(operationalLimitsGroups, selectedOperationalLimitsGroupId1, selectedOperationalLimitsGroupId2, subReportNode, line);
@@ -184,8 +182,7 @@ public class LineCreation extends AbstractBranchCreation {
 
     private void addLine(Network network, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, boolean withSwitch1, boolean withSwitch2,
             ReportNode subReportNode) {
-        ModificationUtils.getInstance().createLineAdder(network, voltageLevel1, voltageLevel2, equipmentId, equipmentName,
-                voltageLevelId1, voltageLevelId2, busOrBusbarSectionId1, busOrBusbarSectionId2, r, x, g1, b1, g2, b2, withSwitch1, withSwitch2).add();
+        ModificationUtils.getInstance().createLineAdder(network, voltageLevel1, voltageLevel2, this, withSwitch1, withSwitch2).add();
 
         subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.lineCreated")

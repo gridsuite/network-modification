@@ -63,7 +63,7 @@ public class VoltageLevelCreation extends AbstractEquipmentCreation {
     @Override
     public void check(Network network) throws NetworkModificationException {
         String errorMessage = "Voltage level '" + equipmentId + "' : ";
-        ModificationUtils.getInstance().controlVoltageLevelCreation(equipmentId, couplingDevices, ipMin, ipMax, network);
+        ModificationUtils.getInstance().controlVoltageLevelCreation(this, network);
         checkIsNotNegativeValue(errorMessage, nominalV, CREATE_VOLTAGE_LEVEL_ERROR, "Nominal Voltage");
         checkIsNotNegativeValue(errorMessage, lowVoltageLimit, CREATE_VOLTAGE_LEVEL_ERROR, "Low voltage limit");
         checkIsNotNegativeValue(errorMessage, highVoltageLimit, CREATE_VOLTAGE_LEVEL_ERROR, "High voltage limit");

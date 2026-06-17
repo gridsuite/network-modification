@@ -101,7 +101,7 @@ public class TwoWindingsTransformerCreation extends AbstractBranchCreation {
             // Create 2wt in bus/mixed breaker
             create2WTInOtherBreaker(network, voltageLevel1, voltageLevel2, true, true, subReportNode);
         }
-        getInstance().disconnectBranch(connected1, connected2, equipmentId, network.getTwoWindingsTransformer(equipmentId), subReportNode);
+        getInstance().disconnectBranch(this, network.getTwoWindingsTransformer(equipmentId), subReportNode);
         subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.twoWindingsTransformerCreated")
                 .withUntypedValue("id", equipmentId)
@@ -116,8 +116,7 @@ public class TwoWindingsTransformerCreation extends AbstractBranchCreation {
 
     private void create2WTInNodeBreaker(Network network, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, ReportNode subReportNode) {
         var twoWindingsTransformerAdder = createTwoWindingsTransformerAdder(voltageLevel1, voltageLevel2, false, false);
-        createBranchInNodeBreaker(voltageLevel1, voltageLevel2, equipmentId, busOrBusbarSectionId1, busOrBusbarSectionId2, connectionName1, connectionName2,
-                connectionDirection1, connectionDirection2, connectionPosition1, connectionPosition2, network, twoWindingsTransformerAdder, subReportNode);
+        createBranchInNodeBreaker(voltageLevel1, voltageLevel2, this, network, twoWindingsTransformerAdder, subReportNode);
         var twoWindingsTransformer = network.getTwoWindingsTransformer(equipmentId);
         completeTwoWindingsTransformerCreation(network, twoWindingsTransformer, subReportNode);
     }
@@ -154,8 +153,8 @@ public class TwoWindingsTransformerCreation extends AbstractBranchCreation {
         }
 
         // BranchAdder completion by topology
-        getInstance().setBranchAdderNodeOrBus(branchAdder, voltageLevel1, busOrBusbarSectionId1, busOrBusbarSectionId2, equipmentId, equipmentName, TwoSides.ONE, withSwitch1);
-        getInstance().setBranchAdderNodeOrBus(branchAdder, voltageLevel2, busOrBusbarSectionId1, busOrBusbarSectionId2, equipmentId, equipmentName, TwoSides.TWO, withSwitch2);
+        getInstance().setBranchAdderNodeOrBus(branchAdder, voltageLevel1, this, TwoSides.ONE, withSwitch1);
+        getInstance().setBranchAdderNodeOrBus(branchAdder, voltageLevel2, this, TwoSides.TWO, withSwitch2);
 
         return twoWindingsTransformerAdder;
     }
@@ -291,8 +290,7 @@ public class TwoWindingsTransformerCreation extends AbstractBranchCreation {
         ReportNode characteristicsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.Characteristics").add();
 
         // Connectivity
-        reportBranchCreationConnectivity(voltageLevelId1, busOrBusbarSectionId1, connectionName1, connectionDirection1, connectionPosition1, connected1,
-                voltageLevelId2, busOrBusbarSectionId2, connectionName2, connectionDirection2, connectionPosition2, connected2, equipmentId, characteristicsReporter);
+        reportBranchCreationConnectivity(this, characteristicsReporter);
 
         // properties
         PropertiesUtils.applyProperties(twoWindingsTransformer, characteristicsReporter, properties, "network.modification.TwoWindingsTransformerProperties");

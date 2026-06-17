@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -27,6 +28,7 @@ import java.util.List;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 public abstract class AbstractInjectionModification extends AbstractEquipmentModification implements InjectionModification {
 
     protected AttributeModification<String> voltageLevelId;

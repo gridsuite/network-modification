@@ -158,7 +158,7 @@ public class GeneratorCreation extends AbstractInjectionCreation implements Reac
 
     private void createGeneratorInNodeBreaker(VoltageLevel voltageLevel, Network network, ReportNode subReportNode) {
         GeneratorAdder generatorAdder = createGeneratorAdderInNodeBreaker(voltageLevel);
-        createInjectionInNodeBreaker(voltageLevel, equipmentId, busOrBusbarSectionId, connectionName, connectionDirection, connectionPosition, network, generatorAdder, subReportNode);
+        createInjectionInNodeBreaker(voltageLevel, this, network, generatorAdder, subReportNode);
 
         // CreateFeederBayBuilder already create the generator using
         // (withInjectionAdder(generatorAdder)) so then we can add the additional informations and extensions
@@ -199,7 +199,7 @@ public class GeneratorCreation extends AbstractInjectionCreation implements Reac
         if (energySource != null) {
             ModificationUtils.getInstance().reportElementaryCreation(subReportNode, energySource, "Energy source");
         }
-        reportInjectionCreationConnectivity(voltageLevelId, busOrBusbarSectionId, connectionName, connectionDirection, connectionPosition, terminalConnected, equipmentId, subReportNode);
+        reportInjectionCreationConnectivity(this, subReportNode);
         ReportNode subReporterLimits = reportGeneratorActiveLimits(subReportNode);
         ModificationUtils.getInstance().createReactiveLimits(this, generator, subReporterLimits);
         ReportNode subReporterSetpoints = reportGeneratorSetPoints(subReportNode);

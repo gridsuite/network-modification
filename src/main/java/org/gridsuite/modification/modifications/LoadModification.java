@@ -121,8 +121,7 @@ public class LoadModification extends AbstractInjectionModification {
     private ReportNode modifyLoadConnectivityAttributes(Load load, ReportNode subReportNode) {
         ConnectablePosition<Load> connectablePosition = load.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<Load> connectablePositionAdder = load.newExtension(ConnectablePositionAdder.class);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, load,
-                equipmentId, voltageLevelId, busOrBusbarSectionId, connectionName, connectionDirection, connectionPosition, terminalConnected, subReportNode);
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, load, this, subReportNode);
     }
 
 }

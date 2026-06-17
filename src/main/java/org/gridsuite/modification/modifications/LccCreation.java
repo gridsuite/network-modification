@@ -207,9 +207,7 @@ public class LccCreation extends AbstractEquipmentCreation {
         if (lccConverterStationCreation.getPowerFactor() != null) {
             converterStationAdder.setPowerFactor(lccConverterStationCreation.getPowerFactor());
         }
-        createInjectionInNodeBreaker(voltageLevel, lccConverterStationCreation.getEquipmentId(), lccConverterStationCreation.getBusOrBusbarSectionId(),
-                lccConverterStationCreation.getConnectionName(), lccConverterStationCreation.getConnectionDirection(), lccConverterStationCreation.getConnectionPosition(),
-                network, converterStationAdder, subReportNode);
+        createInjectionInNodeBreaker(voltageLevel, lccConverterStationCreation, network, converterStationAdder, subReportNode);
         Optional.ofNullable(lccConverterStationCreation.getShuntCompensatorsOnSide())
                 .ifPresent(shuntCompensators ->
                         shuntCompensators.forEach(shuntCompensatorOnSide -> {
@@ -284,9 +282,7 @@ public class LccCreation extends AbstractEquipmentCreation {
                 .toList();
 
         ModificationUtils.getInstance().reportModifications(reportConverterStationNode, characteristicsReport, "network.modification.converterStationCharacteristics");
-        reportInjectionCreationConnectivity(lccConverterStationCreation.getVoltageLevelId(), lccConverterStationCreation.getBusOrBusbarSectionId(),
-                lccConverterStationCreation.getConnectionName(), lccConverterStationCreation.getConnectionDirection(), lccConverterStationCreation.getConnectionPosition(),
-                lccConverterStationCreation.isTerminalConnected(), lccConverterStationCreation.getEquipmentId(), reportConverterStationNode);
+        reportInjectionCreationConnectivity(lccConverterStationCreation, reportConverterStationNode);
         ModificationUtils.getInstance().reportModifications(reportConverterStationNode, shuntCompensatorsOnSide, "network.modification.converterStationFilters");
 
     }

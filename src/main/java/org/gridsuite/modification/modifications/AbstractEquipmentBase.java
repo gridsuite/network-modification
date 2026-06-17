@@ -7,6 +7,7 @@
 package org.gridsuite.modification.modifications;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 
@@ -17,6 +18,7 @@ import java.util.List;
  */
 @Setter
 @Getter
+@NoArgsConstructor
 public abstract class AbstractEquipmentBase extends AbstractModification {
 
     protected String equipmentId;

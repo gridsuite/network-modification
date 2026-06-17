@@ -115,7 +115,7 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
 
     private void createBatteryInNodeBreaker(VoltageLevel voltageLevel, Network network, ReportNode subReportNode) {
         BatteryAdder batteryAdder = createBatteryAdderInNodeBreaker(voltageLevel);
-        createInjectionInNodeBreaker(voltageLevel, equipmentId, busOrBusbarSectionId, connectionName, connectionDirection, connectionPosition, network, batteryAdder, subReportNode);
+        createInjectionInNodeBreaker(voltageLevel, this, network, batteryAdder, subReportNode);
         var battery = ModificationUtils.getInstance().getBattery(network, equipmentId);
         addExtensionsToBattery(battery, subReportNode);
     }
@@ -159,7 +159,7 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
         if (equipmentName != null) {
             ModificationUtils.getInstance().reportElementaryCreation(subReportNode, equipmentName, "Name");
         }
-        reportInjectionCreationConnectivity(voltageLevelId, busOrBusbarSectionId, connectionName, connectionDirection, connectionPosition, terminalConnected, equipmentId, subReportNode);
+        reportInjectionCreationConnectivity(this, subReportNode);
         ReportNode subReportNodeLimits = reportBatteryActiveLimits(subReportNode);
         ModificationUtils.getInstance().createReactiveLimits(this, battery, subReportNodeLimits);
         ReportNode subReportNodeSetpoints = reportBatterySetPoints(subReportNode);

@@ -60,7 +60,7 @@ public class LoadCreation extends AbstractInjectionCreation {
         VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
         if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             LoadAdder loadAdder = createLoadAdderInNodeBreaker(voltageLevel);
-            createInjectionInNodeBreaker(voltageLevel, equipmentId, busOrBusbarSectionId, connectionName, connectionDirection, connectionPosition, network, loadAdder, subReporter);
+            createInjectionInNodeBreaker(voltageLevel, this, network, loadAdder, subReporter);
         } else {
             createLoadInBusBreaker(voltageLevel);
             subReporter.newReportNode()
@@ -70,7 +70,7 @@ public class LoadCreation extends AbstractInjectionCreation {
                 .add();
         }
         reportElementaryCreations(subReporter);
-        ModificationUtils.getInstance().disconnectCreatedInjection(terminalConnected, equipmentId, network.getLoad(equipmentId), subReporter);
+        ModificationUtils.getInstance().disconnectCreatedInjection(this, network.getLoad(equipmentId), subReporter);
 
         // properties
         Load load = network.getLoad(equipmentId);

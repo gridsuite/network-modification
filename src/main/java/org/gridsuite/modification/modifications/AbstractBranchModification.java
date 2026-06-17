@@ -11,6 +11,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
@@ -32,6 +33,7 @@ import static org.gridsuite.modification.utils.ModificationUtils.NO_VALUE;
  */
 @Setter
 @Getter
+@NoArgsConstructor
 public abstract class AbstractBranchModification extends AbstractEquipmentModification {
 
     public static final String DURATION = "duration";
@@ -358,9 +360,7 @@ public abstract class AbstractBranchModification extends AbstractEquipmentModifi
     private ReportNode modifyBranchConnectivityAttributes(Branch<?> branch, ReportNode subReportNode) {
         ConnectablePosition<?> connectablePosition = (ConnectablePosition<?>) branch.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<?> connectablePositionAdder = branch.newExtension(ConnectablePositionAdder.class);
-        return ModificationUtils.getInstance().modifyBranchConnectivityAttributes(connectablePosition, connectablePositionAdder, branch,
-            equipmentId, voltageLevelId1, voltageLevelId2, busOrBusbarSectionId1, busOrBusbarSectionId2, connectionName1, connectionName2,
-            connectionDirection1, connectionDirection2, connectionPosition1, connectionPosition2, terminal1Connected, terminal2Connected, subReportNode);
+        return ModificationUtils.getInstance().modifyBranchConnectivityAttributes(connectablePosition, connectablePositionAdder, branch, this, subReportNode);
     }
 
     private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide1(Branch<?> branch, ReportNode subReportNode) {

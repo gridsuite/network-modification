@@ -106,8 +106,7 @@ public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
                 busOrBusbarSectionId);
 
         // check reactive power limits and set points
-        ModificationUtils.getInstance().checkReactivePowerLimitsAndSetPointsCreation(minSusceptance, minQAtNominalV, maxSusceptance, maxQAtNominalV,
-                regulationMode, voltageSetpoint, reactivePowerSetpoint, CREATE_STATIC_VAR_COMPENSATOR_ERROR, equipmentId);
+        ModificationUtils.getInstance().checkReactivePowerLimitsAndSetPointsCreation(this);
 
         // check regulated terminal
         VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
@@ -115,8 +114,7 @@ public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
                 regulatingTerminalType, regulatingTerminalVlId);
 
         // check standby automaton
-        ModificationUtils.getInstance().checkStandbyAutomatonCreation(standby, regulationMode, regulating, b0,
-                minSusceptance, maxSusceptance, q0, minQAtNominalV, maxQAtNominalV, CREATE_STATIC_VAR_COMPENSATOR_ERROR, equipmentId);
+        ModificationUtils.getInstance().checkStandbyAutomatonCreation(this);
         checkIsNotNegativeValue(errorMessage, voltageSetpoint, CREATE_STATIC_VAR_COMPENSATOR_ERROR, "voltage set point");
         checkIsNotNegativeValue(errorMessage, highVoltageSetpoint, CREATE_STATIC_VAR_COMPENSATOR_ERROR, "high voltage set point");
         checkIsNotNegativeValue(errorMessage, lowVoltageSetpoint, CREATE_STATIC_VAR_COMPENSATOR_ERROR, "low voltage set point");
@@ -133,7 +131,7 @@ public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
         } else {
             createStaticVarCompensatorInBusBreaker(voltageLevel, subReportNode);
         }
-        ModificationUtils.getInstance().disconnectCreatedInjection(terminalConnected, equipmentId, network.getStaticVarCompensator(equipmentId), subReportNode);
+        ModificationUtils.getInstance().disconnectCreatedInjection(this, network.getStaticVarCompensator(equipmentId), subReportNode);
         // properties
         StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator(equipmentId);
         PropertiesUtils.applyProperties(staticVarCompensator, subReportNode, properties, "network.modification.StaticVarCompensatorProperties");
@@ -151,7 +149,7 @@ public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
 
     private void createStaticVarCompensatorInNodeBreaker(VoltageLevel voltageLevel, Network network, ReportNode subReportNode) {
         StaticVarCompensatorAdder staticVarCompensatorAdder = createStaticVarCompensatorAdderInNodeBreaker(voltageLevel);
-        createInjectionInNodeBreaker(voltageLevel, equipmentId, busOrBusbarSectionId, connectionName, connectionDirection, connectionPosition, network, staticVarCompensatorAdder, subReportNode);
+        createInjectionInNodeBreaker(voltageLevel, this, network, staticVarCompensatorAdder, subReportNode);
         var staticVarCompensator = ModificationUtils.getInstance().getStaticVarCompensator(network, equipmentId);
         addExtensionsToStaticVarCompensator(staticVarCompensator, voltageLevel, subReportNode);
     }
@@ -191,7 +189,7 @@ public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
             ModificationUtils.getInstance().reportElementaryCreation(subReportNode, equipmentName, "Name");
         }
 
-        reportInjectionCreationConnectivity(voltageLevelId, busOrBusbarSectionId, connectionName, connectionDirection, connectionPosition, terminalConnected, equipmentId, subReportNode);
+        reportInjectionCreationConnectivity(this, subReportNode);
         reportStaticVarCompensatorLimitsAndSetpoints(staticVarCompensator, voltageLevel, subReportNode);
         reportStaticVarCompensatorStandbyAutomaton(staticVarCompensator, voltageLevel, subReportNode);
     }

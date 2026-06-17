@@ -83,7 +83,7 @@ public class ShuntCompensatorCreation extends AbstractInjectionCreation {
         }
         if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             ShuntCompensatorAdder shuntCompensatorAdder = createShuntAdderInNodeBreaker(voltageLevel);
-            createInjectionInNodeBreaker(voltageLevel, equipmentId, busOrBusbarSectionId, connectionName, connectionDirection, connectionPosition, network, shuntCompensatorAdder, subReportNode);
+            createInjectionInNodeBreaker(voltageLevel, this, network, shuntCompensatorAdder, subReportNode);
         } else {
             createShuntInBusBreaker(voltageLevel);
             subReportNode.newReportNode()
@@ -92,7 +92,7 @@ public class ShuntCompensatorCreation extends AbstractInjectionCreation {
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
         }
-        ModificationUtils.getInstance().disconnectCreatedInjection(terminalConnected, equipmentId, network.getShuntCompensator(equipmentId), subReportNode);
+        ModificationUtils.getInstance().disconnectCreatedInjection(this, network.getShuntCompensator(equipmentId), subReportNode);
         // properties
         ShuntCompensator shuntCompensator = network.getShuntCompensator(equipmentId);
         PropertiesUtils.applyProperties(shuntCompensator, subReportNode, properties, "network.modification.ShuntCompensatorProperties");
