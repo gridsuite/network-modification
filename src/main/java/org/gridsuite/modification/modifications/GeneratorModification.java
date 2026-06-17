@@ -144,7 +144,7 @@ public class GeneratorModification extends AbstractInjectionModification {
                 () -> generator.newExtension(GeneratorShortCircuitAdder.class),
                 subReportNode);
         modifyGeneratorStartUpAttributes(modificationInfos, generator, subReportNode);
-        updateMeasurements(generator, modificationInfos, subReportNode);
+        updateMeasurements(generator, subReportNode);
         PropertiesUtils.applyProperties(generator, subReportNode, modificationInfos.getProperties(), "network.modification.GeneratorProperties");
     }
 
