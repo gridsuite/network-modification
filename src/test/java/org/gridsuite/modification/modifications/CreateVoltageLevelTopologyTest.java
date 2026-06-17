@@ -29,28 +29,22 @@ import static org.junit.jupiter.api.Assertions.*;
 class CreateVoltageLevelTopologyTest extends AbstractNetworkModificationTest {
     @Override
     public void checkModification() {
-        CreateVoltageLevelTopology createVoltageLevelTopology = CreateVoltageLevelTopology.builder().build();
+        CreateVoltageLevelTopology createVoltageLevelTopology = (CreateVoltageLevelTopology) new CreateVoltageLevelTopologyInfos().toModification();
         Network network = getNetwork();
         String message = assertThrows(NetworkModificationException.class,
             () -> createVoltageLevelTopology.check(network)).getMessage();
         assertEquals("CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR : Missing required attributes to modify the equipment", message);
 
-        CreateVoltageLevelTopology createVoltageLevelTopology2 = CreateVoltageLevelTopology.builder()
-            .voltageLevelId("notFoundVoltageLevel")
-            .sectionCount(3)
-            .switchKinds(List.of(SwitchKind.DISCONNECTOR))
-            .build();
+        createVoltageLevelTopology.setVoltageLevelId("notFoundVoltageLevel");
+        createVoltageLevelTopology.setSectionCount(3);
+        createVoltageLevelTopology.setSwitchKinds(List.of(SwitchKind.DISCONNECTOR));
         message = assertThrows(NetworkModificationException.class,
-            () -> createVoltageLevelTopology2.check(network)).getMessage();
+            () -> createVoltageLevelTopology.check(network)).getMessage();
         assertEquals("CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR : The switch kinds list must have a size equal to the section count minus one", message);
 
-        CreateVoltageLevelTopology createVoltageLevelTopology3 = CreateVoltageLevelTopology.builder()
-            .voltageLevelId("notFoundVoltageLevel")
-            .sectionCount(2)
-            .switchKinds(List.of(SwitchKind.DISCONNECTOR))
-            .build();
+        createVoltageLevelTopology.setSectionCount(2);
         message = assertThrows(NetworkModificationException.class,
-            () -> createVoltageLevelTopology3.check(network)).getMessage();
+            () -> createVoltageLevelTopology.check(network)).getMessage();
         assertEquals("CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR : " + "voltage level notFoundVoltageLevel is not found", message);
     }
 
