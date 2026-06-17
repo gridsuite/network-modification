@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.VoltageLevel;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.EquipmentAttributeModificationInfos;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 
 import java.util.List;
@@ -30,11 +29,11 @@ import static org.gridsuite.modification.NetworkModificationException.Type.VOLTA
 @Setter
 public class VoltageLevelTopologyModification extends AbstractEquipmentBase {
 
-    private List<EquipmentAttributeModificationInfos> equipmentAttributeModificationList;
+    private List<EquipmentAttributeModification> equipmentAttributeModificationList;
 
     @Builder
     public VoltageLevelTopologyModification(String equipmentId, List<FreePropertyInfos> properties,
-                                            List<EquipmentAttributeModificationInfos> equipmentAttributeModificationList) {
+                                            List<EquipmentAttributeModification> equipmentAttributeModificationList) {
         super(equipmentId, properties);
         this.equipmentAttributeModificationList = equipmentAttributeModificationList;
     }
@@ -46,8 +45,7 @@ public class VoltageLevelTopologyModification extends AbstractEquipmentBase {
             throw new NetworkModificationException(VOLTAGE_LEVEL_NOT_FOUND, equipmentId);
         }
         if (!equipmentAttributeModificationList.isEmpty()) {
-            for (EquipmentAttributeModificationInfos equipmentAttributeModificationInfos : equipmentAttributeModificationList) {
-                AbstractModification equipmentAttributeModification = equipmentAttributeModificationInfos.toModification();
+            for (EquipmentAttributeModification equipmentAttributeModification : equipmentAttributeModificationList) {
                 equipmentAttributeModification.check(network);
             }
         } else {
@@ -57,8 +55,7 @@ public class VoltageLevelTopologyModification extends AbstractEquipmentBase {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        for (EquipmentAttributeModificationInfos equipmentAttributeModificationInfos : equipmentAttributeModificationList) {
-            AbstractModification equipmentAttributeModification = equipmentAttributeModificationInfos.toModification();
+        for (EquipmentAttributeModification equipmentAttributeModification : equipmentAttributeModificationList) {
             equipmentAttributeModification.apply(network, subReportNode);
         }
         subReportNode.newReportNode()

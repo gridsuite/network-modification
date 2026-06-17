@@ -17,6 +17,8 @@ import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.AbstractBranchModification;
+import org.gridsuite.modification.modifications.SubstationCreation;
+import org.gridsuite.modification.modifications.VoltageLevelCreation;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -292,8 +294,8 @@ public final class ModificationUtils {
         return newNode + 2;
     }
 
-    public void controlNewOrExistingVoltageLevel(VoltageLevelCreationInfos mayNewVL,
-                String existingVoltageLevelId, String bbsOrBusId, Network network) {
+    public void controlNewOrExistingVoltageLevel(VoltageLevelCreation mayNewVL,
+                                                 String existingVoltageLevelId, String bbsOrBusId, Network network) {
         if (mayNewVL != null) {
             controlVoltageLevelCreation(mayNewVL.getEquipmentId(), mayNewVL.getCouplingDevices(), mayNewVL.getIpMin(), mayNewVL.getIpMax(), network);
         } else {
@@ -378,14 +380,11 @@ public final class ModificationUtils {
         }
     }
 
-    public void createVoltageLevel(String equipmentId, List<FreePropertyInfos> properties, String equipmentName, String substationId,
-                                   double nominalV, Double lowVoltageLimit, Double highVoltageLimit, Double ipMin, Double ipMax,
-                                   int busbarCount, int sectionCount, List<SwitchKind> switchKinds, List<CouplingDeviceInfos> couplingDevices,
-                                   SubstationCreationInfos substationCreation,
-                                   ReportNode subReportNode, Network network, NamingStrategy namingStrategy) {
+    public void createVoltageLevel(VoltageLevelCreation voltageLevelCreation, ReportNode subReportNode, Network network, NamingStrategy namingStrategy) {
         Substation substation;
-        String effectiveSubstationId = substationId;
-        if (substationCreation != null) {
+        String effectiveSubstationId = voltageLevelCreation.getSubstationId();
+        if (voltageLevelCreation.getSubstationCreation() != null) {
+            SubstationCreation substationCreation = voltageLevelCreation.getSubstationCreation();
             effectiveSubstationId = substationCreation.getEquipmentId();
             createSubstation(substationCreation.getEquipmentId(), substationCreation.getEquipmentName(), substationCreation.getCountry(), subReportNode, network);
             substation = network.getSubstation(effectiveSubstationId);
@@ -397,58 +396,58 @@ public final class ModificationUtils {
             throw new NetworkModificationException(SUBSTATION_NOT_FOUND, effectiveSubstationId);
         }
         VoltageLevel voltageLevel = substation.newVoltageLevel()
-            .setId(equipmentId)
-            .setName(equipmentName)
+            .setId(voltageLevelCreation.getEquipmentId())
+            .setName(voltageLevelCreation.getEquipmentName())
             .setTopologyKind(TopologyKind.NODE_BREAKER)
-            .setNominalV(nominalV)
+            .setNominalV(voltageLevelCreation.getNominalV())
             .add();
 
-        if (lowVoltageLimit != null) {
-            voltageLevel.setLowVoltageLimit(lowVoltageLimit);
+        if (voltageLevelCreation.getLowVoltageLimit() != null) {
+            voltageLevel.setLowVoltageLimit(voltageLevelCreation.getLowVoltageLimit());
         }
-        if (highVoltageLimit != null) {
-            voltageLevel.setHighVoltageLimit(highVoltageLimit);
+        if (voltageLevelCreation.getHighVoltageLimit() != null) {
+            voltageLevel.setHighVoltageLimit(voltageLevelCreation.getHighVoltageLimit());
         }
 
-        if (ipMax != null && ipMin != null) {
+        if (voltageLevelCreation.getIpMax() != null && voltageLevelCreation.getIpMin() != null) {
             voltageLevel.newExtension(IdentifiableShortCircuitAdder.class)
-                    .withIpMin(ipMin)
-                    .withIpMax(ipMax)
+                    .withIpMin(voltageLevelCreation.getIpMin())
+                    .withIpMax(voltageLevelCreation.getIpMax())
                     .add();
-        } else if (ipMax != null && ipMin == null) {
+        } else if (voltageLevelCreation.getIpMax() != null && voltageLevelCreation.getIpMin() == null) {
             voltageLevel.newExtension(IdentifiableShortCircuitAdder.class)
-                    .withIpMax(ipMax)
+                    .withIpMax(voltageLevelCreation.getIpMax())
                     .add();
-        } else if (ipMax == null && ipMin != null) {
+        } else if (voltageLevelCreation.getIpMax() == null && voltageLevelCreation.getIpMin() != null) {
             voltageLevel.newExtension(IdentifiableShortCircuitAdder.class)
-                    .withIpMin(ipMin)
+                    .withIpMin(voltageLevelCreation.getIpMin())
                     .add();
         }
 
         CreateVoltageLevelTopologyBuilder voltageLevelTopologyBuilder = new CreateVoltageLevelTopologyBuilder();
-        voltageLevelTopologyBuilder.withVoltageLevelId(equipmentId)
-                .withAlignedBusesOrBusbarCount(busbarCount)
-                .withSectionCount(sectionCount)
-                .withSwitchKinds(switchKinds)
+        voltageLevelTopologyBuilder.withVoltageLevelId(voltageLevelCreation.getEquipmentId())
+                .withAlignedBusesOrBusbarCount(voltageLevelCreation.getBusbarCount())
+                .withSectionCount(voltageLevelCreation.getSectionCount())
+                .withSwitchKinds(voltageLevelCreation.getSwitchKinds())
                 .build().apply(network, namingStrategy);
 
-        couplingDevices.forEach(couplingDevice -> {
+        voltageLevelCreation.getCouplingDevices().forEach(couplingDevice -> {
             if (!checkBbs(network, couplingDevice.getBusbarSectionId1(), couplingDevice.getBusbarSectionId2(), subReportNode)) {
                 return;
             }
             CreateCouplingDeviceBuilder couplingDeviceBuilder = new CreateCouplingDeviceBuilder();
             couplingDeviceBuilder.withBusOrBusbarSectionId1(couplingDevice.getBusbarSectionId1())
                 .withBusOrBusbarSectionId2(couplingDevice.getBusbarSectionId2())
-                .withSwitchPrefixId(equipmentId + "_COUPL")
+                .withSwitchPrefixId(voltageLevelCreation.getEquipmentId() + "_COUPL")
                     .build().apply(network, namingStrategy, subReportNode);
         });
 
         subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.voltageLevelCreated")
-                .withUntypedValue("id", equipmentId)
+                .withUntypedValue("id", voltageLevelCreation.getEquipmentId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
-        PropertiesUtils.applyProperties(voltageLevel, subReportNode, properties, "network.modification.VlProperties");
+        PropertiesUtils.applyProperties(voltageLevel, subReportNode, voltageLevelCreation.getProperties(), "network.modification.VlProperties");
     }
 
     public LineAdder createLineAdder(Network network, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, String equipmentId, String equipmentName,

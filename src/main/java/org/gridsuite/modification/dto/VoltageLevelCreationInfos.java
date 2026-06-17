@@ -17,11 +17,13 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
+import org.gridsuite.modification.modifications.SubstationCreation;
 import org.gridsuite.modification.modifications.VoltageLevelCreation;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Laurent GARNIER <laurent.garnier at rte-france.com>
@@ -85,7 +87,7 @@ public class VoltageLevelCreationInfos extends EquipmentCreationInfos {
                 .sectionCount(sectionCount)
                 .switchKinds(switchKinds)
                 .couplingDevices(couplingDevices)
-                .substationCreation(substationCreation)
+                .substationCreation((SubstationCreation) Optional.ofNullable(substationCreation).map(SubstationCreationInfos::toModification).orElse(null))
                 .build();
     }
 

@@ -14,7 +14,6 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.lang.NonNull;
 
@@ -32,7 +31,7 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
 
     private String lineToSplitId;
     private double percent;
-    private VoltageLevelCreationInfos mayNewVoltageLevelInfos;
+    private VoltageLevelCreation mayNewVoltageLevel;
     private String existingVoltageLevelId;
     private String bbsOrBusId;
     private String newLine1Id;
@@ -45,7 +44,7 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
         if (network.getLine(lineToSplitId) == null) {
             throw new NetworkModificationException(LINE_NOT_FOUND, lineToSplitId);
         }
-        ModificationUtils.getInstance().controlNewOrExistingVoltageLevel(mayNewVoltageLevelInfos,
+        ModificationUtils.getInstance().controlNewOrExistingVoltageLevel(mayNewVoltageLevel,
                 existingVoltageLevelId, bbsOrBusId, network);
         // check future lines don't exist
         if (network.getLine(newLine1Id) != null) {
@@ -63,12 +62,8 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
-        VoltageLevelCreationInfos mayNewVL = mayNewVoltageLevelInfos;
-        if (mayNewVL != null) {
-            ModificationUtils.getInstance().createVoltageLevel(mayNewVL.getEquipmentId(), mayNewVL.getProperties(), mayNewVL.getEquipmentName(), mayNewVL.getSubstationId(),
-                    mayNewVL.getNominalV(), mayNewVL.getLowVoltageLimit(), mayNewVL.getHighVoltageLimit(), mayNewVL.getIpMin(), mayNewVL.getIpMax(),
-                    mayNewVL.getBusbarCount(), mayNewVL.getSectionCount(), mayNewVL.getSwitchKinds(), mayNewVL.getCouplingDevices(), mayNewVL.getSubstationCreation(),
-                    subReportNode, network, namingStrategy);
+        if (mayNewVoltageLevel != null) {
+            ModificationUtils.getInstance().createVoltageLevel(mayNewVoltageLevel, subReportNode, network, namingStrategy);
         }
         ConnectVoltageLevelOnLine algo = new ConnectVoltageLevelOnLineBuilder()
                 .withPositionPercent(percent)

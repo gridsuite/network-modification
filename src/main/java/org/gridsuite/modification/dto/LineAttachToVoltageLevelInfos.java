@@ -14,7 +14,11 @@ import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LineAttachToVoltageLevel;
+import org.gridsuite.modification.modifications.LineCreation;
+import org.gridsuite.modification.modifications.VoltageLevelCreation;
+
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Nicolas NOIR <nicolas.noir at rte-france.com>
@@ -76,11 +80,11 @@ public class LineAttachToVoltageLevelInfos extends ModificationInfos {
                 .percent(getPercent())
                 .attachmentPointId(getAttachmentPointId())
                 .attachmentPointName(getAttachmentPointName())
-                .attachmentPointDetailInformation(getAttachmentPointDetailInformation())
-                .mayNewVoltageLevelInfos(getMayNewVoltageLevelInfos())
+                .attachmentPointDetailInformation((VoltageLevelCreation) Optional.ofNullable(getAttachmentPointDetailInformation()).map(VoltageLevelCreationInfos::toModification).orElse(null))
+                .mayNewVoltageLevel((VoltageLevelCreation) Optional.ofNullable(getMayNewVoltageLevelInfos()).map(VoltageLevelCreationInfos::toModification).orElse(null))
                 .existingVoltageLevelId(getExistingVoltageLevelId())
                 .bbsOrBusId(getBbsOrBusId())
-                .attachmentLine(getAttachmentLine())
+                .attachmentLine((LineCreation) Optional.ofNullable(getAttachmentLine()).map(LineCreationInfos::toModification).orElse(null))
                 .newLine1Id(getNewLine1Id())
                 .newLine1Name(getNewLine1Name())
                 .newLine2Id(getNewLine2Id())

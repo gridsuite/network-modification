@@ -16,9 +16,6 @@ import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 import groovyjarjarantlr4.v4.runtime.misc.NotNull;
 import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.LineCreationInfos;
-import org.gridsuite.modification.dto.SubstationCreationInfos;
-import org.gridsuite.modification.dto.VoltageLevelCreationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -38,11 +35,11 @@ public class LineAttachToVoltageLevel extends AbstractModification {
     private double percent;
     private String attachmentPointId;
     private String attachmentPointName;
-    private VoltageLevelCreationInfos attachmentPointDetailInformation;
-    private VoltageLevelCreationInfos mayNewVoltageLevelInfos;
+    private VoltageLevelCreation attachmentPointDetailInformation;
+    private VoltageLevelCreation mayNewVoltageLevel;
     private String existingVoltageLevelId;
     private String bbsOrBusId;
-    private LineCreationInfos attachmentLine;
+    private LineCreation attachmentLine;
     private String newLine1Id;
     private String newLine1Name;
     private String newLine2Id;
@@ -53,7 +50,7 @@ public class LineAttachToVoltageLevel extends AbstractModification {
         if (network.getLine(lineToAttachToId) == null) {
             throw new NetworkModificationException(LINE_NOT_FOUND, lineToAttachToId);
         }
-        ModificationUtils.getInstance().controlNewOrExistingVoltageLevel(mayNewVoltageLevelInfos,
+        ModificationUtils.getInstance().controlNewOrExistingVoltageLevel(mayNewVoltageLevel,
                 existingVoltageLevelId, bbsOrBusId, network);
         // new fictitious VL
         if (network.getVoltageLevel(attachmentPointId) != null) {
@@ -78,12 +75,8 @@ public class LineAttachToVoltageLevel extends AbstractModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
-        if (mayNewVoltageLevelInfos != null) {
-            ModificationUtils.getInstance().createVoltageLevel(mayNewVoltageLevelInfos.getEquipmentId(), mayNewVoltageLevelInfos.getProperties(), mayNewVoltageLevelInfos.getEquipmentName(),
-                    mayNewVoltageLevelInfos.getSubstationId(), mayNewVoltageLevelInfos.getNominalV(), mayNewVoltageLevelInfos.getLowVoltageLimit(), mayNewVoltageLevelInfos.getHighVoltageLimit(),
-                    mayNewVoltageLevelInfos.getIpMin(), mayNewVoltageLevelInfos.getIpMax(), mayNewVoltageLevelInfos.getBusbarCount(), mayNewVoltageLevelInfos.getSectionCount(),
-                    mayNewVoltageLevelInfos.getSwitchKinds(), mayNewVoltageLevelInfos.getCouplingDevices(), mayNewVoltageLevelInfos.getSubstationCreation(),
-                    subReportNode, network, namingStrategy);
+        if (mayNewVoltageLevel != null) {
+            ModificationUtils.getInstance().createVoltageLevel(mayNewVoltageLevel, subReportNode, network, namingStrategy);
         }
         LineAdder lineAdder = network.newLine()
                 .setId(attachmentLine.getEquipmentId())
@@ -128,7 +121,7 @@ public class LineAttachToVoltageLevel extends AbstractModification {
         }
     }
 
-    private void updateAttachmentVoltageLevel(Network network, @NotNull VoltageLevelCreationInfos attachmentPointDetailInformation) {
+    private void updateAttachmentVoltageLevel(Network network, @NotNull VoltageLevelCreation attachmentPointDetailInformation) {
         VoltageLevel voltageLevel = network.getVoltageLevel(attachmentPointId);
         if (attachmentPointDetailInformation.getHighVoltageLimit() != null) {
             voltageLevel.setHighVoltageLimit(attachmentPointDetailInformation.getHighVoltageLimit());
@@ -148,21 +141,21 @@ public class LineAttachToVoltageLevel extends AbstractModification {
         }
         PropertiesUtils.applyProperties(voltageLevel, attachmentPointDetailInformation.getProperties());
         // override substation
-        SubstationCreationInfos substationCreationInfos = attachmentPointDetailInformation.getSubstationCreation();
+        SubstationCreation substationCreationInfos = attachmentPointDetailInformation.getSubstationCreation();
         if (substationCreationInfos != null) {
             updateAttachmentSubstation(network, substationCreationInfos);
         }
     }
 
-    private void updateAttachmentSubstation(Network network, @NotNull SubstationCreationInfos substationCreationInfos) {
-        final Substation substation = network.getSubstation(substationCreationInfos.getEquipmentId());
-        if (substationCreationInfos.getEquipmentName() != null) {
-            substation.setName(substationCreationInfos.getEquipmentName());
+    private void updateAttachmentSubstation(Network network, @NotNull SubstationCreation substationCreation) {
+        final Substation substation = network.getSubstation(substationCreation.getEquipmentId());
+        if (substationCreation.getEquipmentName() != null) {
+            substation.setName(substationCreation.getEquipmentName());
         }
-        if (substationCreationInfos.getCountry() != null) {
-            substation.setCountry(substationCreationInfos.getCountry());
+        if (substationCreation.getCountry() != null) {
+            substation.setCountry(substationCreation.getCountry());
         }
-        PropertiesUtils.applyProperties(substation, substationCreationInfos.getProperties());
+        PropertiesUtils.applyProperties(substation, substationCreation.getProperties());
     }
 
     @Override

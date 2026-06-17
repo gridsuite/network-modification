@@ -14,7 +14,10 @@ import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LineSplitWithVoltageLevel;
+import org.gridsuite.modification.modifications.VoltageLevelCreation;
+
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Laurent GARNIER <laurent.garnier at rte-france.com>
@@ -62,7 +65,7 @@ public class LineSplitWithVoltageLevelInfos extends ModificationInfos {
         return LineSplitWithVoltageLevel.builder()
                 .lineToSplitId(lineToSplitId)
                 .percent(percent)
-                .mayNewVoltageLevelInfos(mayNewVoltageLevelInfos)
+                .mayNewVoltageLevel((VoltageLevelCreation) Optional.ofNullable(mayNewVoltageLevelInfos).map(VoltageLevelCreationInfos::toModification).orElse(null))
                 .existingVoltageLevelId(existingVoltageLevelId)
                 .bbsOrBusId(bbsOrBusId)
                 .newLine1Id(newLine1Id)

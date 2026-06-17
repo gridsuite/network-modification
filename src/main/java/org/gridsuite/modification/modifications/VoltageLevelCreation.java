@@ -38,14 +38,14 @@ public class VoltageLevelCreation extends AbstractEquipmentCreation {
     private int sectionCount;
     private List<SwitchKind> switchKinds;
     private List<CouplingDeviceInfos> couplingDevices;
-    private SubstationCreationInfos substationCreation;
+    private SubstationCreation substationCreation;
 
     @Builder
     public VoltageLevelCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName,
                                 String substationId, double nominalV, Double lowVoltageLimit, Double highVoltageLimit,
                                 Double ipMin, Double ipMax, int busbarCount, int sectionCount,
                                 List<SwitchKind> switchKinds,
-                                List<CouplingDeviceInfos> couplingDevices, SubstationCreationInfos substationCreation) {
+                                List<CouplingDeviceInfos> couplingDevices, SubstationCreation substationCreation) {
         super(equipmentId, properties, equipmentName);
         this.substationId = substationId;
         this.nominalV = nominalV;
@@ -76,8 +76,7 @@ public class VoltageLevelCreation extends AbstractEquipmentCreation {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
-        ModificationUtils.getInstance().createVoltageLevel(equipmentId, properties, equipmentName, substationId, nominalV, lowVoltageLimit, highVoltageLimit,
-                ipMin, ipMax, busbarCount, sectionCount, switchKinds, couplingDevices, substationCreation, subReportNode, network, namingStrategy);
+        ModificationUtils.getInstance().createVoltageLevel(this, subReportNode, network, namingStrategy);
     }
 
     @Override
