@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
+ * @author Joris Mancini <joris.mancini_externe at rte-france.com>
  */
 @Getter
 @Setter

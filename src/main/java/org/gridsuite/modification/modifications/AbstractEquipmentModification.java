@@ -15,7 +15,7 @@ import org.gridsuite.modification.dto.FreePropertyInfos;
 import java.util.List;
 
 /**
- * @author Joris MANCINI <joris.mancini_externe at rte-france.com>
+ * @author Joris Mancini <joris.mancini_externe at rte-france.com>
  */
 @Setter
 @Getter
