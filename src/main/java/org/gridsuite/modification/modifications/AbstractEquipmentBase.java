@@ -24,7 +24,7 @@ public abstract class AbstractEquipmentBase extends AbstractModification {
     protected String equipmentId;
     protected List<FreePropertyInfos> properties;
 
-    public AbstractEquipmentBase(String equipmentId, List<FreePropertyInfos> properties) {
+    protected AbstractEquipmentBase(String equipmentId, List<FreePropertyInfos> properties) {
         this.equipmentId = equipmentId;
         this.properties = properties;
     }

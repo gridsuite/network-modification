@@ -57,18 +57,18 @@ public class VoltageInitModification extends AbstractModification {
                                    List<VoltageInitVscConverterStationModificationInfos> vscConverterStations,
                                    List<VoltageInitShuntCompensatorModificationInfos> shuntCompensators,
                                    List<VoltageInitBusModificationInfos> buses) {
-        this.generators = generators;
-        this.transformers = transformers;
-        this.staticVarCompensators = staticVarCompensators;
-        this.vscConverterStations = vscConverterStations;
-        this.shuntCompensators = shuntCompensators;
-        this.buses = buses;
+        this.generators = generators == null ? List.of() : generators;
+        this.transformers = transformers == null ? List.of() : transformers;
+        this.staticVarCompensators = staticVarCompensators == null ? List.of() : staticVarCompensators;
+        this.vscConverterStations = vscConverterStations == null ? List.of() : vscConverterStations;
+        this.shuntCompensators = shuntCompensators == null ? List.of() : shuntCompensators;
+        this.buses = buses == null ? List.of() : buses;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (generators == null && transformers == null && staticVarCompensators == null
-                && vscConverterStations == null && shuntCompensators == null && buses == null) {
+        if (generators.isEmpty() && transformers.isEmpty() && staticVarCompensators.isEmpty()
+                && vscConverterStations.isEmpty() && shuntCompensators.isEmpty() && buses.isEmpty()) {
             throw new NetworkModificationException(Type.VOLTAGE_INIT_MODIFICATION_ERROR, "No voltage init modification to apply !!");
         }
     }

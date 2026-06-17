@@ -24,7 +24,7 @@ public abstract class AbstractEquipmentModification extends AbstractEquipmentBas
 
     protected AttributeModification<String> equipmentName;
 
-    public AbstractEquipmentModification(String equipmentId, List<FreePropertyInfos> properties, AttributeModification<String> equipmentName) {
+    protected AbstractEquipmentModification(String equipmentId, List<FreePropertyInfos> properties, AttributeModification<String> equipmentName) {
         super(equipmentId, properties);
         this.equipmentName = equipmentName;
     }

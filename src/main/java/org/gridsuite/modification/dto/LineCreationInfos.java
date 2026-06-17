@@ -75,7 +75,6 @@ public class LineCreationInfos extends BranchCreationInfos {
                 .b1(getB1())
                 .g2(getG2())
                 .b2(getB2())
-                .lineSegments(getLineSegments())
                 .build();
     }
 

@@ -40,7 +40,9 @@ public class ShuntCompensatorCreation extends AbstractInjectionCreation {
     public ShuntCompensatorCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName,
                                     String voltageLevelId, String busOrBusbarSectionId, String connectionName,
                                     ConnectablePosition.Direction connectionDirection, Integer connectionPosition,
-                                    boolean terminalConnected, Integer maximumSectionCount, Integer sectionCount,
+                                    boolean terminalConnected,
+                                    @NonNull Integer maximumSectionCount,
+                                    @NonNull Integer sectionCount,
                                     Double maxSusceptance, Double maxQAtNominalV,
                                     ShuntCompensatorType shuntCompensatorType) {
         super(equipmentId, properties, equipmentName, voltageLevelId, busOrBusbarSectionId, connectionName,

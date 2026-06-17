@@ -21,7 +21,7 @@ public abstract class AbstractEquipmentCreation extends AbstractEquipmentBase {
 
     protected String equipmentName;
 
-    public AbstractEquipmentCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName) {
+    protected AbstractEquipmentCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName) {
         super(equipmentId, properties);
         this.equipmentName = equipmentName;
     }

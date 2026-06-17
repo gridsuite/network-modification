@@ -88,8 +88,6 @@ public class LineModificationInfos extends BranchModificationInfos {
             .b1(b1)
             .g2(g2)
             .b2(b2)
-            .lineSegments(lineSegments)
-            .applySegmentsLimits(applySegmentsLimits)
             .build();
     }
 

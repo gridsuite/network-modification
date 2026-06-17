@@ -46,8 +46,8 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
     private AttributeModification<Double> ratedU1;
     private AttributeModification<Double> ratedU2;
     private AttributeModification<Double> ratedS;
-    private RatioTapChangerModificationInfos ratioTapChanger = new RatioTapChangerModificationInfos();
-    private PhaseTapChangerModificationInfos phaseTapChanger = new PhaseTapChangerModificationInfos();
+    private RatioTapChangerModificationInfos ratioTapChanger;
+    private PhaseTapChangerModificationInfos phaseTapChanger;
     private AttributeModification<Boolean> ratioTapChangerToBeEstimated;
     private AttributeModification<Boolean> phaseTapChangerToBeEstimated;
 
@@ -102,8 +102,8 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         this.ratedU1 = ratedU1;
         this.ratedU2 = ratedU2;
         this.ratedS = ratedS;
-        this.ratioTapChanger = ratioTapChanger;
-        this.phaseTapChanger = phaseTapChanger;
+        this.ratioTapChanger = ratioTapChanger == null ? new RatioTapChangerModificationInfos() : ratioTapChanger;
+        this.phaseTapChanger = phaseTapChanger == null ? new PhaseTapChangerModificationInfos() : phaseTapChanger;
         this.ratioTapChangerToBeEstimated = ratioTapChangerToBeEstimated;
         this.phaseTapChangerToBeEstimated = phaseTapChangerToBeEstimated;
     }

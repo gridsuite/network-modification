@@ -63,18 +63,18 @@ public class GenerationDispatch extends AbstractModification {
     protected IFilterService filterService;
 
     @Builder
-    public GenerationDispatch(Double lossCoefficient,
-                              Double defaultOutageRate,
+    public GenerationDispatch(@NonNull Double lossCoefficient,
+                              @NonNull Double defaultOutageRate,
                               List<GeneratorsFilterInfos> generatorsWithoutOutage,
                               List<GeneratorsFilterInfos> generatorsWithFixedSupply,
                               List<GeneratorsFrequencyReserveInfos> generatorsFrequencyReserve,
                               List<SubstationsGeneratorsOrderingInfos> substationsGeneratorsOrdering) {
         this.lossCoefficient = lossCoefficient;
         this.defaultOutageRate = defaultOutageRate;
-        this.generatorsWithoutOutage = generatorsWithoutOutage;
-        this.generatorsWithFixedSupply = generatorsWithFixedSupply;
-        this.generatorsFrequencyReserve = generatorsFrequencyReserve;
-        this.substationsGeneratorsOrdering = substationsGeneratorsOrdering;
+        this.generatorsWithoutOutage = generatorsWithoutOutage == null ? List.of() : generatorsWithoutOutage;
+        this.generatorsWithFixedSupply = generatorsWithFixedSupply == null ? List.of() : generatorsWithFixedSupply;
+        this.generatorsFrequencyReserve = generatorsFrequencyReserve == null ? List.of() : generatorsFrequencyReserve;
+        this.substationsGeneratorsOrdering = substationsGeneratorsOrdering == null ? List.of() : substationsGeneratorsOrdering;
     }
 
     private static void report(ReportNode reportNode, String key, Map<String, Object> values, TypedValue severity) {

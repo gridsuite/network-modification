@@ -27,7 +27,7 @@ public abstract class AbstractInjectionCreation extends AbstractEquipmentCreatio
     protected Integer connectionPosition;
     protected boolean terminalConnected;
 
-    public AbstractInjectionCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName,
+    protected AbstractInjectionCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName,
                                      String voltageLevelId, String busOrBusbarSectionId, String connectionName,
                                      ConnectablePosition.Direction connectionDirection, Integer connectionPosition,
                                      boolean terminalConnected) {

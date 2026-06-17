@@ -39,7 +39,7 @@ public abstract class AbstractBranchCreation extends AbstractEquipmentCreation {
     protected boolean connected1;
     protected boolean connected2;
 
-    public AbstractBranchCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName,
+    protected AbstractBranchCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName,
                                   String busOrBusbarSectionId2, double r, double x, String voltageLevelId1,
                                   String voltageLevelId2, String busOrBusbarSectionId1,
                                   List<OperationalLimitsGroupInfos> operationalLimitsGroups,

@@ -178,7 +178,7 @@ public class LccModification extends AbstractEquipmentModification {
         ModificationUtils.getInstance().reportModifications(converterStationReportNode, characteristicsReports,
                 "network.modification.Characteristics");
 
-        if (!lccConverterStationModification.getShuntCompensatorsOnSide().isEmpty()) {
+        if (lccConverterStationModification.getShuntCompensatorsOnSide() != null && !lccConverterStationModification.getShuntCompensatorsOnSide().isEmpty()) {
             ReportNode shuntCompensatorReportNode = converterStationReportNode.newReportNode()
                 .withMessageTemplate("network.modification.converterStationFilters")
                 .withSeverity(TypedValue.INFO_SEVERITY)

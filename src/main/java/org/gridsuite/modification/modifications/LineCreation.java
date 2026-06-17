@@ -39,7 +39,6 @@ public class LineCreation extends AbstractBranchCreation {
     private Double b1;
     private Double g2;
     private Double b2;
-    private List<LineSegmentInfos> lineSegments;
 
     @Builder
     public LineCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName,
@@ -50,8 +49,7 @@ public class LineCreation extends AbstractBranchCreation {
                         String connectionName1, ConnectablePosition.Direction connectionDirection1,
                         String connectionName2, ConnectablePosition.Direction connectionDirection2,
                         Integer connectionPosition1, Integer connectionPosition2, boolean connected1,
-                        boolean connected2, Double g1, Double b1, Double g2, Double b2,
-                        List<LineSegmentInfos> lineSegments) {
+                        boolean connected2, Double g1, Double b1, Double g2, Double b2) {
         super(equipmentId, properties, equipmentName, busOrBusbarSectionId2, r, x, voltageLevelId1, voltageLevelId2,
             busOrBusbarSectionId1, operationalLimitsGroups, selectedOperationalLimitsGroupId1,
             selectedOperationalLimitsGroupId2, connectionName1, connectionDirection1, connectionName2,
@@ -60,7 +58,6 @@ public class LineCreation extends AbstractBranchCreation {
         this.b1 = b1;
         this.g2 = g2;
         this.b2 = b2;
-        this.lineSegments = lineSegments;
     }
 
     @Override

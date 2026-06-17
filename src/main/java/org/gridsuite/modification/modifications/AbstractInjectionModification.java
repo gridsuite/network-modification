@@ -37,7 +37,7 @@ public abstract class AbstractInjectionModification extends AbstractEquipmentMod
     protected AttributeModification<Double> qMeasurementValue;
     protected AttributeModification<Boolean> qMeasurementValidity;
 
-    public AbstractInjectionModification(String equipmentId, List<FreePropertyInfos> properties,
+    protected AbstractInjectionModification(String equipmentId, List<FreePropertyInfos> properties,
                                          AttributeModification<String> equipmentName,
                                          AttributeModification<String> voltageLevelId,
                                          AttributeModification<String> busOrBusbarSectionId,

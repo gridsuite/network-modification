@@ -17,7 +17,6 @@ import lombok.Setter;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
-import org.gridsuite.modification.dto.LineSegmentInfos;
 import org.gridsuite.modification.dto.OperationalLimitsGroupModificationInfos;
 import org.gridsuite.modification.dto.OperationalLimitsGroupsModificationType;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -44,8 +43,6 @@ public class LineModification extends AbstractBranchModification {
     private AttributeModification<Double> b1;
     private AttributeModification<Double> g2;
     private AttributeModification<Double> b2;
-    private List<LineSegmentInfos> lineSegments;
-    private boolean applySegmentsLimits;
 
     @Builder
     public LineModification(String equipmentId, List<FreePropertyInfos> properties,
@@ -77,8 +74,7 @@ public class LineModification extends AbstractBranchModification {
                             AttributeModification<Double> q2MeasurementValue,
                             AttributeModification<Boolean> q2MeasurementValidity, AttributeModification<Double> g1,
                             AttributeModification<Double> b1, AttributeModification<Double> g2,
-                            AttributeModification<Double> b2, List<LineSegmentInfos> lineSegments,
-                            boolean applySegmentsLimits) {
+                            AttributeModification<Double> b2) {
         super(equipmentId, properties, equipmentName, r, x, operationalLimitsGroupsModificationType,
             enableOLGModification,
             operationalLimitsGroups, selectedOperationalLimitsGroupId1, selectedOperationalLimitsGroupId2,
@@ -91,8 +87,6 @@ public class LineModification extends AbstractBranchModification {
         this.b1 = b1;
         this.g2 = g2;
         this.b2 = b2;
-        this.lineSegments = lineSegments;
-        this.applySegmentsLimits = applySegmentsLimits;
     }
 
     @Override

@@ -315,7 +315,7 @@ public class VscCreation extends AbstractEquipmentCreation {
         setPointsVoltageReports.add(ModificationUtils.getInstance().createEnabledDisabledReport("network.modification.voltageRegulationOn",
                 vscConverterStationCreation.getVoltageRegulationOn()));
         if (vscConverterStationCreation.getVoltageSetpoint() != null) {
-            setPointsVoltageReports.add(ModificationUtils.getInstance().buildCreationReport(vscConverterStationCreation.getReactivePowerSetpoint(), "Voltage"));
+            setPointsVoltageReports.add(ModificationUtils.getInstance().buildCreationReport(vscConverterStationCreation.getVoltageSetpoint(), "Voltage"));
         }
 
         ModificationUtils.getInstance().reportModifications(setPointReporter,

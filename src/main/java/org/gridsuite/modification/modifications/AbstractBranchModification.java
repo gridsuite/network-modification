@@ -72,7 +72,7 @@ public abstract class AbstractBranchModification extends AbstractEquipmentModifi
     protected AttributeModification<Double> q2MeasurementValue;
     protected AttributeModification<Boolean> q2MeasurementValidity;
 
-    public AbstractBranchModification(String equipmentId, List<FreePropertyInfos> properties,
+    protected AbstractBranchModification(String equipmentId, List<FreePropertyInfos> properties,
                                       AttributeModification<String> equipmentName, AttributeModification<Double> r,
                                       AttributeModification<Double> x,
                                       OperationalLimitsGroupsModificationType operationalLimitsGroupsModificationType,
