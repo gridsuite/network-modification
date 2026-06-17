@@ -19,6 +19,7 @@ import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
 import org.gridsuite.modification.modifications.data.VscConverterStationModification;
+import org.gridsuite.modification.utils.MeasurementUtils;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -398,6 +399,9 @@ public class VscModification extends AbstractEquipmentModification {
                 setPointsReports, "network.modification.Setpoints");
         }
 
+        // measurements
+        MeasurementUtils.applyAndBuildModificationReport(converterStation, vscConverterStationModification, converterStationReportNode);
+
         // limits
         modifyVscReactiveLimitsAttributes(vscConverterStationModification, converterStation, converterStationReportNode, converterStationReportNode);
     }
@@ -408,7 +412,9 @@ public class VscModification extends AbstractEquipmentModification {
                 || vscConverterStationModification.getReactivePowerSetpoint() != null
                 || vscConverterStationModification.getVoltageRegulationOn() != null
                 || vscConverterStationModification.getVoltageSetpoint() != null || vscConverterStationModification.getReactiveCapabilityCurvePoints() != null
-                || vscConverterStationModification.getMinQ() != null || vscConverterStationModification.getMaxQ() != null;
+                || vscConverterStationModification.getMinQ() != null || vscConverterStationModification.getMaxQ() != null
+                || vscConverterStationModification.getPMeasurementValue() != null || vscConverterStationModification.getPMeasurementValidity() != null
+                || vscConverterStationModification.getQMeasurementValue() != null || vscConverterStationModification.getQMeasurementValidity() != null;
     }
 
     private void modifyVscReactiveCapabilityCurvePoints(VscConverterStationModification vscConverterStationModification,

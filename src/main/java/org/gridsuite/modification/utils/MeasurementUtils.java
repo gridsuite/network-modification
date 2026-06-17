@@ -8,10 +8,14 @@ package org.gridsuite.modification.utils;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.iidm.network.extensions.MeasurementsAdder;
+import org.gridsuite.modification.modifications.InjectionModification;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,6 +48,34 @@ public final class MeasurementUtils {
             return measurements.getMeasurements(type).stream().findFirst().orElse(null);
         }
         return measurements.getMeasurements(type).stream().filter(m -> m.getSide() == side).findFirst().orElse(null);
+    }
+
+    public static ReportNode applyAndBuildModificationReport(Injection<?> injection, InjectionModification injectionModification, ReportNode subReportNode) {
+        Double pValue = injectionModification.getPMeasurementValue() != null ? injectionModification.getPMeasurementValue().getValue() : null;
+        Double qValue = injectionModification.getQMeasurementValue() != null ? injectionModification.getQMeasurementValue().getValue() : null;
+        Boolean pValidity = injectionModification.getPMeasurementValidity() != null ? injectionModification.getPMeasurementValidity().getValue() : null;
+        Boolean qValidity = injectionModification.getQMeasurementValidity() != null ? injectionModification.getQMeasurementValidity().getValue() : null;
+
+        if (pValue == null && pValidity == null && qValue == null && qValidity == null) {
+            // no measurement modification requested
+            return null;
+        }
+        Measurements<?> measurements = (Measurements<?>) injection.getExtension(Measurements.class);
+        if (measurements == null) {
+            MeasurementsAdder<?> measurementsAdder = injection.newExtension(MeasurementsAdder.class);
+            measurements = measurementsAdder.add();
+        }
+        // measurements update
+        List<ReportNode> reports = new ArrayList<>();
+        upsertMeasurement(measurements, Measurement.Type.ACTIVE_POWER, pValue, pValidity, reports);
+        upsertMeasurement(measurements, Measurement.Type.REACTIVE_POWER, qValue, qValidity, reports);
+        // report changes
+        ReportNode estimSubReportNode = null;
+        if (!reports.isEmpty()) {
+            estimSubReportNode = subReportNode.newReportNode().withMessageTemplate("network.modification.stateEstimationData").add();
+            ModificationUtils.getInstance().reportModifications(estimSubReportNode, reports, "network.modification.measurements");
+        }
+        return estimSubReportNode;
     }
 
     /** Upsert a measurement without producing report entries (used by by-filter assignment). */
