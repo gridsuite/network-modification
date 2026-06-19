@@ -63,15 +63,15 @@ public class LineSplitWithVoltageLevelInfos extends ModificationInfos {
     @Override
     public AbstractModification toModification() {
         return LineSplitWithVoltageLevel.builder()
-                .lineToSplitId(lineToSplitId)
-                .percent(percent)
-                .mayNewVoltageLevel((VoltageLevelCreation) Optional.ofNullable(mayNewVoltageLevelInfos).map(VoltageLevelCreationInfos::toModification).orElse(null))
-                .existingVoltageLevelId(existingVoltageLevelId)
-                .bbsOrBusId(bbsOrBusId)
-                .newLine1Id(newLine1Id)
-                .newLine1Name(newLine1Name)
-                .newLine2Id(newLine2Id)
-                .newLine2Name(newLine2Name)
+                .lineToSplitId(getLineToSplitId())
+                .percent(getPercent())
+                .mayNewVoltageLevel((VoltageLevelCreation) Optional.ofNullable(getMayNewVoltageLevelInfos()).map(VoltageLevelCreationInfos::toModification).orElse(null))
+                .existingVoltageLevelId(getExistingVoltageLevelId())
+                .bbsOrBusId(getBbsOrBusId())
+                .newLine1Id(getNewLine1Id())
+                .newLine1Name(getNewLine1Name())
+                .newLine2Id(getNewLine2Id())
+                .newLine2Name(getNewLine2Name())
                 .build();
     }
 

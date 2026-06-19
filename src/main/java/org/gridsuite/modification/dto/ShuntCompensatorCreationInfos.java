@@ -58,11 +58,11 @@ public class ShuntCompensatorCreationInfos extends InjectionCreationInfos {
                 .connectionDirection(getConnectionDirection())
                 .connectionPosition(getConnectionPosition())
                 .terminalConnected(isTerminalConnected())
-                .maximumSectionCount(maximumSectionCount)
-                .sectionCount(sectionCount)
-                .maxSusceptance(maxSusceptance)
-                .maxQAtNominalV(maxQAtNominalV)
-                .shuntCompensatorType(shuntCompensatorType)
+                .maximumSectionCount(getMaximumSectionCount())
+                .sectionCount(getSectionCount())
+                .maxSusceptance(getMaxSusceptance())
+                .maxQAtNominalV(getMaxQAtNominalV())
+                .shuntCompensatorType(getShuntCompensatorType())
                 .build();
     }
 

@@ -84,10 +84,10 @@ public class LineModificationInfos extends BranchModificationInfos {
             .q1MeasurementValidity(getQ1MeasurementValidity())
             .q2MeasurementValue(getQ2MeasurementValue())
             .q2MeasurementValidity(getQ2MeasurementValidity())
-            .g1(g1)
-            .b1(b1)
-            .g2(g2)
-            .b2(b2)
+            .g1(getG1())
+            .b1(getB1())
+            .g2(getG2())
+            .b2(getB2())
             .build();
     }
 

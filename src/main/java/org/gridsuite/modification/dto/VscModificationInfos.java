@@ -75,8 +75,8 @@ public class VscModificationInfos extends BasicEquipmentModificationInfos {
                 .angleDroopActivePowerControl(getAngleDroopActivePowerControl())
                 .p0(getP0())
                 .droop(getDroop())
-                .converterStation1(converterStationModification(converterStation1))
-                .converterStation2(converterStationModification(converterStation2))
+                .converterStation1(converterStationModification(getConverterStation1()))
+                .converterStation2(converterStationModification(getConverterStation2()))
                 .build();
     }
 

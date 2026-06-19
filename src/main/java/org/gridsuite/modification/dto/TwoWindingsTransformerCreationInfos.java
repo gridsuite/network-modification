@@ -76,13 +76,13 @@ public class TwoWindingsTransformerCreationInfos extends BranchCreationInfos {
                 .connectionPosition2(getConnectionPosition2())
                 .connected1(isConnected1())
                 .connected2(isConnected2())
-                .g(g)
-                .b(b)
-                .ratedU1(ratedU1)
-                .ratedU2(ratedU2)
-                .ratedS(ratedS)
-                .ratioTapChanger(ratioTapChanger)
-                .phaseTapChanger(phaseTapChanger)
+                .g(getG())
+                .b(getB())
+                .ratedU1(getRatedU1())
+                .ratedU2(getRatedU2())
+                .ratedS(getRatedS())
+                .ratioTapChanger(getRatioTapChanger())
+                .phaseTapChanger(getPhaseTapChanger())
                 .build();
     }
 

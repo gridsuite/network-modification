@@ -55,9 +55,9 @@ public class LoadModificationInfos extends InjectionModificationInfos {
             .pMeasurementValidity(getPMeasurementValidity())
             .qMeasurementValue(getQMeasurementValue())
             .qMeasurementValidity(getQMeasurementValidity())
-            .loadType(loadType)
-            .p0(p0)
-            .q0(q0)
+            .loadType(getLoadType())
+            .p0(getP0())
+            .q0(getQ0())
             .build();
     }
 

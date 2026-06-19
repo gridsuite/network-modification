@@ -60,15 +60,15 @@ public class LinesAttachToSplitLinesInfos extends ModificationInfos {
     @Override
     public AbstractModification toModification() {
         return LinesAttachToSplitLines.builder()
-                .lineToAttachTo1Id(lineToAttachTo1Id)
-                .lineToAttachTo2Id(lineToAttachTo2Id)
-                .attachedLineId(attachedLineId)
-                .voltageLevelId(voltageLevelId)
-                .bbsBusId(bbsBusId)
-                .replacingLine1Id(replacingLine1Id)
-                .replacingLine1Name(replacingLine1Name)
-                .replacingLine2Id(replacingLine2Id)
-                .replacingLine2Name(replacingLine2Name)
+                .lineToAttachTo1Id(getLineToAttachTo1Id())
+                .lineToAttachTo2Id(getLineToAttachTo2Id())
+                .attachedLineId(getAttachedLineId())
+                .voltageLevelId(getVoltageLevelId())
+                .bbsBusId(getBbsBusId())
+                .replacingLine1Id(getReplacingLine1Id())
+                .replacingLine1Name(getReplacingLine1Name())
+                .replacingLine2Id(getReplacingLine2Id())
+                .replacingLine2Name(getReplacingLine2Name())
                 .build();
     }
 

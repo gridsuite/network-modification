@@ -53,9 +53,9 @@ public class LoadCreationInfos extends InjectionCreationInfos {
                 .connectionDirection(getConnectionDirection())
                 .connectionPosition(getConnectionPosition())
                 .terminalConnected(isTerminalConnected())
-                .loadType(loadType)
-                .p0(p0)
-                .q0(q0)
+                .loadType(getLoadType())
+                .p0(getP0())
+                .q0(getQ0())
                 .build();
     }
 

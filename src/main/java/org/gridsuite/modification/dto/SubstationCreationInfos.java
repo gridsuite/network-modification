@@ -42,7 +42,7 @@ public class SubstationCreationInfos extends EquipmentCreationInfos {
                 .equipmentId(getEquipmentId())
                 .properties(getProperties())
                 .equipmentName(getEquipmentName())
-                .country(country)
+                .country(getCountry())
                 .build();
     }
 

@@ -64,11 +64,11 @@ public class ShuntCompensatorModificationInfos extends InjectionModificationInfo
             .pMeasurementValidity(getPMeasurementValidity())
             .qMeasurementValue(getQMeasurementValue())
             .qMeasurementValidity(getQMeasurementValidity())
-            .maximumSectionCount(maximumSectionCount)
-            .sectionCount(sectionCount)
-            .maxSusceptance(maxSusceptance)
-            .maxQAtNominalV(maxQAtNominalV)
-            .shuntCompensatorType(shuntCompensatorType)
+            .maximumSectionCount(getMaximumSectionCount())
+            .sectionCount(getSectionCount())
+            .maxSusceptance(getMaxSusceptance())
+            .maxQAtNominalV(getMaxQAtNominalV())
+            .shuntCompensatorType(getShuntCompensatorType())
             .build();
     }
 
