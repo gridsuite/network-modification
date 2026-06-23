@@ -516,10 +516,10 @@ public class GenerationDispatch extends AbstractModification {
                 .toList();
 
         // get generators for which there will be no reduction of maximal power
-        List<String> generatorsWithoutOutage = collectGeneratorsWithoutOutage(network, subReportNode);
+        List<String> generatorsWithoutOutageIds = collectGeneratorsWithoutOutage(network, subReportNode);
 
         // get generators with fixed supply
-        List<String> generatorsWithFixedSupply = collectGeneratorsWithFixedSupply(network, subReportNode);
+        List<String> generatorsWithFixedSupplyIds = collectGeneratorsWithFixedSupply(network, subReportNode);
 
         // get generators with frequency reserve
         List<GeneratorsFrequencyReserve> generatorsWithFrequencyReserve = collectGeneratorsWithFrequencyReserve(network, subReportNode);
@@ -545,7 +545,7 @@ public class GenerationDispatch extends AbstractModification {
                 Map.of("totalDemand", round(totalDemand)), TypedValue.INFO_SEVERITY);
 
             // get total supply value for generators with fixed supply
-            double totalAmountFixedSupply = computeTotalAmountFixedSupply(network, component, generatorsWithFixedSupply, powerToDispatchReportNode);
+            double totalAmountFixedSupply = computeTotalAmountFixedSupply(network, component, generatorsWithFixedSupplyIds, powerToDispatchReportNode);
             report(powerToDispatchReportNode, "network.modification.TotalAmountFixedSupply",
                 Map.of("totalAmountFixedSupply", round(totalAmountFixedSupply)), TypedValue.INFO_SEVERITY);
 
@@ -569,7 +569,7 @@ public class GenerationDispatch extends AbstractModification {
             }
 
             // get adjustable generators in the component
-            List<Generator> adjustableGenerators = computeAdjustableGenerators(network, component, generatorsWithFixedSupply,
+            List<Generator> adjustableGenerators = computeAdjustableGenerators(network, component, generatorsWithFixedSupplyIds,
                                                                                substationsGeneratorsOrdering,
                                                                                powerToDispatchReportNode);
 
@@ -578,7 +578,7 @@ public class GenerationDispatch extends AbstractModification {
                 // stacking of adjustable generators to ensure the totalAmountSupplyToBeDispatched
                 List<Scalable> generatorsScalable = adjustableGenerators.stream().map(generator -> {
                     double minValue = generator.getMinP();
-                    double maxValue = reduceGeneratorMaxPValue(generator, generatorsWithoutOutage, generatorsWithFrequencyReserve);
+                    double maxValue = reduceGeneratorMaxPValue(generator, generatorsWithoutOutageIds, generatorsWithFrequencyReserve);
                     return (Scalable) Scalable.onGenerator(generator.getId(), minValue, maxValue);
                 }).toList();
 

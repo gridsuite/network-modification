@@ -159,7 +159,7 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
     private void applyModificationOnLinearModel(ReportNode subReportNode, ShuntCompensator shuntCompensator, VoltageLevel voltageLevel) {
         List<ReportNode> reports = new ArrayList<>();
         ShuntCompensatorLinearModel model = shuntCompensator.getModel(ShuntCompensatorLinearModel.class);
-        var shuntCompensatorType = model.getBPerSection() > 0 ? ShuntCompensatorType.CAPACITOR : ShuntCompensatorType.REACTOR;
+        var shuntCompensatorTypeFromNetwork = model.getBPerSection() > 0 ? ShuntCompensatorType.CAPACITOR : ShuntCompensatorType.REACTOR;
         double oldSusceptancePerSection = model.getBPerSection();
         double oldQAtNominalV = Math.abs(Math.pow(voltageLevel.getNominalV(), 2) * oldSusceptancePerSection);
         double oldMaxQAtNominalV = oldQAtNominalV * shuntCompensator.getMaximumSectionCount();
@@ -191,18 +191,18 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
         int newSectionCount = sectionCount != null ? sectionCount.getValue() : shuntCompensator.getSectionCount();
 
         if (this.shuntCompensatorType != null) {
-            reports.add(ModificationUtils.getInstance().buildModificationReport(shuntCompensatorType, this.shuntCompensatorType.getValue(), "Type"));
-            shuntCompensatorType = this.shuntCompensatorType.getValue();
+            reports.add(ModificationUtils.getInstance().buildModificationReport(shuntCompensatorTypeFromNetwork, this.shuntCompensatorType.getValue(), "Type"));
+            shuntCompensatorTypeFromNetwork = this.shuntCompensatorType.getValue();
             if (maxQAtNominalV == null) {
                 // we retrieve the absolute value of susceptance per section, then we determine the sign using the type
                 double bPerSectionAbsoluteValue = Math.abs(oldSusceptancePerSection);
-                double newBPerSection = shuntCompensatorType == ShuntCompensatorType.CAPACITOR ? bPerSectionAbsoluteValue : -bPerSectionAbsoluteValue;
+                double newBPerSection = shuntCompensatorTypeFromNetwork == ShuntCompensatorType.CAPACITOR ? bPerSectionAbsoluteValue : -bPerSectionAbsoluteValue;
                 model.setBPerSection(newBPerSection);
             }
         }
 
         if (maxQAtNominalV != null) {
-            modifyMaximumQAtNominalVoltage(maxQAtNominalV, voltageLevel, newMaximumSectionCount, reports, model, shuntCompensatorType);
+            modifyMaximumQAtNominalVoltage(maxQAtNominalV, voltageLevel, newMaximumSectionCount, reports, model, shuntCompensatorTypeFromNetwork);
         }
         if (maxSusceptance != null) {
             modifyMaxSusceptance(maxSusceptance, newMaximumSectionCount, reports, model);

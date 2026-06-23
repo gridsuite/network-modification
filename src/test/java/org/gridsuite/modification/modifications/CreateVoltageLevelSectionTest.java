@@ -53,6 +53,7 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
         CreateVoltageLevelSection voltageLevelSection = (CreateVoltageLevelSection) buildModification().toModification();
         voltageLevelSection.setBusbarIndex(1);
 
+        assertEquals("CREATE_VOLTAGE_LEVEL_SECTION", voltageLevelSection.getName());
         String message = assertThrows(NetworkModificationException.class, () -> voltageLevelSection.check(network)).getMessage();
         assertEquals("BUSBAR_SECTION_NOT_FOUND : 1 is not the busbar index of the busbar section bbs1 in voltage level v1", message);
 

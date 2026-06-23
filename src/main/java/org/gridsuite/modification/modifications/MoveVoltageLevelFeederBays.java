@@ -130,12 +130,12 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
         AbstractBranchModification branchModification = new AbstractBranchModification() {
             @Override
             protected void modifyCharacteristics(Branch<?> branch, ReportNode subReportNode) {
-
+                throw new UnsupportedOperationException("For this locally defined AbstractBranchModification, modifyCharacteristics should not be called");
             }
 
             @Override
             public String getName() {
-                return "";
+                return "Local branch modification for feeders bay move";
             }
         };
         branchModification.setEquipmentId(info.getEquipmentId());

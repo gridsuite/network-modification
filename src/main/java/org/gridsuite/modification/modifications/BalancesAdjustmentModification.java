@@ -163,10 +163,10 @@ public class BalancesAdjustmentModification extends AbstractModification {
 
         BalanceComputationParameters parameters = createBalanceComputationParameters(reportNode);
 
-        List<BalanceComputationArea> areas = createBalanceComputationAreas(network, reportNode);
+        List<BalanceComputationArea> balanceComputationAreas = createBalanceComputationAreas(network, reportNode);
 
         BalanceComputation balanceComputation = new BalanceComputationFactoryImpl()
-            .create(areas, LoadFlow.find(), new LocalComputationManager(Runnable::run));
+            .create(balanceComputationAreas, LoadFlow.find(), new LocalComputationManager(Runnable::run));
 
         balanceComputation
             .run(network, network.getVariantManager().getWorkingVariantId(), parameters, reportNode)

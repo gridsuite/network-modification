@@ -472,10 +472,10 @@ public class GeneratorModification extends AbstractInjectionModification {
             voltageRegulationReports.add(reportVoltageSetpoint);
         }
         // must be done after setting targetV
-        ReportNode voltageRegulationOn = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(generator::setVoltageRegulatorOn, generator::isVoltageRegulatorOn,
+        ReportNode voltageRegulationOnReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(generator::setVoltageRegulatorOn, generator::isVoltageRegulatorOn,
                 this.voltageRegulationOn, "VoltageRegulationOn");
-        if (voltageRegulationOn != null) {
-            voltageRegulationReports.add(voltageRegulationOn);
+        if (voltageRegulationOnReportNode != null) {
+            voltageRegulationReports.add(voltageRegulationOnReportNode);
         }
 
         // We apply modifications to regulatingTerminal and QPercent

@@ -105,10 +105,10 @@ public class VscModification extends AbstractEquipmentModification {
         HvdcLine hvdcLine = ModificationUtils.getInstance().getHvdcLine(network, equipmentId);
         String errorMessage = "HVDC vsc '" + equipmentId + "' : ";
 
-        VscConverterStation converterStation1 = ModificationUtils.getInstance().getVscConverterStation(network, hvdcLine.getConverterStation1().getId());
-        VscConverterStation converterStation2 = ModificationUtils.getInstance().getVscConverterStation(network, hvdcLine.getConverterStation2().getId());
-        checkConverterStation(this.converterStation1, converterStation1);
-        checkConverterStation(this.converterStation2, converterStation2);
+        VscConverterStation converterStation1FromNetwork = ModificationUtils.getInstance().getVscConverterStation(network, hvdcLine.getConverterStation1().getId());
+        VscConverterStation converterStation2FromNetwork = ModificationUtils.getInstance().getVscConverterStation(network, hvdcLine.getConverterStation2().getId());
+        checkConverterStation(this.converterStation1, converterStation1FromNetwork);
+        checkConverterStation(this.converterStation2, converterStation2FromNetwork);
         checkDroop(hvdcLine);
         if (r != null) {
             checkIsNotNegativeValue(errorMessage, r.getValue(), MODIFY_VSC_ERROR, "Resistance R");

@@ -29,6 +29,9 @@ import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applica
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE2;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
+/**
+ * @author Joris Mancini <joris.mancini_externe at rte-france.com>
+ */
 @Getter
 @Setter
 public class TwoWindingsTransformerCreation extends AbstractBranchCreation {
