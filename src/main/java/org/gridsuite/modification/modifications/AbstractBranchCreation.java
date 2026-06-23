@@ -40,20 +40,21 @@ public abstract class AbstractBranchCreation extends AbstractEquipmentCreation {
     protected boolean connected2;
 
     protected AbstractBranchCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName,
-                                  String busOrBusbarSectionId2, double r, double x, String voltageLevelId1,
-                                  String voltageLevelId2, String busOrBusbarSectionId1,
-                                  List<OperationalLimitsGroupInfos> operationalLimitsGroups,
-                                  String selectedOperationalLimitsGroupId1, String selectedOperationalLimitsGroupId2,
-                                  String connectionName1, ConnectablePosition.Direction connectionDirection1,
-                                  String connectionName2, ConnectablePosition.Direction connectionDirection2,
-                                  Integer connectionPosition1, Integer connectionPosition2, boolean connected1, boolean connected2) {
+                                     double r, double x, String voltageLevelId1, String voltageLevelId2,
+                                     String busOrBusbarSectionId1, String busOrBusbarSectionId2,
+                                     List<OperationalLimitsGroupInfos> operationalLimitsGroups,
+                                     String selectedOperationalLimitsGroupId1, String selectedOperationalLimitsGroupId2,
+                                     String connectionName1, ConnectablePosition.Direction connectionDirection1,
+                                     String connectionName2, ConnectablePosition.Direction connectionDirection2,
+                                     Integer connectionPosition1, Integer connectionPosition2, boolean connected1,
+                                     boolean connected2) {
         super(equipmentId, properties, equipmentName);
-        this.busOrBusbarSectionId2 = busOrBusbarSectionId2;
         this.r = r;
         this.x = x;
         this.voltageLevelId1 = voltageLevelId1;
         this.voltageLevelId2 = voltageLevelId2;
         this.busOrBusbarSectionId1 = busOrBusbarSectionId1;
+        this.busOrBusbarSectionId2 = busOrBusbarSectionId2;
         this.operationalLimitsGroups = operationalLimitsGroups;
         this.selectedOperationalLimitsGroupId1 = selectedOperationalLimitsGroupId1;
         this.selectedOperationalLimitsGroupId2 = selectedOperationalLimitsGroupId2;

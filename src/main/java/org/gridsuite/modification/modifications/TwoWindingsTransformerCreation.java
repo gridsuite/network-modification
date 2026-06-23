@@ -46,23 +46,21 @@ public class TwoWindingsTransformerCreation extends AbstractBranchCreation {
 
     @Builder
     public TwoWindingsTransformerCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName,
-                                          String busOrBusbarSectionId2, double r, double x, String voltageLevelId1,
-                                          String voltageLevelId2, String busOrBusbarSectionId1,
+                                          double r, double x, String voltageLevelId1, String voltageLevelId2,
+                                          String busOrBusbarSectionId1, String busOrBusbarSectionId2,
                                           List<OperationalLimitsGroupInfos> operationalLimitsGroups,
                                           String selectedOperationalLimitsGroupId1,
                                           String selectedOperationalLimitsGroupId2, String connectionName1,
                                           ConnectablePosition.Direction connectionDirection1, String connectionName2,
                                           ConnectablePosition.Direction connectionDirection2,
-                                          Integer connectionPosition1,
-                                          Integer connectionPosition2, boolean connected1, boolean connected2, double g,
-                                          double b, double ratedU1, double ratedU2, Double ratedS,
-                                          RatioTapChangerCreationInfos ratioTapChanger,
+                                          Integer connectionPosition1, Integer connectionPosition2, boolean connected1,
+                                          boolean connected2, double g, double b, double ratedU1, double ratedU2,
+                                          Double ratedS, RatioTapChangerCreationInfos ratioTapChanger,
                                           PhaseTapChangerCreationInfos phaseTapChanger) {
-        super(equipmentId, properties, equipmentName, busOrBusbarSectionId2, r, x, voltageLevelId1, voltageLevelId2,
-            busOrBusbarSectionId1, operationalLimitsGroups, selectedOperationalLimitsGroupId1,
-            selectedOperationalLimitsGroupId2, connectionName1, connectionDirection1, connectionName2,
-            connectionDirection2,
-            connectionPosition1, connectionPosition2, connected1, connected2);
+        super(equipmentId, properties, equipmentName, r, x, voltageLevelId1, voltageLevelId2, busOrBusbarSectionId1,
+              busOrBusbarSectionId2, operationalLimitsGroups, selectedOperationalLimitsGroupId1,
+              selectedOperationalLimitsGroupId2, connectionName1, connectionDirection1, connectionName2,
+              connectionDirection2, connectionPosition1, connectionPosition2, connected1, connected2);
         this.g = g;
         this.b = b;
         this.ratedU1 = ratedU1;
