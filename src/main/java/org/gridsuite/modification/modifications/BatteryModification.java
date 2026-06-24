@@ -99,7 +99,7 @@ public class BatteryModification extends AbstractInjectionModification {
                 batteryModificationInfos.getParticipate(), batteryModificationInfos.getDroop(),
                 battery, subReportNode);
         modifyBatteryConnectivityAttributes(batteryModificationInfos, battery, subReportNode);
-        updateMeasurements(battery, batteryModificationInfos, subReportNode);
+        updateMeasurements(battery, subReportNode);
         ModificationUtils.getInstance().modifyShortCircuitExtension(batteryModificationInfos.getDirectTransX(),
                 batteryModificationInfos.getStepUpTransformerX(),
                 battery.getExtension(BatteryShortCircuit.class),

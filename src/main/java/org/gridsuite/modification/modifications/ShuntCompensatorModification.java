@@ -85,7 +85,7 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
         }
         modifyShuntCompensatorVoltageLevelBusOrBusBarSectionAttributes(shuntCompensatorModificationInfos, shuntCompensator, subReportNode);
         modifyShuntCompensatorConnectivityAttributes(shuntCompensatorModificationInfos, shuntCompensator, subReportNode);
-        updateMeasurements(shuntCompensator, shuntCompensatorModificationInfos, subReportNode);
+        updateMeasurements(shuntCompensator, subReportNode);
         PropertiesUtils.applyProperties(shuntCompensator, subReportNode, shuntCompensatorModificationInfos.getProperties(), "network.modification.ShuntCompensatorProperties");
     }
 

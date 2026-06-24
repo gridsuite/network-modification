@@ -17,6 +17,7 @@ import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ConverterStationModificationInfos;
 import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
 import org.gridsuite.modification.dto.VscModificationInfos;
+import org.gridsuite.modification.utils.MeasurementUtils;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -365,6 +366,9 @@ public class VscModification extends AbstractModification {
                 setPointsReports, "network.modification.Setpoints");
         }
 
+        // measurements
+        MeasurementUtils.applyAndBuildModificationReport(converterStation, converterStationModificationInfos, converterStationReportNode);
+
         // limits
         modifyVscReactiveLimitsAttributes(converterStationModificationInfos, converterStation, converterStationReportNode, converterStationReportNode);
     }
@@ -375,7 +379,9 @@ public class VscModification extends AbstractModification {
                 || converterStationModificationInfos.getReactivePowerSetpoint() != null
                 || converterStationModificationInfos.getVoltageRegulationOn() != null
                 || converterStationModificationInfos.getVoltageSetpoint() != null || converterStationModificationInfos.getReactiveCapabilityCurvePoints() != null
-                || converterStationModificationInfos.getMinQ() != null || converterStationModificationInfos.getMaxQ() != null;
+                || converterStationModificationInfos.getMinQ() != null || converterStationModificationInfos.getMaxQ() != null
+                || converterStationModificationInfos.getPMeasurementValue() != null || converterStationModificationInfos.getPMeasurementValidity() != null
+                || converterStationModificationInfos.getQMeasurementValue() != null || converterStationModificationInfos.getQMeasurementValidity() != null;
     }
 
     private void modifyVscReactiveCapabilityCurvePoints(ConverterStationModificationInfos modificationInfos,
