@@ -9,8 +9,12 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimated;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimatedAdder;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.BooleanUtils;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
@@ -29,47 +33,111 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
 /**
  * @author Florent MILLOT <florent.millot at rte-france.com>
  */
+@Getter
+@Setter
 public class TwoWindingsTransformerModification extends AbstractBranchModification {
 
     public static final String MAGNETIZING_CONDUCTANCE_FIELD_NAME = "Magnetizing conductance";
     private static final String TARGET_DEADBAND = "Target deadband";
     public static final String ERROR_MESSAGE = "Two windings transformer '%s' : ";
 
-    public TwoWindingsTransformerModification(TwoWindingsTransformerModificationInfos modificationInfos) {
-        super(modificationInfos);
+    private AttributeModification<Double> g;
+    private AttributeModification<Double> b;
+    private AttributeModification<Double> ratedU1;
+    private AttributeModification<Double> ratedU2;
+    private AttributeModification<Double> ratedS;
+    private RatioTapChangerModificationInfos ratioTapChanger;
+    private PhaseTapChangerModificationInfos phaseTapChanger;
+    private AttributeModification<Boolean> ratioTapChangerToBeEstimated;
+    private AttributeModification<Boolean> phaseTapChangerToBeEstimated;
+
+    @Builder
+    public TwoWindingsTransformerModification(String equipmentId, List<FreePropertyInfos> properties,
+                                              AttributeModification<String> equipmentName,
+                                              AttributeModification<Double> r,
+                                              AttributeModification<Double> x,
+                                              OperationalLimitsGroupsModificationType operationalLimitsGroupsModificationType,
+                                              Boolean enableOLGModification,
+                                              List<OperationalLimitsGroupModificationInfos> operationalLimitsGroups,
+                                              AttributeModification<String> selectedOperationalLimitsGroupId1,
+                                              AttributeModification<String> selectedOperationalLimitsGroupId2,
+                                              AttributeModification<String> voltageLevelId1,
+                                              AttributeModification<String> voltageLevelId2,
+                                              AttributeModification<String> busOrBusbarSectionId1,
+                                              AttributeModification<String> busOrBusbarSectionId2,
+                                              AttributeModification<String> connectionName1,
+                                              AttributeModification<String> connectionName2,
+                                              AttributeModification<ConnectablePosition.Direction> connectionDirection1,
+                                              AttributeModification<ConnectablePosition.Direction> connectionDirection2,
+                                              AttributeModification<Integer> connectionPosition1,
+                                              AttributeModification<Integer> connectionPosition2,
+                                              AttributeModification<Boolean> terminal1Connected,
+                                              AttributeModification<Boolean> terminal2Connected,
+                                              AttributeModification<Double> p1MeasurementValue,
+                                              AttributeModification<Boolean> p1MeasurementValidity,
+                                              AttributeModification<Double> p2MeasurementValue,
+                                              AttributeModification<Boolean> p2MeasurementValidity,
+                                              AttributeModification<Double> q1MeasurementValue,
+                                              AttributeModification<Boolean> q1MeasurementValidity,
+                                              AttributeModification<Double> q2MeasurementValue,
+                                              AttributeModification<Boolean> q2MeasurementValidity,
+                                              AttributeModification<Double> g, AttributeModification<Double> b,
+                                              AttributeModification<Double> ratedU1,
+                                              AttributeModification<Double> ratedU2,
+                                              AttributeModification<Double> ratedS,
+                                              RatioTapChangerModificationInfos ratioTapChanger,
+                                              PhaseTapChangerModificationInfos phaseTapChanger,
+                                              AttributeModification<Boolean> ratioTapChangerToBeEstimated,
+                                              AttributeModification<Boolean> phaseTapChangerToBeEstimated) {
+        super(equipmentId, properties, equipmentName, r, x, operationalLimitsGroupsModificationType,
+            enableOLGModification,
+            operationalLimitsGroups, selectedOperationalLimitsGroupId1, selectedOperationalLimitsGroupId2,
+            voltageLevelId1,
+            voltageLevelId2, busOrBusbarSectionId1, busOrBusbarSectionId2, connectionName1, connectionName2,
+            connectionDirection1, connectionDirection2, connectionPosition1, connectionPosition2, terminal1Connected,
+            terminal2Connected, p1MeasurementValue, p1MeasurementValidity, p2MeasurementValue, p2MeasurementValidity,
+            q1MeasurementValue, q1MeasurementValidity, q2MeasurementValue, q2MeasurementValidity);
+        this.g = g;
+        this.b = b;
+        this.ratedU1 = ratedU1;
+        this.ratedU2 = ratedU2;
+        this.ratedS = ratedS;
+        this.ratioTapChanger = ratioTapChanger == null ? new RatioTapChangerModificationInfos() : ratioTapChanger;
+        this.phaseTapChanger = phaseTapChanger == null ? new PhaseTapChangerModificationInfos() : phaseTapChanger;
+        this.ratioTapChangerToBeEstimated = ratioTapChangerToBeEstimated;
+        this.phaseTapChangerToBeEstimated = phaseTapChangerToBeEstimated;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        String errorMessage = String.format(ERROR_MESSAGE, modificationInfos.getEquipmentId());
-        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(modificationInfos.getEquipmentId());
+        String errorMessage = String.format(ERROR_MESSAGE, equipmentId);
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(equipmentId);
         if (transformer == null) {
             throw new NetworkModificationException(TWO_WINDINGS_TRANSFORMER_NOT_FOUND, errorMessage + "it does not exist in the network");
         }
-        ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId1(),
-                modificationInfos.getBusOrBusbarSectionId1(), transformer.getTerminal1());
-        ModificationUtils.getInstance().checkVoltageLevelModification(network, modificationInfos.getVoltageLevelId2(),
-                modificationInfos.getBusOrBusbarSectionId2(), transformer.getTerminal2());
-        TwoWindingsTransformerModificationInfos twtModificationInfos = (TwoWindingsTransformerModificationInfos) modificationInfos;
-        checkAndModifyTapChanger(network, twtModificationInfos.getRatioTapChanger(), transformer.getRatioTapChanger(), errorMessage);
-        checkAndModifyTapChanger(network, twtModificationInfos.getPhaseTapChanger(), transformer.getPhaseTapChanger(), errorMessage);
-        if (twtModificationInfos.getR() != null) {
-            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getR().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Resistance R");
+        ModificationUtils.getInstance().checkVoltageLevelModification(network, voltageLevelId1,
+                busOrBusbarSectionId1, transformer.getTerminal1());
+        ModificationUtils.getInstance().checkVoltageLevelModification(network, voltageLevelId2,
+                busOrBusbarSectionId2, transformer.getTerminal2());
+        checkAndModifyTapChanger(network, ratioTapChanger, transformer.getRatioTapChanger(), errorMessage);
+        checkAndModifyTapChanger(network, phaseTapChanger, transformer.getPhaseTapChanger(), errorMessage);
+        if (r != null) {
+            checkIsNotNegativeValue(errorMessage, r.getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Resistance R");
         }
-        if (twtModificationInfos.getG() != null) {
-            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getG().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Conductance G");
+        if (g != null) {
+            checkIsNotNegativeValue(errorMessage, g.getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Conductance G");
         }
-        if (twtModificationInfos.getRatedU1() != null) {
-            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getRatedU1().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 1");
+        if (ratedU1 != null) {
+            checkIsNotNegativeValue(errorMessage, ratedU1.getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 1");
         }
-        if (twtModificationInfos.getRatedU2() != null) {
-            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getRatedU2().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 2");
+        if (ratedU2 != null) {
+            checkIsNotNegativeValue(errorMessage, ratedU2.getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated Voltage on side 2");
         }
-        if (twtModificationInfos.getRatedS() != null) {
-            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getRatedS().getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated nominal power");
+        if (ratedS != null) {
+            checkIsNotNegativeValue(errorMessage, ratedS.getValue(), MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Rated nominal power");
         }
-        if (twtModificationInfos.getRatioTapChanger() != null && twtModificationInfos.getRatioTapChanger().getTargetV() != null) {
-            checkIsNotNegativeValue(errorMessage, twtModificationInfos.getRatioTapChanger().getTargetV().getValue(),
+        if (ratioTapChanger != null && ratioTapChanger.getTargetV() != null) {
+            checkIsNotNegativeValue(errorMessage, ratioTapChanger.getTargetV().getValue(),
                 MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR, "Target voltage for ratio tap changer");
         }
     }
@@ -93,9 +161,9 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(modificationInfos.getEquipmentId());
+        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(equipmentId);
         // modify the 2wt in the network
-        modifyTwoWindingsTransformer(twoWindingsTransformer, modificationInfos, subReportNode, network);
+        modifyTwoWindingsTransformer(twoWindingsTransformer, subReportNode, network);
     }
 
     @Override
@@ -103,31 +171,29 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         return "TwoWindingsTransformerModification";
     }
 
-    private void modifyTwoWindingsTransformer(TwoWindingsTransformer twoWindingsTransformer, BranchModificationInfos twoWindingsTransformerModificationInfos, ReportNode subReportNode,
-            Network network) {
-        modifyBranch(twoWindingsTransformer, twoWindingsTransformerModificationInfos, subReportNode, "network.modification.twoWindingsTransformerModification.modified");
-        updateStateEstimationData((TwoWindingsTransformerModificationInfos) twoWindingsTransformerModificationInfos, twoWindingsTransformer, subReportNode);
-        addTapChangersToTwoWindingsTransformer(network, (TwoWindingsTransformerModificationInfos) twoWindingsTransformerModificationInfos, twoWindingsTransformer, subReportNode);
-        PropertiesUtils.applyProperties(twoWindingsTransformer, subReportNode, twoWindingsTransformerModificationInfos.getProperties(), "network.modification.TwoWindingsTransformerProperties");
+    private void modifyTwoWindingsTransformer(TwoWindingsTransformer twoWindingsTransformer, ReportNode subReportNode, Network network) {
+        modifyBranch(twoWindingsTransformer, subReportNode, "network.modification.twoWindingsTransformerModification.modified");
+        updateStateEstimationData(twoWindingsTransformer, subReportNode);
+        addTapChangersToTwoWindingsTransformer(network, twoWindingsTransformer, subReportNode);
+        PropertiesUtils.applyProperties(twoWindingsTransformer, subReportNode, properties, "network.modification.TwoWindingsTransformerProperties");
     }
 
     @Override
-    protected void modifyCharacteristics(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode) {
+    protected void modifyCharacteristics(Branch<?> branch, ReportNode subReportNode) {
         TwoWindingsTransformer twoWindingsTransformer = (TwoWindingsTransformer) branch;
         ReportNode characteristicsReporter = subReportNode.newReportNode().withMessageTemplate("network.modification.characteristics").add();
 
         // Branch specific fields
-        modifyR(twoWindingsTransformer, branchModificationInfos.getR(), characteristicsReporter);
-        modifyX(twoWindingsTransformer, branchModificationInfos.getX(), characteristicsReporter);
+        modifyR(twoWindingsTransformer, r, characteristicsReporter);
+        modifyX(twoWindingsTransformer, x, characteristicsReporter);
 
         // Transformer specific fields
-        TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos = (TwoWindingsTransformerModificationInfos) branchModificationInfos;
         modifyTransformerFields(twoWindingsTransformer,
-                twoWindingsTransformerModificationInfos.getG(),
-                twoWindingsTransformerModificationInfos.getB(),
-                twoWindingsTransformerModificationInfos.getRatedS(),
-                twoWindingsTransformerModificationInfos.getRatedU1(),
-                twoWindingsTransformerModificationInfos.getRatedU2(),
+                g,
+                b,
+                ratedS,
+                ratedU1,
+                ratedU2,
                 characteristicsReporter);
     }
 
@@ -224,15 +290,13 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         }
     }
 
-    private void updateStateEstimationData(TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos, TwoWindingsTransformer twt, ReportNode subReportNode) {
+    private void updateStateEstimationData(TwoWindingsTransformer twt, ReportNode subReportNode) {
         // Common part for Branch measurements
-        ReportNode estimSubReportNode = updateMeasurements(twt, twoWindingsTransformerModificationInfos, subReportNode);
+        ReportNode estimSubReportNode = updateMeasurements(twt, subReportNode);
 
         // toBeEstimated part specific to 2WT
-        Boolean rtcToBeEstim = twoWindingsTransformerModificationInfos.getRatioTapChangerToBeEstimated() != null ? twoWindingsTransformerModificationInfos.getRatioTapChangerToBeEstimated().getValue(
-                ) : null;
-        Boolean ptcToBeEstim = twoWindingsTransformerModificationInfos.getPhaseTapChangerToBeEstimated() != null ? twoWindingsTransformerModificationInfos.getPhaseTapChangerToBeEstimated().getValue(
-                ) : null;
+        Boolean rtcToBeEstim = ratioTapChangerToBeEstimated != null ? ratioTapChangerToBeEstimated.getValue() : null;
+        Boolean ptcToBeEstim = phaseTapChangerToBeEstimated != null ? phaseTapChangerToBeEstimated.getValue() : null;
         if (rtcToBeEstim == null && ptcToBeEstim == null) {
             return;
         }
@@ -258,52 +322,49 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         ModificationUtils.getInstance().reportModifications(estimSubReportNode, reports, "network.modification.twtToBeEstimated");
     }
 
-    private void addTapChangersToTwoWindingsTransformer(Network network, TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos, TwoWindingsTransformer twt,
-            ReportNode subReportNode) {
-        if (twt.hasRatioTapChanger() && twoWindingsTransformerModificationInfos.getRatioTapChanger().getEnabled() != null
-                && Boolean.FALSE.equals(twoWindingsTransformerModificationInfos.getRatioTapChanger().getEnabled().getValue())) {
+    private void addTapChangersToTwoWindingsTransformer(Network network, TwoWindingsTransformer twt, ReportNode subReportNode) {
+        if (twt.hasRatioTapChanger() && ratioTapChanger.getEnabled() != null
+                && Boolean.FALSE.equals(ratioTapChanger.getEnabled().getValue())) {
             twt.getRatioTapChanger().remove();
             subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.RatioTapChangerRemoved")
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
-        } else if (ratioTapChangerModified(twoWindingsTransformerModificationInfos.getRatioTapChanger())) {
-            processRatioTapChanger(network, twoWindingsTransformerModificationInfos, twt, subReportNode, twt.hasRatioTapChanger());
+        } else if (ratioTapChangerModified(ratioTapChanger)) {
+            processRatioTapChanger(network, twt, subReportNode, twt.hasRatioTapChanger());
         }
 
-        if (twt.hasPhaseTapChanger() && twoWindingsTransformerModificationInfos.getPhaseTapChanger().getEnabled() != null
-                && Boolean.FALSE.equals(twoWindingsTransformerModificationInfos.getPhaseTapChanger().getEnabled().getValue())) {
+        if (twt.hasPhaseTapChanger() && phaseTapChanger.getEnabled() != null
+                && Boolean.FALSE.equals(phaseTapChanger.getEnabled().getValue())) {
             twt.getPhaseTapChanger().remove();
             subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.PhaseTapChangerRemoved")
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
-        } else if (phaseTapChangerModified(twoWindingsTransformerModificationInfos.getPhaseTapChanger())) {
-            processPhaseTapChanger(network, twoWindingsTransformerModificationInfos, twt, subReportNode, twt.hasPhaseTapChanger());
+        } else if (phaseTapChangerModified(phaseTapChanger)) {
+            processPhaseTapChanger(network, twt, subReportNode, twt.hasPhaseTapChanger());
         }
     }
 
     private void processPhaseTapChanger(Network network,
-            TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos,
             TwoWindingsTransformer twt,
             ReportNode subReportNode,
             boolean isModification) {
-        PhaseTapChanger phaseTapChanger = isModification ? twt.getPhaseTapChanger() : null;
+        PhaseTapChanger phaseTapChangerToModify = isModification ? twt.getPhaseTapChanger() : null;
         PhaseTapChangerAdder phaseTapChangerAdder = isModification ? null : twt.newPhaseTapChanger();
-        PhaseTapChangerModificationInfos phaseTapChangerInfos = twoWindingsTransformerModificationInfos
-                .getPhaseTapChanger();
+        PhaseTapChangerModificationInfos phaseTapChangerInfos = this.phaseTapChanger;
         List<ReportNode> regulationReports = new ArrayList<>();
         List<ReportNode> regulatedTerminalReports = new ArrayList<>();
 
-        processPhaseTapRegulation(phaseTapChanger, phaseTapChangerAdder, isModification, phaseTapChangerInfos.getRegulationMode(),
+        processPhaseTapRegulation(phaseTapChangerToModify, phaseTapChangerAdder, isModification, phaseTapChangerInfos.getRegulationMode(),
             phaseTapChangerInfos.getRegulationValue(), phaseTapChangerInfos.getTargetDeadband(), phaseTapChangerInfos.getRegulating(), regulationReports);
 
-        processRegulatingTerminal(phaseTapChangerInfos, phaseTapChanger, phaseTapChangerAdder, regulatedTerminalReports,
+        processRegulatingTerminal(phaseTapChangerInfos, phaseTapChangerToModify, phaseTapChangerAdder, regulatedTerminalReports,
                 network,
                 twt, isModification);
 
         List<ReportNode> positionsAndStepsReports = new ArrayList<>();
-        processTapChangerPositionsAndSteps(phaseTapChanger, phaseTapChangerAdder, isModification, phaseTapChangerInfos.getLowTapPosition(), phaseTapChangerInfos.getTapPosition(),
+        processTapChangerPositionsAndSteps(phaseTapChangerToModify, phaseTapChangerAdder, isModification, phaseTapChangerInfos.getLowTapPosition(), phaseTapChangerInfos.getTapPosition(),
                 phaseTapChangerInfos.getSteps(), positionsAndStepsReports);
 
         if (!isModification) {
@@ -434,12 +495,11 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
     }
 
     private void processRatioTapChanger(Network network,
-                                        TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos,
                                         TwoWindingsTransformer twt,
                                         ReportNode subReporter,
                                         boolean isModification) {
-        RatioTapChangerModificationInfos ratioTapChangerInfos = twoWindingsTransformerModificationInfos.getRatioTapChanger();
-        RatioTapChanger ratioTapChanger = isModification ? twt.getRatioTapChanger() : null;
+        RatioTapChangerModificationInfos ratioTapChangerInfos = ratioTapChanger;
+        RatioTapChanger ratioTapChangerToModify = isModification ? twt.getRatioTapChanger() : null;
         RatioTapChangerAdder ratioTapChangerAdder = isModification ? null : twt.newRatioTapChanger();
         List<ReportNode> ratioTapChangerReports = new ArrayList<>();
         List<ReportNode> regulationReports = new ArrayList<>();
@@ -451,47 +511,47 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         boolean regulationReset = false;
         if (isModification && ratioTapChangerInfos.getLoadTapChangingCapabilities() != null &&
             BooleanUtils.isFalse(ratioTapChangerInfos.getLoadTapChangingCapabilities().getValue()) &&
-            ratioTapChanger.isRegulating()) {
-            boolean oldRegulating = ratioTapChanger.isRegulating();
-            ratioTapChanger.setRegulating(false);
+            ratioTapChangerToModify.isRegulating()) {
+            boolean oldRegulating = ratioTapChangerToModify.isRegulating();
+            ratioTapChangerToModify.setRegulating(false);
             regulationReports.add(ModificationUtils.buildModificationReport(oldRegulating, false, "regulating", TypedValue.DETAIL_SEVERITY));
 
-            Terminal oldTerminal = ratioTapChanger.getRegulationTerminal();
-            ratioTapChanger.setRegulationTerminal(null);
+            Terminal oldTerminal = ratioTapChangerToModify.getRegulationTerminal();
+            ratioTapChangerToModify.setRegulationTerminal(null);
             if (oldTerminal != null) {
                 String oldEquipment = oldTerminal.getConnectable().getType().name() + ":" + oldTerminal.getConnectable().getId();
                 regulatedTerminalReports.add(ModificationUtils.buildModificationReport(oldTerminal.getVoltageLevel().getId(), null, "Voltage level", TypedValue.DETAIL_SEVERITY));
                 regulatedTerminalReports.add(ModificationUtils.buildModificationReport(oldEquipment, null, "Equipment", TypedValue.DETAIL_SEVERITY));
             }
 
-            double oldTargetV = ratioTapChanger.getTargetV();
-            ratioTapChanger.setTargetV(Double.NaN);
+            double oldTargetV = ratioTapChangerToModify.getTargetV();
+            ratioTapChangerToModify.setTargetV(Double.NaN);
             regulationReports.add(ModificationUtils.buildModificationReport(oldTargetV, Double.NaN, "target voltage", TypedValue.DETAIL_SEVERITY));
 
-            double oldTargetDeadband = ratioTapChanger.getTargetDeadband();
-            ratioTapChanger.setTargetDeadband(Double.NaN);
+            double oldTargetDeadband = ratioTapChangerToModify.getTargetDeadband();
+            ratioTapChangerToModify.setTargetDeadband(Double.NaN);
             regulationReports.add(ModificationUtils.buildModificationReport(oldTargetDeadband, Double.NaN, TARGET_DEADBAND, TypedValue.DETAIL_SEVERITY));
 
             regulationReset = true;
         }
 
         ReportNode tapChangingReport = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
-            isModification ? ratioTapChanger::setLoadTapChangingCapabilities
+            isModification ? ratioTapChangerToModify::setLoadTapChangingCapabilities
                 : ratioTapChangerAdder::setLoadTapChangingCapabilities,
-            isModification ? ratioTapChanger::hasLoadTapChangingCapabilities : () -> null,
+            isModification ? ratioTapChangerToModify::hasLoadTapChangingCapabilities : () -> null,
             ratioTapChangerInfos.getLoadTapChangingCapabilities(), "Load tap changing capabilities");
         if (tapChangingReport != null) {
             ratioTapChangerReports.add(tapChangingReport);
         }
 
         if (!regulationReset) {
-            processRatioVoltageRegulation(ratioTapChangerInfos, twt, ratioTapChanger, ratioTapChangerAdder, regulationReports, regulatedTerminalReports, network, isModification);
+            processRatioVoltageRegulation(ratioTapChangerInfos, twt, ratioTapChangerToModify, ratioTapChangerAdder, regulationReports, regulatedTerminalReports, network, isModification);
             // regulating must be set after target value, regulating mode and regulating terminal are set
-            processRegulating(ratioTapChangerInfos, ratioTapChanger, ratioTapChangerAdder, regulationReports, isModification);
+            processRegulating(ratioTapChangerInfos, ratioTapChangerToModify, ratioTapChangerAdder, regulationReports, isModification);
         }
 
         List<ReportNode> positionsAndStepsReports = new ArrayList<>();
-        processTapChangerPositionsAndSteps(ratioTapChanger, ratioTapChangerAdder, isModification, ratioTapChangerInfos.getLowTapPosition(), ratioTapChangerInfos.getTapPosition(),
+        processTapChangerPositionsAndSteps(ratioTapChangerToModify, ratioTapChangerAdder, isModification, ratioTapChangerInfos.getLowTapPosition(), ratioTapChangerInfos.getTapPosition(),
                 ratioTapChangerInfos.getSteps(), positionsAndStepsReports
         );
 
@@ -804,19 +864,18 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
     }
 
     @Override
-    protected boolean characteristicsModified(BranchModificationInfos branchModificationInfos) {
-        TwoWindingsTransformerModificationInfos twoWindingsTransformerModificationInfos = (TwoWindingsTransformerModificationInfos) branchModificationInfos;
-        return super.characteristicsModified(branchModificationInfos)
-            || twoWindingsTransformerModificationInfos.getG() != null
-            && twoWindingsTransformerModificationInfos.getG().getValue() != null
-            || twoWindingsTransformerModificationInfos.getB() != null
-            && twoWindingsTransformerModificationInfos.getB().getValue() != null
-            || twoWindingsTransformerModificationInfos.getRatedU1() != null
-            && twoWindingsTransformerModificationInfos.getRatedU1().getValue() != null
-            || twoWindingsTransformerModificationInfos.getRatedU2() != null
-            && twoWindingsTransformerModificationInfos.getRatedU2().getValue() != null
-            || twoWindingsTransformerModificationInfos.getRatedS() != null
-            && twoWindingsTransformerModificationInfos.getRatedS().getValue() != null;
+    protected boolean characteristicsModified() {
+        return super.characteristicsModified()
+            || g != null
+            && g.getValue() != null
+            || b != null
+            && b.getValue() != null
+            || ratedU1 != null
+            && ratedU1.getValue() != null
+            || ratedU2 != null
+            && ratedU2.getValue() != null
+            || ratedS != null
+            && ratedS.getValue() != null;
     }
 
 }

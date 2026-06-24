@@ -8,50 +8,60 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.SubstationModificationInfos;
+import org.gridsuite.modification.dto.AttributeModification;
+import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
+
+import java.util.List;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.SUBSTATION_NOT_FOUND;
 
 /*
  * @author David Braquart <david.braquart at rte-france.com>
  */
-public class SubstationModification extends AbstractModification {
+@Getter
+@Setter
+public class SubstationModification extends AbstractEquipmentModification {
 
-    private final SubstationModificationInfos modificationInfos;
+    private AttributeModification<Country> country;
 
-    public SubstationModification(SubstationModificationInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
+    @Builder
+    public SubstationModification(String equipmentId, List<FreePropertyInfos> properties,
+                                  AttributeModification<String> equipmentName, AttributeModification<Country> country) {
+        super(equipmentId, properties, equipmentName);
+        this.country = country;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        Substation station = network.getSubstation(modificationInfos.getEquipmentId());
+        Substation station = network.getSubstation(equipmentId);
         if (station == null) {
             throw new NetworkModificationException(SUBSTATION_NOT_FOUND,
-                    "Substation " + modificationInfos.getEquipmentId() + " does not exist in network");
+                    "Substation " + equipmentId + " does not exist in network");
         }
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        Substation station = network.getSubstation(modificationInfos.getEquipmentId());
+        Substation station = network.getSubstation(equipmentId);
 
         // modify the substation in the network
         subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.substationModification")
-                .withUntypedValue("id", modificationInfos.getEquipmentId())
+                .withUntypedValue("id", equipmentId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
         // name and country
-        ModificationUtils.getInstance().applyElementaryModifications(station::setName, () -> station.getOptionalName().orElse("No value"), modificationInfos.getEquipmentName(), subReportNode, "Name");
-        ModificationUtils.getInstance().applyElementaryModifications(station::setCountry, station::getNullableCountry, modificationInfos.getCountry(), subReportNode, "Country");
+        ModificationUtils.getInstance().applyElementaryModifications(station::setName, () -> station.getOptionalName().orElse("No value"), equipmentName, subReportNode, "Name");
+        ModificationUtils.getInstance().applyElementaryModifications(station::setCountry, station::getNullableCountry, country, subReportNode, "Country");
         // properties
-        PropertiesUtils.applyProperties(station, subReportNode, modificationInfos.getProperties(), "network.modification.SubstationProperties");
+        PropertiesUtils.applyProperties(station, subReportNode, properties, "network.modification.SubstationProperties");
     }
 
     @Override

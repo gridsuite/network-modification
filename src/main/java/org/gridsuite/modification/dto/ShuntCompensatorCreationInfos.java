@@ -48,7 +48,22 @@ public class ShuntCompensatorCreationInfos extends InjectionCreationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new ShuntCompensatorCreation(this);
+        return ShuntCompensatorCreation.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentName(getEquipmentName())
+                .voltageLevelId(getVoltageLevelId())
+                .busOrBusbarSectionId(getBusOrBusbarSectionId())
+                .connectionName(getConnectionName())
+                .connectionDirection(getConnectionDirection())
+                .connectionPosition(getConnectionPosition())
+                .terminalConnected(isTerminalConnected())
+                .maximumSectionCount(getMaximumSectionCount())
+                .sectionCount(getSectionCount())
+                .maxSusceptance(getMaxSusceptance())
+                .maxQAtNominalV(getMaxQAtNominalV())
+                .shuntCompensatorType(getShuntCompensatorType())
+                .build();
     }
 
     @Override

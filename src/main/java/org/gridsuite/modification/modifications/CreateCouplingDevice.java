@@ -7,21 +7,22 @@
 package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.modification.topology.CreateCouplingDeviceBuilder;
 import com.powsybl.iidm.network.Network;
+import lombok.*;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.CreateCouplingDeviceInfos;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
+@Getter
+@Setter
+@AllArgsConstructor
+@Builder
 public class CreateCouplingDevice extends AbstractModification {
 
-    private final CreateCouplingDeviceInfos createCouplingDeviceInfos;
-
-    public CreateCouplingDevice(CreateCouplingDeviceInfos createCouplingDeviceInfos) {
-        this.createCouplingDeviceInfos = createCouplingDeviceInfos;
-    }
+    private String voltageLevelId;
+    private String busbarSectionId1;
+    private String busbarSectionId2;
 
     /**
      * @param network
@@ -29,9 +30,9 @@ public class CreateCouplingDevice extends AbstractModification {
      */
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        new CreateCouplingDeviceBuilder()
-            .withBusOrBusbarSectionId1(createCouplingDeviceInfos.getCouplingDeviceInfos().getBusbarSectionId1())
-            .withBusOrBusbarSectionId2(createCouplingDeviceInfos.getCouplingDeviceInfos().getBusbarSectionId2())
+        new com.powsybl.iidm.modification.topology.CreateCouplingDeviceBuilder()
+            .withBusOrBusbarSectionId1(busbarSectionId1)
+            .withBusOrBusbarSectionId2(busbarSectionId2)
             .build().apply(network, false, subReportNode);
     }
 

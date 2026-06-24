@@ -10,6 +10,9 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -25,6 +28,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
  */
+@Getter
+@Setter
 public class GeneratorModification extends AbstractInjectionModification {
 
     private static final String LIMITS = "network.modification.limits";
@@ -33,75 +38,158 @@ public class GeneratorModification extends AbstractInjectionModification {
     private static final String TARGET_VOLTAGE = "Target Voltage";
     public static final String ERROR_MESSAGE = "Generator '%s' : ";
 
-    public GeneratorModification(GeneratorModificationInfos modificationInfos) {
-        super(modificationInfos);
+    private AttributeModification<EnergySource> energySource;
+    private AttributeModification<Double> minP;
+    private AttributeModification<Double> maxP;
+    private AttributeModification<Double> ratedS;
+    private AttributeModification<Double> targetP;
+    private AttributeModification<Double> targetQ;
+    private AttributeModification<Boolean> voltageRegulationOn;
+    private AttributeModification<Double> targetV;
+    private AttributeModification<Double> plannedActivePowerSetPoint;
+    private AttributeModification<Double> marginalCost;
+    private AttributeModification<Double> plannedOutageRate;
+    private AttributeModification<Double> forcedOutageRate;
+    private AttributeModification<Double> minQ;
+    private AttributeModification<Double> maxQ;
+    private List<ReactiveCapabilityCurvePointsInfos> reactiveCapabilityCurvePoints;
+    private AttributeModification<Boolean> participate;
+    private AttributeModification<Float> droop;
+    private AttributeModification<Double> directTransX;
+    private AttributeModification<Double> stepUpTransformerX;
+    private AttributeModification<VoltageRegulationType> voltageRegulationType;
+    private AttributeModification<String> regulatingTerminalId;
+    private AttributeModification<String> regulatingTerminalType;
+    private AttributeModification<String> regulatingTerminalVlId;
+    private AttributeModification<Double> qPercent;
+    private AttributeModification<Boolean> reactiveCapabilityCurve;
+
+    @Builder
+    public GeneratorModification(String equipmentId, List<FreePropertyInfos> properties,
+                                 AttributeModification<String> equipmentName,
+                                 AttributeModification<String> voltageLevelId,
+                                 AttributeModification<String> busOrBusbarSectionId,
+                                 AttributeModification<String> connectionName,
+                                 AttributeModification<ConnectablePosition.Direction> connectionDirection,
+                                 AttributeModification<Integer> connectionPosition,
+                                 AttributeModification<Boolean> terminalConnected,
+                                 AttributeModification<Double> pMeasurementValue,
+                                 AttributeModification<Boolean> pMeasurementValidity,
+                                 AttributeModification<Double> qMeasurementValue,
+                                 AttributeModification<Boolean> qMeasurementValidity,
+                                 AttributeModification<EnergySource> energySource, AttributeModification<Double> minP,
+                                 AttributeModification<Double> maxP, AttributeModification<Double> ratedS,
+                                 AttributeModification<Double> targetP, AttributeModification<Double> targetQ,
+                                 AttributeModification<Boolean> voltageRegulationOn,
+                                 AttributeModification<Double> targetV,
+                                 AttributeModification<Double> plannedActivePowerSetPoint,
+                                 AttributeModification<Double> marginalCost,
+                                 AttributeModification<Double> plannedOutageRate,
+                                 AttributeModification<Double> forcedOutageRate, AttributeModification<Double> minQ,
+                                 AttributeModification<Double> maxQ,
+                                 List<ReactiveCapabilityCurvePointsInfos> reactiveCapabilityCurvePoints,
+                                 AttributeModification<Boolean> participate, AttributeModification<Float> droop,
+                                 AttributeModification<Double> directTransX,
+                                 AttributeModification<Double> stepUpTransformerX,
+                                 AttributeModification<VoltageRegulationType> voltageRegulationType,
+                                 AttributeModification<String> regulatingTerminalId,
+                                 AttributeModification<String> regulatingTerminalType,
+                                 AttributeModification<String> regulatingTerminalVlId,
+                                 AttributeModification<Double> qPercent,
+                                 AttributeModification<Boolean> reactiveCapabilityCurve) {
+        super(equipmentId, properties, equipmentName, voltageLevelId, busOrBusbarSectionId, connectionName,
+            connectionDirection, connectionPosition, terminalConnected, pMeasurementValue, pMeasurementValidity,
+            qMeasurementValue, qMeasurementValidity);
+        this.energySource = energySource;
+        this.minP = minP;
+        this.maxP = maxP;
+        this.ratedS = ratedS;
+        this.targetP = targetP;
+        this.targetQ = targetQ;
+        this.voltageRegulationOn = voltageRegulationOn;
+        this.targetV = targetV;
+        this.plannedActivePowerSetPoint = plannedActivePowerSetPoint;
+        this.marginalCost = marginalCost;
+        this.plannedOutageRate = plannedOutageRate;
+        this.forcedOutageRate = forcedOutageRate;
+        this.minQ = minQ;
+        this.maxQ = maxQ;
+        this.reactiveCapabilityCurvePoints = reactiveCapabilityCurvePoints;
+        this.participate = participate;
+        this.droop = droop;
+        this.directTransX = directTransX;
+        this.stepUpTransformerX = stepUpTransformerX;
+        this.voltageRegulationType = voltageRegulationType;
+        this.regulatingTerminalId = regulatingTerminalId;
+        this.regulatingTerminalType = regulatingTerminalType;
+        this.regulatingTerminalVlId = regulatingTerminalVlId;
+        this.qPercent = qPercent;
+        this.reactiveCapabilityCurve = reactiveCapabilityCurve;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (modificationInfos == null) {
+        if (equipmentId == null) {
             throw new NetworkModificationException(MODIFY_GENERATOR_ERROR, "Missing required attributes to modify the equipment");
         }
-        GeneratorModificationInfos generatorModificationInfos = (GeneratorModificationInfos) modificationInfos;
-        Generator generator = ModificationUtils.getInstance().getGenerator(network, generatorModificationInfos.getEquipmentId());
+        Generator generator = ModificationUtils.getInstance().getGenerator(network, equipmentId);
         // check min max reactive limits
-        String errorMessage = "Generator '" + generatorModificationInfos.getEquipmentId() + "' : ";
-        ModificationUtils.getInstance().checkVoltageLevelModification(network, generatorModificationInfos.getVoltageLevelId(),
-                generatorModificationInfos.getBusOrBusbarSectionId(), generator.getTerminal());
-        ModificationUtils.getInstance().checkReactiveLimit(generator, generatorModificationInfos.getMinQ(), generatorModificationInfos.getMaxQ(),
-                generatorModificationInfos.getReactiveCapabilityCurvePoints(), MODIFY_GENERATOR_ERROR, errorMessage);
+        String errorMessage = "Generator '" + equipmentId + "' : ";
+        ModificationUtils.getInstance().checkVoltageLevelModification(network, voltageLevelId,
+                busOrBusbarSectionId, generator.getTerminal());
+        ModificationUtils.getInstance().checkReactiveLimit(generator, minQ, maxQ,
+                reactiveCapabilityCurvePoints, MODIFY_GENERATOR_ERROR, errorMessage);
         // check regulated terminal
         ModificationUtils.getInstance().checkEnableRegulation(
-            generatorModificationInfos.getVoltageRegulationType(),
-            generatorModificationInfos.getRegulatingTerminalId(),
-            generatorModificationInfos.getRegulatingTerminalType(),
-            generatorModificationInfos.getRegulatingTerminalVlId(),
+            voltageRegulationType,
+            regulatingTerminalId,
+            regulatingTerminalType,
+            regulatingTerminalVlId,
             generator.getTerminal(),
             generator.getRegulatingTerminal(),
             network,
             MODIFY_GENERATOR_ERROR,
             errorMessage);
-        checkActivePowerZeroOrBetweenMinAndMaxActivePowerGenerator(generatorModificationInfos, generator, MODIFY_GENERATOR_ERROR, errorMessage);
-        if (generatorModificationInfos.getRatedS() != null) {
-            checkIsNotNegativeValue(errorMessage, generatorModificationInfos.getRatedS().getValue(), MODIFY_GENERATOR_ERROR, "Rated apparent power");
+        checkActivePowerZeroOrBetweenMinAndMaxActivePowerGenerator(generator, MODIFY_GENERATOR_ERROR, errorMessage);
+        if (ratedS != null) {
+            checkIsNotNegativeValue(errorMessage, ratedS.getValue(), MODIFY_GENERATOR_ERROR, "Rated apparent power");
         }
-        if (generatorModificationInfos.getDroop() != null) {
-            checkIsPercentage(errorMessage, generatorModificationInfos.getDroop().getValue(), MODIFY_GENERATOR_ERROR, "Droop");
+        if (droop != null) {
+            checkIsPercentage(errorMessage, droop.getValue(), MODIFY_GENERATOR_ERROR, "Droop");
         }
-        if (generatorModificationInfos.getTargetV() != null) {
-            checkIsNotNegativeValue(errorMessage, generatorModificationInfos.getTargetV().getValue(), MODIFY_GENERATOR_ERROR, TARGET_VOLTAGE);
+        if (targetV != null) {
+            checkIsNotNegativeValue(errorMessage, targetV.getValue(), MODIFY_GENERATOR_ERROR, TARGET_VOLTAGE);
         }
         checkPowerValues(errorMessage, generator);
     }
 
     private void checkPowerValues(String errorMessage, Generator generator) {
-        GeneratorModificationInfos generatorModificationInfos = (GeneratorModificationInfos) modificationInfos;
         GeneratorStartup generatorStartup = generator.getExtension(GeneratorStartup.class);
         Double oldValue = generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint())
             ? generatorStartup.getPlannedActivePowerSetpoint() : null;
-        double minP = generatorModificationInfos.getMinP() != null ? generatorModificationInfos.getMinP().getValue() : generator.getMinP();
-        double maxP = generatorModificationInfos.getMaxP() != null ? generatorModificationInfos.getMaxP().getValue() : generator.getMaxP();
-        double targetP = generatorModificationInfos.getTargetP() != null ? generatorModificationInfos.getTargetP().getValue() : generator.getTargetP();
-        Double plannedActivePowerSetPoint = generatorModificationInfos.getPlannedActivePowerSetPoint() != null ?
-            generatorModificationInfos.getPlannedActivePowerSetPoint().applyModification(oldValue) : null;
+        double newMinP = minP != null ? minP.getValue() : generator.getMinP();
+        double newMaxP = maxP != null ? maxP.getValue() : generator.getMaxP();
+        double newTargetP = targetP != null ? targetP.getValue() : generator.getTargetP();
+        Double plannedActivePowerSetPointValue = plannedActivePowerSetPoint != null ?
+            plannedActivePowerSetPoint.applyModification(oldValue) : null;
 
-        if (generatorModificationInfos.getPlannedActivePowerSetPoint() != null) {
-            checkActivePowerValue(errorMessage, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, plannedActivePowerSetPoint, minP, maxP, MODIFY_GENERATOR_ERROR);
+        if (plannedActivePowerSetPoint != null) {
+            checkActivePowerValue(errorMessage, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, plannedActivePowerSetPointValue, newMinP, newMaxP, MODIFY_GENERATOR_ERROR);
         }
-        if (generatorModificationInfos.getMaxP() != null) {
-            checkMaximumActivePower(errorMessage, minP, targetP, plannedActivePowerSetPoint, maxP, MODIFY_GENERATOR_ERROR);
+        if (maxP != null) {
+            checkMaximumActivePower(errorMessage, newMinP, newTargetP, plannedActivePowerSetPointValue, newMaxP, MODIFY_GENERATOR_ERROR);
         }
-        if (generatorModificationInfos.getMinP() != null) {
-            checkMinimumActivePower(errorMessage, maxP, targetP, plannedActivePowerSetPoint, minP, MODIFY_GENERATOR_ERROR);
+        if (minP != null) {
+            checkMinimumActivePower(errorMessage, newMaxP, newTargetP, plannedActivePowerSetPointValue, newMinP, MODIFY_GENERATOR_ERROR);
         }
     }
 
-    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerGenerator(GeneratorModificationInfos modificationInfos, Generator generator, NetworkModificationException.Type exceptionType,
+    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerGenerator(Generator generator, NetworkModificationException.Type exceptionType,
             String errorMessage) {
         ModificationUtils.getInstance().checkActivePowerZeroOrBetweenMinAndMaxActivePower(
-                modificationInfos.getTargetP(),
-                modificationInfos.getMinP(),
-                modificationInfos.getMaxP(),
+                targetP,
+                minP,
+                maxP,
                 generator.getMinP(),
                 generator.getMaxP(),
                 generator.getTargetP(),
@@ -112,9 +200,9 @@ public class GeneratorModification extends AbstractInjectionModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        Generator generator = ModificationUtils.getInstance().getGenerator(network, modificationInfos.getEquipmentId());
+        Generator generator = ModificationUtils.getInstance().getGenerator(network, equipmentId);
         // modify the generator in the network
-        modifyGenerator(generator, (GeneratorModificationInfos) modificationInfos, subReportNode);
+        modifyGenerator(generator, subReportNode);
     }
 
     @Override
@@ -122,39 +210,37 @@ public class GeneratorModification extends AbstractInjectionModification {
         return "GeneratorModification";
     }
 
-    private void modifyGenerator(Generator generator, GeneratorModificationInfos modificationInfos, ReportNode subReportNode) {
+    private void modifyGenerator(Generator generator, ReportNode subReportNode) {
         subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.generatorModification")
-                .withUntypedValue("id", modificationInfos.getEquipmentId())
+                .withUntypedValue("id", equipmentId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
 
-        if (modificationInfos.getEquipmentName() != null && modificationInfos.getEquipmentName().getValue() != null) {
-            ModificationUtils.getInstance().applyElementaryModifications(generator::setName, () -> generator.getOptionalName().orElse("No value"), modificationInfos.getEquipmentName(), subReportNode,
+        if (equipmentName != null && equipmentName.getValue() != null) {
+            ModificationUtils.getInstance().applyElementaryModifications(generator::setName, () -> generator.getOptionalName().orElse("No value"), equipmentName, subReportNode,
                     "Name");
         }
-        ModificationUtils.getInstance().applyElementaryModifications(generator::setEnergySource, generator::getEnergySource, modificationInfos.getEnergySource(), subReportNode, "Energy source");
-        modifyGeneratorVoltageLevelBusOrBusBarSectionAttributes(modificationInfos, generator, subReportNode);
-        modifyGeneratorConnectivityAttributes(modificationInfos, generator, subReportNode);
-        modifyGeneratorLimitsAttributes(modificationInfos, generator, subReportNode);
-        modifyGeneratorSetpointsAttributes(modificationInfos, generator, subReportNode);
-        ModificationUtils.getInstance().modifyShortCircuitExtension(modificationInfos.getDirectTransX(),
-                modificationInfos.getStepUpTransformerX(),
+        ModificationUtils.getInstance().applyElementaryModifications(generator::setEnergySource, generator::getEnergySource, energySource, subReportNode, "Energy source");
+        modifyGeneratorVoltageLevelBusOrBusBarSectionAttributes(generator, subReportNode);
+        modifyGeneratorConnectivityAttributes(generator, subReportNode);
+        modifyGeneratorLimitsAttributes(generator, subReportNode);
+        modifyGeneratorSetpointsAttributes(generator, subReportNode);
+        ModificationUtils.getInstance().modifyShortCircuitExtension(directTransX,
+                stepUpTransformerX,
                 generator.getExtension(GeneratorShortCircuit.class),
                 () -> generator.newExtension(GeneratorShortCircuitAdder.class),
                 subReportNode);
-        modifyGeneratorStartUpAttributes(modificationInfos, generator, subReportNode);
+        modifyGeneratorStartUpAttributes(generator, subReportNode);
         updateMeasurements(generator, subReportNode);
-        PropertiesUtils.applyProperties(generator, subReportNode, modificationInfos.getProperties(), "network.modification.GeneratorProperties");
+        PropertiesUtils.applyProperties(generator, subReportNode, properties, "network.modification.GeneratorProperties");
     }
 
-    private void modifyGeneratorReactiveCapabilityCurvePoints(GeneratorModificationInfos modificationInfos,
-                                                              Generator generator, ReportNode subReportNode, ReportNode subReportNodeLimits) {
+    private void modifyGeneratorReactiveCapabilityCurvePoints(Generator generator, ReportNode subReportNode, ReportNode subReportNodeLimits) {
         ReactiveCapabilityCurveAdder adder = generator.newReactiveCapabilityCurve();
-        List<ReactiveCapabilityCurvePointsInfos> modificationPoints = modificationInfos.getReactiveCapabilityCurvePoints();
         Collection<ReactiveCapabilityCurve.Point> points = generator.getReactiveLimits().getKind() == ReactiveLimitsKind.CURVE ? generator.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints(
                 ) : List.of();
-        ModificationUtils.getInstance().modifyReactiveCapabilityCurvePoints(points, modificationPoints, adder, subReportNode, subReportNodeLimits);
+        ModificationUtils.getInstance().modifyReactiveCapabilityCurvePoints(points, reactiveCapabilityCurvePoints, adder, subReportNode, subReportNodeLimits);
     }
 
     public static ReportNode modifyGeneratorActiveLimitsAttributes(AttributeModification<Double> maxP,
@@ -191,41 +277,38 @@ public class GeneratorModification extends AbstractInjectionModification {
         return subReporterLimits;
     }
 
-    private void modifyGeneratorReactiveLimitsAttributes(GeneratorModificationInfos modificationInfos,
-                                                         Generator generator, ReportNode subReportNode, ReportNode subReportNodeLimits) {
+    private void modifyGeneratorReactiveLimitsAttributes(Generator generator, ReportNode subReportNode, ReportNode subReportNodeLimits) {
         // if reactive capability curve is true and there was modifications on the
         // reactive capability curve points,
         // then we have to apply the reactive capability curve modifications
         // else if reactive capability curve is false we have to apply the min and max
         // reactive limits modifications
-        if (modificationInfos.getReactiveCapabilityCurve() != null) {
-            if (Boolean.TRUE.equals(modificationInfos.getReactiveCapabilityCurve().getValue()
-                    && modificationInfos.getReactiveCapabilityCurvePoints() != null
-                    && !modificationInfos.getReactiveCapabilityCurvePoints().isEmpty())) {
-                modifyGeneratorReactiveCapabilityCurvePoints(modificationInfos, generator, subReportNode, subReportNodeLimits);
-            } else if (Boolean.FALSE.equals(modificationInfos.getReactiveCapabilityCurve().getValue())) {
-                ModificationUtils.getInstance().modifyMinMaxReactiveLimits(modificationInfos.getMinQ(), modificationInfos.getMaxQ(), generator, subReportNode, subReportNodeLimits);
+        if (reactiveCapabilityCurve != null) {
+            if (Boolean.TRUE.equals(reactiveCapabilityCurve.getValue()
+                    && reactiveCapabilityCurvePoints != null
+                    && !reactiveCapabilityCurvePoints.isEmpty())) {
+                modifyGeneratorReactiveCapabilityCurvePoints(generator, subReportNode, subReportNodeLimits);
+            } else if (Boolean.FALSE.equals(reactiveCapabilityCurve.getValue())) {
+                ModificationUtils.getInstance().modifyMinMaxReactiveLimits(minQ, maxQ, generator, subReportNode, subReportNodeLimits);
             }
         }
     }
 
-    private ReportNode modifyGeneratorActivePowerControlAttributes(GeneratorModificationInfos modificationInfos,
-                                                                 Generator generator, ReportNode subReportNode, ReportNode subReportNodeSetpoints) {
+    private ReportNode modifyGeneratorActivePowerControlAttributes(Generator generator, ReportNode subReportNode, ReportNode subReportNodeSetpoints) {
         ActivePowerControl<Generator> activePowerControl = generator.getExtension(ActivePowerControl.class);
         ActivePowerControlAdder<Generator> activePowerControlAdder = generator.newExtension(ActivePowerControlAdder.class);
 
         return ModificationUtils.getInstance().modifyActivePowerControlAttributes(activePowerControl, activePowerControlAdder,
-            modificationInfos.getParticipate(), modificationInfos.getDroop(), subReportNode, subReportNodeSetpoints,
-            MODIFY_GENERATOR_ERROR, String.format(ERROR_MESSAGE, modificationInfos.getEquipmentId()));
+            participate, droop, subReportNode, subReportNodeSetpoints,
+            MODIFY_GENERATOR_ERROR, String.format(ERROR_MESSAGE, equipmentId));
     }
 
-    private void modifyGeneratorStartUpAttributes(GeneratorModificationInfos modificationInfos, Generator generator,
-                                                  ReportNode subReportNode) {
+    private void modifyGeneratorStartUpAttributes(Generator generator, ReportNode subReportNode) {
         List<ReportNode> reports = new ArrayList<>();
-        modifyGeneratorStartUpAttributes(modificationInfos.getPlannedActivePowerSetPoint(),
-                modificationInfos.getMarginalCost(),
-                modificationInfos.getPlannedOutageRate(),
-                modificationInfos.getForcedOutageRate(),
+        modifyGeneratorStartUpAttributes(plannedActivePowerSetPoint,
+                marginalCost,
+                plannedOutageRate,
+                forcedOutageRate,
                 generator,
                 subReportNode,
                 reports);
@@ -334,7 +417,7 @@ public class GeneratorModification extends AbstractInjectionModification {
         return false;
     }
 
-    private void modifyGeneratorRegulatingTerminal(GeneratorModificationInfos modificationInfos, Generator generator, List<ReportNode> modificationReports) {
+    private void modifyGeneratorRegulatingTerminal(Generator generator, List<ReportNode> modificationReports) {
         Terminal regulatingTerminal = generator.getRegulatingTerminal();
 
         String oldVoltageLevel = null;
@@ -348,28 +431,28 @@ public class GeneratorModification extends AbstractInjectionModification {
                     + regulatingTerminal.getConnectable().getId();
         }
 
-        if (modificationInfos.getRegulatingTerminalId() != null
-                && modificationInfos.getRegulatingTerminalType() != null
-                && modificationInfos.getRegulatingTerminalVlId() != null) {
+        if (regulatingTerminalId != null
+                && regulatingTerminalType != null
+                && regulatingTerminalVlId != null) {
             Terminal terminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(generator.getNetwork(),
-                    modificationInfos.getRegulatingTerminalId().getValue(),
-                    modificationInfos.getRegulatingTerminalType().getValue(),
-                    modificationInfos.getRegulatingTerminalVlId().getValue());
+                    regulatingTerminalId.getValue(),
+                    regulatingTerminalType.getValue(),
+                    regulatingTerminalVlId.getValue());
             generator.setRegulatingTerminal(terminal);
 
             modificationReports.add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel,
-                    modificationInfos.getRegulatingTerminalVlId().getValue(),
+                    regulatingTerminalVlId.getValue(),
                     "Voltage level"));
             modificationReports.add(ModificationUtils.getInstance().buildModificationReport(oldEquipment,
-                    modificationInfos.getRegulatingTerminalType().getValue() + ":"
-                            + modificationInfos.getRegulatingTerminalId().getValue(),
+                    regulatingTerminalType.getValue() + ":"
+                            + regulatingTerminalId.getValue(),
                     "Equipment"));
         }
 
         // if the voltageRegulationType is set to LOCAL, we set the regulatingTerminal
         // to null
-        if (modificationInfos.getVoltageRegulationType() != null
-                && modificationInfos.getVoltageRegulationType().getValue() == VoltageRegulationType.LOCAL
+        if (voltageRegulationType != null
+                && voltageRegulationType.getValue() == VoltageRegulationType.LOCAL
                 && oldEquipment != null && oldVoltageLevel != null) {
             generator.setRegulatingTerminal(null);
             modificationReports.add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel,
@@ -381,44 +464,43 @@ public class GeneratorModification extends AbstractInjectionModification {
         }
     }
 
-    private ReportNode modifyGeneratorVoltageRegulatorAttributes(GeneratorModificationInfos modificationInfos,
-                                                               Generator generator, ReportNode subReportNode, ReportNode subReportNodeSetpoints) {
+    private ReportNode modifyGeneratorVoltageRegulatorAttributes(Generator generator, ReportNode subReportNode, ReportNode subReportNodeSetpoints) {
         List<ReportNode> voltageRegulationReports = new ArrayList<>();
 
-        ReportNode reportVoltageSetpoint = modifyTargetV(generator, modificationInfos.getTargetV());
+        ReportNode reportVoltageSetpoint = modifyTargetV(generator, targetV);
         if (reportVoltageSetpoint != null) {
             voltageRegulationReports.add(reportVoltageSetpoint);
         }
         // must be done after setting targetV
-        ReportNode voltageRegulationOn = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(generator::setVoltageRegulatorOn, generator::isVoltageRegulatorOn,
-                modificationInfos.getVoltageRegulationOn(), "VoltageRegulationOn");
-        if (voltageRegulationOn != null) {
-            voltageRegulationReports.add(voltageRegulationOn);
+        ReportNode voltageRegulationOnReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(generator::setVoltageRegulatorOn, generator::isVoltageRegulatorOn,
+                this.voltageRegulationOn, "VoltageRegulationOn");
+        if (voltageRegulationOnReportNode != null) {
+            voltageRegulationReports.add(voltageRegulationOnReportNode);
         }
 
         // We apply modifications to regulatingTerminal and QPercent
         // we apply modifications to the reactivepower setpoint
-        modifyGeneratorRegulatingTerminal(modificationInfos, generator, voltageRegulationReports);
+        modifyGeneratorRegulatingTerminal(generator, voltageRegulationReports);
 
-        if (modificationInfos.getQPercent() != null) {
+        if (qPercent != null) {
             CoordinatedReactiveControl coordinatedReactiveControl = generator
                     .getExtension(CoordinatedReactiveControl.class);
             Double oldQPercent = coordinatedReactiveControl != null ? coordinatedReactiveControl.getQPercent()
                     : Double.NaN;
             generator.newExtension(CoordinatedReactiveControlAdder.class)
-                    .withQPercent(modificationInfos.getQPercent().getValue())
+                    .withQPercent(qPercent.getValue())
                     .add();
             voltageRegulationReports.add(ModificationUtils.getInstance().buildModificationReport(
                     oldQPercent,
-                    modificationInfos.getQPercent().getValue(), "Reactive percentage"));
+                    qPercent.getValue(), "Reactive percentage"));
         }
 
         //TargetQ and TargetV are unset after voltage regulation have been dealt with otherwise it can cause unwanted validations exceptions
-        if (modificationInfos.getTargetV() != null && modificationInfos.getTargetV().getOp() == OperationType.UNSET) {
+        if (targetV != null && targetV.getOp() == OperationType.UNSET) {
             generator.setTargetV(Double.NaN);
         }
 
-        if (modificationInfos.getTargetQ() != null && modificationInfos.getTargetQ().getOp() == OperationType.UNSET) {
+        if (targetQ != null && targetQ.getOp() == OperationType.UNSET) {
             generator.setTargetQ(Double.NaN);
         }
 
@@ -448,12 +530,11 @@ public class GeneratorModification extends AbstractInjectionModification {
         return reportVoltageSetpoint;
     }
 
-    private void modifyGeneratorSetpointsAttributes(GeneratorModificationInfos modificationInfos,
-                                                    Generator generator, ReportNode subReportNode) {
-        ReportNode reportActivePower = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(generator::setTargetP, generator::getTargetP, modificationInfos.getTargetP(),
+    private void modifyGeneratorSetpointsAttributes(Generator generator, ReportNode subReportNode) {
+        ReportNode reportActivePower = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(generator::setTargetP, generator::getTargetP, targetP,
                 "Active power");
 
-        ReportNode reportReactivePower = modifyTargetQ(generator, modificationInfos.getTargetQ());
+        ReportNode reportReactivePower = modifyTargetQ(generator, targetQ);
 
         ReportNode subReporterSetpoints = null;
         if (reportActivePower != null || reportReactivePower != null) {
@@ -465,8 +546,8 @@ public class GeneratorModification extends AbstractInjectionModification {
                 insertReportNode(subReporterSetpoints, reportReactivePower);
             }
         }
-        subReporterSetpoints = modifyGeneratorVoltageRegulatorAttributes(modificationInfos, generator, subReportNode, subReporterSetpoints);
-        modifyGeneratorActivePowerControlAttributes(modificationInfos, generator, subReportNode, subReporterSetpoints);
+        subReporterSetpoints = modifyGeneratorVoltageRegulatorAttributes(generator, subReportNode, subReporterSetpoints);
+        modifyGeneratorActivePowerControlAttributes(generator, subReportNode, subReporterSetpoints);
     }
 
     public static ReportNode modifyTargetQ(Generator generator, AttributeModification<Double> modifTargetQ) {
@@ -481,30 +562,27 @@ public class GeneratorModification extends AbstractInjectionModification {
         return reportReactivePower;
     }
 
-    private void modifyGeneratorLimitsAttributes(GeneratorModificationInfos modificationInfos,
-                                                 Generator generator, ReportNode subReportNode) {
-        ReportNode subReportNodeLimits = modifyGeneratorActiveLimitsAttributes(modificationInfos.getMaxP(),
-                modificationInfos.getMinP(),
-                modificationInfos.getRatedS(),
+    private void modifyGeneratorLimitsAttributes(Generator generator, ReportNode subReportNode) {
+        ReportNode subReportNodeLimits = modifyGeneratorActiveLimitsAttributes(maxP,
+                minP,
+                ratedS,
                 generator,
                 subReportNode);
-        modifyGeneratorReactiveLimitsAttributes(modificationInfos, generator, subReportNode, subReportNodeLimits);
+        modifyGeneratorReactiveLimitsAttributes(generator, subReportNode, subReportNodeLimits);
     }
 
-    private void modifyGeneratorVoltageLevelBusOrBusBarSectionAttributes(GeneratorModificationInfos modificationInfos,
-                                                                       Generator generator, ReportNode subReportNode) {
+    private void modifyGeneratorVoltageLevelBusOrBusBarSectionAttributes(Generator generator, ReportNode subReportNode) {
         ModificationUtils.getInstance().moveFeederBay(
                 generator, generator.getTerminal(),
-                modificationInfos.getVoltageLevelId(),
-                modificationInfos.getBusOrBusbarSectionId(),
+                voltageLevelId,
+                busOrBusbarSectionId,
                 subReportNode
         );
     }
 
-    private ReportNode modifyGeneratorConnectivityAttributes(GeneratorModificationInfos modificationInfos,
-                                                             Generator generator, ReportNode subReportNode) {
+    private ReportNode modifyGeneratorConnectivityAttributes(Generator generator, ReportNode subReportNode) {
         ConnectablePosition<Generator> connectablePosition = generator.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<Generator> connectablePositionAdder = generator.newExtension(ConnectablePositionAdder.class);
-        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, generator, modificationInfos, subReportNode);
+        return ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, generator, this, subReportNode);
     }
 }

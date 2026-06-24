@@ -43,7 +43,20 @@ public class LoadCreationInfos extends InjectionCreationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new LoadCreation(this);
+        return LoadCreation.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentName(getEquipmentName())
+                .voltageLevelId(getVoltageLevelId())
+                .busOrBusbarSectionId(getBusOrBusbarSectionId())
+                .connectionName(getConnectionName())
+                .connectionDirection(getConnectionDirection())
+                .connectionPosition(getConnectionPosition())
+                .terminalConnected(isTerminalConnected())
+                .loadType(getLoadType())
+                .p0(getP0())
+                .q0(getQ0())
+                .build();
     }
 
     @Override

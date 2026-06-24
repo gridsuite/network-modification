@@ -256,7 +256,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         twtModificationInfos6.getRatioTapChanger().setTerminalRefConnectableVlId(new AttributeModification<>(null, OperationType.UNSET));
         twtModificationInfos6.getRatioTapChanger().setTerminalRefConnectableType(new AttributeModification<>(null, OperationType.UNSET));
         assertDoesNotThrow(() -> twtModificationInfos6.toModification().check(getNetwork()));
-        assertTrue(((TwoWindingsTransformerModification) twtModificationInfos6.toModification()).characteristicsModified(twtModificationInfos6));
+        assertTrue(((TwoWindingsTransformerModification) twtModificationInfos6.toModification()).characteristicsModified());
 
         // do not throw
         TwoWindingsTransformerModificationInfos twtModificationInfos7 = (TwoWindingsTransformerModificationInfos) buildModification();
@@ -529,7 +529,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
             // change not applied
             assertThat(terminal.isConnected()).isNotEqualTo(expectedState);
             assertThat(exception.getMessage()).isEqualTo(errorMessage);
-            assertFalse(twoWindingsTransformerModification.characteristicsModified(modificationInfos));
+            assertFalse(twoWindingsTransformerModification.characteristicsModified());
         } else {
             modificationInfos.toModification().apply(getNetwork());
             // connection state has changed as expected
@@ -1116,4 +1116,3 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertEquals("1", reactivePowerMeasurement.getProperty("validity"));
     }
 }
-

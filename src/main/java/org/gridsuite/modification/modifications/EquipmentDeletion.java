@@ -10,8 +10,10 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.EquipmentDeletionInfos;
+import org.gridsuite.modification.dto.AbstractEquipmentDeletionInfos;
+import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.HvdcLccDeletionInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 
@@ -24,42 +26,49 @@ import static org.gridsuite.modification.NetworkModificationException.Type.EQUIP
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
  */
-public class EquipmentDeletion extends AbstractModification {
+@Getter
+@Setter
+public class EquipmentDeletion extends AbstractEquipmentBase {
 
-    private final EquipmentDeletionInfos modificationInfos;
+    private IdentifiableType equipmentType;
+    private AbstractEquipmentDeletionInfos equipmentInfos;
 
-    public EquipmentDeletion(EquipmentDeletionInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
+    @Builder
+    public EquipmentDeletion(String equipmentId, List<FreePropertyInfos> properties, IdentifiableType equipmentType,
+                             AbstractEquipmentDeletionInfos equipmentInfos) {
+        super(equipmentId, properties);
+        this.equipmentType = equipmentType;
+        this.equipmentInfos = equipmentInfos;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        Identifiable<?> identifiable = ModificationUtils.getInstance().getEquipmentByIdentifiableType(network, modificationInfos.getEquipmentType(), modificationInfos.getEquipmentId());
+        Identifiable<?> identifiable = ModificationUtils.getInstance().getEquipmentByIdentifiableType(network, equipmentType, equipmentId);
         if (identifiable == null) {
-            throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, "Equipment with id=" + modificationInfos.getEquipmentId() + " not found or of bad type");
+            throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, "Equipment with id=" + equipmentId + " not found or of bad type");
         }
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        Identifiable<?> identifiable = ModificationUtils.getInstance().getEquipmentByIdentifiableType(network, modificationInfos.getEquipmentType(), modificationInfos.getEquipmentId());
+        Identifiable<?> identifiable = ModificationUtils.getInstance().getEquipmentByIdentifiableType(network, equipmentType, equipmentId);
 
         // Report node is pushed to network instance to allow deletion logs from other libraries to be added
         network.getReportNodeContext().pushReportNode(subReportNode);
         if (identifiable instanceof Connectable) {
-            new RemoveFeederBay(modificationInfos.getEquipmentId()).apply(network, true, subReportNode);
+            new RemoveFeederBay(equipmentId).apply(network, true, subReportNode);
         } else if (identifiable instanceof HvdcLine) {
             removeHvdcLine(network, subReportNode);
         } else if (identifiable instanceof VoltageLevel) {
-            new RemoveVoltageLevel(modificationInfos.getEquipmentId()).apply(network, true, subReportNode);
+            new RemoveVoltageLevel(equipmentId).apply(network, true, subReportNode);
         } else if (identifiable instanceof Substation) {
-            RemoveSubstation rs = new RemoveSubstationBuilder().withSubstationId(modificationInfos.getEquipmentId()).build();
+            RemoveSubstation rs = new RemoveSubstationBuilder().withSubstationId(equipmentId).build();
             rs.apply(network, true, subReportNode);
         }
         subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.equipmentDeleted")
-                .withUntypedValue("type", modificationInfos.getEquipmentType().name())
-                .withUntypedValue("id", modificationInfos.getEquipmentId())
+                .withUntypedValue("type", equipmentType.name())
+                .withUntypedValue("id", equipmentId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
@@ -70,7 +79,7 @@ public class EquipmentDeletion extends AbstractModification {
     }
 
     private void removeHvdcLine(Network network, ReportNode subReportNode) {
-        HvdcLccDeletionInfos specificInfos = (HvdcLccDeletionInfos) modificationInfos.getEquipmentInfos();
+        HvdcLccDeletionInfos specificInfos = (HvdcLccDeletionInfos) equipmentInfos;
         List<String> shuntCompensatorIds = List.of();
         if (specificInfos != null) {
             shuntCompensatorIds = Stream.concat(
@@ -93,7 +102,7 @@ public class EquipmentDeletion extends AbstractModification {
                     .collect(Collectors.toList());
         }
         RemoveHvdcLine algo = new RemoveHvdcLineBuilder()
-                .withHvdcLineId(modificationInfos.getEquipmentId())
+                .withHvdcLineId(equipmentId)
                 .withShuntCompensatorIds(shuntCompensatorIds)
                 .build();
         algo.apply(network, true, subReportNode);

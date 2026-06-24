@@ -11,8 +11,8 @@ import com.powsybl.iidm.modification.topology.ReplaceTeePointByVoltageLevelOnLin
 import com.powsybl.iidm.modification.topology.ReplaceTeePointByVoltageLevelOnLineBuilder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.LinesAttachToSplitLinesInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
@@ -21,48 +21,56 @@ import static org.gridsuite.modification.NetworkModificationException.Type.LINE_
 /**
  * @author David Braquart <david.braquart at rte-france.com>
  */
+@Getter
+@Setter
+@AllArgsConstructor
+@Builder
 public class LinesAttachToSplitLines extends AbstractModification {
 
-    private final LinesAttachToSplitLinesInfos modificationInfos;
-
-    public LinesAttachToSplitLines(LinesAttachToSplitLinesInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
-    }
+    private String lineToAttachTo1Id;
+    private String lineToAttachTo2Id;
+    private String attachedLineId;
+    private String voltageLevelId;
+    private String bbsBusId;
+    private String replacingLine1Id;
+    private String replacingLine1Name;
+    private String replacingLine2Id;
+    private String replacingLine2Name;
 
     @Override
     public void check(Network network) throws NetworkModificationException {
         // check existing lines, vl and busbar
-        if (network.getLine(modificationInfos.getLineToAttachTo1Id()) == null) {
-            throw new NetworkModificationException(LINE_NOT_FOUND, modificationInfos.getLineToAttachTo1Id());
+        if (network.getLine(lineToAttachTo1Id) == null) {
+            throw new NetworkModificationException(LINE_NOT_FOUND, lineToAttachTo1Id);
         }
-        if (network.getLine(modificationInfos.getLineToAttachTo2Id()) == null) {
-            throw new NetworkModificationException(LINE_NOT_FOUND, modificationInfos.getLineToAttachTo2Id());
+        if (network.getLine(lineToAttachTo2Id) == null) {
+            throw new NetworkModificationException(LINE_NOT_FOUND, lineToAttachTo2Id);
         }
-        if (network.getLine(modificationInfos.getAttachedLineId()) == null) {
-            throw new NetworkModificationException(LINE_NOT_FOUND, modificationInfos.getAttachedLineId());
+        if (network.getLine(attachedLineId) == null) {
+            throw new NetworkModificationException(LINE_NOT_FOUND, attachedLineId);
         }
-        VoltageLevel vl = ModificationUtils.getInstance().getVoltageLevel(network, modificationInfos.getVoltageLevelId());
-        ModificationUtils.getInstance().controlBus(vl, modificationInfos.getBbsBusId());
+        VoltageLevel vl = ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
+        ModificationUtils.getInstance().controlBus(vl, bbsBusId);
         // check future lines don't exist
-        if (network.getLine(modificationInfos.getReplacingLine1Id()) != null) {
-            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationInfos.getReplacingLine1Id());
+        if (network.getLine(replacingLine1Id) != null) {
+            throw new NetworkModificationException(LINE_ALREADY_EXISTS, replacingLine1Id);
         }
-        if (network.getLine(modificationInfos.getReplacingLine2Id()) != null) {
-            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationInfos.getReplacingLine2Id());
+        if (network.getLine(replacingLine2Id) != null) {
+            throw new NetworkModificationException(LINE_ALREADY_EXISTS, replacingLine2Id);
         }
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         ReplaceTeePointByVoltageLevelOnLine algo = new ReplaceTeePointByVoltageLevelOnLineBuilder()
-                .withTeePointLine1(modificationInfos.getLineToAttachTo1Id())
-                .withTeePointLine2(modificationInfos.getLineToAttachTo2Id())
-                .withTeePointLineToRemove(modificationInfos.getAttachedLineId())
-                .withBbsOrBusId(modificationInfos.getBbsBusId())
-                .withNewLine1Id(modificationInfos.getReplacingLine1Id())
-                .withNewLine1Name(modificationInfos.getReplacingLine1Name())
-                .withNewLine2Id(modificationInfos.getReplacingLine2Id())
-                .withNewLine2Name(modificationInfos.getReplacingLine2Name())
+                .withTeePointLine1(lineToAttachTo1Id)
+                .withTeePointLine2(lineToAttachTo2Id)
+                .withTeePointLineToRemove(attachedLineId)
+                .withBbsOrBusId(bbsBusId)
+                .withNewLine1Id(replacingLine1Id)
+                .withNewLine1Name(replacingLine1Name)
+                .withNewLine2Id(replacingLine2Id)
+                .withNewLine2Name(replacingLine2Name)
                 .build();
         algo.apply(network, true, subReportNode);
     }

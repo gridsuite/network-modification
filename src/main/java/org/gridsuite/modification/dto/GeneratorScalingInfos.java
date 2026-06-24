@@ -33,7 +33,11 @@ public class GeneratorScalingInfos extends ScalingInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new GeneratorScaling(this);
+        return GeneratorScaling.builder()
+                .variations(getVariations())
+                .variationType(getVariationType())
+                .errorType(getErrorType())
+                .build();
     }
 
     @Override

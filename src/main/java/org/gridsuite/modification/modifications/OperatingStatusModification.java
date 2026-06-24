@@ -17,13 +17,16 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import com.powsybl.iidm.network.util.SwitchPredicates;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.OperatingStatusModificationInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -34,20 +37,27 @@ import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
 /**
  * @author Ghazwa REHILI <ghazwa.rehili at rte-france.com>
  */
-public class OperatingStatusModification extends AbstractModification {
+@Getter
+@Setter
+public class OperatingStatusModification extends AbstractEquipmentBase {
 
-    private final OperatingStatusModificationInfos modificationInfos;
     private static final Logger LOGGER = LoggerFactory.getLogger(OperatingStatusModification.class);
-
     private static final String EQUIPMENT_TYPE = "equipmentType";
 
-    public OperatingStatusModification(OperatingStatusModificationInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
+    private OperatingStatusModificationInfos.ActionType action;
+    private String energizedVoltageLevelId;
+
+    @Builder
+    public OperatingStatusModification(String equipmentId, List<FreePropertyInfos> properties,
+                                       OperatingStatusModificationInfos.ActionType action,
+                                       String energizedVoltageLevelId) {
+        super(equipmentId, properties);
+        this.action = action;
+        this.energizedVoltageLevelId = energizedVoltageLevelId;
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        String equipmentId = modificationInfos.getEquipmentId();
         Identifiable<?> equipment = network.getIdentifiable(equipmentId);
         if (equipment == null) {
             throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, equipmentId);
@@ -56,14 +66,13 @@ public class OperatingStatusModification extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        String equipmentId = modificationInfos.getEquipmentId();
         Identifiable<?> equipment = network.getIdentifiable(equipmentId);
         if (equipment == null) {
             throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, equipmentId);
         }
 
         String equipmentType = String.valueOf(equipment.getType());
-        switch (modificationInfos.getAction()) {
+        switch (action) {
             case LOCKOUT -> applyLockoutEquipment(subReportNode, equipment, equipmentType);
             case TRIP -> applyTripEquipment(subReportNode, equipment, equipmentType, network);
             case SWITCH_ON -> applySwitchOnEquipment(subReportNode, equipment, equipmentType);
@@ -72,7 +81,7 @@ public class OperatingStatusModification extends AbstractModification {
             case ENERGISE_END_TWO ->
                 applyEnergiseEquipmentEnd(subReportNode, equipment, equipmentType, TwoSides.TWO);
             default ->
-                    throw NetworkModificationException.createOperatingActionTypeUnsupported(modificationInfos.getAction());
+                    throw NetworkModificationException.createOperatingActionTypeUnsupported(action);
         }
     }
 

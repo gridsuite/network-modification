@@ -52,7 +52,17 @@ public class VoltageLevelModificationInfos extends BasicEquipmentModificationInf
 
     @Override
     public AbstractModification toModification() {
-        return new VoltageLevelModification(this);
+        return VoltageLevelModification.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentName(getEquipmentName())
+                .nominalV(getNominalV())
+                .lowVoltageLimit(getLowVoltageLimit())
+                .highVoltageLimit(getHighVoltageLimit())
+                .ipMin(getIpMin())
+                .ipMax(getIpMax())
+                .busbarSectionVMeasurements(getBusbarSectionVMeasurements())
+                .build();
     }
 
     @Override

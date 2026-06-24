@@ -112,7 +112,46 @@ public class GeneratorModificationInfos extends InjectionModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new GeneratorModification(this);
+        return GeneratorModification.builder()
+            .equipmentId(getEquipmentId())
+            .properties(getProperties())
+            .equipmentName(getEquipmentName())
+            .voltageLevelId(getVoltageLevelId())
+            .busOrBusbarSectionId(getBusOrBusbarSectionId())
+            .connectionName(getConnectionName())
+            .connectionDirection(getConnectionDirection())
+            .connectionPosition(getConnectionPosition())
+            .terminalConnected(getTerminalConnected())
+            .pMeasurementValue(getPMeasurementValue())
+            .pMeasurementValidity(getPMeasurementValidity())
+            .qMeasurementValue(getQMeasurementValue())
+            .qMeasurementValidity(getQMeasurementValidity())
+            .energySource(getEnergySource())
+            .minP(getMinP())
+            .maxP(getMaxP())
+            .ratedS(getRatedS())
+            .targetP(getTargetP())
+            .targetQ(getTargetQ())
+            .voltageRegulationOn(getVoltageRegulationOn())
+            .targetV(getTargetV())
+            .plannedActivePowerSetPoint(getPlannedActivePowerSetPoint())
+            .marginalCost(getMarginalCost())
+            .plannedOutageRate(getPlannedOutageRate())
+            .forcedOutageRate(getForcedOutageRate())
+            .minQ(getMinQ())
+            .maxQ(getMaxQ())
+            .reactiveCapabilityCurvePoints(getReactiveCapabilityCurvePoints())
+            .participate(getParticipate())
+            .droop(getDroop())
+            .directTransX(getDirectTransX())
+            .stepUpTransformerX(getStepUpTransformerX())
+            .voltageRegulationType(getVoltageRegulationType())
+            .regulatingTerminalId(getRegulatingTerminalId())
+            .regulatingTerminalType(getRegulatingTerminalType())
+            .regulatingTerminalVlId(getRegulatingTerminalVlId())
+            .qPercent(getQPercent())
+            .reactiveCapabilityCurve(getReactiveCapabilityCurve())
+            .build();
     }
 
     @Override

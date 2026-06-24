@@ -19,7 +19,6 @@ import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.FilterInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils;
 import org.gridsuite.modification.modifications.AbstractModification;
@@ -96,8 +95,6 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
         return modificationByFilterInfos.getEditedFieldLabel();
     }
 
-    public abstract ModificationInfos getModificationInfos();
-
     public abstract IdentifiableType getEquipmentType();
 
     public abstract NetworkModificationException.Type getExceptionType();
@@ -149,10 +146,6 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (getModificationInfos() == null) {
-            throw new NetworkModificationException(getExceptionType(), "Missing required attributes to modify the equipment");
-        }
-
         if (CollectionUtils.isEmpty(getAssignmentInfosList())) {
             throw new NetworkModificationException(getExceptionType(), String.format("At least one %s is required", getModificationTypeLabel()));
         }
@@ -167,7 +160,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
         // collect all filters from all variations
         Map<UUID, String> filters = getFilters();
 
-        Map<UUID, FilterEquipments> filterUuidEquipmentsMap = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, getModificationInfos().getErrorType());
+        Map<UUID, FilterEquipments> filterUuidEquipmentsMap = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, getExceptionType());
 
         if (filterUuidEquipmentsMap != null) {
             ReportNode subReporter = subReportNode.newReportNode()

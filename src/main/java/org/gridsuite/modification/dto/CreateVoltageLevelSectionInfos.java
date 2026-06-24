@@ -59,7 +59,16 @@ public class CreateVoltageLevelSectionInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new CreateVoltageLevelSection(this);
+        return CreateVoltageLevelSection.builder()
+                .voltageLevelId(getVoltageLevelId())
+                .busbarIndex(getBusbarIndex())
+                .afterBusbarSectionId(isAfterBusbarSectionId())
+                .leftSwitchKind(getLeftSwitchKind())
+                .rightSwitchKind(getRightSwitchKind())
+                .allBusbars(isAllBusbars())
+                .busbarSectionId(getBusbarSectionId())
+                .switchOpen(isSwitchOpen())
+                .build();
     }
 
     @Override
