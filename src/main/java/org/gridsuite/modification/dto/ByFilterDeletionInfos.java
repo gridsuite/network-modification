@@ -45,7 +45,10 @@ public class ByFilterDeletionInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new ByFilterDeletion(this);
+        return ByFilterDeletion.builder()
+                .equipmentType(getEquipmentType())
+                .filters(getFilters())
+                .build();
     }
 
     @Override

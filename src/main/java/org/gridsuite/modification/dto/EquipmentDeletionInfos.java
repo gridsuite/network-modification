@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.EquipmentDeletion;
@@ -42,7 +41,12 @@ public class EquipmentDeletionInfos extends EquipmentModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new EquipmentDeletion(this);
+        return EquipmentDeletion.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentType(getEquipmentType())
+                .equipmentInfos(getEquipmentInfos())
+                .build();
     }
 
     @Override

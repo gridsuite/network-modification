@@ -6,13 +6,9 @@
  */
 package org.gridsuite.modification.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
-
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.LoadModification;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.powsybl.iidm.network.LoadType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -20,6 +16,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
+import org.gridsuite.modification.modifications.AbstractModification;
+import org.gridsuite.modification.modifications.LoadModification;
 
 @SuperBuilder
 @NoArgsConstructor
@@ -42,7 +41,24 @@ public class LoadModificationInfos extends InjectionModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new LoadModification(this);
+        return LoadModification.builder()
+            .equipmentId(getEquipmentId())
+            .properties(getProperties())
+            .equipmentName(getEquipmentName())
+            .voltageLevelId(getVoltageLevelId())
+            .busOrBusbarSectionId(getBusOrBusbarSectionId())
+            .connectionName(getConnectionName())
+            .connectionDirection(getConnectionDirection())
+            .connectionPosition(getConnectionPosition())
+            .terminalConnected(getTerminalConnected())
+            .pMeasurementValue(getPMeasurementValue())
+            .pMeasurementValidity(getPMeasurementValidity())
+            .qMeasurementValue(getQMeasurementValue())
+            .qMeasurementValidity(getQMeasurementValidity())
+            .loadType(getLoadType())
+            .p0(getP0())
+            .q0(getQ0())
+            .build();
     }
 
     @Override

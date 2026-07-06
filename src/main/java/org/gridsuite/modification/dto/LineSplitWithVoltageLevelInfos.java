@@ -11,12 +11,13 @@ import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LineSplitWithVoltageLevel;
+import org.gridsuite.modification.modifications.VoltageLevelCreation;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Laurent GARNIER <laurent.garnier at rte-france.com>
@@ -61,7 +62,17 @@ public class LineSplitWithVoltageLevelInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new LineSplitWithVoltageLevel(this);
+        return LineSplitWithVoltageLevel.builder()
+                .lineToSplitId(getLineToSplitId())
+                .percent(getPercent())
+                .mayNewVoltageLevel((VoltageLevelCreation) Optional.ofNullable(getMayNewVoltageLevelInfos()).map(VoltageLevelCreationInfos::toModification).orElse(null))
+                .existingVoltageLevelId(getExistingVoltageLevelId())
+                .bbsOrBusId(getBbsOrBusId())
+                .newLine1Id(getNewLine1Id())
+                .newLine1Name(getNewLine1Name())
+                .newLine2Id(getNewLine2Id())
+                .newLine2Name(getNewLine2Name())
+                .build();
     }
 
     @Override

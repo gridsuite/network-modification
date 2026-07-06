@@ -47,7 +47,10 @@ public class ModificationByAssignmentInfos extends ModificationInfos {
 
     @Override
     public ModificationByAssignment toModification() {
-        return new ModificationByAssignment(this);
+        return ModificationByAssignment.builder()
+                .equipmentType(getEquipmentType())
+                .assignmentInfosList(getAssignmentInfosList())
+                .build();
     }
 
     @Override

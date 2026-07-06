@@ -8,14 +8,12 @@ package org.gridsuite.modification.dto.tabular;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.tabular.TabularModification;
-
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.experimental.SuperBuilder;
-
 import java.util.HashMap;
 import java.util.Map;
 

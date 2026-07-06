@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.ValidationException;
-
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -22,7 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-
 import static org.gridsuite.modification.NetworkModificationException.Type.BUS_NOT_FOUND;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE1;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE2;
@@ -128,8 +126,8 @@ class LineCreationInBusBreakerTest extends AbstractNetworkModificationTest {
             .selectedOperationalLimitsGroupId2(selectedLimitGroups2)
             .voltageLevelId2("v2")
             .busOrBusbarSectionId2("bus2")
-            .lineSegments(List.of(new LineSegmentInfos(UUID.randomUUID().toString(), 1, "1", "50", null),
-                new LineSegmentInfos(UUID.randomUUID().toString(), 1, "1", null, 0.95)))
+            .lineSegments(List.of(new LineSegmentInfos(UUID.randomUUID().toString(), 1.0, "1", "50", null),
+                new LineSegmentInfos(UUID.randomUUID().toString(), 1.0, "1", null, 0.95)))
             .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
             .build();
     }

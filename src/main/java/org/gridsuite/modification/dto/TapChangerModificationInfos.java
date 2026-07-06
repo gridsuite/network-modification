@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 import java.util.List;
 
 /**
- * @author Ayoub LABIDI <ayoub.labidi at rte-france.com
+ * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
 @SuperBuilder
 @NoArgsConstructor

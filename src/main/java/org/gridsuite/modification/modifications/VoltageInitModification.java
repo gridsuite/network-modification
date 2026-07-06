@@ -10,24 +10,24 @@ import com.powsybl.commons.report.ReportConstants;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.NetworkModificationException.Type;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
-
-import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
-
 import java.util.ArrayList;
 import java.util.List;
+import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-@AllArgsConstructor
+@Getter
+@Setter
 public class VoltageInitModification extends AbstractModification {
-    private final VoltageInitModificationInfos voltageInitModificationInfos;
 
     private static final String GENERATORS_KEY = "network.modification.GeneratorsModifications";
     private static final String TWO_WINDINGS_TRANSFORMERS_KEY = "network.modification.2WindingsTransformersModifications";
@@ -43,9 +43,32 @@ public class VoltageInitModification extends AbstractModification {
     private static final String SECTION_COUNT = "Section count";
     private static final String COUNT = "count";
 
+    private List<VoltageInitGeneratorModificationInfos> generators;
+    private List<VoltageInitTransformerModificationInfos> transformers;
+    private List<VoltageInitStaticVarCompensatorModificationInfos> staticVarCompensators;
+    private List<VoltageInitVscConverterStationModificationInfos> vscConverterStations;
+    private List<VoltageInitShuntCompensatorModificationInfos> shuntCompensators;
+    private List<VoltageInitBusModificationInfos> buses;
+
+    @Builder
+    public VoltageInitModification(List<VoltageInitGeneratorModificationInfos> generators,
+                                   List<VoltageInitTransformerModificationInfos> transformers,
+                                   List<VoltageInitStaticVarCompensatorModificationInfos> staticVarCompensators,
+                                   List<VoltageInitVscConverterStationModificationInfos> vscConverterStations,
+                                   List<VoltageInitShuntCompensatorModificationInfos> shuntCompensators,
+                                   List<VoltageInitBusModificationInfos> buses) {
+        this.generators = generators == null ? List.of() : generators;
+        this.transformers = transformers == null ? List.of() : transformers;
+        this.staticVarCompensators = staticVarCompensators == null ? List.of() : staticVarCompensators;
+        this.vscConverterStations = vscConverterStations == null ? List.of() : vscConverterStations;
+        this.shuntCompensators = shuntCompensators == null ? List.of() : shuntCompensators;
+        this.buses = buses == null ? List.of() : buses;
+    }
+
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (voltageInitModificationInfos == null) {
+        if (generators.isEmpty() && transformers.isEmpty() && staticVarCompensators.isEmpty()
+                && vscConverterStations.isEmpty() && shuntCompensators.isEmpty() && buses.isEmpty()) {
             throw new NetworkModificationException(Type.VOLTAGE_INIT_MODIFICATION_ERROR, "No voltage init modification to apply !!");
         }
     }
@@ -79,7 +102,7 @@ public class VoltageInitModification extends AbstractModification {
     private void applyBusModification(Network network, ReportNode subReportNode) {
         int modificationsCount = 0;
         List<ReportNode> reports = new ArrayList<>();
-        for (VoltageInitBusModificationInfos m : voltageInitModificationInfos.getBuses()) {
+        for (VoltageInitBusModificationInfos m : buses) {
             String voltageLevelId = m.getVoltageLevelId();
             Bus bus = null;
             if (voltageLevelId != null) {
@@ -135,7 +158,7 @@ public class VoltageInitModification extends AbstractModification {
     private void applyGeneratorModification(Network network, ReportNode subReportNode) {
         int modificationsCount = 0;
         List<ReportNode> reports = new ArrayList<>();
-        for (final VoltageInitGeneratorModificationInfos m : voltageInitModificationInfos.getGenerators()) {
+        for (final VoltageInitGeneratorModificationInfos m : generators) {
             final Generator generator = network.getGenerator(m.getGeneratorId());
             if (generator == null) {
                 reports.add(ReportNode.newRootReportNode()
@@ -181,7 +204,7 @@ public class VoltageInitModification extends AbstractModification {
         int modificationsCount = 0;
         List<ReportNode> reports2WT = new ArrayList<>();
         List<ReportNode> reports3WT = new ArrayList<>();
-        for (final VoltageInitTransformerModificationInfos t : voltageInitModificationInfos.getTransformers()) {
+        for (final VoltageInitTransformerModificationInfos t : transformers) {
             if (t.getLegSide() != null) {
                 final ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer(t.getTransformerId());
                 if (threeWindingsTransformer == null) {
@@ -210,12 +233,14 @@ public class VoltageInitModification extends AbstractModification {
                     if (t.getRatioTapChangerPosition() != null) {
                         final int oldTapPosition = threeWindingsTransformer.getLeg(t.getLegSide()).getRatioTapChanger().getTapPosition();
                         threeWindingsTransformer.getLeg(t.getLegSide()).getRatioTapChanger().setTapPosition(t.getRatioTapChangerPosition());
-                        reports3WT.add(ModificationUtils.buildModificationReport(oldTapPosition, t.getRatioTapChangerPosition(), "Leg " + t.getLegSide().name() + " ratio tap changer position", TypedValue.DETAIL_SEVERITY));
+                        reports3WT.add(ModificationUtils.buildModificationReport(oldTapPosition, t.getRatioTapChangerPosition(), "Leg " + t.getLegSide().name() + " ratio tap changer position",
+                                TypedValue.DETAIL_SEVERITY));
                     }
                     if (t.getRatioTapChangerTargetV() != null) {
                         final double oldTapTargetV = threeWindingsTransformer.getLeg(t.getLegSide()).getRatioTapChanger().getTargetV();
                         threeWindingsTransformer.getLeg(t.getLegSide()).getRatioTapChanger().setTargetV(t.getRatioTapChangerTargetV());
-                        reports3WT.add(ModificationUtils.buildModificationReport(oldTapTargetV, t.getRatioTapChangerTargetV(), "Leg " + t.getLegSide().name() + " ratio tap changer target voltage", TypedValue.DETAIL_SEVERITY));
+                        reports3WT.add(ModificationUtils.buildModificationReport(oldTapTargetV, t.getRatioTapChangerTargetV(), "Leg " + t.getLegSide().name() + " ratio tap changer target voltage",
+                                TypedValue.DETAIL_SEVERITY));
                     }
                 }
             } else {
@@ -275,7 +300,7 @@ public class VoltageInitModification extends AbstractModification {
     private void applyStaticVarCompensatorModification(Network network, ReportNode subReportNode) {
         int modificationsCount = 0;
         List<ReportNode> reports = new ArrayList<>();
-        for (VoltageInitStaticVarCompensatorModificationInfos s : voltageInitModificationInfos.getStaticVarCompensators()) {
+        for (VoltageInitStaticVarCompensatorModificationInfos s : staticVarCompensators) {
             final StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator(s.getStaticVarCompensatorId());
             if (staticVarCompensator == null) {
                 reports.add(ReportNode.newRootReportNode()
@@ -320,7 +345,7 @@ public class VoltageInitModification extends AbstractModification {
     private void applyVscConverterStationModification(Network network, ReportNode subReportNode) {
         int modificationsCount = 0;
         List<ReportNode> reports = new ArrayList<>();
-        for (VoltageInitVscConverterStationModificationInfos v : voltageInitModificationInfos.getVscConverterStations()) {
+        for (VoltageInitVscConverterStationModificationInfos v : vscConverterStations) {
             final VscConverterStation vscConverterStation = network.getVscConverterStation(v.getVscConverterStationId());
             if (vscConverterStation == null) {
                 reports.add(ReportNode.newRootReportNode()
@@ -365,7 +390,7 @@ public class VoltageInitModification extends AbstractModification {
     private void applyShuntCompensatorModification(Network network, ReportNode subReportNode) {
         int modificationsCount = 0;
         List<ReportNode> reports = new ArrayList<>();
-        for (VoltageInitShuntCompensatorModificationInfos m : voltageInitModificationInfos.getShuntCompensators()) {
+        for (VoltageInitShuntCompensatorModificationInfos m : shuntCompensators) {
             final ShuntCompensator shuntCompensator = network.getShuntCompensator(m.getShuntCompensatorId());
             if (shuntCompensator == null) {
                 reports.add(ReportNode.newRootReportNode()

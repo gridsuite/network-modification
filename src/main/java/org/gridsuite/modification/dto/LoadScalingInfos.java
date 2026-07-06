@@ -33,7 +33,11 @@ public class LoadScalingInfos extends ScalingInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new LoadScaling(this);
+        return LoadScaling.builder()
+                .variations(getVariations())
+                .variationType(getVariationType())
+                .errorType(getErrorType())
+                .build();
     }
 
     @Override

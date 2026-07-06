@@ -14,10 +14,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VoltageLevelModification;
+
+import java.util.List;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -46,9 +47,22 @@ public class VoltageLevelModificationInfos extends BasicEquipmentModificationInf
     @Schema(description = "high short-circuit current limit in A")
     private AttributeModification<Double> ipMax;
 
+    @Schema(description = "Busbar sections voltage measurements")
+    private List<BusbarSectionVMeasurementInfos> busbarSectionVMeasurements;
+
     @Override
     public AbstractModification toModification() {
-        return new VoltageLevelModification(this);
+        return VoltageLevelModification.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentName(getEquipmentName())
+                .nominalV(getNominalV())
+                .lowVoltageLimit(getLowVoltageLimit())
+                .highVoltageLimit(getHighVoltageLimit())
+                .ipMin(getIpMin())
+                .ipMax(getIpMax())
+                .busbarSectionVMeasurements(getBusbarSectionVMeasurements())
+                .build();
     }
 
     @Override

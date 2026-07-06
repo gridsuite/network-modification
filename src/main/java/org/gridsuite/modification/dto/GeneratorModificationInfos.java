@@ -6,22 +6,19 @@
  */
 package org.gridsuite.modification.dto;
 
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
-
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.GeneratorModification;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.iidm.network.EnergySource;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
+import org.gridsuite.modification.modifications.AbstractModification;
+import org.gridsuite.modification.modifications.GeneratorModification;
+import java.util.List;
 
 /**
  * @author Jacques Borsenberger <jacques.borsenberger at rte-france.com>
@@ -115,7 +112,46 @@ public class GeneratorModificationInfos extends InjectionModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new GeneratorModification(this);
+        return GeneratorModification.builder()
+            .equipmentId(getEquipmentId())
+            .properties(getProperties())
+            .equipmentName(getEquipmentName())
+            .voltageLevelId(getVoltageLevelId())
+            .busOrBusbarSectionId(getBusOrBusbarSectionId())
+            .connectionName(getConnectionName())
+            .connectionDirection(getConnectionDirection())
+            .connectionPosition(getConnectionPosition())
+            .terminalConnected(getTerminalConnected())
+            .pMeasurementValue(getPMeasurementValue())
+            .pMeasurementValidity(getPMeasurementValidity())
+            .qMeasurementValue(getQMeasurementValue())
+            .qMeasurementValidity(getQMeasurementValidity())
+            .energySource(getEnergySource())
+            .minP(getMinP())
+            .maxP(getMaxP())
+            .ratedS(getRatedS())
+            .targetP(getTargetP())
+            .targetQ(getTargetQ())
+            .voltageRegulationOn(getVoltageRegulationOn())
+            .targetV(getTargetV())
+            .plannedActivePowerSetPoint(getPlannedActivePowerSetPoint())
+            .marginalCost(getMarginalCost())
+            .plannedOutageRate(getPlannedOutageRate())
+            .forcedOutageRate(getForcedOutageRate())
+            .minQ(getMinQ())
+            .maxQ(getMaxQ())
+            .reactiveCapabilityCurvePoints(getReactiveCapabilityCurvePoints())
+            .participate(getParticipate())
+            .droop(getDroop())
+            .directTransX(getDirectTransX())
+            .stepUpTransformerX(getStepUpTransformerX())
+            .voltageRegulationType(getVoltageRegulationType())
+            .regulatingTerminalId(getRegulatingTerminalId())
+            .regulatingTerminalType(getRegulatingTerminalType())
+            .regulatingTerminalVlId(getRegulatingTerminalVlId())
+            .qPercent(getQPercent())
+            .reactiveCapabilityCurve(getReactiveCapabilityCurve())
+            .build();
     }
 
     @Override

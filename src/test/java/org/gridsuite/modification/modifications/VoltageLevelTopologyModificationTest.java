@@ -26,7 +26,7 @@ import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author REHILI Ghazwa <ghazwarhili@gmail.com>
+ * @author REHILI Ghazwa <ghazwarhili at gmail.com>
  */
 class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTest {
 
@@ -46,7 +46,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
                                 .equipmentType(IdentifiableType.SWITCH)
                                 .build(),
                         EquipmentAttributeModificationInfos.builder()
-                                .equipmentId("v1b")
+                                .equipmentId("v1b1")
                                 .equipmentAttributeName("open")
                                 .equipmentAttributeValue(false)
                                 .equipmentType(IdentifiableType.SWITCH)
@@ -112,7 +112,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
                 .equipmentAttributeModificationList(List.of())
                 .build();
 
-        VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationInfos);
+        VoltageLevelTopologyModification voltageLevelTopologyModification = (VoltageLevelTopologyModification) modificationInfos.toModification();
         applyModification(voltageLevelTopologyModification);
         Network network = getNetwork();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(network));
@@ -128,7 +128,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
                 .equipmentAttributeModificationList(emptyEquipmentAttributeModifications)
                 .build();
 
-        VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationInfos);
+        VoltageLevelTopologyModification voltageLevelTopologyModification = (VoltageLevelTopologyModification) modificationInfos.toModification();
         Network network = getNetwork();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(network));
 
@@ -152,7 +152,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
                 .equipmentAttributeModificationList(equipmentAttributeModifications)
                 .build();
 
-        VoltageLevelTopologyModification voltageLevelTopologyModification = new VoltageLevelTopologyModification(modificationInfos);
+        VoltageLevelTopologyModification voltageLevelTopologyModification = (VoltageLevelTopologyModification) modificationInfos.toModification();
         Network network = getNetwork();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(network));
 

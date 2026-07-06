@@ -42,7 +42,11 @@ public class CreateCouplingDeviceInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new CreateCouplingDevice(this);
+        return CreateCouplingDevice.builder()
+                .voltageLevelId(getVoltageLevelId())
+                .busbarSectionId1(getCouplingDeviceInfos().getBusbarSectionId1())
+                .busbarSectionId2(getCouplingDeviceInfos().getBusbarSectionId2())
+                .build();
     }
 
     @Override

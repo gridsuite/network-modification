@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.ShuntCompensatorModification;
@@ -51,7 +50,26 @@ public class ShuntCompensatorModificationInfos extends InjectionModificationInfo
 
     @Override
     public AbstractModification toModification() {
-        return new ShuntCompensatorModification(this);
+        return ShuntCompensatorModification.builder()
+            .equipmentId(getEquipmentId())
+            .properties(getProperties())
+            .equipmentName(getEquipmentName())
+            .voltageLevelId(getVoltageLevelId())
+            .busOrBusbarSectionId(getBusOrBusbarSectionId())
+            .connectionName(getConnectionName())
+            .connectionDirection(getConnectionDirection())
+            .connectionPosition(getConnectionPosition())
+            .terminalConnected(getTerminalConnected())
+            .pMeasurementValue(getPMeasurementValue())
+            .pMeasurementValidity(getPMeasurementValidity())
+            .qMeasurementValue(getQMeasurementValue())
+            .qMeasurementValidity(getQMeasurementValidity())
+            .maximumSectionCount(getMaximumSectionCount())
+            .sectionCount(getSectionCount())
+            .maxSusceptance(getMaxSusceptance())
+            .maxQAtNominalV(getMaxQAtNominalV())
+            .shuntCompensatorType(getShuntCompensatorType())
+            .build();
     }
 
     @Override

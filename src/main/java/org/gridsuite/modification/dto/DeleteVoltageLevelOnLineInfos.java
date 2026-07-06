@@ -18,7 +18,6 @@ import org.gridsuite.modification.modifications.DeleteVoltageLevelOnLine;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
  */
@@ -47,7 +46,12 @@ public class DeleteVoltageLevelOnLineInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new DeleteVoltageLevelOnLine(this);
+        return DeleteVoltageLevelOnLine.builder()
+                .lineToAttachTo1Id(getLineToAttachTo1Id())
+                .lineToAttachTo2Id(getLineToAttachTo2Id())
+                .replacingLine1Id(getReplacingLine1Id())
+                .replacingLine1Name(getReplacingLine1Name())
+                .build();
     }
 
     @Override

@@ -72,7 +72,29 @@ public class BatteryCreationInfos extends InjectionCreationInfos implements Reac
 
     @Override
     public AbstractModification toModification() {
-        return new BatteryCreation(this);
+        return BatteryCreation.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentName(getEquipmentName())
+                .voltageLevelId(getVoltageLevelId())
+                .busOrBusbarSectionId(getBusOrBusbarSectionId())
+                .connectionName(getConnectionName())
+                .connectionDirection(getConnectionDirection())
+                .connectionPosition(getConnectionPosition())
+                .terminalConnected(isTerminalConnected())
+                .minP(getMinP())
+                .maxP(getMaxP())
+                .minQ(getMinQ())
+                .maxQ(getMaxQ())
+                .reactiveCapabilityCurvePoints(getReactiveCapabilityCurvePoints())
+                .targetP(getTargetP())
+                .targetQ(getTargetQ())
+                .participate(getParticipate())
+                .droop(getDroop())
+                .directTransX(getDirectTransX())
+                .stepUpTransformerX(getStepUpTransformerX())
+                .reactiveCapabilityCurve(getReactiveCapabilityCurve())
+                .build();
     }
 
     @Override

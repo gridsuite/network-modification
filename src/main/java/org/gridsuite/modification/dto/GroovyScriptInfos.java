@@ -8,15 +8,15 @@ package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.GroovyScript;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
+import org.gridsuite.modification.modifications.AbstractModification;
+import org.gridsuite.modification.modifications.GroovyScript;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -35,7 +35,9 @@ public class GroovyScriptInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new GroovyScript(this);
+        return GroovyScript.builder()
+                .script(getScript())
+                .build();
     }
 
     @Override

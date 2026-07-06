@@ -75,7 +75,17 @@ public class BalancesAdjustmentModificationInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new BalancesAdjustmentModification(this);
+        return BalancesAdjustmentModification.builder()
+                .areas(getAreas())
+                .maxNumberIterations(getMaxNumberIterations())
+                .thresholdNetPosition(getThresholdNetPosition())
+                .countriesToBalance(getCountriesToBalance())
+                .balanceType(getBalanceType())
+                .withLoadFlow(isWithLoadFlow())
+                .loadFlowParametersId(getLoadFlowParametersId())
+                .withRatioTapChangers(isWithRatioTapChangers())
+                .subtractLoadFlowBalancing(isSubtractLoadFlowBalancing())
+                .build();
     }
 
     @Override

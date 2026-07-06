@@ -77,7 +77,8 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .participate(false)
                 .directTransX(5D)
                 .regulatingTerminalId("v5load").regulatingTerminalType("LOAD").regulatingTerminalVlId("v5").qPercent(75D)
-                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().p(1.).minQ(2.).maxQ(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(9.).minQ(10.).maxQ(11.).build()))
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().p(1.).minQ(2.).maxQ(3.).build(),
+                        ReactiveCapabilityCurvePointsInfos.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(9.).minQ(10.).maxQ(11.).build()))
                 .build(),
             GeneratorCreationInfos.builder()
                 .equipmentId("id5").voltageLevelId("v5").busOrBusbarSectionId("1A1")
@@ -91,7 +92,8 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .connectionName("v5generator").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .energySource(EnergySource.WIND).minP(0).maxP(200)
                 .targetP(150).voltageRegulationOn(true).targetV(375D)
-                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().p(1.).minQ(2.).maxQ(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(9.).minQ(10.).maxQ(11.).build()))
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().p(1.).minQ(2.).maxQ(3.).build(),
+                        ReactiveCapabilityCurvePointsInfos.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(9.).minQ(10.).maxQ(11.).build()))
                 .build(),
             GeneratorCreationInfos.builder()
                 .equipmentId("id7").voltageLevelId("v6").busOrBusbarSectionId("1B1")
@@ -99,7 +101,8 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .energySource(EnergySource.HYDRO).minP(0).maxP(200)
                 .targetP(150).voltageRegulationOn(true).targetV(375D)
                 .minQ(1.).maxQ(100.)
-                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().p(1.).minQ(2.).maxQ(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(9.).minQ(10.).maxQ(11.).build()))
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().p(1.).minQ(2.).maxQ(3.).build(),
+                        ReactiveCapabilityCurvePointsInfos.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(9.).minQ(10.).maxQ(11.).build()))
                 .build()
         );
         return TabularCreationInfos.builder()
@@ -208,21 +211,24 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .connectionName("v5generator").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .energySource(EnergySource.WIND).minP(0).maxP(200)
                 .targetP(150).voltageRegulationOn(true).targetV(375D)
-                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().maxQ(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().maxQ(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().maxQ(3.).build()))
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().maxQ(3.).build(),
+                        ReactiveCapabilityCurvePointsInfos.builder().maxQ(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().maxQ(3.).build()))
                 .build(),
             GeneratorCreationInfos.builder()
                 .equipmentId("id5").voltageLevelId("v5").busOrBusbarSectionId("1A1")
                 .connectionName("v5generator").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .energySource(EnergySource.WIND).minP(0).maxP(200)
                 .targetP(150).voltageRegulationOn(true).targetV(375D)
-                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().p(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(3.).build()))
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().p(3.).build(),
+                        ReactiveCapabilityCurvePointsInfos.builder().p(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(3.).build()))
                 .build(),
             GeneratorCreationInfos.builder()
                 .equipmentId("id6").voltageLevelId("v5").busOrBusbarSectionId("1A1")
                 .connectionName("v5generator").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .energySource(EnergySource.WIND).minP(0).maxP(200)
                 .targetP(150).voltageRegulationOn(true).targetV(375D)
-                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().minQ(1.).p(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().minQ(1.).p(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().minQ(1.).p(3.).build()))
+                .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().minQ(1.).p(3.).build(),
+                        ReactiveCapabilityCurvePointsInfos.builder().minQ(1.).p(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().minQ(1.).p(3.).build()))
                 .build()
         );
         ModificationInfos creationInfos = TabularCreationInfos.builder()

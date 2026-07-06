@@ -8,17 +8,14 @@ package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
-
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.BatteryModification;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-
+import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
+import org.gridsuite.modification.modifications.AbstractModification;
+import org.gridsuite.modification.modifications.BatteryModification;
 import java.util.List;
 
 /**
@@ -71,7 +68,33 @@ public class BatteryModificationInfos extends InjectionModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new BatteryModification(this);
+        return BatteryModification.builder()
+            .equipmentId(getEquipmentId())
+            .properties(getProperties())
+            .equipmentName(getEquipmentName())
+            .voltageLevelId(getVoltageLevelId())
+            .busOrBusbarSectionId(getBusOrBusbarSectionId())
+            .connectionName(getConnectionName())
+            .connectionDirection(getConnectionDirection())
+            .connectionPosition(getConnectionPosition())
+            .terminalConnected(getTerminalConnected())
+            .pMeasurementValue(getPMeasurementValue())
+            .pMeasurementValidity(getPMeasurementValidity())
+            .qMeasurementValue(getQMeasurementValue())
+            .qMeasurementValidity(getQMeasurementValidity())
+            .minP(getMinP())
+            .maxP(getMaxP())
+            .targetP(getTargetP())
+            .targetQ(getTargetQ())
+            .participate(getParticipate())
+            .droop(getDroop())
+            .directTransX(getDirectTransX())
+            .stepUpTransformerX(getStepUpTransformerX())
+            .minQ(getMinQ())
+            .maxQ(getMaxQ())
+            .reactiveCapabilityCurvePoints(getReactiveCapabilityCurvePoints())
+            .reactiveCapabilityCurve(getReactiveCapabilityCurve())
+            .build();
     }
 
     @Override

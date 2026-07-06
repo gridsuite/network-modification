@@ -34,5 +34,4 @@ public class LoadFlowParametersInfos {
 
     private List<LimitReductionsByVoltageLevel> limitReductions;
 
-
 }

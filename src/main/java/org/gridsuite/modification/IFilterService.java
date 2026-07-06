@@ -6,15 +6,13 @@
  */
 package org.gridsuite.modification;
 
+import com.powsybl.iidm.network.Network;
+import org.gridsuite.filter.AbstractFilter;
+import org.gridsuite.modification.dto.FilterEquipments;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
-
-import org.gridsuite.filter.AbstractFilter;
-import org.gridsuite.modification.dto.FilterEquipments;
-
-import com.powsybl.iidm.network.Network;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>

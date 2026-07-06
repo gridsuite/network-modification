@@ -213,7 +213,8 @@ class VscCreationTest extends AbstractNetworkModificationTest {
 
         VscCreation vscCreation3 = (VscCreation) vscCreationInfos.toModification();
         exception = assertThrows(NetworkModificationException.class, () -> vscCreation3.check(network));
-        assertEquals(new NetworkModificationException(CREATE_VSC_ERROR, "Vsc 'vsc1' : maximum reactive power is expected to be greater than or equal to minimum reactive power").getMessage(), exception.getMessage());
+        assertEquals(new NetworkModificationException(CREATE_VSC_ERROR, "Vsc 'vsc1' : maximum reactive power is expected to be greater than or equal to minimum reactive power").getMessage(),
+                exception.getMessage());
 
         // invalid reactive capability curve limit
         vscCreationInfos = (VscCreationInfos) buildModification();

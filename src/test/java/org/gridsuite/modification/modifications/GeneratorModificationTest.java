@@ -12,22 +12,20 @@ import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
-import com.powsybl.iidm.network.util.BusbarSectionFinderTraverser;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.iidm.network.util.BusbarSectionFinderTraverser;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.CollectionUtils;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -251,7 +249,8 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         GeneratorModification generatorModification = (GeneratorModification) generatorModificationInfos.toModification();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class,
                 () -> generatorModification.check(network));
-        assertEquals("MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : Active power 110.0 is expected to be equal to 0 or within the range of minimum active power and maximum active power: [0.0, 100.0]",
+        assertEquals(
+                "MODIFY_GENERATOR_ERROR : Generator 'idGenerator' : Active power 110.0 is expected to be equal to 0 or within the range of minimum active power and maximum active power: [0.0, 100.0]",
                 exception.getMessage());
 
     }

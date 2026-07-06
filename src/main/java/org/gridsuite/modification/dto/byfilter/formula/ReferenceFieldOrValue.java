@@ -13,7 +13,6 @@ import org.gridsuite.modification.NetworkModificationException;
 
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils.getFieldValue;
 
-
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
  */

@@ -8,13 +8,12 @@
 package org.gridsuite.modification.dto.byfilter.equipmentfield;
 
 import com.powsybl.iidm.network.Load;
-import org.gridsuite.modification.dto.AttributeModification;
-import org.gridsuite.modification.dto.OperationType;
-
-import static org.gridsuite.modification.modifications.LoadModification.modifyP0;
-import static org.gridsuite.modification.modifications.LoadModification.modifyQ0;
 import com.powsybl.iidm.network.LoadType;
 import jakarta.validation.constraints.NotNull;
+import org.gridsuite.modification.dto.AttributeModification;
+import org.gridsuite.modification.dto.OperationType;
+import static org.gridsuite.modification.modifications.LoadModification.modifyP0;
+import static org.gridsuite.modification.modifications.LoadModification.modifyQ0;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>

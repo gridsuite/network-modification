@@ -29,7 +29,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
 class GeneratorCreationInBusBreakerTest extends AbstractNetworkModificationTest {
+    @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
     private static String PROPERTY_NAME = "property-name";
+    @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
     private static String PROPERTY_VALUE = "property-value";
 
     @Override
@@ -105,7 +107,7 @@ class GeneratorCreationInBusBreakerTest extends AbstractNetworkModificationTest 
 
     @Test
     void testCreateWithRegulatedTerminalError() throws Exception {
-         // invalid regulating terminal id <---> regulation terminal type
+        // invalid regulating terminal id <---> regulation terminal type
         GeneratorCreationInfos generatorCreationInfos = (GeneratorCreationInfos) buildModification();
         generatorCreationInfos.setRegulatingTerminalType("LINE");
         generatorCreationInfos.setRegulatingTerminalId("titi");

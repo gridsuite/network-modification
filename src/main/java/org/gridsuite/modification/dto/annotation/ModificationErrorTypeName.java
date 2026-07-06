@@ -17,5 +17,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.ANNOTATION_TYPE, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ModificationErrorTypeName {
-    public String value() default "";
+    String value() default "";
 }
