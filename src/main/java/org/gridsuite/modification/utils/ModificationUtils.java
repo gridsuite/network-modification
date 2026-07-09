@@ -12,6 +12,7 @@ import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.util.BusbarSectionFinderTraverser;
+import jakarta.annotation.Nullable;
 import org.apache.commons.math3.util.Pair;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.NetworkModificationException;
@@ -21,7 +22,6 @@ import org.gridsuite.modification.report.NetworkModificationReportResourceBundle
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
