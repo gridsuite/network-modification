@@ -13,13 +13,13 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR;
-import static org.gridsuite.modification.NetworkModificationException.Type.VOLTAGE_LEVEL_NOT_FOUND;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.VOLTAGE_LEVEL_NOT_FOUND;
 
 /**
  * @author REHILI Ghazwa <ghazwarhili at gmail.com>

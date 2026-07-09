@@ -16,11 +16,12 @@ import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils;
+import org.gridsuite.modification.error.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -97,7 +98,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
 
     public abstract IdentifiableType getEquipmentType();
 
-    public abstract NetworkModificationException.Type getExceptionType();
+    public abstract NetworkModificationExceptionType getExceptionType();
 
     public abstract List<AbstractAssignmentInfos> getAssignmentInfosList();
 

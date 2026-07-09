@@ -21,15 +21,16 @@ import lombok.Getter;
 import lombok.Setter;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.IdentifiableAttributes;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.CollectionUtils;
 import java.util.*;
 import java.util.stream.Collectors;
-import static org.gridsuite.modification.NetworkModificationException.Type.BY_FILTER_DELETION_ERROR;
+
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.BY_FILTER_DELETION_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.createReport;
 import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
 

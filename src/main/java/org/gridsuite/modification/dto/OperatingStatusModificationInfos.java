@@ -14,14 +14,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.OperatingStatusModification;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.OPERATING_ACTION_TYPE_EMPTY;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.OPERATING_ACTION_TYPE_EMPTY;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>

@@ -9,12 +9,11 @@ package org.gridsuite.modification.modifications.tabular;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentModificationInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorCreationInfos;
 import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
-
-import static org.gridsuite.modification.NetworkModificationException.Type.TABULAR_CREATION_ERROR;
+import org.gridsuite.modification.error.NetworkModificationException;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.TABULAR_CREATION_ERROR;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>

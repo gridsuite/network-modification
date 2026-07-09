@@ -14,7 +14,7 @@ import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
 import org.gridsuite.modification.utils.ModificationUtils;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_LINE_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_LINE_ERROR;
 import static org.gridsuite.modification.modifications.LineModification.*;
 import static org.gridsuite.modification.utils.ModificationUtils.parseDoubleOrNaNIfNull;
 

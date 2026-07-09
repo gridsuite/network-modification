@@ -15,15 +15,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.EquipmentAttributeModification;
 import org.springframework.lang.NonNull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import static org.gridsuite.modification.NetworkModificationException.Type.*;
+
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.EQUIPMENT_ATTRIBUTE_NAME_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.EQUIPMENT_ATTRIBUTE_VALUE_ERROR;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>

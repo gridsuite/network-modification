@@ -16,10 +16,10 @@ import com.powsybl.iidm.network.Network;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.VariationType;
 import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.dto.ScalingVariationInfos;
+import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.*;
@@ -36,8 +36,8 @@ import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.
 public class GeneratorScaling extends AbstractScaling {
 
     @Builder
-    public GeneratorScaling(List<ScalingVariationInfos> variations, VariationType variationType, NetworkModificationException.Type errorType) {
-        super(variations, variationType, errorType);
+    public GeneratorScaling(List<ScalingVariationInfos> variations, VariationType variationType, NetworkModificationExceptionType exceptionType) {
+        super(variations, variationType, exceptionType);
     }
 
     @Override

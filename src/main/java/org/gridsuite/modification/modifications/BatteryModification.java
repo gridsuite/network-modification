@@ -13,17 +13,18 @@ import com.powsybl.iidm.network.extensions.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import java.util.Collection;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_BATTERY_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.*;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsPercentage;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
@@ -104,7 +105,7 @@ public class BatteryModification extends AbstractInjectionModification {
         }
     }
 
-    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(Battery battery, NetworkModificationException.Type exceptionType,
+    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(Battery battery, NetworkModificationExceptionType exceptionType,
             String errorMessage) {
         ModificationUtils.getInstance().checkActivePowerZeroOrBetweenMinAndMaxActivePower(
                 targetP,

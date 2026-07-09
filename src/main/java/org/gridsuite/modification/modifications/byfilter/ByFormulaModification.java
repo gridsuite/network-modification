@@ -15,10 +15,10 @@ import jakarta.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.dto.byfilter.formula.Operator;
+import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 
 import java.math.BigDecimal;
@@ -26,7 +26,7 @@ import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BY_FORMULA_MODIFICATION_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.BY_FORMULA_MODIFICATION_ERROR;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
@@ -60,7 +60,7 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
     }
 
     @Override
-    public NetworkModificationException.Type getExceptionType() {
+    public NetworkModificationExceptionType getExceptionType() {
         return BY_FORMULA_MODIFICATION_ERROR;
     }
 

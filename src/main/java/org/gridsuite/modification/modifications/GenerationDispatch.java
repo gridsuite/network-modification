@@ -17,10 +17,11 @@ import lombok.*;
 import org.gridsuite.filter.AbstractFilter;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.CollectionUtils;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,10 +29,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toCollection;
-import static org.gridsuite.modification.NetworkModificationException.Type.GENERATION_DISPATCH_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.GENERATION_DISPATCH_ERROR;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>

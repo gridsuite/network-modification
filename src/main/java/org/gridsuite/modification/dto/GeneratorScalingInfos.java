@@ -36,7 +36,7 @@ public class GeneratorScalingInfos extends ScalingInfos {
         return GeneratorScaling.builder()
                 .variations(getVariations())
                 .variationType(getVariationType())
-                .errorType(getErrorType())
+                .exceptionType(getErrorType())
                 .build();
     }
 

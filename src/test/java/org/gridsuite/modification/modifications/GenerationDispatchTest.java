@@ -15,17 +15,19 @@ import org.gridsuite.filter.identifierlistfilter.IdentifiableAttributes;
 import org.gridsuite.filter.identifierlistfilter.IdentifierListFilter;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.IFilterService;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.GENERATION_DISPATCH_ERROR;
 import static org.gridsuite.modification.utils.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -769,12 +771,12 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         GenerationDispatchInfos modification = buildModification();
         modification.setLossCoefficient(150.);
         NetworkModificationException e = assertThrows(NetworkModificationException.class, () -> modification.toModification().check(getNetwork()));
-        assertEquals("GENERATION_DISPATCH_ERROR : The loss coefficient must be between 0 and 100", e.getMessage());
+        assertEquals(GENERATION_DISPATCH_ERROR.getMessage() + " : The loss coefficient must be between 0 and 100", e.getMessage());
 
         modification.setLossCoefficient(20.);
         modification.setDefaultOutageRate(140.);
         e = assertThrows(NetworkModificationException.class, () -> modification.toModification().check(getNetwork()));
-        assertEquals("GENERATION_DISPATCH_ERROR : The default outage rate must be between 0 and 100", e.getMessage());
+        assertEquals(GENERATION_DISPATCH_ERROR.getMessage() + " : The default outage rate must be between 0 and 100", e.getMessage());
     }
 
     @Test
