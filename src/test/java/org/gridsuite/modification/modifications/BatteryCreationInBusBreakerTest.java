@@ -12,10 +12,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.BatteryCreationInfos;
-import org.gridsuite.modification.dto.FreePropertyInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
+import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
@@ -60,6 +57,11 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
                 .minQ(20.0)
                 .maxQ(25.0)
                 .droop(5f)
+                .voltageRegulationOn(true)
+                .targetV(225.)
+                .regulatingTerminalId("idGenerator1")
+                .regulatingTerminalType("GENERATOR")
+                .regulatingTerminalVlId("v1")
                 .stepUpTransformerX(60.0)
                 .directTransX(61.0)
                 .participate(true)
@@ -128,5 +130,17 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
         ActivePowerControl activePowerControl = battery.getExtension(ActivePowerControl.class);
         assertEquals(Double.NaN, activePowerControl.getDroop());
         assertFalse(activePowerControl.isParticipate());
+    }
+
+    @Test
+    void testCreateWithRegulatedTerminalError() {
+        // invalid regulating terminal id <---> regulation terminal type
+        BatteryCreationInfos batteryCreationInfos = (BatteryCreationInfos) buildModification();
+        batteryCreationInfos.setRegulatingTerminalType("LINE");
+        batteryCreationInfos.setRegulatingTerminalId("titi");
+
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class,
+                () -> batteryCreationInfos.toModification().check(getNetwork()));
+        assertEquals("EQUIPMENT_NOT_FOUND : Equipment with id=titi not found with type LINE", exception.getMessage());
     }
 }

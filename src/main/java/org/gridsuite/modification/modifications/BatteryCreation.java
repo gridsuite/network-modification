@@ -9,9 +9,7 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
-import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
-import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.*;
 import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
@@ -21,8 +19,7 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BATTERY_ALREADY_EXISTS;
-import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_BATTERY_ERROR;
+import static org.gridsuite.modification.NetworkModificationException.Type.*;
 import static org.gridsuite.modification.modifications.BatteryModification.ERROR_MESSAGE;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
@@ -45,6 +42,11 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
     private Double directTransX;
     private Double stepUpTransformerX;
     private Boolean reactiveCapabilityCurve;
+    private boolean voltageRegulationOn;
+    private Double targetV;
+    private String regulatingTerminalId;
+    private String regulatingTerminalType;
+    private String regulatingTerminalVlId;
 
     @Builder
     public BatteryCreation(String equipmentId, List<FreePropertyInfos> properties, String equipmentName,
@@ -53,7 +55,8 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
                            boolean terminalConnected, double minP, double maxP, Double minQ, Double maxQ,
                            List<ReactiveCapabilityCurvePointsInfos> reactiveCapabilityCurvePoints,
                            double targetP, Double targetQ, Boolean participate, Float droop, Double directTransX,
-                           Double stepUpTransformerX, Boolean reactiveCapabilityCurve) {
+                           Double stepUpTransformerX, Boolean reactiveCapabilityCurve, Double targetV, boolean voltageRegulationOn,
+                           String regulatingTerminalId, String regulatingTerminalType, String regulatingTerminalVlId) {
         super(equipmentId, properties, equipmentName, voltageLevelId, busOrBusbarSectionId, connectionName, connectionDirection, connectionPosition, terminalConnected);
         this.minP = minP;
         this.maxP = maxP;
@@ -62,11 +65,16 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
         this.reactiveCapabilityCurvePoints = reactiveCapabilityCurvePoints;
         this.targetP = targetP;
         this.targetQ = targetQ;
+        this.targetV = targetV;
         this.participate = participate;
         this.droop = droop;
         this.directTransX = directTransX;
         this.stepUpTransformerX = stepUpTransformerX;
+        this.voltageRegulationOn = voltageRegulationOn;
         this.reactiveCapabilityCurve = reactiveCapabilityCurve;
+        this.regulatingTerminalId = regulatingTerminalId;
+        this.regulatingTerminalType = regulatingTerminalType;
+        this.regulatingTerminalVlId = regulatingTerminalVlId;
     }
 
     @Override
@@ -85,6 +93,14 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
                 CREATE_BATTERY_ERROR,
                 equipmentId,
                 "Battery");
+
+        // check regulated terminal
+        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
+        ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
+                regulatingTerminalId,
+                regulatingTerminalType,
+                regulatingTerminalVlId);
+        checkIsNotNegativeValue(errorMessage, targetV, CREATE_BATTERY_ERROR, "Target Voltage");
 
         ModificationUtils.getInstance().checkActivePowerControl(participate,
             droop, CREATE_BATTERY_ERROR, String.format(ERROR_MESSAGE, equipmentId));
@@ -117,7 +133,7 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
         BatteryAdder batteryAdder = createBatteryAdderInNodeBreaker(voltageLevel);
         createInjectionInNodeBreaker(voltageLevel, this, network, batteryAdder, subReportNode);
         var battery = ModificationUtils.getInstance().getBattery(network, equipmentId);
-        addExtensionsToBattery(battery, subReportNode);
+        addExtensionsToBattery(battery, voltageLevel, subReportNode);
     }
 
     private BatteryAdder createBatteryAdderInNodeBreaker(VoltageLevel voltageLevel) {
@@ -146,7 +162,7 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
                 .setTargetQ(nanIfNull(targetQ))
                 .add();
 
-        addExtensionsToBattery(battery, subReportNode);
+        addExtensionsToBattery(battery, voltageLevel, subReportNode);
 
         subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.batteryCreated")
@@ -155,11 +171,12 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
                 .add();
     }
 
-    private void addExtensionsToBattery(Battery battery, ReportNode subReportNode) {
+    private void addExtensionsToBattery(Battery battery, VoltageLevel voltageLevel, ReportNode subReportNode) {
         if (equipmentName != null) {
             ModificationUtils.getInstance().reportElementaryCreation(subReportNode, equipmentName, "Name");
         }
         reportInjectionCreationConnectivity(this, subReportNode);
+        createBatteryVoltageRegulation(battery, voltageLevel, subReportNode);
         ReportNode subReportNodeLimits = reportBatteryActiveLimits(subReportNode);
         ModificationUtils.getInstance().createReactiveLimits(this, battery, subReportNodeLimits);
         ReportNode subReportNodeSetpoints = reportBatterySetPoints(subReportNode);
@@ -170,6 +187,28 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
         ModificationUtils.getInstance().createShortCircuitExtension(stepUpTransformerX,
                 directTransX, equipmentId,
                 battery.newExtension(BatteryShortCircuitAdder.class), subReportNode, "battery");
+    }
+
+    private void createBatteryVoltageRegulation(Battery battery, VoltageLevel voltageLevel, ReportNode subReportNode) {
+        Terminal regulatingTerminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
+                regulatingTerminalId,
+                regulatingTerminalType,
+                regulatingTerminalVlId);
+        List<ReportNode> voltageReports = new ArrayList<>();
+        VoltageRegulationAdder voltageRegulationAdder = battery.newExtension(VoltageRegulationAdder.class)
+                .withRegulatingTerminal(regulatingTerminal)
+                .withVoltageRegulatorOn(voltageRegulationOn);
+        if (targetV != null) {
+            voltageRegulationAdder.withTargetV(targetV);
+        }
+        voltageRegulationAdder.add();
+        voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
+                regulatingTerminalVlId,
+                "Voltage level"));
+        voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
+                regulatingTerminalType + ":" + regulatingTerminalId,
+                "Equipment"));
+        ModificationUtils.getInstance().reportModifications(subReportNode, voltageReports, "network.modification.VoltageRegulationCreated");
     }
 
     private ReportNode reportBatterySetPoints(ReportNode subReportNode) {
