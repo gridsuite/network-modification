@@ -13,6 +13,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.util.BusbarSectionFinderTraverser;
 import jakarta.annotation.Nullable;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.dto.*;
@@ -20,8 +22,6 @@ import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.modifications.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -1957,7 +1957,7 @@ public final class ModificationUtils {
 
     public static void checkLimitsGroupExist(String errorMessage, String limitsGroupIdToSet, NetworkModificationExceptionType exceptionType, List<String> existingOperationalLimitsGroupIds,
                                              int side) throws NetworkModificationException {
-        if (StringUtils.hasText(limitsGroupIdToSet) && !existingOperationalLimitsGroupIds.contains(limitsGroupIdToSet)) {
+        if (StringUtils.isNotBlank(limitsGroupIdToSet) && !existingOperationalLimitsGroupIds.contains(limitsGroupIdToSet)) {
             throw new NetworkModificationException(exceptionType, errorMessage +
                 String.format("missing limit set %s applicable on side %d : equipment ignored", limitsGroupIdToSet, side));
         }

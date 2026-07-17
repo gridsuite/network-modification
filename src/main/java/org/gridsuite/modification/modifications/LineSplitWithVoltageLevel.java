@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.Network;
 import lombok.*;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
-import org.springframework.lang.NonNull;
 
 import static org.gridsuite.modification.error.NetworkModificationExceptionType.LINE_ALREADY_EXISTS;
 import static org.gridsuite.modification.error.NetworkModificationExceptionType.LINE_NOT_FOUND;
