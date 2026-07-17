@@ -45,7 +45,10 @@ public class ByFormulaModificationInfos extends ModificationInfos {
 
     @Override
     public ByFormulaModification toModification() {
-        return new ByFormulaModification(this);
+        return ByFormulaModification.builder()
+                .identifiableType(getIdentifiableType())
+                .formulaInfosList(getFormulaInfosList())
+                .build();
     }
 
     @Override

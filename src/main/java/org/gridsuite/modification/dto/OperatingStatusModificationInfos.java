@@ -51,7 +51,12 @@ public class OperatingStatusModificationInfos extends EquipmentModificationInfos
 
     @Override
     public AbstractModification toModification() {
-        return new OperatingStatusModification(this);
+        return OperatingStatusModification.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .action(getAction())
+                .energizedVoltageLevelId(getEnergizedVoltageLevelId())
+                .build();
     }
 
     @Override

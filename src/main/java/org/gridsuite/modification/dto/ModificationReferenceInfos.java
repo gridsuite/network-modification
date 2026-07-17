@@ -55,7 +55,11 @@ public class ModificationReferenceInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new ModificationReference(this);
+        return ModificationReference.builder()
+                .referenceId(getReferenceId())
+                .referenceType(getReferenceType())
+                .referenceInfos(getReferenceInfos())
+                .build();
     }
 
     @Override

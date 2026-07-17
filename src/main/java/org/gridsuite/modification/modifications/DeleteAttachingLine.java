@@ -10,8 +10,8 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.RevertCreateLineOnLine;
 import com.powsybl.iidm.modification.topology.RevertCreateLineOnLineBuilder;
 import com.powsybl.iidm.network.Network;
+import lombok.*;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.DeleteAttachingLineInfos;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
 import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
@@ -20,46 +20,50 @@ import static org.gridsuite.modification.utils.ModificationLimitsUtils.applyReve
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
  */
+@Getter
+@Setter
+@AllArgsConstructor
+@Builder
 public class DeleteAttachingLine extends AbstractModification {
 
-    private final DeleteAttachingLineInfos modificationInfos;
-
-    public DeleteAttachingLine(DeleteAttachingLineInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
-    }
+    private String lineToAttachTo1Id;
+    private String lineToAttachTo2Id;
+    private String attachedLineId;
+    private String replacingLine1Id;
+    private String replacingLine1Name;
 
     @Override
     public void check(Network network) throws NetworkModificationException {
         // check existing lines
-        if (network.getLine(modificationInfos.getLineToAttachTo1Id()) == null) {
-            throw new NetworkModificationException(LINE_NOT_FOUND, modificationInfos.getLineToAttachTo1Id());
+        if (network.getLine(lineToAttachTo1Id) == null) {
+            throw new NetworkModificationException(LINE_NOT_FOUND, lineToAttachTo1Id);
         }
-        if (network.getLine(modificationInfos.getLineToAttachTo2Id()) == null) {
-            throw new NetworkModificationException(LINE_NOT_FOUND, modificationInfos.getLineToAttachTo2Id());
+        if (network.getLine(lineToAttachTo2Id) == null) {
+            throw new NetworkModificationException(LINE_NOT_FOUND, lineToAttachTo2Id);
         }
-        if (network.getLine(modificationInfos.getAttachedLineId()) == null) {
-            throw new NetworkModificationException(LINE_NOT_FOUND, modificationInfos.getAttachedLineId());
+        if (network.getLine(attachedLineId) == null) {
+            throw new NetworkModificationException(LINE_NOT_FOUND, attachedLineId);
         }
         // check future line does not exist
-        if (network.getLine(modificationInfos.getReplacingLine1Id()) != null) {
-            throw new NetworkModificationException(LINE_ALREADY_EXISTS, modificationInfos.getReplacingLine1Id());
+        if (network.getLine(replacingLine1Id) != null) {
+            throw new NetworkModificationException(LINE_ALREADY_EXISTS, replacingLine1Id);
         }
     }
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         RevertCreateLineOnLineBuilder builder = new RevertCreateLineOnLineBuilder();
-        RevertCreateLineOnLine algo = builder.withLineToBeMerged1Id(modificationInfos.getLineToAttachTo1Id())
-                .withLineToBeMerged2Id(modificationInfos.getLineToAttachTo2Id())
-                .withLineToBeDeletedId(modificationInfos.getAttachedLineId())
-                .withMergedLineId(modificationInfos.getReplacingLine1Id())
-                .withMergedLineName(modificationInfos.getReplacingLine1Name())
+        RevertCreateLineOnLine algo = builder.withLineToBeMerged1Id(lineToAttachTo1Id)
+                .withLineToBeMerged2Id(lineToAttachTo2Id)
+                .withLineToBeDeletedId(attachedLineId)
+                .withMergedLineId(replacingLine1Id)
+                .withMergedLineName(replacingLine1Name)
                 .build();
 
         applyRevertModificationWithMergingOfLimits(network,
-                modificationInfos.getLineToAttachTo1Id(),
-                modificationInfos.getLineToAttachTo2Id(),
-                modificationInfos.getReplacingLine1Id(),
+                lineToAttachTo1Id,
+                lineToAttachTo2Id,
+                replacingLine1Id,
                 algo,
                 subReportNode);
     }

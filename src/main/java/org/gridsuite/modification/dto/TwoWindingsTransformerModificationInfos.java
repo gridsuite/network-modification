@@ -59,7 +59,47 @@ public class TwoWindingsTransformerModificationInfos extends BranchModificationI
 
     @Override
     public AbstractModification toModification() {
-        return new TwoWindingsTransformerModification(this);
+        return TwoWindingsTransformerModification.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentName(getEquipmentName())
+                .r(getR())
+                .x(getX())
+                .operationalLimitsGroupsModificationType(getOperationalLimitsGroupsModificationType())
+                .enableOLGModification(getEnableOLGModification())
+                .operationalLimitsGroups(getOperationalLimitsGroups())
+                .selectedOperationalLimitsGroupId1(getSelectedOperationalLimitsGroupId1())
+                .selectedOperationalLimitsGroupId2(getSelectedOperationalLimitsGroupId2())
+                .voltageLevelId1(getVoltageLevelId1())
+                .voltageLevelId2(getVoltageLevelId2())
+                .busOrBusbarSectionId1(getBusOrBusbarSectionId1())
+                .busOrBusbarSectionId2(getBusOrBusbarSectionId2())
+                .connectionName1(getConnectionName1())
+                .connectionName2(getConnectionName2())
+                .connectionDirection1(getConnectionDirection1())
+                .connectionDirection2(getConnectionDirection2())
+                .connectionPosition1(getConnectionPosition1())
+                .connectionPosition2(getConnectionPosition2())
+                .terminal1Connected(getTerminal1Connected())
+                .terminal2Connected(getTerminal2Connected())
+                .p1MeasurementValue(getP1MeasurementValue())
+                .p1MeasurementValidity(getP1MeasurementValidity())
+                .p2MeasurementValue(getP2MeasurementValue())
+                .p2MeasurementValidity(getP2MeasurementValidity())
+                .q1MeasurementValue(getQ1MeasurementValue())
+                .q1MeasurementValidity(getQ1MeasurementValidity())
+                .q2MeasurementValue(getQ2MeasurementValue())
+                .q2MeasurementValidity(getQ2MeasurementValidity())
+                .g(getG())
+                .b(getB())
+                .ratedU1(getRatedU1())
+                .ratedU2(getRatedU2())
+                .ratedS(getRatedS())
+                .ratioTapChanger(getRatioTapChanger())
+                .phaseTapChanger(getPhaseTapChanger())
+                .ratioTapChangerToBeEstimated(getRatioTapChangerToBeEstimated())
+                .phaseTapChangerToBeEstimated(getPhaseTapChangerToBeEstimated())
+                .build();
     }
 
     @Override
