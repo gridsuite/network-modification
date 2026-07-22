@@ -83,7 +83,7 @@ public class BatteryCreationInfos extends InjectionCreationInfos implements Reac
     private String regulatingTerminalVlId;
 
     @Schema(description = "Voltage regulation on")
-    private boolean voltageRegulationOn;
+    private Boolean voltageRegulationOn;
 
     @Override
     public AbstractModification toModification() {
@@ -109,7 +109,7 @@ public class BatteryCreationInfos extends InjectionCreationInfos implements Reac
                 .directTransX(getDirectTransX())
                 .stepUpTransformerX(getStepUpTransformerX())
                 .reactiveCapabilityCurve(getReactiveCapabilityCurve())
-                .voltageRegulationOn(isVoltageRegulationOn())
+                .voltageRegulationOn(getVoltageRegulationOn())
                 .targetV(getTargetV())
                 .regulatingTerminalId(getRegulatingTerminalId())
                 .regulatingTerminalType(getRegulatingTerminalType())

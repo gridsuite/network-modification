@@ -42,7 +42,7 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
     private Double directTransX;
     private Double stepUpTransformerX;
     private Boolean reactiveCapabilityCurve;
-    private boolean voltageRegulationOn;
+    private Boolean voltageRegulationOn;
     private Double targetV;
     private String regulatingTerminalId;
     private String regulatingTerminalType;
@@ -55,7 +55,7 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
                            boolean terminalConnected, double minP, double maxP, Double minQ, Double maxQ,
                            List<ReactiveCapabilityCurvePointsInfos> reactiveCapabilityCurvePoints,
                            double targetP, Double targetQ, Boolean participate, Float droop, Double directTransX,
-                           Double stepUpTransformerX, Boolean reactiveCapabilityCurve, Double targetV, boolean voltageRegulationOn,
+                           Double stepUpTransformerX, Boolean reactiveCapabilityCurve, Double targetV, Boolean voltageRegulationOn,
                            String regulatingTerminalId, String regulatingTerminalType, String regulatingTerminalVlId) {
         super(equipmentId, properties, equipmentName, voltageLevelId, busOrBusbarSectionId, connectionName, connectionDirection, connectionPosition, terminalConnected);
         this.minP = minP;
@@ -195,7 +195,7 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
     }
 
     private void createBatteryVoltageRegulation(Battery battery, VoltageLevel voltageLevel, ReportNode subReportNode) {
-        if (!voltageRegulationOn && targetV == null && regulatingTerminalId == null && regulatingTerminalType == null && regulatingTerminalVlId == null) {
+        if (voltageRegulationOn == null && targetV == null && regulatingTerminalId == null && regulatingTerminalType == null && regulatingTerminalVlId == null) {
             return;
         }
         Terminal regulatingTerminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
@@ -205,7 +205,7 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
         List<ReportNode> voltageReports = new ArrayList<>();
         VoltageRegulationAdder voltageRegulationAdder = battery.newExtension(VoltageRegulationAdder.class)
                 .withRegulatingTerminal(regulatingTerminal)
-                .withVoltageRegulatorOn(voltageRegulationOn);
+                .withVoltageRegulatorOn(Boolean.TRUE.equals(voltageRegulationOn));
         if (targetV != null) {
             voltageRegulationAdder.withTargetV(targetV);
         }
