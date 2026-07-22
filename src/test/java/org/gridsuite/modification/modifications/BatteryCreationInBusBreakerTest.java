@@ -12,7 +12,10 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.dto.BatteryCreationInfos;
+import org.gridsuite.modification.dto.FreePropertyInfos;
+import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
@@ -143,13 +146,14 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
 
     @Test
     void testCreateWithRegulatedTerminalError() {
+        Network network = getNetwork();
         // invalid regulating terminal id <---> regulation terminal type
         BatteryCreationInfos batteryCreationInfos = (BatteryCreationInfos) buildModification();
         batteryCreationInfos.setRegulatingTerminalType("LINE");
         batteryCreationInfos.setRegulatingTerminalId("titi");
+        BatteryCreation batteryCreation = (BatteryCreation) batteryCreationInfos.toModification();
 
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class,
-                () -> batteryCreationInfos.toModification().check(getNetwork()));
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> batteryCreation.check(network));
         assertEquals("EQUIPMENT_NOT_FOUND : Equipment with id=titi not found with type LINE", exception.getMessage());
     }
 }
