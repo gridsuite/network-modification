@@ -95,11 +95,16 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
                 "Battery");
 
         // check regulated terminal
-        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
-        ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
-                regulatingTerminalId,
-                regulatingTerminalType,
-                regulatingTerminalVlId);
+        ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
+        if (regulatingTerminalId != null || regulatingTerminalType != null || regulatingTerminalVlId != null) {
+            if (regulatingTerminalId == null || regulatingTerminalType == null || regulatingTerminalVlId == null) {
+                throw new NetworkModificationException(CREATE_BATTERY_ERROR,
+                        errorMessage + "regulatingTerminalId, regulatingTerminalType, and regulatingTerminalVlId must all be provided together");
+            }
+            ModificationUtils.getInstance()
+                    .getTerminalFromIdentifiable(network, regulatingTerminalId, regulatingTerminalType, regulatingTerminalVlId);
+        }
+
         checkIsNotNegativeValue(errorMessage, targetV, CREATE_BATTERY_ERROR, "Target Voltage");
 
         ModificationUtils.getInstance().checkActivePowerControl(participate,
@@ -190,6 +195,9 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
     }
 
     private void createBatteryVoltageRegulation(Battery battery, VoltageLevel voltageLevel, ReportNode subReportNode) {
+        if (!voltageRegulationOn && targetV == null && regulatingTerminalId == null && regulatingTerminalType == null && regulatingTerminalVlId == null) {
+            return;
+        }
         Terminal regulatingTerminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
                 regulatingTerminalId,
                 regulatingTerminalType,
@@ -202,12 +210,16 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
             voltageRegulationAdder.withTargetV(targetV);
         }
         voltageRegulationAdder.add();
-        voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
-                regulatingTerminalVlId,
-                "Voltage level"));
-        voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
-                regulatingTerminalType + ":" + regulatingTerminalId,
-                "Equipment"));
+        if (regulatingTerminalVlId != null) {
+            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
+                    regulatingTerminalVlId,
+                    "Voltage level"));
+        }
+        if (regulatingTerminalId != null && regulatingTerminalType != null) {
+            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
+                    regulatingTerminalType + ":" + regulatingTerminalId,
+                    "Equipment"));
+        }
         ModificationUtils.getInstance().reportModifications(subReportNode, voltageReports, "network.modification.VoltageRegulationCreated");
     }
 
