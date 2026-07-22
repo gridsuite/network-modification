@@ -76,6 +76,11 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         message = assertThrows(NetworkModificationException.class,
             () -> batteryCreation3.check(network)).getMessage();
         assertEquals("BATTERY_ALREADY_EXISTS : v3Battery", message);
+
+        BatteryCreationInfos batteryCreationInfos4 = (BatteryCreationInfos) buildModification();
+        batteryCreationInfos4.setRegulatingTerminalId(null);
+        message = assertThrows(NetworkModificationException.class, () -> batteryCreationInfos4.toModification().check(getNetwork())).getMessage();
+        assertEquals("CREATE_BATTERY_ERROR : Battery 'idBattery1' : regulatingTerminalId, regulatingTerminalType, and regulatingTerminalVlId must all be provided together", message);
     }
 
     @Override

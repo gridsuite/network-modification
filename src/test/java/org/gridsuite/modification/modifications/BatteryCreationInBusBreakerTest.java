@@ -34,7 +34,13 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
     public void checkModification() {
         BatteryCreationInfos batteryCreationInfos = (BatteryCreationInfos) buildModification();
         batteryCreationInfos.setBusOrBusbarSectionId("notFoundBus");
-        assertThrows(NetworkModificationException.class, () -> batteryCreationInfos.toModification().check(getNetwork()));
+        String message = assertThrows(NetworkModificationException.class, () -> batteryCreationInfos.toModification().check(getNetwork())).getMessage();
+        assertEquals("BUS_NOT_FOUND : notFoundBus", message);
+
+        BatteryCreationInfos batteryCreationInfos2 = (BatteryCreationInfos) buildModification();
+        batteryCreationInfos2.setRegulatingTerminalType(null);
+        message = assertThrows(NetworkModificationException.class, () -> batteryCreationInfos2.toModification().check(getNetwork())).getMessage();
+        assertEquals("CREATE_BATTERY_ERROR : Battery 'idBattery2' : regulatingTerminalId, regulatingTerminalType, and regulatingTerminalVlId must all be provided together", message);
     }
 
     @Override
