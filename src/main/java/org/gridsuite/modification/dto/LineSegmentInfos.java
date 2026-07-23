@@ -5,7 +5,7 @@ package org.gridsuite.modification.dto;
  */
 
 public record LineSegmentInfos(String segmentTypeId,
-                               Integer segmentDistanceValue,
+                               Double segmentDistanceValue,
                                String area,
                                String temperature,
                                Double shapeFactor) {

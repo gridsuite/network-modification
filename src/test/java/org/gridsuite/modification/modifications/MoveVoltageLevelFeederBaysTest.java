@@ -270,10 +270,10 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
             .connectionPosition(21)
             .connectionDirection(ConnectablePosition.Direction.BOTTOM)
             .build();
-        MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = new MoveVoltageLevelFeederBays(MoveVoltageLevelFeederBaysInfos.builder()
+        MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = (MoveVoltageLevelFeederBays) MoveVoltageLevelFeederBaysInfos.builder()
             .voltageLevelId("v1")
             .feederBays(List.of(moveFeederBayInfos))
-            .build());
+            .build().toModification();
         moveVoltageLevelFeederBays.apply(network);
         Line line = network.getLine("line2");
         assertNotNull(line);

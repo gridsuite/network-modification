@@ -96,7 +96,37 @@ public class StaticVarCompensatorCreationInfos extends InjectionCreationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new StaticVarCompensatorCreation(this);
+        return StaticVarCompensatorCreation.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentName(getEquipmentName())
+                .voltageLevelId(getVoltageLevelId())
+                .busOrBusbarSectionId(getBusOrBusbarSectionId())
+                .connectionName(getConnectionName())
+                .connectionDirection(getConnectionDirection())
+                .connectionPosition(getConnectionPosition())
+                .terminalConnected(isTerminalConnected())
+                .maxSusceptance(getMaxSusceptance())
+                .minSusceptance(getMinSusceptance())
+                .maxQAtNominalV(getMaxQAtNominalV())
+                .minQAtNominalV(getMinQAtNominalV())
+                .regulationMode(getRegulationMode())
+                .voltageSetpoint(getVoltageSetpoint())
+                .reactivePowerSetpoint(getReactivePowerSetpoint())
+                .voltageRegulationType(getVoltageRegulationType())
+                .regulatingTerminalId(getRegulatingTerminalId())
+                .regulatingTerminalType(getRegulatingTerminalType())
+                .regulatingTerminalVlId(getRegulatingTerminalVlId())
+                .regulating(isRegulating())
+                .standbyAutomatonOn(isStandbyAutomatonOn())
+                .standby(isStandby())
+                .b0(getB0())
+                .q0(getQ0())
+                .lowVoltageSetpoint(getLowVoltageSetpoint())
+                .highVoltageSetpoint(getHighVoltageSetpoint())
+                .lowVoltageThreshold(getLowVoltageThreshold())
+                .highVoltageThreshold(getHighVoltageThreshold())
+                .build();
     }
 
     @Override

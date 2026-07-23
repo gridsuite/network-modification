@@ -49,7 +49,13 @@ public class EquipmentAttributeModificationInfos extends EquipmentModificationIn
 
     @Override
     public AbstractModification toModification() {
-        return new EquipmentAttributeModification(this);
+        return EquipmentAttributeModification.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentAttributeName(getEquipmentAttributeName())
+                .equipmentAttributeValue(getEquipmentAttributeValue())
+                .equipmentType(getEquipmentType())
+                .build();
     }
 
     @Override

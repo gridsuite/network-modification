@@ -10,13 +10,18 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.olg.OperationalLimitsGroupsModification;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.BRANCH_MODIFICATION_ERROR;
@@ -26,7 +31,10 @@ import static org.gridsuite.modification.utils.ModificationUtils.NO_VALUE;
 /**
  * @author Florent MILLOT <florent.millot at rte-france.com>
  */
-public abstract class AbstractBranchModification extends AbstractModification {
+@Setter
+@Getter
+@NoArgsConstructor
+public abstract class AbstractBranchModification extends AbstractEquipmentModification {
 
     public static final String DURATION = "duration";
     public static final String NAME = "name";
@@ -36,50 +44,128 @@ public abstract class AbstractBranchModification extends AbstractModification {
     public static final String SIDE = "side";
     public static final String APPLICABILITY = "applicability";
 
-    protected final BranchModificationInfos modificationInfos;
+    protected AttributeModification<Double> r;
+    protected AttributeModification<Double> x;
+    protected OperationalLimitsGroupsModificationType operationalLimitsGroupsModificationType;
+    protected Boolean enableOLGModification;
+    protected List<OperationalLimitsGroupModificationInfos> operationalLimitsGroups;
+    protected AttributeModification<String> selectedOperationalLimitsGroupId1;
+    protected AttributeModification<String> selectedOperationalLimitsGroupId2;
+    protected AttributeModification<String> voltageLevelId1;
+    protected AttributeModification<String> voltageLevelId2;
+    protected AttributeModification<String> busOrBusbarSectionId1;
+    protected AttributeModification<String> busOrBusbarSectionId2;
+    protected AttributeModification<String> connectionName1;
+    protected AttributeModification<String> connectionName2;
+    protected AttributeModification<ConnectablePosition.Direction> connectionDirection1;
+    protected AttributeModification<ConnectablePosition.Direction> connectionDirection2;
+    protected AttributeModification<Integer> connectionPosition1;
+    protected AttributeModification<Integer> connectionPosition2;
+    protected AttributeModification<Boolean> terminal1Connected;
+    protected AttributeModification<Boolean> terminal2Connected;
+    protected AttributeModification<Double> p1MeasurementValue;
+    protected AttributeModification<Boolean> p1MeasurementValidity;
+    protected AttributeModification<Double> p2MeasurementValue;
+    protected AttributeModification<Boolean> p2MeasurementValidity;
+    protected AttributeModification<Double> q1MeasurementValue;
+    protected AttributeModification<Boolean> q1MeasurementValidity;
+    protected AttributeModification<Double> q2MeasurementValue;
+    protected AttributeModification<Boolean> q2MeasurementValidity;
 
-    protected AbstractBranchModification(BranchModificationInfos modificationInfos) {
-        this.modificationInfos = modificationInfos;
+    protected AbstractBranchModification(String equipmentId, List<FreePropertyInfos> properties,
+                                      AttributeModification<String> equipmentName, AttributeModification<Double> r,
+                                      AttributeModification<Double> x,
+                                      OperationalLimitsGroupsModificationType operationalLimitsGroupsModificationType,
+                                      Boolean enableOLGModification, List<OperationalLimitsGroupModificationInfos> operationalLimitsGroups,
+                                      AttributeModification<String> selectedOperationalLimitsGroupId1,
+                                      AttributeModification<String> selectedOperationalLimitsGroupId2,
+                                      AttributeModification<String> voltageLevelId1,
+                                      AttributeModification<String> voltageLevelId2,
+                                      AttributeModification<String> busOrBusbarSectionId1,
+                                      AttributeModification<String> busOrBusbarSectionId2,
+                                      AttributeModification<String> connectionName1,
+                                      AttributeModification<String> connectionName2,
+                                      AttributeModification<ConnectablePosition.Direction> connectionDirection1,
+                                      AttributeModification<ConnectablePosition.Direction> connectionDirection2,
+                                      AttributeModification<Integer> connectionPosition1,
+                                      AttributeModification<Integer> connectionPosition2,
+                                      AttributeModification<Boolean> terminal1Connected,
+                                      AttributeModification<Boolean> terminal2Connected,
+                                      AttributeModification<Double> p1MeasurementValue,
+                                      AttributeModification<Boolean> p1MeasurementValidity,
+                                      AttributeModification<Double> p2MeasurementValue,
+                                      AttributeModification<Boolean> p2MeasurementValidity,
+                                      AttributeModification<Double> q1MeasurementValue,
+                                      AttributeModification<Boolean> q1MeasurementValidity,
+                                      AttributeModification<Double> q2MeasurementValue,
+                                      AttributeModification<Boolean> q2MeasurementValidity) {
+        super(equipmentId, properties, equipmentName);
+        this.r = r;
+        this.x = x;
+        this.operationalLimitsGroupsModificationType = operationalLimitsGroupsModificationType;
+        this.enableOLGModification = enableOLGModification;
+        this.operationalLimitsGroups = operationalLimitsGroups;
+        this.selectedOperationalLimitsGroupId1 = selectedOperationalLimitsGroupId1;
+        this.selectedOperationalLimitsGroupId2 = selectedOperationalLimitsGroupId2;
+        this.voltageLevelId1 = voltageLevelId1;
+        this.voltageLevelId2 = voltageLevelId2;
+        this.busOrBusbarSectionId1 = busOrBusbarSectionId1;
+        this.busOrBusbarSectionId2 = busOrBusbarSectionId2;
+        this.connectionName1 = connectionName1;
+        this.connectionName2 = connectionName2;
+        this.connectionDirection1 = connectionDirection1;
+        this.connectionDirection2 = connectionDirection2;
+        this.connectionPosition1 = connectionPosition1;
+        this.connectionPosition2 = connectionPosition2;
+        this.terminal1Connected = terminal1Connected;
+        this.terminal2Connected = terminal2Connected;
+        this.p1MeasurementValue = p1MeasurementValue;
+        this.p1MeasurementValidity = p1MeasurementValidity;
+        this.p2MeasurementValue = p2MeasurementValue;
+        this.p2MeasurementValidity = p2MeasurementValidity;
+        this.q1MeasurementValue = q1MeasurementValue;
+        this.q1MeasurementValidity = q1MeasurementValidity;
+        this.q2MeasurementValue = q2MeasurementValue;
+        this.q2MeasurementValidity = q2MeasurementValidity;
     }
 
-    protected void modifyBranch(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode, String reporterKey) {
+    protected void modifyBranch(Branch<?> branch, ReportNode subReportNode, String reporterKey) {
         subReportNode.newReportNode()
-                .withMessageTemplate(reporterKey)
-                .withUntypedValue("id", branchModificationInfos.getEquipmentId())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
-        if (branchModificationInfos.getEquipmentName() != null && modificationInfos.getEquipmentName().getValue() != null) {
+            .withMessageTemplate(reporterKey)
+            .withUntypedValue("id", equipmentId)
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .add();
+        if (equipmentName != null && equipmentName.getValue() != null) {
             ModificationUtils.getInstance().applyElementaryModifications(
-                    branch::setName,
-                    () -> branch.getOptionalName().orElse(NO_VALUE),
-                    modificationInfos.getEquipmentName(),
-                    subReportNode,
-                    "Name"
+                branch::setName,
+                () -> branch.getOptionalName().orElse(NO_VALUE),
+                equipmentName,
+                subReportNode,
+                "Name"
             );
         }
 
-        modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide1(modificationInfos, branch, subReportNode);
-        modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide2(modificationInfos, branch, subReportNode);
-        modifyBranchConnectivityAttributes(branchModificationInfos, branch, subReportNode);
+        modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide1(branch, subReportNode);
+        modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide2(branch, subReportNode);
+        modifyBranchConnectivityAttributes(branch, subReportNode);
 
-        if (characteristicsModified(branchModificationInfos)) {
-            modifyCharacteristics(branch, branchModificationInfos, subReportNode);
+        if (characteristicsModified()) {
+            modifyCharacteristics(branch, subReportNode);
         }
 
         List<ReportNode> activeOLGReports = new ArrayList<>();
 
         ReportNode limitsReportNode = null;
-        boolean modifyOLG = branchModificationInfos.getEnableOLGModification() == null
-            || branchModificationInfos.getEnableOLGModification();
+        boolean modifyOLG = enableOLGModification == null || enableOLGModification;
 
         if (modifyOLG) {
             limitsReportNode = subReportNode.newReportNode().withMessageTemplate("network.modification.limits").add();
             ReportNode limitSetsReportNode = limitsReportNode.newReportNode().withMessageTemplate("network.modification.limitsSets").add();
             new OperationalLimitsGroupsModification(
-                    branch,
-                    branchModificationInfos.getOperationalLimitsGroups(),
-                    limitSetsReportNode
-            ).modifyOperationalLimitsGroups(branchModificationInfos.getOperationalLimitsGroupsModificationType());
+                branch,
+                operationalLimitsGroups,
+                limitSetsReportNode
+            ).modifyOperationalLimitsGroups(operationalLimitsGroupsModificationType);
         }
 
         applySelectedOLGs(branch, activeOLGReports);
@@ -90,24 +176,24 @@ public abstract class AbstractBranchModification extends AbstractModification {
             }
             ModificationUtils.getInstance().reportModifications(limitsReportNode, activeOLGReports, "network.modification.activeLimitsSets");
         }
-        updateConnections(branch, branchModificationInfos);
+        updateConnections(branch);
     }
 
     private void applySelectedOLGs(Branch<?> branch, List<ReportNode> activeOLGReports) {
-        if (modificationInfos.getSelectedOperationalLimitsGroupId1() != null) {
+        if (selectedOperationalLimitsGroupId1 != null) {
             modifySelectedOperationalLimitsGroup(
-                    branch,
-                    modificationInfos.getSelectedOperationalLimitsGroupId1(),
-                    TwoSides.ONE,
-                    activeOLGReports
+                branch,
+                selectedOperationalLimitsGroupId1,
+                TwoSides.ONE,
+                activeOLGReports
             );
         }
-        if (modificationInfos.getSelectedOperationalLimitsGroupId2() != null) {
+        if (selectedOperationalLimitsGroupId2 != null) {
             modifySelectedOperationalLimitsGroup(
-                    branch,
-                    modificationInfos.getSelectedOperationalLimitsGroupId2(),
-                    TwoSides.TWO,
-                    activeOLGReports);
+                branch,
+                selectedOperationalLimitsGroupId2,
+                TwoSides.TWO,
+                activeOLGReports);
         }
     }
 
@@ -116,26 +202,26 @@ public abstract class AbstractBranchModification extends AbstractModification {
             branch.cancelSelectedOperationalLimitsGroup1();
             if (reportNode != null) {
                 reportNode.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("network.modification.noLimitSetSelectedOnSide1")
-                        .withSeverity(TypedValue.INFO_SEVERITY)
-                        .build());
+                    .withMessageTemplate("network.modification.noLimitSetSelectedOnSide1")
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .build());
             }
         } else {
             if (StringUtils.hasText(newSelectedOLG) && branch.getOperationalLimitsGroup1(newSelectedOLG).isEmpty() && reportNode != null) {
                 reportNode.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("network.modification.limitSetAbsentOnSide1")
-                        .withUntypedValue("selectedOperationalLimitsGroup", newSelectedOLG)
-                        .withSeverity(TypedValue.WARN_SEVERITY)
-                        .build());
+                    .withMessageTemplate("network.modification.limitSetAbsentOnSide1")
+                    .withUntypedValue("selectedOperationalLimitsGroup", newSelectedOLG)
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build());
 
             } else {
                 branch.setSelectedOperationalLimitsGroup1(newSelectedOLG);
                 if (reportNode != null) {
                     reportNode.add(ReportNode.newRootReportNode()
-                            .withMessageTemplate("network.modification.limitSetSelectedOnSide1")
-                            .withUntypedValue("selectedOperationalLimitsGroup1", newSelectedOLG)
-                            .withSeverity(TypedValue.INFO_SEVERITY)
-                            .build());
+                        .withMessageTemplate("network.modification.limitSetSelectedOnSide1")
+                        .withUntypedValue("selectedOperationalLimitsGroup1", newSelectedOLG)
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .build());
                 }
             }
         }
@@ -146,40 +232,40 @@ public abstract class AbstractBranchModification extends AbstractModification {
             branch.cancelSelectedOperationalLimitsGroup2();
             if (reportNode != null) {
                 reportNode.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("network.modification.noLimitSetSelectedOnSide2")
-                        .withSeverity(TypedValue.INFO_SEVERITY)
-                        .build());
+                    .withMessageTemplate("network.modification.noLimitSetSelectedOnSide2")
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .build());
             }
         } else {
             if (StringUtils.hasText(newSelectedOLG) && branch.getOperationalLimitsGroup2(newSelectedOLG).isEmpty() && reportNode != null) {
                 reportNode.add(ReportNode.newRootReportNode()
-                        .withMessageTemplate("network.modification.limitSetAbsentOnSide2")
-                        .withUntypedValue("selectedOperationalLimitsGroup", newSelectedOLG)
-                        .withSeverity(TypedValue.WARN_SEVERITY)
-                        .build());
+                    .withMessageTemplate("network.modification.limitSetAbsentOnSide2")
+                    .withUntypedValue("selectedOperationalLimitsGroup", newSelectedOLG)
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build());
 
             } else {
                 branch.setSelectedOperationalLimitsGroup2(newSelectedOLG);
                 if (reportNode != null) {
                     reportNode.add(ReportNode.newRootReportNode()
-                            .withMessageTemplate("network.modification.limitSetSelectedOnSide2")
-                            .withUntypedValue("selectedOperationalLimitsGroup2", newSelectedOLG)
-                            .withSeverity(TypedValue.INFO_SEVERITY)
-                            .build());
+                        .withMessageTemplate("network.modification.limitSetSelectedOnSide2")
+                        .withUntypedValue("selectedOperationalLimitsGroup2", newSelectedOLG)
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .build());
                 }
             }
         }
     }
 
-    public ReportNode updateMeasurements(Branch<?> branch, BranchModificationInfos branchModificationInfos, ReportNode subReportNode) {
-        Double p1Value = branchModificationInfos.getP1MeasurementValue() != null ? branchModificationInfos.getP1MeasurementValue().getValue() : null;
-        Double q1Value = branchModificationInfos.getQ1MeasurementValue() != null ? branchModificationInfos.getQ1MeasurementValue().getValue() : null;
-        Double p2Value = branchModificationInfos.getP2MeasurementValue() != null ? branchModificationInfos.getP2MeasurementValue().getValue() : null;
-        Double q2Value = branchModificationInfos.getQ2MeasurementValue() != null ? branchModificationInfos.getQ2MeasurementValue().getValue() : null;
-        Boolean p1Validity = branchModificationInfos.getP1MeasurementValidity() != null ? branchModificationInfos.getP1MeasurementValidity().getValue() : null;
-        Boolean q1Validity = branchModificationInfos.getQ1MeasurementValidity() != null ? branchModificationInfos.getQ1MeasurementValidity().getValue() : null;
-        Boolean p2Validity = branchModificationInfos.getP2MeasurementValidity() != null ? branchModificationInfos.getP2MeasurementValidity().getValue() : null;
-        Boolean q2Validity = branchModificationInfos.getQ2MeasurementValidity() != null ? branchModificationInfos.getQ2MeasurementValidity().getValue() : null;
+    public ReportNode updateMeasurements(Branch<?> branch, ReportNode subReportNode) {
+        Double p1Value = p1MeasurementValue != null ? p1MeasurementValue.getValue() : null;
+        Double q1Value = q1MeasurementValue != null ? q1MeasurementValue.getValue() : null;
+        Double p2Value = p2MeasurementValue != null ? p2MeasurementValue.getValue() : null;
+        Double q2Value = q2MeasurementValue != null ? q2MeasurementValue.getValue() : null;
+        Boolean p1Validity = p1MeasurementValidity != null ? p1MeasurementValidity.getValue() : null;
+        Boolean q1Validity = q1MeasurementValidity != null ? q1MeasurementValidity.getValue() : null;
+        Boolean p2Validity = p2MeasurementValidity != null ? p2MeasurementValidity.getValue() : null;
+        Boolean q2Validity = q2MeasurementValidity != null ? q2MeasurementValidity.getValue() : null;
         if (p1Value == null && p1Validity == null && q1Value == null && q1Validity == null && p2Value == null && p2Validity == null && q2Value == null && q2Validity == null) {
             // no measurement modification requested
             return null;
@@ -211,23 +297,23 @@ public abstract class AbstractBranchModification extends AbstractModification {
         return estimSubReportNode;
     }
 
-    private void updateConnections(Branch<?> branch, BranchModificationInfos branchModificationInfos) {
+    private void updateConnections(Branch<?> branch) {
         List<TwoSides> errorSides = new ArrayList<>();
         List<String> errorTypes = new ArrayList<>();
-        if (branchModificationInfos.getTerminal1Connected() != null && !updateConnection(branch, TwoSides.ONE, modificationInfos.getTerminal1Connected().getValue())) {
+        if (terminal1Connected != null && !updateConnection(branch, TwoSides.ONE, terminal1Connected.getValue())) {
             errorSides.add(TwoSides.ONE);
-            errorTypes.add(Boolean.TRUE.equals(modificationInfos.getTerminal1Connected().getValue()) ? "connect" : "disconnect");
+            errorTypes.add(Boolean.TRUE.equals(terminal1Connected.getValue()) ? "connect" : "disconnect");
         }
-        if (branchModificationInfos.getTerminal2Connected() != null && !updateConnection(branch, TwoSides.TWO, modificationInfos.getTerminal2Connected().getValue())) {
+        if (terminal2Connected != null && !updateConnection(branch, TwoSides.TWO, terminal2Connected.getValue())) {
             errorSides.add(TwoSides.TWO);
-            errorTypes.add(Boolean.TRUE.equals(modificationInfos.getTerminal2Connected().getValue()) ? "connect" : "disconnect");
+            errorTypes.add(Boolean.TRUE.equals(terminal2Connected.getValue()) ? "connect" : "disconnect");
         }
         if (!errorSides.isEmpty()) {
             throw new NetworkModificationException(BRANCH_MODIFICATION_ERROR,
-                    String.format("Could not %s equipment '%s' on side %s",
-                            errorTypes.stream().distinct().collect(Collectors.joining("/")),
-                            branch.getId(),
-                            errorSides.stream().map(Enum::toString).collect(Collectors.joining("/"))));
+                String.format("Could not %s equipment '%s' on side %s",
+                    errorTypes.stream().distinct().collect(Collectors.joining("/")),
+                    branch.getId(),
+                    errorSides.stream().map(Enum::toString).collect(Collectors.joining("/"))));
         }
     }
 
@@ -249,61 +335,57 @@ public abstract class AbstractBranchModification extends AbstractModification {
 
     public static boolean mayCreateLimit(TemporaryLimitModificationType modificationType) {
         return modificationType == TemporaryLimitModificationType.ADD
-                || modificationType == TemporaryLimitModificationType.REPLACE
-                || modificationType == TemporaryLimitModificationType.MODIFY_OR_ADD;
+            || modificationType == TemporaryLimitModificationType.REPLACE
+            || modificationType == TemporaryLimitModificationType.MODIFY_OR_ADD;
     }
 
     public static void addTemporaryLimit(CurrentLimitsAdder limitsAdder, String limit, double limitValue, int limitAcceptableDuration) {
         limitsAdder
-                .beginTemporaryLimit()
-                .setName(limit)
-                .setValue(limitValue)
-                .setAcceptableDuration(limitAcceptableDuration)
-                .endTemporaryLimit();
+            .beginTemporaryLimit()
+            .setName(limit)
+            .setValue(limitValue)
+            .setAcceptableDuration(limitAcceptableDuration)
+            .endTemporaryLimit();
     }
 
-    protected boolean characteristicsModified(BranchModificationInfos branchModificationInfos) {
-        return branchModificationInfos.getX() != null
-                && branchModificationInfos.getX().getValue() != null
-                || branchModificationInfos.getR() != null
-                && branchModificationInfos.getR().getValue() != null;
+    protected boolean characteristicsModified() {
+        return x != null
+            && x.getValue() != null
+            || r != null
+            && r.getValue() != null;
     }
 
-    protected abstract void modifyCharacteristics(Branch<?> branch, BranchModificationInfos branchModificationInfos,
-                                                  ReportNode subReportNode);
+    protected abstract void modifyCharacteristics(Branch<?> branch, ReportNode subReportNode);
 
-    private ReportNode modifyBranchConnectivityAttributes(BranchModificationInfos branchModificationInfos,
-                                                          Branch<?> branch, ReportNode subReportNode) {
+    private ReportNode modifyBranchConnectivityAttributes(Branch<?> branch, ReportNode subReportNode) {
         ConnectablePosition<?> connectablePosition = (ConnectablePosition<?>) branch.getExtension(ConnectablePosition.class);
         ConnectablePositionAdder<?> connectablePositionAdder = branch.newExtension(ConnectablePositionAdder.class);
-        return ModificationUtils.getInstance().modifyBranchConnectivityAttributes(connectablePosition, connectablePositionAdder, branch, branchModificationInfos, subReportNode);
+        return ModificationUtils.getInstance().modifyBranchConnectivityAttributes(connectablePosition, connectablePositionAdder, branch, this, subReportNode);
     }
 
-    private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide1(BranchModificationInfos modificationInfos,
-                                                                           Branch<?> branch, ReportNode subReportNode) {
+    private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide1(Branch<?> branch, ReportNode subReportNode) {
         ModificationUtils.getInstance().moveFeederBay(
-                (Connectable<?>) branch, branch.getTerminal1(),
-                modificationInfos.getVoltageLevelId1(),
-                modificationInfos.getBusOrBusbarSectionId1(),
-                subReportNode
+            (Connectable<?>) branch, branch.getTerminal1(),
+            voltageLevelId1,
+            busOrBusbarSectionId1,
+            subReportNode
         );
     }
 
-    private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide2(BranchModificationInfos modificationInfos,
-                                                                           Branch<?> branch, ReportNode subReportNode) {
+    private void modifyBranchVoltageLevelBusOrBusBarSectionAttributesSide2(Branch<?> branch, ReportNode subReportNode) {
         ModificationUtils.getInstance().moveFeederBay(
-                (Connectable<?>) branch, branch.getTerminal2(),
-                modificationInfos.getVoltageLevelId2(),
-                modificationInfos.getBusOrBusbarSectionId2(),
-                subReportNode
+            (Connectable<?>) branch, branch.getTerminal2(),
+            voltageLevelId2,
+            busOrBusbarSectionId2,
+            subReportNode
         );
     }
 
     public static void modifySelectedOperationalLimitsGroup(
-            Branch<?> branch,
-            AttributeModification<String> modifOperationalLimitsGroup,
-            TwoSides side,
-            List<ReportNode> reportNode) {
+        Branch<?> branch,
+        AttributeModification<String> modifOperationalLimitsGroup,
+        TwoSides side,
+        List<ReportNode> reportNode) {
         Objects.requireNonNull(side);
         if (modifOperationalLimitsGroup != null) {
             String newSelectedOLG = modifOperationalLimitsGroup.getValue();

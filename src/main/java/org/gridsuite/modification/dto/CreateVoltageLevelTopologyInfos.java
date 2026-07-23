@@ -59,6 +59,10 @@ public class CreateVoltageLevelTopologyInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new CreateVoltageLevelTopology(this);
+        return CreateVoltageLevelTopology.builder()
+                .voltageLevelId(getVoltageLevelId())
+                .switchKinds(getSwitchKinds())
+                .sectionCount(getSectionCount())
+                .build();
     }
 }

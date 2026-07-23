@@ -51,7 +51,14 @@ public class GenerationDispatchInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new GenerationDispatch(this);
+        return GenerationDispatch.builder()
+                .lossCoefficient(getLossCoefficient())
+                .defaultOutageRate(getDefaultOutageRate())
+                .generatorsWithoutOutage(getGeneratorsWithoutOutage())
+                .generatorsWithFixedSupply(getGeneratorsWithFixedSupply())
+                .generatorsFrequencyReserve(getGeneratorsFrequencyReserve())
+                .substationsGeneratorsOrdering(getSubstationsGeneratorsOrdering())
+                .build();
     }
 
     @Override

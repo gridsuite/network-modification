@@ -11,9 +11,10 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.ByFormulaModificationInfos;
-import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.dto.byfilter.formula.Operator;
@@ -30,12 +31,17 @@ import static org.gridsuite.modification.NetworkModificationException.Type.BY_FO
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
  */
+@Getter
+@Setter
 public class ByFormulaModification extends AbstractModificationByAssignment {
-    private final ByFormulaModificationInfos modificationInfos;
+    private IdentifiableType identifiableType;
+    private List<FormulaInfos> formulaInfosList;
 
-    public ByFormulaModification(ByFormulaModificationInfos modificationInfos) {
+    @Builder
+    public ByFormulaModification(IdentifiableType identifiableType, List<FormulaInfos> formulaInfosList) {
         super();
-        this.modificationInfos = modificationInfos;
+        this.identifiableType = identifiableType;
+        this.formulaInfosList = formulaInfosList;
     }
 
     @Override
@@ -44,18 +50,13 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
     }
 
     @Override
-    public ModificationInfos getModificationInfos() {
-        return modificationInfos;
-    }
-
-    @Override
     public IdentifiableType getEquipmentType() {
-        return modificationInfos.getIdentifiableType();
+        return identifiableType;
     }
 
     @Override
     public List<AbstractAssignmentInfos> getAssignmentInfosList() {
-        return Collections.unmodifiableList(modificationInfos.getFormulaInfosList());
+        return Collections.unmodifiableList(formulaInfosList);
     }
 
     @Override

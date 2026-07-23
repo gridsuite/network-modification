@@ -68,7 +68,33 @@ public class BatteryModificationInfos extends InjectionModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new BatteryModification(this);
+        return BatteryModification.builder()
+            .equipmentId(getEquipmentId())
+            .properties(getProperties())
+            .equipmentName(getEquipmentName())
+            .voltageLevelId(getVoltageLevelId())
+            .busOrBusbarSectionId(getBusOrBusbarSectionId())
+            .connectionName(getConnectionName())
+            .connectionDirection(getConnectionDirection())
+            .connectionPosition(getConnectionPosition())
+            .terminalConnected(getTerminalConnected())
+            .pMeasurementValue(getPMeasurementValue())
+            .pMeasurementValidity(getPMeasurementValidity())
+            .qMeasurementValue(getQMeasurementValue())
+            .qMeasurementValidity(getQMeasurementValidity())
+            .minP(getMinP())
+            .maxP(getMaxP())
+            .targetP(getTargetP())
+            .targetQ(getTargetQ())
+            .participate(getParticipate())
+            .droop(getDroop())
+            .directTransX(getDirectTransX())
+            .stepUpTransformerX(getStepUpTransformerX())
+            .minQ(getMinQ())
+            .maxQ(getMaxQ())
+            .reactiveCapabilityCurvePoints(getReactiveCapabilityCurvePoints())
+            .reactiveCapabilityCurve(getReactiveCapabilityCurve())
+            .build();
     }
 
     @Override

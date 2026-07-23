@@ -35,7 +35,9 @@ public class GroovyScriptInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new GroovyScript(this);
+        return GroovyScript.builder()
+                .script(getScript())
+                .build();
     }
 
     @Override

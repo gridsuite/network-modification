@@ -16,6 +16,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
+import org.gridsuite.modification.modifications.EquipmentAttributeModification;
 import org.gridsuite.modification.modifications.VoltageLevelTopologyModification;
 
 import java.util.List;
@@ -38,7 +39,13 @@ public class VoltageLevelTopologyModificationInfos extends EquipmentModification
 
     @Override
     public AbstractModification toModification() {
-        return new VoltageLevelTopologyModification(this);
+        return VoltageLevelTopologyModification.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentAttributeModificationList(getEquipmentAttributeModificationList().stream()
+                    .map(EquipmentAttributeModificationInfos::toModification)
+                    .map(m -> (EquipmentAttributeModification) m).toList())
+                .build();
     }
 
     @Override

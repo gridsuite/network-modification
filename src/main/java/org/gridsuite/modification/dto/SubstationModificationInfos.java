@@ -38,7 +38,12 @@ public class SubstationModificationInfos extends BasicEquipmentModificationInfos
 
     @Override
     public AbstractModification toModification() {
-        return new SubstationModification(this);
+        return SubstationModification.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentName(getEquipmentName())
+                .country(getCountry())
+                .build();
     }
 
     @Override

@@ -41,7 +41,12 @@ public class EquipmentDeletionInfos extends EquipmentModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new EquipmentDeletion(this);
+        return EquipmentDeletion.builder()
+                .equipmentId(getEquipmentId())
+                .properties(getProperties())
+                .equipmentType(getEquipmentType())
+                .equipmentInfos(getEquipmentInfos())
+                .build();
     }
 
     @Override
