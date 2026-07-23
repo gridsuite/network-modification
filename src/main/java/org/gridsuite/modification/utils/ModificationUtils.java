@@ -2102,7 +2102,7 @@ public final class ModificationUtils {
 
         Network network = connectable.getNetwork();
 
-        String finalVoltageLevelId = voltageLevelId.getValue() != null ?
+        String finalVoltageLevelId = voltageLevelId != null && voltageLevelId.getValue() != null ?
                 voltageLevelId.getValue() :
                 network.getVoltageLevel(terminal.getVoltageLevel().getId()).getId();
 
