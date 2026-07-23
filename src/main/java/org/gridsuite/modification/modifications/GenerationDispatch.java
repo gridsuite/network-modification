@@ -305,7 +305,7 @@ public class GenerationDispatch extends AbstractModification {
         return generatorsToReturn.stream().map(network::getGenerator).toList();
     }
 
-    private static class GeneratorTargetPListener extends DefaultNetworkListener {
+    private static class GeneratorTargetPListener implements NetworkListener {
         private final ReportNode reportNode;
         private final List<Generator> updatedGenerators = new ArrayList<>();
 
