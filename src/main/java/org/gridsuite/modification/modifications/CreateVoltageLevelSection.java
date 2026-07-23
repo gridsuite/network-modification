@@ -91,8 +91,8 @@ public class CreateVoltageLevelSection extends AbstractModification {
                 .withAllBusbars(allBusbars)
                 .withLeftSwitchOpen(switchOpen)
                 .withRightSwitchOpen(switchOpen)
-                .withLeftSwitchKind(leftSwitchKind != null ? SwitchKind.valueOf(leftSwitchKind) : SwitchKind.DISCONNECTOR)
-                .withRightSwitchKind(rightSwitchKind != null ? SwitchKind.valueOf(rightSwitchKind) : SwitchKind.DISCONNECTOR)
+                .withLeftSwitchKind(leftSwitchKind != null ? SwitchKind.valueOf(leftSwitchKind) : null)
+                .withRightSwitchKind(rightSwitchKind != null ? SwitchKind.valueOf(rightSwitchKind) : null)
                 .withSwitchPrefixId(voltageLevel.getId())
                 .withBusbarSectionPrefixId(voltageLevel.getId())
                 .build();
