@@ -1,0 +1,135 @@
+/**
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package org.gridsuite.modification.error;
+
+import java.util.Objects;
+
+/**
+ * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
+ */
+public enum NetworkModificationExceptionType {
+    GROOVY_SCRIPT_EMPTY("The groovy script is empty"),
+    GROOVY_SCRIPT_ERROR("An error occurred while executing the groovy script"),
+    NETWORK_NOT_FOUND("The network could not be found"),
+    VARIANT_NOT_FOUND("The network variant could not be found"),
+    NOTHING_TO_DELETE("There is nothing to delete"),
+    MODIFICATION_DELETION_ERROR("An error occurred while deleting the modification"),
+    MODIFICATION_GROUP_NOT_FOUND("The modification group could not be found"),
+    MODIFICATION_NOT_FOUND("The modification could not be found"),
+    SWITCH_NOT_FOUND("The switch could not be found"),
+    LINE_NOT_FOUND("The line could not be found"),
+    LOAD_NOT_FOUND("The load could not be found"),
+    BATTERY_NOT_FOUND("The battery could not be found"),
+    GENERATOR_NOT_FOUND("The generator could not be found"),
+    TWO_WINDINGS_TRANSFORMER_NOT_FOUND("The two windings transformer could not be found"),
+    UNKNOWN_MODIFICATION_TYPE("The modification type is unknown"),
+    UNKNOWN_EQUIPMENT_TYPE("The equipment type is unknown"),
+    WRONG_EQUIPMENT_TYPE("The equipment type does not match the expected type"),
+    MODIFICATION_ERROR("An error occurred while applying the modification"),
+    VOLTAGE_LEVEL_NOT_FOUND("The voltage level could not be found"),
+    CREATE_LOAD_ERROR("An error occurred while creating the load"),
+    MODIFY_LOAD_ERROR("An error occurred while modifying the load"),
+    BUSBAR_SECTION_NOT_FOUND("The busbar section could not be found"),
+    BUS_NOT_FOUND("The bus could not be found"),
+    CREATE_BATTERY_ERROR("An error occurred while creating the battery"),
+    CREATE_GENERATOR_ERROR("An error occurred while creating the generator"),
+    CREATE_SHUNT_COMPENSATOR_ERROR("An error occurred while creating the shunt compensator"),
+    MODIFY_SHUNT_COMPENSATOR_ERROR("An error occurred while modifying the shunt compensator"),
+    CREATE_STATIC_VAR_COMPENSATOR_ERROR("An error occurred while creating the static var compensator"),
+    DELETE_EQUIPMENT_ERROR("An error occurred while deleting the equipment"),
+    BY_FILTER_DELETION_ERROR("An error occurred while deleting equipment matched by a filter"),
+    EQUIPMENT_NOT_FOUND("The equipment could not be found"),
+    ATTRIBUTE_NOT_EDITABLE("The equipment attribute is not editable"),
+    CREATE_LINE_ERROR("An error occurred while creating the line"),
+    MODIFY_LINE_ERROR("An error occurred while modifying the line"),
+    CREATE_TWO_WINDINGS_TRANSFORMER_ERROR("An error occurred while creating the two windings transformer"),
+    MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR("An error occurred while modifying the two windings transformer"),
+    CREATE_SUBSTATION_ERROR("An error occurred while creating the substation"),
+    MODIFY_SUBSTATION_ERROR("An error occurred while modifying the substation"),
+    CREATE_VOLTAGE_LEVEL_ERROR("An error occurred while creating the voltage level"),
+    MODIFY_VOLTAGE_LEVEL_ERROR("An error occurred while modifying the voltage level"),
+    SUBSTATION_NOT_FOUND("The substation could not be found"),
+    BATTERY_ALREADY_EXISTS("A battery with this identifier already exists"),
+    LOAD_ALREADY_EXISTS("A load with this identifier already exists"),
+    VOLTAGE_LEVEL_ALREADY_EXISTS("A voltage level with this identifier already exists"),
+    BUSBAR_SECTION_ALREADY_EXISTS("A busbar section with this identifier already exists"),
+    BUSBAR_SECTION_NOT_DEFINED("The busbar section is not defined"),
+    GENERATOR_ALREADY_EXISTS("A generator with this identifier already exists"),
+    SHUNT_COMPENSATOR_ALREADY_EXISTS("A shunt compensator with this identifier already exists"),
+    SHUNT_COMPENSATOR_NOT_FOUND("The shunt compensator could not be found"),
+    STATIC_VAR_COMPENSATOR_ALREADY_EXISTS("A static var compensator with this identifier already exists"),
+    STATIC_VAR_COMPENSATOR_NOT_FOUND("The static var compensator could not be found"),
+    LINE_ALREADY_EXISTS("A line with this identifier already exists"),
+    TWO_WINDINGS_TRANSFORMER_ALREADY_EXISTS("A two windings transformer with this identifier already exists"),
+    TWO_WINDINGS_TRANSFORMER_CREATION_ERROR("An error occurred while creating the two windings transformer"),
+    BRANCH_MODIFICATION_ERROR("An error occurred while modifying the branch"),
+    INJECTION_MODIFICATION_ERROR("An error occurred while modifying the injection"),
+    MODIFY_BATTERY_ERROR("An error occurred while modifying the battery"),
+    OPERATING_STATUS_MODIFICATION_ERROR("An error occurred while modifying the operating status"),
+    OPERATING_ACTION_TYPE_EMPTY("The operating action type is empty"),
+    OPERATING_ACTION_TYPE_UNKNOWN("The operating action type is unknown"),
+    OPERATING_ACTION_TYPE_UNSUPPORTED("The operating action type is not supported"),
+    EQUIPMENT_TYPE_UNSUPPORTED("The equipment type is not supported"),
+    LINE_SPLIT_ERROR("An error occurred while splitting the line"),
+    LINE_SPLIT_NOT_FOUND("The line to split could not be found"),
+    LINE_ATTACH_ERROR("An error occurred while attaching the line"),
+    LINE_ATTACH_DESCRIPTION_ERROR("The line attachment description is invalid"),
+    LINE_ATTACH_NOT_FOUND("The line to attach could not be found"),
+    MODIFY_GENERATOR_ERROR("An error occurred while modifying the generator"),
+    TYPE_MISMATCH("The provided type does not match the expected type"),
+    MISSING_MODIFICATION_DESCRIPTION("The modification description is missing"),
+    MODIFICATION_OUT_OF_RANGE("The modification value is out of the allowed range"),
+    DELETE_VOLTAGE_LEVEL_ON_LINE_ERROR("An error occurred while deleting the voltage level on the line"),
+    DELETE_VOLTAGE_LEVEL_ON_LINE_NOT_FOUND("The voltage level to delete on the line could not be found"),
+    EQUIPMENT_ATTRIBUTE_NAME_ERROR("The equipment attribute name is invalid"),
+    EQUIPMENT_ATTRIBUTE_VALUE_ERROR("The equipment attribute value is invalid"),
+    MOVE_MODIFICATION_ERROR("An error occurred while moving the modification"),
+    GENERATOR_SCALING_ERROR("An error occurred while scaling the generators"),
+    LOAD_SCALING_ERROR("An error occurred while scaling the loads"),
+    DELETE_ATTACHING_LINE_ERROR("An error occurred while deleting the attaching line"),
+    DELETE_ATTACHING_LINE_NOT_FOUND("The attaching line could not be found"),
+    FILTERS_NOT_FOUND("The filters could not be found"),
+    LOAD_FLOW_PARAMETERS_NOT_FOUND("The load flow parameters could not be found"),
+    LOAD_FLOW_PARAMETERS_FETCH_ERROR("An error occurred while fetching the load flow parameters"),
+    GENERATION_DISPATCH_ERROR("An error occurred while dispatching the generation"),
+    BALANCES_ADJUSTMENT_MODIFICATION_ERROR("An error occurred while adjusting the balances"),
+    VOLTAGE_INIT_MODIFICATION_ERROR("An error occurred while applying the voltage init modification"),
+    TABULAR_MODIFICATION_ERROR("An error occurred while applying the tabular modification"),
+    TABULAR_CREATION_ERROR("An error occurred while applying the tabular creation"),
+    CREATE_VSC_ERROR("An error occurred while creating the VSC converter station"),
+    MODIFY_VSC_ERROR("An error occurred while modifying the VSC converter station"),
+    CREATE_LCC_ERROR("An error occurred while creating the LCC converter station"),
+    MODIFY_LCC_ERROR("An error occurred while modifying the LCC converter station"),
+    HVDC_LINE_ALREADY_EXISTS("An HVDC line with this identifier already exists"),
+    VSC_CONVERTER_STATION_NOT_FOUND("The VSC converter station could not be found"),
+    LCC_CONVERTER_STATION_NOT_FOUND("The LCC converter station could not be found"),
+    CREATE_CONVERTER_STATION_ERROR("An error occurred while creating the converter station"),
+    MODIFY_CONVERTER_STATION_ERROR("An error occurred while modifying the converter station"),
+    LCC_CREATE_CONVERTER_STATION_ERROR("An error occurred while creating the LCC converter station"),
+    LCC_MODIFY_CONVERTER_STATION_ERROR("An error occurred while modifying the LCC converter station"),
+    BY_FORMULA_MODIFICATION_ERROR("An error occurred while applying the modification by formula"),
+    MODIFICATION_BY_ASSIGNMENT_ERROR("An error occurred while applying the modification by assignment"),
+    HVDC_LINE_NOT_FOUND("The HVDC line could not be found"),
+    COMPOSITE_MODIFICATION_ERROR("An error occurred while applying the composite modification"),
+    WRONG_HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL("The HVDC angle droop active power control configuration is invalid"),
+    UNSUPPORTED_HYBRID_HVDC("The hybrid HVDC line is not supported"),
+    MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR("An error occurred while modifying the voltage level topology"),
+    CREATE_COUPLING_DEVICE_ERROR("An error occurred while creating the coupling device"),
+    CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR("An error occurred while creating the voltage level topology"),
+    CREATE_VOLTAGE_LEVEL_SECTION_ERROR("An error occurred while creating the voltage level section"),
+    MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR("An error occurred while moving the voltage level feeder bays");
+
+    private final String message;
+
+    NetworkModificationExceptionType(String message) {
+        this.message = Objects.requireNonNull(message);
+    }
+
+    public String getMessage() {
+        return message;
+    }
+}

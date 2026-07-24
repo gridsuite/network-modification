@@ -9,15 +9,16 @@ package org.gridsuite.modification.modifications;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentAttributeModificationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.UUID;
 
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.ATTRIBUTE_NOT_EDITABLE;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -65,7 +66,7 @@ class EquipmentAttributeModificationTest extends AbstractNetworkModificationTest
             .build();
 
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> switchStatusModificationInfos.toModification().apply(getNetwork()));
-        assertEquals("ATTRIBUTE_NOT_EDITABLE : SWITCH attribute 'close' not editable", exception.getMessage());
+        assertEquals(ATTRIBUTE_NOT_EDITABLE.getMessage() + " : SWITCH attribute 'close' not editable", exception.getMessage());
     }
 
     @Override

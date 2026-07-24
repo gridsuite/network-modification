@@ -10,9 +10,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.CreateVoltageLevelTopologyInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR;
 import static org.gridsuite.modification.utils.TestUtils.checkApplicationWithNamingStrategy;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,19 +34,19 @@ class CreateVoltageLevelTopologyTest extends AbstractNetworkModificationTest {
         Network network = getNetwork();
         String message = assertThrows(NetworkModificationException.class,
             () -> createVoltageLevelTopology.check(network)).getMessage();
-        assertEquals("CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR : Missing required attributes to modify the equipment", message);
+        assertEquals(CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR.getMessage() + " : Missing required attributes to modify the equipment", message);
 
         createVoltageLevelTopology.setVoltageLevelId("notFoundVoltageLevel");
         createVoltageLevelTopology.setSectionCount(3);
         createVoltageLevelTopology.setSwitchKinds(List.of(SwitchKind.DISCONNECTOR));
         message = assertThrows(NetworkModificationException.class,
             () -> createVoltageLevelTopology.check(network)).getMessage();
-        assertEquals("CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR : The switch kinds list must have a size equal to the section count minus one", message);
+        assertEquals(CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR.getMessage() + " : The switch kinds list must have a size equal to the section count minus one", message);
 
         createVoltageLevelTopology.setSectionCount(2);
         message = assertThrows(NetworkModificationException.class,
             () -> createVoltageLevelTopology.check(network)).getMessage();
-        assertEquals("CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR : " + "voltage level notFoundVoltageLevel is not found", message);
+        assertEquals(CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR.getMessage() + " : voltage level notFoundVoltageLevel is not found", message);
     }
 
     @Override

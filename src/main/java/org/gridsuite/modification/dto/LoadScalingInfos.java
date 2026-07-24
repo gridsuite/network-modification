@@ -36,7 +36,7 @@ public class LoadScalingInfos extends ScalingInfos {
         return LoadScaling.builder()
                 .variations(getVariations())
                 .variationType(getVariationType())
-                .errorType(getErrorType())
+                .exceptionType(getErrorType())
                 .build();
     }
 
