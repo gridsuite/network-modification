@@ -9,9 +9,9 @@ package org.gridsuite.modification.dto.byfilter.equipmentfield;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
+import jakarta.annotation.Nullable;
 import org.gridsuite.modification.NetworkModificationException;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 /**

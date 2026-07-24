@@ -10,6 +10,7 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
+import jakarta.annotation.Nonnull;
 import lombok.*;
 import org.apache.commons.math3.util.Pair;
 import org.gridsuite.modification.NetworkModificationException;
@@ -21,7 +22,6 @@ import org.gridsuite.modification.report.NetworkModificationReportResourceBundle
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
