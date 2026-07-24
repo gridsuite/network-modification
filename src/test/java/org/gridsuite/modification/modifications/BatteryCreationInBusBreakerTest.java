@@ -156,4 +156,9 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> batteryCreation.check(network));
         assertEquals("EQUIPMENT_NOT_FOUND : Equipment with id=titi not found with type LINE", exception.getMessage());
     }
+
+    @Override
+    public String getReportFilePath() {
+        return "/report/create-bus-breaker-battery.txt";
+    }
 }

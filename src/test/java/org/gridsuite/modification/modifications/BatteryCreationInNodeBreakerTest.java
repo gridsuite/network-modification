@@ -283,4 +283,9 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         Battery battery2 = network.getBattery("idBattery4");
         assertNull(battery2.getExtension(ActivePowerControl.class));
     }
+
+    @Override
+    public String getReportFilePath() {
+        return "/report/create-node-breaker-battery.txt";
+    }
 }
