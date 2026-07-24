@@ -208,8 +208,16 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
                 .withVoltageRegulatorOn(Boolean.TRUE.equals(voltageRegulationOn));
         if (targetV != null) {
             voltageRegulationAdder.withTargetV(targetV);
+            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
+                    targetV,
+                    "Target V"));
         }
         voltageRegulationAdder.add();
+        if (voltageRegulationOn != null) {
+            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
+                    voltageRegulationOn,
+                    "Enable voltage regulation"));
+        }
         if (regulatingTerminalVlId != null) {
             voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
                     regulatingTerminalVlId,
