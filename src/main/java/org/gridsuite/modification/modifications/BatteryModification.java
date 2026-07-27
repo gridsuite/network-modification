@@ -228,6 +228,11 @@ public class BatteryModification extends AbstractInjectionModification {
                                                       AttributeModification<String> regulatingTerminalVlId,
                                                       AttributeModification<VoltageRegulationType> voltageRegulationType) {
         List<ReportNode> voltageRegulationReports = new ArrayList<>();
+        boolean hasVoltageRegulationChange = targetV != null || voltageRegulationOn != null
+                || voltageRegulationType != null || regulatingTerminalId != null && regulatingTerminalType != null && regulatingTerminalVlId != null;
+        if (!hasVoltageRegulationChange) {
+            return voltageRegulationReports;
+        }
         VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
         if (voltageRegulation == null) {
             voltageRegulation = battery.newExtension(VoltageRegulationAdder.class)
