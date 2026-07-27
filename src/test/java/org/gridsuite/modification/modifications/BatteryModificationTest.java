@@ -8,14 +8,8 @@ package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ReactiveCapabilityCurve;
-import com.powsybl.iidm.network.ReactiveLimitsKind;
-import com.powsybl.iidm.network.extensions.ActivePowerControl;
-import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
-import com.powsybl.iidm.network.extensions.Measurement;
-import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -67,6 +61,37 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         message = assertThrows(NetworkModificationException.class,
             () -> batteryModification2.check(network)).getMessage();
         assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : must have Droop between 0 and 100", message);
+
+        // check regulating terminal
+        BatteryModificationInfos batteryModificationInfos3 = buildModification();
+        batteryModificationInfos3.setRegulatingTerminalVlId(new AttributeModification<>(null, OperationType.UNSET));
+        batteryModificationInfos3.setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
+        batteryModificationInfos3.setRegulatingTerminalType(new AttributeModification<>(null, OperationType.UNSET));
+        BatteryModification batteryModification3 = (BatteryModification) batteryModificationInfos3.toModification();
+        NetworkModificationException exception3 = assertThrows(NetworkModificationException.class,
+                () -> batteryModification3.check(network));
+        assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : Regulation is set to Distant but regulating terminal is missing",
+                exception3.getMessage());
+
+        // check regulating terminal
+        BatteryModificationInfos batteryModificationInfos4 = buildModification();
+        batteryModificationInfos4.setRegulatingTerminalVlId(new AttributeModification<>(null, OperationType.UNSET));
+        batteryModificationInfos4.setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
+        batteryModificationInfos4.setRegulatingTerminalType(new AttributeModification<>(null, OperationType.UNSET));
+        getNetwork().getBattery("v3Battery").newExtension(VoltageRegulationAdder.class)
+                .withRegulatingTerminal(getNetwork().getBusbarSection("1A1").getTerminal())
+                .withVoltageRegulatorOn(true)
+                .add();
+        assertDoesNotThrow(() -> batteryModificationInfos4.toModification().check(getNetwork()));
+
+        BatteryModificationInfos batteryModificationInfos5 = BatteryModificationInfos.builder()
+                .equipmentId("v3Battery")
+                .targetV(new AttributeModification<>(-100d, OperationType.SET))
+                .build();
+        BatteryModification generatorModification5 = (BatteryModification) batteryModificationInfos5.toModification();
+        message = assertThrows(NetworkModificationException.class,
+                () -> generatorModification5.check(network)).getMessage();
+        assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : can not have a negative value for Target Voltage", message);
     }
 
     @Override
@@ -313,6 +338,30 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
             assertThat(node.getValues().get("oldValue")).hasToString(expectedOldValue.toString());
             assertThat(node.getValues().get("newValue")).hasToString(expectedNewValue.toString());
         });
+    }
+
+    @Test
+    void testSettingRegulatingToLocal() {
+        Network network = getNetwork();
+        Battery battery = network.getBattery("v3Battery");
+        battery.newExtension(VoltageRegulationAdder.class)
+                .withVoltageRegulatorOn(true)
+                .withRegulatingTerminal(network.getBusbarSection("1.1").getTerminal())
+                .withTargetV(225)
+                .add();
+
+        BatteryModificationInfos modificationInfos = BatteryModificationInfos.builder()
+                .stashed(false)
+                .equipmentId("v3Battery")
+                .targetV(new AttributeModification<>(52.0, OperationType.SET))
+                .voltageRegulationType(new AttributeModification<>(VoltageRegulationType.LOCAL, OperationType.SET))
+                .build();
+        modificationInfos.toModification().apply(network);
+        Battery modifiedBattery = network.getBattery("v3Battery");
+        VoltageRegulation voltageRegulation = modifiedBattery.getExtension(VoltageRegulation.class);
+        assertNotNull(voltageRegulation);
+        assertEquals(52.0, voltageRegulation.getTargetV());
+        assertEquals(battery.getTerminal(), voltageRegulation.getRegulatingTerminal());
     }
 
     @Override
