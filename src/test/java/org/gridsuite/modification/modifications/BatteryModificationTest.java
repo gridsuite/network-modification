@@ -103,6 +103,13 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
             .qMeasurementValue(new AttributeModification<>(MEASUREMENT_Q_VALUE, OperationType.SET))
             .qMeasurementValidity(new AttributeModification<>(MEASUREMENT_Q_VALID, OperationType.SET))
             .properties(List.of(FreePropertyInfos.builder().name(PROPERTY_NAME).value(PROPERTY_VALUE).build()))
+            .targetV(new AttributeModification<>(48.0, OperationType.SET))
+            .voltageRegulationOn(new AttributeModification<>(true, OperationType.SET))
+            .voltageRegulationType(
+                    new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.SET))
+            .regulatingTerminalId(new AttributeModification<>("v2load", OperationType.SET))
+            .regulatingTerminalType(new AttributeModification<>("LOAD", OperationType.SET))
+            .regulatingTerminalVlId(new AttributeModification<>("v1", OperationType.SET))
             .build();
     }
 
@@ -306,5 +313,10 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
             assertThat(node.getValues().get("oldValue")).hasToString(expectedOldValue.toString());
             assertThat(node.getValues().get("newValue")).hasToString(expectedNewValue.toString());
         });
+    }
+
+    @Override
+    public String getReportFilePath() {
+        return "/report/battery-modification-report.txt";
     }
 }

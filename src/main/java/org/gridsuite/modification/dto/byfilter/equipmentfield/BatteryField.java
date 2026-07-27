@@ -62,10 +62,12 @@ public enum BatteryField {
                         new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null, null, battery.getMinP(),
                         battery.getMaxP(), battery.getTargetP(), MODIFY_BATTERY_ERROR, errorMessage
                 );
-                modifyBatterySetpointsAttributes(new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null, null, null, battery, null);
+                modifyBatterySetpointsAttributes(new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET),
+                        null, null, null, null, null, null, null, null, null, battery, null);
             }
             case REACTIVE_POWER_SET_POINT -> modifyBatterySetpointsAttributes(
-                    null, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null, null, battery, null);
+                    null, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET),
+                    null, null, null, null, null, null, null, null, battery, null);
             case DROOP -> {
                 Float droopValue = Float.parseFloat(newValue);
                 ModificationUtils.checkIsPercentage(errorMessage, droopValue, MODIFY_BATTERY_ERROR, "Droop");

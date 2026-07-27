@@ -7,12 +7,17 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.UUID;
+
+import static org.gridsuite.modification.utils.TestUtils.testReportNode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -32,21 +37,32 @@ public abstract class AbstractNetworkModificationTest {
 
     private Network network;
 
+    private String reportFilePath;
+
     @Autowired
     protected ObjectMapper mapper;
 
     @BeforeEach
     public void setUp() {
         network = createNetwork(TEST_NETWORK_ID);
+        reportFilePath = getReportFilePath();
     }
 
     @Test
     public void testApply() throws Exception {
-        AbstractModification modification = buildModification().toModification();
+        ModificationInfos modificationInfos = buildModification();
+        ReportNode report = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build());
+        AbstractModification modification = modificationInfos.toModification();
         modification.check(network);
         initApplicationContext(modification);
-        modification.apply(network);
+        modification.apply(network, report);
         assertAfterNetworkModificationApplication();
+        if (reportFilePath != null) {
+            testReportNode(report, reportFilePath);
+        }
     }
 
     protected void initApplicationContext(AbstractModification modification) {
@@ -81,5 +97,9 @@ public abstract class AbstractNetworkModificationTest {
     @SuppressWarnings("java:S1130") // Exceptions are throws by overrides
     protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
         assertEquals("{}", modificationInfos.getMessageValues());
+    }
+
+    protected String getReportFilePath() {
+        return null;
     }
 }

@@ -14,12 +14,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.AttributeModification;
-import org.gridsuite.modification.dto.FreePropertyInfos;
-import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
+import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -40,6 +39,8 @@ public class BatteryModification extends AbstractInjectionModification {
     private AttributeModification<Double> maxP;
     private AttributeModification<Double> targetP;
     private AttributeModification<Double> targetQ;
+    private AttributeModification<Double> targetV;
+    private AttributeModification<Boolean> voltageRegulationOn;
     private AttributeModification<Boolean> participate;
     private AttributeModification<Float> droop;
     private AttributeModification<Double> directTransX;
@@ -48,6 +49,10 @@ public class BatteryModification extends AbstractInjectionModification {
     private AttributeModification<Double> maxQ;
     private List<ReactiveCapabilityCurvePointsInfos> reactiveCapabilityCurvePoints;
     private AttributeModification<Boolean> reactiveCapabilityCurve;
+    private AttributeModification<VoltageRegulationType> voltageRegulationType;
+    private AttributeModification<String> regulatingTerminalId;
+    private AttributeModification<String> regulatingTerminalType;
+    private AttributeModification<String> regulatingTerminalVlId;
 
     @Builder
     public BatteryModification(String equipmentId, List<FreePropertyInfos> properties,
@@ -68,7 +73,13 @@ public class BatteryModification extends AbstractInjectionModification {
                                AttributeModification<Double> stepUpTransformerX, AttributeModification<Double> minQ,
                                AttributeModification<Double> maxQ,
                                List<ReactiveCapabilityCurvePointsInfos> reactiveCapabilityCurvePoints,
-                               AttributeModification<Boolean> reactiveCapabilityCurve) {
+                               AttributeModification<Boolean> reactiveCapabilityCurve,
+                               AttributeModification<VoltageRegulationType> voltageRegulationType,
+                               AttributeModification<String> regulatingTerminalId,
+                               AttributeModification<String> regulatingTerminalType,
+                               AttributeModification<String> regulatingTerminalVlId,
+                               AttributeModification<Double> targetV,
+                               AttributeModification<Boolean> voltageRegulationOn) {
         super(equipmentId, properties, equipmentName, voltageLevelId, busOrBusbarSectionId, connectionName,
             connectionDirection, connectionPosition, terminalConnected, pMeasurementValue, pMeasurementValidity,
             qMeasurementValue, qMeasurementValidity);
@@ -84,6 +95,12 @@ public class BatteryModification extends AbstractInjectionModification {
         this.maxQ = maxQ;
         this.reactiveCapabilityCurvePoints = reactiveCapabilityCurvePoints;
         this.reactiveCapabilityCurve = reactiveCapabilityCurve;
+        this.voltageRegulationType = voltageRegulationType;
+        this.regulatingTerminalId = regulatingTerminalId;
+        this.regulatingTerminalType = regulatingTerminalType;
+        this.regulatingTerminalVlId = regulatingTerminalVlId;
+        this.targetV = targetV;
+        this.voltageRegulationOn = voltageRegulationOn;
     }
 
     @Override
@@ -98,6 +115,18 @@ public class BatteryModification extends AbstractInjectionModification {
                 busOrBusbarSectionId, battery.getTerminal());
         ModificationUtils.getInstance().checkReactiveLimit(battery, minQ, maxQ,
                 reactiveCapabilityCurvePoints, MODIFY_BATTERY_ERROR, errorMessage);
+        VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
+        Terminal regulatingTerminal = voltageRegulation != null ? voltageRegulation.getRegulatingTerminal() : null;
+        ModificationUtils.getInstance().checkEnableRegulation(
+                voltageRegulationType,
+                regulatingTerminalId,
+                regulatingTerminalType,
+                regulatingTerminalVlId,
+                battery.getTerminal(),
+                regulatingTerminal,
+                network,
+                MODIFY_BATTERY_ERROR,
+                errorMessage);
         checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(battery, MODIFY_BATTERY_ERROR, errorMessage);
         if (droop != null) {
             checkIsPercentage(errorMessage, droop.getValue(), MODIFY_BATTERY_ERROR, "Droop");
@@ -145,7 +174,9 @@ public class BatteryModification extends AbstractInjectionModification {
         modifyBatteryLimitsAttributes(battery, subReportNode);
         modifyBatterySetpointsAttributes(
                 targetP, targetQ,
-                participate, droop,
+                participate, droop, targetV,
+                voltageRegulationOn, regulatingTerminalId,
+                regulatingTerminalType, regulatingTerminalVlId, voltageRegulationType,
                 battery, subReportNode);
         modifyBatteryConnectivityAttributes(battery, subReportNode);
         updateMeasurements(battery, subReportNode);
@@ -161,12 +192,20 @@ public class BatteryModification extends AbstractInjectionModification {
                                                         AttributeModification<Double> targetQ,
                                                         AttributeModification<Boolean> participate,
                                                         AttributeModification<Float> droop,
+                                                        AttributeModification<Double> targetV,
+                                                        AttributeModification<Boolean> voltageRegulationOn,
+                                                        AttributeModification<String> regulatingTerminalId,
+                                                        AttributeModification<String> regulatingTerminalType,
+                                                        AttributeModification<String> regulatingTerminalVlId,
+                                                        AttributeModification<VoltageRegulationType> voltageRegulationType,
                                                         Battery battery,
                                                         ReportNode subReportNode) {
         ReportNode reportActivePower = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(battery::setTargetP, battery::getTargetP, targetP, "Active power");
         ReportNode reportReactivePower = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(battery::setTargetQ, battery::getTargetQ, targetQ, "Reactive power");
+        List<ReportNode> voltageRegulationReports = modifyVoltageRegulation(battery, targetV,
+                voltageRegulationOn, regulatingTerminalId, regulatingTerminalType, regulatingTerminalVlId, voltageRegulationType);
         ReportNode subReporterSetpoints = null;
-        if (subReportNode != null && (reportActivePower != null || reportReactivePower != null)) {
+        if (subReportNode != null && (reportActivePower != null || reportReactivePower != null || !voltageRegulationReports.isEmpty())) {
             subReporterSetpoints = subReportNode.newReportNode().withMessageTemplate("network.modification.Setpoints").add();
             if (reportActivePower != null) {
                 insertReportNode(subReporterSetpoints, reportActivePower);
@@ -174,8 +213,88 @@ public class BatteryModification extends AbstractInjectionModification {
             if (reportReactivePower != null) {
                 insertReportNode(subReporterSetpoints, reportReactivePower);
             }
+            if (!voltageRegulationReports.isEmpty()) {
+                ModificationUtils.getInstance().reportModifications(subReporterSetpoints, voltageRegulationReports, "network.modification.voltageRegulationModified");
+            }
         }
         modifyBatteryActivePowerControlAttributes(participate, droop, battery, subReportNode, subReporterSetpoints);
+    }
+
+    private static List<ReportNode> modifyVoltageRegulation(Battery battery,
+                                                      AttributeModification<Double> targetV,
+                                                      AttributeModification<Boolean> voltageRegulationOn,
+                                                      AttributeModification<String> regulatingTerminalId,
+                                                      AttributeModification<String> regulatingTerminalType,
+                                                      AttributeModification<String> regulatingTerminalVlId,
+                                                      AttributeModification<VoltageRegulationType> voltageRegulationType) {
+        List<ReportNode> voltageRegulationReports = new ArrayList<>();
+        VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
+        if (voltageRegulation == null) {
+            voltageRegulation = battery.newExtension(VoltageRegulationAdder.class)
+                    .withVoltageRegulatorOn(false)
+                    .add();
+        }
+        // target V
+        if (targetV != null) {
+            Double oldValue = voltageRegulation.getTargetV();
+            Double newValue = Double.NaN;
+            if (targetV.getOp() == OperationType.SET) {
+                // we always keep the equivalent local target voltage in the network
+                voltageRegulation.setTargetV(targetV.getValue());
+                newValue = targetV.getValue();
+            } else {
+                voltageRegulation.setTargetV(Double.NaN);
+            }
+            voltageRegulationReports.add(ModificationUtils.getInstance()
+                    .buildModificationReport(oldValue, newValue, "Target V"));
+        }
+        // voltage Regulation On
+        ReportNode voltageRegulationOnReportNode = ModificationUtils.getInstance()
+                .applyElementaryModificationsAndReturnReport(voltageRegulation::setVoltageRegulatorOn, voltageRegulation::isVoltageRegulatorOn,
+                voltageRegulationOn, "VoltageRegulationOn");
+        if (voltageRegulationOnReportNode != null) {
+            voltageRegulationReports.add(voltageRegulationOnReportNode);
+        }
+        // regulating terminal
+        Terminal regulatingTerminal = voltageRegulation.getRegulatingTerminal();
+        String oldVoltageLevel = null;
+        String oldEquipment = null;
+        // If there is no regulating terminal in file, regulating terminal voltage level
+        // is equal to generator voltage level
+        if (regulatingTerminal != null
+                && !regulatingTerminal.getVoltageLevel().equals(battery.getTerminal().getVoltageLevel())) {
+            oldVoltageLevel = regulatingTerminal.getVoltageLevel().getId();
+            oldEquipment = regulatingTerminal.getConnectable().getType().name() + ":"
+                    + regulatingTerminal.getConnectable().getId();
+        }
+        if (regulatingTerminalId != null
+                && regulatingTerminalType != null
+                && regulatingTerminalVlId != null) {
+            Terminal newRegulatingTerminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(battery.getNetwork(),
+                    regulatingTerminalId.getValue(),
+                    regulatingTerminalType.getValue(),
+                    regulatingTerminalVlId.getValue());
+            voltageRegulation.setRegulatingTerminal(newRegulatingTerminal);
+            voltageRegulationReports.add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel,
+                    regulatingTerminalVlId.getValue(),
+                    "Voltage level"));
+            voltageRegulationReports.add(ModificationUtils.getInstance().buildModificationReport(oldEquipment,
+                    regulatingTerminalType.getValue() + ":"
+                            + regulatingTerminalId.getValue(),
+                    "Equipment"));
+        }
+        if (voltageRegulationType != null
+                && voltageRegulationType.getValue() == VoltageRegulationType.LOCAL
+                && oldEquipment != null && oldVoltageLevel != null) {
+            voltageRegulation.setRegulatingTerminal(null);
+            voltageRegulationReports.add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel,
+                    null,
+                    "Voltage level"));
+            voltageRegulationReports.add(ModificationUtils.getInstance().buildModificationReport(oldEquipment,
+                    null,
+                    "Equipment"));
+        }
+        return voltageRegulationReports;
     }
 
     private void modifyBatteryVoltageLevelBusOrBusBarSectionAttributes(Battery battery, ReportNode subReportNode) {

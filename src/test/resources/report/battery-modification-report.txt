@@ -1,0 +1,40 @@
++ Battery modification v3Battery
+   Battery with id=v3Battery modified :
+   Name : v3Battery → newV1Battery
+   Switch v3bBattery removed
+   Switch v3dBattery removed
+   New feeder bay associated to v3Battery of type BATTERY was created and connected to voltage level v2 on busbar section 1B with a closed disconnector and on 1 parallel busbar sections with an open disconnector.
+   + Limits
+      + Active limits
+         Max active power : 10.0 → 100.0
+         Min active power : 0.0 → 0.0
+      + Reactive limits
+         + By diagram
+            Pmin : No value → 0.1
+            QminPmin : No value → 100.0
+            QmaxPmin : No value → 100.0
+            Pmax : No value → 150.0
+            QminPmax : No value → 100.0
+            QmaxPmax : No value → 100.0
+   + Setpoints
+      Active power : 1.0 → 80.0
+      Reactive power : 1.0 → 40.0
+      + Voltage regulation
+         Target V : No value → 48.0
+         VoltageRegulationOn : false → true
+         Voltage level : No value → v1
+         Equipment : No value → LOAD:v2load
+      + Active power control
+         Participate : No value → true
+         Droop : No value → 0.1
+   + State estimation
+      + Measurements
+         Active power measurement value : No value → 10.0
+         Active power measurement validity : No value → false
+         Reactive power measurement value : No value → 0.5
+         Reactive power measurement validity : No value → true
+   + Short-circuit
+      Transient reactance : No value → 0.1
+      Transformer reactance : No value → 0.2
+   + Properties
+      Property property-name added with value property-value
