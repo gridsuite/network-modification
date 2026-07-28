@@ -1,0 +1,36 @@
++ Battery creation idBattery1
+   New connectable idBattery1 of type BATTERY created.
+   New feeder bay associated to idBattery1 of type BATTERY was created and connected to voltage level v2 on busbar section 1B with a closed disconnector and on 1 parallel busbar sections with an open disconnector.
+   Name : idBattery1
+   + Connectivity
+      Connection name : top
+      Connection direction : TOP
+      Equipment with id=idBattery1 disconnected
+   + Voltage regulation
+      Target V : 225.0
+      Enable voltage regulation : true
+      Voltage level : v1
+      Equipment : LOAD:v2load
+   + Limits
+      + Active limits
+         Min active power : 100.0
+         Max active power : 600.0
+      + Reactive limits
+         + By diagram
+            Pmin : 3.1
+            QminPmin : 2.0
+            QmaxPmin : 3.0
+            Pmax : 10.8
+            QminPmax : 5.6
+            QmaxPmax : 9.8
+   + Setpoints
+      Active power : 400.0
+      Reactive power : 50.0
+      + Active power regulation
+         Participate : true
+         Droop : 5.0
+   + Short-circuit
+      Transient reactance : 61.0
+      Transformer reactance : 60.0
+   + Properties
+      Property property-name added with value property-value

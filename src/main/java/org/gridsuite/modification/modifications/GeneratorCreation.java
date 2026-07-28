@@ -119,8 +119,8 @@ public class GeneratorCreation extends AbstractInjectionCreation implements Reac
                 "Generator");
 
         // check regulated terminal
-        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
-        ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
+        ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
+        ModificationUtils.getInstance().getTerminalFromIdentifiable(network,
             regulatingTerminalId,
             regulatingTerminalType,
             regulatingTerminalVlId);
