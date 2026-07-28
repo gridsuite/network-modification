@@ -72,7 +72,7 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
                                             2147483647).value(671.).build())).build()
                             ).applicability(SIDE1).build(),
                         OperationalLimitsGroupInfos.builder()
-                            .id("group2")
+                                .id("group2")
                             .currentLimits(
                                 CurrentLimitsInfos.builder().permanentLimit(2.).temporaryLimits(List.of(CurrentTemporaryLimitCreationInfos.builder().name("IT10").acceptableDuration(683647).value(
                                         791.).build())).build()

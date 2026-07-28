@@ -35,9 +35,18 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
 
     @Override
     public void checkModification() {
+        Network network = getNetwork();
         BatteryCreationInfos batteryCreationInfos = (BatteryCreationInfos) buildModification();
         batteryCreationInfos.setBusOrBusbarSectionId("notFoundBus");
-        assertThrows(NetworkModificationException.class, () -> batteryCreationInfos.toModification().check(getNetwork()));
+        BatteryCreation batteryCreation = (BatteryCreation) batteryCreationInfos.toModification();
+        String message = assertThrows(NetworkModificationException.class, () -> batteryCreation.check(network)).getMessage();
+        assertEquals("BUS_NOT_FOUND : notFoundBus", message);
+
+        BatteryCreationInfos batteryCreationInfos2 = (BatteryCreationInfos) buildModification();
+        batteryCreationInfos2.setRegulatingTerminalType(null);
+        BatteryCreation batteryCreation2 = (BatteryCreation) batteryCreationInfos2.toModification();
+        message = assertThrows(NetworkModificationException.class, () -> batteryCreation2.check(network)).getMessage();
+        assertEquals("CREATE_BATTERY_ERROR : Battery 'idBattery2' : regulatingTerminalId, regulatingTerminalType, and regulatingTerminalVlId must all be provided together", message);
     }
 
     @Override
@@ -60,6 +69,11 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
                 .minQ(20.0)
                 .maxQ(25.0)
                 .droop(5f)
+                .voltageRegulationOn(true)
+                .targetV(225.)
+                .regulatingTerminalId("idGenerator1")
+                .regulatingTerminalType("GENERATOR")
+                .regulatingTerminalVlId("v1")
                 .stepUpTransformerX(60.0)
                 .directTransX(61.0)
                 .participate(true)
@@ -128,5 +142,23 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
         ActivePowerControl activePowerControl = battery.getExtension(ActivePowerControl.class);
         assertEquals(Double.NaN, activePowerControl.getDroop());
         assertFalse(activePowerControl.isParticipate());
+    }
+
+    @Test
+    void testCreateWithRegulatedTerminalError() {
+        Network network = getNetwork();
+        // invalid regulating terminal id <---> regulation terminal type
+        BatteryCreationInfos batteryCreationInfos = (BatteryCreationInfos) buildModification();
+        batteryCreationInfos.setRegulatingTerminalType("LINE");
+        batteryCreationInfos.setRegulatingTerminalId("titi");
+        BatteryCreation batteryCreation = (BatteryCreation) batteryCreationInfos.toModification();
+
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> batteryCreation.check(network));
+        assertEquals("EQUIPMENT_NOT_FOUND : Equipment with id=titi not found with type LINE", exception.getMessage());
+    }
+
+    @Override
+    public String getReportFilePath() {
+        return "/report/create-bus-breaker-battery.txt";
     }
 }
