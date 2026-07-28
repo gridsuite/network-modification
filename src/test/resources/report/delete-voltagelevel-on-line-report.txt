@@ -1,8 +1,12 @@
 + Delete voltage level on line
+   Switch l1br1 removed
+   Switch l1d1 removed
    Line l1 removed
+   Switch l2br1 removed
+   Switch l2d1 removed
    Line l2 removed
    Line replacementLineId created
-   Voltage level v1 still contains equipments
+   Voltage level v1 contains no branches but still contains equipment, it is not removed.
    + Merging of limits in replacing line replacementLineId
       Limit set groupNotMergedSide1 with applicability on side ONE of l1 but missing from l2 : not included
       + Merging of limits set group1 with applicability on side ONE

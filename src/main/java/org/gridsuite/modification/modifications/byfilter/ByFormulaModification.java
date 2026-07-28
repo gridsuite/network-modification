@@ -11,6 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
+import jakarta.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +21,6 @@ import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.dto.byfilter.formula.Operator;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 
-import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collections;

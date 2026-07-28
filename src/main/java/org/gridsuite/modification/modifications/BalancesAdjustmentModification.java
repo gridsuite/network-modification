@@ -7,7 +7,6 @@
 package org.gridsuite.modification.modifications;
 
 import com.powsybl.balances_adjustment.balance_computation.*;
-import com.powsybl.balances_adjustment.util.CountryAreaFactory;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -18,6 +17,7 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.networkarea.CountryAreaFactory;
 import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import lombok.*;
 import org.gridsuite.modification.IFilterService;
