@@ -62,7 +62,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
             () -> batteryModification2.check(network)).getMessage();
         assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : must have Droop between 0 and 100", message);
 
-        // check regulating terminal
+        // check regulating terminal throws because regulating terminal is unset/missing
         BatteryModificationInfos batteryModificationInfos3 = buildModification();
         batteryModificationInfos3.setRegulatingTerminalVlId(new AttributeModification<>(null, OperationType.UNSET));
         batteryModificationInfos3.setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
@@ -73,7 +73,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : Regulation is set to Distant but regulating terminal is missing",
                 exception3.getMessage());
 
-        // check regulating terminal
+        // check regulating terminal does not throw exception
         BatteryModificationInfos batteryModificationInfos4 = buildModification();
         batteryModificationInfos4.setRegulatingTerminalVlId(new AttributeModification<>(null, OperationType.UNSET));
         batteryModificationInfos4.setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
@@ -84,6 +84,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
                 .add();
         assertDoesNotThrow(() -> batteryModificationInfos4.toModification().check(getNetwork()));
 
+        // check negative target V throws an error
         BatteryModificationInfos batteryModificationInfos5 = BatteryModificationInfos.builder()
                 .equipmentId("v3Battery")
                 .targetV(new AttributeModification<>(-100d, OperationType.SET))
