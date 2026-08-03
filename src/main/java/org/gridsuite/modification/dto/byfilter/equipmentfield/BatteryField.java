@@ -8,10 +8,7 @@
 package org.gridsuite.modification.dto.byfilter.equipmentfield;
 
 import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.extensions.ActivePowerControl;
-import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
-import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
-import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
+import com.powsybl.iidm.network.extensions.*;
 import jakarta.validation.constraints.NotNull;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
@@ -26,10 +23,12 @@ import static org.gridsuite.modification.utils.ModificationUtils.parseDoubleOrNa
  */
 
 public enum BatteryField {
+    VOLTAGE_REGULATOR_ON,
     MINIMUM_ACTIVE_POWER,
     MAXIMUM_ACTIVE_POWER,
     ACTIVE_POWER_SET_POINT,
     REACTIVE_POWER_SET_POINT,
+    VOLTAGE_SET_POINT,
     DROOP,
     TRANSIENT_REACTANCE,
     STEP_UP_TRANSFORMER_REACTANCE;
@@ -37,6 +36,7 @@ public enum BatteryField {
     public static String getReferenceValue(Battery battery, String batteryField) {
         ActivePowerControl<Battery> activePowerControl = battery.getExtension(ActivePowerControl.class);
         BatteryShortCircuit batteryShortCircuit = battery.getExtension(BatteryShortCircuit.class);
+        VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
         BatteryField field = BatteryField.valueOf(batteryField);
         return switch (field) {
             case MINIMUM_ACTIVE_POWER -> String.valueOf(battery.getMinP());
@@ -46,6 +46,8 @@ public enum BatteryField {
             case DROOP -> activePowerControl != null ? String.valueOf(activePowerControl.getDroop()) : null;
             case TRANSIENT_REACTANCE -> batteryShortCircuit != null ? String.valueOf(batteryShortCircuit.getDirectTransX()) : null;
             case STEP_UP_TRANSFORMER_REACTANCE -> batteryShortCircuit != null ? String.valueOf(batteryShortCircuit.getStepUpTransformerX()) : null;
+            case VOLTAGE_SET_POINT -> voltageRegulation != null ? String.valueOf(voltageRegulation.getTargetV()) : null;
+            case VOLTAGE_REGULATOR_ON -> voltageRegulation != null ? String.valueOf(voltageRegulation.isVoltageRegulatorOn()) : null;
         };
     }
 
@@ -84,6 +86,14 @@ public enum BatteryField {
             case STEP_UP_TRANSFORMER_REACTANCE -> ModificationUtils.getInstance().modifyShortCircuitExtension(null,
                     new AttributeModification<>(parseDoubleOrNaNIfNull(newValue), OperationType.SET), battery.getExtension(BatteryShortCircuit.class),
                     () -> battery.newExtension(BatteryShortCircuitAdder.class), null);
+            case VOLTAGE_REGULATOR_ON -> modifyBatterySetpointsAttributes(
+                    null, null,
+                    null, null, null, new AttributeModification<>(Boolean.parseBoolean(newValue), OperationType.SET),
+                    null, null, null, null, battery, null);
+            case VOLTAGE_SET_POINT -> modifyBatterySetpointsAttributes(
+                    null, null,
+                    null, null, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null,
+                    null, null, null, null, battery, null);
         }
     }
 }
