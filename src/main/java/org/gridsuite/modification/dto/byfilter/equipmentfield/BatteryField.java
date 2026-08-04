@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.extensions.*;
 import jakarta.validation.constraints.NotNull;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
+import org.gridsuite.modification.modifications.data.VoltageRegulationModification;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_BATTERY_ERROR;
@@ -65,11 +66,11 @@ public enum BatteryField {
                         battery.getMaxP(), battery.getTargetP(), MODIFY_BATTERY_ERROR, errorMessage
                 );
                 modifyBatterySetpointsAttributes(new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET),
-                        null, null, null, null, null, null, null, null, null, battery, null);
+                        null, null, null, null, battery, null);
             }
             case REACTIVE_POWER_SET_POINT -> modifyBatterySetpointsAttributes(
                     null, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET),
-                    null, null, null, null, null, null, null, null, battery, null);
+                    null, null, null, battery, null);
             case DROOP -> {
                 Float droopValue = Float.parseFloat(newValue);
                 ModificationUtils.checkIsPercentage(errorMessage, droopValue, MODIFY_BATTERY_ERROR, "Droop");
@@ -86,14 +87,21 @@ public enum BatteryField {
             case STEP_UP_TRANSFORMER_REACTANCE -> ModificationUtils.getInstance().modifyShortCircuitExtension(null,
                     new AttributeModification<>(parseDoubleOrNaNIfNull(newValue), OperationType.SET), battery.getExtension(BatteryShortCircuit.class),
                     () -> battery.newExtension(BatteryShortCircuitAdder.class), null);
-            case VOLTAGE_REGULATOR_ON -> modifyBatterySetpointsAttributes(
-                    null, null,
-                    null, null, null, new AttributeModification<>(Boolean.parseBoolean(newValue), OperationType.SET),
-                    null, null, null, null, battery, null);
-            case VOLTAGE_SET_POINT -> modifyBatterySetpointsAttributes(
-                    null, null,
-                    null, null, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null,
-                    null, null, null, null, battery, null);
+            case VOLTAGE_REGULATOR_ON -> {
+                AttributeModification<Boolean> voltageRegulationOnModification =
+                        new AttributeModification<>(newValue == null ? null : Boolean.parseBoolean(newValue), OperationType.SET);
+                modifyBatterySetpointsAttributes(
+                        null, null, null, null,
+                        VoltageRegulationModification.builder().voltageRegulationOn(voltageRegulationOnModification).build(),
+                        battery, null);
+            }
+            case VOLTAGE_SET_POINT -> {
+                AttributeModification<Double> voltageSetPointModification = new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET);
+                modifyBatterySetpointsAttributes(
+                        null, null, null, null,
+                        VoltageRegulationModification.builder().targetV(voltageSetPointModification).build(),
+                        battery, null);
+            }
         }
     }
 }
