@@ -220,10 +220,13 @@ public class BatteryModification extends AbstractInjectionModification {
 
     public static List<ReportNode> modifyVoltageRegulation(Battery battery, VoltageRegulationModification voltageRegulationModification) {
         List<ReportNode> voltageRegulationReports = new ArrayList<>();
-        boolean hasVoltageRegulationChange = voltageRegulationModification != null && (voltageRegulationModification.getTargetV() != null
-                || voltageRegulationModification.getVoltageRegulationOn() != null || voltageRegulationModification.getVoltageRegulationType() != null
-                || voltageRegulationModification.getRegulatingTerminalId() != null && voltageRegulationModification.getRegulatingTerminalType() != null
-                && voltageRegulationModification.getRegulatingTerminalVlId() != null);
+        boolean hasVoltageRegulationChange = voltageRegulationModification != null &&
+                (voltageRegulationModification.getTargetV() != null
+                        || voltageRegulationModification.getVoltageRegulationOn() != null && voltageRegulationModification.getVoltageRegulationOn().getValue() != null
+                        || voltageRegulationModification.getVoltageRegulationType() != null ||
+                            voltageRegulationModification.getRegulatingTerminalId() != null
+                                    && voltageRegulationModification.getRegulatingTerminalType() != null
+                                    && voltageRegulationModification.getRegulatingTerminalVlId() != null);
         if (!hasVoltageRegulationChange) {
             return voltageRegulationReports;
         }

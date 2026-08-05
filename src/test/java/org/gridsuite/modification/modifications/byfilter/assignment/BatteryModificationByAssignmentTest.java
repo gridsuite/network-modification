@@ -167,9 +167,15 @@ class BatteryModificationByAssignmentTest extends AbstractModificationByAssignme
                 .value(true)
                 .build();
 
+        BooleanAssignmentInfos assignmentInfos10 = BooleanAssignmentInfos.builder()
+                .filters(List.of(filter2))
+                .editedField(BatteryField.VOLTAGE_REGULATOR_ON.name())
+                .value(null)
+                .build();
+
         List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
         infosList.addAll(List.of(assignmentInfos1, assignmentInfos2, assignmentInfos3, assignmentInfos4,
-                assignmentInfos5, assignmentInfos6, assignmentInfos7, assignmentInfos8, assignmentInfos9));
+                assignmentInfos5, assignmentInfos6, assignmentInfos7, assignmentInfos8, assignmentInfos9, assignmentInfos10));
 
         return infosList;
     }
@@ -210,6 +216,16 @@ class BatteryModificationByAssignmentTest extends AbstractModificationByAssignme
         assertNotNull(voltageRegulation);
         assertTrue(voltageRegulation.isVoltageRegulatorOn());
         assertEquals(400.0, voltageRegulation.getTargetV());
+
+        VoltageRegulation voltageRegulation2 = getNetwork().getBattery(BATTERY_ID_5).getExtension(VoltageRegulation.class);
+        assertNotNull(voltageRegulation2);
+        assertTrue(voltageRegulation2.isVoltageRegulatorOn());
+        assertEquals(400.0, voltageRegulation2.getTargetV());
+
+        VoltageRegulation voltageRegulation3 = getNetwork().getBattery(BATTERY_ID_2).getExtension(VoltageRegulation.class);
+        assertNull(voltageRegulation3);
+        VoltageRegulation voltageRegulation4 = getNetwork().getBattery(BATTERY_ID_3).getExtension(VoltageRegulation.class);
+        assertNull(voltageRegulation4);
     }
 
     @Override
