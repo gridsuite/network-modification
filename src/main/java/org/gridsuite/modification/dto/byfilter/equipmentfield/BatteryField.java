@@ -17,6 +17,7 @@ import org.gridsuite.modification.utils.ModificationUtils;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_BATTERY_ERROR;
 import static org.gridsuite.modification.modifications.BatteryModification.*;
+import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 import static org.gridsuite.modification.utils.ModificationUtils.parseDoubleOrNaNIfNull;
 
 /**
@@ -93,6 +94,8 @@ public enum BatteryField {
                 modifyVoltageRegulation(battery, VoltageRegulationModification.builder().voltageRegulationOn(voltageRegulationOnModification).build());
             }
             case VOLTAGE_SET_POINT -> {
+                Double targetV = Double.parseDouble(newValue);
+                checkIsNotNegativeValue(errorMessage,targetV, MODIFY_BATTERY_ERROR, "Target Voltage");
                 AttributeModification<Double> voltageSetPointModification = new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET);
                 modifyVoltageRegulation(battery, VoltageRegulationModification.builder().targetV(voltageSetPointModification).build());
             }
