@@ -95,7 +95,7 @@ public enum BatteryField {
             }
             case VOLTAGE_SET_POINT -> {
                 Double targetV = Double.parseDouble(newValue);
-                checkIsNotNegativeValue(errorMessage,targetV, MODIFY_BATTERY_ERROR, "Target Voltage");
+                checkIsNotNegativeValue(errorMessage, targetV, MODIFY_BATTERY_ERROR, "Target Voltage");
                 AttributeModification<Double> voltageSetPointModification = new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET);
                 modifyVoltageRegulation(battery, VoltageRegulationModification.builder().targetV(voltageSetPointModification).build());
             }
