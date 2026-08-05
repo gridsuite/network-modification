@@ -90,17 +90,11 @@ public enum BatteryField {
             case VOLTAGE_REGULATOR_ON -> {
                 AttributeModification<Boolean> voltageRegulationOnModification =
                         new AttributeModification<>(newValue == null ? null : Boolean.parseBoolean(newValue), OperationType.SET);
-                modifyBatterySetpointsAttributes(
-                        null, null, null, null,
-                        VoltageRegulationModification.builder().voltageRegulationOn(voltageRegulationOnModification).build(),
-                        battery, null);
+                modifyVoltageRegulation(battery, VoltageRegulationModification.builder().voltageRegulationOn(voltageRegulationOnModification).build());
             }
             case VOLTAGE_SET_POINT -> {
                 AttributeModification<Double> voltageSetPointModification = new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET);
-                modifyBatterySetpointsAttributes(
-                        null, null, null, null,
-                        VoltageRegulationModification.builder().targetV(voltageSetPointModification).build(),
-                        battery, null);
+                modifyVoltageRegulation(battery, VoltageRegulationModification.builder().targetV(voltageSetPointModification).build());
             }
         }
     }

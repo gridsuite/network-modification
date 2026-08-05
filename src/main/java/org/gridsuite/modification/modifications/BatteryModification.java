@@ -218,7 +218,7 @@ public class BatteryModification extends AbstractInjectionModification {
         modifyBatteryActivePowerControlAttributes(participate, droop, battery, subReportNode, subReporterSetpoints);
     }
 
-    private static List<ReportNode> modifyVoltageRegulation(Battery battery, VoltageRegulationModification voltageRegulationModification) {
+    public static List<ReportNode> modifyVoltageRegulation(Battery battery, VoltageRegulationModification voltageRegulationModification) {
         List<ReportNode> voltageRegulationReports = new ArrayList<>();
         boolean hasVoltageRegulationChange = voltageRegulationModification != null && (voltageRegulationModification.getTargetV() != null
                 || voltageRegulationModification.getVoltageRegulationOn() != null || voltageRegulationModification.getVoltageRegulationType() != null
