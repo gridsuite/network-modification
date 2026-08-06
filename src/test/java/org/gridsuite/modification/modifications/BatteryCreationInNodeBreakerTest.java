@@ -82,6 +82,13 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         BatteryCreation batteryCreation4 = (BatteryCreation) batteryCreationInfos4.toModification();
         message = assertThrows(NetworkModificationException.class, () -> batteryCreation4.check(network)).getMessage();
         assertEquals("CREATE_BATTERY_ERROR : Battery 'idBattery1' : regulatingTerminalId, regulatingTerminalType, and regulatingTerminalVlId must all be provided together", message);
+
+        BatteryCreationInfos batteryCreationInfos5 = (BatteryCreationInfos) buildModification();
+        batteryCreationInfos5.setVoltageRegulationOn(true);
+        batteryCreationInfos5.setTargetV(null);
+        BatteryCreation batteryCreation5 = (BatteryCreation) batteryCreationInfos5.toModification();
+        message = assertThrows(NetworkModificationException.class, () -> batteryCreation5.check(network)).getMessage();
+        assertEquals("CREATE_BATTERY_ERROR : 'idBattery1': voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
     }
 
     @Override
