@@ -124,11 +124,9 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
     }
 
     private void checkVoltageRegulatorOn(String equipmentId) {
-        if (voltageRegulationOn != null && voltageRegulationOn) {
-            if (targetV == null || Double.isNaN(targetV)) {
-                throw new NetworkModificationException(CREATE_BATTERY_ERROR, "'" + equipmentId +
-                        "': voltage setpoint value (NaN) is invalid (voltage regulator is on)");
-            }
+        if (voltageRegulationOn != null && voltageRegulationOn && (targetV == null || Double.isNaN(targetV))) {
+            throw new NetworkModificationException(CREATE_BATTERY_ERROR, "'" + equipmentId +
+                    "': voltage setpoint value (NaN) is invalid (voltage regulator is on)");
         }
     }
 
