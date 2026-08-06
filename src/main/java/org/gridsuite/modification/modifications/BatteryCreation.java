@@ -9,17 +9,25 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.*;
-import lombok.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
+import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.dto.FreePropertyInfos;
+import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
+import org.gridsuite.modification.dto.ReactiveLimitsHolderInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import static org.gridsuite.modification.NetworkModificationException.Type.BATTERY_ALREADY_EXISTS;
+import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_BATTERY_ERROR;
 import static org.gridsuite.modification.modifications.BatteryModification.ERROR_MESSAGE;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
@@ -94,6 +102,9 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
                 equipmentId,
                 "Battery");
 
+        // check voltage regulator
+        checkVoltageRegulatorOn(equipmentId);
+
         // check regulated terminal
         ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
         if (regulatingTerminalId != null || regulatingTerminalType != null || regulatingTerminalVlId != null) {
@@ -110,6 +121,15 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
         ModificationUtils.getInstance().checkActivePowerControl(participate,
             droop, CREATE_BATTERY_ERROR, String.format(ERROR_MESSAGE, equipmentId));
         checkIsPercentage(errorMessage, droop, CREATE_BATTERY_ERROR, "Droop");
+    }
+
+    private void checkVoltageRegulatorOn(String equipmentId) {
+        if (voltageRegulationOn != null && voltageRegulationOn) {
+            if (targetV == null || Double.isNaN(targetV)) {
+                throw new NetworkModificationException(CREATE_BATTERY_ERROR, "'" + equipmentId +
+                        "': voltage setpoint value (NaN) is invalid (voltage regulator is on)");
+            }
+        }
     }
 
     @Override
