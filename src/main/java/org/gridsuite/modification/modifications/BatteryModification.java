@@ -139,19 +139,19 @@ public class BatteryModification extends AbstractInjectionModification {
     }
 
     private void checkVoltageRegulatorOn(VoltageRegulation voltageRegulation, Battery battery) {
-        boolean targetVIsNotValide = false;
+        boolean targetVIsNotValid = false;
         if (voltageRegulationOn != null && voltageRegulationOn.getValue()) {
             if (targetV != null) {
                 if (targetV.getValue() == null || Double.isNaN(targetV.getValue())) {
-                    targetVIsNotValide = true;
+                    targetVIsNotValid = true;
                 }
             } else {
                 if (voltageRegulation == null || Double.isNaN(voltageRegulation.getTargetV())) {
-                    targetVIsNotValide = true;
+                    targetVIsNotValid = true;
                 }
             }
         }
-        if (targetVIsNotValide) {
+        if (targetVIsNotValid) {
             throw new NetworkModificationException(MODIFY_BATTERY_ERROR, "'" + battery.getId() +
                     "': voltage setpoint value (NaN) is invalid (voltage regulator is on)");
         }
