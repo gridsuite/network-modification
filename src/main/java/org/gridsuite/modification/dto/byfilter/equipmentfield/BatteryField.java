@@ -9,7 +9,6 @@ package org.gridsuite.modification.dto.byfilter.equipmentfield;
 
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.extensions.*;
-import jakarta.validation.constraints.NotNull;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
 import org.gridsuite.modification.modifications.data.VoltageRegulationModification;
@@ -52,7 +51,7 @@ public enum BatteryField {
         };
     }
 
-    public static void setNewValue(Battery battery, String batteryField, @NotNull String newValue) {
+    public static void setNewValue(Battery battery, String batteryField, String newValue) {
         BatteryField field = BatteryField.valueOf(batteryField);
         VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
         String errorMessage = String.format(ERROR_MESSAGE, battery.getId());
