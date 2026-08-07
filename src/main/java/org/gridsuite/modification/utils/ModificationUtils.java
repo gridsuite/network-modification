@@ -2009,14 +2009,14 @@ public final class ModificationUtils {
 
     public static void checkVoltageRegulation(String errorMessage, VoltageRegulation voltageRegulation, AttributeModification<Boolean> voltageRegulatorOn,
                                               AttributeModification<Double> targetV, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
-        if (voltageRegulatorOn != null && Boolean.TRUE.equals(voltageRegulatorOn.getValue())) {
-            if (targetV != null) {
-                checkVoltageRegulation(errorMessage, targetV.getValue(), true, exceptionType);
-            } else {
-                checkVoltageRegulation(errorMessage, voltageRegulation, true, exceptionType);
-            }
-        } else if (targetV != null) {
-            checkTargetV(errorMessage, voltageRegulation, targetV.getValue(), exceptionType);
+        Boolean requestedOn = voltageRegulatorOn == null ? null : voltageRegulatorOn.getValue();
+        boolean effectiveOn = requestedOn != null ? requestedOn
+                        : voltageRegulation != null && voltageRegulation.isVoltageRegulatorOn();
+        if (effectiveOn) {
+            Double effectiveTargetV = targetV != null
+                    ? targetV.getValue()
+                    : voltageRegulation == null ? null : voltageRegulation.getTargetV();
+            checkVoltageRegulation(errorMessage, effectiveTargetV, true, exceptionType);
         }
     }
 
