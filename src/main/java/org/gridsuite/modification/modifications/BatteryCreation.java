@@ -103,7 +103,7 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
                 "Battery");
 
         // check voltage regulator
-        checkVoltageRegulatorOn(equipmentId);
+        ModificationUtils.checkVoltageRegulatorOn("'" + equipmentId + "': ", targetV, voltageRegulationOn, CREATE_BATTERY_ERROR);
 
         // check regulated terminal
         ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
@@ -121,13 +121,6 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
         ModificationUtils.getInstance().checkActivePowerControl(participate,
             droop, CREATE_BATTERY_ERROR, String.format(ERROR_MESSAGE, equipmentId));
         checkIsPercentage(errorMessage, droop, CREATE_BATTERY_ERROR, "Droop");
-    }
-
-    private void checkVoltageRegulatorOn(String equipmentId) {
-        if (voltageRegulationOn != null && voltageRegulationOn && (targetV == null || Double.isNaN(targetV))) {
-            throw new NetworkModificationException(CREATE_BATTERY_ERROR, "'" + equipmentId +
-                    "': voltage setpoint value (NaN) is invalid (voltage regulator is on)");
-        }
     }
 
     @Override

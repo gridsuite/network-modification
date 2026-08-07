@@ -2007,6 +2007,30 @@ public final class ModificationUtils {
         }
     }
 
+    public static void checkVoltageRegulatorOn(String errorMessage, VoltageRegulation voltageRegulation, AttributeModification<Boolean> voltageRegulatorOn,
+                                               AttributeModification<Double> targetV, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+        if (voltageRegulatorOn != null && voltageRegulatorOn.getValue()) {
+            if (targetV != null) {
+                checkVoltageRegulatorOn(errorMessage, targetV.getValue(), true, exceptionType);
+            } else {
+                checkVoltageRegulatorOn(errorMessage, voltageRegulation, true, exceptionType);
+            }
+        }
+    }
+
+    public static void checkVoltageRegulatorOn(String errorMessage, VoltageRegulation voltageRegulation,
+                                               Boolean voltageRegulatorOn, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+        checkVoltageRegulatorOn(errorMessage, voltageRegulation == null ? null : voltageRegulation.getTargetV(), voltageRegulatorOn, exceptionType);
+    }
+
+    public static void checkVoltageRegulatorOn(String errorMessage, Double targetV, Boolean voltageRegulatorOn, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+        if (Boolean.TRUE.equals(voltageRegulatorOn)) {
+            if (targetV == null || Double.isNaN(targetV)) {
+                throw new NetworkModificationException(exceptionType, errorMessage + "voltage setpoint value (NaN) is invalid (voltage regulator is on)");
+            }
+        }
+    }
+
     public static boolean validateMinimumActivePower(Generator generator, List<ReportNode> reports, double newValue) {
         GeneratorStartup generatorStartup = generator.getExtension(GeneratorStartup.class);
         Double plannedActivePowerSetPoint = generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) ? generatorStartup.getPlannedActivePowerSetpoint() : null;
