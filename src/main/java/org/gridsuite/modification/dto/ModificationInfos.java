@@ -119,6 +119,9 @@ public class ModificationInfos {
     @Schema(description = "Modification activated (defaults to true at creation when not provided)")
     private Boolean activated;
 
+    @Schema(description = "Modification applicability per root network tag (a tag without an entry is applicable)")
+    private Map<String, Boolean> applicabilityByRootNetworkTag;
+
     @Schema(description = "User description")
     private String description;
 
@@ -148,6 +151,20 @@ public class ModificationInfos {
     @JsonIgnore
     public Map<String, String> getMapMessageValues() {
         return Map.of();
+    }
+
+    /**
+     * A modification is applicable on a root network when it is globally activated and when its applicability
+     * for that root network tag is not explicitly set to false. A tag without any entry is applicable.
+     */
+    @JsonIgnore
+    public boolean isApplicableOn(String rootNetworkTag) {
+        if (!Boolean.TRUE.equals(activated)) {
+            return false;
+        }
+        return rootNetworkTag == null
+            || applicabilityByRootNetworkTag == null
+            || applicabilityByRootNetworkTag.getOrDefault(rootNetworkTag, true);
     }
 
     @JsonIgnore
