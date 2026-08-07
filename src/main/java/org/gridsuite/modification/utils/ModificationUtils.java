@@ -2007,27 +2007,33 @@ public final class ModificationUtils {
         }
     }
 
-    public static void checkVoltageRegulatorOn(String errorMessage, VoltageRegulation voltageRegulation, AttributeModification<Boolean> voltageRegulatorOn,
-                                               AttributeModification<Double> targetV, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+    public static void checkVoltageRegulation(String errorMessage, VoltageRegulation voltageRegulation, AttributeModification<Boolean> voltageRegulatorOn,
+                                              AttributeModification<Double> targetV, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
         if (voltageRegulatorOn != null && voltageRegulatorOn.getValue()) {
             if (targetV != null) {
-                checkVoltageRegulatorOn(errorMessage, targetV.getValue(), true, exceptionType);
+                checkVoltageRegulation(errorMessage, targetV.getValue(), true, exceptionType);
             } else {
-                checkVoltageRegulatorOn(errorMessage, voltageRegulation, true, exceptionType);
+                checkVoltageRegulation(errorMessage, voltageRegulation, true, exceptionType);
             }
+        } else if (targetV != null) {
+            checkTargetV(errorMessage, voltageRegulation, targetV.getValue(), exceptionType);
         }
     }
 
-    public static void checkVoltageRegulatorOn(String errorMessage, VoltageRegulation voltageRegulation,
-                                               Boolean voltageRegulatorOn, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
-        checkVoltageRegulatorOn(errorMessage, voltageRegulation == null ? null : voltageRegulation.getTargetV(), voltageRegulatorOn, exceptionType);
+    public static void checkVoltageRegulation(String errorMessage, VoltageRegulation voltageRegulation,
+                                              Boolean voltageRegulatorOn, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+        checkVoltageRegulation(errorMessage, voltageRegulation == null ? null : voltageRegulation.getTargetV(), voltageRegulatorOn, exceptionType);
     }
 
-    public static void checkVoltageRegulatorOn(String errorMessage, Double targetV, Boolean voltageRegulatorOn, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
-        if (Boolean.TRUE.equals(voltageRegulatorOn)) {
-            if (targetV == null || Double.isNaN(targetV)) {
-                throw new NetworkModificationException(exceptionType, errorMessage + "voltage setpoint value (NaN) is invalid (voltage regulator is on)");
-            }
+    public static void checkVoltageRegulation(String errorMessage, Double targetV, Boolean voltageRegulatorOn, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+        if (Boolean.TRUE.equals(voltageRegulatorOn) && (targetV == null || Double.isNaN(targetV))) {
+            throw new NetworkModificationException(exceptionType, errorMessage + "voltage setpoint value (NaN) is invalid (voltage regulator is on)");
+        }
+    }
+
+    public static void checkTargetV(String errorMessage, VoltageRegulation voltageRegulation, Double targetV, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+        if (voltageRegulation != null && voltageRegulation.isVoltageRegulatorOn() && (targetV == null || Double.isNaN(targetV))) {
+            throw new NetworkModificationException(exceptionType, errorMessage + "voltage setpoint value (NaN) is invalid (voltage regulator is on)");
         }
     }
 

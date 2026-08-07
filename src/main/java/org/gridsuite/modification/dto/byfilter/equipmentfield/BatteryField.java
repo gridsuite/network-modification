@@ -89,14 +89,16 @@ public enum BatteryField {
                     new AttributeModification<>(parseDoubleOrNaNIfNull(newValue), OperationType.SET), battery.getExtension(BatteryShortCircuit.class),
                     () -> battery.newExtension(BatteryShortCircuitAdder.class), null);
             case VOLTAGE_REGULATOR_ON -> {
-                checkVoltageRegulatorOn(errorMessage, voltageRegulation, Boolean.parseBoolean(newValue), MODIFY_BATTERY_ERROR);
+                Boolean voltageRegulatorOn = newValue == null ? null : Boolean.parseBoolean(newValue);
+                checkVoltageRegulation(errorMessage, voltageRegulation, voltageRegulatorOn, MODIFY_BATTERY_ERROR);
                 AttributeModification<Boolean> voltageRegulationOnModification =
-                        new AttributeModification<>(newValue == null ? null : Boolean.parseBoolean(newValue), OperationType.SET);
+                        new AttributeModification<>(voltageRegulatorOn, OperationType.SET);
                 modifyVoltageRegulation(battery, VoltageRegulationModification.builder().voltageRegulationOn(voltageRegulationOnModification).build());
             }
             case VOLTAGE_SET_POINT -> {
                 Double targetV = Double.parseDouble(newValue);
                 checkIsNotNegativeValue(errorMessage, targetV, MODIFY_BATTERY_ERROR, "Target Voltage");
+                checkTargetV(errorMessage, voltageRegulation, targetV, MODIFY_BATTERY_ERROR);
                 AttributeModification<Double> voltageSetPointModification = new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET);
                 modifyVoltageRegulation(battery, VoltageRegulationModification.builder().targetV(voltageSetPointModification).build());
             }

@@ -103,7 +103,7 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
                 "Battery");
 
         // check voltage regulator
-        ModificationUtils.checkVoltageRegulatorOn("'" + equipmentId + "': ", targetV, voltageRegulationOn, CREATE_BATTERY_ERROR);
+        ModificationUtils.checkVoltageRegulation("'" + equipmentId + "': ", targetV, voltageRegulationOn, CREATE_BATTERY_ERROR);
 
         // check regulated terminal
         ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
