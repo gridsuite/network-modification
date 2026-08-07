@@ -51,6 +51,7 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
             .equipmentId("v4Battery")
             .voltageLevelId("v2")
             .busOrBusbarSectionId("1B")
+            .targetQ(100.0)
             .droop(101f)
             .build();
         BatteryCreation batteryCreation1 = (BatteryCreation) batteryCreationInfos1.toModification();
@@ -62,6 +63,7 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
             .equipmentId("v4Battery")
             .voltageLevelId("v2")
             .busOrBusbarSectionId("1B")
+            .targetQ(100.0)
             .droop(-1f)
             .build();
         BatteryCreation batteryCreation2 = (BatteryCreation) batteryCreationInfos2.toModification();
@@ -88,7 +90,13 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         batteryCreationInfos5.setTargetV(null);
         BatteryCreation batteryCreation5 = (BatteryCreation) batteryCreationInfos5.toModification();
         message = assertThrows(NetworkModificationException.class, () -> batteryCreation5.check(network)).getMessage();
-        assertEquals("CREATE_BATTERY_ERROR : 'idBattery1': voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
+        assertEquals("CREATE_BATTERY_ERROR : Battery 'idBattery1' : voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
+
+        BatteryCreationInfos batteryCreationInfos6 = (BatteryCreationInfos) buildModification();
+        batteryCreationInfos6.setTargetQ(null);
+        BatteryCreation batteryCreation6 = (BatteryCreation) batteryCreationInfos6.toModification();
+        message = assertThrows(NetworkModificationException.class, () -> batteryCreation6.check(network)).getMessage();
+        assertEquals("CREATE_BATTERY_ERROR : Battery 'idBattery1' : Target reactive power must be provided", message);
     }
 
     @Override
@@ -213,6 +221,7 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
                 .equipmentId("v5Battery")
                 .voltageLevelId("v2")
                 .busOrBusbarSectionId("1B")
+                .targetQ(100.0)
                 .targetV(-100d)
                 .build();
         BatteryCreation batteryCreation = (BatteryCreation) batteryCreationInfos5.toModification();

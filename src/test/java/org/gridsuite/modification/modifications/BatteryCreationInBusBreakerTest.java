@@ -53,7 +53,7 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
         batteryCreationInfos3.setTargetV(null);
         BatteryCreation batteryCreation3 = (BatteryCreation) batteryCreationInfos3.toModification();
         message = assertThrows(NetworkModificationException.class, () -> batteryCreation3.check(network)).getMessage();
-        assertEquals("CREATE_BATTERY_ERROR : 'idBattery2': voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
+        assertEquals("CREATE_BATTERY_ERROR : Battery 'idBattery2' : voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
     }
 
     @Override

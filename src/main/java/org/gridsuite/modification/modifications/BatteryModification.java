@@ -135,7 +135,7 @@ public class BatteryModification extends AbstractInjectionModification {
         if (targetV != null) {
             checkIsNotNegativeValue(errorMessage, targetV.getValue(), MODIFY_BATTERY_ERROR, TARGET_VOLTAGE);
         }
-        ModificationUtils.checkVoltageRegulation("'" + equipmentId + "': ", voltageRegulation, voltageRegulationOn, targetV, MODIFY_BATTERY_ERROR);
+        ModificationUtils.checkVoltageRegulation(errorMessage, voltageRegulation, voltageRegulationOn, targetV, MODIFY_BATTERY_ERROR);
     }
 
     private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(Battery battery, NetworkModificationException.Type exceptionType,

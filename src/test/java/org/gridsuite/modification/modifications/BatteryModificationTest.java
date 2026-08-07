@@ -104,7 +104,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         BatteryModification batteryModification6 = (BatteryModification) batteryModificationInfos6.toModification();
         message = assertThrows(NetworkModificationException.class,
                 () -> batteryModification6.check(network)).getMessage();
-        assertEquals("MODIFY_BATTERY_ERROR : 'v3Battery': voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
+        assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
 
         // check if battery targetV is set to NaN then it throws an error if voltageRegulator is set to On
         voltageRegulation.setTargetV(400.0);
@@ -116,7 +116,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         BatteryModification batteryModification7 = (BatteryModification) batteryModificationInfos7.toModification();
         message = assertThrows(NetworkModificationException.class,
                 () -> batteryModification7.check(network)).getMessage();
-        assertEquals("MODIFY_BATTERY_ERROR : 'v3Battery': voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
+        assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
 
         // check if voltageRegulatorOn is true then setting targetV to NaN throws an error
         voltageRegulation.setTargetV(200.0);
@@ -128,7 +128,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         BatteryModification batteryModification8 = (BatteryModification) batteryModificationInfos8.toModification();
         message = assertThrows(NetworkModificationException.class,
                 () -> batteryModification8.check(network)).getMessage();
-        assertEquals("MODIFY_BATTERY_ERROR : 'v3Battery': voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
+        assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
     }
 
     @Override
