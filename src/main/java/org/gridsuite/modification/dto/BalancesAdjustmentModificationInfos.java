@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Country;
@@ -13,12 +14,14 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.filter.AbstractFilter;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.BalancesAdjustmentModification;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -60,6 +63,10 @@ public class BalancesAdjustmentModificationInfos extends ModificationInfos {
 
     private UUID loadFlowParametersId;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "embedded load flow parameters (populated only on export)")
+    private LoadFlowParametersInfos loadFlowParameters;
+
     @Builder.Default
     private boolean withRatioTapChangers = DEFAULT_WITH_RATIO_TAP_CHANGERS;
 
@@ -84,5 +91,17 @@ public class BalancesAdjustmentModificationInfos extends ModificationInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode().withMessageTemplate("network.modification.balancesAdjustment").add();
+    }
+
+    @Override
+    public List<UUID> getReferencedLoadFlowParametersUuids() {
+        return loadFlowParametersId != null ? List.of(loadFlowParametersId) : List.of();
+    }
+
+    @Override
+    public void embedReferencedData(Map<UUID, AbstractFilter> filters, Map<UUID, LoadFlowParametersInfos> lfParams) {
+        if (loadFlowParametersId != null) {
+            this.loadFlowParameters = lfParams.get(loadFlowParametersId);
+        }
     }
 }
