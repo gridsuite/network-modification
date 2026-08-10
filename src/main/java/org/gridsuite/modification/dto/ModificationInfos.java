@@ -154,11 +154,11 @@ public class ModificationInfos {
     }
 
     /**
-     * A modification is applicable on a root network when it is globally activated and when its applicability
+     * A modification is activated on a root network when it is globally activated and when its applicability
      * for that root network tag is not explicitly set to false. A tag without any entry is applicable.
      */
     @JsonIgnore
-    public boolean isApplicableOn(String rootNetworkTag) {
+    public boolean isActivatedOn(String rootNetworkTag) {
         if (!Boolean.TRUE.equals(activated)) {
             return false;
         }
