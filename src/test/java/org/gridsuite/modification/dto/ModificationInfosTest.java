@@ -66,6 +66,24 @@ class ModificationInfosTest {
     }
 
     @Test
+    void testNotActivatedWhenModificationIsStashed() {
+        ModificationInfos modificationInfos = modificationInfos(true, Map.of(TAG, true));
+        modificationInfos.setStashed(true);
+        assertFalse(modificationInfos.isActivatedOn(TAG),
+                "A stashed modification is activated on no root network, whatever its applicabilities");
+        assertFalse(modificationInfos.isActivatedOn(null),
+                "A stashed modification is not activated either without a root network context");
+    }
+
+    @Test
+    void testActivatedWhenStashedIsUndefined() {
+        ModificationInfos modificationInfos = modificationInfos(true, Map.of(TAG, true));
+        modificationInfos.setStashed(null);
+        assertTrue(modificationInfos.isActivatedOn(TAG),
+                "An undefined stash flag keeps the default of the field: the modification is not stashed");
+    }
+
+    @Test
     void testNotActivatedWhenModificationIsDeactivated() {
         assertFalse(modificationInfos(false, Map.of(TAG, true)).isActivatedOn(TAG),
                 "A deactivated modification is activated on no root network, whatever its applicabilities");

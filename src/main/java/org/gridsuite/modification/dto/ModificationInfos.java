@@ -154,12 +154,13 @@ public class ModificationInfos {
     }
 
     /**
-     * A modification is activated on a root network when it is globally activated and when its applicability
-     * for that root network tag is not explicitly set to false. A tag without any entry is applicable.
+     * A modification is activated on a root network when it is not stashed, when it is globally activated and when
+     * its applicability for that root network tag is not explicitly set to false. A tag without any entry is
+     * applicable, and a null tag matches any root network.
      */
     @JsonIgnore
     public boolean isActivatedOn(String rootNetworkTag) {
-        if (!Boolean.TRUE.equals(activated)) {
+        if (Boolean.TRUE.equals(stashed) || !Boolean.TRUE.equals(activated)) {
             return false;
         }
         return rootNetworkTag == null
