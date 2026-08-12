@@ -165,7 +165,7 @@ public class ModificationInfos {
         }
         return rootNetworkTag == null
             || applicabilityByRootNetworkTag == null
-            || applicabilityByRootNetworkTag.getOrDefault(rootNetworkTag, true);
+            || !Boolean.FALSE.equals(applicabilityByRootNetworkTag.get(rootNetworkTag));
     }
 
     @JsonIgnore
