@@ -9,6 +9,7 @@ package org.gridsuite.modification.dto;
 import com.powsybl.commons.report.ReportNode;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -109,6 +110,14 @@ class ModificationInfosTest {
                 "A tag without an entry is applicable");
         assertTrue(modificationInfos(true, Map.of(OTHER_TAG, false)).isActivatedOn(TAG),
                 "An entry deactivating another tag leaves this one applicable");
+    }
+
+    @Test
+    void testActivatedWhenTagEntryIsNull() {
+        Map<String, Boolean> applicabilityByRootNetworkTag = new HashMap<>();
+        applicabilityByRootNetworkTag.put(TAG, null);
+        assertTrue(modificationInfos(true, applicabilityByRootNetworkTag).isActivatedOn(TAG),
+                "A tag mapped to no value is applicable: only an explicit false deactivates it");
     }
 
     @Test
