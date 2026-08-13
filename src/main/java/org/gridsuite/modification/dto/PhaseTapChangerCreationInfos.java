@@ -15,6 +15,7 @@ import lombok.experimental.SuperBuilder;
  * @author Hugo Marcellin <hugo.marcelin at rte-france.com>
  */
 @SuperBuilder
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @Getter
 @Setter

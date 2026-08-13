@@ -7,12 +7,13 @@
 
 package org.gridsuite.modification.modifications.byfilter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.DataType;
@@ -32,6 +33,8 @@ import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyFie
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ModificationByAssignment extends AbstractModificationByAssignment {
 
     private IdentifiableType equipmentType;
@@ -45,6 +48,7 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
     }
 
     @Override
+    @JsonIgnore
     public String getModificationTypeLabel() {
         return "assignment";
     }
@@ -60,6 +64,7 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
     }
 
     @Override
+    @JsonIgnore
     public NetworkModificationException.Type getExceptionType() {
         return MODIFICATION_BY_ASSIGNMENT_ERROR;
     }
@@ -128,7 +133,8 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "ModificationByAssignment";
+        return ModificationType.MODIFICATION_BY_ASSIGNMENT.name();
     }
 }

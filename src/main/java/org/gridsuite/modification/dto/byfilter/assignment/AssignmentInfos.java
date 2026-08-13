@@ -8,9 +8,8 @@
 package org.gridsuite.modification.dto.byfilter.assignment;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,23 +20,12 @@ import org.gridsuite.modification.dto.byfilter.DataType;
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
  */
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    property = "dataType",
-    include = JsonTypeInfo.As.EXISTING_PROPERTY)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = BooleanAssignmentInfos.class, name = "BOOLEAN"),
-    @JsonSubTypes.Type(value = EnumAssignmentInfos.class, name = "ENUM"),
-    @JsonSubTypes.Type(value = DoubleAssignmentInfos.class, name = "DOUBLE"),
-    @JsonSubTypes.Type(value = IntegerAssignmentInfos.class, name = "INTEGER"),
-    @JsonSubTypes.Type(value = PropertyAssignmentInfos.class, name = "PROPERTY"),
-    @JsonSubTypes.Type(value = StringAssignmentInfos.class, name = "STRING"),
-})
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@SuperBuilder
-@NoArgsConstructor
 @Getter
 @Setter
+@SuperBuilder
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class AssignmentInfos<T> extends AbstractAssignmentInfos {
     @Schema(description = "Value")
     private T value;

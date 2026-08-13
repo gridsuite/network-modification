@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.ConnectVoltageLevelOnLine;
 import com.powsybl.iidm.modification.topology.ConnectVoltageLevelOnLineBuilder;
@@ -13,6 +14,7 @@ import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.springframework.lang.NonNull;
@@ -25,8 +27,10 @@ import static org.gridsuite.modification.NetworkModificationException.Type.LINE_
  */
 @Getter
 @Setter
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LineSplitWithVoltageLevel extends AbstractModification {
 
     private String lineToSplitId;
@@ -79,7 +83,8 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "LineSplitWithVoltageLevel";
+        return ModificationType.LINE_SPLIT_WITH_VOLTAGE_LEVEL.name();
     }
 }

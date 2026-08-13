@@ -7,12 +7,15 @@
 
 package org.gridsuite.modification.modifications.byfilter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
@@ -40,6 +43,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
  */
+@Getter
+@EqualsAndHashCode(callSuper = true)
 public abstract class AbstractModificationByAssignment extends AbstractModification {
     public static final String VALUE_KEY_FILTER_NAME = "filterName";
     public static final String VALUE_KEY_FIELD_NAME = "fieldName";
@@ -78,10 +83,21 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_NONE = "network.modification.byFilterModificationNone";
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_NOT_FOUND = "network.modification.byFilterModificationNotFound";
 
-    protected IFilterService filterService;
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     protected int equipmentNotModifiedCount;
+
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     protected long equipmentCount;
+
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     protected long equipmentNotFoundCount;
+
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
+    protected IFilterService filterService;
 
     protected AbstractModificationByAssignment() {
         equipmentNotModifiedCount = 0;

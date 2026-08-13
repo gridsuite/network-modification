@@ -6,15 +6,15 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.VariationMode;
 import org.gridsuite.modification.VariationType;
@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LoadScaling extends AbstractScaling {
 
     @Builder
@@ -143,8 +145,9 @@ public class LoadScaling extends AbstractScaling {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "LoadScaling";
+        return ModificationType.LOAD_SCALING.name();
     }
 
     private void reportScaling(ReportNode subReportNode, VariationMode variationMode, double askedValue, double actualValue) {

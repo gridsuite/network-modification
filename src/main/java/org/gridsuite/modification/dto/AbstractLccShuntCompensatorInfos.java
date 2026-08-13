@@ -2,10 +2,7 @@ package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 @JsonTypeInfo(
@@ -16,13 +13,12 @@ import lombok.experimental.SuperBuilder;
     @JsonSubTypes.Type(value = LccShuntCompensatorInfos.class, name = "LCC_SHUNT_CREATION"),
     @JsonSubTypes.Type(value = LccShuntCompensatorModificationInfos.class, name = "LCC_SHUNT_MODIFICATION")
 })
-
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
-
+@SuperBuilder
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 public abstract class AbstractLccShuntCompensatorInfos {
     private String id;
     private String name;

@@ -6,12 +6,14 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 
@@ -25,6 +27,8 @@ import static org.gridsuite.modification.NetworkModificationException.Type.WRONG
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class EquipmentAttributeModification extends AbstractEquipmentBase {
 
     private String equipmentAttributeName;
@@ -78,8 +82,9 @@ public class EquipmentAttributeModification extends AbstractEquipmentBase {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "EquipmentAttributeModification";
+        return ModificationType.EQUIPMENT_ATTRIBUTE_MODIFICATION.name();
     }
 
     private void changeSwitchAttribute(Switch aSwitch, String attributeName, Object attributeValue, ReportNode reportNode) {

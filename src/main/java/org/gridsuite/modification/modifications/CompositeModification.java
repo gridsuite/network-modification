@@ -6,13 +6,20 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.CompositeModificationInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 
@@ -21,11 +28,20 @@ import static org.gridsuite.modification.modifications.byfilter.AbstractModifica
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
  */
+
+@Getter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CompositeModification extends AbstractModification {
 
-    private final CompositeModificationInfos compositeModificationInfos;
+    private CompositeModificationInfos compositeModificationInfos;
 
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     protected IFilterService filterService;
+
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     protected ILoadFlowService loadFlowService;
 
     public CompositeModification(CompositeModificationInfos compositeModificationInfos) {
@@ -72,7 +88,8 @@ public class CompositeModification extends AbstractModification {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "CompositeModification";
+        return ModificationType.COMPOSITE_MODIFICATION.name();
     }
 }

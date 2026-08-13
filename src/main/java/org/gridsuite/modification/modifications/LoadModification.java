@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Load;
@@ -13,9 +14,8 @@ import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -31,6 +31,8 @@ import static org.gridsuite.modification.NetworkModificationException.Type.LOAD_
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LoadModification extends AbstractInjectionModification {
 
     private AttributeModification<LoadType> loadType;
@@ -78,8 +80,9 @@ public class LoadModification extends AbstractInjectionModification {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "LoadModification";
+        return ModificationType.LOAD_MODIFICATION.name();
     }
 
     private void modifyLoad(Load load, ReportNode subReportNode) {

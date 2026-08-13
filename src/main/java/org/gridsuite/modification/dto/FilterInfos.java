@@ -15,12 +15,13 @@ import java.util.UUID;
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
  */
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 @ToString
+@SuperBuilder
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "Filter Infos")
 public class FilterInfos {
 

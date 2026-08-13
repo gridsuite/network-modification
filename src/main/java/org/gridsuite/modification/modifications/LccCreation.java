@@ -7,6 +7,7 @@
 
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.CreateFeederBay;
@@ -14,6 +15,7 @@ import com.powsybl.iidm.modification.topology.CreateFeederBayBuilder;
 import com.powsybl.iidm.network.*;
 import lombok.*;
 import org.apache.commons.lang3.StringUtils;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.LccShuntCompensatorInfos;
@@ -37,6 +39,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.reportInjection
 
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LccCreation extends AbstractEquipmentCreation {
     public static final String EQUIPMENT_CONNECTED_TO_HVDC = "network.modification.equipmentConnectedToHvdc";
     public static final String EQUIPMENT_NOT_CONNECTED_TO_HVDC = "network.modification.equipmentNotConnectedToHvdc";
@@ -120,8 +124,9 @@ public class LccCreation extends AbstractEquipmentCreation {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "LCC_Creation";
+        return ModificationType.LCC_CREATION.name();
     }
 
     private LccConverterStation createConverterStation(Network network,

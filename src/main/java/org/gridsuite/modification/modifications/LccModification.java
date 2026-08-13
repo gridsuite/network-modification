@@ -7,12 +7,14 @@
 
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import jakarta.annotation.Nonnull;
 import lombok.*;
 import org.apache.commons.math3.util.Pair;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -31,6 +33,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.NO_VALUE;
 
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LccModification extends AbstractEquipmentModification {
 
     private AttributeModification<Double> nominalV;
@@ -60,8 +64,9 @@ public class LccModification extends AbstractEquipmentModification {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "LCC_Modification";
+        return ModificationType.LCC_MODIFICATION.name();
     }
 
     @Override

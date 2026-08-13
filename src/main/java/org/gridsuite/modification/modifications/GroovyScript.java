@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
@@ -14,6 +15,7 @@ import groovy.lang.GroovyShell;
 import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 
 import static org.gridsuite.modification.NetworkModificationException.Type.GROOVY_SCRIPT_EMPTY;
@@ -23,8 +25,10 @@ import static org.gridsuite.modification.NetworkModificationException.Type.GROOV
  */
 @Getter
 @Setter
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GroovyScript extends AbstractModification {
 
     private String script;
@@ -51,7 +55,8 @@ public class GroovyScript extends AbstractModification {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "GroovyScript";
+        return ModificationType.GROOVY_SCRIPT.name();
     }
 }

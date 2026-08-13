@@ -27,8 +27,10 @@ import static org.gridsuite.modification.NetworkModificationException.Type.MOVE_
  */
 @Getter
 @Setter
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MoveVoltageLevelFeederBays extends AbstractModification {
     private static final String VOLTAGE_LEVEL_NOT_FOUND = "Voltage level %s is not found";
     private static final String BUSBAR_NOT_FOUND = "Bus or busbar section %s where connectable %s is supposed to be is not found in voltage level %s";

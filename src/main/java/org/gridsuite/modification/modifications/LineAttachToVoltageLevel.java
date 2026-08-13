@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.CreateLineOnLine;
 import com.powsybl.iidm.modification.topology.CreateLineOnLineBuilder;
@@ -15,6 +16,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 import groovyjarjarantlr4.v4.runtime.misc.NotNull;
 import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -27,8 +29,10 @@ import static org.gridsuite.modification.modifications.LineCreation.addLimits;
  */
 @Getter
 @Setter
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LineAttachToVoltageLevel extends AbstractModification {
 
     private String lineToAttachToId;
@@ -159,7 +163,8 @@ public class LineAttachToVoltageLevel extends AbstractModification {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "LineAttachToVoltageLevel";
+        return ModificationType.LINE_ATTACH_TO_VOLTAGE_LEVEL.name();
     }
 }

@@ -8,6 +8,7 @@ package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,8 +25,9 @@ import lombok.Setter;
     @JsonSubTypes.Type(value = HvdcLccDeletionInfos.class, name = "HVDC_LINE_WITH_LCC")
 })
 
-@NoArgsConstructor
 @Getter
 @Setter
+@EqualsAndHashCode
+@NoArgsConstructor
 public abstract class AbstractEquipmentDeletionInfos {
 }

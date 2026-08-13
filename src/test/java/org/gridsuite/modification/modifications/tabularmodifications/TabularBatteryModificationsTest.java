@@ -17,6 +17,7 @@ import org.gridsuite.modification.report.NetworkModificationReportResourceBundle
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -38,15 +39,16 @@ class TabularBatteryModificationsTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationInfos buildModification() {
         List<ModificationInfos> modifications = List.of(
-                BatteryModificationInfos.builder().equipmentId("v1Battery").maxP(new AttributeModification<>(50., OperationType.SET)).build(),
-                BatteryModificationInfos.builder().equipmentId("v2Battery").minP(new AttributeModification<>(5., OperationType.SET)).build(),
-                BatteryModificationInfos.builder().equipmentId("v3Battery").targetP(new AttributeModification<>(5., OperationType.SET)).build(),
-                BatteryModificationInfos.builder().equipmentId("unknownBattery").targetQ(new AttributeModification<>(500., OperationType.SET)).build()
+                BatteryModificationInfos.builder().equipmentId("v1Battery").maxP(new AttributeModification<>(50., OperationType.SET)).date(Instant.now()).build(),
+                BatteryModificationInfos.builder().equipmentId("v2Battery").minP(new AttributeModification<>(5., OperationType.SET)).date(Instant.now()).build(),
+                BatteryModificationInfos.builder().equipmentId("v3Battery").targetP(new AttributeModification<>(5., OperationType.SET)).date(Instant.now()).build(),
+                BatteryModificationInfos.builder().equipmentId("unknownBattery").targetQ(new AttributeModification<>(500., OperationType.SET)).date(Instant.now()).build()
         );
         return TabularModificationInfos.builder()
                 .modificationType(ModificationType.BATTERY_MODIFICATION)
                 .modifications(modifications)
                 .stashed(false)
+                .date(Instant.now())
                 .build();
     }
 

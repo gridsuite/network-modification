@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,6 +21,7 @@ import java.util.List;
 @Setter
 @Getter
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public abstract class AbstractEquipmentModification extends AbstractEquipmentBase {
 
     protected AttributeModification<String> equipmentName;

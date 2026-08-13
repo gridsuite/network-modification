@@ -9,6 +9,7 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,6 +25,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public abstract class AbstractInjectionModification extends AbstractEquipmentModification implements InjectionModification {
 
     protected AttributeModification<String> voltageLevelId;

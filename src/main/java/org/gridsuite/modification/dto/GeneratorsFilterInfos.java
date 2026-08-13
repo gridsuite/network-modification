@@ -7,10 +7,7 @@
 package org.gridsuite.modification.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
@@ -19,10 +16,11 @@ import java.util.UUID;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 @SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "Generators filter Infos")
 public class GeneratorsFilterInfos {
 

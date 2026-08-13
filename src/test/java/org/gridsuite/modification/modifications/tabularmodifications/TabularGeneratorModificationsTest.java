@@ -17,6 +17,7 @@ import org.gridsuite.modification.report.NetworkModificationReportResourceBundle
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -39,15 +40,16 @@ class TabularGeneratorModificationsTest extends AbstractNetworkModificationTest 
     @Override
     protected ModificationInfos buildModification() {
         List<ModificationInfos> modifications = List.of(
-                GeneratorModificationInfos.builder().equipmentId("idGenerator").maxP(new AttributeModification<>(500., OperationType.SET)).build(),
-                GeneratorModificationInfos.builder().equipmentId("v5generator").maxP(new AttributeModification<>(500., OperationType.SET)).build(),
-                GeneratorModificationInfos.builder().equipmentId("v6generator").maxP(new AttributeModification<>(500., OperationType.SET)).build(),
-                GeneratorModificationInfos.builder().equipmentId("unknownGenerator").maxP(new AttributeModification<>(500., OperationType.SET)).build()
+                GeneratorModificationInfos.builder().equipmentId("idGenerator").maxP(new AttributeModification<>(500., OperationType.SET)).date(Instant.now()).build(),
+                GeneratorModificationInfos.builder().equipmentId("v5generator").maxP(new AttributeModification<>(500., OperationType.SET)).date(Instant.now()).build(),
+                GeneratorModificationInfos.builder().equipmentId("v6generator").maxP(new AttributeModification<>(500., OperationType.SET)).date(Instant.now()).build(),
+                GeneratorModificationInfos.builder().equipmentId("unknownGenerator").maxP(new AttributeModification<>(500., OperationType.SET)).date(Instant.now()).build()
         );
         return TabularModificationInfos.builder()
                 .modificationType(ModificationType.GENERATOR_MODIFICATION)
                 .modifications(modifications)
                 .stashed(false)
+                .date(Instant.now())
                 .build();
     }
 
@@ -80,14 +82,15 @@ class TabularGeneratorModificationsTest extends AbstractNetworkModificationTest 
     @Test
     void testAllModificationsHaveFailed() {
         List<ModificationInfos> modifications = List.of(
-            GeneratorModificationInfos.builder().equipmentId("idGenerator").maxP(new AttributeModification<>(-500., OperationType.SET)).build(),
-            GeneratorModificationInfos.builder().equipmentId("v5Generator").maxP(new AttributeModification<>(-200., OperationType.SET)).build(),
-            GeneratorModificationInfos.builder().equipmentId("unknownGenerator").maxP(new AttributeModification<>(500., OperationType.SET)).build()
+            GeneratorModificationInfos.builder().equipmentId("idGenerator").maxP(new AttributeModification<>(-500., OperationType.SET)).date(Instant.now()).build(),
+            GeneratorModificationInfos.builder().equipmentId("v5Generator").maxP(new AttributeModification<>(-200., OperationType.SET)).date(Instant.now()).build(),
+            GeneratorModificationInfos.builder().equipmentId("unknownGenerator").maxP(new AttributeModification<>(500., OperationType.SET)).date(Instant.now()).build()
         );
         ModificationInfos modificationInfos = TabularModificationInfos.builder()
                 .modificationType(ModificationType.GENERATOR_MODIFICATION)
                 .modifications(modifications)
                 .stashed(false)
+                .date(Instant.now())
                 .build();
         ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)

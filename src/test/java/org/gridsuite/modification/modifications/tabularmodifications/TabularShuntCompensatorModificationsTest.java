@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -61,14 +62,15 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
     protected ModificationInfos buildModification() {
         List<ModificationInfos> modifications = List.of(
                 ShuntCompensatorModificationInfos.builder().equipmentId("v2shunt").maximumSectionCount(new AttributeModification<>(100, OperationType.SET)).sectionCount(new AttributeModification<>(10,
-                        OperationType.SET)).build(),
+                        OperationType.SET)).date(Instant.now()).build(),
                 ShuntCompensatorModificationInfos.builder().equipmentId("v5shunt").maximumSectionCount(new AttributeModification<>(200, OperationType.SET)).sectionCount(new AttributeModification<>(20,
-                        OperationType.SET)).build()
+                        OperationType.SET)).date(Instant.now()).build()
         );
         return TabularModificationInfos.builder()
                 .modificationType(ModificationType.SHUNT_COMPENSATOR_MODIFICATION)
                 .modifications(modifications)
                 .stashed(false)
+                .date(Instant.now())
                 .build();
     }
 
@@ -112,12 +114,14 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
                 .equipmentId("id")
                 .maxQAtNominalV(AttributeModification.toAttributeModification(1.0, OperationType.SET))
                 .maxSusceptance(AttributeModification.toAttributeModification(10.0, OperationType.SET))
+                .date(Instant.now())
                 .build();
 
         var tabularModificationInfos = TabularModificationInfos
                 .builder()
                 .modificationType(ModificationType.SHUNT_COMPENSATOR_MODIFICATION)
                 .modifications(Collections.singletonList(shuntModification))
+                .date(Instant.now())
                 .build();
 
         var tabularModification = (TabularModification) tabularModificationInfos.toModification();
@@ -147,12 +151,14 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
                 .builder()
                 .equipmentId("id")
                 .maxQAtNominalV(AttributeModification.toAttributeModification(1.0, OperationType.SET))
+                .date(Instant.now())
                 .build();
 
         var tabularModificationInfos = TabularModificationInfos
                 .builder()
                 .modificationType(ModificationType.SHUNT_COMPENSATOR_MODIFICATION)
                 .modifications(Collections.singletonList(shuntModification))
+                .date(Instant.now())
                 .build();
 
         var tabularModification = (TabularModification) tabularModificationInfos.toModification();
@@ -177,12 +183,14 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
                 .builder()
                 .equipmentId("id")
                 .maxQAtNominalV(AttributeModification.toAttributeModification(1.0, OperationType.SET))
+                .date(Instant.now())
                 .build();
 
         var tabularModificationInfos = TabularModificationInfos
                 .builder()
                 .modificationType(ModificationType.SHUNT_COMPENSATOR_MODIFICATION)
                 .modifications(Collections.singletonList(shuntModification))
+                .date(Instant.now())
                 .build();
 
         var tabularModification = (TabularModification) tabularModificationInfos.toModification();

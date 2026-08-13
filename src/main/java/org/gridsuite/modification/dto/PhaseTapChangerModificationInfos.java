@@ -18,6 +18,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
 @Schema(description = "PhaseTapChanger attributes")
 public class PhaseTapChangerModificationInfos extends TapChangerModificationInfos {
 

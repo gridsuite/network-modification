@@ -7,6 +7,7 @@
 
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.BusbarSection;
@@ -18,6 +19,7 @@ import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.BusbarSectionVMeasurementInfos;
@@ -42,6 +44,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
 
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class VoltageLevelModification extends AbstractEquipmentModification {
 
     public static final String ERROR_MESSAGE = "Voltage level '%s' : ";
@@ -171,8 +175,9 @@ public class VoltageLevelModification extends AbstractEquipmentModification {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "VoltageLevelModification";
+        return ModificationType.VOLTAGE_LEVEL_MODIFICATION.name();
     }
 
     public static void modifyHighVoltageLimit(VoltageLevel voltageLevel, AttributeModification<Double> highVoltageLimit, ReportNode subReportNode) {

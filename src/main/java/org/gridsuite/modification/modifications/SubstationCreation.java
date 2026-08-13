@@ -6,11 +6,13 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -22,6 +24,8 @@ import java.util.List;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class SubstationCreation extends AbstractEquipmentCreation {
 
     private Country country;
@@ -42,8 +46,9 @@ public class SubstationCreation extends AbstractEquipmentCreation {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "SubstationCreation";
+        return ModificationType.SUBSTATION_CREATION.name();
     }
 
 }

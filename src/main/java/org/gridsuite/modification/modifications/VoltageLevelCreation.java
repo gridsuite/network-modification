@@ -6,12 +6,14 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
 import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -26,6 +28,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegat
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class VoltageLevelCreation extends AbstractEquipmentCreation {
 
     private String substationId;
@@ -80,8 +84,8 @@ public class VoltageLevelCreation extends AbstractEquipmentCreation {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "VoltageLevelCreation";
+        return ModificationType.VOLTAGE_LEVEL_CREATION.name();
     }
-
 }

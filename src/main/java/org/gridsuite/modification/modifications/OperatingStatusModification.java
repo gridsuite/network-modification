@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.tripping.BranchTripping;
@@ -18,6 +19,7 @@ import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.OperatingStatusModificationInfos;
@@ -39,6 +41,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OperatingStatusModification extends AbstractEquipmentBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperatingStatusModification.class);
@@ -86,8 +90,9 @@ public class OperatingStatusModification extends AbstractEquipmentBase {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "OperatingStatusModification";
+        return ModificationType.OPERATING_STATUS_MODIFICATION.name();
     }
 
     private void applyLockoutEquipment(ReportNode subReportNode, Identifiable<?> equipment, String equipmentType) {

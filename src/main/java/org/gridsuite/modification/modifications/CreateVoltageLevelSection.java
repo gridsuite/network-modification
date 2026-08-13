@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
@@ -33,8 +34,10 @@ import static org.gridsuite.modification.NetworkModificationException.Type.CREAT
  */
 @Getter
 @Setter
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateVoltageLevelSection extends AbstractModification {
 
     private String voltageLevelId;
@@ -135,6 +138,7 @@ public class CreateVoltageLevelSection extends AbstractModification {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
         return ModificationType.CREATE_VOLTAGE_LEVEL_SECTION.name();
     }

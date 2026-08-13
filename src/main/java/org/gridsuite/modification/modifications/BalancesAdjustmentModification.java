@@ -6,6 +6,8 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.balances_adjustment.balance_computation.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
@@ -22,6 +24,7 @@ import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import lombok.*;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +42,8 @@ import static org.gridsuite.modification.utils.LoadFlowParametersUtils.mapLoadFl
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BalancesAdjustmentModification extends AbstractModification {
     private static final Logger LOGGER = LoggerFactory.getLogger(BalancesAdjustmentModification.class);
 
@@ -52,6 +57,8 @@ public class BalancesAdjustmentModification extends AbstractModification {
     private boolean withRatioTapChangers;
     private boolean subtractLoadFlowBalancing;
 
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     protected ILoadFlowService loadFlowService;
 
     @Builder
@@ -81,8 +88,9 @@ public class BalancesAdjustmentModification extends AbstractModification {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "BalancesAdjustmentModification";
+        return ModificationType.BALANCES_ADJUSTMENT_MODIFICATION.name();
     }
 
     private BalanceComputationParameters createBalanceComputationParameters(ReportNode reportNode) {

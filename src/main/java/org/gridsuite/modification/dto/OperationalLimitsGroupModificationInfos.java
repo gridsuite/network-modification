@@ -7,10 +7,7 @@
 package org.gridsuite.modification.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
@@ -19,11 +16,12 @@ import java.util.List;
  * @author Hugo Marcellin <hugo.marcelin at rte-france.com>
  */
 
-@SuperBuilder
-@NoArgsConstructor
 @Getter
 @Setter
 @ToString(callSuper = true)
+@SuperBuilder
+@EqualsAndHashCode
+@NoArgsConstructor
 @Schema(description = "Operational limits group")
 public class OperationalLimitsGroupModificationInfos {
     @Schema(description = "Operational limit group id")

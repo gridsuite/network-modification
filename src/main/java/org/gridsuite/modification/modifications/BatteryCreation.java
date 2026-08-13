@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
@@ -13,9 +14,8 @@ import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
@@ -36,6 +36,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
  */
 @Setter
 @Getter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BatteryCreation extends AbstractInjectionCreation implements ReactiveLimitsHolderInfos {
 
     private double minP;
@@ -94,7 +96,7 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
 
         // check connectivity
         ModificationUtils.getInstance()
-            .controlConnectivity(network, voltageLevelId, busOrBusbarSectionId);
+                .controlConnectivity(network, voltageLevelId, busOrBusbarSectionId);
 
         // check reactive limits
         ModificationUtils.getInstance().checkReactiveLimitsCreation(this,
@@ -122,7 +124,7 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
 
         checkIsNotNegativeValue(errorMessage, targetV, CREATE_BATTERY_ERROR, "Target Voltage");
         ModificationUtils.getInstance().checkActivePowerControl(participate,
-            droop, CREATE_BATTERY_ERROR, String.format(ERROR_MESSAGE, equipmentId));
+                droop, CREATE_BATTERY_ERROR, String.format(ERROR_MESSAGE, equipmentId));
         checkIsPercentage(errorMessage, droop, CREATE_BATTERY_ERROR, "Droop");
     }
 
@@ -144,8 +146,9 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "BatteryCreation";
+        return ModificationType.BATTERY_CREATION.name();
     }
 
     private void createBatteryInNodeBreaker(VoltageLevel voltageLevel, Network network, ReportNode subReportNode) {
@@ -251,7 +254,7 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
                 .buildCreationReport(targetP, "Active power"));
         if (targetQ != null) {
             setPointReports.add(ModificationUtils.getInstance()
-                .buildCreationReport(targetQ, "Reactive power"));
+                    .buildCreationReport(targetQ, "Reactive power"));
         }
         return ModificationUtils.getInstance().reportModifications(subReportNode, setPointReports, "network.modification.SetPointCreated");
     }
@@ -260,10 +263,11 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
         ReportNode subReportNodeLimits = subReportNode.newReportNode().withMessageTemplate("network.modification.limits").add();
         List<ReportNode> limitsReports = new ArrayList<>();
         limitsReports.add(ModificationUtils.getInstance().buildCreationReport(
-            minP, "Min active power"));
+                minP, "Min active power"));
         limitsReports.add(ModificationUtils.getInstance().buildCreationReport(
-            maxP, "Max active power"));
+                maxP, "Max active power"));
         ModificationUtils.getInstance().reportModifications(subReportNodeLimits, limitsReports, "network.modification.ActiveLimitsCreated");
         return subReportNodeLimits;
     }
 }
+

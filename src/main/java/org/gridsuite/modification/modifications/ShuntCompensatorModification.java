@@ -7,14 +7,14 @@
 
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -34,6 +34,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ShuntCompensatorModification extends AbstractInjectionModification {
 
     private static final String SWITCHED_ON_Q_AT_NOMINALV_LOG_MESSAGE = "Switched-on Q at nominal voltage";
@@ -124,8 +126,9 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "ShuntCompensatorModification";
+        return ModificationType.SHUNT_COMPENSATOR_MODIFICATION.name();
     }
 
     public static void modifyMaximumSectionCount(AttributeModification<Integer> maximumSectionCountModif,

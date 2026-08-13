@@ -9,6 +9,10 @@ package org.gridsuite.modification.modifications.tabular;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.gridsuite.modification.dto.EquipmentModificationInfos;
 import org.gridsuite.modification.dto.tabular.TabularBaseInfos;
 import org.gridsuite.modification.modifications.AbstractModification;
@@ -18,13 +22,17 @@ import org.slf4j.LoggerFactory;
 /**
  * @author David Braquart <david.braquart at rte-france.com>
  */
+@Setter
+@Getter
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public abstract class AbstractTabularModification extends AbstractModification {
 
     protected static final String DEFAULT_MESSAGE_KEY = "defaultMessage";
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractTabularModification.class);
 
-    protected final TabularBaseInfos modificationInfos;
+    protected TabularBaseInfos modificationInfos;
 
     protected AbstractTabularModification(TabularBaseInfos modificationInfos) {
         this.modificationInfos = modificationInfos;

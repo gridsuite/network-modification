@@ -7,8 +7,7 @@
 package org.gridsuite.modification.modifications;
 
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.OperationalLimitsGroupInfos;
 
@@ -19,6 +18,8 @@ import java.util.List;
  */
 @Setter
 @Getter
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public abstract class AbstractBranchCreation extends AbstractEquipmentCreation {
 
     protected double r;

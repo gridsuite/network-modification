@@ -7,16 +7,17 @@
 
 package org.gridsuite.modification.dto;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
+@SuperBuilder
 @NoArgsConstructor
-
+@EqualsAndHashCode(callSuper = true)
 public class LccShuntCompensatorModificationInfos extends AbstractLccShuntCompensatorInfos {
     private boolean deletionMark = false;
 

@@ -6,16 +6,16 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimated;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimatedAdder;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.apache.commons.lang3.BooleanUtils;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
@@ -35,6 +35,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TwoWindingsTransformerModification extends AbstractBranchModification {
 
     public static final String MAGNETIZING_CONDUCTANCE_FIELD_NAME = "Magnetizing conductance";
@@ -167,8 +169,9 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "TwoWindingsTransformerModification";
+        return ModificationType.TWO_WINDINGS_TRANSFORMER_MODIFICATION.name();
     }
 
     private void modifyTwoWindingsTransformer(TwoWindingsTransformer twoWindingsTransformer, ReportNode subReportNode, Network network) {

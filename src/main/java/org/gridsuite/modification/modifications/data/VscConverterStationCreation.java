@@ -6,7 +6,9 @@
  */
 package org.gridsuite.modification.modifications.data;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
@@ -20,6 +22,8 @@ import java.util.List;
 @Getter
 @Setter
 @SuperBuilder
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class VscConverterStationCreation extends AbstractInjectionCreation implements ReactiveLimitsHolderInfos {
 
     private Float lossFactor;

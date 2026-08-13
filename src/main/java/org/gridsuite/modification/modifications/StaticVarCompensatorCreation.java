@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
@@ -13,6 +14,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
 import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.VoltageRegulationType;
@@ -33,6 +35,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
 
     private Double maxSusceptance;
@@ -143,8 +147,9 @@ public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "StaticVarCompensatorCreation";
+        return ModificationType.STATIC_VAR_COMPENSATOR_CREATION.name();
     }
 
     private void createStaticVarCompensatorInNodeBreaker(VoltageLevel voltageLevel, Network network, ReportNode subReportNode) {

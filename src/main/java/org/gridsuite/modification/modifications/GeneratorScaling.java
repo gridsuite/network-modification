@@ -7,15 +7,15 @@
 
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.VariationType;
 import org.gridsuite.modification.dto.IdentifiableAttributes;
@@ -33,6 +33,8 @@ import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GeneratorScaling extends AbstractScaling {
 
     @Builder
@@ -195,7 +197,8 @@ public class GeneratorScaling extends AbstractScaling {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "GeneratorScaling";
+        return ModificationType.GENERATOR_SCALING.name();
     }
 }

@@ -20,12 +20,12 @@ import java.util.Map;
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-@EqualsAndHashCode(callSuper = true)
+@Data
 @SuperBuilder
 @NoArgsConstructor
-@Data
-@Schema(description = "Tabular modification")
+@EqualsAndHashCode(callSuper = true)
 @JsonTypeName("TABULAR_MODIFICATION")
+@Schema(description = "Tabular modification")
 @ModificationErrorTypeName("TABULAR_MODIFICATION_ERROR")
 public class TabularModificationInfos extends TabularBaseInfos {
     @Override

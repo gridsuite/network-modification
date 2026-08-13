@@ -7,14 +7,15 @@
 
 package org.gridsuite.modification.modifications.byfilter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import jakarta.annotation.Nonnull;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
@@ -33,33 +34,37 @@ import static org.gridsuite.modification.NetworkModificationException.Type.BY_FO
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ByFormulaModification extends AbstractModificationByAssignment {
-    private IdentifiableType identifiableType;
-    private List<FormulaInfos> formulaInfosList;
+    private IdentifiableType equipmentType;
+    private List<FormulaInfos> assignmentInfosList;
 
     @Builder
-    public ByFormulaModification(IdentifiableType identifiableType, List<FormulaInfos> formulaInfosList) {
+    public ByFormulaModification(IdentifiableType equipmentType, List<FormulaInfos> assignmentInfosList) {
         super();
-        this.identifiableType = identifiableType;
-        this.formulaInfosList = formulaInfosList;
+        this.equipmentType = equipmentType;
+        this.assignmentInfosList = assignmentInfosList;
     }
 
     @Override
+    @JsonIgnore
     public String getModificationTypeLabel() {
         return "formula";
     }
 
     @Override
     public IdentifiableType getEquipmentType() {
-        return identifiableType;
+        return equipmentType;
     }
 
     @Override
     public List<AbstractAssignmentInfos> getAssignmentInfosList() {
-        return Collections.unmodifiableList(formulaInfosList);
+        return Collections.unmodifiableList(assignmentInfosList);
     }
 
     @Override
+    @JsonIgnore
     public NetworkModificationException.Type getExceptionType() {
         return BY_FORMULA_MODIFICATION_ERROR;
     }
@@ -120,7 +125,8 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "ByFormulaModification";
+        return ModificationType.BY_FORMULA_MODIFICATION.name();
     }
 }

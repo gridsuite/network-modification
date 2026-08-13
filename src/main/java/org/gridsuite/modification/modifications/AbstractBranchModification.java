@@ -10,6 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -34,6 +35,7 @@ import static org.gridsuite.modification.utils.ModificationUtils.NO_VALUE;
 @Setter
 @Getter
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public abstract class AbstractBranchModification extends AbstractEquipmentModification {
 
     public static final String DURATION = "duration";

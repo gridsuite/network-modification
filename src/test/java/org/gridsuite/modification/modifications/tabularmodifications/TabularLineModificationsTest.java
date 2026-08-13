@@ -17,6 +17,7 @@ import org.gridsuite.modification.report.NetworkModificationReportResourceBundle
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -38,16 +39,17 @@ class TabularLineModificationsTest extends AbstractNetworkModificationTest {
     @Override
     protected ModificationInfos buildModification() {
         List<ModificationInfos> modifications = List.of(
-                LineModificationInfos.builder().equipmentId("line1").r(new AttributeModification<>(10., OperationType.SET)).build(),
-                LineModificationInfos.builder().equipmentId("line2").x(new AttributeModification<>(20., OperationType.SET)).build(),
-                LineModificationInfos.builder().equipmentId("line3").g1(new AttributeModification<>(30., OperationType.SET)).build(),
-                LineModificationInfos.builder().equipmentId("line3").b1(new AttributeModification<>(40., OperationType.SET)).build(),
-                LineModificationInfos.builder().equipmentId("unknownLine").b2(new AttributeModification<>(60., OperationType.SET)).build()
+                LineModificationInfos.builder().equipmentId("line1").r(new AttributeModification<>(10., OperationType.SET)).date(Instant.now()).build(),
+                LineModificationInfos.builder().equipmentId("line2").x(new AttributeModification<>(20., OperationType.SET)).date(Instant.now()).build(),
+                LineModificationInfos.builder().equipmentId("line3").g1(new AttributeModification<>(30., OperationType.SET)).date(Instant.now()).build(),
+                LineModificationInfos.builder().equipmentId("line3").b1(new AttributeModification<>(40., OperationType.SET)).date(Instant.now()).build(),
+                LineModificationInfos.builder().equipmentId("unknownLine").b2(new AttributeModification<>(60., OperationType.SET)).date(Instant.now()).build()
         );
         return TabularModificationInfos.builder()
                 .modificationType(ModificationType.LINE_MODIFICATION)
                 .modifications(modifications)
                 .stashed(false)
+                .date(Instant.now())
                 .build();
     }
 

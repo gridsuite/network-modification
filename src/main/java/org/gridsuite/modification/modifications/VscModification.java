@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
@@ -15,6 +16,7 @@ import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRangeAdder;
 import jakarta.annotation.Nonnull;
 import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -41,6 +43,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.checkIsPercenta
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class VscModification extends AbstractEquipmentModification {
     public static final String NO_VALUE = "No value";
     public static final String ANGLE_DROOP_ACTIVE_POWER_CONTROL_FIELD = "AngleDroopActivePowerControl";
@@ -163,8 +167,9 @@ public class VscModification extends AbstractEquipmentModification {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "VscModification";
+        return ModificationType.VSC_MODIFICATION.name();
     }
 
     private void modifyVsc(@Nonnull Network network, @Nonnull HvdcLine hvdcLine, ReportNode subReportNode) {

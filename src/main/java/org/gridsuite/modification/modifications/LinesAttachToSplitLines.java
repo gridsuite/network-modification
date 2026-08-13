@@ -6,12 +6,14 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.ReplaceTeePointByVoltageLevelOnLine;
 import com.powsybl.iidm.modification.topology.ReplaceTeePointByVoltageLevelOnLineBuilder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 
@@ -23,8 +25,10 @@ import static org.gridsuite.modification.NetworkModificationException.Type.LINE_
  */
 @Getter
 @Setter
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LinesAttachToSplitLines extends AbstractModification {
 
     private String lineToAttachTo1Id;
@@ -76,7 +80,8 @@ public class LinesAttachToSplitLines extends AbstractModification {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "LinesAttachToSplitLines";
+        return ModificationType.LINES_ATTACH_TO_SPLIT_LINES.name();
     }
 }

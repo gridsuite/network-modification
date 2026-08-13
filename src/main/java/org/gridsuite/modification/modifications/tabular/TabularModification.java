@@ -6,10 +6,15 @@
  */
 package org.gridsuite.modification.modifications.tabular;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentModificationInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorModificationInfos;
@@ -20,6 +25,8 @@ import static org.gridsuite.modification.NetworkModificationException.Type.TABUL
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TabularModification extends AbstractTabularModification {
 
     public TabularModification(TabularModificationInfos modificationInfos) {
@@ -34,8 +41,9 @@ public class TabularModification extends AbstractTabularModification {
     }
 
     @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
-        return "TabularModification";
+        return ModificationType.TABULAR_MODIFICATION.name();
     }
 
     @Override
