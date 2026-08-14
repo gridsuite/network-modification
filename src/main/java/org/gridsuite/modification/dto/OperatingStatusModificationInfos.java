@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.OperatingStatusModification;
@@ -33,7 +32,6 @@ import static org.gridsuite.modification.error.NetworkModificationExceptionType.
 @ToString(callSuper = true)
 @Schema(description = "Operating status modification")
 @JsonTypeName("OPERATING_STATUS_MODIFICATION")
-@ModificationErrorTypeName("OPERATING_STATUS_MODIFICATION_ERROR")
 public class OperatingStatusModificationInfos extends EquipmentModificationInfos {
     @Schema(description = "Action type")
     private ActionType action;

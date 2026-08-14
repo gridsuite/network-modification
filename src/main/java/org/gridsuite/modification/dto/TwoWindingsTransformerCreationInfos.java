@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.TwoWindingsTransformerCreation;
 
@@ -29,7 +28,6 @@ import org.gridsuite.modification.modifications.TwoWindingsTransformerCreation;
 @ToString(callSuper = true)
 @Schema(description = "Two windings transformer creation")
 @JsonTypeName("TWO_WINDINGS_TRANSFORMER_CREATION")
-@ModificationErrorTypeName("CREATE_TWO_WINDINGS_TRANSFORMER_ERROR")
 public class TwoWindingsTransformerCreationInfos extends BranchCreationInfos {
 
     @Schema(description = "Magnetizing conductance")

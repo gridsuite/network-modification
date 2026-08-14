@@ -15,11 +15,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.dto.tabular.LimitSetsTabularModificationInfos;
 import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
 import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
-import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.modifications.AbstractModification;
 
 import java.time.Instant;
@@ -130,11 +128,6 @@ public class ModificationInfos {
     @JsonIgnore
     public AbstractModification toModification() {
         throw new UnsupportedOperationException("Method toModification must be implemented in subclass " + this.getClass().getSimpleName());
-    }
-
-    @JsonIgnore
-    public final NetworkModificationExceptionType getErrorType() {
-        return NetworkModificationExceptionType.valueOf(this.getClass().getAnnotation(ModificationErrorTypeName.class).value());
     }
 
     public final ModificationType getType() {

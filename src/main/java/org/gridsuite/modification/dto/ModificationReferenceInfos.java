@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.ModificationReference;
 
@@ -34,7 +33,6 @@ import java.util.UUID;
 @ToString(callSuper = true)
 @Schema(description = "Modification reference")
 @JsonTypeName("MODIFICATION_REFERENCE")
-@ModificationErrorTypeName("MODIFICATION_REFERENCE_ERROR")
 public class ModificationReferenceInfos extends ModificationInfos {
     public enum Type {
         BASIC,

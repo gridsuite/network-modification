@@ -1718,13 +1718,12 @@ public final class ModificationUtils {
     }
 
     public boolean isValidFilter(ReportNode subReportNode,
-                                 NetworkModificationExceptionType exceptionType,
-                                 Map<UUID, FilterEquipments> exportFilters) {
+                                 Map<UUID, FilterEquipments> exportFilters, String modificationName) {
         boolean noValidEquipmentId = exportFilters.values().stream()
                 .allMatch(filterEquipments -> CollectionUtils.isEmpty(filterEquipments.getIdentifiableAttributes()));
 
         if (noValidEquipmentId) {
-            createReport(subReportNode, "network.modification.invalidFilters", Map.of("errorType", exceptionType), TypedValue.ERROR_SEVERITY);
+            createReport(subReportNode, "network.modification.invalidFilters", Map.of("modificationName", modificationName), TypedValue.ERROR_SEVERITY);
             return false;
         }
 
@@ -1746,11 +1745,12 @@ public final class ModificationUtils {
     }
 
     @Nullable
-    public static Map<UUID, FilterEquipments> getUuidFilterEquipmentsMap(IFilterService filterService, Network network, ReportNode subReportNode, Map<UUID, String> filters,
-            NetworkModificationExceptionType exceptionType) {
+    public static Map<UUID, FilterEquipments> getUuidFilterEquipmentsMap(IFilterService filterService, Network network,
+                                                                         ReportNode subReportNode, Map<UUID, String> filters,
+                                                                         String modificationName) {
         Map<UUID, FilterEquipments> exportFilters = filterService.getUuidFilterEquipmentsMap(network, filters);
 
-        boolean isValidFilter = ModificationUtils.getInstance().isValidFilter(subReportNode, exceptionType, exportFilters);
+        boolean isValidFilter = ModificationUtils.getInstance().isValidFilter(subReportNode, exportFilters, modificationName);
         return isValidFilter ? exportFilters : null;
     }
 

@@ -19,7 +19,6 @@ import lombok.Setter;
 import org.gridsuite.modification.VariationType;
 import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.dto.ScalingVariationInfos;
-import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.*;
@@ -27,6 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.GENERATOR_SCALING_ERROR;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -36,8 +36,8 @@ import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.
 public class GeneratorScaling extends AbstractScaling {
 
     @Builder
-    public GeneratorScaling(List<ScalingVariationInfos> variations, VariationType variationType, NetworkModificationExceptionType exceptionType) {
-        super(variations, variationType, exceptionType);
+    public GeneratorScaling(List<ScalingVariationInfos> variations, VariationType variationType) {
+        super(variations, variationType, GENERATOR_SCALING_ERROR);
     }
 
     @Override

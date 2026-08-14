@@ -61,7 +61,7 @@ public abstract class AbstractScaling extends AbstractModification {
                 .filter(distinctByKey(FilterInfos::getId))
                 .collect(Collectors.toMap(FilterInfos::getId, FilterInfos::getName));
 
-        Map<UUID, FilterEquipments> exportFilters = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, exceptionType);
+        Map<UUID, FilterEquipments> exportFilters = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, getName());
         if (exportFilters != null) {
             ModificationUtils.logWrongEquipmentsIdsFilters(subReportNode, exportFilters, filters);
 

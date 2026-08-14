@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.SubstationCreation;
 import org.gridsuite.modification.modifications.VoltageLevelCreation;
@@ -35,7 +34,6 @@ import java.util.Optional;
 @ToString(callSuper = true)
 @Schema(description = "Voltage level creation")
 @JsonTypeName("VOLTAGE_LEVEL_CREATION")
-@ModificationErrorTypeName("CREATE_VOLTAGE_LEVEL_ERROR")
 public class VoltageLevelCreationInfos extends EquipmentCreationInfos {
 
     @Schema(description = "substation id")

@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.IdentifiableType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.EquipmentAttributeModification;
@@ -33,7 +32,6 @@ import static org.gridsuite.modification.error.NetworkModificationExceptionType.
 @ToString(callSuper = true)
 @Schema(description = "Equipment attribute modification")
 @JsonTypeName("EQUIPMENT_ATTRIBUTE_MODIFICATION")
-@ModificationErrorTypeName("MODIFICATION_ERROR")
 public class EquipmentAttributeModificationInfos extends EquipmentModificationInfos {
     @Schema(description = "Equipment attribute name")
     private String equipmentAttributeName;

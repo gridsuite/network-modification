@@ -13,7 +13,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.MoveVoltageLevelFeederBays;
 
@@ -29,7 +28,6 @@ import java.util.Map;
 @Setter
 @Schema(description = "Move voltage level feeder bays")
 @JsonTypeName("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS")
-@ModificationErrorTypeName("MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR")
 public class MoveVoltageLevelFeederBaysInfos extends ModificationInfos {
 
     @Schema(description = "Voltage level id")
