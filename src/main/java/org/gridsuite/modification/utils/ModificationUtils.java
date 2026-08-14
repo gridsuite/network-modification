@@ -2009,6 +2009,37 @@ public final class ModificationUtils {
         }
     }
 
+    public static void checkVoltageRegulation(String errorMessage, VoltageRegulation voltageRegulation, AttributeModification<Boolean> voltageRegulatorOn,
+                                              AttributeModification<Double> targetV, NetworkModificationExceptionType exceptionType) throws NetworkModificationException {
+        // voltageRegulatorOn modification value
+        Boolean voltageRegulatorOnModificationValue = voltageRegulatorOn == null ? null : voltageRegulatorOn.getValue();
+        // if modification is null, then stored voltageRegulatorOn is checked
+        boolean effectiveVoltageRegulatorOn = voltageRegulatorOnModificationValue != null ? voltageRegulatorOnModificationValue
+                        : voltageRegulation != null && voltageRegulation.isVoltageRegulatorOn();
+        if (effectiveVoltageRegulatorOn) {
+            Double storedTargetV = voltageRegulation == null ? null : voltageRegulation.getTargetV();
+            Double effectiveTargetV = targetV != null ? targetV.getValue() : storedTargetV;
+            checkVoltageRegulation(errorMessage, effectiveTargetV, true, exceptionType);
+        }
+    }
+
+    public static void checkVoltageRegulation(String errorMessage, VoltageRegulation voltageRegulation,
+                                              Boolean voltageRegulatorOn, NetworkModificationExceptionType exceptionType) throws NetworkModificationException {
+        checkVoltageRegulation(errorMessage, voltageRegulation == null ? null : voltageRegulation.getTargetV(), voltageRegulatorOn, exceptionType);
+    }
+
+    public static void checkVoltageRegulation(String errorMessage, Double targetV, Boolean voltageRegulatorOn, NetworkModificationExceptionType exceptionType) throws NetworkModificationException {
+        if (Boolean.TRUE.equals(voltageRegulatorOn) && (targetV == null || Double.isNaN(targetV))) {
+            throw new NetworkModificationException(exceptionType, errorMessage + "voltage setpoint value (NaN) is invalid (voltage regulator is on)");
+        }
+    }
+
+    public static void checkTargetV(String errorMessage, VoltageRegulation voltageRegulation, Double targetV, NetworkModificationExceptionType exceptionType) throws NetworkModificationException {
+        if (voltageRegulation != null && voltageRegulation.isVoltageRegulatorOn() && (targetV == null || Double.isNaN(targetV))) {
+            throw new NetworkModificationException(exceptionType, errorMessage + "voltage setpoint value (NaN) is invalid (voltage regulator is on)");
+        }
+    }
+
     public static boolean validateMinimumActivePower(Generator generator, List<ReportNode> reports, double newValue) {
         GeneratorStartup generatorStartup = generator.getExtension(GeneratorStartup.class);
         Double plannedActivePowerSetPoint = generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) ? generatorStartup.getPlannedActivePowerSetpoint() : null;

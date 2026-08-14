@@ -58,6 +58,9 @@ public class BatteryCreationInfos extends InjectionCreationInfos implements Reac
     @Schema(description = "Participate")
     private Boolean participate;
 
+    @Schema(description = "Voltage set point")
+    private Double targetV;
+
     @Schema(description = "Droop")
     private Float droop;
 
@@ -69,6 +72,18 @@ public class BatteryCreationInfos extends InjectionCreationInfos implements Reac
 
     @Schema(description = "Reactive capability curve")
     private Boolean reactiveCapabilityCurve;
+
+    @Schema(description = "Regulating terminal equipment id")
+    private String regulatingTerminalId;
+
+    @Schema(description = "Regulating terminal equipment type")
+    private String regulatingTerminalType;
+
+    @Schema(description = "Regulating terminal voltage level id")
+    private String regulatingTerminalVlId;
+
+    @Schema(description = "Voltage regulation on")
+    private Boolean voltageRegulationOn;
 
     @Override
     public AbstractModification toModification() {
@@ -94,6 +109,11 @@ public class BatteryCreationInfos extends InjectionCreationInfos implements Reac
                 .directTransX(getDirectTransX())
                 .stepUpTransformerX(getStepUpTransformerX())
                 .reactiveCapabilityCurve(getReactiveCapabilityCurve())
+                .voltageRegulationOn(getVoltageRegulationOn())
+                .targetV(getTargetV())
+                .regulatingTerminalId(getRegulatingTerminalId())
+                .regulatingTerminalType(getRegulatingTerminalType())
+                .regulatingTerminalVlId(getRegulatingTerminalVlId())
                 .build();
     }
 

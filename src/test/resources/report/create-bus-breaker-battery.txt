@@ -1,0 +1,35 @@
++ Battery creation idBattery2
+   Name : nameBattery2
+   + Connectivity
+      Connection name : top
+      Connection direction : TOP
+      Equipment with id=idBattery2 disconnected
+   + Voltage regulation
+      Target V : 225.0
+      Enable voltage regulation : true
+      Voltage level : v1
+      Equipment : GENERATOR:idGenerator1
+   + Limits
+      + Active limits
+         Min active power : 100.0
+         Max active power : 600.0
+      + Reactive limits
+         + By diagram
+            Pmin : 3.1
+            QminPmin : 2.0
+            QmaxPmin : 3.0
+            Pmax : 10.8
+            QminPmax : 5.6
+            QmaxPmax : 9.8
+   + Setpoints
+      Active power : 400.0
+      Reactive power : 50.0
+      + Active power regulation
+         Participate : true
+         Droop : 5.0
+   + Short-circuit
+      Transient reactance : 61.0
+      Transformer reactance : 60.0
+   New battery with id=idBattery2 created
+   + Properties
+      Property property-name added with value property-value

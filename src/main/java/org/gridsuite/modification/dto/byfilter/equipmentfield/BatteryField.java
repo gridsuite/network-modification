@@ -8,28 +8,27 @@
 package org.gridsuite.modification.dto.byfilter.equipmentfield;
 
 import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.extensions.ActivePowerControl;
-import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
-import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
-import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
-import jakarta.validation.constraints.NotNull;
+import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
+import org.gridsuite.modification.modifications.data.VoltageRegulationModification;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_BATTERY_ERROR;
 import static org.gridsuite.modification.modifications.BatteryModification.*;
-import static org.gridsuite.modification.utils.ModificationUtils.parseDoubleOrNaNIfNull;
+import static org.gridsuite.modification.utils.ModificationUtils.*;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
  */
 
 public enum BatteryField {
+    VOLTAGE_REGULATOR_ON,
     MINIMUM_ACTIVE_POWER,
     MAXIMUM_ACTIVE_POWER,
     ACTIVE_POWER_SET_POINT,
     REACTIVE_POWER_SET_POINT,
+    VOLTAGE_SET_POINT,
     DROOP,
     TRANSIENT_REACTANCE,
     STEP_UP_TRANSFORMER_REACTANCE;
@@ -37,6 +36,7 @@ public enum BatteryField {
     public static String getReferenceValue(Battery battery, String batteryField) {
         ActivePowerControl<Battery> activePowerControl = battery.getExtension(ActivePowerControl.class);
         BatteryShortCircuit batteryShortCircuit = battery.getExtension(BatteryShortCircuit.class);
+        VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
         BatteryField field = BatteryField.valueOf(batteryField);
         return switch (field) {
             case MINIMUM_ACTIVE_POWER -> String.valueOf(battery.getMinP());
@@ -46,11 +46,14 @@ public enum BatteryField {
             case DROOP -> activePowerControl != null ? String.valueOf(activePowerControl.getDroop()) : null;
             case TRANSIENT_REACTANCE -> batteryShortCircuit != null ? String.valueOf(batteryShortCircuit.getDirectTransX()) : null;
             case STEP_UP_TRANSFORMER_REACTANCE -> batteryShortCircuit != null ? String.valueOf(batteryShortCircuit.getStepUpTransformerX()) : null;
+            case VOLTAGE_SET_POINT -> voltageRegulation != null ? String.valueOf(voltageRegulation.getTargetV()) : null;
+            case VOLTAGE_REGULATOR_ON -> voltageRegulation != null ? String.valueOf(voltageRegulation.isVoltageRegulatorOn()) : null;
         };
     }
 
-    public static void setNewValue(Battery battery, String batteryField, @NotNull String newValue) {
+    public static void setNewValue(Battery battery, String batteryField, String newValue) {
         BatteryField field = BatteryField.valueOf(batteryField);
+        VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
         String errorMessage = String.format(ERROR_MESSAGE, battery.getId());
         switch (field) {
             case MINIMUM_ACTIVE_POWER ->
@@ -62,10 +65,12 @@ public enum BatteryField {
                         new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null, null, battery.getMinP(),
                         battery.getMaxP(), battery.getTargetP(), MODIFY_BATTERY_ERROR, errorMessage
                 );
-                modifyBatterySetpointsAttributes(new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null, null, null, battery, null);
+                modifyBatterySetpointsAttributes(new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET),
+                        null, null, null, null, battery, null);
             }
             case REACTIVE_POWER_SET_POINT -> modifyBatterySetpointsAttributes(
-                    null, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET), null, null, battery, null);
+                    null, new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET),
+                    null, null, null, battery, null);
             case DROOP -> {
                 Float droopValue = Float.parseFloat(newValue);
                 ModificationUtils.checkIsPercentage(errorMessage, droopValue, MODIFY_BATTERY_ERROR, "Droop");
@@ -82,6 +87,20 @@ public enum BatteryField {
             case STEP_UP_TRANSFORMER_REACTANCE -> ModificationUtils.getInstance().modifyShortCircuitExtension(null,
                     new AttributeModification<>(parseDoubleOrNaNIfNull(newValue), OperationType.SET), battery.getExtension(BatteryShortCircuit.class),
                     () -> battery.newExtension(BatteryShortCircuitAdder.class), null);
+            case VOLTAGE_REGULATOR_ON -> {
+                Boolean voltageRegulatorOn = newValue == null ? null : Boolean.parseBoolean(newValue);
+                checkVoltageRegulation(errorMessage, voltageRegulation, voltageRegulatorOn, MODIFY_BATTERY_ERROR);
+                AttributeModification<Boolean> voltageRegulationOnModification =
+                        new AttributeModification<>(voltageRegulatorOn, OperationType.SET);
+                modifyVoltageRegulation(battery, VoltageRegulationModification.builder().voltageRegulationOn(voltageRegulationOnModification).build());
+            }
+            case VOLTAGE_SET_POINT -> {
+                Double targetV = Double.parseDouble(newValue);
+                checkIsNotNegativeValue(errorMessage, targetV, MODIFY_BATTERY_ERROR, "Target Voltage");
+                checkTargetV(errorMessage, voltageRegulation, targetV, MODIFY_BATTERY_ERROR);
+                AttributeModification<Double> voltageSetPointModification = new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET);
+                modifyVoltageRegulation(battery, VoltageRegulationModification.builder().targetV(voltageSetPointModification).build());
+            }
         }
     }
 }
