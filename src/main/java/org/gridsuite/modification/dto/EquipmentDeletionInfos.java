@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.EquipmentDeletion;
 
@@ -30,7 +29,6 @@ import org.gridsuite.modification.modifications.EquipmentDeletion;
 @ToString(callSuper = true)
 @Schema(description = "Equipment deletion")
 @JsonTypeName("EQUIPMENT_DELETION")
-@ModificationErrorTypeName("DELETE_EQUIPMENT_ERROR")
 public class EquipmentDeletionInfos extends EquipmentModificationInfos {
     @Schema(description = "Equipment type")
     private IdentifiableType equipmentType;

@@ -13,18 +13,18 @@ import com.powsybl.iidm.network.extensions.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.gridsuite.modification.NetworkModificationException;
+import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.modifications.olg.OperationalLimitsGroupsModification;
 import org.gridsuite.modification.utils.ModificationUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BRANCH_MODIFICATION_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.BRANCH_MODIFICATION_ERROR;
 import static org.gridsuite.modification.utils.MeasurementUtils.upsertSideMeasurement;
 import static org.gridsuite.modification.utils.ModificationUtils.NO_VALUE;
 
@@ -198,7 +198,7 @@ public abstract class AbstractBranchModification extends AbstractEquipmentModifi
     }
 
     private static void applySelectedOLGOnSide1(Branch<?> branch, AttributeModification<String> modifOperationalLimitsGroup, List<ReportNode> reportNode, String newSelectedOLG) {
-        if (!StringUtils.hasText(newSelectedOLG) || modifOperationalLimitsGroup.getOp() == OperationType.UNSET) {
+        if (!StringUtils.isNotBlank(newSelectedOLG) || modifOperationalLimitsGroup.getOp() == OperationType.UNSET) {
             branch.cancelSelectedOperationalLimitsGroup1();
             if (reportNode != null) {
                 reportNode.add(ReportNode.newRootReportNode()
@@ -207,7 +207,7 @@ public abstract class AbstractBranchModification extends AbstractEquipmentModifi
                     .build());
             }
         } else {
-            if (StringUtils.hasText(newSelectedOLG) && branch.getOperationalLimitsGroup1(newSelectedOLG).isEmpty() && reportNode != null) {
+            if (StringUtils.isNotBlank(newSelectedOLG) && branch.getOperationalLimitsGroup1(newSelectedOLG).isEmpty() && reportNode != null) {
                 reportNode.add(ReportNode.newRootReportNode()
                     .withMessageTemplate("network.modification.limitSetAbsentOnSide1")
                     .withUntypedValue("selectedOperationalLimitsGroup", newSelectedOLG)
@@ -228,7 +228,7 @@ public abstract class AbstractBranchModification extends AbstractEquipmentModifi
     }
 
     private static void applySelectedOLGOnSide2(Branch<?> branch, AttributeModification<String> modifOperationalLimitsGroup, List<ReportNode> reportNode, String newSelectedOLG) {
-        if (!StringUtils.hasText(newSelectedOLG) || modifOperationalLimitsGroup.getOp() == OperationType.UNSET) {
+        if (!StringUtils.isNotBlank(newSelectedOLG) || modifOperationalLimitsGroup.getOp() == OperationType.UNSET) {
             branch.cancelSelectedOperationalLimitsGroup2();
             if (reportNode != null) {
                 reportNode.add(ReportNode.newRootReportNode()
@@ -237,7 +237,7 @@ public abstract class AbstractBranchModification extends AbstractEquipmentModifi
                     .build());
             }
         } else {
-            if (StringUtils.hasText(newSelectedOLG) && branch.getOperationalLimitsGroup2(newSelectedOLG).isEmpty() && reportNode != null) {
+            if (StringUtils.isNotBlank(newSelectedOLG) && branch.getOperationalLimitsGroup2(newSelectedOLG).isEmpty() && reportNode != null) {
                 reportNode.add(ReportNode.newRootReportNode()
                     .withMessageTemplate("network.modification.limitSetAbsentOnSide2")
                     .withUntypedValue("selectedOperationalLimitsGroup", newSelectedOLG)

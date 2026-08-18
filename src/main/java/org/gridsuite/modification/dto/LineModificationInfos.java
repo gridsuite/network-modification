@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LineModification;
 import java.util.List;
@@ -30,7 +29,6 @@ import java.util.List;
 @ToString(callSuper = true)
 @Schema(description = "Line modification")
 @JsonTypeName("LINE_MODIFICATION")
-@ModificationErrorTypeName("MODIFY_LINE_ERROR")
 public class LineModificationInfos extends BranchModificationInfos {
 
     @Schema(description = "Shunt conductance Side 1")

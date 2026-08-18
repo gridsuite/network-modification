@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.SubstationModification;
 
@@ -31,7 +30,6 @@ import org.gridsuite.modification.modifications.SubstationModification;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Substation modification")
 @JsonTypeName("SUBSTATION_MODIFICATION")
-@ModificationErrorTypeName("MODIFY_SUBSTATION_ERROR")
 public class SubstationModificationInfos extends BasicEquipmentModificationInfos {
     @Schema(description = "country modification")
     private AttributeModification<Country> country;

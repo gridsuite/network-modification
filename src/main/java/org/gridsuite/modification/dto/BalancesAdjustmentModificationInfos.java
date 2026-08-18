@@ -13,7 +13,6 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.BalancesAdjustmentModification;
 
@@ -31,7 +30,6 @@ import java.util.UUID;
 @ToString(callSuper = true)
 @Schema(description = "Balances adjustment modification infos")
 @JsonTypeName("BALANCES_ADJUSTMENT_MODIFICATION")
-@ModificationErrorTypeName("BALANCES_ADJUSTMENT_MODIFICATION_ERROR")
 public class BalancesAdjustmentModificationInfos extends ModificationInfos {
     public static final int DEFAULT_MAX_NUMBER_ITERATIONS = 5;
     public static final double DEFAULT_THRESHOLD_NET_POSITION = 1;

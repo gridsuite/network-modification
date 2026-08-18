@@ -12,11 +12,11 @@ import com.powsybl.iidm.modification.topology.ReplaceTeePointByVoltageLevelOnLin
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import lombok.*;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
-import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.LINE_ALREADY_EXISTS;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.LINE_NOT_FOUND;
 
 /**
  * @author David Braquart <david.braquart at rte-france.com>

@@ -10,20 +10,17 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.EquipmentAttributeModification;
-import org.springframework.lang.NonNull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import static org.gridsuite.modification.NetworkModificationException.Type.*;
+
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.EQUIPMENT_ATTRIBUTE_NAME_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.EQUIPMENT_ATTRIBUTE_VALUE_ERROR;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -35,7 +32,6 @@ import static org.gridsuite.modification.NetworkModificationException.Type.*;
 @ToString(callSuper = true)
 @Schema(description = "Equipment attribute modification")
 @JsonTypeName("EQUIPMENT_ATTRIBUTE_MODIFICATION")
-@ModificationErrorTypeName("MODIFICATION_ERROR")
 public class EquipmentAttributeModificationInfos extends EquipmentModificationInfos {
     @Schema(description = "Equipment attribute name")
     private String equipmentAttributeName;

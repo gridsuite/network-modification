@@ -10,9 +10,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.DeleteVoltageLevelOnLineInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.LINE_ALREADY_EXISTS;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.LINE_NOT_FOUND;
 import static org.gridsuite.modification.utils.MergingLimitsTestUtils.testModificationMergedLimits;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -79,7 +81,7 @@ class DeleteVoltageLevelOnLineTest extends AbstractNetworkModificationTest {
                 .replacingLine1Id("replacementLineId")
                 .build();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> deleteVoltageLevelOnLineInfos.toModification().check(getNetwork()));
-        assertEquals("LINE_NOT_FOUND : ll", exception.getMessage());
+        assertEquals(LINE_NOT_FOUND.getMessage() + " : ll", exception.getMessage());
     }
 
     @Test
@@ -88,7 +90,7 @@ class DeleteVoltageLevelOnLineTest extends AbstractNetworkModificationTest {
         DeleteVoltageLevelOnLineInfos deleteVoltageLevelOnLineInfos = (DeleteVoltageLevelOnLineInfos) buildModification();
         deleteVoltageLevelOnLineInfos.setReplacingLine1Id("l2");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> deleteVoltageLevelOnLineInfos.toModification().check(getNetwork()));
-        assertEquals("LINE_ALREADY_EXISTS : l2", exception.getMessage());
+        assertEquals(LINE_ALREADY_EXISTS.getMessage() + " : l2", exception.getMessage());
     }
 
     @Override

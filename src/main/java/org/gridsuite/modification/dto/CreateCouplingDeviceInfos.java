@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.CreateCouplingDevice;
 
@@ -31,7 +30,6 @@ import java.util.Map;
 @ToString(callSuper = true)
 @Schema(description = "Coupling device creation")
 @JsonTypeName("CREATE_COUPLING_DEVICE")
-@ModificationErrorTypeName("CREATE_COUPLING_DEVICE_ERROR")
 public class CreateCouplingDeviceInfos extends ModificationInfos {
 
     @Schema(description = "VoltageLevelId")

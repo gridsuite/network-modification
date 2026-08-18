@@ -13,13 +13,15 @@ import com.powsybl.iidm.network.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.NetworkModificationException.Type;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.error.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
 /**
@@ -69,7 +71,7 @@ public class VoltageInitModification extends AbstractModification {
     public void check(Network network) throws NetworkModificationException {
         if (generators.isEmpty() && transformers.isEmpty() && staticVarCompensators.isEmpty()
                 && vscConverterStations.isEmpty() && shuntCompensators.isEmpty() && buses.isEmpty()) {
-            throw new NetworkModificationException(Type.VOLTAGE_INIT_MODIFICATION_ERROR, "No voltage init modification to apply !!");
+            throw new NetworkModificationException(NetworkModificationExceptionType.VOLTAGE_INIT_MODIFICATION_ERROR, "No voltage init modification to apply !!");
         }
     }
 

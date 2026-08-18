@@ -16,18 +16,18 @@ import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
 import org.gridsuite.modification.dto.ReactiveLimitsHolderInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BATTERY_ALREADY_EXISTS;
-import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_BATTERY_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.BATTERY_ALREADY_EXISTS;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.CREATE_BATTERY_ERROR;
 import static org.gridsuite.modification.modifications.BatteryModification.ERROR_MESSAGE;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 

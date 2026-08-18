@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.Network;
 import lombok.NoArgsConstructor;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationException;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>

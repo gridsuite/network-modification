@@ -11,7 +11,6 @@ import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.tabular.TabularModification;
 import java.util.HashMap;
@@ -26,7 +25,6 @@ import java.util.Map;
 @Data
 @Schema(description = "Tabular modification")
 @JsonTypeName("TABULAR_MODIFICATION")
-@ModificationErrorTypeName("TABULAR_MODIFICATION_ERROR")
 public class TabularModificationInfos extends TabularBaseInfos {
     @Override
     public AbstractModification toModification() {

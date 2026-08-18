@@ -12,19 +12,21 @@ import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.VariationType;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.error.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.utils.ModificationUtils;
-import org.springframework.util.CollectionUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+
 import static org.gridsuite.modification.utils.ModificationUtils.createReport;
 import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
 
@@ -36,14 +38,14 @@ import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
 public abstract class AbstractScaling extends AbstractModification {
     protected List<ScalingVariationInfos> variations;
     protected VariationType variationType;
-    protected NetworkModificationException.Type errorType;
+    protected NetworkModificationExceptionType exceptionType;
 
     protected IFilterService filterService;
 
-    protected AbstractScaling(List<ScalingVariationInfos> variations, VariationType variationType, NetworkModificationException.Type errorType) {
+    protected AbstractScaling(List<ScalingVariationInfos> variations, VariationType variationType, NetworkModificationExceptionType exceptionType) {
         this.variations = variations;
         this.variationType = variationType;
-        this.errorType = errorType;
+        this.exceptionType = exceptionType;
     }
 
     @Override
@@ -59,7 +61,7 @@ public abstract class AbstractScaling extends AbstractModification {
                 .filter(distinctByKey(FilterInfos::getId))
                 .collect(Collectors.toMap(FilterInfos::getId, FilterInfos::getName));
 
-        Map<UUID, FilterEquipments> exportFilters = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, errorType);
+        Map<UUID, FilterEquipments> exportFilters = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, getName());
         if (exportFilters != null) {
             ModificationUtils.logWrongEquipmentsIdsFilters(subReportNode, exportFilters, filters);
 
@@ -99,7 +101,7 @@ public abstract class AbstractScaling extends AbstractModification {
                 applyStackingUpVariation(network, subReportNode, identifiableAttributes, variation);
                 break;
             default:
-                throw new NetworkModificationException(errorType, String.format("This variation mode is not supported : %s", variation.getVariationMode().name()));
+                throw new NetworkModificationException(exceptionType, String.format("This variation mode is not supported : %s", variation.getVariationMode().name()));
         }
     }
 

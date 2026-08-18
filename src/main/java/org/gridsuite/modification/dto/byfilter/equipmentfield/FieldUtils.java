@@ -10,7 +10,8 @@ package org.gridsuite.modification.dto.byfilter.equipmentfield;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import jakarta.annotation.Nullable;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationExceptionType;
 
 import java.util.List;
 
@@ -43,8 +44,8 @@ public final class FieldUtils {
                 TwoWindingsTransformerField.getReferenceValue((TwoWindingsTransformer) equipment, equipmentField);
             case LINE -> LineField.getReferenceValue((Line) equipment, equipmentField);
             case STATIC_VAR_COMPENSATOR -> StaticVarCompensatorField.getReferenceValue((StaticVarCompensator) equipment, equipmentField);
-            default -> throw new NetworkModificationException(NetworkModificationException.Type.MODIFICATION_ERROR,
-                            "Unsupported getting value for equipment type : " + equipment.getType().name());
+            default -> throw new NetworkModificationException(NetworkModificationExceptionType.MODIFICATION_ERROR,
+                                                              "Unsupported getting value for equipment type : " + equipment.getType().name());
         };
     }
 
@@ -58,8 +59,8 @@ public final class FieldUtils {
             case TWO_WINDINGS_TRANSFORMER -> TwoWindingsTransformerField.setNewValue((TwoWindingsTransformer) equipment, equipmentField, newValue);
             case LINE -> LineField.setNewValue((Line) equipment, equipmentField, newValue);
             case STATIC_VAR_COMPENSATOR -> StaticVarCompensatorField.setNewValue((StaticVarCompensator) equipment, equipmentField, newValue);
-            default -> throw new NetworkModificationException(NetworkModificationException.Type.MODIFICATION_ERROR,
-                            "Unsupported setting value for equipment type : " + equipment.getType().name());
+            default -> throw new NetworkModificationException(NetworkModificationExceptionType.MODIFICATION_ERROR,
+                                                              "Unsupported setting value for equipment type : " + equipment.getType().name());
         }
     }
 

@@ -10,12 +10,11 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentModificationInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorModificationInfos;
 import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
-
-import static org.gridsuite.modification.NetworkModificationException.Type.TABULAR_MODIFICATION_ERROR;
+import org.gridsuite.modification.error.NetworkModificationException;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.TABULAR_MODIFICATION_ERROR;
 
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
