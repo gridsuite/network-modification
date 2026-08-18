@@ -11,8 +11,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.*;
 import static org.gridsuite.modification.modifications.VscModification.ACTIVE_POWER_CONTROL_DROOP_P0_REQUIRED_ERROR_MSG;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -243,7 +243,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         VscCreation vscCreation6 = (VscCreation) vscCreationInfos6.toModification();
         String message = assertThrows(NetworkModificationException.class,
             () -> vscCreation6.check(network)).getMessage();
-        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : can not have a negative value for Resistance R", message);
+        assertEquals(CREATE_VSC_ERROR.getMessage() + " : HVDC vsc 'hvdcLine2' : can not have a negative value for Resistance R", message);
 
         VscCreationInfos vscCreationInfos7 = VscCreationInfos.builder()
             .equipmentId("hvdcLine2")
@@ -258,7 +258,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         VscCreation vscCreation7 = (VscCreation) vscCreationInfos7.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> vscCreation7.check(network)).getMessage();
-        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : can not have a negative value for voltage set point side 1", message);
+        assertEquals(CREATE_VSC_ERROR.getMessage() + " : HVDC vsc 'hvdcLine2' : can not have a negative value for voltage set point side 1", message);
 
         VscCreationInfos vscCreationInfos8 = VscCreationInfos.builder()
             .equipmentId("hvdcLine2")
@@ -273,7 +273,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         VscCreation vscCreation8 = (VscCreation) vscCreationInfos8.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> vscCreation8.check(network)).getMessage();
-        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : can not have a negative value for voltage set point side 2", message);
+        assertEquals(CREATE_VSC_ERROR.getMessage() + " : HVDC vsc 'hvdcLine2' : can not have a negative value for voltage set point side 2", message);
 
         VscCreationInfos vscCreationInfos9 = VscCreationInfos.builder()
             .equipmentId("hvdcLine2")
@@ -284,7 +284,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         VscCreation vscCreation9 = (VscCreation) vscCreationInfos9.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> vscCreation9.check(network)).getMessage();
-        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : can not have a negative value for Nominal voltage", message);
+        assertEquals(CREATE_VSC_ERROR.getMessage() + " : HVDC vsc 'hvdcLine2' : can not have a negative value for Nominal voltage", message);
 
         VscCreationInfos vscCreationInfos10 = VscCreationInfos.builder()
             .equipmentId("hvdcLine2")
@@ -299,7 +299,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         VscCreation vscCreation10 = (VscCreation) vscCreationInfos10.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> vscCreation10.check(network)).getMessage();
-        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : must have loss factor side 2 between 0 and 100", message);
+        assertEquals(CREATE_VSC_ERROR.getMessage() + " : HVDC vsc 'hvdcLine2' : must have loss factor side 2 between 0 and 100", message);
 
         VscCreationInfos vscCreationInfos11 = VscCreationInfos.builder()
             .equipmentId("hvdcLine2")
@@ -314,7 +314,7 @@ class VscCreationTest extends AbstractNetworkModificationTest {
         VscCreation vscCreation11 = (VscCreation) vscCreationInfos11.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> vscCreation11.check(network)).getMessage();
-        assertEquals("CREATE_VSC_ERROR : HVDC vsc 'hvdcLine2' : must have loss factor side 1 between 0 and 100", message);
+        assertEquals(CREATE_VSC_ERROR.getMessage() + " : HVDC vsc 'hvdcLine2' : must have loss factor side 1 between 0 and 100", message);
     }
 
     @Test

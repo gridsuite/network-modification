@@ -12,7 +12,6 @@ import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.CompositeModification;
 
@@ -31,7 +30,6 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "Composite modification")
 @JsonTypeName("COMPOSITE_MODIFICATION")
-@ModificationErrorTypeName("COMPOSITE_MODIFICATION_ERROR")
 public class CompositeModificationInfos extends ModificationInfos {
 
     @Schema(description = "composite modification name")

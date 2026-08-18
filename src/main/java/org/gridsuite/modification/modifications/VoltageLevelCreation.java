@@ -14,13 +14,13 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_VOLTAGE_LEVEL_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.CREATE_VOLTAGE_LEVEL_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 
 /**

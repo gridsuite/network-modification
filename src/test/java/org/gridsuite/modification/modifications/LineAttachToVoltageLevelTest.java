@@ -11,14 +11,14 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.SwitchKind;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.*;
 import static org.gridsuite.modification.utils.TestUtils.checkApplicationWithNamingStrategy;
 import static org.gridsuite.modification.utils.TestUtils.checkLimitsGroupOnLine;
 import static org.junit.jupiter.api.Assertions.*;

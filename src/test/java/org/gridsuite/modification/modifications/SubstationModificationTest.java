@@ -10,13 +10,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.NetworkCreation;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.SUBSTATION_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -67,7 +68,7 @@ class SubstationModificationTest extends AbstractNetworkModificationTest {
                 .country(new AttributeModification<>(Country.JP, OperationType.SET))
                 .build();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> infos.toModification().check(getNetwork()));
-        assertEquals("SUBSTATION_NOT_FOUND : Substation unknown does not exist in network", exception.getMessage());
+        assertEquals(SUBSTATION_NOT_FOUND.getMessage() + " : Substation unknown does not exist in network", exception.getMessage());
     }
 
     @Override

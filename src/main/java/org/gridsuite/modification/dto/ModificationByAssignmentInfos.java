@@ -30,7 +30,6 @@ import java.util.List;
 @Getter
 @Setter
 @JsonTypeName("MODIFICATION_BY_ASSIGNMENT")
-@ModificationErrorTypeName("MODIFICATION_BY_ASSIGNMENT_ERROR")
 @ToString(callSuper = true)
 @Schema(description = "Modification by assignment")
 public class ModificationByAssignmentInfos extends ModificationInfos {

@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.ByFilterDeletion;
 
@@ -34,7 +33,6 @@ import java.util.Map;
 @ToString(callSuper = true)
 @Schema(description = "By filter deletion")
 @JsonTypeName("BY_FILTER_DELETION")
-@ModificationErrorTypeName("BY_FILTER_DELETION_ERROR")
 public class ByFilterDeletionInfos extends ModificationInfos {
     @Schema(description = "Equipment type")
     private IdentifiableType equipmentType;

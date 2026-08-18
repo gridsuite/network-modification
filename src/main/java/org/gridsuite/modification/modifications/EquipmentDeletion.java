@@ -13,17 +13,17 @@ import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.AbstractEquipmentDeletionInfos;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.HvdcLccDeletionInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.EQUIPMENT_NOT_FOUND;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.EQUIPMENT_NOT_FOUND;
 
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>

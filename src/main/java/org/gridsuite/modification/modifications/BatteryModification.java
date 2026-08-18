@@ -13,8 +13,9 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.error.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.modifications.data.VoltageRegulationModification;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -23,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_BATTERY_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_BATTERY_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
 /**
@@ -140,7 +141,7 @@ public class BatteryModification extends AbstractInjectionModification {
         ModificationUtils.checkVoltageRegulation(errorMessage, voltageRegulation, voltageRegulationOn, targetV, MODIFY_BATTERY_ERROR);
     }
 
-    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(Battery battery, NetworkModificationException.Type exceptionType,
+    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(Battery battery, NetworkModificationExceptionType exceptionType,
             String errorMessage) {
         ModificationUtils.getInstance().checkActivePowerZeroOrBetweenMinAndMaxActivePower(
                 targetP,

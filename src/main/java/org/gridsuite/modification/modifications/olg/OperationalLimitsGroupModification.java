@@ -10,11 +10,11 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.modifications.AbstractBranchModification;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
-import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

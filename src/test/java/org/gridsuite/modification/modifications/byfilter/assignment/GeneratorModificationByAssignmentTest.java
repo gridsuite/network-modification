@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_GENERATOR_ERROR;
 import static org.gridsuite.modification.utils.NetworkUtil.createGenerator;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -418,19 +419,19 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
         assertEquals("Assignment on filters : filter6", reportNode.getChildren().getFirst().getChildren().get(17).getMessage());
         assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(17).getChildren().getFirst().getMessage());
         assertEquals("Edited field : PLANNED_OUTAGE_RATE", reportNode.getChildren().getFirst().getChildren().get(17).getChildren().get(1).getMessage());
-        assertEquals("Cannot modify equipment gen11 : MODIFY_GENERATOR_ERROR : Generator 'gen11' : must have PLANNED_OUTAGE_RATE between 0 and 1",
+        assertEquals("Cannot modify equipment gen11 : " + MODIFY_GENERATOR_ERROR.getMessage() + " : Generator 'gen11' : must have PLANNED_OUTAGE_RATE between 0 and 1",
                 reportNode.getChildren().getFirst().getChildren().get(17).getChildren().get(2).getMessage());
 
         assertEquals("Assignment on filters : filter6", reportNode.getChildren().getFirst().getChildren().get(18).getMessage());
         assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(18).getChildren().getFirst().getMessage());
         assertEquals("Edited field : FORCED_OUTAGE_RATE", reportNode.getChildren().getFirst().getChildren().get(18).getChildren().get(1).getMessage());
-        assertEquals("Cannot modify equipment gen11 : MODIFY_GENERATOR_ERROR : Generator 'gen11' : must have FORCED_OUTAGE_RATE between 0 and 1",
+        assertEquals("Cannot modify equipment gen11 : " + MODIFY_GENERATOR_ERROR.getMessage() + " : Generator 'gen11' : must have FORCED_OUTAGE_RATE between 0 and 1",
                 reportNode.getChildren().getFirst().getChildren().get(18).getChildren().get(2).getMessage());
 
         assertEquals("Assignment on filters : filter6", reportNode.getChildren().getFirst().getChildren().get(19).getMessage());
         assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(19).getChildren().getFirst().getMessage());
         assertEquals("Edited field : Q_PERCENT", reportNode.getChildren().getFirst().getChildren().get(19).getChildren().get(1).getMessage());
-        assertEquals("Cannot modify equipment gen11 : MODIFY_GENERATOR_ERROR : Generator 'gen11' : must have Q_Percent between 0 and 100",
+        assertEquals("Cannot modify equipment gen11 : " + MODIFY_GENERATOR_ERROR.getMessage() + " : Generator 'gen11' : must have Q_Percent between 0 and 100",
                 reportNode.getChildren().getFirst().getChildren().get(19).getChildren().get(2).getMessage());
     }
 

@@ -14,9 +14,10 @@ import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.modifications.byfilter.ByFormulaModification;
 import org.gridsuite.modification.modifications.byfilter.ModificationByAssignment;
 import org.gridsuite.modification.modifications.tabular.TabularCreation;
@@ -89,6 +90,7 @@ import org.gridsuite.modification.modifications.tabular.TabularModification;
     @JsonSubTypes.Type(value = VscCreation.class, name = "VSC_CREATION"),
     @JsonSubTypes.Type(value = VscModification.class, name = "VSC_MODIFICATION")
 })
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public abstract class AbstractModification extends AbstractNetworkModification {
 

@@ -18,14 +18,14 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationException;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>

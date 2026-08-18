@@ -12,9 +12,9 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.CreateVoltageLevelSectionInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.DummyNamingStrategy;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.BUSBAR_SECTION_NOT_FOUND;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.CREATE_VOLTAGE_LEVEL_ERROR;
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -55,20 +57,20 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
 
         assertEquals("CREATE_VOLTAGE_LEVEL_SECTION", voltageLevelSection.getName());
         String message = assertThrows(NetworkModificationException.class, () -> voltageLevelSection.check(network)).getMessage();
-        assertEquals("BUSBAR_SECTION_NOT_FOUND : 1 is not the busbar index of the busbar section bbs1 in voltage level v1", message);
+        assertEquals(BUSBAR_SECTION_NOT_FOUND.getMessage() + " : 1 is not the busbar index of the busbar section bbs1 in voltage level v1", message);
 
         voltageLevelSection.setVoltageLevelId("notFoundVoltageLevel");
         voltageLevelSection.setBusbarSectionId("bbs1");
         voltageLevelSection.setBusbarIndex(1);
         message = assertThrows(NetworkModificationException.class,
             () -> voltageLevelSection.check(network)).getMessage();
-        assertEquals("CREATE_VOLTAGE_LEVEL_ERROR : Voltage level not found: notFoundVoltageLevel", message);
+        assertEquals(CREATE_VOLTAGE_LEVEL_ERROR.getMessage() + " : Voltage level not found: notFoundVoltageLevel", message);
 
         voltageLevelSection.setVoltageLevelId("v1");
         voltageLevelSection.setBusbarSectionId("notFoundBusbar");
         message = assertThrows(NetworkModificationException.class,
             () -> voltageLevelSection.check(network)).getMessage();
-        assertEquals("BUSBAR_SECTION_NOT_FOUND : notFoundBusbar not found in voltage level v1", message);
+        assertEquals(BUSBAR_SECTION_NOT_FOUND.getMessage() + " : notFoundBusbar not found in voltage level v1", message);
     }
 
     @Override

@@ -10,9 +10,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.OperatingStatusModificationInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.OPERATING_STATUS_MODIFICATION_ERROR;
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -74,7 +75,7 @@ class OperatingStatusModificationEnergiseSideTwoLineTest extends AbstractNetwork
         OperatingStatusModificationInfos modificationInfos = (OperatingStatusModificationInfos) buildModification();
         modificationInfos.setEquipmentId("cantdisconnect");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> modificationInfos.toModification().apply(getNetwork()));
-        assertEquals("OPERATING_STATUS_MODIFICATION_ERROR : Unable to energise equipment end", exception.getMessage());
+        assertEquals(OPERATING_STATUS_MODIFICATION_ERROR.getMessage() + " : Unable to energise equipment end", exception.getMessage());
     }
 
     @Override

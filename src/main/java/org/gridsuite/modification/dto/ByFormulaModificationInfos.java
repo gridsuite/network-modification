@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.IdentifiableType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.modifications.byfilter.ByFormulaModification;
 
@@ -30,7 +29,6 @@ import java.util.List;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("BY_FORMULA_MODIFICATION")
-@ModificationErrorTypeName("BY_FORMULA_MODIFICATION_ERROR")
 @Schema(description = "Modification by formula")
 public class ByFormulaModificationInfos extends ModificationInfos {
     @Schema(description = "Identifiable type")

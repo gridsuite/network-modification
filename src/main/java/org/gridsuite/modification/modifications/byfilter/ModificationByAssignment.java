@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.AbstractValueAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DataType;
@@ -24,9 +23,9 @@ import org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField;
 import java.util.Collections;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFICATION_BY_ASSIGNMENT_ERROR;
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.getReferenceValue;
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.setNewValue;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFICATION_BY_ASSIGNMENT_ERROR;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
@@ -42,7 +41,7 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
 
     @Builder
     public ModificationByAssignment(IdentifiableType equipmentType, List<? extends AbstractValueAssignmentInfos<?>> assignmentInfosList) {
-        super();
+        super(MODIFICATION_BY_ASSIGNMENT_ERROR);
         this.equipmentType = equipmentType;
         this.assignmentInfosList = assignmentInfosList;
     }
@@ -61,12 +60,6 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
     @Override
     public List<? extends AbstractValueAssignmentInfos<?>> getAssignmentInfosList() {
         return Collections.unmodifiableList(assignmentInfosList);
-    }
-
-    @Override
-    @JsonIgnore
-    public NetworkModificationException.Type getExceptionType() {
-        return MODIFICATION_BY_ASSIGNMENT_ERROR;
     }
 
     @Override

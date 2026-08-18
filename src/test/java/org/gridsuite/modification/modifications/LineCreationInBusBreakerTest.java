@@ -11,19 +11,21 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.ValidationException;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import static org.gridsuite.modification.NetworkModificationException.Type.BUS_NOT_FOUND;
+
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE1;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE2;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.BUS_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

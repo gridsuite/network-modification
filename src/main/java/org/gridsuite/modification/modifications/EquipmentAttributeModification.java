@@ -14,13 +14,13 @@ import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.EQUIPMENT_NOT_FOUND;
-import static org.gridsuite.modification.NetworkModificationException.Type.WRONG_EQUIPMENT_TYPE;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.EQUIPMENT_NOT_FOUND;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.WRONG_EQUIPMENT_TYPE;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>

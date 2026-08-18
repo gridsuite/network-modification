@@ -11,7 +11,6 @@ import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LineSplitWithVoltageLevel;
 import org.gridsuite.modification.modifications.VoltageLevelCreation;
@@ -30,7 +29,6 @@ import java.util.Optional;
 @ToString(callSuper = true)
 @Schema(description = "Line split with voltage level")
 @JsonTypeName("LINE_SPLIT_WITH_VOLTAGE_LEVEL")
-@ModificationErrorTypeName("LINE_SPLIT_ERROR")
 public class LineSplitWithVoltageLevelInfos extends ModificationInfos {
 
     @Schema(description = "line to split ID")

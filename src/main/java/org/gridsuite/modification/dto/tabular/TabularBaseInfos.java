@@ -11,10 +11,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.ModificationInfos;
-import org.springframework.lang.NonNull;
 
 import java.util.List;
 

@@ -16,18 +16,19 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils;
+import org.gridsuite.modification.error.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
-import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,12 +98,17 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
+    protected NetworkModificationExceptionType exceptionType;
+
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     protected IFilterService filterService;
 
-    protected AbstractModificationByAssignment() {
+    protected AbstractModificationByAssignment(NetworkModificationExceptionType exceptionType) {
         equipmentNotModifiedCount = 0;
         equipmentCount = 0;
         equipmentNotFoundCount = 0;
+        this.exceptionType = exceptionType;
     }
 
     public abstract String getModificationTypeLabel();
@@ -112,8 +118,6 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     }
 
     public abstract IdentifiableType getEquipmentType();
-
-    public abstract NetworkModificationException.Type getExceptionType();
 
     public abstract List<? extends AbstractAssignmentInfos> getAssignmentInfosList();
 
@@ -163,11 +167,11 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     @Override
     public void check(Network network) throws NetworkModificationException {
         if (CollectionUtils.isEmpty(getAssignmentInfosList())) {
-            throw new NetworkModificationException(getExceptionType(), String.format("At least one %s is required", getModificationTypeLabel()));
+            throw new NetworkModificationException(exceptionType, String.format("At least one %s is required", getModificationTypeLabel()));
         }
 
         if (getAssignmentInfosList().stream().anyMatch(modificationByFilterInfos -> CollectionUtils.isEmpty(modificationByFilterInfos.getFilters()))) {
-            throw new NetworkModificationException(getExceptionType(), String.format("Every %s must have at least one filter", getModificationTypeLabel()));
+            throw new NetworkModificationException(exceptionType, String.format("Every %s must have at least one filter", getModificationTypeLabel()));
         }
     }
 
@@ -176,7 +180,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
         // collect all filters from all variations
         Map<UUID, String> filters = getFilters();
 
-        Map<UUID, FilterEquipments> filterUuidEquipmentsMap = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, getExceptionType());
+        Map<UUID, FilterEquipments> filterUuidEquipmentsMap = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, getName());
 
         if (filterUuidEquipmentsMap != null) {
             ReportNode subReporter = subReportNode.newReportNode()

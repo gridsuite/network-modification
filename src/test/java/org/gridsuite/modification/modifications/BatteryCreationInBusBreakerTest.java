@@ -11,11 +11,11 @@ import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.BatteryCreationInfos;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.BUS_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -40,20 +41,21 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
         batteryCreationInfos.setBusOrBusbarSectionId("notFoundBus");
         BatteryCreation batteryCreation = (BatteryCreation) batteryCreationInfos.toModification();
         String message = assertThrows(NetworkModificationException.class, () -> batteryCreation.check(network)).getMessage();
-        assertEquals("BUS_NOT_FOUND : notFoundBus", message);
+        assertEquals("The bus could not be found : notFoundBus", message);
 
         BatteryCreationInfos batteryCreationInfos2 = (BatteryCreationInfos) buildModification();
         batteryCreationInfos2.setRegulatingTerminalType(null);
         BatteryCreation batteryCreation2 = (BatteryCreation) batteryCreationInfos2.toModification();
         message = assertThrows(NetworkModificationException.class, () -> batteryCreation2.check(network)).getMessage();
-        assertEquals("CREATE_BATTERY_ERROR : Battery 'idBattery2' : regulatingTerminalId, regulatingTerminalType, and regulatingTerminalVlId must all be provided together", message);
+        assertEquals("An error occurred while creating the battery : Battery 'idBattery2' : " +
+            "regulatingTerminalId, regulatingTerminalType, and regulatingTerminalVlId must all be provided together", message);
 
         BatteryCreationInfos batteryCreationInfos3 = (BatteryCreationInfos) buildModification();
         batteryCreationInfos3.setVoltageRegulationOn(true);
         batteryCreationInfos3.setTargetV(null);
         BatteryCreation batteryCreation3 = (BatteryCreation) batteryCreationInfos3.toModification();
         message = assertThrows(NetworkModificationException.class, () -> batteryCreation3.check(network)).getMessage();
-        assertEquals("CREATE_BATTERY_ERROR : Battery 'idBattery2' : voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
+        assertEquals("An error occurred while creating the battery : Battery 'idBattery2' : voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
     }
 
     @Override
@@ -107,7 +109,7 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
         batteryCreationInfos.setBusOrBusbarSectionId("notFoundBus");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class,
                 () -> batteryCreationInfos.toModification().apply(getNetwork()));
-        assertEquals("BUS_NOT_FOUND : notFoundBus", exception.getMessage());
+        assertEquals(BUS_NOT_FOUND.getMessage() + " : notFoundBus", exception.getMessage());
     }
 
     @Override
@@ -161,7 +163,7 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
         BatteryCreation batteryCreation = (BatteryCreation) batteryCreationInfos.toModification();
 
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> batteryCreation.check(network));
-        assertEquals("EQUIPMENT_NOT_FOUND : Equipment with id=titi not found with type LINE", exception.getMessage());
+        assertEquals("The equipment could not be found : Equipment with id=titi not found with type LINE", exception.getMessage());
     }
 
     @Override

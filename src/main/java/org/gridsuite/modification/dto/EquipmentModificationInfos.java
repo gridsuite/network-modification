@@ -8,12 +8,8 @@ package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.springframework.lang.NonNull;
 import java.util.List;
 import java.util.Map;
 

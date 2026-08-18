@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.IdentifiableType;
 import jakarta.annotation.Nonnull;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.dto.byfilter.formula.Operator;
@@ -27,7 +26,7 @@ import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BY_FORMULA_MODIFICATION_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.BY_FORMULA_MODIFICATION_ERROR;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
@@ -42,7 +41,7 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
 
     @Builder
     public ByFormulaModification(IdentifiableType equipmentType, List<FormulaInfos> assignmentInfosList) {
-        super();
+        super(BY_FORMULA_MODIFICATION_ERROR);
         this.equipmentType = equipmentType;
         this.assignmentInfosList = assignmentInfosList;
     }
@@ -61,12 +60,6 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
     @Override
     public List<FormulaInfos> getAssignmentInfosList() {
         return Collections.unmodifiableList(assignmentInfosList);
-    }
-
-    @Override
-    @JsonIgnore
-    public NetworkModificationException.Type getExceptionType() {
-        return BY_FORMULA_MODIFICATION_ERROR;
     }
 
     @Override

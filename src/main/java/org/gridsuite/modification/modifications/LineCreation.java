@@ -14,9 +14,9 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import lombok.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -25,8 +25,8 @@ import java.util.List;
 
 import static com.powsybl.iidm.network.TwoSides.ONE;
 import static com.powsybl.iidm.network.TwoSides.TWO;
-import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_LINE_ERROR;
-import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.CREATE_LINE_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.LINE_ALREADY_EXISTS;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 import static org.gridsuite.modification.utils.ModificationUtils.createBranchInNodeBreaker;
 
