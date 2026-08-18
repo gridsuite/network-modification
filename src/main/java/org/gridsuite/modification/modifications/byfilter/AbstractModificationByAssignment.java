@@ -98,20 +98,17 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    protected NetworkModificationExceptionType exceptionType;
-
-    @JsonIgnore
-    @EqualsAndHashCode.Exclude
     protected IFilterService filterService;
 
-    protected AbstractModificationByAssignment(NetworkModificationExceptionType exceptionType) {
+    protected AbstractModificationByAssignment() {
         equipmentNotModifiedCount = 0;
         equipmentCount = 0;
         equipmentNotFoundCount = 0;
-        this.exceptionType = exceptionType;
     }
 
     public abstract String getModificationTypeLabel();
+
+    public abstract NetworkModificationExceptionType getExceptionType();
 
     private String getEditedFieldLabel(AbstractAssignmentInfos modificationByFilterInfos) {
         return modificationByFilterInfos.getEditedFieldLabel();
@@ -167,11 +164,11 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     @Override
     public void check(Network network) throws NetworkModificationException {
         if (CollectionUtils.isEmpty(getAssignmentInfosList())) {
-            throw new NetworkModificationException(exceptionType, String.format("At least one %s is required", getModificationTypeLabel()));
+            throw new NetworkModificationException(getExceptionType(), String.format("At least one %s is required", getModificationTypeLabel()));
         }
 
         if (getAssignmentInfosList().stream().anyMatch(modificationByFilterInfos -> CollectionUtils.isEmpty(modificationByFilterInfos.getFilters()))) {
-            throw new NetworkModificationException(exceptionType, String.format("Every %s must have at least one filter", getModificationTypeLabel()));
+            throw new NetworkModificationException(getExceptionType(), String.format("Every %s must have at least one filter", getModificationTypeLabel()));
         }
     }
 
