@@ -14,7 +14,7 @@ import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
+import org.gridsuite.modification.dto.byfilter.assignment.AbstractValueAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.BooleanAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.GeneratorField;
@@ -186,7 +186,7 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
     }
 
     @Override
-    protected List<AssignmentInfos<?>> getAssignmentInfos() {
+    protected List<AbstractValueAssignmentInfos<?>> getAssignmentInfos() {
 
         DoubleAssignmentInfos assignmentInfos1 = DoubleAssignmentInfos.builder()
                 .editedField(GeneratorField.REACTIVE_POWER_SET_POINT.name())
@@ -308,7 +308,7 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
             .filters(List.of(new FilterInfos(UUID.randomUUID(), "filterNotFound")))
             .build();
 
-        List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
+        List<AbstractValueAssignmentInfos<?>> infosList = super.getAssignmentInfos();
         infosList.addAll(List.of(
                 assignmentInfos1,
                 assignmentInfos2,

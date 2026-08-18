@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.IdentifiableAttributes;
-import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
+import org.gridsuite.modification.dto.byfilter.assignment.AbstractValueAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.VoltageLevelField;
 
@@ -118,7 +118,7 @@ class VoltageLevelModificationByAssignmentTest extends AbstractModificationByAss
     }
 
     @Override
-    protected List<AssignmentInfos<?>> getAssignmentInfos() {
+    protected List<AbstractValueAssignmentInfos<?>> getAssignmentInfos() {
         DoubleAssignmentInfos assignmentInfos1 = DoubleAssignmentInfos.builder()
             .editedField(VoltageLevelField.LOW_VOLTAGE_LIMIT.name())
             .value(10.)

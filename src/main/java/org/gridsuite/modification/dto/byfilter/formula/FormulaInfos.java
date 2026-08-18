@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
+import org.gridsuite.modification.dto.byfilter.AssignmentType;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -27,8 +28,6 @@ import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 @EqualsAndHashCode(callSuper = true)
 public class FormulaInfos extends AbstractAssignmentInfos {
 
-    private static final String DATA_TYPE = "FORMULA";
-
     @Schema(description = "First reference field or value")
     private ReferenceFieldOrValue fieldOrValue1;
 
@@ -39,7 +38,7 @@ public class FormulaInfos extends AbstractAssignmentInfos {
     private Operator operator;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public String getDataType() {
-        return DATA_TYPE;
+    public final AssignmentType getAssignmentType() {
+        return AssignmentType.FORMULA;
     }
 }

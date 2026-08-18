@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.IdentifiableAttributes;
-import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
+import org.gridsuite.modification.dto.byfilter.assignment.AbstractValueAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.PropertyAssignmentInfos;
 import org.junit.jupiter.api.Assertions;
 
@@ -83,7 +83,7 @@ public class OperationalLimitsGroupByAssigmentTest extends AbstractModificationB
     }
 
     @Override
-    protected List<AssignmentInfos<?>> getAssignmentInfos() {
+    protected List<AbstractValueAssignmentInfos<?>> getAssignmentInfos() {
         PropertyAssignmentInfos assignmentInfos1 = PropertyAssignmentInfos.builder()
                 .filters(List.of(filter1))
                 .editedField(OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES.name())
@@ -102,7 +102,7 @@ public class OperationalLimitsGroupByAssigmentTest extends AbstractModificationB
                 .propertyName("property0")
                 .value("value0")
                 .build();
-        List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
+        List<AbstractValueAssignmentInfos<?>> infosList = super.getAssignmentInfos();
         infosList.addAll(List.of(assignmentInfos1, assignmentInfos2, assignmentInfos3));
         return infosList;
     }

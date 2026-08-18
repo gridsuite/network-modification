@@ -16,7 +16,7 @@ import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
+import org.gridsuite.modification.dto.byfilter.assignment.AbstractValueAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.BooleanAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.BatteryField;
@@ -112,7 +112,7 @@ class BatteryModificationByAssignmentTest extends AbstractModificationByAssignme
     }
 
     @Override
-    protected List<AssignmentInfos<?>> getAssignmentInfos() {
+    protected List<AbstractValueAssignmentInfos<?>> getAssignmentInfos() {
         DoubleAssignmentInfos assignmentInfos1 = DoubleAssignmentInfos.builder()
                 .filters(List.of(filter1, filter2))
                 .editedField(BatteryField.MAXIMUM_ACTIVE_POWER.name())
@@ -173,7 +173,7 @@ class BatteryModificationByAssignmentTest extends AbstractModificationByAssignme
                 .value(null)
                 .build();
 
-        List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
+        List<AbstractValueAssignmentInfos<?>> infosList = super.getAssignmentInfos();
         infosList.addAll(List.of(assignmentInfos1, assignmentInfos2, assignmentInfos3, assignmentInfos4,
                 assignmentInfos5, assignmentInfos6, assignmentInfos7, assignmentInfos8, assignmentInfos9, assignmentInfos10));
 

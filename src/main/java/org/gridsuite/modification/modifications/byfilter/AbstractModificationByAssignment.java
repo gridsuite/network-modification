@@ -115,7 +115,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
 
     public abstract NetworkModificationException.Type getExceptionType();
 
-    public abstract List<AbstractAssignmentInfos> getAssignmentInfosList();
+    public abstract List<? extends AbstractAssignmentInfos> getAssignmentInfosList();
 
     protected abstract boolean preCheckValue(Identifiable<?> equipment,
                                              AbstractAssignmentInfos abstractAssignmentInfos,

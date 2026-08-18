@@ -13,7 +13,7 @@ import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
+import org.gridsuite.modification.dto.byfilter.assignment.AbstractValueAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.IntegerAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.StringAssignmentInfos;
@@ -128,7 +128,7 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
     }
 
     @Override
-    protected List<AssignmentInfos<?>> getAssignmentInfos() {
+    protected List<AbstractValueAssignmentInfos<?>> getAssignmentInfos() {
         DoubleAssignmentInfos assignmentInfos1 = DoubleAssignmentInfos.builder()
                 .filters(List.of(filter1))
                 .editedField(LineField.X.name())
@@ -189,7 +189,7 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
             .value("")
             .build();
 
-        List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
+        List<AbstractValueAssignmentInfos<?>> infosList = super.getAssignmentInfos();
         infosList.addAll(List.of(assignmentInfos1,
                 assignmentInfos2,
                 assignmentInfos3,

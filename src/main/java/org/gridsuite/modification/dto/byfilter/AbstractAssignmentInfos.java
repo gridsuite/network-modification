@@ -7,10 +7,7 @@
 
 package org.gridsuite.modification.dto.byfilter;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -29,23 +26,18 @@ import java.util.UUID;
  */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
-        property = "dataType",
+        property = "assignmentType",
         include = JsonTypeInfo.As.EXISTING_PROPERTY)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = BooleanAssignmentInfos.class, name = "BOOLEAN"),
-    @JsonSubTypes.Type(value = EnumAssignmentInfos.class, name = "ENUM"),
-    @JsonSubTypes.Type(value = DoubleAssignmentInfos.class, name = "DOUBLE"),
-    @JsonSubTypes.Type(value = IntegerAssignmentInfos.class, name = "INTEGER"),
-    @JsonSubTypes.Type(value = PropertyAssignmentInfos.class, name = "PROPERTY"),
-    @JsonSubTypes.Type(value = StringAssignmentInfos.class, name = "STRING"),
+    @JsonSubTypes.Type(value = AbstractValueAssignmentInfos.class, name = "VALUE"),
     @JsonSubTypes.Type(value = FormulaInfos.class, name = "FORMULA")
 })
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
 @SuperBuilder
 @EqualsAndHashCode
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class AbstractAssignmentInfos {
     @Schema(description = "id")
     private UUID id;
@@ -60,4 +52,7 @@ public abstract class AbstractAssignmentInfos {
     public String getEditedFieldLabel() {
         return editedField;
     }
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public abstract AssignmentType getAssignmentType();
 }

@@ -59,7 +59,7 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
     }
 
     @Override
-    public List<AbstractAssignmentInfos> getAssignmentInfosList() {
+    public List<FormulaInfos> getAssignmentInfosList() {
         return Collections.unmodifiableList(assignmentInfosList);
     }
 

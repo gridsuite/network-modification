@@ -16,8 +16,8 @@ import lombok.*;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.DataType;
-import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
+import org.gridsuite.modification.dto.byfilter.assignment.AbstractValueAssignmentInfos;
+import org.gridsuite.modification.dto.byfilter.assignment.DataType;
 import org.gridsuite.modification.dto.byfilter.assignment.PropertyAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField;
 
@@ -38,10 +38,10 @@ import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyFie
 public class ModificationByAssignment extends AbstractModificationByAssignment {
 
     private IdentifiableType equipmentType;
-    private List<? extends AssignmentInfos<?>> assignmentInfosList;
+    private List<? extends AbstractValueAssignmentInfos<?>> assignmentInfosList;
 
     @Builder
-    public ModificationByAssignment(IdentifiableType equipmentType, List<? extends AssignmentInfos<?>> assignmentInfosList) {
+    public ModificationByAssignment(IdentifiableType equipmentType, List<? extends AbstractValueAssignmentInfos<?>> assignmentInfosList) {
         super();
         this.equipmentType = equipmentType;
         this.assignmentInfosList = assignmentInfosList;
@@ -59,7 +59,7 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
     }
 
     @Override
-    public List<AbstractAssignmentInfos> getAssignmentInfosList() {
+    public List<? extends AbstractValueAssignmentInfos<?>> getAssignmentInfosList() {
         return Collections.unmodifiableList(assignmentInfosList);
     }
 
@@ -71,7 +71,7 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
 
     @Override
     protected boolean isEquipmentEditable(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos, List<ReportNode> equipmentsReport) {
-        AssignmentInfos<?> assignmentInfos = (AssignmentInfos<?>) abstractAssignmentInfos;
+        AbstractValueAssignmentInfos<?> assignmentInfos = (AbstractValueAssignmentInfos<?>) abstractAssignmentInfos;
         if (assignmentInfos.getDataType() == DataType.PROPERTY) {
             String editedField = abstractAssignmentInfos.getEditedField();
             String propertyName = ((PropertyAssignmentInfos) abstractAssignmentInfos).getPropertyName();
@@ -92,7 +92,7 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
 
     @Override
     protected String getOldValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos) {
-        AssignmentInfos<?> assignmentInfos = (AssignmentInfos<?>) abstractAssignmentInfos;
+        AbstractValueAssignmentInfos<?> assignmentInfos = (AbstractValueAssignmentInfos<?>) abstractAssignmentInfos;
         if (assignmentInfos.getDataType() == DataType.PROPERTY) {
             String propertyName = ((PropertyAssignmentInfos) assignmentInfos).getPropertyName();
             String editedField = assignmentInfos.getEditedField();
@@ -104,7 +104,7 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
 
     @Override
     protected String getNewValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos) {
-        AssignmentInfos<?> assignmentInfos = (AssignmentInfos<?>) abstractAssignmentInfos;
+        AbstractValueAssignmentInfos<?> assignmentInfos = (AbstractValueAssignmentInfos<?>) abstractAssignmentInfos;
         if (assignmentInfos.getValue() == null) {
             return null;
         }
@@ -120,7 +120,7 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
 
     @Override
     protected String applyValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos) {
-        AssignmentInfos<?> assignmentInfos = (AssignmentInfos<?>) abstractAssignmentInfos;
+        AbstractValueAssignmentInfos<?> assignmentInfos = (AbstractValueAssignmentInfos<?>) abstractAssignmentInfos;
         if (assignmentInfos.getDataType() == DataType.PROPERTY) {
             String newValue = getNewValue(equipment, abstractAssignmentInfos);
             String propertyName = ((PropertyAssignmentInfos) assignmentInfos).getPropertyName();

@@ -17,7 +17,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
-import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
+import org.gridsuite.modification.dto.byfilter.assignment.AbstractValueAssignmentInfos;
 import org.gridsuite.modification.modifications.byfilter.ModificationByAssignment;
 
 import java.util.List;
@@ -38,7 +38,7 @@ public class ModificationByAssignmentInfos extends ModificationInfos {
     private IdentifiableType equipmentType;
 
     @Schema(description = "list of modifications")
-    private List<? extends AssignmentInfos<?>> assignmentInfosList;
+    private List<? extends AbstractValueAssignmentInfos<?>> assignmentInfosList;
 
     @Override
     public ModificationByAssignment toModification() {

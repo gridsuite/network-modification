@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.byfilter.DataType;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -19,9 +18,8 @@ import org.gridsuite.modification.dto.byfilter.DataType;
 @SuperBuilder
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class StringAssignmentInfos extends AssignmentInfos<String> {
+public class StringAssignmentInfos extends AbstractValueAssignmentInfos<String> {
 
-    @Override
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public DataType getDataType() {
         return DataType.STRING;

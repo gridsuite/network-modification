@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.extensions.Measurements;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.IdentifiableAttributes;
-import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
+import org.gridsuite.modification.dto.byfilter.assignment.AbstractValueAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.BooleanAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.StaticVarCompensatorField;
@@ -52,7 +52,7 @@ class StaticVarCompensatorModificationByAssignmentTest extends AbstractModificat
     }
 
     @Override
-    protected List<AssignmentInfos<?>> getAssignmentInfos() {
+    protected List<AbstractValueAssignmentInfos<?>> getAssignmentInfos() {
         DoubleAssignmentInfos assignmentInfos1 = DoubleAssignmentInfos.builder()
                 .editedField(StaticVarCompensatorField.REACTIVE_POWER_MEASUREMENT_VALUE.name())
                 .value(NEW_POWER_MEASUREMENT_VALUE)
@@ -65,7 +65,7 @@ class StaticVarCompensatorModificationByAssignmentTest extends AbstractModificat
                 .filters(List.of(filter1))
                 .build();
 
-        List<AssignmentInfos<?>> infosList = super.getAssignmentInfos();
+        List<AbstractValueAssignmentInfos<?>> infosList = super.getAssignmentInfos();
         infosList.addAll(List.of(assignmentInfos1, assignmentInfos2));
 
         return infosList;
