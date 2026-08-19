@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.*;
@@ -78,7 +77,6 @@ public class EquipmentDeletion extends AbstractEquipmentBase {
     }
 
     @Override
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
         return ModificationType.EQUIPMENT_DELETION.name();
     }

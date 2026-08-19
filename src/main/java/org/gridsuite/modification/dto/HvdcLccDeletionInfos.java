@@ -15,16 +15,17 @@ import java.util.List;
 /**
  * @author David Braquart<david.braquart at rte-france.com>
  */
-
-@NoArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @Schema(description = "Hvdc with Lcc deletion")
 public class HvdcLccDeletionInfos extends AbstractEquipmentDeletionInfos {
 
     @Builder
     @Getter
     @Setter
+    @EqualsAndHashCode
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ShuntCompensatorInfos {

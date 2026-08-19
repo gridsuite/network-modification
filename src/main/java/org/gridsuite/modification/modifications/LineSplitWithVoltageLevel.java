@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.ConnectVoltageLevelOnLine;
 import com.powsybl.iidm.modification.topology.ConnectVoltageLevelOnLineBuilder;
@@ -82,7 +81,6 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
     }
 
     @Override
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
         return ModificationType.LINE_SPLIT_WITH_VOLTAGE_LEVEL.name();
     }

@@ -7,7 +7,6 @@
 
 package org.gridsuite.modification.dto.byfilter.formula;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -37,8 +36,8 @@ public class FormulaInfos extends AbstractAssignmentInfos {
     @Schema(description = "Operator")
     private Operator operator;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public final AssignmentType getAssignmentType() {
+    @Override
+    public AssignmentType getAssignmentType() {
         return AssignmentType.FORMULA;
     }
 }

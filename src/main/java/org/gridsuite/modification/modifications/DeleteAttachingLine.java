@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.RevertCreateLineOnLine;
 import com.powsybl.iidm.modification.topology.RevertCreateLineOnLineBuilder;
@@ -73,7 +72,6 @@ public class DeleteAttachingLine extends AbstractModification {
     }
 
     @Override
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
         return ModificationType.DELETE_ATTACHING_LINE.name();
     }

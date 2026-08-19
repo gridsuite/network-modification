@@ -7,8 +7,6 @@
 
 package org.gridsuite.modification.modifications.byfilter;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
@@ -47,18 +45,11 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
     }
 
     @Override
-    @JsonIgnore
     public String getModificationTypeLabel() {
         return "assignment";
     }
 
-    @Override
-    public IdentifiableType getEquipmentType() {
-        return equipmentType;
-    }
-
-    @Override
-    public List<? extends AbstractValueAssignmentInfos<?>> getAssignmentInfosList() {
+    public List<AbstractAssignmentInfos> getAssignmentInfosList() {
         return Collections.unmodifiableList(assignmentInfosList);
     }
 
@@ -126,7 +117,6 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
     }
 
     @Override
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
         return ModificationType.MODIFICATION_BY_ASSIGNMENT.name();
     }

@@ -44,8 +44,8 @@ import org.gridsuite.modification.dto.byfilter.AssignmentType;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class AbstractValueAssignmentInfos<T> extends AbstractAssignmentInfos {
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public final AssignmentType getAssignmentType() {
+    @Override
+    public AssignmentType getAssignmentType() {
         return AssignmentType.VALUE;
     }
 

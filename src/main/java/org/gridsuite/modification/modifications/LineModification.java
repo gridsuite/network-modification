@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Line;
@@ -121,7 +120,6 @@ public class LineModification extends AbstractBranchModification {
     }
 
     @Override
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
         return ModificationType.LINE_MODIFICATION.name();
     }

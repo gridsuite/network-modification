@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.powsybl.commons.report.ReportNode;
@@ -114,4 +115,8 @@ public abstract class AbstractModification extends AbstractNetworkModification {
     public void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService) {
         // To add some specific information
     }
+
+    @Override
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public abstract String getName();
 }

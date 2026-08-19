@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.CreateLineOnLine;
 import com.powsybl.iidm.modification.topology.CreateLineOnLineBuilder;
@@ -163,7 +162,6 @@ public class LineAttachToVoltageLevel extends AbstractModification {
     }
 
     @Override
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
         return ModificationType.LINE_ATTACH_TO_VOLTAGE_LEVEL.name();
     }

@@ -7,7 +7,6 @@
 
 package org.gridsuite.modification.dto.byfilter.assignment;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -20,9 +19,8 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 public class StringAssignmentInfos extends AbstractValueAssignmentInfos<String> {
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Override
     public DataType getDataType() {
         return DataType.STRING;
     }
-
 }

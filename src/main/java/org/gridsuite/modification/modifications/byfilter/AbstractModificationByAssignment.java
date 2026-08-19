@@ -110,6 +110,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
         this.exceptionType = exceptionType;
     }
 
+    @JsonIgnore
     public abstract String getModificationTypeLabel();
 
     private String getEditedFieldLabel(AbstractAssignmentInfos modificationByFilterInfos) {
@@ -118,7 +119,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
 
     public abstract IdentifiableType getEquipmentType();
 
-    public abstract List<? extends AbstractAssignmentInfos> getAssignmentInfosList();
+    public abstract List<AbstractAssignmentInfos> getAssignmentInfosList();
 
     protected abstract boolean preCheckValue(Identifiable<?> equipment,
                                              AbstractAssignmentInfos abstractAssignmentInfos,

@@ -8,7 +8,6 @@
 package org.gridsuite.modification.dto.byfilter.assignment;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -27,7 +26,7 @@ public class PropertyAssignmentInfos extends AbstractValueAssignmentInfos<String
     @Getter
     private String propertyName;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Override
     public DataType getDataType() {
         return DataType.PROPERTY;
     }

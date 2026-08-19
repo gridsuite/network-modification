@@ -40,8 +40,8 @@ public class ByFormulaModificationInfos extends ModificationInfos {
     @Override
     public ByFormulaModification toModification() {
         return ByFormulaModification.builder()
-                .equipmentType(getIdentifiableType())
-                .assignmentInfosList(getFormulaInfosList())
+                .identifiableType(getIdentifiableType())
+                .formulaInfosList(getFormulaInfosList())
                 .build();
     }
 

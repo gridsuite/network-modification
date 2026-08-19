@@ -7,7 +7,6 @@
 package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
@@ -635,7 +634,6 @@ public class GenerationDispatch extends AbstractModification {
     }
 
     @Override
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
         return ModificationType.GENERATION_DISPATCH.name();
     }

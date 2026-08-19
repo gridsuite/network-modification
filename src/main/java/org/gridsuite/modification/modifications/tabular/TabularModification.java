@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications.tabular;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
@@ -40,7 +39,6 @@ public class TabularModification extends AbstractTabularModification {
     }
 
     @Override
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public String getName() {
         return ModificationType.TABULAR_MODIFICATION.name();
     }
