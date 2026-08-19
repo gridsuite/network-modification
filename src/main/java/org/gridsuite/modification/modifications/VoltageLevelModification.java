@@ -18,20 +18,20 @@ import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 import lombok.*;
-import org.gridsuite.modification.NetworkModificationException;
+import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.BusbarSectionVMeasurementInfos;
 import org.gridsuite.modification.dto.FreePropertyInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
-import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_VOLTAGE_LEVEL_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_VOLTAGE_LEVEL_ERROR;
 import static org.gridsuite.modification.utils.MeasurementUtils.upsertMeasurement;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;

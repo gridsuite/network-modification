@@ -9,9 +9,9 @@ package org.gridsuite.modification.modifications.data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.LccShuntCompensatorModificationInfos;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 

@@ -14,7 +14,7 @@ import org.gridsuite.modification.dto.OperationType;
 import org.gridsuite.modification.modifications.data.VoltageRegulationModification;
 import org.gridsuite.modification.utils.ModificationUtils;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_BATTERY_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_BATTERY_ERROR;
 import static org.gridsuite.modification.modifications.BatteryModification.*;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 

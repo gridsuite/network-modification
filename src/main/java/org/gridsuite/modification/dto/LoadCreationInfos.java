@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LoadCreation;
 
@@ -30,7 +29,6 @@ import org.gridsuite.modification.modifications.LoadCreation;
 @ToString(callSuper = true)
 @Schema(description = "Load creation")
 @JsonTypeName("LOAD_CREATION")
-@ModificationErrorTypeName("CREATE_LOAD_ERROR")
 public class LoadCreationInfos extends InjectionCreationInfos {
     @Schema(description = "Load type")
     private LoadType loadType;

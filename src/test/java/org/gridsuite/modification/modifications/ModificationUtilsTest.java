@@ -9,7 +9,7 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -21,7 +21,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchRuntimeException;
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_GENERATOR_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_GENERATOR_ERROR;
 import static org.gridsuite.modification.utils.NetworkUtil.*;
 
 /**
@@ -44,7 +44,6 @@ class ModificationUtilsTest {
                 MODIFY_GENERATOR_ERROR,
                 "old OK, new KO: ")
         );
-        assertThat(exception.getType()).isEqualTo(MODIFY_GENERATOR_ERROR);
         assertThat(exception)
                 .hasMessageEndingWith("old OK, new KO: maximum reactive power 10.0 is expected to be greater than or equal to minimum reactive power 20.0");
 
@@ -54,7 +53,6 @@ class ModificationUtilsTest {
                 MODIFY_GENERATOR_ERROR,
                 "old null, new KO: ")
         );
-        assertThat(exception.getType()).isEqualTo(MODIFY_GENERATOR_ERROR);
         assertThat(exception)
                 .hasMessageEndingWith("old null, new KO: maximum reactive power 10.0 is expected to be greater than or equal to minimum reactive power 20.0");
 
@@ -76,7 +74,6 @@ class ModificationUtilsTest {
                 MODIFY_GENERATOR_ERROR,
                 "old KO, new null: ")
         );
-        assertThat(exception.getType()).isEqualTo(MODIFY_GENERATOR_ERROR);
         assertThat(exception)
                 .hasMessageEndingWith("old KO, new null: maximum reactive power 10.0 is expected to be greater than or equal to minimum reactive power 20.0");
     }

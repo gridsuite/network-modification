@@ -10,8 +10,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.CollectionUtils;
@@ -21,6 +21,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.INJECTION_MODIFICATION_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_BATTERY_ERROR;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -51,7 +53,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         BatteryModification batteryModification1 = (BatteryModification) batteryModificationInfos1.toModification();
         String message = assertThrows(NetworkModificationException.class,
             () -> batteryModification1.check(network)).getMessage();
-        assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : must have Droop between 0 and 100", message);
+        assertEquals(MODIFY_BATTERY_ERROR.getMessage() + " : Battery 'v3Battery' : must have Droop between 0 and 100", message);
 
         BatteryModificationInfos batteryModificationInfos2 = BatteryModificationInfos.builder()
             .equipmentId("v3Battery")
@@ -60,7 +62,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         BatteryModification batteryModification2 = (BatteryModification) batteryModificationInfos2.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> batteryModification2.check(network)).getMessage();
-        assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : must have Droop between 0 and 100", message);
+        assertEquals(MODIFY_BATTERY_ERROR.getMessage() + " : Battery 'v3Battery' : must have Droop between 0 and 100", message);
 
         // check regulating terminal throws because regulating terminal is unset/missing
         BatteryModificationInfos batteryModificationInfos3 = buildModification();
@@ -70,7 +72,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         BatteryModification batteryModification3 = (BatteryModification) batteryModificationInfos3.toModification();
         NetworkModificationException exception3 = assertThrows(NetworkModificationException.class,
                 () -> batteryModification3.check(network));
-        assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : Regulation is set to Distant but regulating terminal is missing",
+        assertEquals("An error occurred while modifying the battery : Battery 'v3Battery' : Regulation is set to Distant but regulating terminal is missing",
                 exception3.getMessage());
 
         // check regulating terminal does not throw exception
@@ -92,7 +94,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         BatteryModification batteryModification5 = (BatteryModification) batteryModificationInfos5.toModification();
         message = assertThrows(NetworkModificationException.class,
                 () -> batteryModification5.check(network)).getMessage();
-        assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : can not have a negative value for Target Voltage", message);
+        assertEquals("An error occurred while modifying the battery : Battery 'v3Battery' : can not have a negative value for Target Voltage", message);
 
         // check if battery has NaN targetV then it throws an error if voltageRegulator is set to On
         VoltageRegulation voltageRegulation = network.getBattery("v3Battery").getExtension(VoltageRegulation.class);
@@ -104,7 +106,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         BatteryModification batteryModification6 = (BatteryModification) batteryModificationInfos6.toModification();
         message = assertThrows(NetworkModificationException.class,
                 () -> batteryModification6.check(network)).getMessage();
-        assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
+        assertEquals("An error occurred while modifying the battery : Battery 'v3Battery' : voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
 
         // check if battery targetV is set to NaN then it throws an error if voltageRegulator is set to On
         voltageRegulation.setTargetV(400.0);
@@ -116,7 +118,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         BatteryModification batteryModification7 = (BatteryModification) batteryModificationInfos7.toModification();
         message = assertThrows(NetworkModificationException.class,
                 () -> batteryModification7.check(network)).getMessage();
-        assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
+        assertEquals("An error occurred while modifying the battery : Battery 'v3Battery' : voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
 
         // check if voltageRegulatorOn is true then setting targetV to NaN throws an error
         voltageRegulation.setTargetV(200.0);
@@ -128,7 +130,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         BatteryModification batteryModification8 = (BatteryModification) batteryModificationInfos8.toModification();
         message = assertThrows(NetworkModificationException.class,
                 () -> batteryModification8.check(network)).getMessage();
-        assertEquals("MODIFY_BATTERY_ERROR : Battery 'v3Battery' : voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
+        assertEquals("An error occurred while modifying the battery : Battery 'v3Battery' : voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
     }
 
     @Override
@@ -238,7 +240,8 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
 
         NetworkModificationException exception = assertThrows(NetworkModificationException.class,
                 () -> batteryModificationInfos.toModification().check(getNetwork()));
-        assertEquals("MODIFY_BATTERY_ERROR : Battery '" + "v3Battery" + "' : Active power " + activePower + " is expected to be equal to 0 or within the range of minimum active power and maximum "
+        assertEquals(MODIFY_BATTERY_ERROR.getMessage() + " : Battery '" + "v3Battery" + "' : Active power " + activePower
+                + " is expected to be equal to 0 or within the range of minimum active power and maximum "
                 + "active power: [" + minActivePower + ", " + maxActivePower + "]",
                 exception.getMessage());
 
@@ -276,7 +279,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         }
         NetworkModificationException exception = assertThrows(NetworkModificationException.class,
                 () -> batteryModificationInfos.toModification().check(getNetwork()));
-        assertEquals("MODIFY_BATTERY_ERROR : Battery '" + "v3Battery" + "' : maximum reactive power " + maxQ.get()
+        assertEquals(MODIFY_BATTERY_ERROR.getMessage() + " : Battery '" + "v3Battery" + "' : maximum reactive power " + maxQ.get()
                         + " is expected to be greater than or equal to minimum reactive power " + minQ.get(), exception.getMessage());
     }
 
@@ -331,7 +334,7 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         batteryModificationInfos.setEquipmentId("v3Battery");
         batteryModificationInfos.setTerminalConnected(new AttributeModification<>(true, OperationType.SET));
         String message = assertThrows(NetworkModificationException.class, () -> batteryModificationInfos.toModification().apply(getNetwork())).getMessage();
-        assertEquals("INJECTION_MODIFICATION_ERROR : Could not connect equipment 'v3Battery'", message);
+        assertEquals(INJECTION_MODIFICATION_ERROR.getMessage() + " : Could not connect equipment 'v3Battery'", message);
     }
 
     private void assertMeasurements(Battery battery, double expectedP, boolean expectedPValidity, double expectedQ, boolean expectedQValidity) {

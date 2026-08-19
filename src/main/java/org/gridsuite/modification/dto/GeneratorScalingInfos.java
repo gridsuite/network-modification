@@ -14,7 +14,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.GeneratorScaling;
 
@@ -27,7 +26,6 @@ import org.gridsuite.modification.modifications.GeneratorScaling;
 @Getter
 @Setter
 @JsonTypeName("GENERATOR_SCALING")
-@ModificationErrorTypeName("GENERATOR_SCALING_ERROR")
 @Schema(description = "Generator scaling creation")
 public class GeneratorScalingInfos extends ScalingInfos {
 
@@ -36,7 +34,6 @@ public class GeneratorScalingInfos extends ScalingInfos {
         return GeneratorScaling.builder()
                 .variations(getVariations())
                 .variationType(getVariationType())
-                .errorType(getErrorType())
                 .build();
     }
 

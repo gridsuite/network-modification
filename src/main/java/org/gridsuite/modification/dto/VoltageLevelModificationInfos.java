@@ -14,7 +14,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VoltageLevelModification;
 
@@ -30,7 +29,6 @@ import java.util.List;
 @Setter
 @Schema(description = "Voltage level modification")
 @JsonTypeName("VOLTAGE_LEVEL_MODIFICATION")
-@ModificationErrorTypeName("MODIFY_VOLTAGE_LEVEL_ERROR")
 public class VoltageLevelModificationInfos extends BasicEquipmentModificationInfos {
     @Schema(description = "nominal voltage in kV")
     private AttributeModification<Double> nominalV;

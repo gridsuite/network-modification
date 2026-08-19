@@ -12,7 +12,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 
 /**
  * @author Hugo Marcellin <hugo.marcelin at rte-france.com>
@@ -23,6 +22,5 @@ import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 @Data
 @Schema(description = "Limit sets tabular modification")
 @JsonTypeName("LIMIT_SETS_TABULAR_MODIFICATION")
-@ModificationErrorTypeName("LIMIT_SETS_TABULAR_MODIFICATION_ERROR")
 public class LimitSetsTabularModificationInfos extends TabularModificationInfos {
 }

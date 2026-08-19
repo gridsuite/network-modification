@@ -11,14 +11,14 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import lombok.*;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FreePropertyInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.LOAD_ALREADY_EXISTS;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.LOAD_ALREADY_EXISTS;
 import static org.gridsuite.modification.utils.ModificationUtils.createInjectionInNodeBreaker;
 
 /**

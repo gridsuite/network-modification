@@ -19,6 +19,8 @@ import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.UUID;
+
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.GENERATOR_ALREADY_EXISTS;
 import static org.gridsuite.modification.utils.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -77,7 +79,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         assertDoesNotThrow(() -> netmodContainingError.apply(network, report));
         // but the thrown message is inside the report :
         assertLogMessageWithoutRank(
-                "Cannot execute GeneratorCreation : GENERATOR_ALREADY_EXISTS : idGenerator",
+                "Cannot execute GeneratorCreation : " + GENERATOR_ALREADY_EXISTS.getMessage() + " : idGenerator",
                 "network.modification.composite.exception.report",
                 report
         );

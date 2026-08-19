@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VscCreation;
 import org.gridsuite.modification.modifications.data.VscConverterStationCreation;
@@ -32,7 +31,6 @@ import org.gridsuite.modification.modifications.data.VscConverterStationCreation
 @ToString(callSuper = true)
 @Schema(description = "VSC creation")
 @JsonTypeName("VSC_CREATION")
-@ModificationErrorTypeName("CREATE_VSC_ERROR")
 public class VscCreationInfos extends EquipmentCreationInfos {
     @Schema(description = "DC nominal voltage")
     private Double nominalV;

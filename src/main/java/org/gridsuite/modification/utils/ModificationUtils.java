@@ -13,14 +13,15 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.util.BusbarSectionFinderTraverser;
 import jakarta.annotation.Nullable;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
 import org.gridsuite.modification.IFilterService;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.error.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.modifications.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,9 +34,9 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.network.TwoSides.ONE;
-import static org.gridsuite.modification.NetworkModificationException.Type.*;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE1;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.SIDE2;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.*;
 import static org.gridsuite.modification.modifications.AbstractBranchModification.*;
 import static org.gridsuite.modification.modifications.byfilter.AbstractModificationByAssignment.*;
 
@@ -739,8 +740,8 @@ public final class ModificationUtils {
             List<String> actions = new ArrayList<>(); // Action = connect|disconnect
             actions.add(branch.getTerminal1().isConnected() ? DISCONNECT : CONNECT);
             actions.add(branch.getTerminal2().isConnected() ? DISCONNECT : CONNECT);
-            throw new NetworkModificationException(exceptions.getFirst().getType(),
-                    String.format("Could not %s equipment '%s' on side %s",
+            throw new NetworkModificationException(BRANCH_MODIFICATION_ERROR,
+                            String.format("Could not %s equipment '%s' on side %s",
                             actions.stream().distinct().collect(Collectors.joining("/")),
                             branch.getId(),
                             "1 & 2")); // Exactly the both sides awaited here
@@ -1366,7 +1367,7 @@ public final class ModificationUtils {
                                              AttributeModification<Boolean> participateInfo,
                                              AttributeModification<Float> droopInfo,
                                              List<ReportNode> reports,
-                                             NetworkModificationException.Type exceptionType,
+                                             NetworkModificationExceptionType exceptionType,
                                              String errorMessage) {
         Boolean participate = Optional.ofNullable(participateInfo).map(AttributeModification::getValue).orElse(null);
         Float droop = Optional.ofNullable(droopInfo).map(AttributeModification::getValue).orElse(null);
@@ -1382,7 +1383,7 @@ public final class ModificationUtils {
         }
     }
 
-    public void checkActivePowerControl(Boolean participate, Float droop, NetworkModificationException.Type exceptionType, String errorMessage) {
+    public void checkActivePowerControl(Boolean participate, Float droop, NetworkModificationExceptionType exceptionType, String errorMessage) {
         if (Boolean.TRUE.equals(participate) && droop == null) {
             throw new NetworkModificationException(exceptionType, String.format("%s Active power regulation on : missing required droop value", errorMessage));
         }
@@ -1394,7 +1395,7 @@ public final class ModificationUtils {
                                                          AttributeModification<Float> droopInfo,
                                                          ReportNode subReportNode,
                                                          ReportNode subReporterSetpoints,
-                                                         NetworkModificationException.Type exceptionType,
+                                                         NetworkModificationExceptionType exceptionType,
                                                          String errorMessage) {
         List<ReportNode> reports = new ArrayList<>();
         if (activePowerControl != null) {
@@ -1415,7 +1416,7 @@ public final class ModificationUtils {
 
     public void checkMaxQGreaterThanMinQ(
             List<ReactiveCapabilityCurvePointsInfos> modificationPoints,
-            NetworkModificationException.Type exceptionType, String errorMessage
+            NetworkModificationExceptionType exceptionType, String errorMessage
     ) {
         for (var point : modificationPoints) {
             double maxQ = Double.NaN;
@@ -1439,7 +1440,7 @@ public final class ModificationUtils {
     }
 
     public void checkMaxReactivePowerGreaterThanMinReactivePower(MinMaxReactiveLimits minMaxReactiveLimits, AttributeModification<Double> minimumReactivePowerInfo,
-            AttributeModification<Double> maximumReactivePowerInfo, NetworkModificationException.Type exceptionType, String errorMessage) {
+                                                                 AttributeModification<Double> maximumReactivePowerInfo, NetworkModificationExceptionType exceptionType, String errorMessage) {
         double previousMinimumReactivePower = minMaxReactiveLimits.getMinQ();
         double previousMaximumReactivePower = minMaxReactiveLimits.getMaxQ();
         double minReactivePower = minimumReactivePowerInfo != null ? minimumReactivePowerInfo.getValue() : previousMinimumReactivePower;
@@ -1451,14 +1452,14 @@ public final class ModificationUtils {
     }
 
     public void checkReactiveLimit(ReactiveLimitsHolder reactiveLimitsHolder, AttributeModification<Double> minimumReactivePower, AttributeModification<Double> maximumReactivePower,
-                                   List<ReactiveCapabilityCurvePointsInfos> modificationPoints, NetworkModificationException.Type exeptionType, String errorMessage) {
+                                   List<ReactiveCapabilityCurvePointsInfos> modificationPoints, NetworkModificationExceptionType exceptionType, String errorMessage) {
         if (reactiveLimitsHolder.getReactiveLimits().getKind() == ReactiveLimitsKind.MIN_MAX
                 && (minimumReactivePower != null || maximumReactivePower != null)) {
             MinMaxReactiveLimits minMaxReactiveLimits = reactiveLimitsHolder.getReactiveLimits(MinMaxReactiveLimits.class);
-            ModificationUtils.getInstance().checkMaxReactivePowerGreaterThanMinReactivePower(minMaxReactiveLimits, minimumReactivePower, maximumReactivePower, exeptionType, errorMessage);
+            ModificationUtils.getInstance().checkMaxReactivePowerGreaterThanMinReactivePower(minMaxReactiveLimits, minimumReactivePower, maximumReactivePower, exceptionType, errorMessage);
         }
         if (modificationPoints != null) {
-            ModificationUtils.getInstance().checkMaxQGreaterThanMinQ(modificationPoints, exeptionType, errorMessage);
+            ModificationUtils.getInstance().checkMaxQGreaterThanMinQ(modificationPoints, exceptionType, errorMessage);
         }
     }
 
@@ -1469,7 +1470,7 @@ public final class ModificationUtils {
                                          Terminal localTerminal,
                                          Terminal oldRegulatingTerminal,
                                          Network network,
-                                         NetworkModificationException.Type exceptionType,
+                                         NetworkModificationExceptionType exceptionType,
                                          String errorMessage) {
         // checking if regulating is set to distant
         if (voltageRegulationType == null || voltageRegulationType.getValue().equals(VoltageRegulationType.LOCAL)) {
@@ -1513,8 +1514,9 @@ public final class ModificationUtils {
     }
 
     public void checkActivePowerZeroOrBetweenMinAndMaxActivePower(AttributeModification<Double> activePowerInfos, AttributeModification<Double> minActivePowerInfos,
-            AttributeModification<Double> maxActivePowerInfos, Double previousMinActivePower, Double previousMaxActivePower, Double previousActivePower,
-                    NetworkModificationException.Type exceptionType, String errorMessage) {
+                                                                  AttributeModification<Double> maxActivePowerInfos, Double previousMinActivePower,
+                                                                  Double previousMaxActivePower, Double previousActivePower,
+                                                                  NetworkModificationExceptionType exceptionType, String errorMessage) {
         Double minActivePower = minActivePowerInfos != null ? minActivePowerInfos.getValue() : previousMinActivePower;
         Double maxActivePower = maxActivePowerInfos != null ? maxActivePowerInfos.getValue() : previousMaxActivePower;
         Double activePower = activePowerInfos != null ? activePowerInfos.getValue() : previousActivePower;
@@ -1526,53 +1528,53 @@ public final class ModificationUtils {
         }
     }
 
-    private NetworkModificationException makeEquipmentException(NetworkModificationException.Type errorType,
-                                                                       String equipmentId,
-                                                                       String equipmentName,
-                                                                       String msgSuffix) {
-        return new NetworkModificationException(errorType,
-                equipmentName + " '" + equipmentId + "' : " + msgSuffix);
+    private NetworkModificationException makeEquipmentException(NetworkModificationExceptionType exceptionType,
+                                                                String equipmentId,
+                                                                String equipmentName,
+                                                                String msgSuffix) {
+        return new NetworkModificationException(exceptionType,
+                                                equipmentName + " '" + equipmentId + "' : " + msgSuffix);
     }
 
     private void checkReactiveCapabilityCurvePoints(List<ReactiveCapabilityCurvePointsInfos> points,
-                                                    NetworkModificationException.Type errorType,
+                                                    NetworkModificationExceptionType exceptionType,
                                                     String equipmentId,
                                                     String equipmentName) {
         if (points.size() < 2) {
-            throw makeEquipmentException(errorType, equipmentId, equipmentName, "a reactive capability curve should have at least two points");
+            throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "a reactive capability curve should have at least two points");
         }
         IntStream.range(0, points.size())
                 .forEach(i -> {
                     ReactiveCapabilityCurvePointsInfos newPoint = points.get(i);
                     if (newPoint.getP() == null || Double.isNaN(newPoint.getP())) {
-                        throw makeEquipmentException(errorType, equipmentId, equipmentName, "P is not set in a reactive capability curve limits point");
+                        throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "P is not set in a reactive capability curve limits point");
                     } else if (newPoint.getMinQ() == null || Double.isNaN(newPoint.getMinQ())) {
-                        throw makeEquipmentException(errorType, equipmentId, equipmentName, "min Q is not set in a reactive capability curve limits point");
+                        throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "min Q is not set in a reactive capability curve limits point");
                     } else if (newPoint.getMaxQ() == null || Double.isNaN(newPoint.getMaxQ())) {
-                        throw makeEquipmentException(errorType, equipmentId, equipmentName, "max Q is not set in a reactive capability curve limits point");
+                        throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "max Q is not set in a reactive capability curve limits point");
                     }
                 });
     }
 
     public void checkReactiveLimitsCreation(ReactiveLimitsHolderInfos modificationInfos,
-                                            NetworkModificationException.Type errorType,
+                                            NetworkModificationExceptionType exceptionType,
                                             String equipmentId,
                                             String equipmentName) {
         // check min max reactive limits
         if (modificationInfos.getMinQ() != null && modificationInfos.getMaxQ() != null) {
             if (Double.isNaN(modificationInfos.getMinQ())) {
-                throw makeEquipmentException(errorType, equipmentId, equipmentName, "minimum reactive power is not set");
+                throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "minimum reactive power is not set");
             } else if (Double.isNaN(modificationInfos.getMaxQ())) {
-                throw makeEquipmentException(errorType, equipmentId, equipmentName, "maximum reactive power is not set");
+                throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "maximum reactive power is not set");
             } else if (modificationInfos.getMaxQ() < modificationInfos.getMinQ()) {
-                throw makeEquipmentException(errorType, equipmentId, equipmentName, "maximum reactive power is expected to be greater than or equal to minimum reactive power");
+                throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "maximum reactive power is expected to be greater than or equal to minimum reactive power");
             }
         }
 
         // check reactive capability curve limits
         List<ReactiveCapabilityCurvePointsInfos> points = modificationInfos.getReactiveCapabilityCurvePoints();
         if (!org.apache.commons.collections4.CollectionUtils.isEmpty(points)) {
-            checkReactiveCapabilityCurvePoints(points, errorType, equipmentId, equipmentName);
+            checkReactiveCapabilityCurvePoints(points, exceptionType, equipmentId, equipmentName);
         }
     }
 
@@ -1719,13 +1721,12 @@ public final class ModificationUtils {
     }
 
     public boolean isValidFilter(ReportNode subReportNode,
-                                 NetworkModificationException.Type errorType,
-                                 Map<UUID, FilterEquipments> exportFilters) {
+                                 Map<UUID, FilterEquipments> exportFilters, String modificationName) {
         boolean noValidEquipmentId = exportFilters.values().stream()
                 .allMatch(filterEquipments -> CollectionUtils.isEmpty(filterEquipments.getIdentifiableAttributes()));
 
         if (noValidEquipmentId) {
-            createReport(subReportNode, "network.modification.invalidFilters", Map.of("errorType", errorType), TypedValue.ERROR_SEVERITY);
+            createReport(subReportNode, "network.modification.invalidFilters", Map.of("modificationName", modificationName), TypedValue.ERROR_SEVERITY);
             return false;
         }
 
@@ -1747,11 +1748,12 @@ public final class ModificationUtils {
     }
 
     @Nullable
-    public static Map<UUID, FilterEquipments> getUuidFilterEquipmentsMap(IFilterService filterService, Network network, ReportNode subReportNode, Map<UUID, String> filters,
-            NetworkModificationException.Type errorType) {
+    public static Map<UUID, FilterEquipments> getUuidFilterEquipmentsMap(IFilterService filterService, Network network,
+                                                                         ReportNode subReportNode, Map<UUID, String> filters,
+                                                                         String modificationName) {
         Map<UUID, FilterEquipments> exportFilters = filterService.getUuidFilterEquipmentsMap(network, filters);
 
-        boolean isValidFilter = ModificationUtils.getInstance().isValidFilter(subReportNode, errorType, exportFilters);
+        boolean isValidFilter = ModificationUtils.getInstance().isValidFilter(subReportNode, exportFilters, modificationName);
         return isValidFilter ? exportFilters : null;
     }
 
@@ -1911,61 +1913,61 @@ public final class ModificationUtils {
         return value != null ? Double.parseDouble(value) : Double.NaN;
     }
 
-    public static void checkIsValueInferior(String errorMessage, Double minValueToCheck, Double maxValue, NetworkModificationException.Type exceptionType, String minValueName,
-            String maxValueName) throws NetworkModificationException {
+    public static void checkIsValueInferior(String errorMessage, Double minValueToCheck, Double maxValue, NetworkModificationExceptionType exceptionType, String minValueName,
+                                            String maxValueName) throws NetworkModificationException {
         if (minValueToCheck != null && !Double.isNaN(minValueToCheck) && maxValue != null && !Double.isNaN(maxValue) && maxValue < minValueToCheck) {
             throw new NetworkModificationException(exceptionType, errorMessage + " " + minValueName + " (" + minValueToCheck + ") must be inferior to " + maxValueName + " (" + maxValue + ")");
         }
     }
 
-    public static void checkIsValueSuperior(String errorMessage, Double minValue, Double maxValueToCheck, NetworkModificationException.Type exceptionType, String minValueName,
-            String maxValueName) throws NetworkModificationException {
+    public static void checkIsValueSuperior(String errorMessage, Double minValue, Double maxValueToCheck, NetworkModificationExceptionType exceptionType, String minValueName,
+                                            String maxValueName) throws NetworkModificationException {
         if (minValue != null && !Double.isNaN(minValue) && maxValueToCheck != null && !Double.isNaN(maxValueToCheck) && maxValueToCheck < minValue) {
             throw new NetworkModificationException(exceptionType, errorMessage + " " + maxValueName + " (" + maxValueToCheck + ") must be superior to " + minValueName + " (" + minValue + ")");
         }
     }
 
-    public static void checkIsNotNegativeValue(String errorMessage, Double valueToCheck, NetworkModificationException.Type exceptionType, String valueName) throws NetworkModificationException {
+    public static void checkIsNotNegativeValue(String errorMessage, Double valueToCheck, NetworkModificationExceptionType exceptionType, String valueName) throws NetworkModificationException {
         if (valueToCheck != null && !Double.isNaN(valueToCheck) && valueToCheck < 0) {
             throw new NetworkModificationException(exceptionType, errorMessage + "can not have a negative value for " + valueName);
         }
     }
 
-    public static void checkIsPercentage(String errorMessage, Float valueToCheck, NetworkModificationException.Type exceptionType, String valueName) throws NetworkModificationException {
+    public static void checkIsPercentage(String errorMessage, Float valueToCheck, NetworkModificationExceptionType exceptionType, String valueName) throws NetworkModificationException {
         if (valueToCheck != null) {
             checkIsPercentage(errorMessage, valueToCheck.doubleValue(), exceptionType, valueName);
         }
     }
 
-    public static void checkIsPercentage(String errorMessage, Double valueToCheck, NetworkModificationException.Type exceptionType, String valueName) throws NetworkModificationException {
+    public static void checkIsPercentage(String errorMessage, Double valueToCheck, NetworkModificationExceptionType exceptionType, String valueName) throws NetworkModificationException {
         if (valueToCheck != null && (valueToCheck < 0 || valueToCheck > 100)) {
             throw new NetworkModificationException(exceptionType, errorMessage + "must have " + valueName + " between 0 and 100");
         }
     }
 
-    public static void checkIsBetween0And1(String errorMessage, Double valueToCheck, NetworkModificationException.Type exceptionType, String valueName) throws NetworkModificationException {
+    public static void checkIsBetween0And1(String errorMessage, Double valueToCheck, NetworkModificationExceptionType exceptionType, String valueName) throws NetworkModificationException {
         if (valueToCheck != null && (valueToCheck < 0 || valueToCheck > 1)) {
             throw new NetworkModificationException(exceptionType, errorMessage + "must have " + valueName + " between 0 and 1");
         }
     }
 
-    public static void checkIsInInterval(String errorMessage, Float valueToCheck, Pair<Float, Float> interval, NetworkModificationException.Type exceptionType,
+    public static void checkIsInInterval(String errorMessage, Float valueToCheck, Pair<Float, Float> interval, NetworkModificationExceptionType exceptionType,
             String valueName) throws NetworkModificationException {
         if (valueToCheck != null && (valueToCheck < interval.getFirst() || valueToCheck > interval.getSecond())) {
             throw new NetworkModificationException(exceptionType, errorMessage + "must have " + valueName + "  " + interval.getFirst() + " and " + interval.getSecond());
         }
     }
 
-    public static void checkLimitsGroupExist(String errorMessage, String limitsGroupIdToSet, NetworkModificationException.Type exceptionType, List<String> existingOperationalLimitsGroupIds,
-            int side) throws NetworkModificationException {
-        if (StringUtils.hasText(limitsGroupIdToSet) && !existingOperationalLimitsGroupIds.contains(limitsGroupIdToSet)) {
+    public static void checkLimitsGroupExist(String errorMessage, String limitsGroupIdToSet, NetworkModificationExceptionType exceptionType, List<String> existingOperationalLimitsGroupIds,
+                                             int side) throws NetworkModificationException {
+        if (StringUtils.isNotBlank(limitsGroupIdToSet) && !existingOperationalLimitsGroupIds.contains(limitsGroupIdToSet)) {
             throw new NetworkModificationException(exceptionType, errorMessage +
                 String.format("missing limit set %s applicable on side %d : equipment ignored", limitsGroupIdToSet, side));
         }
     }
 
     public static void checkActivePowerValue(String errorMessage, String fieldName, double newValue, double minP, double maxP,
-            NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+            NetworkModificationExceptionType exceptionType) throws NetworkModificationException {
         if (newValue > maxP || newValue < minP) {
             String message = String.format("Invalid value %.2f field %s should be within interval [%.2f; %.2f]", newValue, fieldName, minP, maxP);
             throw new NetworkModificationException(exceptionType, errorMessage + message);
@@ -1973,7 +1975,7 @@ public final class ModificationUtils {
     }
 
     public static void checkPowerValues(String errorMessage, double minP, double maxP, double targetP, Double plannedActivePowerSetPoint,
-            NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+            NetworkModificationExceptionType exceptionType) throws NetworkModificationException {
         if (targetP != 0) { // exception for the rule minP <= targetP <= maxP
             checkActivePowerValue(errorMessage, FIELD_ACTIVE_POWER_TARGET, targetP, minP, maxP, exceptionType);
         }
@@ -1985,7 +1987,7 @@ public final class ModificationUtils {
     }
 
     public static void checkMinimumActivePower(String errorMessage, double maxP, double targetP, Double pImp, double newValue,
-            NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+            NetworkModificationExceptionType exceptionType) throws NetworkModificationException {
         // targetP = 0 is an exception to the rule
         double pMin = targetP != 0 ? Math.min(targetP, maxP) : maxP;
         if (pImp != null) {
@@ -1998,7 +2000,7 @@ public final class ModificationUtils {
     }
 
     public static void checkMaximumActivePower(String errorMessage, double minP, double targetP, Double plannedActivePowerSetPoint, double newValue,
-            NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+            NetworkModificationExceptionType exceptionType) throws NetworkModificationException {
         // targetP = 0 is an exception to the rule
         double pMax = targetP != 0 ? Math.max(targetP, minP) : minP;
         if (plannedActivePowerSetPoint != null) {
@@ -2011,7 +2013,7 @@ public final class ModificationUtils {
     }
 
     public static void checkVoltageRegulation(String errorMessage, VoltageRegulation voltageRegulation, AttributeModification<Boolean> voltageRegulatorOn,
-                                              AttributeModification<Double> targetV, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+                                              AttributeModification<Double> targetV, NetworkModificationExceptionType exceptionType) throws NetworkModificationException {
         // voltageRegulatorOn modification value
         Boolean voltageRegulatorOnModificationValue = voltageRegulatorOn == null ? null : voltageRegulatorOn.getValue();
         // if modification is null, then stored voltageRegulatorOn is checked
@@ -2025,17 +2027,17 @@ public final class ModificationUtils {
     }
 
     public static void checkVoltageRegulation(String errorMessage, VoltageRegulation voltageRegulation,
-                                              Boolean voltageRegulatorOn, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+                                              Boolean voltageRegulatorOn, NetworkModificationExceptionType exceptionType) throws NetworkModificationException {
         checkVoltageRegulation(errorMessage, voltageRegulation == null ? null : voltageRegulation.getTargetV(), voltageRegulatorOn, exceptionType);
     }
 
-    public static void checkVoltageRegulation(String errorMessage, Double targetV, Boolean voltageRegulatorOn, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+    public static void checkVoltageRegulation(String errorMessage, Double targetV, Boolean voltageRegulatorOn, NetworkModificationExceptionType exceptionType) throws NetworkModificationException {
         if (Boolean.TRUE.equals(voltageRegulatorOn) && (targetV == null || Double.isNaN(targetV))) {
             throw new NetworkModificationException(exceptionType, errorMessage + "voltage setpoint value (NaN) is invalid (voltage regulator is on)");
         }
     }
 
-    public static void checkTargetV(String errorMessage, VoltageRegulation voltageRegulation, Double targetV, NetworkModificationException.Type exceptionType) throws NetworkModificationException {
+    public static void checkTargetV(String errorMessage, VoltageRegulation voltageRegulation, Double targetV, NetworkModificationExceptionType exceptionType) throws NetworkModificationException {
         if (voltageRegulation != null && voltageRegulation.isVoltageRegulatorOn() && (targetV == null || Double.isNaN(targetV))) {
             throw new NetworkModificationException(exceptionType, errorMessage + "voltage setpoint value (NaN) is invalid (voltage regulator is on)");
         }
