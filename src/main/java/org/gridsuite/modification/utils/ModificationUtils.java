@@ -231,7 +231,7 @@ public final class ModificationUtils {
             } else {
                 var leftRange = TopologyModificationUtils.getUnusedOrderPositionsBefore(bbs);
                 if (leftRange.isPresent()) {
-                    return leftRange.get().getMaximum();
+                    position = leftRange.get().getMaximum();
                 }
             }
         } else {
