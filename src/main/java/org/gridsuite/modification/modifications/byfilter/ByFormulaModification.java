@@ -55,11 +55,13 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
         return BY_FORMULA_MODIFICATION_ERROR;
     }
 
+    @Override
     @JsonIgnore
     public IdentifiableType getEquipmentType() {
         return identifiableType;
     }
 
+    @Override
     @JsonIgnore
     public List<AbstractAssignmentInfos> getAssignmentInfosList() {
         return Collections.unmodifiableList(formulaInfosList);

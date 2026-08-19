@@ -54,6 +54,7 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
         return MODIFICATION_BY_ASSIGNMENT_ERROR;
     }
 
+    @Override
     public List<AbstractAssignmentInfos> getAssignmentInfosList() {
         return Collections.unmodifiableList(assignmentInfosList);
     }
