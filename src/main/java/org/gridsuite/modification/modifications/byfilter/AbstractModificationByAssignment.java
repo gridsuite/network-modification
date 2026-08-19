@@ -14,8 +14,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.modification.IFilterService;
@@ -45,6 +44,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
  */
 @Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(callSuper = true)
 public abstract class AbstractModificationByAssignment extends AbstractModification {
     public static final String VALUE_KEY_FILTER_NAME = "filterName";
@@ -84,6 +85,8 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_NONE = "network.modification.byFilterModificationNone";
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_NOT_FOUND = "network.modification.byFilterModificationNotFound";
 
+    protected NetworkModificationExceptionType exceptionType;
+
     @JsonIgnore
     @EqualsAndHashCode.Exclude
     protected int equipmentNotModifiedCount;
@@ -100,15 +103,14 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     @EqualsAndHashCode.Exclude
     protected IFilterService filterService;
 
-    protected AbstractModificationByAssignment() {
-        equipmentNotModifiedCount = 0;
-        equipmentCount = 0;
-        equipmentNotFoundCount = 0;
+    protected AbstractModificationByAssignment(NetworkModificationExceptionType exceptionType) {
+        this.equipmentNotModifiedCount = 0;
+        this.equipmentCount = 0;
+        this.equipmentNotFoundCount = 0;
+        this.exceptionType = exceptionType;
     }
 
     public abstract String getModificationTypeLabel();
-
-    public abstract NetworkModificationExceptionType getExceptionType();
 
     private String getEditedFieldLabel(AbstractAssignmentInfos modificationByFilterInfos) {
         return modificationByFilterInfos.getEditedFieldLabel();
