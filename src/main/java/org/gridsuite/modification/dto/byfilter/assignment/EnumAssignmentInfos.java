@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class EnumAssignmentInfos extends AbstractValueAssignmentInfos<String> {
+public class EnumAssignmentInfos extends AssignmentInfos<String> {
 
     @Override
     public DataType getDataType() {

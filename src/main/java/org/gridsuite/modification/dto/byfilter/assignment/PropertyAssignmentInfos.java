@@ -20,7 +20,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class PropertyAssignmentInfos extends AbstractValueAssignmentInfos<String> {
+public class PropertyAssignmentInfos extends AssignmentInfos<String> {
 
     @Schema(description = "Property name")
     @Getter

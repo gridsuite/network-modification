@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.IdentifiableType;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.AbstractValueAssignmentInfos;
+import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DataType;
 import org.gridsuite.modification.dto.byfilter.assignment.PropertyAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField;
@@ -35,10 +35,10 @@ import static org.gridsuite.modification.error.NetworkModificationExceptionType.
 public class ModificationByAssignment extends AbstractModificationByAssignment {
 
     private IdentifiableType equipmentType;
-    private List<? extends AbstractValueAssignmentInfos<?>> assignmentInfosList;
+    private List<? extends AssignmentInfos<?>> assignmentInfosList;
 
     @Builder
-    public ModificationByAssignment(IdentifiableType equipmentType, List<? extends AbstractValueAssignmentInfos<?>> assignmentInfosList) {
+    public ModificationByAssignment(IdentifiableType equipmentType, List<? extends AssignmentInfos<?>> assignmentInfosList) {
         super(MODIFICATION_BY_ASSIGNMENT_ERROR);
         this.equipmentType = equipmentType;
         this.assignmentInfosList = assignmentInfosList;
@@ -55,7 +55,7 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
 
     @Override
     protected boolean isEquipmentEditable(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos, List<ReportNode> equipmentsReport) {
-        AbstractValueAssignmentInfos<?> assignmentInfos = (AbstractValueAssignmentInfos<?>) abstractAssignmentInfos;
+        AssignmentInfos<?> assignmentInfos = (AssignmentInfos<?>) abstractAssignmentInfos;
         if (assignmentInfos.getDataType() == DataType.PROPERTY) {
             String editedField = abstractAssignmentInfos.getEditedField();
             String propertyName = ((PropertyAssignmentInfos) abstractAssignmentInfos).getPropertyName();
@@ -76,7 +76,7 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
 
     @Override
     protected String getOldValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos) {
-        AbstractValueAssignmentInfos<?> assignmentInfos = (AbstractValueAssignmentInfos<?>) abstractAssignmentInfos;
+        AssignmentInfos<?> assignmentInfos = (AssignmentInfos<?>) abstractAssignmentInfos;
         if (assignmentInfos.getDataType() == DataType.PROPERTY) {
             String propertyName = ((PropertyAssignmentInfos) assignmentInfos).getPropertyName();
             String editedField = assignmentInfos.getEditedField();
@@ -88,7 +88,7 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
 
     @Override
     protected String getNewValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos) {
-        AbstractValueAssignmentInfos<?> assignmentInfos = (AbstractValueAssignmentInfos<?>) abstractAssignmentInfos;
+        AssignmentInfos<?> assignmentInfos = (AssignmentInfos<?>) abstractAssignmentInfos;
         if (assignmentInfos.getValue() == null) {
             return null;
         }
@@ -104,7 +104,7 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
 
     @Override
     protected String applyValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos) {
-        AbstractValueAssignmentInfos<?> assignmentInfos = (AbstractValueAssignmentInfos<?>) abstractAssignmentInfos;
+        AssignmentInfos<?> assignmentInfos = (AssignmentInfos<?>) abstractAssignmentInfos;
         if (assignmentInfos.getDataType() == DataType.PROPERTY) {
             String newValue = getNewValue(equipment, abstractAssignmentInfos);
             String propertyName = ((PropertyAssignmentInfos) assignmentInfos).getPropertyName();

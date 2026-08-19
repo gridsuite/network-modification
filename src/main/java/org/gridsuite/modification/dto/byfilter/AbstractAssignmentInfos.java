@@ -15,8 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.FilterInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.*;
-import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,14 +22,6 @@ import java.util.UUID;
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        property = "assignmentType",
-        include = JsonTypeInfo.As.EXISTING_PROPERTY)
-@JsonSubTypes({
-    @JsonSubTypes.Type(value = AbstractValueAssignmentInfos.class, name = "VALUE"),
-    @JsonSubTypes.Type(value = FormulaInfos.class, name = "FORMULA")
-})
 @Getter
 @Setter
 @SuperBuilder
@@ -52,7 +42,4 @@ public abstract class AbstractAssignmentInfos {
     public String getEditedFieldLabel() {
         return editedField;
     }
-
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public abstract AssignmentType getAssignmentType();
 }

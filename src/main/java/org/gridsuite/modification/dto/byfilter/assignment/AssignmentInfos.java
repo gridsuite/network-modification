@@ -18,16 +18,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.AssignmentType;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
  */
 @JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.EXISTING_PROPERTY,
-        property = "dataType"
-)
+    use = JsonTypeInfo.Id.NAME,
+    property = "dataType",
+    include = JsonTypeInfo.As.EXISTING_PROPERTY)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = BooleanAssignmentInfos.class, name = "BOOLEAN"),
     @JsonSubTypes.Type(value = EnumAssignmentInfos.class, name = "ENUM"),
@@ -42,16 +40,13 @@ import org.gridsuite.modification.dto.byfilter.AssignmentType;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public abstract class AbstractValueAssignmentInfos<T> extends AbstractAssignmentInfos {
-
-    @Override
-    public AssignmentType getAssignmentType() {
-        return AssignmentType.VALUE;
-    }
+public class AssignmentInfos<T> extends AbstractAssignmentInfos {
 
     @Schema(description = "Value")
     private T value;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    public abstract DataType getDataType();
+    public DataType getDataType() {
+        throw new UnsupportedOperationException("This method should not be called");
+    }
 }

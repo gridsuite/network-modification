@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class BooleanAssignmentInfos extends AbstractValueAssignmentInfos<Boolean> {
+public class BooleanAssignmentInfos extends AssignmentInfos<Boolean> {
 
     @Override
     public DataType getDataType() {
