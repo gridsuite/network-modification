@@ -84,11 +84,13 @@ public class EquipmentAttributeModificationInfos extends EquipmentModificationIn
 
     private void checkSwitchStatusModificationInfos() {
         if (!"open".equals(equipmentAttributeName)) {
-            throw new NetworkModificationException(EQUIPMENT_ATTRIBUTE_NAME_ERROR, "For switch status, the attribute name is only 'open'");
+            throw new NetworkModificationException(EQUIPMENT_ATTRIBUTE_NAME_ERROR,
+                String.format("Incorrect value '%s' : for switch status, the attribute name is only 'open'", equipmentAttributeName));
         }
         Set<Boolean> possibleValues = Set.of(true, false);
         if (!possibleValues.contains(equipmentAttributeValue)) {
-            throw new NetworkModificationException(EQUIPMENT_ATTRIBUTE_VALUE_ERROR, "For switch status, the attribute values are only " + possibleValues);
+            throw new NetworkModificationException(EQUIPMENT_ATTRIBUTE_VALUE_ERROR,
+                String.format("Incorrect value '%s' : for switch status, the attribute values are only 'true or false'", equipmentAttributeValue));
         }
     }
 }
