@@ -189,6 +189,7 @@ public final class NetworkUtil {
                 .withName(feederName)
                 .withOrder(feederOrder)
                 .withDirection(direction)
+                .add()
                 .add();
     }
 
@@ -225,7 +226,9 @@ public final class NetworkUtil {
                 .newFeeder()
                 .withName(feederName)
                 .withOrder(feederOrder)
-                .withDirection(direction).add();
+                .withDirection(direction)
+                .add()
+                .add();
     }
 
     public static void createGeneratorOnBus(VoltageLevel vl, String id, String busId, double targetP, double targetQ) {
@@ -361,7 +364,8 @@ public final class NetworkUtil {
                 .newFeeder()
                 .withName(feederName)
                 .withOrder(feederOrder)
-                .withDirection(direction).add();
+                .withDirection(direction).add()
+                .add();
     }
 
     public static void createStaticVarCompensator(VoltageLevel vl, String id, String name,

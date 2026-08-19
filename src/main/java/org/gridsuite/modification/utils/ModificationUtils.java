@@ -219,15 +219,18 @@ public final class ModificationUtils {
             return position;
         }
 
-        if (voltageLevel.getConnectableStream().anyMatch(c -> !(c instanceof BusbarSection))) {
-            var rightRange = TopologyModificationUtils.getUnusedOrderPositionsAfter(bbs);
-            if (rightRange.isPresent()) {
-                position = rightRange.get().getMinimum();
-            } else {
-                var leftRange = TopologyModificationUtils.getUnusedOrderPositionsBefore(bbs);
-                if (leftRange.isPresent()) {
-                    position = leftRange.get().getMaximum();
-                }
+        var rightRange = TopologyModificationUtils.getUnusedOrderPositionsAfter(bbs);
+        if (rightRange.isPresent()) {
+            int minimum = rightRange.get().getMinimum();
+            int maximum = rightRange.get().getMaximum();
+            if (maximum - minimum < 10) {
+                return minimum;
+            }
+            return minimum == 0 ? 10 : minimum + 9;
+        } else {
+            var leftRange = TopologyModificationUtils.getUnusedOrderPositionsBefore(bbs);
+            if (leftRange.isPresent()) {
+                return leftRange.get().getMaximum();
             }
         }
 
