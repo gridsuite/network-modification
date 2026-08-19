@@ -88,11 +88,20 @@ class ModificationUtilsTest {
         Assertions.assertEquals(10, ModificationUtils.getInstance().getPosition("VL1.1", network, vl));
 
         // create load with first position (10)
-        createSwitch(vl, "VL1load", "VL1load", SwitchKind.DISCONNECTOR, true, false, false, 0, 1);
-        createLoad(vl, "LOAD_VL1", null, 1, 0.0, 0.0, "feederName", 10, ConnectablePosition.Direction.UNDEFINED);
+        createSwitch(vl, "VL1load_1", "VL1load_1", SwitchKind.DISCONNECTOR, true, false, false, 0, 1);
+        createLoad(vl, "LOAD_VL1_1", null, 1, 0.0, 0.0, "feederName", 10, ConnectablePosition.Direction.UNDEFINED);
 
         // assert new first free position is 20
         Assertions.assertEquals(20, ModificationUtils.getInstance().getPosition("VL1.1", network, vl));
+
+        // add a busbar with new element
+        createSwitch(vl, "VL1BusbarSwitch", "VL1BusbarSwitch", SwitchKind.DISCONNECTOR, true, false, false, 0, 2);
+        createBusBarSection(vl, "VL1.2", "VL1.2", 2, 0, 1);
+        createSwitch(vl, "VL1load_2", "VL1load_2", SwitchKind.DISCONNECTOR, true, false, false, 2, 3);
+        createLoad(vl, "LOAD_VL1_2", null, 3, 0.0, 0.0, "feederName", 20, ConnectablePosition.Direction.UNDEFINED);
+        // assert new first free position on first busbar is 11
+        Assertions.assertEquals(11, ModificationUtils.getInstance().getPosition("VL1.1", network, vl));
+        Assertions.assertEquals(30, ModificationUtils.getInstance().getPosition("VL1.2", network, vl));
 
         // test in an existing voltage level
         // max position already used is 5 for trf6, first available +10 is 15
