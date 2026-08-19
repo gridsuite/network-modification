@@ -17,6 +17,7 @@ import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DataType;
 import org.gridsuite.modification.dto.byfilter.assignment.PropertyAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField;
+import org.gridsuite.modification.error.NetworkModificationExceptionType;
 
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +40,6 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
 
     @Builder
     public ModificationByAssignment(IdentifiableType equipmentType, List<? extends AssignmentInfos<?>> assignmentInfosList) {
-        super(MODIFICATION_BY_ASSIGNMENT_ERROR);
         this.equipmentType = equipmentType;
         this.assignmentInfosList = assignmentInfosList;
     }
@@ -47,6 +47,11 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
     @Override
     public String getModificationTypeLabel() {
         return "assignment";
+    }
+
+    @Override
+    public NetworkModificationExceptionType getExceptionType() {
+        return MODIFICATION_BY_ASSIGNMENT_ERROR;
     }
 
     public List<AbstractAssignmentInfos> getAssignmentInfosList() {

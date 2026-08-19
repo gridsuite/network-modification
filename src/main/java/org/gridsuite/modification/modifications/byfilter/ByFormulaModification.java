@@ -18,6 +18,7 @@ import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.dto.byfilter.formula.Operator;
+import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 
 import java.math.BigDecimal;
@@ -40,7 +41,6 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
 
     @Builder
     public ByFormulaModification(IdentifiableType identifiableType, List<FormulaInfos> formulaInfosList) {
-        super(BY_FORMULA_MODIFICATION_ERROR);
         this.identifiableType = identifiableType;
         this.formulaInfosList = formulaInfosList;
     }
@@ -48,6 +48,11 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
     @Override
     public String getModificationTypeLabel() {
         return "formula";
+    }
+
+    @Override
+    public NetworkModificationExceptionType getExceptionType() {
+        return BY_FORMULA_MODIFICATION_ERROR;
     }
 
     @JsonIgnore

@@ -8,6 +8,7 @@
 package org.gridsuite.modification.modifications.byfilter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Generator;
@@ -85,33 +86,27 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_NONE = "network.modification.byFilterModificationNone";
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_NOT_FOUND = "network.modification.byFilterModificationNotFound";
 
-    protected NetworkModificationExceptionType exceptionType;
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
+    protected int equipmentNotModifiedCount = 0;
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    protected int equipmentNotModifiedCount;
+    protected long equipmentCount = 0;
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    protected long equipmentCount;
-
-    @JsonIgnore
-    @EqualsAndHashCode.Exclude
-    protected long equipmentNotFoundCount;
+    protected long equipmentNotFoundCount = 0;
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
     protected IFilterService filterService;
 
-    protected AbstractModificationByAssignment(NetworkModificationExceptionType exceptionType) {
-        this.equipmentNotModifiedCount = 0;
-        this.equipmentCount = 0;
-        this.equipmentNotFoundCount = 0;
-        this.exceptionType = exceptionType;
-    }
-
     @JsonIgnore
     public abstract String getModificationTypeLabel();
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public abstract NetworkModificationExceptionType getExceptionType();
 
     private String getEditedFieldLabel(AbstractAssignmentInfos modificationByFilterInfos) {
         return modificationByFilterInfos.getEditedFieldLabel();
