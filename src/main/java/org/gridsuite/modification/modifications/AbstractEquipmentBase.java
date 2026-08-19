@@ -6,10 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 
 import java.util.List;
@@ -19,8 +16,8 @@ import java.util.List;
  */
 @Setter
 @Getter
-@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractEquipmentBase extends AbstractModification {
 
     protected String equipmentId;

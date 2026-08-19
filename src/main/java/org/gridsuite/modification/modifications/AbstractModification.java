@@ -13,6 +13,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.gridsuite.modification.IFilterService;
@@ -90,8 +91,8 @@ import org.gridsuite.modification.modifications.tabular.TabularModification;
     @JsonSubTypes.Type(value = VscCreation.class, name = "VSC_CREATION"),
     @JsonSubTypes.Type(value = VscModification.class, name = "VSC_MODIFICATION")
 })
-@NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractModification extends AbstractNetworkModification {
 
     @Override

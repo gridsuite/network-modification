@@ -16,8 +16,8 @@ import java.util.List;
  */
 @Setter
 @Getter
-@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractEquipmentCreation extends AbstractEquipmentBase {
 
     protected String equipmentName;

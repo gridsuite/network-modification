@@ -27,8 +27,8 @@ import static org.gridsuite.modification.error.NetworkModificationExceptionType.
  */
 @Getter
 @Setter
-@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EquipmentAttributeModification extends AbstractEquipmentBase {
 
     private String equipmentAttributeName;

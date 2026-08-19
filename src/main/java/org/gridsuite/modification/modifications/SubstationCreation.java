@@ -24,8 +24,8 @@ import java.util.List;
  */
 @Getter
 @Setter
-@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SubstationCreation extends AbstractEquipmentCreation {
 
     private Country country;

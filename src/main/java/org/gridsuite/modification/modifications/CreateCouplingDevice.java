@@ -20,7 +20,7 @@ import org.gridsuite.modification.ModificationType;
 @Builder
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateCouplingDevice extends AbstractModification {
 
     private String voltageLevelId;
