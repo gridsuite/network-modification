@@ -8,7 +8,6 @@
 package org.gridsuite.modification.modifications.byfilter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Generator;
@@ -105,7 +104,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     @JsonIgnore
     public abstract String getModificationTypeLabel();
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonIgnore
     public abstract NetworkModificationExceptionType getExceptionType();
 
     private String getEditedFieldLabel(AbstractAssignmentInfos modificationByFilterInfos) {
