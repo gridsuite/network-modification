@@ -107,7 +107,7 @@ class ModificationInfosTest {
     @Test
     void testActivatedWhenTagHasNoEntry() {
         assertTrue(modificationInfos(true, Map.of()).isActivatedOn(TAG),
-                "A tag without an entry is applicable");
+                "A modification without any applicability entry for a tag is activated on it");
         assertTrue(modificationInfos(true, Map.of(OTHER_TAG, false)).isActivatedOn(TAG),
                 "An entry deactivating another tag leaves this one applicable");
     }
