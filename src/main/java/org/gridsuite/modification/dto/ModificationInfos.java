@@ -15,8 +15,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.NetworkModificationException;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.dto.tabular.LimitSetsTabularModificationInfos;
 import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
 import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
@@ -89,11 +87,12 @@ import java.util.concurrent.atomic.AtomicReference;
     @JsonSubTypes.Type(value = MoveVoltageLevelFeederBaysInfos.class),
     @JsonSubTypes.Type(value = ModificationReferenceInfos.class),
 })
-@SuperBuilder
-@NoArgsConstructor
 @Getter
 @Setter
 @ToString
+@SuperBuilder
+@EqualsAndHashCode
+@NoArgsConstructor
 @Schema(description = "Modification attributes")
 public class ModificationInfos {
     @Schema(description = "Modification id")
@@ -133,11 +132,6 @@ public class ModificationInfos {
     @JsonIgnore
     public AbstractModification toModification() {
         throw new UnsupportedOperationException("Method toModification must be implemented in subclass " + this.getClass().getSimpleName());
-    }
-
-    @JsonIgnore
-    public final NetworkModificationException.Type getErrorType() {
-        return NetworkModificationException.Type.valueOf(this.getClass().getAnnotation(ModificationErrorTypeName.class).value());
     }
 
     public final ModificationType getType() {

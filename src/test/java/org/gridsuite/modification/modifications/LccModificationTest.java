@@ -196,7 +196,7 @@ class LccModificationTest extends AbstractInjectionModificationTest {
         modificationInfos.setConverterStation2(converterStationModificationInfos);
 
         LccModification lccModification = (LccModification) modificationInfos.toModification();
-        assertEquals("LCC_Modification", lccModification.getName());
+        assertEquals("LCC_MODIFICATION", lccModification.getName());
         ReportNode subReporter = ReportNode.NO_OP;
         ComputationManager computationManager = new LocalComputationManager();
         assertDoesNotThrow(() -> lccModification.check(networkWithoutExt));

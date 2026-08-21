@@ -8,6 +8,7 @@ package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,6 +18,7 @@ import lombok.experimental.SuperBuilder;
  * @author Mohamed Ben Rejeb <mohamed.ben-rejeb at rte-france.com>
  */
 @SuperBuilder
+@EqualsAndHashCode
 @NoArgsConstructor
 @Getter
 @Setter

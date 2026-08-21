@@ -12,21 +12,24 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import lombok.*;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.SUBSTATION_NOT_FOUND;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.SUBSTATION_NOT_FOUND;
 
 /*
  * @author David Braquart <david.braquart at rte-france.com>
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SubstationModification extends AbstractEquipmentModification {
 
     private AttributeModification<Country> country;
@@ -66,6 +69,6 @@ public class SubstationModification extends AbstractEquipmentModification {
 
     @Override
     public String getName() {
-        return "SubstationModification";
+        return ModificationType.SUBSTATION_MODIFICATION.name();
     }
 }

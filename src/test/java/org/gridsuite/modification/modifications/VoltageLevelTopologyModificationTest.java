@@ -12,16 +12,16 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.VoltageLevel;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.EquipmentAttributeModificationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.VoltageLevelTopologyModificationInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 
 import java.util.*;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.*;
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -117,7 +117,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
         Network network = getNetwork();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(network));
 
-        assertEquals(VOLTAGE_LEVEL_NOT_FOUND, exception.getType());
+        assertEquals(VOLTAGE_LEVEL_NOT_FOUND.getMessage() + " : v1NotFound", exception.getMessage());
     }
 
     private void testCheckWithEmptyEquipmentAttributeModifications() {
@@ -132,7 +132,6 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
         Network network = getNetwork();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(network));
 
-        assertEquals(MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR, exception.getType());
         assertTrue(exception.getMessage().contains("Missing required switches"));
     }
 
@@ -156,7 +155,7 @@ class VoltageLevelTopologyModificationTest extends AbstractNetworkModificationTe
         Network network = getNetwork();
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> voltageLevelTopologyModification.check(network));
 
-        assertEquals(EQUIPMENT_NOT_FOUND, exception.getType());
+        assertEquals(EQUIPMENT_NOT_FOUND.getMessage() + " : v1d1NotFound", exception.getMessage());
     }
 
     private void testCheckLogMessages() {

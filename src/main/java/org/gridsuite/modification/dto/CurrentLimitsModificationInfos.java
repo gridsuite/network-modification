@@ -7,10 +7,7 @@
 package org.gridsuite.modification.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
@@ -19,10 +16,11 @@ import java.util.List;
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
 
-@SuperBuilder
-@NoArgsConstructor
 @Getter
 @Setter
+@SuperBuilder
+@EqualsAndHashCode
+@NoArgsConstructor
 @ToString(callSuper = true)
 @Schema(description = "Current Limits")
 public class CurrentLimitsModificationInfos {

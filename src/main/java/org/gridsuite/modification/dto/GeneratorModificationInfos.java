@@ -15,7 +15,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.GeneratorModification;
 import java.util.List;
@@ -30,7 +29,6 @@ import java.util.List;
 @ToString(callSuper = true)
 @Schema(description = "generator modification")
 @JsonTypeName("GENERATOR_MODIFICATION")
-@ModificationErrorTypeName("MODIFY_GENERATOR_ERROR")
 public class GeneratorModificationInfos extends InjectionModificationInfos {
     @Schema(description = "Energy source")
     private AttributeModification<EnergySource> energySource;

@@ -11,9 +11,9 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.OperationalLimitsGroup;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.DeleteAttachingLineInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.NetworkWithTeePoint;
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.LINE_ALREADY_EXISTS;
 import static org.gridsuite.modification.utils.MergingLimitsTestUtils.testModificationMergedLimits;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -94,7 +95,7 @@ class DeleteAttachingLineTest extends AbstractNetworkModificationTest {
         DeleteAttachingLineInfos deleteAttachingLineInfos = (DeleteAttachingLineInfos) buildModification();
         deleteAttachingLineInfos.setReplacingLine1Id("l2");
         NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> deleteAttachingLineInfos.toModification().check(getNetwork()));
-        assertEquals("LINE_ALREADY_EXISTS : l2", exception.getMessage());
+        assertEquals(LINE_ALREADY_EXISTS.getMessage() + " : l2", exception.getMessage());
     }
 
     @Override

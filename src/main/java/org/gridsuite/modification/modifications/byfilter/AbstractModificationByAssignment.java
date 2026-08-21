@@ -7,24 +7,27 @@
 
 package org.gridsuite.modification.modifications.byfilter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
+import lombok.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils;
+import org.gridsuite.modification.error.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
-import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +43,10 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
  */
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode(callSuper = true)
 public abstract class AbstractModificationByAssignment extends AbstractModification {
     public static final String VALUE_KEY_FILTER_NAME = "filterName";
     public static final String VALUE_KEY_FIELD_NAME = "fieldName";
@@ -78,26 +85,33 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_NONE = "network.modification.byFilterModificationNone";
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_NOT_FOUND = "network.modification.byFilterModificationNotFound";
 
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
+    protected int equipmentNotModifiedCount = 0;
+
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
+    protected long equipmentCount = 0;
+
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
+    protected long equipmentNotFoundCount = 0;
+
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     protected IFilterService filterService;
-    protected int equipmentNotModifiedCount;
-    protected long equipmentCount;
-    protected long equipmentNotFoundCount;
 
-    protected AbstractModificationByAssignment() {
-        equipmentNotModifiedCount = 0;
-        equipmentCount = 0;
-        equipmentNotFoundCount = 0;
-    }
-
+    @JsonIgnore
     public abstract String getModificationTypeLabel();
+
+    @JsonIgnore
+    public abstract NetworkModificationExceptionType getExceptionType();
 
     private String getEditedFieldLabel(AbstractAssignmentInfos modificationByFilterInfos) {
         return modificationByFilterInfos.getEditedFieldLabel();
     }
 
     public abstract IdentifiableType getEquipmentType();
-
-    public abstract NetworkModificationException.Type getExceptionType();
 
     public abstract List<AbstractAssignmentInfos> getAssignmentInfosList();
 
@@ -160,7 +174,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
         // collect all filters from all variations
         Map<UUID, String> filters = getFilters();
 
-        Map<UUID, FilterEquipments> filterUuidEquipmentsMap = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, getExceptionType());
+        Map<UUID, FilterEquipments> filterUuidEquipmentsMap = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, getName());
 
         if (filterUuidEquipmentsMap != null) {
             ReportNode subReporter = subReportNode.newReportNode()

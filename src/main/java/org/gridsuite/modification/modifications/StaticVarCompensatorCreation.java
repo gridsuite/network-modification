@@ -13,9 +13,10 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
 import lombok.*;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.VoltageRegulationType;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -24,8 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_STATIC_VAR_COMPENSATOR_ERROR;
-import static org.gridsuite.modification.NetworkModificationException.Type.STATIC_VAR_COMPENSATOR_ALREADY_EXISTS;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.CREATE_STATIC_VAR_COMPENSATOR_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.STATIC_VAR_COMPENSATOR_ALREADY_EXISTS;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
 /**
@@ -33,6 +34,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
 
     private Double maxSusceptance;
@@ -144,7 +147,7 @@ public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
 
     @Override
     public String getName() {
-        return "StaticVarCompensatorCreation";
+        return ModificationType.STATIC_VAR_COMPENSATOR_CREATION.name();
     }
 
     private void createStaticVarCompensatorInNodeBreaker(VoltageLevel voltageLevel, Network network, ReportNode subReportNode) {

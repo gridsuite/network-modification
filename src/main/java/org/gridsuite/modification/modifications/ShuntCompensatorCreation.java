@@ -11,16 +11,17 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import lombok.*;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorType;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_SHUNT_COMPENSATOR_ERROR;
-import static org.gridsuite.modification.NetworkModificationException.Type.SHUNT_COMPENSATOR_ALREADY_EXISTS;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.CREATE_SHUNT_COMPENSATOR_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.SHUNT_COMPENSATOR_ALREADY_EXISTS;
 import static org.gridsuite.modification.utils.ModificationUtils.createInjectionInNodeBreaker;
 
 /**
@@ -28,6 +29,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.createInjection
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ShuntCompensatorCreation extends AbstractInjectionCreation {
 
     private Integer maximumSectionCount;
@@ -102,7 +105,7 @@ public class ShuntCompensatorCreation extends AbstractInjectionCreation {
 
     @Override
     public String getName() {
-        return "ShuntCompensatorCreation";
+        return ModificationType.SHUNT_COMPENSATOR_CREATION.name();
     }
 
     private ShuntCompensatorAdder createShuntAdderInNodeBreaker(VoltageLevel voltageLevel) {

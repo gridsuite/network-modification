@@ -16,6 +16,7 @@ import java.util.Objects;
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 @SuperBuilder
+@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
 @Data

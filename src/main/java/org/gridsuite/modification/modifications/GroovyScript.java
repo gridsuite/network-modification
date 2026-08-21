@@ -14,17 +14,20 @@ import groovy.lang.GroovyShell;
 import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.groovy.control.CompilerConfiguration;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.error.NetworkModificationException;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.GROOVY_SCRIPT_EMPTY;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.GROOVY_SCRIPT_EMPTY;
 
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
  */
 @Getter
 @Setter
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GroovyScript extends AbstractModification {
 
     private String script;
@@ -52,6 +55,6 @@ public class GroovyScript extends AbstractModification {
 
     @Override
     public String getName() {
-        return "GroovyScript";
+        return ModificationType.GROOVY_SCRIPT.name();
     }
 }

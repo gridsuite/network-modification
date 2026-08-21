@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.GroovyScript;
 
@@ -28,7 +27,6 @@ import org.gridsuite.modification.modifications.GroovyScript;
 @ToString(callSuper = true)
 @Schema(description = "Groovy script modification")
 @JsonTypeName("GROOVY_SCRIPT")
-@ModificationErrorTypeName("GROOVY_SCRIPT_ERROR")
 public class GroovyScriptInfos extends ModificationInfos {
     @Schema(description = "Groovy script")
     private String script;

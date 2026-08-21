@@ -13,21 +13,20 @@ import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import org.gridsuite.modification.NetworkModificationException;
+import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
 import org.gridsuite.modification.dto.ReactiveLimitsHolderInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BATTERY_ALREADY_EXISTS;
-import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_BATTERY_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.BATTERY_ALREADY_EXISTS;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.CREATE_BATTERY_ERROR;
 import static org.gridsuite.modification.modifications.BatteryModification.ERROR_MESSAGE;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
@@ -36,6 +35,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
  */
 @Setter
 @Getter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BatteryCreation extends AbstractInjectionCreation implements ReactiveLimitsHolderInfos {
 
     private double minP;
@@ -145,7 +146,7 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
 
     @Override
     public String getName() {
-        return "BatteryCreation";
+        return ModificationType.BATTERY_CREATION.name();
     }
 
     private void createBatteryInNodeBreaker(VoltageLevel voltageLevel, Network network, ReportNode subReportNode) {

@@ -17,6 +17,7 @@ import org.gridsuite.modification.report.NetworkModificationReportResourceBundle
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -46,12 +47,14 @@ class TabularTwoWindingsTransformerModificationsTest extends AbstractNetworkModi
                 .modificationType(ModificationType.TWO_WINDINGS_TRANSFORMER_MODIFICATION)
                 .modifications(modifications)
                 .stashed(false)
+                .date(Instant.now())
                 .build();
     }
 
     protected TwoWindingsTransformerModificationInfos buildOneModification(String equipmentId, Double seriesResistance) {
         return TwoWindingsTransformerModificationInfos.builder().equipmentId(equipmentId)
                 .r(new AttributeModification<>(seriesResistance, OperationType.SET))
+                .date(Instant.now())
                 .build();
     }
 

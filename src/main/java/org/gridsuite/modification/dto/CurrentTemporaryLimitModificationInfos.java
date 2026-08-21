@@ -13,11 +13,12 @@ import lombok.*;
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
  */
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
+@Builder
+@EqualsAndHashCode
+@AllArgsConstructor
+@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CurrentTemporaryLimitModificationInfos {
 

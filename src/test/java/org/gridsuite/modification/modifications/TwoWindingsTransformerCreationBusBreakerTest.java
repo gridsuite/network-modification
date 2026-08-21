@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BUS_NOT_FOUND;
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.*;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.BUS_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -175,7 +175,7 @@ class TwoWindingsTransformerCreationBusBreakerTest extends AbstractNetworkModifi
         twoWindingsTransformerCreationInfos.setEquipmentId("new2wt");
         twoWindingsTransformerCreationInfos.setBusOrBusbarSectionId1("notFoundBus");
         exception = assertThrows(PowsyblException.class, () -> twoWindingsTransformerCreationInfos.toModification().check(getNetwork()));
-        assertEquals(BUS_NOT_FOUND + " : notFoundBus", exception.getMessage());
+        assertEquals(BUS_NOT_FOUND.getMessage() + " : notFoundBus", exception.getMessage());
     }
 
     @Override
