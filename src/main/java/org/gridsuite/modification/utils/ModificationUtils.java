@@ -219,19 +219,24 @@ public final class ModificationUtils {
         if (!extensionExist) {
             return position;
         }
-
         if (voltageLevel.getConnectableStream().anyMatch(c -> !(c instanceof BusbarSection))) {
             var rightRange = TopologyModificationUtils.getUnusedOrderPositionsAfter(bbs);
             if (rightRange.isPresent()) {
-                position = rightRange.get().getMinimum();
+                int minimum = rightRange.get().getMinimum();
+                int maximum = rightRange.get().getMaximum();
+                if (maximum - minimum < 10) {
+                    return minimum;
+                }
+                return minimum + 9;
             } else {
                 var leftRange = TopologyModificationUtils.getUnusedOrderPositionsBefore(bbs);
                 if (leftRange.isPresent()) {
                     position = leftRange.get().getMaximum();
                 }
             }
+        } else {
+            return 10;
         }
-
         return position;
     }
 
