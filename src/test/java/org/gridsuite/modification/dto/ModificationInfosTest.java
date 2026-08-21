@@ -73,7 +73,7 @@ class ModificationInfosTest {
         assertFalse(modificationInfos.isActivatedOn(TAG),
                 "A stashed modification is activated on no root network, whatever its applicabilities");
         assertFalse(modificationInfos.isActivatedOn(null),
-                "A stashed modification is not activated either without a root network context");
+                "A stashed modification is not activated without a root network context");
     }
 
     @Test
