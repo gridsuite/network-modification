@@ -9,7 +9,7 @@ package org.gridsuite.modification.dto;
 import com.powsybl.commons.report.ReportNode;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -114,9 +114,8 @@ class ModificationInfosTest {
 
     @Test
     void testActivatedWhenTagEntryIsNull() {
-        Map<String, Boolean> applicabilityByRootNetworkTag = new HashMap<>();
-        applicabilityByRootNetworkTag.put(TAG, null);
-        assertTrue(modificationInfos(true, applicabilityByRootNetworkTag).isActivatedOn(TAG),
+        // singletonMap, not Map.of, which rejects a null value
+        assertTrue(modificationInfos(true, Collections.singletonMap(TAG, null)).isActivatedOn(TAG),
                 "A tag mapped to no value is applicable: only an explicit false deactivates it");
     }
 
