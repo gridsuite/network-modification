@@ -411,7 +411,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         PhaseTapChanger phaseTapChanger = twt3.getPhaseTapChanger();
 
         // modification 1 assert
-        assertEquals("TwoWindingsTransformerModification", phaseTapChangerCreation.toModification().getName());
+        assertEquals("TWO_WINDINGS_TRANSFORMER_MODIFICATION", phaseTapChangerCreation.toModification().getName());
         assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
         assertTrue(phaseTapChanger.isRegulating());
         assertEquals(0.0, phaseTapChanger.getTargetDeadband());

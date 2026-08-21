@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.RemoveFeederBay;
@@ -16,12 +17,11 @@ import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.IdentifiableAttributes;
@@ -39,11 +39,15 @@ import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ByFilterDeletion extends AbstractModification {
 
     private IdentifiableType equipmentType;
     private List<FilterInfos> filters;
 
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     protected IFilterService filterService;
 
     private static final EnumSet<IdentifiableType> CONNECTABLE_TYPES = EnumSet.of(
@@ -99,7 +103,7 @@ public class ByFilterDeletion extends AbstractModification {
 
     @Override
     public String getName() {
-        return "ByFilterDeletion";
+        return ModificationType.BY_FILTER_DELETION.name();
     }
 
     private void applyFilterDeletion(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes) {

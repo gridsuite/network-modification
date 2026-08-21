@@ -12,13 +12,10 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
-import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
-import com.powsybl.iidm.network.extensions.Measurement;
-import com.powsybl.iidm.network.extensions.Measurements;
-import com.powsybl.iidm.network.extensions.MeasurementsAdder;
+import com.powsybl.iidm.network.extensions.*;
 import lombok.*;
 import org.apache.commons.collections4.CollectionUtils;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.BusbarSectionVMeasurementInfos;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -42,6 +39,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
 
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class VoltageLevelModification extends AbstractEquipmentModification {
 
     public static final String ERROR_MESSAGE = "Voltage level '%s' : ";
@@ -172,7 +171,7 @@ public class VoltageLevelModification extends AbstractEquipmentModification {
 
     @Override
     public String getName() {
-        return "VoltageLevelModification";
+        return ModificationType.VOLTAGE_LEVEL_MODIFICATION.name();
     }
 
     public static void modifyHighVoltageLimit(VoltageLevel voltageLevel, AttributeModification<Double> highVoltageLimit, ReportNode subReportNode) {

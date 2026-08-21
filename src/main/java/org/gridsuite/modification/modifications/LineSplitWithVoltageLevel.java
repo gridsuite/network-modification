@@ -13,6 +13,7 @@ import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 
@@ -24,8 +25,10 @@ import static org.gridsuite.modification.error.NetworkModificationExceptionType.
  */
 @Getter
 @Setter
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LineSplitWithVoltageLevel extends AbstractModification {
 
     private String lineToSplitId;
@@ -79,6 +82,6 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
 
     @Override
     public String getName() {
-        return "LineSplitWithVoltageLevel";
+        return ModificationType.LINE_SPLIT_WITH_VOLTAGE_LEVEL.name();
     }
 }

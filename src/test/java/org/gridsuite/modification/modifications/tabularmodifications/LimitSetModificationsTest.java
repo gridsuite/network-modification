@@ -22,6 +22,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -79,6 +80,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                                                 .build()
                                                                 )).build())
                                                         .build()))
+                                .date(Instant.now())
                                 .build(),
                         LineModificationInfos.builder()
                                 .equipmentId("line2")
@@ -101,6 +103,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                                         .build()
                                                         )).build())
                                                 .build()))
+                                .date(Instant.now())
                                 .build(),
                         // Should generate an warning because there's no match for this temporary limit modification
                         LineModificationInfos.builder().equipmentId("line1").operationalLimitsGroups(List.of(OperationalLimitsGroupModificationInfos.builder()
@@ -138,6 +141,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                                 .build()
                                                 )).build())
                                         .build()))
+                                .date(Instant.now())
                                 .build(),
                         //Should fail since provided operational limit group already exists on this side
                         LineModificationInfos.builder()
@@ -150,6 +154,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                         .modificationType(OperationalLimitsGroupModificationType.ADD)
                                         .temporaryLimitsModificationType(TemporaryLimitModificationType.ADD)
                                         .build()))
+                                .date(Instant.now())
                                 .build(),
                         //group0 already exists in network for this equipment
                         LineModificationInfos.builder()
@@ -172,6 +177,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                                         .build()
                                                         )).build())
                                                 .build()))
+                                .date(Instant.now())
                                 .build(),
                         //group0 already exists in network for this equipment, so MODIFY_OR_ADD will be a modification
                         LineModificationInfos.builder()
@@ -187,6 +193,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                         .permanentLimit(100.)
                                                         .build())
                                                 .build()))
+                                .date(Instant.now())
                                 .build(),
                         LineModificationInfos.builder()
                                 .equipmentId("line2")
@@ -196,8 +203,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                 .id("UNKNOWN")
                                                 .applicability(OperationalLimitsGroupInfos.Applicability.SIDE2)
                                                 .build()))
+                                .date(Instant.now())
                                 .build())
                 )
+                .date(Instant.now())
                 .build();
     }
 

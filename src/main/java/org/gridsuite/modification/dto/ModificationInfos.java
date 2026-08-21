@@ -87,11 +87,12 @@ import java.util.concurrent.atomic.AtomicReference;
     @JsonSubTypes.Type(value = MoveVoltageLevelFeederBaysInfos.class),
     @JsonSubTypes.Type(value = ModificationReferenceInfos.class),
 })
-@SuperBuilder
-@NoArgsConstructor
 @Getter
 @Setter
 @ToString
+@SuperBuilder
+@EqualsAndHashCode
+@NoArgsConstructor
 @Schema(description = "Modification attributes")
 public class ModificationInfos {
     @Schema(description = "Modification id")

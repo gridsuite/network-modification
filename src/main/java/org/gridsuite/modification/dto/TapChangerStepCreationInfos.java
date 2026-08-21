@@ -14,6 +14,7 @@ import lombok.*;
  * @author Hugo Marcellin <hugo.marcelin at rte-france.com>
  */
 @Builder
+@EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

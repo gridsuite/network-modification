@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
@@ -18,6 +19,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.filter.AbstractFilter;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -41,6 +43,8 @@ import static org.gridsuite.modification.error.NetworkModificationExceptionType.
 @SuppressWarnings("checkstyle:LambdaBodyLength")
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GenerationDispatch extends AbstractModification {
     private static final String POWER_TO_DISPATCH = "network.modification.PowerToDispatch";
     private static final String STACKING = "network.modification.Stacking";
@@ -62,6 +66,8 @@ public class GenerationDispatch extends AbstractModification {
     private List<GeneratorsFrequencyReserveInfos> generatorsFrequencyReserve;
     private List<SubstationsGeneratorsOrderingInfos> substationsGeneratorsOrdering;
 
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     protected IFilterService filterService;
 
     @Builder
@@ -629,7 +635,7 @@ public class GenerationDispatch extends AbstractModification {
 
     @Override
     public String getName() {
-        return "GenerationDispatch";
+        return ModificationType.GENERATION_DISPATCH.name();
     }
 
     private Map<String, List<Generator>> getGeneratorsByRegion(Network network, Component component) {

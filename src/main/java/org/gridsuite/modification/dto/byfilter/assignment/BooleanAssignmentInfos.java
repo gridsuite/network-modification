@@ -7,19 +7,19 @@
 
 package org.gridsuite.modification.dto.byfilter.assignment;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.byfilter.DataType;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
  */
 @SuperBuilder
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class BooleanAssignmentInfos extends AssignmentInfos<Boolean> {
+
     @Override
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public DataType getDataType() {
         return DataType.BOOLEAN;
     }

@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRangeAdder;
 import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.modifications.data.VscConverterStationCreation;
@@ -31,6 +32,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
 
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class VscCreation extends AbstractEquipmentCreation {
 
     public static final String VSC_SETPOINTS = "network.modification.vscSetPoints";
@@ -178,7 +181,7 @@ public class VscCreation extends AbstractEquipmentCreation {
 
     @Override
     public String getName() {
-        return "VscCreation";
+        return ModificationType.VSC_CREATION.name();
     }
 
     private boolean shouldCreateDroopActivePowerControlExtension() {

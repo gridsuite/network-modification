@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
 import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.VoltageRegulationType;
 import org.gridsuite.modification.error.NetworkModificationException;
@@ -33,6 +34,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
 
     private Double maxSusceptance;
@@ -144,7 +147,7 @@ public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
 
     @Override
     public String getName() {
-        return "StaticVarCompensatorCreation";
+        return ModificationType.STATIC_VAR_COMPENSATOR_CREATION.name();
     }
 
     private void createStaticVarCompensatorInNodeBreaker(VoltageLevel voltageLevel, Network network, ReportNode subReportNode) {

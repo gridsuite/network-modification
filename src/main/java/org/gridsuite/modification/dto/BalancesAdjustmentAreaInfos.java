@@ -9,10 +9,7 @@ package org.gridsuite.modification.dto;
 
 import com.powsybl.iidm.network.Country;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
@@ -20,6 +17,7 @@ import java.util.List;
 /**
  * @author Joris Mancini <joris.mancini_externe at rte-france.com>
  */
+@EqualsAndHashCode
 @SuperBuilder
 @NoArgsConstructor
 @Getter

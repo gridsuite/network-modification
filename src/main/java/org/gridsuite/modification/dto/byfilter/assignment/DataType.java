@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package org.gridsuite.modification.dto.byfilter;
+package org.gridsuite.modification.dto.byfilter.assignment;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>

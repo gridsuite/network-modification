@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.error.NetworkModificationException;
 
@@ -25,6 +26,8 @@ import static org.gridsuite.modification.error.NetworkModificationExceptionType.
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EquipmentAttributeModification extends AbstractEquipmentBase {
 
     private String equipmentAttributeName;
@@ -79,7 +82,7 @@ public class EquipmentAttributeModification extends AbstractEquipmentBase {
 
     @Override
     public String getName() {
-        return "EquipmentAttributeModification";
+        return ModificationType.EQUIPMENT_ATTRIBUTE_MODIFICATION.name();
     }
 
     private void changeSwitchAttribute(Switch aSwitch, String attributeName, Object attributeValue, ReportNode reportNode) {

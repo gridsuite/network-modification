@@ -20,6 +20,7 @@ import org.gridsuite.modification.report.NetworkModificationReportResourceBundle
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -44,31 +45,37 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
                 .equipmentId("id1").equipmentName("name1").voltageLevelId("v1").busOrBusbarSectionId("1.1")
                 .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
                 .loadType(LoadType.AUXILIARY).p0(0).q0(100)
+                .date(Instant.now())
                 .build(),
             LoadCreationInfos.builder()
                 .equipmentId("id2").equipmentName("name2").voltageLevelId("v2").busOrBusbarSectionId("1A")
                 .connectionName("feederId2").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false)
                 .loadType(LoadType.FICTITIOUS).p0(0).q0(500)
+                .date(Instant.now())
                 .build(),
             LoadCreationInfos.builder()
                 .equipmentId("id3").voltageLevelId("v3").busOrBusbarSectionId("3A")
                 .connectionName("feederId3").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .loadType(LoadType.UNDEFINED).p0(0).q0(200)
+                .date(Instant.now())
                 .build(),
             LoadCreationInfos.builder()
                 .equipmentId("id4").equipmentName("name4").voltageLevelId("v4").busOrBusbarSectionId("1.A")
                 .connectionName("feederId4").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false)
                 .loadType(LoadType.AUXILIARY).p0(0).q0(800)
+                .date(Instant.now())
                 .build(),
             LoadCreationInfos.builder()
                 .equipmentId("id5").voltageLevelId("v5").busOrBusbarSectionId("1A1")
                 .connectionName("name5").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .loadType(LoadType.FICTITIOUS).p0(0).q0(200)
+                .date(Instant.now())
                 .build(),
             LoadCreationInfos.builder()
                 .equipmentId("v5load").voltageLevelId("v5").busOrBusbarSectionId("1A1")
                 .connectionName("v5load").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                 .loadType(LoadType.UNDEFINED).p0(0).q0(200)
+                .date(Instant.now())
                 .build()
         );
         return TabularCreationInfos.builder()
@@ -76,6 +83,7 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
             .modifications(creations)
             .stashed(false)
             .csvFilename("filename")
+            .date(Instant.now())
             .build();
     }
 
@@ -95,12 +103,14 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
                 .equipmentId("id1").equipmentName("name1").voltageLevelId("v1").busOrBusbarSectionId("1.1")
                 .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
                 .loadType(LoadType.UNDEFINED).p0(0).q0(100)
+                .date(Instant.now())
                 .build()
         );
 
         ModificationInfos creationInfos = TabularCreationInfos.builder()
             .modificationType(ModificationType.LOAD_CREATION)
             .modifications(creations)
+            .date(Instant.now())
             .build();
         ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
@@ -117,21 +127,25 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
                 .equipmentId("id1").equipmentName("name1").voltageLevelId("unknown_vl").busOrBusbarSectionId("1.1")
                 .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
                 .loadType(LoadType.UNDEFINED).p0(0).q0(100)
+                .date(Instant.now())
                 .build(),
             LoadCreationInfos.builder()
                 .equipmentId("id2").equipmentName("name2").voltageLevelId("v1").busOrBusbarSectionId("unknown_bbs")
                 .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
                 .loadType(LoadType.UNDEFINED).p0(0).q0(100)
+                .date(Instant.now())
                 .build(),
             LoadCreationInfos.builder()
                 .equipmentId("id3").equipmentName("name3").voltageLevelId("v1").busOrBusbarSectionId("1.1")
                 .connectionName("feederId3").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
                 .loadType(LoadType.AUXILIARY).p0(Double.NaN).q0(-100)
+                .date(Instant.now())
                 .build()
         );
         ModificationInfos creationInfos = TabularCreationInfos.builder()
                 .modificationType(ModificationType.LOAD_CREATION)
                 .modifications(creations)
+                .date(Instant.now())
                 .build();
         ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)

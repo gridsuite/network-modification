@@ -19,6 +19,8 @@ import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
+
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -50,6 +52,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .directTransX(5D).stepUpTransformerX(45D)
                 .regulatingTerminalId("v2load").regulatingTerminalType("LOAD").regulatingTerminalVlId("v2").qPercent(35D)
                 .reactiveCapabilityCurve(false).reactiveCapabilityCurvePoints(List.of())
+                .date(Instant.now())
                 .build(),
             GeneratorCreationInfos.builder()
                 .equipmentId("id2").equipmentName("name2").voltageLevelId("v2").busOrBusbarSectionId("1A")
@@ -60,6 +63,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .minQ(7D).maxQ(100.).participate(false)
                 .stepUpTransformerX(45D)
                 .reactiveCapabilityCurve(false).reactiveCapabilityCurvePoints(List.of())
+                .date(Instant.now())
                 .build(),
             GeneratorCreationInfos.builder()
                 .equipmentId("id3").voltageLevelId("v3").busOrBusbarSectionId("3A")
@@ -67,6 +71,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .energySource(EnergySource.WIND).minP(0).maxP(200)
                 .targetP(150).voltageRegulationOn(true).targetV(375D)
                 .reactiveCapabilityCurve(false).reactiveCapabilityCurvePoints(List.of())
+                .date(Instant.now())
                 .build(),
             GeneratorCreationInfos.builder()
                 .equipmentId("id4").equipmentName("name4").voltageLevelId("v4").busOrBusbarSectionId("1.A")
@@ -79,6 +84,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .regulatingTerminalId("v5load").regulatingTerminalType("LOAD").regulatingTerminalVlId("v5").qPercent(75D)
                 .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().p(1.).minQ(2.).maxQ(3.).build(),
                         ReactiveCapabilityCurvePointsInfos.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(9.).minQ(10.).maxQ(11.).build()))
+                .date(Instant.now())
                 .build(),
             GeneratorCreationInfos.builder()
                 .equipmentId("id5").voltageLevelId("v5").busOrBusbarSectionId("1A1")
@@ -94,6 +100,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .targetP(150).voltageRegulationOn(true).targetV(375D)
                 .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().p(1.).minQ(2.).maxQ(3.).build(),
                         ReactiveCapabilityCurvePointsInfos.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(9.).minQ(10.).maxQ(11.).build()))
+                .date(Instant.now())
                 .build(),
             GeneratorCreationInfos.builder()
                 .equipmentId("id7").voltageLevelId("v6").busOrBusbarSectionId("1B1")
@@ -103,12 +110,14 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .minQ(1.).maxQ(100.)
                 .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().p(1.).minQ(2.).maxQ(3.).build(),
                         ReactiveCapabilityCurvePointsInfos.builder().p(5.).minQ(6.).maxQ(7.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(9.).minQ(10.).maxQ(11.).build()))
+                .date(Instant.now())
                 .build()
         );
         return TabularCreationInfos.builder()
             .modificationType(ModificationType.GENERATOR_CREATION)
             .modifications(creations)
             .stashed(false)
+            .date(Instant.now())
             .build();
     }
 
@@ -144,6 +153,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .directTransX(5D).stepUpTransformerX(45D)
                 .regulatingTerminalId("v2load").regulatingTerminalType("LOAD").regulatingTerminalVlId("v2").qPercent(35D)
                 .reactiveCapabilityCurve(false).reactiveCapabilityCurvePoints(List.of())
+                .date(Instant.now())
                 .build(),
             GeneratorCreationInfos.builder()
                 .equipmentId("id2").equipmentName("name2").voltageLevelId("v2").busOrBusbarSectionId("1A")
@@ -154,12 +164,14 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .minQ(7D).participate(false)
                 .stepUpTransformerX(45D)
                 .reactiveCapabilityCurve(false).reactiveCapabilityCurvePoints(List.of())
+                .date(Instant.now())
                 .build()
         );
 
         ModificationInfos creationInfos = TabularCreationInfos.builder()
             .modificationType(ModificationType.GENERATOR_CREATION)
             .modifications(creations)
+            .date(Instant.now())
             .build();
         ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
@@ -183,6 +195,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .directTransX(5D).stepUpTransformerX(45D)
                 .regulatingTerminalId("v2load").regulatingTerminalType("LOAD").regulatingTerminalVlId("v2").qPercent(35D)
                 .reactiveCapabilityCurve(false)
+                .date(Instant.now())
                 .build(),
             GeneratorCreationInfos.builder()
                 .equipmentId("id2").equipmentName("name2").voltageLevelId("v1").busOrBusbarSectionId("unknown_bbs")
@@ -194,6 +207,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .directTransX(5D).stepUpTransformerX(45D)
                 .regulatingTerminalId("v2load").regulatingTerminalType("LOAD").regulatingTerminalVlId("v2").qPercent(35D)
                 .reactiveCapabilityCurve(false)
+                .date(Instant.now())
                 .build(),
             GeneratorCreationInfos.builder()
                 .equipmentId("id3").equipmentName("name3").voltageLevelId("v1").busOrBusbarSectionId("1.1")
@@ -205,6 +219,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .directTransX(5D).stepUpTransformerX(45D)
                 .regulatingTerminalId("v2load").regulatingTerminalType("LOAD").regulatingTerminalVlId("v2").qPercent(35D)
                 .reactiveCapabilityCurve(false)
+                .date(Instant.now())
                 .build(),
             GeneratorCreationInfos.builder()
                 .equipmentId("id4").voltageLevelId("v5").busOrBusbarSectionId("1A1")
@@ -213,6 +228,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .targetP(150).voltageRegulationOn(true).targetV(375D)
                 .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().maxQ(3.).build(),
                         ReactiveCapabilityCurvePointsInfos.builder().maxQ(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().maxQ(3.).build()))
+                .date(Instant.now())
                 .build(),
             GeneratorCreationInfos.builder()
                 .equipmentId("id5").voltageLevelId("v5").busOrBusbarSectionId("1A1")
@@ -221,6 +237,7 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .targetP(150).voltageRegulationOn(true).targetV(375D)
                 .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().p(3.).build(),
                         ReactiveCapabilityCurvePointsInfos.builder().p(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().p(3.).build()))
+                .date(Instant.now())
                 .build(),
             GeneratorCreationInfos.builder()
                 .equipmentId("id6").voltageLevelId("v5").busOrBusbarSectionId("1A1")
@@ -229,11 +246,13 @@ class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
                 .targetP(150).voltageRegulationOn(true).targetV(375D)
                 .reactiveCapabilityCurve(true).reactiveCapabilityCurvePoints(List.of(ReactiveCapabilityCurvePointsInfos.builder().minQ(1.).p(3.).build(),
                         ReactiveCapabilityCurvePointsInfos.builder().minQ(1.).p(3.).build(), ReactiveCapabilityCurvePointsInfos.builder().minQ(1.).p(3.).build()))
+                .date(Instant.now())
                 .build()
         );
         ModificationInfos creationInfos = TabularCreationInfos.builder()
                 .modificationType(ModificationType.GENERATOR_CREATION)
                 .modifications(creations)
+                .date(Instant.now())
                 .build();
         ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)

@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import lombok.*;
 import org.apache.commons.collections4.CollectionUtils;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability;
 import org.gridsuite.modification.error.NetworkModificationException;
@@ -33,6 +34,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.createBranchInN
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LineCreation extends AbstractBranchCreation {
 
     private Double g1;
@@ -175,7 +178,7 @@ public class LineCreation extends AbstractBranchCreation {
 
     @Override
     public String getName() {
-        return "LineCreation";
+        return ModificationType.LINE_CREATION.name();
     }
 
     private void addLine(Network network, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, boolean withSwitch1, boolean withSwitch2,
