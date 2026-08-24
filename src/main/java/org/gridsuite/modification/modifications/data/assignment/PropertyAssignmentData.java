@@ -13,7 +13,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.byfilter.assignment.DataType;
 
 /**
  * @author Joris MANCINI <joris.mancini at rte-france.com>

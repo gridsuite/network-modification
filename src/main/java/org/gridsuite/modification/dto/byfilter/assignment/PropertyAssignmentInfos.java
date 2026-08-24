@@ -13,6 +13,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.modifications.data.assignment.DataType;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
