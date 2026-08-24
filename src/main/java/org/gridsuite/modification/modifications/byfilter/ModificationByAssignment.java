@@ -14,10 +14,10 @@ import lombok.*;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.DataType;
 import org.gridsuite.modification.dto.byfilter.assignment.PropertyAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField;
 import org.gridsuite.modification.error.NetworkModificationExceptionType;
+import org.gridsuite.modification.modifications.data.assignment.DataType;
 
 import java.util.Collections;
 import java.util.List;

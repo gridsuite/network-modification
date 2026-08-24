@@ -10,6 +10,7 @@ package org.gridsuite.modification.dto.byfilter.assignment;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.modifications.data.assignment.DataType;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
