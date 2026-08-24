@@ -11,16 +11,15 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
+import org.gridsuite.filter.wip.Filter;
+import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.PropertyAssignmentInfos;
+import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.Assertions;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Stream;
 
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES;
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES;
@@ -67,19 +66,25 @@ public class OperationalLimitsGroupByAssigmentTest extends AbstractModificationB
     }
 
     @Override
-    protected Map<UUID, FilterEquipments> getTestFilters() {
-        FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(
-                new IdentifiableAttributes(LINE_ID_1, IdentifiableType.LINE, 1.0),
-                new IdentifiableAttributes(LINE_ID_2, IdentifiableType.LINE, 2.0)
-        )).build();
-        FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(
-                new IdentifiableAttributes(LINE_ID_3, IdentifiableType.LINE, 1.0)
-        )).build();
-        FilterEquipments filter3 = FilterEquipments.builder().filterId(FILTER_ID_3).identifiableAttributes(List.of(
-                new IdentifiableAttributes(LINE_ID_4, IdentifiableType.LINE, 1.0),
-                new IdentifiableAttributes(LINE_ID_5, IdentifiableType.LINE, 2.0)
-        )).build();
-        return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3);
+    public List<Filter> loadFilters(List<UUID> filterUuids) {
+        return filterUuids.stream().flatMap(filterUuid -> {
+            if (filterUuid.equals(FILTER_ID_1)) {
+                return Stream.of(equipmentFilter(LINE_ID_1), equipmentFilter(LINE_ID_2));
+            } else if (filterUuid.equals(FILTER_ID_2)) {
+                return Stream.of(equipmentFilter(LINE_ID_3));
+            } else if (filterUuid.equals(FILTER_ID_3)) {
+                return Stream.of(equipmentFilter(LINE_ID_4), equipmentFilter(LINE_ID_5));
+            } else {
+                return Stream.empty();
+            }
+        }).toList();
+    }
+
+    private Filter equipmentFilter(String equipmentId) {
+        return IdentifierListFilter.builder()
+                .equipmentType(EquipmentType.LINE)
+                .equipmentIds(Set.of(equipmentId))
+                .build();
     }
 
     @Override
@@ -137,8 +142,7 @@ public class OperationalLimitsGroupByAssigmentTest extends AbstractModificationB
         Assertions.assertEquals("group0", line3.getSelectedOperationalLimitsGroupId1().get());
         Assertions.assertTrue(line3.getSelectedOperationalLimitsGroupId2().isPresent());
         Assertions.assertEquals("group3", line3.getSelectedOperationalLimitsGroupId2().get());
-        List<String> allLogs = new ArrayList<>();
-        reportNode.getChildren().forEach(node -> node.getChildren().forEach(child -> child.getChildren().forEach(reportNode1 -> allLogs.add(reportNode1.getMessage()))));
+        List<String> allLogs = TestUtils.getAllMessages(reportNode);
         Assertions.assertTrue(allLogs.contains("Cannot modify equipment line_4 : multiple limit sets applicable on side 1 with property named property0 and with value value0 : equipment ignored"));
         Assertions.assertTrue(allLogs.contains("Cannot modify equipment line_5 : missing limit set applicable on side 1 with property named property0 and with value value0 : equipment ignored"));
     }

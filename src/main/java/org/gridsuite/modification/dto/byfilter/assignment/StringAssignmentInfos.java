@@ -10,7 +10,10 @@ package org.gridsuite.modification.dto.byfilter.assignment;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.filter.wip.FilterLoader;
+import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.modifications.data.assignment.DataType;
+import org.gridsuite.modification.modifications.data.assignment.StringAssignmentData;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -23,5 +26,14 @@ public class StringAssignmentInfos extends AssignmentInfos<String> {
     @Override
     public DataType getDataType() {
         return DataType.STRING;
+    }
+
+    @Override
+    public StringAssignmentData toData(FilterLoader filterLoader) {
+        return StringAssignmentData.builder()
+                .editedField(getEditedField())
+                .value(getValue())
+                .filters(filterLoader.getNewFilters(getFilters().stream().map(FilterInfos::getId).toList()))
+                .build();
     }
 }
