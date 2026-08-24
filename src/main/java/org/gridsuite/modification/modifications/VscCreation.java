@@ -180,6 +180,14 @@ public class VscCreation extends AbstractEquipmentCreation {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.vsc.creation")
+                .withUntypedValue("vscId", getEquipmentId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.VSC_CREATION.name();
     }

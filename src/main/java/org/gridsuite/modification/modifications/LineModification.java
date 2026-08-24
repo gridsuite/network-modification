@@ -120,6 +120,14 @@ public class LineModification extends AbstractBranchModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.line.modification")
+                .withUntypedValue("lineId", getEquipmentId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.LINE_MODIFICATION.name();
     }

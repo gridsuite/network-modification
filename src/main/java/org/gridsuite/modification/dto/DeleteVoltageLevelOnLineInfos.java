@@ -7,7 +7,6 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -50,11 +49,6 @@ public class DeleteVoltageLevelOnLineInfos extends ModificationInfos {
                 .replacingLine1Id(getReplacingLine1Id())
                 .replacingLine1Name(getReplacingLine1Name())
                 .build();
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.deleteVoltageLevelOnLine").add();
     }
 
     @Override

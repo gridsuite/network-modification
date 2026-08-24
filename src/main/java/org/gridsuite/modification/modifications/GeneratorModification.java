@@ -208,6 +208,14 @@ public class GeneratorModification extends AbstractInjectionModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.generator.modification")
+                .withUntypedValue("generatorId", this.getEquipmentId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.GENERATOR_MODIFICATION.name();
     }

@@ -121,6 +121,14 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.byFormulaModification")
+                .withUntypedValue("equipmentType", identifiableType.name())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.BY_FORMULA_MODIFICATION.name();
     }

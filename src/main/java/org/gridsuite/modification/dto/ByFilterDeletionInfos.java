@@ -8,7 +8,6 @@ package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -49,14 +48,6 @@ public class ByFilterDeletionInfos extends ModificationInfos {
                 .equipmentType(getEquipmentType())
                 .filters(FilterUtils.loadFilterWithNames(getFilters(), modificationContext.filterLoader()))
                 .build();
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.byFilter.deletion")
-                .withUntypedValue("equipmentType", equipmentType.name())
-                .add();
     }
 
     @Override

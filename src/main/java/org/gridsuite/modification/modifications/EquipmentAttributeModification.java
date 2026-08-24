@@ -81,6 +81,15 @@ public class EquipmentAttributeModification extends AbstractEquipmentBase {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.equipmentAttributeModification")
+                .withUntypedValue("EquipmentType", equipmentType.name())
+                .withUntypedValue("EquipmentId", getEquipmentId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.EQUIPMENT_ATTRIBUTE_MODIFICATION.name();
     }

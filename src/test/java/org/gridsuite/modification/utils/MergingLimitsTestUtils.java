@@ -74,7 +74,7 @@ public final class MergingLimitsTestUtils {
                 .setAcceptableDuration(21)
                 .endTemporaryLimit()
                 .add();
-        ReportNode report = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());

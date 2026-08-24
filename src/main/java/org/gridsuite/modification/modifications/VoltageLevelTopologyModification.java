@@ -68,6 +68,14 @@ public class VoltageLevelTopologyModification extends AbstractEquipmentBase {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.VOLTAGE_LEVEL_TOPOLOGY_MODIFICATION")
+                .withUntypedValue("voltageLevelId", getEquipmentId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.VOLTAGE_LEVEL_TOPOLOGY_MODIFICATION.toString();
     }

@@ -87,6 +87,11 @@ public class BalancesAdjustmentModification extends AbstractModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode().withMessageTemplate("network.modification.balancesAdjustment").add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.BALANCES_ADJUSTMENT_MODIFICATION.name();
     }
@@ -166,7 +171,6 @@ public class BalancesAdjustmentModification extends AbstractModification {
     @SneakyThrows
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode) {
-
         BalanceComputationParameters parameters = createBalanceComputationParameters(reportNode);
 
         List<BalanceComputationArea> balanceComputationAreas = createBalanceComputationAreas(network, reportNode);

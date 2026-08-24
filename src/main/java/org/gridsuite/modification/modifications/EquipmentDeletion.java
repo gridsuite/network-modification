@@ -77,6 +77,14 @@ public class EquipmentDeletion extends AbstractEquipmentBase {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.equipmentDeletion")
+                .withUntypedValue("equipmentId", this.getEquipmentId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.EQUIPMENT_DELETION.name();
     }

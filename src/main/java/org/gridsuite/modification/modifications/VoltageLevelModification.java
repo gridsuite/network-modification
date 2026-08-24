@@ -170,6 +170,14 @@ public class VoltageLevelModification extends AbstractEquipmentModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.voltageLevel.modification")
+                .withUntypedValue("voltageLevelId", getEquipmentId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.VOLTAGE_LEVEL_MODIFICATION.name();
     }
