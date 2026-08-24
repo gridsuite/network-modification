@@ -13,6 +13,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.dto.byfilter.formula.Operator;
+import org.gridsuite.modification.dto.byfilter.formula.ReferenceFieldOrValue;
 
 /**
  * @author Joris Mancini <joris.mancini at rte-france.com>
