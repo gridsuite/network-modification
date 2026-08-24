@@ -10,9 +10,9 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.filter.utils.EquipmentType;
+import org.gridsuite.filter.wip.Filter;
+import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.dto.ByFormulaModificationInfos;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.GeneratorField;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.modifications.data.assignment.Operator;
@@ -20,14 +20,13 @@ import org.gridsuite.modification.modifications.data.assignment.ReferenceFieldOr
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.gridsuite.modification.utils.NetworkUtil.createGenerator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -46,14 +45,7 @@ class GeneratorByFormulaModificationTest extends AbstractByFormulaModificationTe
     private static final String GENERATOR_ID_10 = "gen10";
 
     @Test
-    void testCreateWithWarning() throws Exception {
-        IdentifiableAttributes identifiableAttributes = new IdentifiableAttributes(GENERATOR_ID_1, getIdentifiableType(), 1.0);
-        FilterEquipments filter = FilterEquipments.builder().filterId(FILTER_WITH_ONE_WRONG_ID)
-                .identifiableAttributes(List.of(identifiableAttributes))
-                .notFoundEquipments(List.of("wrongId"))
-                .build();
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_WITH_ONE_WRONG_ID, filter));
-
+    void testCreateWithWarning() {
         FormulaInfos formulaInfos = FormulaInfos.builder()
                 .filters(List.of(filterWithOneWrongId))
                 .editedField(GeneratorField.ACTIVE_POWER_SET_POINT.name())
@@ -67,7 +59,7 @@ class GeneratorByFormulaModificationTest extends AbstractByFormulaModificationTe
                 .formulaInfosList(List.of(formulaInfos))
                 .stashed(false)
                 .build();
-        apply(modificationInfos);
+        apply(modificationInfos, _ -> List.of(equipmentFilter(GENERATOR_ID_1)));
         assertEquals(75, getNetwork().getGenerator(GENERATOR_ID_1).getTargetP(), 0);
     }
 
@@ -136,33 +128,29 @@ class GeneratorByFormulaModificationTest extends AbstractByFormulaModificationTe
     }
 
     @Override
-    protected Map<UUID, FilterEquipments> getTestFilters() {
-        FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_1, getIdentifiableType(), 1.0),
-            new IdentifiableAttributes(GENERATOR_ID_2, getIdentifiableType(), 2.0)))
-                .build();
+    public List<Filter> loadFilters(List<UUID> filterUuids) {
+        return filterUuids.stream().flatMap(filterUuid -> {
+            if (filterUuid.equals(FILTER_ID_1)) {
+                return Stream.of(equipmentFilter(GENERATOR_ID_1), equipmentFilter(GENERATOR_ID_2));
+            } else if (filterUuid.equals(FILTER_ID_2)) {
+                return Stream.of(equipmentFilter(GENERATOR_ID_3), equipmentFilter(GENERATOR_ID_4));
+            } else if (filterUuid.equals(FILTER_ID_3)) {
+                return Stream.of(equipmentFilter(GENERATOR_ID_5), equipmentFilter(GENERATOR_ID_6));
+            } else if (filterUuid.equals(FILTER_ID_4)) {
+                return Stream.of(equipmentFilter(GENERATOR_ID_7), equipmentFilter(GENERATOR_ID_8));
+            } else if (filterUuid.equals(FILTER_ID_5)) {
+                return Stream.of(equipmentFilter(GENERATOR_ID_9), equipmentFilter(GENERATOR_ID_10));
+            } else {
+                return Stream.empty();
+            }
+        }).toList();
+    }
 
-        FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_3, getIdentifiableType(), 2.0),
-            new IdentifiableAttributes(GENERATOR_ID_4, getIdentifiableType(), 5.0)))
+    private Filter equipmentFilter(String equipmentId) {
+        return IdentifierListFilter.builder()
+                .equipmentType(EquipmentType.GENERATOR)
+                .equipmentIds(Set.of(equipmentId))
                 .build();
-
-        FilterEquipments filter3 = FilterEquipments.builder().filterId(FILTER_ID_3).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_5, getIdentifiableType(), 6.0),
-            new IdentifiableAttributes(GENERATOR_ID_6, getIdentifiableType(), 7.0)))
-                .build();
-
-        FilterEquipments filter4 = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_7, getIdentifiableType(), 3.0),
-            new IdentifiableAttributes(GENERATOR_ID_8, getIdentifiableType(), 8.0)))
-                .build();
-
-        FilterEquipments filter5 = FilterEquipments.builder().filterId(FILTER_ID_5).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_9, getIdentifiableType(), 0.0),
-            new IdentifiableAttributes(GENERATOR_ID_10, getIdentifiableType(), 10.0)))
-                .build();
-
-        return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3, FILTER_ID_4, filter4, FILTER_ID_5, filter5);
     }
 
     @Override

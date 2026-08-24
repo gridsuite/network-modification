@@ -14,6 +14,7 @@ import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.tabular.LimitSetsTabularModificationInfos;
 import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
@@ -129,6 +130,11 @@ public class ModificationInfos {
     @JsonIgnore
     public AbstractModification toModification() {
         throw new UnsupportedOperationException("Method toModification must be implemented in subclass " + this.getClass().getSimpleName());
+    }
+
+    @JsonIgnore
+    public AbstractModification toModification(FilterLoader filterService) {
+        return toModification();
     }
 
     public final ModificationType getType() {

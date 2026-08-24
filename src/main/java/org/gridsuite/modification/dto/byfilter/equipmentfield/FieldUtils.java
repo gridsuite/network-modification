@@ -13,8 +13,6 @@ import jakarta.annotation.Nullable;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.error.NetworkModificationExceptionType;
 
-import java.util.List;
-
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
  */
@@ -24,9 +22,9 @@ public final class FieldUtils {
 
     }
 
-    public static boolean isEquipmentEditable(Identifiable<?> equipment, String editedField, List<ReportNode> equipmentsReport) {
+    public static boolean isEquipmentEditable(Identifiable<?> equipment, String editedField, ReportNode reportNode) {
         return switch (equipment.getType()) {
-            case TWO_WINDINGS_TRANSFORMER -> TwoWindingsTransformerField.isEquipmentEditable((TwoWindingsTransformer) equipment, editedField, equipmentsReport);
+            case TWO_WINDINGS_TRANSFORMER -> TwoWindingsTransformerField.isEquipmentEditable((TwoWindingsTransformer) equipment, editedField, reportNode);
             default -> true;
         };
     }

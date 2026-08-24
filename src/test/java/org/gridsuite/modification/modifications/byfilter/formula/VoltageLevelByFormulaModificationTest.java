@@ -6,23 +6,24 @@
  */
 package org.gridsuite.modification.modifications.byfilter.formula;
 
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
+import org.gridsuite.filter.wip.Filter;
+import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.VoltageLevelField;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.modifications.data.assignment.Operator;
 import org.gridsuite.modification.modifications.data.assignment.ReferenceFieldOrValue;
+import org.gridsuite.modification.utils.TestUtils;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -80,42 +81,33 @@ class VoltageLevelByFormulaModificationTest extends AbstractByFormulaModificatio
     }
 
     @Override
-    protected Map<UUID, FilterEquipments> getTestFilters() {
-        FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_1, getIdentifiableType(), 1.0),
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_2, getIdentifiableType(), 2.0)))
-            .build();
+    public List<Filter> loadFilters(List<UUID> filterUuids) {
+        return filterUuids.stream().flatMap(filterUuid -> {
+            if (filterUuid.equals(FILTER_ID_1)) {
+                return Stream.of(equipmentFilter(VOLTAGE_LEVEL_ID_1, VOLTAGE_LEVEL_ID_2));
+            } else if (filterUuid.equals(FILTER_ID_2)) {
+                return Stream.of(equipmentFilter(VOLTAGE_LEVEL_ID_3, VOLTAGE_LEVEL_ID_4));
+            } else if (filterUuid.equals(FILTER_ID_3)) {
+                return Stream.of(equipmentFilter(VOLTAGE_LEVEL_ID_5, VOLTAGE_LEVEL_ID_6));
+            } else if (filterUuid.equals(FILTER_ID_4)) {
+                return Stream.of(equipmentFilter(VOLTAGE_LEVEL_ID_2, VOLTAGE_LEVEL_ID_5));
+            } else if (filterUuid.equals(FILTER_ID_5)) {
+                return Stream.of(equipmentFilter(VOLTAGE_LEVEL_ID_4, VOLTAGE_LEVEL_ID_6));
+            } else if (filterUuid.equals(FILTER_ID_6)) {
+                return Stream.of(equipmentFilter(VOLTAGE_LEVEL_ID_7));
+            } else if (filterUuid.equals(FILTER_ID_7)) {
+                return Stream.of(equipmentFilter(VOLTAGE_LEVEL_ID_8));
+            } else {
+                return Stream.empty();
+            }
+        }).toList();
+    }
 
-        FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_3, getIdentifiableType(), 2.0),
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_4, getIdentifiableType(), 5.0)))
-            .build();
-
-        FilterEquipments filter3 = FilterEquipments.builder().filterId(FILTER_ID_3).identifiableAttributes(List.of(
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_5, getIdentifiableType(), 6.0),
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_6, getIdentifiableType(), 7.0)))
-            .build();
-
-        FilterEquipments filter4 = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_2, getIdentifiableType(), 2.0),
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_5, getIdentifiableType(), 6.0)))
-            .build();
-
-        FilterEquipments filter5 = FilterEquipments.builder().filterId(FILTER_ID_5).identifiableAttributes(List.of(
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_4, getIdentifiableType(), 5.0),
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_6, getIdentifiableType(), 7.0)))
-            .build();
-
-        FilterEquipments filter6 = FilterEquipments.builder().filterId(FILTER_ID_6).identifiableAttributes(List.of(
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_7, getIdentifiableType(), 5.0)))
-            .build();
-
-        FilterEquipments filter7 = FilterEquipments.builder().filterId(FILTER_ID_7).identifiableAttributes(List.of(
-                new IdentifiableAttributes(VOLTAGE_LEVEL_ID_8, getIdentifiableType(), 8.0)))
-            .build();
-
-        return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3, FILTER_ID_4, filter4,
-            FILTER_ID_5, filter5, FILTER_ID_6, filter6, FILTER_ID_7, filter7);
+    private Filter equipmentFilter(String... equipmentIds) {
+        return IdentifierListFilter.builder()
+                .equipmentType(EquipmentType.VOLTAGE_LEVEL)
+                .equipmentIds(Set.of(equipmentIds))
+                .build();
     }
 
     @Override
@@ -251,9 +243,8 @@ class VoltageLevelByFormulaModificationTest extends AbstractByFormulaModificatio
         assertEquals(333.3333333333, getNetwork().getVoltageLevel(VOLTAGE_LEVEL_ID_8).getHighVoltageLimit(), 0.); //scale is defined in byFormulaModifcation (10)
 
         // check logs
-        List<String> allLogs = reportNode.getChildren().getFirst().getChildren().stream().flatMap(child -> child.getChildren().stream().map(ReportNode::getMessage)).toList();
+        List<String> allLogs = TestUtils.getAllMessages(reportNode);
         assertTrue(allLogs.contains("Cannot modify equipment v7 : At least one of the value or referenced field is missing"));
         assertTrue(allLogs.contains("Cannot modify equipment v8 : The value or referenced field of the second operand in the division operator is zero"));
-
     }
 }

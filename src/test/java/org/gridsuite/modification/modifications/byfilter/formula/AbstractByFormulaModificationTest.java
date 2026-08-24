@@ -10,9 +10,8 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.IFilterService;
+import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.modification.dto.ByFormulaModificationInfos;
-import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
@@ -24,16 +23,11 @@ import org.gridsuite.modification.report.NetworkModificationReportResourceBundle
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -62,9 +56,6 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
             .withMessageTemplate("test")
             .build();
 
-    @Mock
-    protected IFilterService filterService;
-
     @BeforeEach
     void specificSetUp() {
         MockitoAnnotations.openMocks(this);
@@ -76,9 +67,7 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
     @Override
     public void testApply() throws Exception {
         ModificationInfos modificationInfo = buildModification();
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(getTestFilters());
-        AbstractModification modification = modificationInfo.toModification();
-        modification.initApplicationContext(filterService, null);
+        AbstractModification modification = modificationInfo.toModification(this::loadFilters);
         modification.apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication();
     }
@@ -102,9 +91,8 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
     protected void checkModification() {
     }
 
-    protected void apply(ByFormulaModificationInfos modificationInfos) {
-        AbstractModification modification = modificationInfos.toModification();
-        modification.initApplicationContext(filterService, null);
+    protected void apply(ByFormulaModificationInfos modificationInfos, FilterLoader filterLoader) {
+        AbstractModification modification = modificationInfos.toModification(filterLoader);
         modification.apply(getNetwork());
     }
 
@@ -123,8 +111,6 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
     }
 
     protected abstract void createEquipments();
-
-    protected abstract Map<UUID, FilterEquipments> getTestFilters();
 
     protected abstract List<FormulaInfos> getFormulaInfos();
 

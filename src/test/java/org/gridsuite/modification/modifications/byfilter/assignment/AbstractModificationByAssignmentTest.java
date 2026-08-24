@@ -9,9 +9,9 @@ package org.gridsuite.modification.modifications.byfilter.assignment;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
+import org.gridsuite.filter.report.FilterReportResourceBundle;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.IFilterService;
-import org.gridsuite.modification.dto.FilterEquipments;
+import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -25,16 +25,13 @@ import org.gridsuite.modification.report.NetworkModificationReportResourceBundle
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -58,12 +55,9 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     protected final FilterInfos filter6 = new FilterInfos(FILTER_ID_6, "filter6");
     protected final FilterInfos filterWithOneWrongId = new FilterInfos(FILTER_WITH_ONE_WRONG_ID, "filterWithOneWrongId");
     protected final ReportNode reportNode = ReportNode.newRootReportNode()
-            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME, FilterReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test")
             .build();
-
-    @Mock
-    protected IFilterService filterService;
 
     @BeforeEach
     void specificSetUp() {
@@ -76,9 +70,7 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     @Override
     public void testApply() throws Exception {
         ModificationInfos modificationInfo = buildModification();
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(getTestFilters());
-        AbstractModification modification = modificationInfo.toModification();
-        modification.initApplicationContext(filterService, null);
+        AbstractModification modification = modificationInfo.toModification(this::loadFilters);
         modification.apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication();
     }
@@ -102,15 +94,12 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     protected void checkModification() {
     }
 
-    protected void apply(ModificationByAssignmentInfos modificationByAssignmentInfos) {
-        AbstractModification modification = modificationByAssignmentInfos.toModification();
-        modification.initApplicationContext(filterService, null);
+    protected void apply(ModificationByAssignmentInfos modificationByAssignmentInfos, FilterLoader filterLoader) {
+        AbstractModification modification = modificationByAssignmentInfos.toModification(filterLoader);
         modification.apply(getNetwork());
     }
 
     protected abstract void createEquipments();
-
-    protected abstract Map<UUID, FilterEquipments> getTestFilters();
 
     protected List<AssignmentInfos<?>> getAssignmentInfos() {
         PropertyAssignmentInfos spyAssignmentInfos = spy(PropertyAssignmentInfos.builder()

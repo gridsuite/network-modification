@@ -10,26 +10,26 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
+import org.gridsuite.filter.wip.Filter;
+import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.dto.FilterInfos;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.BooleanAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.GeneratorField;
+import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_GENERATOR_ERROR;
 import static org.gridsuite.modification.utils.NetworkUtil.createGenerator;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
@@ -50,13 +50,7 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
 
     @Test
     void testCreateWithWarning() {
-        IdentifiableAttributes identifiableAttributes = new IdentifiableAttributes(GENERATOR_ID_1, getIdentifiableType(), 1.0);
-        FilterEquipments filter = FilterEquipments.builder().filterId(FILTER_WITH_ONE_WRONG_ID)
-                .identifiableAttributes(List.of(identifiableAttributes))
-                .notFoundEquipments(List.of("wrongId"))
-                .build();
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_WITH_ONE_WRONG_ID, filter));
-
+        Filter filter = IdentifierListFilter.builder().equipmentType(EquipmentType.GENERATOR).equipmentIds(Set.of(GENERATOR_ID_1)).build();
         DoubleAssignmentInfos assignmentInfos = DoubleAssignmentInfos.builder()
                 .filters(List.of(filterWithOneWrongId))
                 .editedField(GeneratorField.ACTIVE_POWER_SET_POINT.name())
@@ -68,7 +62,7 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
                 .assignmentInfosList(List.of(assignmentInfos))
                 .stashed(false)
                 .build();
-        apply(modificationInfos);
+        apply(modificationInfos, _ -> List.of(filter));
         assertEquals(55, getNetwork().getGenerator(GENERATOR_ID_1).getTargetP(), 0);
     }
 
@@ -153,37 +147,31 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
     }
 
     @Override
-    protected Map<UUID, FilterEquipments> getTestFilters() {
-        FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_1, IdentifiableType.GENERATOR, 1.0),
-            new IdentifiableAttributes(GENERATOR_ID_2, IdentifiableType.GENERATOR, 2.0)))
-                .build();
+    public List<Filter> loadFilters(List<UUID> filterUuids) {
+        return filterUuids.stream().flatMap(filterUuid -> {
+            if (filterUuid.equals(FILTER_ID_1)) {
+                return Stream.of(equipmentFilter(GENERATOR_ID_1), equipmentFilter(GENERATOR_ID_2));
+            } else if (filterUuid.equals(FILTER_ID_2)) {
+                return Stream.of(equipmentFilter(GENERATOR_ID_3), equipmentFilter(GENERATOR_ID_4));
+            } else if (filterUuid.equals(FILTER_ID_3)) {
+                return Stream.of(equipmentFilter(GENERATOR_ID_5), equipmentFilter(GENERATOR_ID_6));
+            } else if (filterUuid.equals(FILTER_ID_4)) {
+                return Stream.of(equipmentFilter(GENERATOR_ID_7), equipmentFilter(GENERATOR_ID_8));
+            } else if (filterUuid.equals(FILTER_ID_5)) {
+                return Stream.of(equipmentFilter(GENERATOR_ID_9), equipmentFilter(GENERATOR_ID_10));
+            } else if (filterUuid.equals(FILTER_ID_6)) {
+                return Stream.of(equipmentFilter(GENERATOR_ID_11));
+            } else {
+                return Stream.empty();
+            }
+        }).toList();
+    }
 
-        FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_3, IdentifiableType.GENERATOR, 2.0),
-            new IdentifiableAttributes(GENERATOR_ID_4, IdentifiableType.GENERATOR, 5.0)))
+    private Filter equipmentFilter(String equipmentId) {
+        return IdentifierListFilter.builder()
+                .equipmentType(EquipmentType.GENERATOR)
+                .equipmentIds(Set.of(equipmentId))
                 .build();
-
-        FilterEquipments filter3 = FilterEquipments.builder().filterId(FILTER_ID_3).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_5, IdentifiableType.GENERATOR, 6.0),
-            new IdentifiableAttributes(GENERATOR_ID_6, IdentifiableType.GENERATOR, 7.0)))
-                .build();
-
-        FilterEquipments filter4 = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_7, IdentifiableType.GENERATOR, 3.0),
-            new IdentifiableAttributes(GENERATOR_ID_8, IdentifiableType.GENERATOR, 8.0)))
-                .build();
-
-        FilterEquipments filter5 = FilterEquipments.builder().filterId(FILTER_ID_5).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_9, IdentifiableType.GENERATOR, 0.0),
-            new IdentifiableAttributes(GENERATOR_ID_10, IdentifiableType.GENERATOR, 9.0)))
-                .build();
-
-        FilterEquipments filter6 = FilterEquipments.builder().filterId(FILTER_ID_6).identifiableAttributes(List.of(
-                        new IdentifiableAttributes(GENERATOR_ID_11, IdentifiableType.GENERATOR, 1.0)))
-                .build();
-
-        return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3, FILTER_ID_4, filter4, FILTER_ID_5, filter5, FILTER_ID_6, filter6);
     }
 
     @Override
@@ -416,23 +404,26 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
         assertEquals(2, getNetwork().getGenerator(GENERATOR_ID_10).getRatedS(), 0);
 
         // check failed with filter 6 and generator 11
-        assertEquals("Assignment on filters : filter6", reportNode.getChildren().getFirst().getChildren().get(17).getMessage());
-        assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(17).getChildren().getFirst().getMessage());
-        assertEquals("Edited field : PLANNED_OUTAGE_RATE", reportNode.getChildren().getFirst().getChildren().get(17).getChildren().get(1).getMessage());
-        assertEquals("Cannot modify equipment gen11 : " + MODIFY_GENERATOR_ERROR.getMessage() + " : Generator 'gen11' : must have PLANNED_OUTAGE_RATE between 0 and 1",
-                reportNode.getChildren().getFirst().getChildren().get(17).getChildren().get(2).getMessage());
+        List<String> filter6OnPlannedOutageRateLogs = TestUtils.getAllMessages(reportNode.getChildren().getFirst().getChildren().get(17));
+        assertTrue(filter6OnPlannedOutageRateLogs.contains("Edited field : PLANNED_OUTAGE_RATE"));
+        assertTrue(filter6OnPlannedOutageRateLogs.contains("No equipment have been modified"));
+        assertTrue(filter6OnPlannedOutageRateLogs.contains("Cannot modify equipment gen11 : "
+                + MODIFY_GENERATOR_ERROR.getMessage()
+                + " : Generator 'gen11' : must have PLANNED_OUTAGE_RATE between 0 and 1"));
 
-        assertEquals("Assignment on filters : filter6", reportNode.getChildren().getFirst().getChildren().get(18).getMessage());
-        assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(18).getChildren().getFirst().getMessage());
-        assertEquals("Edited field : FORCED_OUTAGE_RATE", reportNode.getChildren().getFirst().getChildren().get(18).getChildren().get(1).getMessage());
-        assertEquals("Cannot modify equipment gen11 : " + MODIFY_GENERATOR_ERROR.getMessage() + " : Generator 'gen11' : must have FORCED_OUTAGE_RATE between 0 and 1",
-                reportNode.getChildren().getFirst().getChildren().get(18).getChildren().get(2).getMessage());
+        List<String> filter6OnForcedOutageRateLogs = TestUtils.getAllMessages(reportNode.getChildren().getFirst().getChildren().get(18));
+        assertTrue(filter6OnForcedOutageRateLogs.contains("Edited field : FORCED_OUTAGE_RATE"));
+        assertTrue(filter6OnForcedOutageRateLogs.contains("No equipment have been modified"));
+        assertTrue(filter6OnForcedOutageRateLogs.contains("Cannot modify equipment gen11 : "
+                + MODIFY_GENERATOR_ERROR.getMessage()
+                + " : Generator 'gen11' : must have FORCED_OUTAGE_RATE between 0 and 1"));
 
-        assertEquals("Assignment on filters : filter6", reportNode.getChildren().getFirst().getChildren().get(19).getMessage());
-        assertEquals("No equipment(s) have been modified on filter filter6", reportNode.getChildren().getFirst().getChildren().get(19).getChildren().getFirst().getMessage());
-        assertEquals("Edited field : Q_PERCENT", reportNode.getChildren().getFirst().getChildren().get(19).getChildren().get(1).getMessage());
-        assertEquals("Cannot modify equipment gen11 : " + MODIFY_GENERATOR_ERROR.getMessage() + " : Generator 'gen11' : must have Q_Percent between 0 and 100",
-                reportNode.getChildren().getFirst().getChildren().get(19).getChildren().get(2).getMessage());
+        List<String> filter6OnQPercentLogs = TestUtils.getAllMessages(reportNode.getChildren().getFirst().getChildren().get(19));
+        assertTrue(filter6OnQPercentLogs.contains("Edited field : Q_PERCENT"));
+        assertTrue(filter6OnQPercentLogs.contains("No equipment have been modified"));
+        assertTrue(filter6OnQPercentLogs.contains("Cannot modify equipment gen11 : "
+                + MODIFY_GENERATOR_ERROR.getMessage()
+                + " : Generator 'gen11' : must have Q_Percent between 0 and 100"));
     }
 
     @Override

@@ -17,8 +17,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
 import org.gridsuite.modification.modifications.data.assignment.DataType;
+import org.gridsuite.modification.modifications.data.assignment.ValueAssignmentData;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
@@ -48,6 +50,10 @@ public class AssignmentInfos<T> extends AbstractAssignmentInfos {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public DataType getDataType() {
+        throw new UnsupportedOperationException("This method should not be called");
+    }
+
+    public ValueAssignmentData<T> toData(FilterLoader filterLoader) {
         throw new UnsupportedOperationException("This method should not be called");
     }
 }
