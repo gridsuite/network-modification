@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
+import org.gridsuite.modification.modifications.data.assignment.DataType;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
