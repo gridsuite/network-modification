@@ -10,7 +10,10 @@ package org.gridsuite.modification.dto.byfilter.assignment;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.filter.wip.FilterLoader;
+import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.modifications.data.assignment.DataType;
+import org.gridsuite.modification.modifications.data.assignment.DoubleAssignmentData;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
@@ -23,5 +26,14 @@ public class DoubleAssignmentInfos extends AssignmentInfos<Double> {
     @Override
     public DataType getDataType() {
         return DataType.DOUBLE;
+    }
+
+    @Override
+    public DoubleAssignmentData toData(FilterLoader filterLoader) {
+        return DoubleAssignmentData.builder()
+                .editedField(getEditedField())
+                .value(getValue())
+                .filters(filterLoader.getNewFilters(getFilters().stream().map(FilterInfos::getId).toList()))
+                .build();
     }
 }

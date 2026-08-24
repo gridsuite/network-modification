@@ -23,10 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -192,5 +189,19 @@ public final class TestUtils {
     private static String normalizeLineSeparator(String str) {
         return Objects.requireNonNull(str).replace("\r\n", "\n")
                 .replace("\r", "\n");
+    }
+
+    public static List<String> getAllMessages(ReportNode reportNode) {
+        List<String> messages = new ArrayList<>();
+        getAllMessagesRecursively(reportNode, messages);
+        return messages;
+    }
+
+    private static void getAllMessagesRecursively(ReportNode reportNode, List<String> messages) {
+        messages.add(reportNode.getMessage());
+        if (reportNode.getChildren().isEmpty()) {
+            return;
+        }
+        reportNode.getChildren().forEach(child -> getAllMessagesRecursively(child, messages));
     }
 }

@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.modifications.byfilter.ModificationByAssignment;
 
@@ -39,10 +40,12 @@ public class ModificationByAssignmentInfos extends ModificationInfos {
     private List<? extends AssignmentInfos<?>> assignmentInfosList;
 
     @Override
-    public ModificationByAssignment toModification() {
+    public ModificationByAssignment toModification(FilterLoader filterLoader) {
         return ModificationByAssignment.builder()
                 .equipmentType(getEquipmentType())
-                .assignmentInfosList(getAssignmentInfosList())
+                .valueAssignments(getAssignmentInfosList().stream()
+                        .map(formulaInfos -> formulaInfos.toData(filterLoader))
+                        .toList())
                 .build();
     }
 

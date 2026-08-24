@@ -10,6 +10,9 @@ package org.gridsuite.modification.dto.byfilter.assignment;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.filter.wip.FilterLoader;
+import org.gridsuite.modification.dto.FilterInfos;
+import org.gridsuite.modification.modifications.data.assignment.BooleanAssignmentData;
 import org.gridsuite.modification.modifications.data.assignment.DataType;
 
 /**
@@ -23,5 +26,14 @@ public class BooleanAssignmentInfos extends AssignmentInfos<Boolean> {
     @Override
     public DataType getDataType() {
         return DataType.BOOLEAN;
+    }
+
+    @Override
+    public BooleanAssignmentData toData(FilterLoader filterLoader) {
+        return BooleanAssignmentData.builder()
+                .editedField(getEditedField())
+                .value(getValue())
+                .filters(filterLoader.getNewFilters(getFilters().stream().map(FilterInfos::getId).toList()))
+                .build();
     }
 }

@@ -13,8 +13,8 @@ import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
 import com.powsybl.iidm.network.extensions.VoltageRegulation;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
+import org.gridsuite.filter.wip.Filter;
+import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.BooleanAssignmentInfos;
@@ -23,13 +23,12 @@ import org.gridsuite.modification.dto.byfilter.equipmentfield.BatteryField;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.gridsuite.modification.utils.NetworkUtil.createBattery;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
@@ -44,13 +43,8 @@ class BatteryModificationByAssignmentTest extends AbstractModificationByAssignme
     private static final String BATTERY_ID_6 = "battery6";
 
     @Test
-    void testCreateWithWarning() throws Exception {
-        IdentifiableAttributes identifiableAttributes = new IdentifiableAttributes(BATTERY_ID_1, getIdentifiableType(), 1.0);
-        FilterEquipments filter = FilterEquipments.builder().filterId(FILTER_WITH_ONE_WRONG_ID)
-                .identifiableAttributes(List.of(identifiableAttributes))
-                .notFoundEquipments(List.of("wrongId"))
-                .build();
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_WITH_ONE_WRONG_ID, filter));
+    void testCreateWithWarning() {
+        Filter filter = IdentifierListFilter.builder().equipmentType(EquipmentType.BATTERY).equipmentIds(Set.of(BATTERY_ID_1)).build();
         DoubleAssignmentInfos assignmentInfos = DoubleAssignmentInfos.builder()
                 .filters(List.of(filterWithOneWrongId))
                 .editedField(BatteryField.ACTIVE_POWER_SET_POINT.name())
@@ -61,7 +55,7 @@ class BatteryModificationByAssignmentTest extends AbstractModificationByAssignme
                 .assignmentInfosList(List.of(assignmentInfos))
                 .stashed(false)
                 .build();
-        apply(modificationInfos);
+        apply(modificationInfos, _ -> List.of(filter));
         assertEquals(55, getNetwork().getBattery(BATTERY_ID_1).getTargetP(), 0);
     }
 
@@ -82,33 +76,29 @@ class BatteryModificationByAssignmentTest extends AbstractModificationByAssignme
     }
 
     @Override
-    protected Map<UUID, FilterEquipments> getTestFilters() {
-        FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(
-            new IdentifiableAttributes(BATTERY_ID_1, getIdentifiableType(), 1.0),
-            new IdentifiableAttributes(BATTERY_ID_2, getIdentifiableType(), 2.0)
-        )).build();
+    public List<Filter> loadFilters(List<UUID> filterUuids) {
+        return filterUuids.stream().flatMap(filterUuid -> {
+            if (filterUuid.equals(FILTER_ID_1)) {
+                return Stream.of(equipmentFilter(BATTERY_ID_1), equipmentFilter(BATTERY_ID_2));
+            } else if (filterUuid.equals(FILTER_ID_2)) {
+                return Stream.of(equipmentFilter(BATTERY_ID_3), equipmentFilter(BATTERY_ID_4));
+            } else if (filterUuid.equals(FILTER_ID_3)) {
+                return Stream.of(equipmentFilter(BATTERY_ID_5), equipmentFilter(BATTERY_ID_6));
+            } else if (filterUuid.equals(FILTER_ID_4)) {
+                return Stream.of(equipmentFilter(BATTERY_ID_1), equipmentFilter(BATTERY_ID_5));
+            } else if (filterUuid.equals(FILTER_ID_5)) {
+                return Stream.of(equipmentFilter(BATTERY_ID_2), equipmentFilter(BATTERY_ID_3));
+            } else {
+                return Stream.empty();
+            }
+        }).toList();
+    }
 
-        FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(
-            new IdentifiableAttributes(BATTERY_ID_3, getIdentifiableType(), 2.0),
-            new IdentifiableAttributes(BATTERY_ID_4, getIdentifiableType(), 5.0)
-        )).build();
-
-        FilterEquipments filter3 = FilterEquipments.builder().filterId(FILTER_ID_3).identifiableAttributes(List.of(
-            new IdentifiableAttributes(BATTERY_ID_5, getIdentifiableType(), 6.0),
-            new IdentifiableAttributes(BATTERY_ID_6, getIdentifiableType(), 7.0)
-        )).build();
-
-        FilterEquipments filter4 = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(
-            new IdentifiableAttributes(BATTERY_ID_1, getIdentifiableType(), 1.0),
-            new IdentifiableAttributes(BATTERY_ID_5, getIdentifiableType(), 6.0)
-        )).build();
-
-        FilterEquipments filter5 = FilterEquipments.builder().filterId(FILTER_ID_5).identifiableAttributes(List.of(
-            new IdentifiableAttributes(BATTERY_ID_2, getIdentifiableType(), 2.0),
-            new IdentifiableAttributes(BATTERY_ID_3, getIdentifiableType(), 3.0)
-        )).build();
-
-        return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3, FILTER_ID_4, filter4, FILTER_ID_5, filter5);
+    private Filter equipmentFilter(String equipmentId) {
+        return IdentifierListFilter.builder()
+                .equipmentType(EquipmentType.BATTERY)
+                .equipmentIds(Set.of(equipmentId))
+                .build();
     }
 
     @Override
