@@ -64,6 +64,11 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
 
     public abstract Map<UUID, Set<String>> getFilterMapping();
 
+    public abstract Map<UUID, Set<String>> getFilterMapping();
+
+    @Getter
+    private final FilterLoader filterLoader = TestUtils.createFilterLoader(getEquipmentType(), getFilterMapping());
+
     @BeforeEach
     void specificSetUp() {
         MockitoAnnotations.openMocks(this);
