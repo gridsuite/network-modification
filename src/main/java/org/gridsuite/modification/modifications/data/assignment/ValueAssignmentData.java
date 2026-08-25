@@ -19,7 +19,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 /**
- * @author Joris MANCINI <joris.mancini at rte-france.com>
+ * @author Joris Mancini <joris.mancini at rte-france.com>
  */
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
