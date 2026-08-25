@@ -10,7 +10,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.filter.wip.Filter;
 import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
@@ -21,9 +20,9 @@ import org.gridsuite.modification.dto.byfilter.equipmentfield.TwoWindingsTransfo
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import static org.gridsuite.modification.utils.NetworkUtil.createTwoWindingsTransformer;
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,9 +38,20 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
     private static final String TWT_ID_4 = "twt4";
     private static final String TWT_ID_5 = "twt5";
     private static final String TWT_ID_6 = "twt6";
+    private static final Map<UUID, Set<String>> FILTER_MAPPING = Map.of(
+            FILTER_ID_1, Set.of(TWT_ID_1, TWT_ID_2),
+            FILTER_ID_2, Set.of(TWT_ID_1, TWT_ID_3),
+            FILTER_ID_3, Set.of(TWT_ID_4, TWT_ID_5),
+            FILTER_ID_4, Set.of(TWT_ID_4, TWT_ID_6)
+    );
+
+    @Override
+    public Map<UUID, Set<String>> getFilterMapping() {
+        return FILTER_MAPPING;
+    }
 
     @Test
-    void testModifyTwtWithError() throws Exception {
+    void testModifyTwtWithError() {
         // Test modifying ratio tab changer field when ratio tab changer is null
         DoubleAssignmentInfos assignmentInfos = DoubleAssignmentInfos.builder()
                 .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
@@ -75,36 +85,6 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
 
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_1).getPhaseTapChanger());
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_2).getPhaseTapChanger());
-    }
-
-    @Test
-    void testModifyTwtWithWarning() {
-        IntegerAssignmentInfos assignmentInfos = IntegerAssignmentInfos.builder()
-                .filters(List.of(filter1, filter4))
-                .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
-                .value(4)
-                .build();
-
-        ModificationByAssignmentInfos modificationInfos = ModificationByAssignmentInfos.builder()
-                .equipmentType(getIdentifiableType())
-                .assignmentInfosList(List.of(assignmentInfos))
-                .stashed(false)
-                .build();
-
-        apply(
-                modificationInfos,
-                _ -> List.of(IdentifierListFilter.builder()
-                        .equipmentType(EquipmentType.TWO_WINDINGS_TRANSFORMER)
-                        .equipmentIds(Set.of(TWT_ID_1, TWT_ID_2, TWT_ID_4, TWT_ID_6))
-                        .build())
-        );
-
-        assertNotNull(getNetwork().getTwoWindingsTransformer(TWT_ID_1).getRatioTapChanger());
-        assertNotNull(getNetwork().getTwoWindingsTransformer(TWT_ID_2).getRatioTapChanger());
-        assertEquals(4, getNetwork().getTwoWindingsTransformer(TWT_ID_1).getRatioTapChanger().getTapPosition());
-        assertEquals(4, getNetwork().getTwoWindingsTransformer(TWT_ID_2).getRatioTapChanger().getTapPosition());
-        assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_4).getRatioTapChanger());
-        assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_6).getRatioTapChanger());
     }
 
     @Test
@@ -187,30 +167,6 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
                 "trf1", 49, ConnectablePosition.Direction.BOTTOM);
         twt6.setRatedS(20);
         addPhaseTapChangerSteps(twt6.newPhaseTapChanger().setRegulationValue(47).setLowTapPosition(1).setTapPosition(1).setTargetDeadband(36));
-    }
-
-    @Override
-    public List<Filter> loadFilters(List<UUID> filterUuids) {
-        return filterUuids.stream().flatMap(filterUuid -> {
-            if (filterUuid.equals(FILTER_ID_1)) {
-                return Stream.of(equipmentFilter(TWT_ID_1), equipmentFilter(TWT_ID_2));
-            } else if (filterUuid.equals(FILTER_ID_2)) {
-                return Stream.of(equipmentFilter(TWT_ID_1), equipmentFilter(TWT_ID_3));
-            } else if (filterUuid.equals(FILTER_ID_3)) {
-                return Stream.of(equipmentFilter(TWT_ID_4), equipmentFilter(TWT_ID_5));
-            } else if (filterUuid.equals(FILTER_ID_4)) {
-                return Stream.of(equipmentFilter(TWT_ID_4), equipmentFilter(TWT_ID_6));
-            } else {
-                return Stream.empty();
-            }
-        }).toList();
-    }
-
-    private Filter equipmentFilter(String equipmentId) {
-        return IdentifierListFilter.builder()
-                .equipmentType(EquipmentType.TWO_WINDINGS_TRANSFORMER)
-                .equipmentIds(Set.of(equipmentId))
-                .build();
     }
 
     @Override

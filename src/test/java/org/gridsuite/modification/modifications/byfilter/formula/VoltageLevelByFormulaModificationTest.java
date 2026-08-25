@@ -12,8 +12,6 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.filter.wip.Filter;
-import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.VoltageLevelField;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.modifications.data.assignment.Operator;
@@ -21,9 +19,9 @@ import org.gridsuite.modification.modifications.data.assignment.ReferenceFieldOr
 import org.gridsuite.modification.utils.TestUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -40,6 +38,20 @@ class VoltageLevelByFormulaModificationTest extends AbstractByFormulaModificatio
     private static final String VOLTAGE_LEVEL_ID_6 = "v6";
     private static final String VOLTAGE_LEVEL_ID_7 = "v7";
     private static final String VOLTAGE_LEVEL_ID_8 = "v8";
+    private static final Map<UUID, Set<String>> FILTER_MAPPING = Map.of(
+            FILTER_ID_1, Set.of(VOLTAGE_LEVEL_ID_1, VOLTAGE_LEVEL_ID_2),
+            FILTER_ID_2, Set.of(VOLTAGE_LEVEL_ID_3, VOLTAGE_LEVEL_ID_4),
+            FILTER_ID_3, Set.of(VOLTAGE_LEVEL_ID_5, VOLTAGE_LEVEL_ID_6),
+            FILTER_ID_4, Set.of(VOLTAGE_LEVEL_ID_2, VOLTAGE_LEVEL_ID_5),
+            FILTER_ID_5, Set.of(VOLTAGE_LEVEL_ID_4, VOLTAGE_LEVEL_ID_6),
+            FILTER_ID_6, Set.of(VOLTAGE_LEVEL_ID_7),
+            FILTER_ID_7, Set.of(VOLTAGE_LEVEL_ID_8)
+    );
+
+    @Override
+    public Map<UUID, Set<String>> getFilterMapping() {
+        return FILTER_MAPPING;
+    }
 
     @Override
     protected void createEquipments() {
@@ -78,36 +90,6 @@ class VoltageLevelByFormulaModificationTest extends AbstractByFormulaModificatio
 
         getNetwork().getSubstation("s2").newVoltageLevel().setId(VOLTAGE_LEVEL_ID_8)
             .setTopologyKind(TopologyKind.NODE_BREAKER).setNominalV(100.).add();
-    }
-
-    @Override
-    public List<Filter> loadFilters(List<UUID> filterUuids) {
-        return filterUuids.stream().flatMap(filterUuid -> {
-            if (filterUuid.equals(FILTER_ID_1)) {
-                return Stream.of(equipmentFilter(VOLTAGE_LEVEL_ID_1, VOLTAGE_LEVEL_ID_2));
-            } else if (filterUuid.equals(FILTER_ID_2)) {
-                return Stream.of(equipmentFilter(VOLTAGE_LEVEL_ID_3, VOLTAGE_LEVEL_ID_4));
-            } else if (filterUuid.equals(FILTER_ID_3)) {
-                return Stream.of(equipmentFilter(VOLTAGE_LEVEL_ID_5, VOLTAGE_LEVEL_ID_6));
-            } else if (filterUuid.equals(FILTER_ID_4)) {
-                return Stream.of(equipmentFilter(VOLTAGE_LEVEL_ID_2, VOLTAGE_LEVEL_ID_5));
-            } else if (filterUuid.equals(FILTER_ID_5)) {
-                return Stream.of(equipmentFilter(VOLTAGE_LEVEL_ID_4, VOLTAGE_LEVEL_ID_6));
-            } else if (filterUuid.equals(FILTER_ID_6)) {
-                return Stream.of(equipmentFilter(VOLTAGE_LEVEL_ID_7));
-            } else if (filterUuid.equals(FILTER_ID_7)) {
-                return Stream.of(equipmentFilter(VOLTAGE_LEVEL_ID_8));
-            } else {
-                return Stream.empty();
-            }
-        }).toList();
-    }
-
-    private Filter equipmentFilter(String... equipmentIds) {
-        return IdentifierListFilter.builder()
-                .equipmentType(EquipmentType.VOLTAGE_LEVEL)
-                .equipmentIds(Set.of(equipmentIds))
-                .build();
     }
 
     @Override

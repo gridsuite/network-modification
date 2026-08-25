@@ -11,19 +11,15 @@ import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.filter.wip.Filter;
-import org.gridsuite.filter.wip.IdentifierListFilter;
-import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.IntegerAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.ShuntCompensatorField;
-import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import static org.gridsuite.modification.utils.NetworkUtil.createShuntCompensator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,22 +34,17 @@ class ShuntCompensatorModificationByAssignmentTest extends AbstractModificationB
     private static final String SHUNT_COMPENSATOR_ID_3 = "v3shunt";
     private static final String SHUNT_COMPENSATOR_ID_4 = "v4shunt";
     private static final String SHUNT_COMPENSATOR_ID_5 = "v5shunt";
+    private static final Map<UUID, Set<String>> FILTER_MAPPING = Map.of(
+            FILTER_ID_1, Set.of(SHUNT_COMPENSATOR_ID_1),
+            FILTER_ID_2, Set.of(SHUNT_COMPENSATOR_ID_2),
+            FILTER_ID_3, Set.of(SHUNT_COMPENSATOR_ID_3),
+            FILTER_ID_4, Set.of(SHUNT_COMPENSATOR_ID_4),
+            FILTER_ID_5, Set.of(SHUNT_COMPENSATOR_ID_5)
+    );
 
-    @Test
-    void testCreateWithWarning() {
-        IntegerAssignmentInfos assignmentInfos = IntegerAssignmentInfos.builder()
-                .editedField(ShuntCompensatorField.MAXIMUM_SECTION_COUNT.name())
-                .value(2)
-                .filters(List.of(filterWithOneWrongId))
-                .build();
-
-        ModificationByAssignmentInfos modificationInfos = ModificationByAssignmentInfos.builder()
-                .equipmentType(getIdentifiableType())
-                .assignmentInfosList(List.of(assignmentInfos))
-                .stashed(false)
-                .build();
-        apply(modificationInfos, _ -> List.of(equipmentFilter(SHUNT_COMPENSATOR_ID_1)));
-        assertEquals(2, getNetwork().getShuntCompensator(SHUNT_COMPENSATOR_ID_1).getMaximumSectionCount(), 0);
+    @Override
+    public Map<UUID, Set<String>> getFilterMapping() {
+        return FILTER_MAPPING;
     }
 
     @Override
@@ -61,32 +52,6 @@ class ShuntCompensatorModificationByAssignmentTest extends AbstractModificationB
         createShuntCompensator(getNetwork().getVoltageLevel("v1"), SHUNT_COMPENSATOR_ID_1, "v1shunt", 8, 225., 10, true, 4, 2, 3, 2, "cn11", 22, ConnectablePosition.Direction.BOTTOM);
         createShuntCompensator(getNetwork().getVoltageLevel("v3"), SHUNT_COMPENSATOR_ID_3, "v3shunt", 10, 305., 20, true, 6, 3, 3, 4, "cn11", 22, ConnectablePosition.Direction.BOTTOM);
         createShuntCompensator(getNetwork().getVoltageLevel("v4"), SHUNT_COMPENSATOR_ID_4, "v3shunt", 10, 305., 20, true, 15, 4, 3, 10, "cn11", 22, ConnectablePosition.Direction.BOTTOM);
-    }
-
-    @Override
-    public List<Filter> loadFilters(List<UUID> filterUuids) {
-        return filterUuids.stream().flatMap(filterUuid -> {
-            if (filterUuid.equals(FILTER_ID_1)) {
-                return Stream.of(equipmentFilter(SHUNT_COMPENSATOR_ID_1));
-            } else if (filterUuid.equals(FILTER_ID_2)) {
-                return Stream.of(equipmentFilter(SHUNT_COMPENSATOR_ID_2));
-            } else if (filterUuid.equals(FILTER_ID_3)) {
-                return Stream.of(equipmentFilter(SHUNT_COMPENSATOR_ID_3));
-            } else if (filterUuid.equals(FILTER_ID_4)) {
-                return Stream.of(equipmentFilter(SHUNT_COMPENSATOR_ID_4));
-            } else if (filterUuid.equals(FILTER_ID_5)) {
-                return Stream.of(equipmentFilter(SHUNT_COMPENSATOR_ID_5));
-            } else {
-                return Stream.empty();
-            }
-        }).toList();
-    }
-
-    private Filter equipmentFilter(String equipmentId) {
-        return IdentifierListFilter.builder()
-                .equipmentType(EquipmentType.SHUNT_COMPENSATOR)
-                .equipmentIds(Set.of(equipmentId))
-                .build();
     }
 
     @Override

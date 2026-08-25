@@ -15,6 +15,10 @@ import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import org.apache.commons.text.StringSubstitutor;
+import org.gridsuite.filter.utils.EquipmentType;
+import org.gridsuite.filter.wip.Filter;
+import org.gridsuite.filter.wip.FilterLoader;
+import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.junit.jupiter.api.Assertions;
 import org.junit.platform.commons.util.StringUtils;
@@ -191,6 +195,21 @@ public final class TestUtils {
                 .replace("\r", "\n");
     }
 
+    public static FilterLoader createFilterLoader(EquipmentType equipmentType, Map<UUID, Set<String>> filtersMapping) {
+        return filterUuids -> filterUuids.stream()
+                .map(filtersMapping::get)
+                .filter(Objects::nonNull)
+                .map(equipmentIds -> equipmentFilter(equipmentType, equipmentIds))
+                .toList();
+    }
+
+    private static Filter equipmentFilter(EquipmentType equipmentType, Set<String> equipmentsIds) {
+        return IdentifierListFilter.builder()
+                .equipmentType(equipmentType)
+                .equipmentIds(equipmentsIds)
+                .build();
+    }
+
     public static List<String> getAllMessages(ReportNode reportNode) {
         List<String> messages = new ArrayList<>();
         getAllMessagesRecursively(reportNode, messages);
@@ -199,9 +218,6 @@ public final class TestUtils {
 
     private static void getAllMessagesRecursively(ReportNode reportNode, List<String> messages) {
         messages.add(reportNode.getMessage());
-        if (reportNode.getChildren().isEmpty()) {
-            return;
-        }
         reportNode.getChildren().forEach(child -> getAllMessagesRecursively(child, messages));
     }
 }
