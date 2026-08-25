@@ -14,6 +14,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.filter.report.FilterReportResourceBundle;
 import org.gridsuite.filter.wip.Filter;
+import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -77,8 +78,15 @@ public abstract class AbstractNetworkModificationTest {
         // Nothing to init by default
     }
 
-    public List<Filter> loadFilters(List<UUID> filterUuids) {
+    public final List<Filter> loadFilters(List<UUID> filterUuids) {
+        if (getFilterLoader() != null) {
+            return getFilterLoader().getNewFilters(filterUuids);
+        }
         return List.of();
+    }
+
+    public FilterLoader getFilterLoader() {
+        return null;
     }
 
     @Test

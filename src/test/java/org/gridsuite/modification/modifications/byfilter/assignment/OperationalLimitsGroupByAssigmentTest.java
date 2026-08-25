@@ -11,15 +11,12 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.filter.wip.Filter;
-import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.PropertyAssignmentInfos;
 import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.Assertions;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES;
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField.OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES;
@@ -35,6 +32,16 @@ public class OperationalLimitsGroupByAssigmentTest extends AbstractModificationB
     private static final String LINE_ID_3 = "line_3";
     private static final String LINE_ID_4 = "line_4";
     private static final String LINE_ID_5 = "line_5";
+    private static final Map<UUID, Set<String>> FILTER_MAPPING = Map.of(
+            FILTER_ID_1, Set.of(LINE_ID_1, LINE_ID_2),
+            FILTER_ID_2, Set.of(LINE_ID_3),
+            FILTER_ID_3, Set.of(LINE_ID_4, LINE_ID_5)
+    );
+
+    @Override
+    public Map<UUID, Set<String>> getFilterMapping() {
+        return FILTER_MAPPING;
+    }
 
     @Override
     protected void createEquipments() {
@@ -63,28 +70,6 @@ public class OperationalLimitsGroupByAssigmentTest extends AbstractModificationB
                 "line_3", 45, ConnectablePosition.Direction.TOP,
                 "line_3", 58, ConnectablePosition.Direction.BOTTOM);
         addLimitsWithoutProperties(getNetwork().getLine(LINE_ID_5));
-    }
-
-    @Override
-    public List<Filter> loadFilters(List<UUID> filterUuids) {
-        return filterUuids.stream().flatMap(filterUuid -> {
-            if (filterUuid.equals(FILTER_ID_1)) {
-                return Stream.of(equipmentFilter(LINE_ID_1), equipmentFilter(LINE_ID_2));
-            } else if (filterUuid.equals(FILTER_ID_2)) {
-                return Stream.of(equipmentFilter(LINE_ID_3));
-            } else if (filterUuid.equals(FILTER_ID_3)) {
-                return Stream.of(equipmentFilter(LINE_ID_4), equipmentFilter(LINE_ID_5));
-            } else {
-                return Stream.empty();
-            }
-        }).toList();
-    }
-
-    private Filter equipmentFilter(String equipmentId) {
-        return IdentifierListFilter.builder()
-                .equipmentType(EquipmentType.LINE)
-                .equipmentIds(Set.of(equipmentId))
-                .build();
     }
 
     @Override

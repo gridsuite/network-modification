@@ -9,6 +9,7 @@ package org.gridsuite.modification.modifications.byfilter.formula;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
+import lombok.Getter;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.modification.dto.ByFormulaModificationInfos;
@@ -21,12 +22,15 @@ import org.gridsuite.modification.modifications.data.assignment.Operator;
 import org.gridsuite.modification.modifications.data.assignment.ReferenceFieldOrValue;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
+import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -55,6 +59,11 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test")
             .build();
+
+    public abstract Map<UUID, Set<String>> getFilterMapping();
+
+    @Getter
+    private final FilterLoader filterLoader = TestUtils.createFilterLoader(getEquipmentType(), getFilterMapping());
 
     @BeforeEach
     void specificSetUp() {

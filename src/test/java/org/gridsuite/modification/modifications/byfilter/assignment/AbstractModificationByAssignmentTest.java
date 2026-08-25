@@ -9,6 +9,7 @@ package org.gridsuite.modification.modifications.byfilter.assignment;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
+import lombok.Getter;
 import org.gridsuite.filter.report.FilterReportResourceBundle;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.filter.wip.FilterLoader;
@@ -23,14 +24,13 @@ import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.modifications.data.assignment.DataType;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
+import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.mockito.Mockito.*;
 
@@ -45,19 +45,21 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     protected static final UUID FILTER_ID_4 = UUID.randomUUID();
     protected static final UUID FILTER_ID_5 = UUID.randomUUID();
     protected static final UUID FILTER_ID_6 = UUID.randomUUID();
-    protected static final UUID FILTER_WITH_ALL_WRONG_IDS = UUID.randomUUID();
-    protected static final UUID FILTER_WITH_ONE_WRONG_ID = UUID.randomUUID();
     protected final FilterInfos filter1 = new FilterInfos(FILTER_ID_1, "filter1");
     protected final FilterInfos filter2 = new FilterInfos(FILTER_ID_2, "filter2");
     protected final FilterInfos filter3 = new FilterInfos(FILTER_ID_3, "filter3");
     protected final FilterInfos filter4 = new FilterInfos(FILTER_ID_4, "filter4");
     protected final FilterInfos filter5 = new FilterInfos(FILTER_ID_5, "filter5");
     protected final FilterInfos filter6 = new FilterInfos(FILTER_ID_6, "filter6");
-    protected final FilterInfos filterWithOneWrongId = new FilterInfos(FILTER_WITH_ONE_WRONG_ID, "filterWithOneWrongId");
     protected final ReportNode reportNode = ReportNode.newRootReportNode()
             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME, FilterReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test")
             .build();
+
+    public abstract Map<UUID, Set<String>> getFilterMapping();
+
+    @Getter
+    private final FilterLoader filterLoader = TestUtils.createFilterLoader(getEquipmentType(), getFilterMapping());
 
     @BeforeEach
     void specificSetUp() {

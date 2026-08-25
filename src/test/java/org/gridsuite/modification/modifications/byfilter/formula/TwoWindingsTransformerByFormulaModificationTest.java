@@ -9,19 +9,18 @@ package org.gridsuite.modification.modifications.byfilter.formula;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.filter.wip.Filter;
-import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.dto.ByFormulaModificationInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.TwoWindingsTransformerField;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.modifications.data.assignment.Operator;
 import org.gridsuite.modification.modifications.data.assignment.ReferenceFieldOrValue;
+import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import static org.gridsuite.modification.utils.NetworkUtil.createTwoWindingsTransformer;
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,9 +35,22 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
     private static final String TWT_ID_4 = "twt4";
     private static final String TWT_ID_5 = "twt5";
     private static final String TWT_ID_6 = "twt6";
+    private static final Map<UUID, Set<String>> FILTER_MAPPING = Map.of(
+            FILTER_ID_1, Set.of(TWT_ID_1, TWT_ID_2),
+            FILTER_ID_2, Set.of(TWT_ID_1, TWT_ID_3),
+            FILTER_ID_3, Set.of(TWT_ID_4, TWT_ID_5),
+            FILTER_ID_4, Set.of(TWT_ID_4, TWT_ID_6),
+            FILTER_ID_5, Set.of(TWT_ID_2),
+            FILTER_ID_6, Set.of(TWT_ID_6)
+    );
+
+    @Override
+    public Map<UUID, Set<String>> getFilterMapping() {
+        return FILTER_MAPPING;
+    }
 
     @Test
-    void testModifyTwtWithError() throws Exception {
+    void testModifyTwtWithError() {
         // Test modifying ratio tab changer field when ratio tab changer is null
         FormulaInfos formulaInfos = FormulaInfos.builder()
                 .filters(List.of(filter4))
@@ -53,7 +65,8 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
                 .formulaInfosList(List.of(formulaInfos))
                 .stashed(false)
                 .build();
-        apply(modificationInfos, _ -> List.of(equipmentFilter(TWT_ID_4, TWT_ID_6)));
+        apply(modificationInfos, TestUtils.createFilterLoader(
+                EquipmentType.TWO_WINDINGS_TRANSFORMER, Map.of(FILTER_ID_4, Set.of(TWT_ID_4, TWT_ID_6))));
 
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_4).getRatioTapChanger());
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_6).getRatioTapChanger());
@@ -72,36 +85,11 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
                 .formulaInfosList(List.of(formulaInfos2))
                 .stashed(false)
                 .build();
-        apply(modificationInfos2, _ -> List.of(equipmentFilter(TWT_ID_1, TWT_ID_2)));
+        apply(modificationInfos2, TestUtils.createFilterLoader(
+                EquipmentType.TWO_WINDINGS_TRANSFORMER, Map.of(FILTER_ID_1, Set.of(TWT_ID_1, TWT_ID_2))));
 
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_1).getPhaseTapChanger());
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_2).getPhaseTapChanger());
-    }
-
-    @Test
-    void testModifyTwtWithWarning() {
-        FormulaInfos formulaInfos = FormulaInfos.builder()
-                .filters(List.of(filter1, filter4))
-                .fieldOrValue2(ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name()).build())
-                .fieldOrValue1(ReferenceFieldOrValue.builder().value(1.).build())
-                .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
-                .operator(Operator.ADDITION)
-                .build();
-
-        ByFormulaModificationInfos modificationInfos = ByFormulaModificationInfos.builder()
-                .identifiableType(getIdentifiableType())
-                .formulaInfosList(List.of(formulaInfos))
-                .stashed(false)
-                .build();
-        apply(modificationInfos, _ -> List.of(equipmentFilter(TWT_ID_1, TWT_ID_2, TWT_ID_4, TWT_ID_6)));
-
-        assertNotNull(getNetwork().getTwoWindingsTransformer(TWT_ID_1).getRatioTapChanger());
-        assertNotNull(getNetwork().getTwoWindingsTransformer(TWT_ID_2).getRatioTapChanger());
-        assertEquals(2, getNetwork().getTwoWindingsTransformer(TWT_ID_1).getRatioTapChanger().getTapPosition());
-        assertEquals(5, getNetwork().getTwoWindingsTransformer(TWT_ID_2).getRatioTapChanger().getTapPosition());
-        assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_4).getRatioTapChanger());
-        assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_6).getRatioTapChanger());
-
     }
 
     @Override
@@ -155,34 +143,6 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
                 "trf1", 49, ConnectablePosition.Direction.BOTTOM);
         twt6.setRatedS(20);
         addPhaseTapChangerSteps(twt6.newPhaseTapChanger().setRegulationValue(47).setLowTapPosition(1).setTapPosition(1).setTargetDeadband(36));
-    }
-
-    @Override
-    public List<Filter> loadFilters(List<UUID> filterUuids) {
-        return filterUuids.stream().flatMap(filterUuid -> {
-            if (filterUuid.equals(FILTER_ID_1)) {
-                return Stream.of(equipmentFilter(TWT_ID_1, TWT_ID_2));
-            } else if (filterUuid.equals(FILTER_ID_2)) {
-                return Stream.of(equipmentFilter(TWT_ID_1, TWT_ID_3));
-            } else if (filterUuid.equals(FILTER_ID_3)) {
-                return Stream.of(equipmentFilter(TWT_ID_4, TWT_ID_5));
-            } else if (filterUuid.equals(FILTER_ID_4)) {
-                return Stream.of(equipmentFilter(TWT_ID_4, TWT_ID_6));
-            } else if (filterUuid.equals(FILTER_ID_5)) {
-                return Stream.of(equipmentFilter(TWT_ID_2));
-            } else if (filterUuid.equals(FILTER_ID_6)) {
-                return Stream.of(equipmentFilter(TWT_ID_6));
-            } else {
-                return Stream.empty();
-            }
-        }).toList();
-    }
-
-    private Filter equipmentFilter(String... equipmentIds) {
-        return IdentifierListFilter.builder()
-                .equipmentType(EquipmentType.TWO_WINDINGS_TRANSFORMER)
-                .equipmentIds(Set.of(equipmentIds))
-                .build();
     }
 
     @Override

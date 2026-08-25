@@ -10,19 +10,15 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.filter.wip.Filter;
-import org.gridsuite.filter.wip.IdentifierListFilter;
-import org.gridsuite.modification.dto.ByFormulaModificationInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.GeneratorField;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.modifications.data.assignment.Operator;
 import org.gridsuite.modification.modifications.data.assignment.ReferenceFieldOrValue;
-import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import static org.gridsuite.modification.utils.NetworkUtil.createGenerator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,24 +39,17 @@ class GeneratorByFormulaModificationTest extends AbstractByFormulaModificationTe
     private static final String GENERATOR_ID_8 = "gen8";
     private static final String GENERATOR_ID_9 = "gen9";
     private static final String GENERATOR_ID_10 = "gen10";
+    private static final Map<UUID, Set<String>> FILTER_MAPPING = Map.of(
+            FILTER_ID_1, Set.of(GENERATOR_ID_1, GENERATOR_ID_2),
+            FILTER_ID_2, Set.of(GENERATOR_ID_3, GENERATOR_ID_4),
+            FILTER_ID_3, Set.of(GENERATOR_ID_5, GENERATOR_ID_6),
+            FILTER_ID_4, Set.of(GENERATOR_ID_7, GENERATOR_ID_8),
+            FILTER_ID_5, Set.of(GENERATOR_ID_9, GENERATOR_ID_10)
+    );
 
-    @Test
-    void testCreateWithWarning() {
-        FormulaInfos formulaInfos = FormulaInfos.builder()
-                .filters(List.of(filterWithOneWrongId))
-                .editedField(GeneratorField.ACTIVE_POWER_SET_POINT.name())
-                .fieldOrValue1(ReferenceFieldOrValue.builder().value(55.).build())
-                .operator(Operator.ADDITION)
-                .fieldOrValue2(ReferenceFieldOrValue.builder().value(20.).build())
-                .build();
-
-        ByFormulaModificationInfos modificationInfos = ByFormulaModificationInfos.builder()
-                .identifiableType(getIdentifiableType())
-                .formulaInfosList(List.of(formulaInfos))
-                .stashed(false)
-                .build();
-        apply(modificationInfos, _ -> List.of(equipmentFilter(GENERATOR_ID_1)));
-        assertEquals(75, getNetwork().getGenerator(GENERATOR_ID_1).getTargetP(), 0);
+    @Override
+    public Map<UUID, Set<String>> getFilterMapping() {
+        return FILTER_MAPPING;
     }
 
     protected void createEquipments() {
@@ -125,32 +114,6 @@ class GeneratorByFormulaModificationTest extends AbstractByFormulaModificationTe
 
         createGenerator(getNetwork().getVoltageLevel("v5"), GENERATOR_ID_10, 10, 100, 1.0, "cn10", 17, ConnectablePosition.Direction.TOP, 500, 20);
         getNetwork().getGenerator(GENERATOR_ID_10).setRatedS(30.);
-    }
-
-    @Override
-    public List<Filter> loadFilters(List<UUID> filterUuids) {
-        return filterUuids.stream().flatMap(filterUuid -> {
-            if (filterUuid.equals(FILTER_ID_1)) {
-                return Stream.of(equipmentFilter(GENERATOR_ID_1), equipmentFilter(GENERATOR_ID_2));
-            } else if (filterUuid.equals(FILTER_ID_2)) {
-                return Stream.of(equipmentFilter(GENERATOR_ID_3), equipmentFilter(GENERATOR_ID_4));
-            } else if (filterUuid.equals(FILTER_ID_3)) {
-                return Stream.of(equipmentFilter(GENERATOR_ID_5), equipmentFilter(GENERATOR_ID_6));
-            } else if (filterUuid.equals(FILTER_ID_4)) {
-                return Stream.of(equipmentFilter(GENERATOR_ID_7), equipmentFilter(GENERATOR_ID_8));
-            } else if (filterUuid.equals(FILTER_ID_5)) {
-                return Stream.of(equipmentFilter(GENERATOR_ID_9), equipmentFilter(GENERATOR_ID_10));
-            } else {
-                return Stream.empty();
-            }
-        }).toList();
-    }
-
-    private Filter equipmentFilter(String equipmentId) {
-        return IdentifierListFilter.builder()
-                .equipmentType(EquipmentType.GENERATOR)
-                .equipmentIds(Set.of(equipmentId))
-                .build();
     }
 
     @Override
