@@ -10,20 +10,16 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.filter.wip.Filter;
-import org.gridsuite.filter.wip.IdentifierListFilter;
-import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.IntegerAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.StringAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.LineField;
-import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import static org.gridsuite.modification.utils.NetworkUtil.createLineWithLimits;
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,25 +34,16 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
     private static final String LINE_ID_4 = "line_4";
     private static final String LINE_ID_5 = "line_5";
     private static final String LINE_ID_6 = "line_6";
+    private static final Map<UUID, Set<String>> FILTER_MAPPING = Map.of(
+            FILTER_ID_1, Set.of(LINE_ID_1, LINE_ID_2),
+            FILTER_ID_2, Set.of(LINE_ID_1, LINE_ID_3),
+            FILTER_ID_3, Set.of(LINE_ID_4, LINE_ID_5),
+            FILTER_ID_4, Set.of(LINE_ID_4, LINE_ID_6)
+    );
 
-    @Test
-    void testModifyLineWithWarning() {
-        IntegerAssignmentInfos assignmentInfos = IntegerAssignmentInfos.builder()
-                .filters(List.of(filter1, filter4))
-                .editedField(LineField.R.name())
-                .value(4)
-                .build();
-
-        ModificationByAssignmentInfos modificationInfos = ModificationByAssignmentInfos.builder()
-                .equipmentType(getIdentifiableType())
-                .assignmentInfosList(List.of(assignmentInfos))
-                .stashed(false)
-                .build();
-
-        apply(modificationInfos, _ -> List.of(IdentifierListFilter.builder().equipmentType(EquipmentType.LINE).equipmentIds(Set.of(LINE_ID_1, LINE_ID_2, LINE_ID_4, LINE_ID_6)).build()));
-
-        assertEquals(4, getNetwork().getLine(LINE_ID_1).getR());
-        assertEquals(4, getNetwork().getLine(LINE_ID_2).getR());
+    @Override
+    public Map<UUID, Set<String>> getFilterMapping() {
+        return FILTER_MAPPING;
     }
 
     @Override
@@ -90,30 +77,6 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
             3, 5, 1, 0.002, 0.0025,
             "line_6", 13, ConnectablePosition.Direction.TOP,
             "line_6", 23, ConnectablePosition.Direction.BOTTOM);
-    }
-
-    @Override
-    public List<Filter> loadFilters(List<UUID> filterUuids) {
-        return filterUuids.stream().flatMap(filterUuid -> {
-            if (filterUuid.equals(FILTER_ID_1)) {
-                return Stream.of(equipmentFilter(LINE_ID_1), equipmentFilter(LINE_ID_2));
-            } else if (filterUuid.equals(FILTER_ID_2)) {
-                return Stream.of(equipmentFilter(LINE_ID_1), equipmentFilter(LINE_ID_3));
-            } else if (filterUuid.equals(FILTER_ID_3)) {
-                return Stream.of(equipmentFilter(LINE_ID_4), equipmentFilter(LINE_ID_5));
-            } else if (filterUuid.equals(FILTER_ID_4)) {
-                return Stream.of(equipmentFilter(LINE_ID_4), equipmentFilter(LINE_ID_6));
-            } else {
-                return Stream.empty();
-            }
-        }).toList();
-    }
-
-    private Filter equipmentFilter(String equipmentId) {
-        return IdentifierListFilter.builder()
-                .equipmentType(EquipmentType.LINE)
-                .equipmentIds(Set.of(equipmentId))
-                .build();
     }
 
     @Override

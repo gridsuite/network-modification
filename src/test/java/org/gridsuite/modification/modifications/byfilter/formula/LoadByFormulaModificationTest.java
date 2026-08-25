@@ -8,17 +8,15 @@ package org.gridsuite.modification.modifications.byfilter.formula;
 
 import com.powsybl.iidm.network.IdentifiableType;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.filter.wip.Filter;
-import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.LoadField;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.modifications.data.assignment.Operator;
 import org.gridsuite.modification.modifications.data.assignment.ReferenceFieldOrValue;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import static org.gridsuite.modification.utils.NetworkUtil.createLoad;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,6 +30,15 @@ class LoadByFormulaModificationTest extends AbstractByFormulaModificationTest {
     private static final String LOAD_ID_2 = "load2";
     private static final String LOAD_ID_3 = "load3";
     private static final String LOAD_ID_4 = "load4";
+    private static final Map<UUID, Set<String>> FILTER_MAPPING = Map.of(
+            FILTER_ID_1, Set.of(LOAD_ID_1, LOAD_ID_2),
+            FILTER_ID_2, Set.of(LOAD_ID_3, LOAD_ID_4)
+    );
+
+    @Override
+    public Map<UUID, Set<String>> getFilterMapping() {
+        return FILTER_MAPPING;
+    }
 
     @Override
     protected void createEquipments() {
@@ -39,26 +46,6 @@ class LoadByFormulaModificationTest extends AbstractByFormulaModificationTest {
         createLoad(getNetwork().getVoltageLevel("v2"), LOAD_ID_2, "load2", 200, 80, 90, null, 5, null);
         createLoad(getNetwork().getVoltageLevel("v3"), LOAD_ID_3, "load3", 300, 100, 70, null, 5, null);
         createLoad(getNetwork().getVoltageLevel("v4"), LOAD_ID_4, "load4", 400, 50, 150, null, 5, null);
-    }
-
-    @Override
-    public List<Filter> loadFilters(List<UUID> filterUuids) {
-        return filterUuids.stream().flatMap(filterUuid -> {
-            if (filterUuid.equals(FILTER_ID_1)) {
-                return Stream.of(equipmentFilter(LOAD_ID_1), equipmentFilter(LOAD_ID_2));
-            } else if (filterUuid.equals(FILTER_ID_2)) {
-                return Stream.of(equipmentFilter(LOAD_ID_3), equipmentFilter(LOAD_ID_4));
-            } else {
-                return Stream.empty();
-            }
-        }).toList();
-    }
-
-    private Filter equipmentFilter(String equipmentId) {
-        return IdentifierListFilter.builder()
-                .equipmentType(EquipmentType.LOAD)
-                .equipmentIds(Set.of(equipmentId))
-                .build();
     }
 
     @Override
