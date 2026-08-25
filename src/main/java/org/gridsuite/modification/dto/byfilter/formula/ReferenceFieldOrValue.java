@@ -17,12 +17,12 @@ import static org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils.
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
  */
-
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
+@Builder
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 public class ReferenceFieldOrValue {
     private String equipmentField;
 

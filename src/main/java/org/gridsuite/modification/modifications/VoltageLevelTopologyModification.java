@@ -27,6 +27,8 @@ import static org.gridsuite.modification.error.NetworkModificationExceptionType.
 
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class VoltageLevelTopologyModification extends AbstractEquipmentBase {
 
     private List<EquipmentAttributeModification> equipmentAttributeModificationList;

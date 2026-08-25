@@ -7,10 +7,7 @@
 package org.gridsuite.modification.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ReactiveVariationMode;
 import org.gridsuite.modification.VariationMode;
@@ -20,11 +17,12 @@ import java.util.UUID;
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
  */
-@SuperBuilder
-@NoArgsConstructor
 @Getter
 @Setter
 @ToString
+@SuperBuilder
+@EqualsAndHashCode
+@NoArgsConstructor
 @Schema(description = "Scaling creation")
 public class ScalingVariationInfos {
     @Schema(description = "id")

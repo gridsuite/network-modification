@@ -8,21 +8,18 @@
 package org.gridsuite.modification.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 /**
  * @author Seddik Yengui <seddik.yengui at rte-france.com>
  */
-
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
+@SuperBuilder
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "Reactive capability curve points")
 public class ReactiveCapabilityCurvePointsInfos {
     @Schema(description = "Minimum reactive power ")

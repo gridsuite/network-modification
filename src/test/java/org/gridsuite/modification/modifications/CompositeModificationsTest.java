@@ -79,7 +79,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         assertDoesNotThrow(() -> netmodContainingError.apply(network, report));
         // but the thrown message is inside the report :
         assertLogMessageWithoutRank(
-                "Cannot execute GeneratorCreation : " + GENERATOR_ALREADY_EXISTS.getMessage() + " : idGenerator",
+                "Cannot execute GENERATOR_CREATION : " + GENERATOR_ALREADY_EXISTS.getMessage() + " : idGenerator",
                 "network.modification.composite.exception.report",
                 report
         );

@@ -11,6 +11,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
 import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.AbstractEquipmentDeletionInfos;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.HvdcLccDeletionInfos;
@@ -28,6 +29,8 @@ import static org.gridsuite.modification.error.NetworkModificationExceptionType.
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EquipmentDeletion extends AbstractEquipmentBase {
 
     private IdentifiableType equipmentType;
@@ -75,7 +78,7 @@ public class EquipmentDeletion extends AbstractEquipmentBase {
 
     @Override
     public String getName() {
-        return "EquipmentDeletion";
+        return ModificationType.EQUIPMENT_DELETION.name();
     }
 
     private void removeHvdcLine(Network network, ReportNode subReportNode) {

@@ -21,10 +21,10 @@ import java.util.List;
 /**
  * @author David Braquart <david.braquart_externe at rte-france.com>
  */
+@Data
 @SuperBuilder
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@Data
 @Schema(description = "Tabular abstract modification")
 public class TabularBaseInfos extends ModificationInfos {
 

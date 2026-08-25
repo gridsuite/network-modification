@@ -13,9 +13,8 @@ import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.VariationType;
 import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.dto.ScalingVariationInfos;
@@ -33,6 +32,8 @@ import static org.gridsuite.modification.error.NetworkModificationExceptionType.
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GeneratorScaling extends AbstractScaling {
 
     @Builder
@@ -196,6 +197,6 @@ public class GeneratorScaling extends AbstractScaling {
 
     @Override
     public String getName() {
-        return "GeneratorScaling";
+        return ModificationType.GENERATOR_SCALING.name();
     }
 }

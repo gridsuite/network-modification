@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import lombok.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.filter.utils.expertfilter.RatioRegulationModeType;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -34,6 +35,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TwoWindingsTransformerCreation extends AbstractBranchCreation {
 
     private double g;
@@ -112,7 +115,7 @@ public class TwoWindingsTransformerCreation extends AbstractBranchCreation {
 
     @Override
     public String getName() {
-        return "TwoWindingsTransformerCreation";
+        return ModificationType.TWO_WINDINGS_TRANSFORMER_CREATION.name();
     }
 
     private void create2WTInNodeBreaker(Network network, VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, ReportNode subReportNode) {

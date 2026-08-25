@@ -6,12 +6,12 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
@@ -35,11 +35,15 @@ import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
  */
 @Setter
 @Getter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractScaling extends AbstractModification {
     protected List<ScalingVariationInfos> variations;
     protected VariationType variationType;
     protected NetworkModificationExceptionType exceptionType;
 
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     protected IFilterService filterService;
 
     protected AbstractScaling(List<ScalingVariationInfos> variations, VariationType variationType, NetworkModificationExceptionType exceptionType) {

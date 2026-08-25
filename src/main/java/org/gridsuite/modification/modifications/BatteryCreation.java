@@ -13,9 +13,8 @@ import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
 import org.gridsuite.modification.dto.ReactiveLimitsHolderInfos;
@@ -36,6 +35,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
  */
 @Setter
 @Getter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BatteryCreation extends AbstractInjectionCreation implements ReactiveLimitsHolderInfos {
 
     private double minP;
@@ -145,7 +146,7 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
 
     @Override
     public String getName() {
-        return "BatteryCreation";
+        return ModificationType.BATTERY_CREATION.name();
     }
 
     private void createBatteryInNodeBreaker(VoltageLevel voltageLevel, Network network, ReportNode subReportNode) {

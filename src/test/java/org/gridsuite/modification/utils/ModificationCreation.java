@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.dto.*;
 
+import java.time.Instant;
 import java.util.Arrays;
 
 /**
@@ -28,6 +29,7 @@ public final class ModificationCreation {
     public static VoltageLevelCreationInfos getCreationVoltageLevel(String substationId, String voltageLevelId, String voltageLevelName) {
         return VoltageLevelCreationInfos.builder()
             .stashed(false)
+            .date(Instant.now())
             .activated(true)
             .equipmentId(voltageLevelId)
             .equipmentName(voltageLevelName)
@@ -46,6 +48,7 @@ public final class ModificationCreation {
     public static BatteryCreationInfos getCreationBattery(String vlId, String batteryId, String batteryName, String busOrBusbarSectionId) {
         return BatteryCreationInfos.builder()
                 .stashed(false)
+                .date(Instant.now())
                 .activated(true)
                 .equipmentId(batteryId)
                 .equipmentName(batteryName)
@@ -71,6 +74,7 @@ public final class ModificationCreation {
                                                               String regulatingTerminalId, String regulatingTerminalType, String regulatingTerminalVlId) {
         return GeneratorCreationInfos.builder()
             .stashed(false)
+            .date(Instant.now())
             .activated(true)
             .equipmentId(generatorId)
             .equipmentName(generatorName)
@@ -105,6 +109,7 @@ public final class ModificationCreation {
     public static GeneratorModificationInfos getModificationGenerator(String generatorId, String generatorName) {
         GeneratorModificationInfos.GeneratorModificationInfosBuilder builder = GeneratorModificationInfos.builder()
                 .stashed(false)
+                .date(Instant.now())
                 .activated(true)
                 .equipmentId(generatorId);
 
@@ -118,6 +123,7 @@ public final class ModificationCreation {
     public static LoadCreationInfos getCreationLoad(String vlId, String loadId, String loadName, String busOrBusBarSectionId, LoadType loadType) {
         return LoadCreationInfos.builder()
             .stashed(false)
+            .date(Instant.now())
             .activated(true)
             .equipmentId(loadId)
             .equipmentName(loadName)
@@ -134,6 +140,7 @@ public final class ModificationCreation {
     public static LoadModificationInfos getModificationLoad(String loadId, String vlId, String loadName, String busOrBusbarSectionId, LoadType loadType, Long activePower, Long reactivePower) {
         LoadModificationInfos.LoadModificationInfosBuilder builder = LoadModificationInfos.builder()
             .stashed(false)
+            .date(Instant.now())
             .activated(true)
             .equipmentId(loadId);
 
@@ -167,6 +174,7 @@ public final class ModificationCreation {
     public static VoltageLevelModificationInfos getModificationVoltageLevel(String vlId, String vlName) {
         VoltageLevelModificationInfos.VoltageLevelModificationInfosBuilder builder = VoltageLevelModificationInfos.builder()
             .stashed(false)
+            .date(Instant.now())
             .activated(true)
             .equipmentId(vlId);
 

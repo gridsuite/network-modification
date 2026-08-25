@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuitAdder;
 import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
 import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
@@ -35,6 +36,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
  */
 @Setter
 @Getter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GeneratorCreation extends AbstractInjectionCreation implements ReactiveLimitsHolderInfos {
 
     private EnergySource energySource;
@@ -153,7 +156,7 @@ public class GeneratorCreation extends AbstractInjectionCreation implements Reac
 
     @Override
     public String getName() {
-        return "GeneratorCreation";
+        return ModificationType.GENERATOR_CREATION.name();
     }
 
     private void createGeneratorInNodeBreaker(VoltageLevel voltageLevel, Network network, ReportNode subReportNode) {

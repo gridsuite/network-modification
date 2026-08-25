@@ -13,9 +13,8 @@ import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.error.NetworkModificationException;
@@ -31,6 +30,8 @@ import static org.gridsuite.modification.error.NetworkModificationExceptionType.
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LoadModification extends AbstractInjectionModification {
 
     private AttributeModification<LoadType> loadType;
@@ -79,7 +80,7 @@ public class LoadModification extends AbstractInjectionModification {
 
     @Override
     public String getName() {
-        return "LoadModification";
+        return ModificationType.LOAD_MODIFICATION.name();
     }
 
     private void modifyLoad(Load load, ReportNode subReportNode) {

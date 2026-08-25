@@ -11,9 +11,8 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.OperationalLimitsGroupModificationInfos;
@@ -34,6 +33,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LineModification extends AbstractBranchModification {
 
     private static final String MAGNETIZING_SUSCEPTANCE_MESSAGE = "Magnetizing susceptance";
@@ -120,7 +121,7 @@ public class LineModification extends AbstractBranchModification {
 
     @Override
     public String getName() {
-        return "LineModification";
+        return ModificationType.LINE_MODIFICATION.name();
     }
 
     private void modifyLine(Line line, ReportNode subReportNode) {

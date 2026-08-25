@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.error.NetworkModificationException;
@@ -27,6 +28,8 @@ import static org.gridsuite.modification.error.NetworkModificationExceptionType.
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SubstationModification extends AbstractEquipmentModification {
 
     private AttributeModification<Country> country;
@@ -66,6 +69,6 @@ public class SubstationModification extends AbstractEquipmentModification {
 
     @Override
     public String getName() {
-        return "SubstationModification";
+        return ModificationType.SUBSTATION_MODIFICATION.name();
     }
 }

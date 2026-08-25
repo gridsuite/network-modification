@@ -7,12 +7,14 @@
 
 package org.gridsuite.modification.modifications.byfilter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
+import lombok.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.modification.IFilterService;
@@ -41,6 +43,10 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
  */
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode(callSuper = true)
 public abstract class AbstractModificationByAssignment extends AbstractModification {
     public static final String VALUE_KEY_FILTER_NAME = "filterName";
     public static final String VALUE_KEY_FIELD_NAME = "fieldName";
@@ -79,21 +85,27 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_NONE = "network.modification.byFilterModificationNone";
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_NOT_FOUND = "network.modification.byFilterModificationNotFound";
 
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
+    protected int equipmentNotModifiedCount = 0;
+
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
+    protected long equipmentCount = 0;
+
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
+    protected long equipmentNotFoundCount = 0;
+
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     protected IFilterService filterService;
-    protected int equipmentNotModifiedCount;
-    protected long equipmentCount;
-    protected long equipmentNotFoundCount;
 
-    protected NetworkModificationExceptionType exceptionType;
-
-    protected AbstractModificationByAssignment(NetworkModificationExceptionType exceptionType) {
-        equipmentNotModifiedCount = 0;
-        equipmentCount = 0;
-        equipmentNotFoundCount = 0;
-        this.exceptionType = exceptionType;
-    }
-
+    @JsonIgnore
     public abstract String getModificationTypeLabel();
+
+    @JsonIgnore
+    public abstract NetworkModificationExceptionType getExceptionType();
 
     private String getEditedFieldLabel(AbstractAssignmentInfos modificationByFilterInfos) {
         return modificationByFilterInfos.getEditedFieldLabel();
@@ -149,11 +161,11 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     @Override
     public void check(Network network) throws NetworkModificationException {
         if (CollectionUtils.isEmpty(getAssignmentInfosList())) {
-            throw new NetworkModificationException(exceptionType, String.format("At least one %s is required", getModificationTypeLabel()));
+            throw new NetworkModificationException(getExceptionType(), String.format("At least one %s is required", getModificationTypeLabel()));
         }
 
         if (getAssignmentInfosList().stream().anyMatch(modificationByFilterInfos -> CollectionUtils.isEmpty(modificationByFilterInfos.getFilters()))) {
-            throw new NetworkModificationException(exceptionType, String.format("Every %s must have at least one filter", getModificationTypeLabel()));
+            throw new NetworkModificationException(getExceptionType(), String.format("Every %s must have at least one filter", getModificationTypeLabel()));
         }
     }
 

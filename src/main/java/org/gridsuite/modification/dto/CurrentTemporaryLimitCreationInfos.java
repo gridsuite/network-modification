@@ -14,6 +14,7 @@ import lombok.*;
  * @author David Braquart <david.braquart at rte-france.com>
  */
 @Builder
+@EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
