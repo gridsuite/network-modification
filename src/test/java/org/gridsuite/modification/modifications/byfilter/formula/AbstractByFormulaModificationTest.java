@@ -45,8 +45,6 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
     protected static final UUID FILTER_ID_5 = UUID.randomUUID();
     protected static final UUID FILTER_ID_6 = UUID.randomUUID();
     protected static final UUID FILTER_ID_7 = UUID.randomUUID();
-    protected static final UUID FILTER_WITH_ALL_WRONG_IDS = UUID.randomUUID();
-    protected static final UUID FILTER_WITH_ONE_WRONG_ID = UUID.randomUUID();
     protected final FilterInfos filter1 = new FilterInfos(FILTER_ID_1, "filter1");
     protected final FilterInfos filter2 = new FilterInfos(FILTER_ID_2, "filter2");
     protected final FilterInfos filter3 = new FilterInfos(FILTER_ID_3, "filter3");
@@ -54,7 +52,6 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
     protected final FilterInfos filter5 = new FilterInfos(FILTER_ID_5, "filter5");
     protected final FilterInfos filter6 = new FilterInfos(FILTER_ID_6, "filter6");
     protected final FilterInfos filter7 = new FilterInfos(FILTER_ID_7, "filter7");
-    protected final FilterInfos filterWithOneWrongId = new FilterInfos(FILTER_WITH_ONE_WRONG_ID, "filterWithOneWrongId");
     protected final ReportNode reportNode = ReportNode.newRootReportNode()
             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test")
