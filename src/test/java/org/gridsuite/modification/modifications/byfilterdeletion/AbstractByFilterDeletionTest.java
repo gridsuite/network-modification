@@ -9,29 +9,27 @@ package org.gridsuite.modification.modifications.byfilterdeletion;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
+import lombok.Getter;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.IFilterService;
+import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.modification.dto.ByFilterDeletionInfos;
-import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.FilterInfos;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.modifications.ByFilterDeletion;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
+import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Ayoub LABIDI <ayoub.labidi at rte-france.com>
@@ -45,12 +43,10 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
 
     protected abstract EquipmentType getEquipmentType();
 
-    protected abstract String getExistingId();
+    public abstract Map<UUID, Set<String>> getFilterMapping();
 
-    protected abstract Map<UUID, FilterEquipments> getTestFilters();
-
-    @Mock
-    protected IFilterService filterService;
+    @Getter
+    private final FilterLoader filterLoader = TestUtils.createFilterLoader(getEquipmentType(), getFilterMapping());
 
     @BeforeEach
     void specificSetUp() {
@@ -62,47 +58,17 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
     @Override
     public void testApply() throws Exception {
         ModificationInfos modificationInfo = buildModification();
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(getTestFilters());
-        AbstractModification modification = modificationInfo.toModification();
-        modification.initApplicationContext(filterService, null, null);
+        AbstractModification modification = modificationInfo.toModification(filterLoader);
         modification.apply(getNetwork());
         assertAfterNetworkModificationApplication();
     }
 
     @Override
     protected void checkModification() {
-        var filter1 = FilterInfos.builder()
-                .id(FILTER_ID_1)
-                .name("filter1")
-                .build();
-
-        ByFilterDeletionInfos byFilterDeletionInfos = ByFilterDeletionInfos.builder()
-                .stashed(false)
-                .equipmentType(getIdentifiableType())
-                .filters(List.of(filter1))
-                .build();
-
-        Map<UUID, FilterEquipments> filterEquipments = Map.of(
-                FILTER_ID_1,
-                FilterEquipments.builder().filterId(FILTER_ID_1).filterName("filter1").identifiableAttributes(List.of(
-                        new IdentifiableAttributes(getExistingId(), getIdentifiableType(), null)))
-                        .notFoundEquipments(List.of(EQUIPMENT_WRONG_ID_1)).build());
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filterEquipments);
-
-        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification();
-        byFilterDeletion.initApplicationContext(filterService, null, null);
-        ReportNode report = byFilterDeletionInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test")
-                .build());
-        byFilterDeletion.apply(getNetwork(), report);
-
-        assertLogMessage("Cannot find the following equipments " + EQUIPMENT_WRONG_ID_1 + " in filter filter1",
-            "network.modification.filterEquipmentsNotFound.inFilter", report);
     }
 
     @Test
-    void testCreateAllFiltersWrong() throws Exception {
+    void testCreateAllFiltersWrong() {
         var filter1 = FilterInfos.builder()
                 .id(FILTER_ID_1)
                 .name("filter1")
@@ -114,20 +80,14 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
                 .filters(List.of(filter1))
                 .build();
 
-        Map<UUID, FilterEquipments> filters = Map.of(
-                FILTER_ID_1, FilterEquipments.builder().identifiableAttributes(List.of())
-                        .notFoundEquipments(List.of(EQUIPMENT_WRONG_ID_1)).build());
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filters);
-
-        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification();
-        byFilterDeletion.initApplicationContext(filterService, null, null);
+        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification(_ -> List.of());
         ReportNode report = byFilterDeletionInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
         byFilterDeletion.apply(getNetwork(), report);
-        assertLogMessage(byFilterDeletion.getName() + ": There is no valid equipment ID among the provided filter(s)",
-            "network.modification.invalidFilters", report);
+        assertLogMessage("No equipment will be removed",
+            "network.modification.byFilterDeletion.noEquipmentToRemove", report);
     }
 
     @Override

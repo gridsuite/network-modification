@@ -6,33 +6,23 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.RemoveFeederBay;
 import com.powsybl.iidm.modification.topology.RemoveHvdcLineBuilder;
 import com.powsybl.iidm.modification.topology.RemoveSubstationBuilder;
 import com.powsybl.iidm.modification.topology.RemoveVoltageLevel;
-import com.powsybl.iidm.network.HvdcConverterStation;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import lombok.*;
 import org.apache.commons.collections4.CollectionUtils;
-import org.gridsuite.modification.IFilterService;
-import org.gridsuite.modification.ILoadFlowService;
+import org.gridsuite.filter.wip.Filter;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.FilterInfos;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static org.gridsuite.modification.utils.ModificationUtils.createReport;
-import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
+import static org.gridsuite.modification.modifications.byfilter.AbstractModificationByAssignment.VALUE_KEY_EQUIPMENT_COUNT;
 
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
@@ -43,12 +33,14 @@ import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ByFilterDeletion extends AbstractModification {
 
-    private IdentifiableType equipmentType;
-    private List<FilterInfos> filters;
+    private static final String REPORT_KEY_FILTER_EVALUATION = "network.modification.byFilterDeletion.filterEvaluation";
+    private static final String REPORT_KEY_FILTER_EVALUATION_RESULT = "network.modification.byFilterDeletion.filterEvaluationResult";
+    private static final String REPORT_KEY_NO_EQUIPMENT_TO_REMOVE = "network.modification.byFilterDeletion.noEquipmentToRemove";
+    private static final String REPORT_KEY_EQUIPMENTS_TO_REMOVE = "network.modification.byFilterDeletion.equipmentsToRemove";
+    private static final String REPORT_KEY_REMOVE_EQUIPMENTS = "network.modification.byFilterDeletion.removeEquipments";
 
-    @JsonIgnore
-    @EqualsAndHashCode.Exclude
-    protected IFilterService filterService;
+    private IdentifiableType equipmentType;
+    private List<Filter> filters;
 
     private static final EnumSet<IdentifiableType> CONNECTABLE_TYPES = EnumSet.of(
             IdentifiableType.LINE,
@@ -63,41 +55,45 @@ public class ByFilterDeletion extends AbstractModification {
             );
 
     @Builder
-    public ByFilterDeletion(IdentifiableType equipmentType, List<FilterInfos> filters) {
+    public ByFilterDeletion(IdentifiableType equipmentType, List<Filter> filters) {
         this.equipmentType = equipmentType;
         this.filters = filters;
     }
 
     @Override
-    protected void initServices(IFilterService filterService, ILoadFlowService loadFlowService) {
-        this.filterService = filterService;
-    }
-
-    @Override
     public void apply(Network network, ReportNode subReportNode) {
-        var distinctFilters = filters.stream()
-                .filter(distinctByKey(FilterInfos::getId))
-                .collect(Collectors.toMap(FilterInfos::getId, FilterInfos::getName));
+        List<Identifiable<?>> equipments = new ArrayList<>();
+        for (int i = 0; i < filters.size(); i++) {
+            ReportNode filterReportNode = subReportNode.newReportNode()
+                    .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION)
+                    .withUntypedValue("filterCount", i)
+                    .add();
 
-        Map<UUID, FilterEquipments> exportFilters = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, distinctFilters, getName());
-        if (exportFilters != null) {
-            ModificationUtils.logWrongEquipmentsIdsFilters(subReportNode, exportFilters, distinctFilters);
-            Set<IdentifiableAttributes> identifiableAttributes = ModificationUtils.getIdentifiableAttributes(exportFilters, filters, subReportNode);
-
-            if (CollectionUtils.isEmpty(identifiableAttributes)) {
-                String filterNames = filters.stream().map(FilterInfos::getName).collect(Collectors.joining(", "));
-                createReport(subReportNode, "network.modification.allFiltersWrong", Map.of("filterNames", filterNames), TypedValue.WARN_SEVERITY);
-            } else {
-                subReportNode.newReportNode()
-                        .withMessageTemplate("network.modification.equipmentByFilterDeleted")
-                        .withUntypedValue("nbEquipments", (long) identifiableAttributes.size())
-                        .withUntypedValue("type", equipmentType.name())
-                        .withSeverity(TypedValue.INFO_SEVERITY)
-                        .add();
-                // Report node is pushed to network instance to allow deletion logs from other libraries to be added
-                network.getReportNodeContext().pushReportNode(subReportNode);
-                applyFilterDeletion(network, subReportNode, identifiableAttributes);
-            }
+            equipments.addAll(filters.get(i).evaluate(network, filterReportNode));
+        }
+        subReportNode.newReportNode()
+                .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION_RESULT)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .withUntypedValue(VALUE_KEY_EQUIPMENT_COUNT, equipments.size())
+                .add();
+        if (CollectionUtils.isEmpty(equipments)) {
+            subReportNode.newReportNode()
+                    .withMessageTemplate(REPORT_KEY_NO_EQUIPMENT_TO_REMOVE)
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .add();
+        } else {
+            subReportNode.newReportNode()
+                    .withMessageTemplate(REPORT_KEY_EQUIPMENTS_TO_REMOVE)
+                    .withUntypedValue("nbEquipments", (long) equipments.size())
+                    .withUntypedValue("type", equipmentType.name())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
+            ReportNode removeEquipmentsNode = subReportNode.newReportNode()
+                    .withMessageTemplate(REPORT_KEY_REMOVE_EQUIPMENTS)
+                    .add();
+            // Report node is pushed to network instance to allow deletion logs from other libraries to be added
+            network.getReportNodeContext().pushReportNode(removeEquipmentsNode);
+            applyFilterDeletion(network, removeEquipmentsNode, equipments);
         }
     }
 
@@ -106,34 +102,34 @@ public class ByFilterDeletion extends AbstractModification {
         return ModificationType.BY_FILTER_DELETION.name();
     }
 
-    private void applyFilterDeletion(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes) {
+    private void applyFilterDeletion(Network network, ReportNode subReportNode, List<Identifiable<?>> equipments) {
         IdentifiableType identifiableType = equipmentType;
         if (CONNECTABLE_TYPES.contains(identifiableType)) {
-            identifiableAttributes.forEach(identifiableAttribute -> new RemoveFeederBay(identifiableAttribute.getId()).apply(network, true, subReportNode));
+            equipments.forEach(identifiableAttribute -> new RemoveFeederBay(identifiableAttribute.getId()).apply(network, true, subReportNode));
         } else if (identifiableType == IdentifiableType.VOLTAGE_LEVEL) {
-            identifiableAttributes.forEach(identifiableAttribute -> new RemoveVoltageLevel(identifiableAttribute.getId()).apply(network, true, subReportNode));
+            equipments.forEach(identifiableAttribute -> new RemoveVoltageLevel(identifiableAttribute.getId()).apply(network, true, subReportNode));
         } else if (identifiableType == IdentifiableType.SUBSTATION) {
-            identifiableAttributes.forEach(identifiableAttribute -> new RemoveSubstationBuilder().withSubstationId(identifiableAttribute.getId()).build().apply(network, true, subReportNode));
+            equipments.forEach(identifiableAttribute -> new RemoveSubstationBuilder().withSubstationId(identifiableAttribute.getId()).build().apply(network, true, subReportNode));
         } else if (identifiableType == IdentifiableType.HVDC_LINE) {
-            identifiableAttributes.forEach(identifiableAttribute -> removeHvdcLine(network, subReportNode, identifiableAttribute));
+            equipments.forEach(identifiableAttribute -> removeHvdcLine(network, subReportNode, identifiableAttribute));
         } else {
             throw NetworkModificationException.createEquipmentTypeUnknown(identifiableType.name());
         }
     }
 
-    private void removeHvdcLine(Network network, ReportNode subReportNode, IdentifiableAttributes identifiableAttribute) {
-        HvdcLine hvdcLine = (HvdcLine) ModificationUtils.getInstance().getEquipmentByIdentifiableType(network, equipmentType, identifiableAttribute.getId());
+    private void removeHvdcLine(Network network, ReportNode subReportNode, Identifiable<?> equipment) {
+        HvdcLine hvdcLine = (HvdcLine) ModificationUtils.getInstance().getEquipmentByIdentifiableType(network, equipmentType, equipment.getId());
         if (hvdcLine != null) {
             HvdcConverterStation<?> converterStation1 = hvdcLine.getConverterStation1();
             HvdcConverterStation<?> converterStation2 = hvdcLine.getConverterStation2();
             if (converterStation1.getHvdcType() == HvdcConverterStation.HvdcType.LCC || converterStation2.getHvdcType() == HvdcConverterStation.HvdcType.LCC) {
                 subReportNode.newReportNode()
                         .withMessageTemplate("network.modification.SCNotRemoved")
-                        .withUntypedValue("id", identifiableAttribute.getId())
+                        .withUntypedValue("id", equipment.getId())
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
             }
         }
-        new RemoveHvdcLineBuilder().withHvdcLineId(identifiableAttribute.getId()).build().apply(network, true, subReportNode);
+        new RemoveHvdcLineBuilder().withHvdcLineId(equipment.getId()).build().apply(network, true, subReportNode);
     }
 }
