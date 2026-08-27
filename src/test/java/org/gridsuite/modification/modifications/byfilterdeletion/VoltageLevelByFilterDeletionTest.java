@@ -9,11 +9,9 @@ package org.gridsuite.modification.modifications.byfilterdeletion;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.utils.NetworkCreation;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -26,6 +24,15 @@ class VoltageLevelByFilterDeletionTest extends AbstractByFilterDeletionTest {
     private static final String VOLTAGE_LEVEL_ID_2 = "v2";
     private static final String VOLTAGE_LEVEL_ID_3 = "v3";
     private static final String VOLTAGE_LEVEL_ID_4 = "v4";
+    private static final Map<UUID, Set<String>> FILTER_MAPPING = Map.of(
+            FILTER_ID_1, Set.of(VOLTAGE_LEVEL_ID_1, VOLTAGE_LEVEL_ID_2),
+            FILTER_ID_2, Set.of(VOLTAGE_LEVEL_ID_3, VOLTAGE_LEVEL_ID_4)
+    );
+
+    @Override
+    public Map<UUID, Set<String>> getFilterMapping() {
+        return FILTER_MAPPING;
+    }
 
     @Override
     protected Network createNetwork(UUID networkUuid) {
@@ -48,25 +55,5 @@ class VoltageLevelByFilterDeletionTest extends AbstractByFilterDeletionTest {
     @Override
     protected EquipmentType getEquipmentType() {
         return EquipmentType.VOLTAGE_LEVEL;
-    }
-
-    @Override
-    protected String getExistingId() {
-        return VOLTAGE_LEVEL_ID_1;
-    }
-
-    @Override
-    protected Map<UUID, FilterEquipments> getTestFilters() {
-        FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_1, IdentifiableType.VOLTAGE_LEVEL, null),
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_2, IdentifiableType.VOLTAGE_LEVEL, null)
-        )).build();
-
-        FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_3, IdentifiableType.VOLTAGE_LEVEL, null),
-            new IdentifiableAttributes(VOLTAGE_LEVEL_ID_4, IdentifiableType.VOLTAGE_LEVEL, null)
-        )).build();
-
-        return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2);
     }
 }
