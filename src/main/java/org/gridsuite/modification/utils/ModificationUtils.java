@@ -77,6 +77,7 @@ public final class ModificationUtils {
     public static final String FIELD_MIN_ACTIVE_POWER = "Minimum active power";
     public static final String FIELD_PLANNED_ACTIVE_POWER_SET_POINT = "Planned active power set point";
     public static final String FIELD_ACTIVE_POWER_TARGET = "Active power target";
+    public static final int POSITION_GAP = 10;
 
     public static String applicabilityToString(OperationalLimitsGroupInfos.Applicability applicability) {
         return switch (applicability) {
@@ -219,23 +220,19 @@ public final class ModificationUtils {
         if (!extensionExist) {
             return position;
         }
-        if (voltageLevel.getConnectableStream().anyMatch(c -> !(c instanceof BusbarSection))) {
-            var rightRange = TopologyModificationUtils.getUnusedOrderPositionsAfter(bbs);
-            if (rightRange.isPresent()) {
-                int minimum = rightRange.get().getMinimum();
-                int maximum = rightRange.get().getMaximum();
-                if (maximum - minimum < 10) {
-                    return minimum;
-                }
-                return minimum + 9;
-            } else {
-                var leftRange = TopologyModificationUtils.getUnusedOrderPositionsBefore(bbs);
-                if (leftRange.isPresent()) {
-                    position = leftRange.get().getMaximum();
-                }
-            }
+        if (!voltageLevel.getConnectableStream().anyMatch(c -> !(c instanceof BusbarSection))) {
+            return POSITION_GAP;
+        }
+        var rightRange = TopologyModificationUtils.getUnusedOrderPositionsAfter(bbs);
+        if (rightRange.isPresent()) {
+            int minimum = rightRange.get().getMinimum();
+            int maximum = rightRange.get().getMaximum();
+            return maximum - minimum < POSITION_GAP ? minimum : minimum + POSITION_GAP - 1;
         } else {
-            return 10;
+            var leftRange = TopologyModificationUtils.getUnusedOrderPositionsBefore(bbs);
+            if (leftRange.isPresent()) {
+                position = leftRange.get().getMaximum();
+            }
         }
         return position;
     }
