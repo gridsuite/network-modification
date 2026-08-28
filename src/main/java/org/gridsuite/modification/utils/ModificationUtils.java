@@ -220,7 +220,7 @@ public final class ModificationUtils {
         if (!extensionExist) {
             return position;
         }
-        if (!voltageLevel.getConnectableStream().anyMatch(c -> !(c instanceof BusbarSection))) {
+        if (voltageLevel.getConnectableStream().allMatch(c -> c instanceof BusbarSection)) {
             return POSITION_GAP;
         }
         var rightRange = TopologyModificationUtils.getUnusedOrderPositionsAfter(bbs);
