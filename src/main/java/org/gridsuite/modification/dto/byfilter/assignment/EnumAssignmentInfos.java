@@ -33,7 +33,7 @@ public class EnumAssignmentInfos extends AssignmentInfos<String> {
         return EnumAssignmentData.builder()
                 .editedField(getEditedField())
                 .value(getValue())
-                .filters(filterLoader.getNewFilters(getFilters().stream().map(FilterInfos::getId).toList()))
+                .filters(filterLoader.load(getFilters().stream().map(FilterInfos::getId).toList()))
                 .build();
     }
 }

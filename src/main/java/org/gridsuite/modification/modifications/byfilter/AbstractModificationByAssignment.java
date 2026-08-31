@@ -25,7 +25,6 @@ import org.gridsuite.modification.modifications.data.assignment.AbstractAssignme
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils.getFieldValue;
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils.setFieldValue;
@@ -171,22 +170,17 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
         createCountReports(subReportNode, equipmentCount, equipmentModifiedCount);
     }
 
-    private int applyOnAssignmentEquipments(List<Identifiable<?>> equipments,
+    private long applyOnAssignmentEquipments(List<Identifiable<?>> equipments,
                                             ReportNode assignmentReportNode,
                                             AbstractAssignmentData abstractAssignmentData) {
-        final AtomicInteger modifiedInAssignmentCount = new AtomicInteger(0);
-        equipments.stream()
-                // Why not in the same pre-condition ??
-                .filter(equipment -> isEquipmentEditable(equipment, abstractAssignmentData, assignmentReportNode) &&
-                        preCheckValue(equipment, abstractAssignmentData, assignmentReportNode))
-                .forEach(equipment -> {
-                    boolean applied = applyModification(equipment, abstractAssignmentData, assignmentReportNode);
-                    if (applied) {
-                        modifiedInAssignmentCount.incrementAndGet();
-                    }
-                });
-        createCountReports(assignmentReportNode, equipments.size(), modifiedInAssignmentCount.get());
-        return modifiedInAssignmentCount.get();
+        long modifiedEquipments = equipments.stream()
+                .filter(equipment -> isEquipmentEditable(equipment, abstractAssignmentData, assignmentReportNode))
+                .filter(equipment -> preCheckValue(equipment, abstractAssignmentData, assignmentReportNode)) // Why not in the same pre-condition ??
+                .map(equipment -> applyModification(equipment, abstractAssignmentData, assignmentReportNode))
+                .filter(applied -> applied)
+                .count();
+        createCountReports(assignmentReportNode, equipments.size(), modifiedEquipments);
+        return modifiedEquipments;
     }
 
     protected boolean isEquipmentEditable(Identifiable<?> equipment, AbstractAssignmentData abstractAssignmentData, ReportNode reportNode) {
