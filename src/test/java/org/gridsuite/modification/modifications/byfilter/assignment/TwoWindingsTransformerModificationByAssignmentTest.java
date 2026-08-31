@@ -17,6 +17,7 @@ import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.IntegerAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.StringAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.TwoWindingsTransformerField;
+import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -85,6 +86,32 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
 
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_1).getPhaseTapChanger());
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_2).getPhaseTapChanger());
+    }
+
+    @Test
+    void testPartialModificationOfTwt() {
+        IntegerAssignmentInfos assignmentInfos = IntegerAssignmentInfos.builder()
+                .filters(List.of(filter1, filter4))
+                .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
+                .value(4)
+                .build();
+
+        ModificationByAssignmentInfos modificationInfos = ModificationByAssignmentInfos.builder()
+                .equipmentType(getIdentifiableType())
+                .assignmentInfosList(List.of(assignmentInfos))
+                .stashed(false)
+                .build();
+        apply(modificationInfos, TestUtils.createFilterLoader(EquipmentType.TWO_WINDINGS_TRANSFORMER, Map.of(
+                FILTER_ID_1, Set.of(TWT_ID_1, TWT_ID_2),
+                FILTER_ID_4, Set.of(TWT_ID_4, TWT_ID_6)
+        )));
+
+        assertNotNull(getNetwork().getTwoWindingsTransformer(TWT_ID_1).getRatioTapChanger());
+        assertNotNull(getNetwork().getTwoWindingsTransformer(TWT_ID_2).getRatioTapChanger());
+        assertEquals(4, getNetwork().getTwoWindingsTransformer(TWT_ID_1).getRatioTapChanger().getTapPosition());
+        assertEquals(4, getNetwork().getTwoWindingsTransformer(TWT_ID_2).getRatioTapChanger().getTapPosition());
+        assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_4).getRatioTapChanger());
+        assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_6).getRatioTapChanger());
     }
 
     @Test

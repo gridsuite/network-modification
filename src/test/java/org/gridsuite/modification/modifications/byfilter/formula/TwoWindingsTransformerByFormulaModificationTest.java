@@ -92,6 +92,34 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_2).getPhaseTapChanger());
     }
 
+    @Test
+    void testPartialModificationOfTwt() {
+        FormulaInfos formulaInfos = FormulaInfos.builder()
+                .filters(List.of(filter1, filter4))
+                .fieldOrValue2(ReferenceFieldOrValue.builder().equipmentField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name()).build())
+                .fieldOrValue1(ReferenceFieldOrValue.builder().value(1.).build())
+                .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
+                .operator(Operator.ADDITION)
+                .build();
+
+        ByFormulaModificationInfos modificationInfos = ByFormulaModificationInfos.builder()
+                .identifiableType(getIdentifiableType())
+                .formulaInfosList(List.of(formulaInfos))
+                .stashed(false)
+                .build();
+        apply(modificationInfos, TestUtils.createFilterLoader(EquipmentType.TWO_WINDINGS_TRANSFORMER, Map.of(
+                FILTER_ID_1, Set.of(TWT_ID_1, TWT_ID_2),
+                FILTER_ID_4, Set.of(TWT_ID_4, TWT_ID_6)
+        )));
+
+        assertNotNull(getNetwork().getTwoWindingsTransformer(TWT_ID_1).getRatioTapChanger());
+        assertNotNull(getNetwork().getTwoWindingsTransformer(TWT_ID_2).getRatioTapChanger());
+        assertEquals(2, getNetwork().getTwoWindingsTransformer(TWT_ID_1).getRatioTapChanger().getTapPosition());
+        assertEquals(5, getNetwork().getTwoWindingsTransformer(TWT_ID_2).getRatioTapChanger().getTapPosition());
+        assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_4).getRatioTapChanger());
+        assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_6).getRatioTapChanger());
+    }
+
     @Override
     protected void createEquipments() {
         Substation s1 = getNetwork().getSubstation("s1");
