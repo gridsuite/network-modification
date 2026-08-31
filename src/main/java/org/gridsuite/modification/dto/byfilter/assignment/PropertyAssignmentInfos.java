@@ -47,7 +47,7 @@ public class PropertyAssignmentInfos extends AssignmentInfos<String> {
                 .editedField(getEditedField())
                 .value(getValue())
                 .propertyName(propertyName)
-                .filters(filterLoader.getNewFilters(getFilters().stream().map(FilterInfos::getId).toList()))
+                .filters(filterLoader.load(getFilters().stream().map(FilterInfos::getId).toList()))
                 .build();
     }
 

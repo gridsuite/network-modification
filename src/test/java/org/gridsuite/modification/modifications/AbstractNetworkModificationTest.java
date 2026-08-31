@@ -80,7 +80,7 @@ public abstract class AbstractNetworkModificationTest {
 
     public final List<Filter> loadFilters(List<UUID> filterUuids) {
         if (getFilterLoader() != null) {
-            return getFilterLoader().getNewFilters(filterUuids);
+            return getFilterLoader().load(filterUuids);
         }
         return List.of();
     }

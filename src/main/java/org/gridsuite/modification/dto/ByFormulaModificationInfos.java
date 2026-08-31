@@ -48,7 +48,7 @@ public class ByFormulaModificationInfos extends ModificationInfos {
                             .operator(formulaInfos.getOperator())
                             .fieldOrValue1(formulaInfos.getFieldOrValue1())
                             .fieldOrValue2(formulaInfos.getFieldOrValue2())
-                            .filters(filterLoader.getNewFilters(formulaInfos.getFilters().stream().map(FilterInfos::getId).toList()))
+                            .filters(filterLoader.load(formulaInfos.getFilters().stream().map(FilterInfos::getId).toList()))
                             .build()).toList())
                 .build();
     }

@@ -33,7 +33,7 @@ public class IntegerAssignmentInfos extends AssignmentInfos<Integer> {
         return IntegerAssignmentData.builder()
                 .editedField(getEditedField())
                 .value(getValue())
-                .filters(filterLoader.getNewFilters(getFilters().stream().map(FilterInfos::getId).toList()))
+                .filters(filterLoader.load(getFilters().stream().map(FilterInfos::getId).toList()))
                 .build();
     }
 }
