@@ -14,10 +14,15 @@ import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.modification.dto.ByFormulaModificationInfos;
 import org.gridsuite.modification.dto.FilterInfos;
+import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.dto.byfilter.assignment.*;
+import org.gridsuite.modification.dto.byfilter.equipmentfield.BatteryField;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
+import org.gridsuite.modification.modifications.byfilter.ByFormulaModification;
+import org.gridsuite.modification.modifications.byfilter.ModificationByAssignment;
 import org.gridsuite.modification.modifications.data.assignment.Operator;
 import org.gridsuite.modification.modifications.data.assignment.ReferenceFieldOrValue;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
@@ -32,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -123,4 +130,17 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
     protected abstract IdentifiableType getIdentifiableType();
 
     protected abstract EquipmentType getEquipmentType();
+
+    @Test
+    void testApplyWithDuplicateFilters() {
+        ModificationInfos modificationInfos = ByFormulaModificationInfos.builder()
+                .identifiableType(getIdentifiableType())
+                .formulaInfosList(List.of(FormulaInfos.builder().filters(List.of(filter1, filter1)).build()))
+                .stashed(false)
+                .date(Instant.now())
+                .build();
+
+        ByFormulaModification byFormulaModification = (ByFormulaModification) modificationInfos.toModification(getFilterLoader());
+        assertEquals(1, byFormulaModification.getAssignments().get(0).getFilters().size());
+    }
 }
