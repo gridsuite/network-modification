@@ -37,6 +37,11 @@ class EquipmentByFilterDeletionTest extends AbstractByFilterDeletionTest {
     }
 
     @Override
+    public Set<String> getExistingEquipments() {
+        return Set.of(LOAD_ID_1, LOAD_ID_2, LOAD_ID_3, LOAD_ID_4);
+    }
+
+    @Override
     protected Network createNetwork(UUID networkUuid) {
         return NetworkCreation.createLoadNetwork(networkUuid, new NetworkFactoryImpl());
     }

@@ -32,6 +32,11 @@ class HvdcLineByFilterDeletionTest extends AbstractByFilterDeletionTest {
     }
 
     @Override
+    public Set<String> getExistingEquipments() {
+        return Set.of(HVDC_LINE_ID_1);
+    }
+
+    @Override
     protected Network createNetwork(UUID networkUuid) {
         return NetworkCreation.create(networkUuid, true);
     }
