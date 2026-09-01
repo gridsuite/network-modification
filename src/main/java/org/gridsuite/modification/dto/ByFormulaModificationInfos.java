@@ -20,8 +20,6 @@ import org.gridsuite.modification.modifications.data.assignment.FormulaAssignmen
 
 import java.util.List;
 
-import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
-
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
  */
