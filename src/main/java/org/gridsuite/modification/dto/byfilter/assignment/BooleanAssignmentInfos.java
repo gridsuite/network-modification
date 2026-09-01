@@ -33,7 +33,7 @@ public class BooleanAssignmentInfos extends AssignmentInfos<Boolean> {
         return BooleanAssignmentData.builder()
                 .editedField(getEditedField())
                 .value(getValue())
-                .filters(filterLoader.load(getFilters().stream().map(FilterInfos::getId).toList()))
+                .filters(filterLoader.load(getFilters().stream().map(FilterInfos::getId).distinct().toList()))
                 .build();
     }
 }

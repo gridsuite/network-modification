@@ -20,6 +20,8 @@ import org.gridsuite.modification.modifications.data.assignment.FormulaAssignmen
 
 import java.util.List;
 
+import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
+
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
  */
@@ -48,7 +50,7 @@ public class ByFormulaModificationInfos extends ModificationInfos {
                             .operator(formulaInfos.getOperator())
                             .fieldOrValue1(formulaInfos.getFieldOrValue1())
                             .fieldOrValue2(formulaInfos.getFieldOrValue2())
-                            .filters(filterLoader.load(formulaInfos.getFilters().stream().map(FilterInfos::getId).toList()))
+                            .filters(filterLoader.load(formulaInfos.getFilters().stream().map(FilterInfos::getId).distinct().toList()))
                             .build()).toList())
                 .build();
     }

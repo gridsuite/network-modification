@@ -16,11 +16,12 @@ import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.assignment.PropertyAssignmentInfos;
+import org.gridsuite.modification.dto.byfilter.assignment.*;
+import org.gridsuite.modification.dto.byfilter.equipmentfield.BatteryField;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.PropertyField;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
+import org.gridsuite.modification.modifications.byfilter.ModificationByAssignment;
 import org.gridsuite.modification.modifications.data.assignment.DataType;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -32,7 +33,9 @@ import org.mockito.MockitoAnnotations;
 import java.time.Instant;
 import java.util.*;
 
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
@@ -55,11 +58,10 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME, FilterReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test")
             .build();
-
-    public abstract Map<UUID, Set<String>> getFilterMapping();
-
     @Getter
     private final FilterLoader filterLoader = TestUtils.createFilterLoader(getEquipmentType(), getFilterMapping());
+
+    public abstract Map<UUID, Set<String>> getFilterMapping();
 
     @BeforeEach
     void specificSetUp() {
@@ -117,4 +119,49 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     protected abstract IdentifiableType getIdentifiableType();
 
     protected abstract EquipmentType getEquipmentType();
+
+    @Test
+    void testApplyWithDuplicateFilters() {
+        DoubleAssignmentInfos assignmentInfos1 = DoubleAssignmentInfos.builder()
+                .filters(List.of(filter1, filter1)) // Same filter
+                .editedField(BatteryField.MAXIMUM_ACTIVE_POWER.name())
+                .value(80.)
+                .build();
+        EnumAssignmentInfos assignmentInfos2 = EnumAssignmentInfos.builder()
+                .filters(List.of(filter1, filter1)) // Same filter
+                .editedField(BatteryField.MAXIMUM_ACTIVE_POWER.name())
+                .value("enum")
+                .build();
+        StringAssignmentInfos assignmentInfos3 = StringAssignmentInfos.builder()
+                .filters(List.of(filter1, filter1)) // Same filter
+                .editedField(BatteryField.MAXIMUM_ACTIVE_POWER.name())
+                .value("string")
+                .build();
+        BooleanAssignmentInfos assignmentInfos4 = BooleanAssignmentInfos.builder()
+                .filters(List.of(filter1, filter1)) // Same filter
+                .editedField(BatteryField.MAXIMUM_ACTIVE_POWER.name())
+                .value(true)
+                .build();
+        IntegerAssignmentInfos assignmentInfos5 = IntegerAssignmentInfos.builder()
+                .filters(List.of(filter1, filter1)) // Same filter
+                .editedField(BatteryField.MAXIMUM_ACTIVE_POWER.name())
+                .value(2)
+                .build();
+        PropertyAssignmentInfos assignmentInfos6 = PropertyAssignmentInfos.builder()
+                .filters(List.of(filter1, filter1)) // Same filter
+                .editedField(BatteryField.MAXIMUM_ACTIVE_POWER.name())
+                .value("property")
+                .build();
+        ModificationInfos modificationInfos = ModificationByAssignmentInfos.builder()
+                .equipmentType(getIdentifiableType())
+                .assignmentInfosList(List.of(assignmentInfos1, assignmentInfos2, assignmentInfos3,
+                        assignmentInfos4, assignmentInfos5, assignmentInfos6))
+                .stashed(false)
+                .date(Instant.now())
+                .build();
+
+        ModificationByAssignment modificationByAssignment = (ModificationByAssignment) modificationInfos.toModification(getFilterLoader());
+        modificationByAssignment.getAssignments().forEach(assignment ->
+                assertEquals(1, assignment.getFilters().size()));
+    }
 }
