@@ -38,7 +38,7 @@ Add the following dependency to your project's `pom.xml`:
 <dependency>
     <groupId>org.gridsuite</groupId>
     <artifactId>gridsuite-network-modification</artifactId>
-    <version>1.8.0-SNAPSHOT</version>
+    <version>version_to_use</version>
 </dependency>
 ```
 

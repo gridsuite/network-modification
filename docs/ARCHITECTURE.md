@@ -90,8 +90,8 @@ Key properties:
 | `uuid` | `UUID` | Unique identifier of the modification instance |
 | `type` | `ModificationType` | Automatically derived from the class `@JsonTypeName` or explicitly set |
 | `date` | `Instant` | Timestamp of creation or modification |
-| `stashed` | `Boolean` | Staging flag; stashed modifications (`true`) are skipped during composite execution |
-| `activated` | `Boolean` | Activation flag; deactivated modifications are skipped during composite execution |
+| `stashed` | `Boolean` | Staging flag; stashed modifications (`true`) are skipped during execution |
+| `activated` | `Boolean` | Activation flag; deactivated modifications are skipped during execution |
 | `description` | `String` | Optional user description or scenario notes |
 | `messageType` | `String` | i18n message key template |
 | `messageValues` | `String` | Serialized message interpolation parameters |

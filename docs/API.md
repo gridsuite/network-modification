@@ -1,15 +1,5 @@
 # API Reference — `gridsuite-network-modification`
 
-**Maven Coordinates**
-
-```xml
-<dependency>
-    <groupId>org.gridsuite</groupId>
-    <artifactId>gridsuite-network-modification</artifactId>
-    <version>1.8.0-SNAPSHOT</version>
-</dependency>
-```
-
 ---
 
 ## Table of Contents
