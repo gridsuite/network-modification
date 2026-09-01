@@ -1,12 +1,12 @@
 # API Reference — `gridsuite-network-modification`
 
-**Maven coordinates**
+**Maven Coordinates**
 
 ```xml
 <dependency>
     <groupId>org.gridsuite</groupId>
     <artifactId>gridsuite-network-modification</artifactId>
-    <version>0.88.0-SNAPSHOT</version>
+    <version>1.8.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -15,12 +15,12 @@
 ## Table of Contents
 
 1. [Core Interfaces](#1-core-interfaces)
-2. [AbstractModification](#2-abstractmodification)
+2. [AbstractModification Lifecycle](#2-abstractmodification-lifecycle)
 3. [ModificationInfos — Base DTO](#3-modificationinfos--base-dto)
 4. [ModificationType Enum](#4-modificationtype-enum)
-5. [DTO Hierarchy & Fields](#5-dto-hierarchy--fields)
+5. [DTO Hierarchy & Field References](#5-dto-hierarchy--field-references)
    - 5.1 [Equipment Modification DTOs](#51-equipment-modification-dtos)
-   - 5.2 [Equipment Creation DTOs](#52-equipment-creation-dtos)
+   - 5.2 [Equipment Creation Base DTOs](#52-equipment-creation-base-dtos)
    - 5.3 [Injection Creation DTOs](#53-injection-creation-dtos)
    - 5.4 [Branch Creation DTOs](#54-branch-creation-dtos)
    - 5.5 [Injection Modification DTOs](#55-injection-modification-dtos)
@@ -30,12 +30,12 @@
    - 5.9 [Topology Modification DTOs](#59-topology-modification-dtos)
    - 5.10 [Deletion DTOs](#510-deletion-dtos)
    - 5.11 [Scaling & Dispatch DTOs](#511-scaling--dispatch-dtos)
-   - 5.12 [Bulk / Programmatic Modification DTOs](#512-bulk--programmatic-modification-dtos)
+   - 5.12 [Bulk & Programmatic Modification DTOs](#512-bulk--programmatic-modification-dtos)
    - 5.13 [Operational Modification DTOs](#513-operational-modification-dtos)
    - 5.14 [Composition & Reference DTOs](#514-composition--reference-dtos)
 6. [Supporting Value Objects](#6-supporting-value-objects)
-7. [NetworkModificationException](#7-networkmodificationexception)
-8. [Enumerations](#8-enumerations)
+7. [Exceptions & Error Types](#7-exceptions--error-types)
+8. [Enumerations Reference](#8-enumerations-reference)
 9. [Usage Examples](#9-usage-examples)
 
 ---
@@ -46,7 +46,7 @@
 
 **Package:** `org.gridsuite.modification`
 
-Abstraction over a remote filter service. Consumer applications must provide an implementation.
+Interface to decouple filter evaluation and remote filter service resolution from the core modification engine.
 
 ```java
 public interface IFilterService {
@@ -86,7 +86,7 @@ public interface IFilterService {
 
 **Package:** `org.gridsuite.modification`
 
-Abstraction over a load-flow parameter store. Required by modifications that run an internal load flow.
+Interface for retrieving stored load-flow parameters by UUID for modifications that execute power flow simulations.
 
 ```java
 public interface ILoadFlowService {
@@ -103,88 +103,52 @@ public interface ILoadFlowService {
 
 ---
 
-## 2. `AbstractModification`
+## 2. `AbstractModification` Lifecycle
 
 **Package:** `org.gridsuite.modification.modifications`  
 **Extends:** `com.powsybl.iidm.modification.AbstractNetworkModification`
 
-The abstract base class for every modification in the library.
+The abstract base class for all concrete modification implementations.
 
 ### Methods
 
-| Signature | Description |
+| Method | Description |
 |---|---|
-| `void check(Network network)` | Pre-apply validation. Throws `NetworkModificationException` on error. Default implementation does nothing. |
-| `void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService)` | Injects external services. Called before `check` when services are needed. Default implementation does nothing. |
-| `void apply(Network network, ReportNode subReportNode)` | Applies the modification and writes events to the report node. Must be implemented by all subclasses. |
-| `void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode)` | Variant that accepts an explicit `NamingStrategy`. Default delegates to `apply(network, subReportNode)`. |
-| `String getName()` | Returns a stable, human-readable name for this modification type. Must be implemented by all subclasses. |
-
-### Typical usage pattern
-
-```java
-// 1. Build the DTO
-GeneratorCreationInfos infos = GeneratorCreationInfos.builder()
-        .equipmentId("GEN1")
-        .equipmentName("Generator 1")
-        .voltageLevelId("VL1")
-        .busOrBusbarSectionId("BBS1")
-        .minP(0.0)
-        .maxP(500.0)
-        .targetP(200.0)
-        .voltageRegulationOn(true)
-        .targetV(400.0)
-        .build();
-
-// 2. Validate the DTO
-infos.check();
-
-// 3. Create the modification
-AbstractModification modification = infos.toModification();
-
-// 4. (Optional) inject services
-modification.initApplicationContext(filterService, loadFlowService);
-
-// 5. Validate against network
-modification.check(network);
-
-// 6. Apply
-ReportNode reportNode = ReportNode.newRootReportNode()
-        .withMessageTemplate("root", "Root")
-        .build();
-modification.apply(network, reportNode);
-```
+| `void check(Network network)` | Validates inputs and constraints against the live network. Throws `NetworkModificationException` on conflict or missing prerequisites. Default implementation does nothing. |
+| `void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService)` | Injects external service instances. Called prior to `check` when service dependencies exist. Default implementation does nothing. |
+| `void apply(Network network, ReportNode subReportNode)` | Mutates the `Network` and logs structured progress and audit messages to `subReportNode`. |
+| `void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode)` | Variant supporting a custom naming strategy. Defaults to delegating to `apply(network, subReportNode)`. |
+| `String getName()` | Returns the descriptive name for the modification type. |
 
 ---
 
 ## 3. `ModificationInfos` — Base DTO
 
 **Package:** `org.gridsuite.modification.dto`  
-**Serialisation discriminator field:** `type` (value matches `ModificationType` enum name)
+**JSON Discriminator Property:** `type` (matches `ModificationType` enum name)
 
 ### Fields
 
 | Field | Type | Description |
 |---|---|---|
 | `uuid` | `UUID` | Unique identifier of this modification instance |
-| `type` | `ModificationType` | Read-only; automatically derived from `@JsonTypeName` on the subclass |
+| `type` | `ModificationType` | Discriminator property; automatically derived from `@JsonTypeName` on concrete subclasses |
 | `date` | `Instant` | Creation or update timestamp |
-| `stashed` | `Boolean` | `true` = modification is staged/deactivated (default `false`) |
-| `activated` | `Boolean` | Whether this modification is active in composite execution |
-| `description` | `String` | Optional free-text user description |
-| `messageType` | `String` | i18n message key (set by the modification after apply) |
-| `messageValues` | `String` | JSON-serialised interpolation values for the message |
+| `stashed` | `Boolean` | Staging flag (default `false`). When `true`, skipped during execution |
+| `activated` | `Boolean` | Activation flag (default `true`). When `false`, skipped during execution |
+| `description` | `String` | Optional free-text description |
+| `messageType` | `String` | i18n message template key |
+| `messageValues` | `String` | Serialized message interpolation parameters |
 
 ### Methods
 
-| Signature | Description |
+| Method | Description |
 |---|---|
-| `AbstractModification toModification()` | Factory: creates the matching `AbstractModification`. Must be overridden. |
-| `ReportNode createSubReportNode(ReportNode)` | Creates a child `ReportNode` for this modification's reporting. Must be overridden. |
-| `void check()` | Validates DTO fields. Throws if mandatory fields are absent. |
-| `ModificationType getType()` | Returns the type discriminator. |
-| `NetworkModificationException.Type getErrorType()` | Returns the exception type linked to this DTO class via `@ModificationErrorTypeName`. |
-| `Map<String, String> getMapMessageValues()` | Returns message interpolation values as a plain map. |
+| `AbstractModification toModification()` | Factory method instantiating the corresponding `AbstractModification`. |
+| `ReportNode createSubReportNode(ReportNode reportNode)` | Creates and attaches a child `ReportNode` with the appropriate message template. |
+| `void check()` | Validates internal DTO fields before conversion. |
+| `ModificationType getType()` | Returns the modification type enum value. |
+| `Map<String, String> getMapMessageValues()` | Returns message interpolation values as key-value pairs. |
 
 ---
 
@@ -192,35 +156,35 @@ modification.apply(network, reportNode);
 
 **Package:** `org.gridsuite.modification`
 
-All supported modification types:
+Supported modification types in `ModificationType.java`:
 
-| Value | Category |
+| Modification Type | Category |
 |---|---|
-| `LOAD_CREATION` | Equipment creation |
-| `LOAD_MODIFICATION` | Equipment modification |
-| `BATTERY_CREATION` | Equipment creation |
-| `BATTERY_MODIFICATION` | Equipment modification |
-| `GENERATOR_CREATION` | Equipment creation |
-| `GENERATOR_MODIFICATION` | Equipment modification |
-| `SHUNT_COMPENSATOR_CREATION` | Equipment creation |
-| `SHUNT_COMPENSATOR_MODIFICATION` | Equipment modification |
-| `STATIC_VAR_COMPENSATOR_CREATION` | Equipment creation |
-| `LINE_CREATION` | Equipment creation |
-| `LINE_MODIFICATION` | Equipment modification |
-| `TWO_WINDINGS_TRANSFORMER_CREATION` | Equipment creation |
-| `TWO_WINDINGS_TRANSFORMER_MODIFICATION` | Equipment modification |
-| `SUBSTATION_CREATION` | Equipment creation |
-| `SUBSTATION_MODIFICATION` | Equipment modification |
-| `VOLTAGE_LEVEL_CREATION` | Equipment creation |
-| `VOLTAGE_LEVEL_MODIFICATION` | Equipment modification |
-| `VSC_CREATION` | HVDC creation |
-| `VSC_MODIFICATION` | HVDC modification |
-| `CONVERTER_STATION_CREATION` | HVDC creation |
-| `CONVERTER_STATION_MODIFICATION` | HVDC modification |
-| `LCC_CREATION` | HVDC creation |
-| `LCC_MODIFICATION` | HVDC modification |
-| `LCC_CONVERTER_STATION_CREATION` | HVDC creation |
-| `LCC_CONVERTER_STATION_MODIFICATION` | HVDC modification |
+| `LOAD_CREATION` | Injections |
+| `LOAD_MODIFICATION` | Injections |
+| `BATTERY_CREATION` | Injections |
+| `BATTERY_MODIFICATION` | Injections |
+| `GENERATOR_CREATION` | Injections |
+| `GENERATOR_MODIFICATION` | Injections |
+| `SHUNT_COMPENSATOR_CREATION` | Injections |
+| `SHUNT_COMPENSATOR_MODIFICATION` | Injections |
+| `STATIC_VAR_COMPENSATOR_CREATION` | Injections |
+| `LINE_CREATION` | Branches |
+| `LINE_MODIFICATION` | Branches |
+| `TWO_WINDINGS_TRANSFORMER_CREATION` | Branches |
+| `TWO_WINDINGS_TRANSFORMER_MODIFICATION` | Branches |
+| `SUBSTATION_CREATION` | Substations & Voltage Levels |
+| `SUBSTATION_MODIFICATION` | Substations & Voltage Levels |
+| `VOLTAGE_LEVEL_CREATION` | Substations & Voltage Levels |
+| `VOLTAGE_LEVEL_MODIFICATION` | Substations & Voltage Levels |
+| `VSC_CREATION` | HVDC |
+| `VSC_MODIFICATION` | HVDC |
+| `CONVERTER_STATION_CREATION` | HVDC |
+| `CONVERTER_STATION_MODIFICATION` | HVDC |
+| `LCC_CREATION` | HVDC |
+| `LCC_MODIFICATION` | HVDC |
+| `LCC_CONVERTER_STATION_CREATION` | HVDC |
+| `LCC_CONVERTER_STATION_MODIFICATION` | HVDC |
 | `EQUIPMENT_DELETION` | Deletion |
 | `BY_FILTER_DELETION` | Deletion |
 | `LINE_SPLIT_WITH_VOLTAGE_LEVEL` | Topology |
@@ -233,84 +197,77 @@ All supported modification types:
 | `CREATE_VOLTAGE_LEVEL_TOPOLOGY` | Topology |
 | `CREATE_VOLTAGE_LEVEL_SECTION` | Topology |
 | `MOVE_VOLTAGE_LEVEL_FEEDER_BAYS` | Topology |
-| `GENERATOR_SCALING` | Scaling |
-| `LOAD_SCALING` | Scaling |
-| `GENERATION_DISPATCH` | Operational |
+| `GENERATOR_SCALING` | Scaling & Dispatch |
+| `LOAD_SCALING` | Scaling & Dispatch |
+| `GENERATION_DISPATCH` | Scaling & Dispatch |
 | `BALANCES_ADJUSTMENT_MODIFICATION` | Operational |
 | `OPERATING_STATUS_MODIFICATION` | Operational |
 | `VOLTAGE_INIT_MODIFICATION` | Operational |
-| `EQUIPMENT_ATTRIBUTE_MODIFICATION` | Attribute |
-| `GROOVY_SCRIPT` | Scripting |
-| `TABULAR_MODIFICATION` | Bulk |
-| `TABULAR_CREATION` | Bulk |
-| `LIMIT_SETS_TABULAR_MODIFICATION` | Bulk |
-| `BY_FORMULA_MODIFICATION` | Bulk |
-| `MODIFICATION_BY_ASSIGNMENT` | Bulk |
-| `COMPOSITE_MODIFICATION` | Orchestration |
-| `MODIFICATION_REFERENCE` | Orchestration |
+| `EQUIPMENT_ATTRIBUTE_MODIFICATION` | Bulk & Programmatic |
+| `GROOVY_SCRIPT` | Bulk & Programmatic |
+| `TABULAR_MODIFICATION` | Bulk & Programmatic |
+| `TABULAR_CREATION` | Bulk & Programmatic |
+| `LIMIT_SETS_TABULAR_MODIFICATION` | Bulk & Programmatic |
+| `BY_FORMULA_MODIFICATION` | Bulk & Programmatic |
+| `MODIFICATION_BY_ASSIGNMENT` | Bulk & Programmatic |
+| `COMPOSITE_MODIFICATION` | Composition & Reference |
+| `MODIFICATION_REFERENCE` | Composition & Reference |
 
 ---
 
-## 5. DTO Hierarchy & Fields
+## 5. DTO Hierarchy & Field References
 
 ### 5.1 Equipment Modification DTOs
 
 #### `EquipmentModificationInfos` ← `ModificationInfos`
 
-Base class for all modifications targeting a specific equipment.
+Base class for modifications targeting an existing equipment entity.
 
 | Field | Type | Description |
 |---|---|---|
-| `equipmentId` | `String` | **Required.** ID of the target equipment |
-| `properties` | `List<FreePropertyInfos>` | Optional key-value properties to set on the equipment |
+| `equipmentId` | `String` | **Required.** Identifier of the target equipment |
+| `properties` | `List<FreePropertyInfos>` | Custom key-value properties to assign or delete |
 
 #### `BasicEquipmentModificationInfos` ← `EquipmentModificationInfos`
 
-Lightweight modification carrying only `equipmentId` and properties. Used for simple attribute changes.
+Lightweight DTO for simple equipment property alterations.
 
 ---
 
-### 5.2 Equipment Creation DTOs
+### 5.2 Equipment Creation Base DTOs
 
 #### `EquipmentCreationInfos` ← `EquipmentModificationInfos`
 
 | Field | Type | Description |
 |---|---|---|
-| `equipmentName` | `String` | Human-readable display name for the new equipment |
+| `equipmentName` | `String` | Human-readable name for the new equipment |
 
 #### `InjectionCreationInfos` ← `EquipmentCreationInfos`
 
-Base class for all injection equipment (loads, generators, batteries, etc.).
+Base class for injection equipment creations.
 
 | Field | Type | Description |
 |---|---|---|
-| `voltageLevelId` | `String` | **Required.** ID of the voltage level where the injection is created |
-| `busOrBusbarSectionId` | `String` | **Required.** Bus (bus-breaker topology) or busbar section ID (node-breaker topology) |
-| `connectionName` | `String` | Name of the connection point |
-| `connectionDirection` | `ConnectablePosition.Direction` | Direction of connection (`TOP`, `BOTTOM`, `UNDEFINED`) |
-| `connectionPosition` | `Integer` | Position order of the feeder bay |
-| `terminalConnected` | `Boolean` | Whether the terminal is connected at creation (default `true`) |
+| `voltageLevelId` | `String` | **Required.** Voltage level identifier |
+| `busOrBusbarSectionId` | `String` | **Required.** Bus (bus-breaker) or busbar section (node-breaker) identifier |
+| `connectionName` | `String` | Feeder connection name |
+| `connectionDirection` | `ConnectablePosition.Direction` | Direction: `TOP`, `BOTTOM`, or `UNDEFINED` |
+| `connectionPosition` | `Integer` | Feeder position index in the bay |
+| `terminalConnected` | `Boolean` | Initial connection status (default `true`) |
 
 #### `BranchCreationInfos` ← `EquipmentCreationInfos`
 
-Base class for branch equipment (lines, transformers).
+Base class for branch equipment creations (lines, transformers).
 
 | Field | Type | Description |
 |---|---|---|
-| `voltageLevelId1` | `String` | Voltage level ID at terminal 1 |
-| `busOrBusbarSectionId1` | `String` | Bus/busbar section at terminal 1 |
-| `connectionName1` | `String` | Connection name at terminal 1 |
-| `connectionDirection1` | `ConnectablePosition.Direction` | Connection direction at terminal 1 |
-| `connectionPosition1` | `Integer` | Feeder order position at terminal 1 |
-| `connected1` | `Boolean` | Terminal 1 connection state |
-| `voltageLevelId2` | `String` | Voltage level ID at terminal 2 |
-| `busOrBusbarSectionId2` | `String` | Bus/busbar section at terminal 2 |
-| `connectionName2` | `String` | Connection name at terminal 2 |
-| `connectionDirection2` | `ConnectablePosition.Direction` | Connection direction at terminal 2 |
-| `connectionPosition2` | `Integer` | Feeder order position at terminal 2 |
-| `connected2` | `Boolean` | Terminal 2 connection state |
-| `currentLimits1` | `CurrentLimitsInfos` | Permanent and temporary current limits at terminal 1 |
-| `currentLimits2` | `CurrentLimitsInfos` | Permanent and temporary current limits at terminal 2 |
+| `voltageLevelId1` / `voltageLevelId2` | `String` | Voltage level ID at terminals 1 & 2 |
+| `busOrBusbarSectionId1` / `Id2` | `String` | Bus/busbar section ID at terminals 1 & 2 |
+| `connectionName1` / `Name2` | `String` | Connection name at terminals 1 & 2 |
+| `connectionDirection1` / `Direction2` | `ConnectablePosition.Direction` | Connection direction at terminals 1 & 2 |
+| `connectionPosition1` / `Position2` | `Integer` | Feeder position order at terminals 1 & 2 |
+| `connected1` / `connected2` | `Boolean` | Connection status at terminals 1 & 2 |
+| `currentLimits1` / `currentLimits2` | `CurrentLimitsInfos` | Permanent and temporary current limits at terminals 1 & 2 |
 
 ---
 
@@ -320,7 +277,7 @@ Base class for branch equipment (lines, transformers).
 
 | Field | Type | Description |
 |---|---|---|
-| `loadType` | `LoadType` | Type of load (`UNDEFINED`, `AUXILIARY`, `FICTITIOUS`) |
+| `loadType` | `LoadType` | `UNDEFINED`, `AUXILIARY`, `FICTITIOUS` |
 | `p0` | `double` | Active power consumption (MW) |
 | `q0` | `double` | Reactive power consumption (MVar) |
 
@@ -328,42 +285,37 @@ Base class for branch equipment (lines, transformers).
 
 | Field | Type | Description |
 |---|---|---|
-| `energySource` | `EnergySource` | Energy source type (`HYDRO`, `NUCLEAR`, `WIND`, `SOLAR`, `OTHER`, …) |
-| `minP` | `double` | Minimum active power output (MW) |
-| `maxP` | `double` | Maximum active power output (MW) |
-| `ratedS` | `Double` | Rated nominal power (MVA) |
+| `energySource` | `EnergySource` | `HYDRO`, `NUCLEAR`, `WIND`, `SOLAR`, `THERMAL`, `OTHER`, … |
+| `minP` / `maxP` | `double` | Minimum / maximum active power output (MW) |
+| `ratedS` | `Double` | Rated nominal apparent power (MVA) |
 | `targetP` | `double` | Active power set point (MW) |
 | `targetQ` | `Double` | Reactive power set point (MVar) |
-| `voltageRegulationOn` | `boolean` | Whether voltage regulation is enabled |
+| `voltageRegulationOn` | `boolean` | Voltage regulation enabled |
 | `targetV` | `Double` | Voltage set point (kV) |
-| `plannedActivePowerSetPoint` | `Double` | Planning active power set point |
-| `marginalCost` | `Double` | Marginal cost |
-| `plannedOutageRate` | `Double` | Planning outage rate |
-| `forcedOutageRate` | `Double` | Forced outage rate |
-| `minQ` | `Double` | Minimum reactive power (MVar) |
-| `maxQ` | `Double` | Maximum reactive power (MVar) |
-| `reactiveCapabilityCurvePoints` | `List<ReactiveCapabilityCurvePointsInfos>` | Points of the reactive capability curve |
-| `regulatingTerminalId` | `String` | ID of the regulating terminal (if remote regulation) |
-| `regulatingTerminalType` | `String` | Equipment type of the regulating terminal |
-| `regulatingTerminalVlId` | `String` | Voltage level of the regulating terminal |
+| `minQ` / `maxQ` | `Double` | Minimum / maximum reactive power limits (MVar) |
+| `plannedActivePowerSetPoint` | `Double` | Planned active power set point |
+| `marginalCost` | `Double` | Marginal generation cost |
+| `plannedOutageRate` / `forcedOutageRate` | `Double` | Outage rates |
+| `reactiveCapabilityCurvePoints` | `List<ReactiveCapabilityCurvePointsInfos>` | Reactive capability curve definition |
+| `regulatingTerminalId` | `String` | Remote terminal ID for regulation |
+| `regulatingTerminalType` | `String` | Remote terminal equipment type |
+| `regulatingTerminalVlId` | `String` | Remote terminal voltage level ID |
 | `qPercent` | `Double` | Reactive droop coefficient |
 | `stepUpTransformerX` | `Double` | Step-up transformer reactance (Ω) |
-| `directTransX` | `Double` | Direct axis transient reactance |
-| `participate` | `Boolean` | Whether this generator participates in frequency control |
+| `directTransX` | `Double` | Direct-axis transient reactance |
+| `participate` | `Boolean` | Participation in frequency control |
 | `droop` | `Float` | Frequency droop coefficient |
 
 #### `BatteryCreationInfos` ← `InjectionCreationInfos`
 
 | Field | Type | Description |
 |---|---|---|
-| `minP` | `double` | Minimum active power (MW) |
-| `maxP` | `double` | Maximum active power (MW) |
-| `targetP` | `double` | Active power set point (MW) |
-| `targetQ` | `Double` | Reactive power set point (MVar) |
-| `participate` | `Boolean` | Participates in frequency regulation |
-| `droop` | `Float` | Frequency droop |
-| `minQ` / `maxQ` | `Double` | Reactive limits |
-| `reactiveCapabilityCurvePoints` | `List<ReactiveCapabilityCurvePointsInfos>` | Reactive capability curve |
+| `minP` / `maxP` | `double` | Active power limits (MW) |
+| `targetP` / `targetQ` | `double` / `Double` | Active / reactive power set points |
+| `participate` | `Boolean` | Frequency control participation |
+| `droop` | `Float` | Frequency droop coefficient |
+| `minQ` / `maxQ` | `Double` | Reactive power limits |
+| `reactiveCapabilityCurvePoints` | `List<ReactiveCapabilityCurvePointsInfos>` | Reactive capability curve points |
 
 #### `ShuntCompensatorCreationInfos` ← `InjectionCreationInfos`
 
@@ -372,27 +324,22 @@ Base class for branch equipment (lines, transformers).
 | `maxSusceptance` | `Double` | Maximum susceptance (S) |
 | `maxQAtNominalV` | `Double` | Maximum reactive power at nominal voltage (MVar) |
 | `shuntCompensatorType` | `ShuntCompensatorType` | `CAPACITOR` or `REACTOR` |
-| `sectionCount` | `Integer` | Current number of sections |
-| `maximumSectionCount` | `Integer` | Maximum number of sections |
-| `regulatingTerminalId` | `String` | Regulating terminal ID |
-| `regulatingTerminalType` | `String` | Equipment type of regulating terminal |
-| `regulatingTerminalVlId` | `String` | Voltage level of regulating terminal |
-| `voltageSetpoint` | `Double` | Target voltage (kV) |
-| `qPercent` | `Double` | Reactive droop |
+| `sectionCount` / `maximumSectionCount` | `Integer` | Current and maximum section count |
+| `regulatingTerminalId` / `Type` / `VlId` | `String` | Regulating terminal descriptor |
+| `voltageSetpoint` | `Double` | Voltage set point (kV) |
+| `qPercent` | `Double` | Reactive droop percentage |
 
 #### `StaticVarCompensatorCreationInfos` ← `InjectionCreationInfos`
 
 | Field | Type | Description |
 |---|---|---|
-| `minSusceptance` / `maxSusceptance` | `Double` | Susceptance limits (S) |
-| `minQ` / `maxQ` | `Double` | Reactive power limits (MVar) |
+| `minSusceptance` / `maxSusceptance` | `Double` | Susceptance boundaries (S) |
+| `minQ` / `maxQ` | `Double` | Reactive power boundaries (MVar) |
 | `regulationMode` | `StaticVarCompensator.RegulationMode` | `VOLTAGE`, `REACTIVE_POWER`, `OFF` |
-| `voltageSetpoint` | `Double` | Voltage set point (kV) |
-| `reactivePowerSetpoint` | `Double` | Reactive power set point (MVar) |
-| `voltageRegulationType` | `VoltageRegulationType` | Local or distant regulation type |
-| `regulatingTerminalId` | `String` | Regulating terminal ID |
-| `regulatingTerminalType` | `String` | Regulating terminal equipment type |
-| `regulatingTerminalVlId` | `String` | Regulating terminal voltage level |
+| `voltageSetpoint` | `Double` | Target voltage set point (kV) |
+| `reactivePowerSetpoint` | `Double` | Target reactive power set point (MVar) |
+| `voltageRegulationType` | `VoltageRegulationType` | `LOCAL` or `DISTANT` |
+| `regulatingTerminalId` / `Type` / `VlId` | `String` | Remote regulation terminal properties |
 
 ---
 
@@ -402,62 +349,68 @@ Base class for branch equipment (lines, transformers).
 
 | Field | Type | Description |
 |---|---|---|
-| `r` | `double` | Resistance (Ω) |
-| `x` | `double` | Reactance (Ω) |
-| `g1` / `b1` | `double` | Conductance/susceptance at terminal 1 (S) |
-| `g2` / `b2` | `double` | Conductance/susceptance at terminal 2 (S) |
+| `r` | `double` | Series resistance (Ω) |
+| `x` | `double` | Series reactance (Ω) |
+| `g1` / `b1` | `double` | Shunt conductance / susceptance at terminal 1 (S) |
+| `g2` / `b2` | `double` | Shunt conductance / susceptance at terminal 2 (S) |
 
 #### `TwoWindingsTransformerCreationInfos` ← `BranchCreationInfos`
 
 | Field | Type | Description |
 |---|---|---|
-| `r` | `double` | Resistance (Ω) |
-| `x` | `double` | Reactance (Ω) |
-| `g` | `double` | Conductance (S) |
-| `b` | `double` | Susceptance (S) |
-| `ratedU1` | `double` | Rated voltage at terminal 1 (kV) |
-| `ratedU2` | `double` | Rated voltage at terminal 2 (kV) |
-| `ratedS` | `Double` | Rated apparent power (MVA) |
-| `ratioTapChanger` | `RatioTapChangerCreationInfos` | Ratio tap changer definition |
-| `phaseTapChanger` | `PhaseTapChangerCreationInfos` | Phase tap changer definition |
+| `r` | `double` | Series resistance (Ω) |
+| `x` | `double` | Series reactance (Ω) |
+| `g` / `b` | `double` | Magnetizing conductance / susceptance (S) |
+| `ratedU1` / `ratedU2` | `double` | Rated voltages at terminals 1 & 2 (kV) |
+| `ratedS` | `Double` | Rated nominal apparent power (MVA) |
+| `ratioTapChanger` | `RatioTapChangerCreationInfos` | Optional ratio tap changer configuration |
+| `phaseTapChanger` | `PhaseTapChangerCreationInfos` | Optional phase tap changer configuration |
 
 ---
 
 ### 5.5 Injection Modification DTOs
 
-All injection modification DTOs use `AttributeModification<T>` wrappers on their fields, allowing partial updates where `null` means "leave unchanged".
+Injection modification DTOs utilize `AttributeModification<T>` properties for selective, partial updates.
 
 #### `InjectionModificationInfos` ← `EquipmentModificationInfos`
 
 | Field | Type | Description |
 |---|---|---|
-| `voltageLevelId` | `AttributeModification<String>` | New voltage level ID |
-| `busOrBusbarSectionId` | `AttributeModification<String>` | New bus/busbar section ID |
+| `voltageLevelId` | `AttributeModification<String>` | Target voltage level |
+| `busOrBusbarSectionId` | `AttributeModification<String>` | Target bus / busbar section |
 
 #### `LoadModificationInfos` ← `InjectionModificationInfos`
 
 | Field | Type | Description |
 |---|---|---|
-| `loadType` | `AttributeModification<LoadType>` | New load type |
-| `p0` | `AttributeModification<Double>` | New active power consumption |
-| `q0` | `AttributeModification<Double>` | New reactive power consumption |
+| `loadType` | `AttributeModification<LoadType>` | Load type |
+| `p0` | `AttributeModification<Double>` | Active power consumption (MW) |
+| `q0` | `AttributeModification<Double>` | Reactive power consumption (MVar) |
 
 #### `GeneratorModificationInfos` ← `InjectionModificationInfos`
 
 | Field | Type | Description |
 |---|---|---|
-| `energySource` | `AttributeModification<EnergySource>` | New energy source |
-| `minP` / `maxP` | `AttributeModification<Double>` | Active power limits |
-| `ratedS` | `AttributeModification<Double>` | Rated power |
-| `targetP` / `targetQ` / `targetV` | `AttributeModification<Double>` | Set points |
-| `voltageRegulationOn` | `AttributeModification<Boolean>` | Voltage regulation state |
-| `participate` | `AttributeModification<Boolean>` | Frequency participation |
+| `energySource` | `AttributeModification<EnergySource>` | Energy source |
+| `minP` / `maxP` | `AttributeModification<Double>` | Active power boundaries (MW) |
+| `ratedS` | `AttributeModification<Double>` | Rated apparent power (MVA) |
+| `targetP` / `targetQ` / `targetV` | `AttributeModification<Double>` | Operational set points |
+| `voltageRegulationOn` | `AttributeModification<Boolean>` | Voltage regulation status |
+| `participate` | `AttributeModification<Boolean>` | Frequency regulation participation |
 | `droop` | `AttributeModification<Float>` | Droop coefficient |
-| `reactiveCapabilityCurvePoints` | `List<ReactiveCapabilityCurvePointsInfos>` | New curve points |
+| `reactiveCapabilityCurvePoints` | `List<ReactiveCapabilityCurvePointsInfos>` | Capability curve points |
 
 #### `BatteryModificationInfos` ← `InjectionModificationInfos`
 
-Fields mirror `GeneratorModificationInfos` for applicable attributes.
+Mirrors generator modification attributes applicable to battery storage systems.
+
+#### `ShuntCompensatorModificationInfos` ← `InjectionModificationInfos`
+
+| Field | Type | Description |
+|---|---|---|
+| `sectionCount` | `AttributeModification<Integer>` | Number of active sections |
+| `maximumSectionCount` | `AttributeModification<Integer>` | Maximum section capacity |
+| `voltageSetpoint` | `AttributeModification<Double>` | Target voltage set point |
 
 ---
 
@@ -467,19 +420,17 @@ Fields mirror `GeneratorModificationInfos` for applicable attributes.
 
 | Field | Type | Description |
 |---|---|---|
-| `r` | `AttributeModification<Double>` | Resistance |
-| `x` | `AttributeModification<Double>` | Reactance |
-| `operationalLimitsGroups1` | `List<OperationalLimitsGroupModificationInfos>` | Limit groups at terminal 1 |
-| `operationalLimitsGroups2` | `List<OperationalLimitsGroupModificationInfos>` | Limit groups at terminal 2 |
-| `connected1` / `connected2` | `AttributeModification<Boolean>` | Terminal connection states |
+| `r` / `x` | `AttributeModification<Double>` | Resistance / Reactance |
+| `operationalLimitsGroups1` / `2` | `List<OperationalLimitsGroupModificationInfos>` | Limit group modifications at terminals 1 & 2 |
+| `connected1` / `connected2` | `AttributeModification<Boolean>` | Terminal connection status |
 
 #### `LineModificationInfos` ← `BranchModificationInfos`
 
-Adds `g1`, `b1`, `g2`, `b2` `AttributeModification<Double>` fields.
+Adds `g1`, `b1`, `g2`, `b2` wrapped in `AttributeModification<Double>`.
 
 #### `TwoWindingsTransformerModificationInfos` ← `BranchModificationInfos`
 
-Adds `g`, `b`, `ratedU1`, `ratedU2`, `ratedS`, `ratioTapChanger`, `phaseTapChanger` as attribute modifications.
+Adds `g`, `b`, `ratedU1`, `ratedU2`, `ratedS`, `ratioTapChanger`, and `phaseTapChanger` attribute modifications.
 
 ---
 
@@ -490,27 +441,26 @@ Adds `g`, `b`, `ratedU1`, `ratedU2`, `ratedS`, `ratioTapChanger`, `phaseTapChang
 | Field | Type | Description |
 |---|---|---|
 | `country` | `Country` | Country code (ISO 3166-1 alpha-2) |
-| `voltageLevels` | `List<VoltageLevelCreationInfos>` | Voltage levels to create inside the substation |
+| `voltageLevels` | `List<VoltageLevelCreationInfos>` | Child voltage levels to instantiate within substation |
 
 #### `SubstationModificationInfos` ← `EquipmentModificationInfos`
 
 | Field | Type | Description |
 |---|---|---|
-| `country` | `AttributeModification<Country>` | New country |
+| `country` | `AttributeModification<Country>` | Updated country code |
 
 #### `VoltageLevelCreationInfos` ← `EquipmentCreationInfos`
 
 | Field | Type | Description |
 |---|---|---|
-| `substationId` | `String` | Parent substation ID |
+| `substationId` | `String` | Parent substation identifier |
 | `nominalV` | `double` | Nominal voltage (kV) |
-| `lowVoltageLimit` | `Double` | Low voltage limit (kV) |
-| `highVoltageLimit` | `Double` | High voltage limit (kV) |
-| `ipMin` / `ipMax` | `Double` | Minimum/maximum current (A) |
-| `busbarCount` | `int` | Number of busbar sections (node-breaker) |
-| `sectionCount` | `int` | Number of sections per busbar (node-breaker) |
+| `lowVoltageLimit` / `highVoltageLimit` | `Double` | Operating voltage limits (kV) |
+| `ipMin` / `ipMax` | `Double` | Short-circuit current limits (A) |
+| `busbarCount` | `int` | Number of busbars (node-breaker) |
+| `sectionCount` | `int` | Section count per busbar |
 | `switchKinds` | `List<SwitchKind>` | Switch types between sections |
-| `couplingDevices` | `List<CouplingDeviceInfos>` | Coupling devices |
+| `couplingDevices` | `List<CouplingDeviceInfos>` | Initial coupling devices |
 | `topologyKind` | `TopologyKind` | `BUS_BREAKER` or `NODE_BREAKER` |
 
 #### `VoltageLevelModificationInfos` ← `EquipmentModificationInfos`
@@ -518,7 +468,7 @@ Adds `g`, `b`, `ratedU1`, `ratedU2`, `ratedS`, `ratioTapChanger`, `phaseTapChang
 | Field | Type | Description |
 |---|---|---|
 | `nominalV` | `AttributeModification<Double>` | Nominal voltage |
-| `lowVoltageLimit` / `highVoltageLimit` | `AttributeModification<Double>` | Voltage limits |
+| `lowVoltageLimit` / `highVoltageLimit` | `AttributeModification<Double>` | Voltage operating limits |
 | `ipMin` / `ipMax` | `AttributeModification<Double>` | Current limits |
 
 ---
@@ -530,24 +480,22 @@ Adds `g`, `b`, `ratedU1`, `ratedU2`, `ratedS`, `ratioTapChanger`, `phaseTapChang
 | Field | Type | Description |
 |---|---|---|
 | `dcNominalVoltage` | `double` | DC nominal voltage (kV) |
-| `dcResistance` | `double` | DC resistance (Ω) |
+| `dcResistance` | `double` | DC line resistance (Ω) |
 | `nominalV` | `double` | AC nominal voltage (kV) |
-| `maxP` | `double` | Maximum active power (MW) |
+| `maxP` | `double` | Maximum active power capacity (MW) |
 | `activePowerSetpoint` | `double` | Active power set point (MW) |
-| `operatorActivePowerLimitSide1` / `Side2` | `Float` | Operator active power limits per side |
-| `convertersMode` | `HvdcLine.ConvertersMode` | `SIDE_1_RECTIFIER_SIDE_2_INVERTER` or reversed |
-| `converterStation1` / `converterStation2` | `ConverterStationCreationInfos` | VSC converter stations |
-| `angleDroopActivePowerControl` | `Boolean` | Enable droop control |
-| `p0` | `Float` | Active power reference for droop |
-| `droop` | `Float` | Droop coefficient |
+| `operatorActivePowerLimitSide1` / `Side2` | `Float` | Operator limits |
+| `convertersMode` | `HvdcLine.ConvertersMode` | Converter rectifier/inverter modes |
+| `converterStation1` / `converterStation2` | `ConverterStationCreationInfos` | VSC converter station specifications |
+| `angleDroopActivePowerControl` | `Boolean` | Enable angle droop control |
+| `p0` / `droop` | `Float` | Active power reference and droop slope |
 
 #### `LccCreationInfos` ← `EquipmentCreationInfos`
 
 | Field | Type | Description |
 |---|---|---|
 | `nominalV` / `dcNominalVoltage` / `dcResistance` | `double` | Electrical parameters |
-| `maxP` | `double` | Maximum active power (MW) |
-| `activePowerSetpoint` | `double` | Active power set point (MW) |
+| `maxP` / `activePowerSetpoint` | `double` | Power limits and set points |
 | `convertersMode` | `HvdcLine.ConvertersMode` | Converter mode |
 | `converterStation1` / `converterStation2` | `LccConverterStationCreationInfos` | LCC converter stations |
 
@@ -555,70 +503,18 @@ Adds `g`, `b`, `ratedU1`, `ratedU2`, `ratedS`, `ratioTapChanger`, `phaseTapChang
 
 ### 5.9 Topology Modification DTOs
 
-#### `LineSplitWithVoltageLevelInfos` ← `ModificationInfos`
-
-| Field | Type | Description |
+| DTO Class | Fields | Purpose |
 |---|---|---|
-| `lineToSplitId` | `String` | ID of the line to split |
-| `percent` | `double` | Position of the split point as a percentage from terminal 1 |
-| `mayNewVoltageLevelInfos` | `VoltageLevelCreationInfos` | New voltage level to create at the split point (if not existing) |
-| `existingVoltageLevelId` | `String` | Existing voltage level to use at the split point |
-| `bbsOrBusId` | `String` | Bus/busbar section in the split voltage level |
-| `newLine1Id` / `newLine2Id` | `String` | IDs for the two resulting lines |
-| `newLine1Name` / `newLine2Name` | `String` | Names for the two resulting lines |
-
-#### `LineAttachToVoltageLevelInfos` ← `ModificationInfos`
-
-| Field | Type | Description |
-|---|---|---|
-| `lineToAttachToId` | `String` | ID of the line to attach |
-| `percent` | `double` | Split position as percentage |
-| `attachmentPointId` | `String` | ID of the attachment voltage level or new bus |
-| `attachmentPointName` | `String` | Name of the attachment point |
-| `mayNewVoltageLevelInfos` | `VoltageLevelCreationInfos` | New voltage level if needed |
-| `existingVoltageLevelId` | `String` | Existing voltage level to attach to |
-| `bbsOrBusId` | `String` | Bus/busbar section ID at attachment |
-| `attachmentLineId` / `attachmentLineName` | `String` | New attachment line identity |
-| `newLine1Id` / `newLine1Name` | `String` | First segment of the split line |
-| `newLine2Id` / `newLine2Name` | `String` | Second segment of the split line |
-
-#### `DeleteVoltageLevelOnLineInfos` ← `ModificationInfos`
-
-| Field | Type | Description |
-|---|---|---|
-| `lineToAttachTo1Id` / `lineToAttachTo2Id` | `String` | The two lines on each side of the voltage level |
-| `replacingLine1Id` / `replacingLine1Name` | `String` | New line replacing the split configuration |
-
-#### `CreateVoltageLevelTopologyInfos` ← `ModificationInfos`
-
-| Field | Type | Description |
-|---|---|---|
-| `substationId` | `String` | Target substation |
-| `voltageLevelId` / `voltageLevelName` | `String` | New voltage level identity |
-| `nominalV` | `double` | Nominal voltage (kV) |
-| `lowVoltageLimit` / `highVoltageLimit` | `Double` | Voltage limits |
-| `busbarCount` / `sectionCount` | `int` | Topology dimensions |
-| `switchKinds` | `List<SwitchKind>` | Inter-section switch types |
-
-#### `CreateVoltageLevelSectionInfos` ← `ModificationInfos`
-
-| Field | Type | Description |
-|---|---|---|
-| `voltageLevelId` | `String` | Target voltage level |
-| `switchKinds` | `List<SwitchKind>` | Switch types for the new section |
-
-#### `MoveVoltageLevelFeederBaysInfos` ← `ModificationInfos`
-
-| Field | Type | Description |
-|---|---|---|
-| `voltageLevelId` | `String` | Target voltage level |
-| `feederBaysMoves` | `List<MoveFeederBayInfos>` | Ordered list of bay moves |
-
-#### `VoltageLevelTopologyModificationInfos` ← `EquipmentModificationInfos`
-
-| Field | Type | Description |
-|---|---|---|
-| `busbarSectionToSwitchesAttributes` | `List<BusbarSectionToSwitchesAttributes>` | Map of busbar section to switch configuration |
+| `LineSplitWithVoltageLevelInfos` | `lineToSplitId`, `percent`, `mayNewVoltageLevelInfos`, `existingVoltageLevelId`, `bbsOrBusId`, `newLine1Id`, `newLine2Id`, `newLine1Name`, `newLine2Name` | Split line by inserting a voltage level |
+| `LineAttachToVoltageLevelInfos` | `lineToAttachToId`, `percent`, `attachmentPointId`, `attachmentPointName`, `mayNewVoltageLevelInfos`, `existingVoltageLevelId`, `bbsOrBusId`, `attachmentLineId`, `attachmentLineName`, `newLine1Id`, `newLine2Id` | Attach end of line to a voltage level |
+| `LinesAttachToSplitLinesInfos` | `lineToAttachTo1Id`, `lineToAttachTo2Id`, `attachedLineId`, `voltageLevelId`, `bbsBusId`, `replacingLine1Id`, `replacingLine1Name`, `replacingLine2Id`, `replacingLine2Name` | Attach lines around a split configuration |
+| `DeleteVoltageLevelOnLineInfos` | `lineToAttachTo1Id`, `lineToAttachTo2Id`, `replacingLine1Id`, `replacingLine1Name` | Remove intermediate voltage level from line |
+| `DeleteAttachingLineInfos` | `lineToAttachTo1Id`, `lineToAttachTo2Id`, `attachedLineId`, `replacingLine1Id`, `replacingLine1Name` | Delete attaching line |
+| `CreateCouplingDeviceInfos` | `voltageLevelId`, `couplingDeviceInfos` | Add coupling breaker between busbars |
+| `CreateVoltageLevelTopologyInfos` | `substationId`, `voltageLevelId`, `voltageLevelName`, `nominalV`, `lowVoltageLimit`, `highVoltageLimit`, `busbarCount`, `sectionCount`, `switchKinds` | Create full voltage level topology |
+| `CreateVoltageLevelSectionInfos` | `voltageLevelId`, `switchKinds` | Add a section to an existing voltage level |
+| `MoveVoltageLevelFeederBaysInfos` | `voltageLevelId`, `feederBaysMoves` | Reallocate bays across busbar sections |
+| `VoltageLevelTopologyModificationInfos` | `busbarSectionToSwitchesAttributes` | Update switch topology configuration |
 
 ---
 
@@ -626,17 +522,16 @@ Adds `g`, `b`, `ratedU1`, `ratedU2`, `ratedS`, `ratioTapChanger`, `phaseTapChang
 
 #### `EquipmentDeletionInfos` ← `EquipmentModificationInfos`
 
-| Field | Type | Description |
-|---|---|---|
-| `equipmentType` | `String` | Type name of the equipment to delete |
-| `equipmentInfos` | `AbstractEquipmentDeletionInfos` | Additional deletion parameters (e.g. HVDC shunt compensators) |
+Deletes a single piece of equipment identified by `equipmentId` and `equipmentType`.
 
 #### `ByFilterDeletionInfos` ← `ModificationInfos`
 
+Deletes all equipment matching filter criteria.
+
 | Field | Type | Description |
 |---|---|---|
-| `equipmentType` | `IdentifiableType` | Type of equipment to delete |
-| `filters` | `List<FilterInfos>` | Filters identifying the equipment to delete |
+| `equipmentType` | `IdentifiableType` | Target equipment type |
+| `filters` | `List<FilterInfos>` | Filter identifiers used to select equipment |
 
 ---
 
@@ -644,87 +539,50 @@ Adds `g`, `b`, `ratedU1`, `ratedU2`, `ratedS`, `ratioTapChanger`, `phaseTapChang
 
 #### `ScalingInfos` ← `ModificationInfos`
 
-Base class for scaling modifications.
+Abstract base for power scaling.
 
 | Field | Type | Description |
 |---|---|---|
-| `variations` | `List<ScalingVariationInfos>` | List of scaling variations to apply |
-| `variationType` | `VariationType` | `DELTA_P` (add delta) or `TARGET_P` (set absolute value) |
+| `variations` | `List<ScalingVariationInfos>` | List of scaling variations |
+| `variationType` | `VariationType` | `DELTA_P` (relative delta) or `TARGET_P` (absolute value) |
+
+- `GeneratorScalingInfos` ← `ScalingInfos` (scales active power across selected generators).
+- `LoadScalingInfos` ← `ScalingInfos` (scales active power across selected loads).
 
 #### `ScalingVariationInfos`
 
 | Field | Type | Description |
 |---|---|---|
-| `filters` | `List<FilterInfos>` | Equipment selection filters |
-| `variationMode` | `VariationMode` | How power is distributed (`PROPORTIONAL_TO_PMAX`, `REGULAR_DISTRIBUTION`, `STACKING_UP`, `VENTILATION`) |
-| `variationValue` | `double` | The variation amount (MW) |
-| `reactiveVariationMode` | `ReactiveVariationMode` | Reactive power handling (`CONSTANT_Q`, `TAN_PHI_FIXED`) |
-
-#### `GeneratorScalingInfos` ← `ScalingInfos`
-
-Adds no additional fields. Delegates to `GeneratorScaling` implementation.
-
-#### `LoadScalingInfos` ← `ScalingInfos`
-
-Adds no additional fields. Delegates to `LoadScaling` implementation.
+| `filters` | `List<FilterInfos>` | Selection filter definitions |
+| `variationMode` | `VariationMode` | `PROPORTIONAL_TO_PMAX`, `PROPORTIONAL_TO_P`, `REGULAR_DISTRIBUTION`, `STACKING_UP`, `VENTILATION` |
+| `variationValue` | `double` | Target power variation value (MW) |
+| `reactiveVariationMode` | `ReactiveVariationMode` | `CONSTANT_Q` or `TAN_PHI_FIXED` |
 
 #### `GenerationDispatchInfos` ← `ModificationInfos`
 
 | Field | Type | Description |
 |---|---|---|
-| `lossCoefficient` | `double` | Network loss coefficient (%) |
-| `defaultOutageRate` | `double` | Default generator outage rate |
-| `generatorsWithoutOutage` | `List<GeneratorsWithoutOutageInfos>` | Generators exempt from outage |
-| `generatorsWithFixedSupply` | `List<GeneratorsFilterInfos>` | Generators with fixed supply |
-| `generatorsFrequencyReserve` | `List<GeneratorsFrequencyReserveInfos>` | Frequency reserve requirements |
-| `substationsGeneratorsOrdering` | `List<SubstationsGeneratorsOrderingInfos>` | Ordering of generators by substation |
-| `loadFlowParametersUuid` | `UUID` | UUID of load-flow parameters to use |
+| `lossCoefficient` | `double` | Loss percentage factor |
+| `defaultOutageRate` | `double` | Generator outage rate default |
+| `generatorsWithoutOutage` | `List<GeneratorsWithoutOutageInfos>` | Exempted generators |
+| `generatorsWithFixedSupply` | `List<GeneratorsFilterInfos>` | Fixed supply generators |
+| `generatorsFrequencyReserve` | `List<GeneratorsFrequencyReserveInfos>` | Frequency reserve allocation |
+| `substationsGeneratorsOrdering` | `List<SubstationsGeneratorsOrderingInfos>` | Dispatch ordering preferences |
+| `loadFlowParametersUuid` | `UUID` | Load-flow settings reference |
 
 ---
 
-### 5.12 Bulk / Programmatic Modification DTOs
+### 5.12 Bulk & Programmatic Modification DTOs
 
-#### `EquipmentAttributeModificationInfos` ← `EquipmentModificationInfos`
-
-| Field | Type | Description |
+| DTO Class | Fields | Purpose |
 |---|---|---|
-| `equipmentAttributeName` | `String` | Name of the attribute to change |
-| `equipmentAttributeValue` | `Object` | New value for the attribute |
-| `equipmentType` | `IdentifiableType` | Type of the targeted equipment |
-
-#### `GroovyScriptInfos` ← `ModificationInfos`
-
-| Field | Type | Description |
-|---|---|---|
-| `script` | `String` | **Required.** Groovy script code to execute against the `network` variable |
-
-#### `TabularModificationInfos` ← `ModificationInfos`
-
-| Field | Type | Description |
-|---|---|---|
-| `modificationType` | `ModificationType` | Type of individual row modification |
-| `modifications` | `List<ModificationInfos>` | One DTO per equipment to modify |
-
-#### `TabularCreationInfos` ← `ModificationInfos`
-
-| Field | Type | Description |
-|---|---|---|
-| `creationType` | `ModificationType` | Type of individual row creation |
-| `creations` | `List<ModificationInfos>` | One DTO per equipment to create |
-
-#### `ByFormulaModificationInfos` ← `ModificationInfos`
-
-| Field | Type | Description |
-|---|---|---|
-| `identifiableType` | `IdentifiableType` | Equipment type to target |
-| `formulaInfosList` | `List<FormulaInfos>` | List of formula descriptors |
-
-#### `ModificationByAssignmentInfos` ← `ModificationInfos`
-
-| Field | Type | Description |
-|---|---|---|
-| `identifiableType` | `IdentifiableType` | Equipment type to target |
-| `assignmentInfosList` | `List<AbstractAssignmentInfos>` | List of assignment rules |
+| `EquipmentAttributeModificationInfos` | `equipmentAttributeName`, `equipmentAttributeValue`, `equipmentType` | Modify a specific attribute by name |
+| `GroovyScriptInfos` | `script` | Execute dynamic Groovy script on `network` |
+| `TabularModificationInfos` | `modificationType`, `modifications` | Batch modify multiple equipment from a table |
+| `TabularCreationInfos` | `creationType`, `creations` | Batch create multiple equipment from a table |
+| `LimitSetsTabularModificationInfos` | Inherits `TabularModificationInfos` | Bulk edit operational limit sets |
+| `ByFormulaModificationInfos` | `identifiableType`, `formulaInfosList` | Calculate attribute values via mathematical expressions |
+| `ModificationByAssignmentInfos` | `identifiableType`, `assignmentInfosList` | Assign values based on filter conditions |
 
 ---
 
@@ -734,26 +592,19 @@ Adds no additional fields. Delegates to `LoadScaling` implementation.
 
 | Field | Type | Description |
 |---|---|---|
-| `energizedVoltageLevelId` | `String` | Voltage level energizing the equipment |
+| `energizedVoltageLevelId` | `String` | Voltage level providing energization |
 | `action` | `ActionType` | `LOCKOUT`, `TRIP`, `SWITCH_ON`, `ENERGISE_END_ONE`, `ENERGISE_END_TWO` |
-
-#### `VoltageInitModificationInfos` ← `ModificationInfos`
-
-| Field | Type | Description |
-|---|---|---|
-| `generators` | `List<VoltageInitGeneratorModificationInfos>` | Generator set points to initialise |
-| `transformers` | `List<VoltageInitTransformerModificationInfos>` | Transformer tap positions to set |
-| `staticVarCompensators` | `List<VoltageInitStaticVarCompensatorModificationInfos>` | SVC settings |
-| `vscConverterStations` | `List<VoltageInitVscConverterStationModificationInfos>` | VSC station settings |
-| `shuntCompensators` | `List<VoltageInitShuntCompensatorModificationInfos>` | Shunt section counts |
-| `buses` | `List<VoltageInitBusModificationInfos>` | Bus voltage angles |
 
 #### `BalancesAdjustmentModificationInfos` ← `ModificationInfos`
 
 | Field | Type | Description |
 |---|---|---|
-| `areas` | `List<BalancesAdjustmentAreaInfos>` | Areas with their net position targets |
-| `loadFlowParametersUuid` | `UUID` | UUID of load-flow parameters |
+| `areas` | `List<BalancesAdjustmentAreaInfos>` | Area exchange targets |
+| `loadFlowParametersUuid` | `UUID` | Load-flow settings reference |
+
+#### `VoltageInitModificationInfos` ← `ModificationInfos`
+
+Contains collections of voltage initialization targets for `generators`, `transformers`, `staticVarCompensators`, `vscConverterStations`, `shuntCompensators`, and `buses`.
 
 ---
 
@@ -763,21 +614,17 @@ Adds no additional fields. Delegates to `LoadScaling` implementation.
 
 | Field | Type | Description |
 |---|---|---|
-| `name` | `String` | Human-readable name of the composite |
-| `modificationsInfos` | `List<ModificationInfos>` | Ordered list of sub-modifications |
-| `maxDepth` | `Integer` | Maximum nesting depth (computed at runtime) |
-
-Sub-modifications are only executed when both `activated = true` and `stashed = false`. Errors in sub-modifications are caught and logged; execution continues with the next sub-modification.
+| `name` | `String` | Descriptive scenario/composite name |
+| `modificationsInfos` | `List<ModificationInfos>` | Ordered list of child modifications |
+| `maxDepth` | `Integer` | Computed maximum nesting depth |
 
 #### `ModificationReferenceInfos` ← `ModificationInfos`
 
 | Field | Type | Description |
 |---|---|---|
-| `referenceId` | `UUID` | **Required.** UUID of the referenced modification |
-| `referenceType` | `Type` | `BASIC` (single modification) or `DIRECTORY` (a group) |
-| `referenceInfos` | `ModificationInfos` | **Required.** Resolved modification DTO (must be populated before use) |
-
-`check()` asserts that `referenceId`, `referenceType`, and `referenceInfos` are all non-null.
+| `referenceId` | `UUID` | UUID of the referenced modification |
+| `referenceType` | `Type` | `BASIC` or `DIRECTORY` |
+| `referenceInfos` | `ModificationInfos` | Resolved DTO representation |
 
 ---
 
@@ -785,244 +632,198 @@ Sub-modifications are only executed when both `activated = true` and `stashed = 
 
 ### `AttributeModification<T>`
 
-Generic wrapper for partial attribute updates in modification DTOs.
-
-| Field | Type | Description |
-|---|---|---|
-| `value` | `T` | The new value (may be null for UNSET) |
-| `op` | `OperationType` | `SET` or `UNSET` |
+Generic container for partial update operations:
 
 ```java
-// Set a new value
-AttributeModification<Double> setP = new AttributeModification<>(200.0, OperationType.SET);
+// Explicit update
+AttributeModification<Double> setP = new AttributeModification<>(250.0, OperationType.SET);
 
-// Unset (reset to null/default)
+// Reset to default
 AttributeModification<Double> unsetP = new AttributeModification<>(null, OperationType.UNSET);
 
-// Factory helper
-AttributeModification<Double> fromValue = AttributeModification.toAttributeModification(200.0, OperationType.SET);
+// Helper factory
+AttributeModification<Double> modP = AttributeModification.toAttributeModification(250.0, OperationType.SET);
 ```
-
-`applyModification(initialValue)` returns the new value according to the operation type.
-
----
 
 ### `FilterInfos`
 
-| Field | Type | Description |
-|---|---|---|
-| `id` | `UUID` | UUID of the filter |
-| `name` | `String` | Display name of the filter |
-
----
+Carries `UUID id` and `String name` for referencing filter rules.
 
 ### `CurrentLimitsInfos`
 
-| Field | Type | Description |
-|---|---|---|
-| `permanentLimit` | `Double` | Permanent current limit (A) |
-| `temporaryLimits` | `List<CurrentTemporaryLimitCreationInfos>` | Temporary limits with acceptable durations |
-
----
+Carries `Double permanentLimit` and `List<CurrentTemporaryLimitCreationInfos> temporaryLimits`.
 
 ### `FreePropertyInfos`
 
-| Field | Type | Description |
-|---|---|---|
-| `name` | `String` | Property name |
-| `value` | `String` | Property value |
-| `deletionMark` | `boolean` | When `true`, the property is removed from the equipment |
+Carries `String name`, `String value`, and `boolean deletionMark` for arbitrary equipment metadata tags.
 
 ---
 
-### `ReactiveCapabilityCurvePointsInfos`
+## 7. Exceptions & Error Types
 
-| Field | Type | Description |
-|---|---|---|
-| `p` | `double` | Active power point (MW) |
-| `minQ` | `double` | Minimum reactive power at that point (MVar) |
-| `maxQ` | `double` | Maximum reactive power at that point (MVar) |
+**Package:** `org.gridsuite.modification.error`
+
+`NetworkModificationException` extends `com.powsybl.commons.PowsyblException` and encapsulates domain-level errors encountered during check or apply phases.
+
+### Error Types (`NetworkModificationExceptionType`)
+
+| Type | Default Message |
+|---|---|
+| `GROOVY_SCRIPT_EMPTY` | The groovy script is empty |
+| `LINE_NOT_FOUND` | The line could not be found |
+| `LOAD_NOT_FOUND` | The load could not be found |
+| `BATTERY_NOT_FOUND` | The battery could not be found |
+| `GENERATOR_NOT_FOUND` | The generator could not be found |
+| `TWO_WINDINGS_TRANSFORMER_NOT_FOUND` | The two windings transformer could not be found |
+| `UNKNOWN_EQUIPMENT_TYPE` | The equipment type is unknown |
+| `WRONG_EQUIPMENT_TYPE` | The equipment type does not match the expected type |
+| `MODIFICATION_ERROR` | An error occurred while applying the modification |
+| `VOLTAGE_LEVEL_NOT_FOUND` | The voltage level could not be found |
+| `BUSBAR_SECTION_NOT_FOUND` | The busbar section could not be found |
+| `BUS_NOT_FOUND` | The bus could not be found |
+| `CREATE_BATTERY_ERROR` | An error occurred while creating the battery |
+| `CREATE_GENERATOR_ERROR` | An error occurred while creating the generator |
+| `CREATE_SHUNT_COMPENSATOR_ERROR` | An error occurred while creating the shunt compensator |
+| `MODIFY_SHUNT_COMPENSATOR_ERROR` | An error occurred while modifying the shunt compensator |
+| `CREATE_STATIC_VAR_COMPENSATOR_ERROR` | An error occurred while creating the static var compensator |
+| `EQUIPMENT_NOT_FOUND` | The equipment could not be found |
+| `ATTRIBUTE_NOT_EDITABLE` | The equipment attribute is not editable |
+| `CREATE_LINE_ERROR` | An error occurred while creating the line |
+| `MODIFY_LINE_ERROR` | An error occurred while modifying the line |
+| `CREATE_TWO_WINDINGS_TRANSFORMER_ERROR` | An error occurred while creating the two windings transformer |
+| `MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR` | An error occurred while modifying the two windings transformer |
+| `CREATE_VOLTAGE_LEVEL_ERROR` | An error occurred while creating the voltage level |
+| `MODIFY_VOLTAGE_LEVEL_ERROR` | An error occurred while modifying the voltage level |
+| `SUBSTATION_NOT_FOUND` | The substation could not be found |
+| `BATTERY_ALREADY_EXISTS` | A battery with this identifier already exists |
+| `LOAD_ALREADY_EXISTS` | A load with this identifier already exists |
+| `VOLTAGE_LEVEL_ALREADY_EXISTS` | A voltage level with this identifier already exists |
+| `GENERATOR_ALREADY_EXISTS` | A generator with this identifier already exists |
+| `SHUNT_COMPENSATOR_ALREADY_EXISTS` | A shunt compensator with this identifier already exists |
+| `SHUNT_COMPENSATOR_NOT_FOUND` | The shunt compensator could not be found |
+| `STATIC_VAR_COMPENSATOR_ALREADY_EXISTS` | A static var compensator with this identifier already exists |
+| `STATIC_VAR_COMPENSATOR_NOT_FOUND` | The static var compensator could not be found |
+| `LINE_ALREADY_EXISTS` | A line with this identifier already exists |
+| `TWO_WINDINGS_TRANSFORMER_ALREADY_EXISTS` | A two windings transformer with this identifier already exists |
+| `TWO_WINDINGS_TRANSFORMER_CREATION_ERROR` | An error occurred while creating the two windings transformer |
+| `BRANCH_MODIFICATION_ERROR` | An error occurred while modifying the branch |
+| `INJECTION_MODIFICATION_ERROR` | An error occurred while modifying the injection |
+| `MODIFY_BATTERY_ERROR` | An error occurred while modifying the battery |
+| `OPERATING_STATUS_MODIFICATION_ERROR` | An error occurred while modifying the operating status |
+| `OPERATING_ACTION_TYPE_EMPTY` | The operating action type is empty |
+| `OPERATING_ACTION_TYPE_UNSUPPORTED` | The operating action type is not supported |
+| `EQUIPMENT_TYPE_UNSUPPORTED` | The equipment type is not supported |
+| `MODIFY_GENERATOR_ERROR` | An error occurred while modifying the generator |
+| `EQUIPMENT_ATTRIBUTE_NAME_ERROR` | The equipment attribute name is invalid |
+| `EQUIPMENT_ATTRIBUTE_VALUE_ERROR` | The equipment attribute value is invalid |
+| `GENERATOR_SCALING_ERROR` | An error occurred while scaling the generators |
+| `LOAD_SCALING_ERROR` | An error occurred while scaling the loads |
+| `GENERATION_DISPATCH_ERROR` | An error occurred while dispatching the generation |
+| `VOLTAGE_INIT_MODIFICATION_ERROR` | An error occurred while applying the voltage init modification |
+| `TABULAR_MODIFICATION_ERROR` | An error occurred while applying the tabular modification |
+| `TABULAR_CREATION_ERROR` | An error occurred while applying the tabular creation |
+| `CREATE_VSC_ERROR` | An error occurred while creating the VSC converter station |
+| `MODIFY_VSC_ERROR` | An error occurred while modifying the VSC converter station |
+| `CREATE_LCC_ERROR` | An error occurred while creating the LCC converter station |
+| `MODIFY_LCC_ERROR` | An error occurred while modifying the LCC converter station |
+| `HVDC_LINE_ALREADY_EXISTS` | An HVDC line with this identifier already exists |
+| `VSC_CONVERTER_STATION_NOT_FOUND` | The VSC converter station could not be found |
+| `LCC_CONVERTER_STATION_NOT_FOUND` | The LCC converter station could not be found |
+| `BY_FORMULA_MODIFICATION_ERROR` | An error occurred while applying the modification by formula |
+| `MODIFICATION_BY_ASSIGNMENT_ERROR` | An error occurred while applying the modification by assignment |
+| `HVDC_LINE_NOT_FOUND` | The HVDC line could not be found |
+| `WRONG_HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL` | The HVDC angle droop active power control configuration is invalid |
+| `UNSUPPORTED_HYBRID_HVDC` | The hybrid HVDC line is not supported |
+| `MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR` | An error occurred while modifying the voltage level topology |
+| `CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR` | An error occurred while creating the voltage level topology |
+| `MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR` | An error occurred while moving the voltage level feeder bays |
 
 ---
 
-### `TapChangerCreationInfos` / `RatioTapChangerCreationInfos` / `PhaseTapChangerCreationInfos`
-
-Common tap changer fields:
-
-| Field | Type | Description |
-|---|---|---|
-| `lowTapPosition` | `int` | Lowest tap position index |
-| `tapPosition` | `int` | Current tap position |
-| `regulating` | `boolean` | Whether the tap changer is in automatic regulation |
-| `steps` | `List<TapChangerStepCreationInfos>` | List of tap steps |
-
-`RatioTapChangerCreationInfos` adds: `loadTapChangingCapabilities`, `targetV`, `targetDeadband`, `regulatingTerminalId/Type/VlId`.
-
-`PhaseTapChangerCreationInfos` adds: `regulationMode` (`CURRENT_LIMITER`, `ACTIVE_POWER_CONTROL`, `FIXED_TAP`), `regulationValue`, `targetDeadband`.
-
----
-
-## 7. `NetworkModificationException`
-
-**Package:** `org.gridsuite.modification`  
-**Extends:** `com.powsybl.commons.PowsyblException`
-
-### Constructor
-
-```java
-public NetworkModificationException(Type type, String message)
-public NetworkModificationException(Type type, Exception cause)
-public NetworkModificationException(Type type)
-```
-
-### `Type` Enum (selection)
-
-| Type | HTTP Status | Meaning |
-|---|---|---|
-| `NETWORK_NOT_FOUND` | 404 | Network not found |
-| `VARIANT_NOT_FOUND` | 404 | Network variant not found |
-| `EQUIPMENT_NOT_FOUND` | 404 | Generic equipment not found |
-| `GENERATOR_NOT_FOUND` | 404 | Generator not found |
-| `LOAD_NOT_FOUND` | 404 | Load not found |
-| `LINE_NOT_FOUND` | 404 | Line not found |
-| `VOLTAGE_LEVEL_NOT_FOUND` | 404 | Voltage level not found |
-| `SUBSTATION_NOT_FOUND` | 404 | Substation not found |
-| `SWITCH_NOT_FOUND` | 404 | Switch not found |
-| `BATTERY_NOT_FOUND` | 404 | Battery not found |
-| `TWO_WINDINGS_TRANSFORMER_NOT_FOUND` | 404 | Transformer not found |
-| `GENERATOR_ALREADY_EXISTS` | 400 | Generator ID already in use |
-| `LOAD_ALREADY_EXISTS` | 400 | Load ID already in use |
-| `LINE_ALREADY_EXISTS` | 400 | Line ID already in use |
-| `ATTRIBUTE_NOT_EDITABLE` | 400 | The requested attribute cannot be modified |
-| `GROOVY_SCRIPT_EMPTY` | 400 | Empty Groovy script provided |
-| `GROOVY_SCRIPT_ERROR` | 400 | Groovy execution error |
-| `CREATE_GENERATOR_ERROR` | 500 | Error during generator creation |
-| `CREATE_LOAD_ERROR` | 500 | Error during load creation |
-| `CREATE_LINE_ERROR` | 500 | Error during line creation |
-| `MODIFICATION_ERROR` | 500 | Generic modification error |
-| `WRONG_EQUIPMENT_TYPE` | 500 | Equipment has unexpected type |
-
----
-
-## 8. Enumerations
+## 8. Enumerations Reference
 
 ### `OperationType`
 
-| Value | Description |
-|---|---|
-| `SET` | Set the attribute to a new value |
-| `UNSET` | Remove / reset the attribute |
+`SET` (apply new value), `UNSET` (reset to default/null).
 
 ### `VariationType`
 
-| Value | Description |
-|---|---|
-| `DELTA_P` | Apply a relative change (add delta) |
-| `TARGET_P` | Set an absolute target value |
+`DELTA_P` (relative change), `TARGET_P` (absolute value).
 
 ### `VariationMode`
 
-| Value | Description |
-|---|---|
-| `PROPORTIONAL_TO_PMAX` | Scale proportionally to each equipment's Pmax |
-| `PROPORTIONAL_TO_P` | Scale proportionally to current output |
-| `REGULAR_DISTRIBUTION` | Distribute equally |
-| `STACKING_UP` | Stack up modifications sequentially |
-| `VENTILATION` | Ventilate based on a coefficient |
+`PROPORTIONAL_TO_PMAX`, `PROPORTIONAL_TO_P`, `REGULAR_DISTRIBUTION`, `STACKING_UP`, `VENTILATION`.
 
 ### `ReactiveVariationMode`
 
-| Value | Description |
-|---|---|
-| `CONSTANT_Q` | Keep reactive power constant |
-| `TAN_PHI_FIXED` | Keep tan(φ) = Q/P fixed |
+`CONSTANT_Q` (keep Q constant), `TAN_PHI_FIXED` (keep power factor fixed).
 
 ### `TapChangerType`
 
-| Value | Description |
-|---|---|
-| `RATIO` | Ratio tap changer |
-| `PHASE` | Phase-shifting tap changer |
+`RATIO`, `PHASE`.
 
 ### `ShuntCompensatorType`
 
-| Value | Description |
-|---|---|
-| `CAPACITOR` | Capacitor bank (reactive power injection) |
-| `REACTOR` | Reactor bank (reactive power absorption) |
+`CAPACITOR`, `REACTOR`.
 
 ### `VoltageRegulationType`
 
-| Value | Description |
-|---|---|
-| `DISTANT` | Regulates voltage at a remote terminal |
-| `LOCAL` | Regulates voltage at its own terminal |
+`LOCAL`, `DISTANT`.
 
 ### `RegulationSide`
 
-| Value | Description |
-|---|---|
-| `SIDE_1` | Regulation applies at terminal 1 |
-| `SIDE_2` | Regulation applies at terminal 2 |
+`SIDE_1`, `SIDE_2`.
+
+### `OperatingStatusModificationInfos.ActionType`
+
+`LOCKOUT`, `TRIP`, `SWITCH_ON`, `ENERGISE_END_ONE`, `ENERGISE_END_TWO`.
 
 ---
 
 ## 9. Usage Examples
 
-### Example 1 — Create a load
+### Example 1 — Create a Load
 
 ```java
 LoadCreationInfos loadInfos = LoadCreationInfos.builder()
-        .equipmentId("LOAD_A")
-        .equipmentName("Load A")
-        .voltageLevelId("VL1")
-        .busOrBusbarSectionId("BUS1")
+        .equipmentId("LOAD_1")
+        .equipmentName("Industrial Load 1")
+        .voltageLevelId("VL_NORTH_400")
+        .busOrBusbarSectionId("BUS_1")
         .loadType(LoadType.UNDEFINED)
-        .p0(50.0)
-        .q0(10.0)
+        .p0(120.0)
+        .q0(30.0)
         .build();
 
-AbstractModification mod = loadInfos.toModification();
-mod.check(network);
-mod.apply(network, reportNode);
+loadInfos.check();
+AbstractModification modification = loadInfos.toModification();
+modification.check(network);
+
+ReportNode reportNode = ReportNode.newRootReportNode()
+        .withMessageTemplate("root", "Root Report")
+        .build();
+
+modification.apply(network, reportNode);
 ```
 
-### Example 2 — Partially modify a generator
+### Example 2 — Partial Generator Modification
 
 ```java
 GeneratorModificationInfos genModif = GeneratorModificationInfos.builder()
-        .equipmentId("GEN1")
-        // only change targetP; leave everything else untouched
-        .targetP(AttributeModification.toAttributeModification(350.0, OperationType.SET))
+        .equipmentId("GEN_HYDRO_1")
+        .targetP(AttributeModification.toAttributeModification(280.0, OperationType.SET))
         .voltageRegulationOn(AttributeModification.toAttributeModification(true, OperationType.SET))
         .build();
 
 genModif.toModification().apply(network, reportNode);
 ```
 
-### Example 3 — Composite modification
-
-```java
-List<ModificationInfos> subMods = List.of(loadInfos, genModif);
-
-CompositeModificationInfos composite = CompositeModificationInfos.builder()
-        .name("Morning scenario")
-        .modificationsInfos(subMods.stream()
-                .map(m -> { m.setActivated(true); m.setStashed(false); return m; })
-                .toList())
-        .build();
-
-AbstractModification compositeModification = composite.toModification();
-compositeModification.initApplicationContext(filterService, loadFlowService);
-compositeModification.apply(network, reportNode);
-```
-
-### Example 4 — Delete equipment matching a filter
+### Example 3 — Filter-Based Equipment Deletion
 
 ```java
 ByFilterDeletionInfos deletion = ByFilterDeletionInfos.builder()
         .equipmentType(IdentifiableType.LOAD)
-        .filters(List.of(new FilterInfos(myFilterUuid, "My filter")))
+        .filters(List.of(new FilterInfos(filterUuid, "Decommissioned Loads")))
         .build();
 
 AbstractModification mod = deletion.toModification();
@@ -1031,23 +832,51 @@ mod.check(network);
 mod.apply(network, reportNode);
 ```
 
-### Example 5 — JSON deserialisation
+### Example 4 — Composite Scenario Execution
 
-Because `ModificationInfos` uses Jackson polymorphism, a heterogeneous JSON array is handled transparently:
+```java
+CompositeModificationInfos scenario = CompositeModificationInfos.builder()
+        .name("Peak Load Scenario")
+        .modificationsInfos(List.of(loadInfos, genModif))
+        .build();
+
+AbstractModification compositeMod = scenario.toModification();
+compositeMod.initApplicationContext(filterService, loadFlowService);
+compositeMod.check(network);
+compositeMod.apply(network, reportNode);
+```
+
+### Example 5 — Polymorphic JSON Deserialization
 
 ```json
 [
-  { "type": "LOAD_CREATION", "equipmentId": "LD1", "voltageLevelId": "VL1", "busOrBusbarSectionId": "BUS1", "p0": 100.0, "q0": 20.0 },
-  { "type": "GENERATOR_MODIFICATION", "equipmentId": "GEN1", "targetP": { "value": 400.0, "op": "SET" } }
+  {
+    "type": "LOAD_CREATION",
+    "equipmentId": "LOAD_NEW",
+    "voltageLevelId": "VL1",
+    "busOrBusbarSectionId": "BUS1",
+    "p0": 45.0,
+    "q0": 12.0
+  },
+  {
+    "type": "GENERATOR_MODIFICATION",
+    "equipmentId": "GEN1",
+    "targetP": {
+      "value": 310.0,
+      "op": "SET"
+    }
+  }
 ]
 ```
 
 ```java
 ObjectMapper mapper = new ObjectMapper();
-List<ModificationInfos> modifications = mapper.readValue(json,
-        mapper.getTypeFactory().constructCollectionType(List.class, ModificationInfos.class));
+List<ModificationInfos> modifications = mapper.readValue(
+        jsonString,
+        mapper.getTypeFactory().constructCollectionType(List.class, ModificationInfos.class)
+);
 ```
 
 ---
 
-*Generated for `gridsuite-network-modification` version `0.88.0-SNAPSHOT` — © RTE (http://www.rte-france.com) — MPL-2.0*
+*Documentation for `gridsuite-network-modification` — © RTE (http://www.rte-france.com) — MPL-2.0*
