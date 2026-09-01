@@ -35,6 +35,11 @@ class VoltageLevelByFilterDeletionTest extends AbstractByFilterDeletionTest {
     }
 
     @Override
+    public Set<String> getExistingEquipments() {
+        return Set.of(VOLTAGE_LEVEL_ID_1, VOLTAGE_LEVEL_ID_2, VOLTAGE_LEVEL_ID_3, VOLTAGE_LEVEL_ID_4);
+    }
+
+    @Override
     protected Network createNetwork(UUID networkUuid) {
         return NetworkCreation.create(networkUuid, true);
     }

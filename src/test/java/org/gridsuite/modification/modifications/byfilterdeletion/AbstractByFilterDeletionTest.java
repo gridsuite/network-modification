@@ -37,13 +37,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationTest {
     protected static final UUID FILTER_ID_1 = UUID.randomUUID();
     protected static final UUID FILTER_ID_2 = UUID.randomUUID();
-    protected static final String EQUIPMENT_WRONG_ID_1 = "wrongId1";
 
     protected abstract IdentifiableType getIdentifiableType();
 
     protected abstract EquipmentType getEquipmentType();
 
     public abstract Map<UUID, Set<String>> getFilterMapping();
+
+    public abstract Set<String> getExistingEquipments();
 
     @Getter
     private final FilterLoader filterLoader = TestUtils.createFilterLoader(getEquipmentType(), getFilterMapping());
@@ -114,5 +115,49 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
         assertEquals("BY_FILTER_DELETION", modificationInfos.getMessageType());
         Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
         assertEquals(getIdentifiableType().name(), createdValues.get("equipmentType"));
+    }
+
+    @Test
+    void testApplyWithDuplicateFilters() {
+        var filter1 = FilterInfos.builder()
+                .id(FILTER_ID_1)
+                .name("filter1")
+                .build();
+
+        ModificationInfos modificationInfos = ByFilterDeletionInfos.builder()
+                .stashed(false)
+                .equipmentType(getIdentifiableType())
+                .filters(List.of(filter1, filter1))
+                .build();
+
+        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) modificationInfos.toModification(getFilterLoader());
+        assertEquals(1, byFilterDeletion.getFilters().size());
+    }
+
+    @Test
+    void testApplyWithDuplicateFilteredElements() {
+        var filter1 = FilterInfos.builder()
+                .id(FILTER_ID_1)
+                .name("filter1")
+                .build();
+
+        var filter2 = FilterInfos.builder()
+                .id(FILTER_ID_2)
+                .name("filter2")
+                .build();
+
+        ModificationInfos modificationInfos = ByFilterDeletionInfos.builder()
+                .stashed(false)
+                .equipmentType(getIdentifiableType())
+                .filters(List.of(filter1, filter2))
+                .build();
+
+        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) modificationInfos.toModification(TestUtils.createFilterLoader(getEquipmentType(), Map.of(
+                FILTER_ID_1, getExistingEquipments(), // duplicating existing equipments in 2 different filters
+                FILTER_ID_2, getExistingEquipments()
+        )));
+        ReportNode rootReportNode = ReportNode.newRootReportNode().withAllResourceBundlesFromClasspath().withMessageTemplate("test").build();
+        byFilterDeletion.apply(getNetwork(), rootReportNode);
+        assertEquals("%d equipments of type=%s will be removed".formatted(getExistingEquipments().size(), getEquipmentType()), rootReportNode.getChildren().get(3).getMessage());
     }
 }

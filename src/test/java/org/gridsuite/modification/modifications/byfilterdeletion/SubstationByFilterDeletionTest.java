@@ -35,6 +35,11 @@ class SubstationByFilterDeletionTest extends AbstractByFilterDeletionTest {
     }
 
     @Override
+    public Set<String> getExistingEquipments() {
+        return Set.of(SUBSTATION_ID_1, SUBSTATION_ID_2, SUBSTATION_ID_3);
+    }
+
+    @Override
     protected Network createNetwork(UUID networkUuid) {
         return NetworkCreation.create(networkUuid, true);
     }
