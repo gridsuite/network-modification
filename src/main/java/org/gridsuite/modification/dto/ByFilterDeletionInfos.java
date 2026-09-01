@@ -46,7 +46,7 @@ public class ByFilterDeletionInfos extends ModificationInfos {
     public AbstractModification toModification(FilterLoader filterLoader) {
         return ByFilterDeletion.builder()
                 .equipmentType(getEquipmentType())
-                .filters(filterLoader.load(getFilters().stream().map(FilterInfos::getId).toList()))
+                .filters(filterLoader.load(getFilters().stream().map(FilterInfos::getId).distinct().toList()))
                 .build();
     }
 

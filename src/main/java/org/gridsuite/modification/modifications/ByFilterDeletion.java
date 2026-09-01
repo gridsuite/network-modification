@@ -62,7 +62,7 @@ public class ByFilterDeletion extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        List<Identifiable<?>> equipments = new ArrayList<>();
+        Set<Identifiable<?>> equipments = new HashSet<>();
         for (int i = 0; i < filters.size(); i++) {
             ReportNode filterReportNode = subReportNode.newReportNode()
                     .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION)
@@ -102,7 +102,7 @@ public class ByFilterDeletion extends AbstractModification {
         return ModificationType.BY_FILTER_DELETION.name();
     }
 
-    private void applyFilterDeletion(Network network, ReportNode subReportNode, List<Identifiable<?>> equipments) {
+    private void applyFilterDeletion(Network network, ReportNode subReportNode, Set<Identifiable<?>> equipments) {
         IdentifiableType identifiableType = equipmentType;
         if (CONNECTABLE_TYPES.contains(identifiableType)) {
             equipments.forEach(identifiableAttribute -> new RemoveFeederBay(identifiableAttribute.getId()).apply(network, true, subReportNode));
