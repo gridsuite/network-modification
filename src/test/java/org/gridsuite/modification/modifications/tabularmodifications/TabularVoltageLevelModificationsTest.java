@@ -17,6 +17,7 @@ import org.gridsuite.modification.report.NetworkModificationReportResourceBundle
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -39,14 +40,15 @@ class TabularVoltageLevelModificationsTest extends AbstractNetworkModificationTe
     protected ModificationInfos buildModification() {
         List<ModificationInfos> modifications = List.of(
                 VoltageLevelModificationInfos.builder().equipmentId("v1").nominalV(new AttributeModification<>(300., OperationType.SET)).highVoltageLimit(new AttributeModification<>(400.,
-                        OperationType.SET)).lowVoltageLimit(new AttributeModification<>(299., OperationType.SET)).build(),
+                        OperationType.SET)).lowVoltageLimit(new AttributeModification<>(299., OperationType.SET)).date(Instant.now()).build(),
                 VoltageLevelModificationInfos.builder().equipmentId("v2").nominalV(new AttributeModification<>(300., OperationType.SET)).highVoltageLimit(new AttributeModification<>(400.,
-                        OperationType.SET)).lowVoltageLimit(new AttributeModification<>(299., OperationType.SET)).build()
+                        OperationType.SET)).lowVoltageLimit(new AttributeModification<>(299., OperationType.SET)).date(Instant.now()).build()
         );
         return TabularModificationInfos.builder()
                 .modificationType(ModificationType.VOLTAGE_LEVEL_MODIFICATION)
                 .modifications(modifications)
                 .stashed(false)
+                .date(Instant.now())
                 .build();
     }
 

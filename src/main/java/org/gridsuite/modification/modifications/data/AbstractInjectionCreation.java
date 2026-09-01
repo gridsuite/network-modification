@@ -7,7 +7,9 @@
 package org.gridsuite.modification.modifications.data;
 
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -21,6 +23,8 @@ import java.util.List;
 @Getter
 @Setter
 @SuperBuilder
+@EqualsAndHashCode
+@NoArgsConstructor
 public abstract class AbstractInjectionCreation implements InjectionCreation {
 
     private String equipmentId;

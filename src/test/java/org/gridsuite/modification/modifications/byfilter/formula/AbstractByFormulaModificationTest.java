@@ -26,6 +26,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.time.Instant;
 import java.util.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -89,6 +91,7 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
                 .identifiableType(getIdentifiableType())
                 .formulaInfosList(getFormulaInfos())
                 .stashed(false)
+                .date(Instant.now())
                 .build();
     }
 

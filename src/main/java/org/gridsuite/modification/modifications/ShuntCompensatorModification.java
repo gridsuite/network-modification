@@ -12,21 +12,20 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import org.gridsuite.modification.NetworkModificationException;
+import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ShuntCompensatorType;
+import org.gridsuite.modification.error.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_SHUNT_COMPENSATOR_ERROR;
-import static org.gridsuite.modification.NetworkModificationException.Type.SHUNT_COMPENSATOR_NOT_FOUND;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.*;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
 /**
@@ -34,6 +33,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ShuntCompensatorModification extends AbstractInjectionModification {
 
     private static final String SWITCHED_ON_Q_AT_NOMINALV_LOG_MESSAGE = "Switched-on Q at nominal voltage";
@@ -125,7 +126,7 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
 
     @Override
     public String getName() {
-        return "ShuntCompensatorModification";
+        return ModificationType.SHUNT_COMPENSATOR_MODIFICATION.name();
     }
 
     public static void modifyMaximumSectionCount(AttributeModification<Integer> maximumSectionCountModif,
@@ -234,8 +235,8 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
                                                        ShuntCompensatorLinearModel model,
                                                        ShuntCompensatorType shuntCompensatorType) {
         if (maxQAtNominalV.getValue() < 0) {
-            throw new NetworkModificationException(NetworkModificationException.Type.MODIFY_SHUNT_COMPENSATOR_ERROR,
-                    "Qmax at nominal voltage should be greater or equal to 0");
+            throw new NetworkModificationException(NetworkModificationExceptionType.MODIFY_SHUNT_COMPENSATOR_ERROR,
+                                                   "Qmax at nominal voltage should be greater or equal to 0");
         }
         double newQatNominalV = maxQAtNominalV.getValue() / maximumSectionCount;
         double newSusceptancePerSection = newQatNominalV / Math.pow(voltageLevel.getNominalV(), 2);

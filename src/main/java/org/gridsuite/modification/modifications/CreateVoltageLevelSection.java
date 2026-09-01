@@ -20,21 +20,23 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.BUSBAR_SECTION_NOT_FOUND;
-import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_VOLTAGE_LEVEL_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.BUSBAR_SECTION_NOT_FOUND;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.CREATE_VOLTAGE_LEVEL_ERROR;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
  */
 @Getter
 @Setter
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateVoltageLevelSection extends AbstractModification {
 
     private String voltageLevelId;

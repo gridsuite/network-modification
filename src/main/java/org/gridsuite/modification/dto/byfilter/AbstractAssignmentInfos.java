@@ -7,8 +7,9 @@
 
 package org.gridsuite.modification.dto.byfilter;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,10 +22,12 @@ import java.util.UUID;
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
  */
-@SuperBuilder
-@NoArgsConstructor
 @Getter
 @Setter
+@SuperBuilder
+@EqualsAndHashCode
+@NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class AbstractAssignmentInfos {
     @Schema(description = "id")
     private UUID id;

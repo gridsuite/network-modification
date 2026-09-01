@@ -13,7 +13,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.BatteryModification;
 import java.util.List;
@@ -28,7 +27,6 @@ import java.util.List;
 @ToString(callSuper = true)
 @Schema(description = "Battery modification")
 @JsonTypeName("BATTERY_MODIFICATION")
-@ModificationErrorTypeName("MODIFY_BATTERY_ERROR")
 public class BatteryModificationInfos extends InjectionModificationInfos {
     @Schema(description = "Minimum active power")
     private AttributeModification<Double> minP;
@@ -66,6 +64,24 @@ public class BatteryModificationInfos extends InjectionModificationInfos {
     @Schema(description = "Reactive capability curve")
     private AttributeModification<Boolean> reactiveCapabilityCurve;
 
+    @Schema(description = "Voltage regulation on")
+    private AttributeModification<Boolean> voltageRegulationOn;
+
+    @Schema(description = "Voltage set point")
+    private AttributeModification<Double> targetV;
+
+    @Schema(description = "Voltage Regulation type")
+    private AttributeModification<VoltageRegulationType> voltageRegulationType;
+
+    @Schema(description = "Regulating terminal equipment id")
+    private AttributeModification<String> regulatingTerminalId;
+
+    @Schema(description = "Regulating terminal equipment type")
+    private AttributeModification<String> regulatingTerminalType;
+
+    @Schema(description = "Regulating terminal voltage level id")
+    private AttributeModification<String> regulatingTerminalVlId;
+
     @Override
     public AbstractModification toModification() {
         return BatteryModification.builder()
@@ -94,6 +110,12 @@ public class BatteryModificationInfos extends InjectionModificationInfos {
             .maxQ(getMaxQ())
             .reactiveCapabilityCurvePoints(getReactiveCapabilityCurvePoints())
             .reactiveCapabilityCurve(getReactiveCapabilityCurve())
+            .targetV(getTargetV())
+            .voltageRegulationOn(getVoltageRegulationOn())
+            .voltageRegulationType(getVoltageRegulationType())
+            .regulatingTerminalId(getRegulatingTerminalId())
+            .regulatingTerminalType(getRegulatingTerminalType())
+            .regulatingTerminalVlId(getRegulatingTerminalVlId())
             .build();
     }
 

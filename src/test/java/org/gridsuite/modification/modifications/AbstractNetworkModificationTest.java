@@ -6,14 +6,25 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
+import org.gridsuite.modification.IFilterService;
+import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.gridsuite.modification.utils.TestUtils.testReportNode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
 /**
  * Class to extend if you want to test a network modification.<ul>
@@ -32,21 +43,31 @@ public abstract class AbstractNetworkModificationTest {
 
     private Network network;
 
-    @Autowired
-    protected ObjectMapper mapper;
+    private String reportFilePath;
+
+    protected ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @BeforeEach
     public void setUp() {
         network = createNetwork(TEST_NETWORK_ID);
+        reportFilePath = getReportFilePath();
     }
 
     @Test
     public void testApply() throws Exception {
-        AbstractModification modification = buildModification().toModification();
+        ModificationInfos modificationInfos = buildModification();
+        ReportNode report = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build());
+        AbstractModification modification = modificationInfos.toModification();
         modification.check(network);
         initApplicationContext(modification);
-        modification.apply(network);
+        modification.apply(network, report);
         assertAfterNetworkModificationApplication();
+        if (reportFilePath != null) {
+            testReportNode(report, reportFilePath);
+        }
     }
 
     protected void initApplicationContext(AbstractModification modification) {
@@ -56,6 +77,20 @@ public abstract class AbstractNetworkModificationTest {
     @Test
     public void testCheck() {
         checkModification();
+    }
+
+    @Test
+    public void testRoundTripSerializationDeserialization() throws JsonProcessingException {
+        ILoadFlowService loadFlowServiceMock = mock(ILoadFlowService.class);
+        IFilterService filterServiceMock = mock(IFilterService.class);
+        AbstractModification expectedModification = buildModification().toModification();
+        expectedModification.initApplicationContext(filterServiceMock, loadFlowServiceMock);
+
+        String serializedModification = mapper.writeValueAsString(expectedModification);
+        AbstractModification deserializedModification = mapper.readValue(serializedModification, AbstractModification.class);
+
+        assertThat(deserializedModification).isInstanceOf(expectedModification.getClass())
+                .isEqualTo(expectedModification);
     }
 
     protected Network getNetwork() {
@@ -81,5 +116,9 @@ public abstract class AbstractNetworkModificationTest {
     @SuppressWarnings("java:S1130") // Exceptions are throws by overrides
     protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
         assertEquals("{}", modificationInfos.getMessageValues());
+    }
+
+    protected String getReportFilePath() {
+        return null;
     }
 }

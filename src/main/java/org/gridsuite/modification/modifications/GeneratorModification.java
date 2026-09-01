@@ -10,11 +10,11 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import org.gridsuite.modification.NetworkModificationException;
+import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.error.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_GENERATOR_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_GENERATOR_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
 /**
@@ -30,6 +30,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GeneratorModification extends AbstractInjectionModification {
 
     private static final String LIMITS = "network.modification.limits";
@@ -184,7 +186,7 @@ public class GeneratorModification extends AbstractInjectionModification {
         }
     }
 
-    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerGenerator(Generator generator, NetworkModificationException.Type exceptionType,
+    private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerGenerator(Generator generator, NetworkModificationExceptionType exceptionType,
             String errorMessage) {
         ModificationUtils.getInstance().checkActivePowerZeroOrBetweenMinAndMaxActivePower(
                 targetP,
@@ -207,7 +209,7 @@ public class GeneratorModification extends AbstractInjectionModification {
 
     @Override
     public String getName() {
-        return "GeneratorModification";
+        return ModificationType.GENERATOR_MODIFICATION.name();
     }
 
     private void modifyGenerator(Generator generator, ReportNode subReportNode) {

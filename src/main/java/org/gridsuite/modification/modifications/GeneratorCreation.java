@@ -16,8 +16,9 @@ import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuitAdder;
 import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
 import lombok.*;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -25,8 +26,8 @@ import org.gridsuite.modification.utils.PropertiesUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.CREATE_GENERATOR_ERROR;
-import static org.gridsuite.modification.NetworkModificationException.Type.GENERATOR_ALREADY_EXISTS;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.CREATE_GENERATOR_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.GENERATOR_ALREADY_EXISTS;
 import static org.gridsuite.modification.modifications.GeneratorModification.ERROR_MESSAGE;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
 
@@ -35,6 +36,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.*;
  */
 @Setter
 @Getter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GeneratorCreation extends AbstractInjectionCreation implements ReactiveLimitsHolderInfos {
 
     private EnergySource energySource;
@@ -119,8 +122,8 @@ public class GeneratorCreation extends AbstractInjectionCreation implements Reac
                 "Generator");
 
         // check regulated terminal
-        VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
-        ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
+        ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
+        ModificationUtils.getInstance().getTerminalFromIdentifiable(network,
             regulatingTerminalId,
             regulatingTerminalType,
             regulatingTerminalVlId);
@@ -153,7 +156,7 @@ public class GeneratorCreation extends AbstractInjectionCreation implements Reac
 
     @Override
     public String getName() {
-        return "GeneratorCreation";
+        return ModificationType.GENERATOR_CREATION.name();
     }
 
     private void createGeneratorInNodeBreaker(VoltageLevel voltageLevel, Network network, ReportNode subReportNode) {

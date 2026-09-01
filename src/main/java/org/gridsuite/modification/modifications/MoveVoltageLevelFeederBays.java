@@ -13,22 +13,24 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.List;
 import java.util.function.Consumer;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
 @Getter
 @Setter
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MoveVoltageLevelFeederBays extends AbstractModification {
     private static final String VOLTAGE_LEVEL_NOT_FOUND = "Voltage level %s is not found";
     private static final String BUSBAR_NOT_FOUND = "Bus or busbar section %s where connectable %s is supposed to be is not found in voltage level %s";

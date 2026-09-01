@@ -17,11 +17,11 @@ import lombok.experimental.SuperBuilder;
 /**
  * @author David Braquart <david.braquart_externe at rte-france.com>
  */
-@SuperBuilder
-@NoArgsConstructor
 @Getter
 @Setter
+@SuperBuilder
 @EqualsAndHashCode
+@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Tabular modification properties")
 public class TabularPropertyInfos {

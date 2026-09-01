@@ -18,9 +18,10 @@ import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import lombok.*;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.OperatingStatusModificationInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +31,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.EQUIPMENT_NOT_FOUND;
-import static org.gridsuite.modification.NetworkModificationException.Type.OPERATING_STATUS_MODIFICATION_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.EQUIPMENT_NOT_FOUND;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.OPERATING_STATUS_MODIFICATION_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
 
 /**
@@ -39,6 +40,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.distinctByKey;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OperatingStatusModification extends AbstractEquipmentBase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OperatingStatusModification.class);
@@ -87,7 +90,7 @@ public class OperatingStatusModification extends AbstractEquipmentBase {
 
     @Override
     public String getName() {
-        return "OperatingStatusModification";
+        return ModificationType.OPERATING_STATUS_MODIFICATION.name();
     }
 
     private void applyLockoutEquipment(ReportNode subReportNode, Identifiable<?> equipment, String equipmentType) {

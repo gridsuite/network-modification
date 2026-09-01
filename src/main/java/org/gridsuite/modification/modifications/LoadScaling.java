@@ -12,14 +12,14 @@ import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import org.gridsuite.modification.NetworkModificationException;
+import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.VariationMode;
 import org.gridsuite.modification.VariationType;
 import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.dto.ScalingVariationInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.*;
@@ -31,11 +31,13 @@ import java.util.stream.Collectors;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LoadScaling extends AbstractScaling {
 
     @Builder
-    public LoadScaling(List<ScalingVariationInfos> variations, VariationType variationType, NetworkModificationException.Type errorType) {
-        super(variations, variationType, errorType);
+    public LoadScaling(List<ScalingVariationInfos> variations, VariationType variationType, NetworkModificationExceptionType exceptionType) {
+        super(variations, variationType, exceptionType);
     }
 
     @Override
@@ -112,13 +114,13 @@ public class LoadScaling extends AbstractScaling {
     @Override
     protected void applyProportionalToPmaxVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos) {
         // no implementation for load scaling
-        throw new NetworkModificationException(errorType, String.format("This variation mode is not supported : %s", scalingVariationInfos.getVariationMode().name()));
+        throw new NetworkModificationException(exceptionType, String.format("This variation mode is not supported : %s", scalingVariationInfos.getVariationMode().name()));
     }
 
     @Override
     protected void applyStackingUpVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos) {
         // no implementation for load scaling
-        throw new NetworkModificationException(errorType, String.format("This variation mode is not supported : %s", scalingVariationInfos.getVariationMode().name()));
+        throw new NetworkModificationException(exceptionType, String.format("This variation mode is not supported : %s", scalingVariationInfos.getVariationMode().name()));
     }
 
     private double scale(Network network, ScalingVariationInfos scalingVariationInfos, double asked, Scalable proportionalScalable) {
@@ -144,7 +146,7 @@ public class LoadScaling extends AbstractScaling {
 
     @Override
     public String getName() {
-        return "LoadScaling";
+        return ModificationType.LOAD_SCALING.name();
     }
 
     private void reportScaling(ReportNode subReportNode, VariationMode variationMode, double askedValue, double actualValue) {

@@ -18,6 +18,7 @@ import org.gridsuite.modification.report.NetworkModificationReportResourceBundle
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -43,14 +44,15 @@ class TabularSubstationModificationsTest extends AbstractNetworkModificationTest
 
         List<ModificationInfos> modifications = List.of(
                 SubstationModificationInfos.builder().equipmentId("s1").equipmentName(new AttributeModification<>("s1", OperationType.SET)).country(new AttributeModification<>(Country.BE,
-                        OperationType.SET)).build(),
+                        OperationType.SET)).date(Instant.now()).build(),
                 SubstationModificationInfos.builder().equipmentId("s2").equipmentName(new AttributeModification<>("s2", OperationType.SET)).country(new AttributeModification<>(Country.BE,
-                        OperationType.SET)).build()
+                        OperationType.SET)).date(Instant.now()).build()
         );
         return TabularModificationInfos.builder()
                 .modificationType(MOFIFICATION_TYPE)
                 .modifications(modifications)
                 .stashed(false)
+                .date(Instant.now())
                 .build();
     }
 

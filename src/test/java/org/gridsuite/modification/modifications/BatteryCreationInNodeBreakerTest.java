@@ -14,11 +14,12 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import org.gridsuite.modification.NetworkModificationException;
+import com.powsybl.iidm.network.extensions.VoltageRegulation;
 import org.gridsuite.modification.dto.BatteryCreationInfos;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.*;
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,23 +52,25 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
             .equipmentId("v4Battery")
             .voltageLevelId("v2")
             .busOrBusbarSectionId("1B")
+            .targetQ(100.0)
             .droop(101f)
             .build();
         BatteryCreation batteryCreation1 = (BatteryCreation) batteryCreationInfos1.toModification();
         String message = assertThrows(NetworkModificationException.class,
             () -> batteryCreation1.check(network)).getMessage();
-        assertEquals("CREATE_BATTERY_ERROR : Battery 'v4Battery' : must have Droop between 0 and 100", message);
+        assertEquals(CREATE_BATTERY_ERROR.getMessage() + " : Battery 'v4Battery' : must have Droop between 0 and 100", message);
 
         BatteryCreationInfos batteryCreationInfos2 = BatteryCreationInfos.builder()
             .equipmentId("v4Battery")
             .voltageLevelId("v2")
             .busOrBusbarSectionId("1B")
+            .targetQ(100.0)
             .droop(-1f)
             .build();
         BatteryCreation batteryCreation2 = (BatteryCreation) batteryCreationInfos2.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> batteryCreation2.check(network)).getMessage();
-        assertEquals("CREATE_BATTERY_ERROR : Battery 'v4Battery' : must have Droop between 0 and 100", message);
+        assertEquals(CREATE_BATTERY_ERROR.getMessage() + " : Battery 'v4Battery' : must have Droop between 0 and 100", message);
 
         BatteryCreationInfos batteryCreationInfos3 = BatteryCreationInfos.builder()
             .equipmentId("v3Battery")
@@ -74,7 +78,27 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         BatteryCreation batteryCreation3 = (BatteryCreation) batteryCreationInfos3.toModification();
         message = assertThrows(NetworkModificationException.class,
             () -> batteryCreation3.check(network)).getMessage();
-        assertEquals("BATTERY_ALREADY_EXISTS : v3Battery", message);
+        assertEquals(BATTERY_ALREADY_EXISTS.getMessage() + " : v3Battery", message);
+
+        BatteryCreationInfos batteryCreationInfos4 = (BatteryCreationInfos) buildModification();
+        batteryCreationInfos4.setRegulatingTerminalId(null);
+        BatteryCreation batteryCreation4 = (BatteryCreation) batteryCreationInfos4.toModification();
+        message = assertThrows(NetworkModificationException.class, () -> batteryCreation4.check(network)).getMessage();
+        assertEquals("An error occurred while creating the battery : " +
+            "Battery 'idBattery1' : regulatingTerminalId, regulatingTerminalType, and regulatingTerminalVlId must all be provided together", message);
+
+        BatteryCreationInfos batteryCreationInfos5 = (BatteryCreationInfos) buildModification();
+        batteryCreationInfos5.setVoltageRegulationOn(true);
+        batteryCreationInfos5.setTargetV(null);
+        BatteryCreation batteryCreation5 = (BatteryCreation) batteryCreationInfos5.toModification();
+        message = assertThrows(NetworkModificationException.class, () -> batteryCreation5.check(network)).getMessage();
+        assertEquals("An error occurred while creating the battery : Battery 'idBattery1' : voltage setpoint value (NaN) is invalid (voltage regulator is on)", message);
+
+        BatteryCreationInfos batteryCreationInfos6 = (BatteryCreationInfos) buildModification();
+        batteryCreationInfos6.setTargetQ(null);
+        BatteryCreation batteryCreation6 = (BatteryCreation) batteryCreationInfos6.toModification();
+        message = assertThrows(NetworkModificationException.class, () -> batteryCreation6.check(network)).getMessage();
+        assertEquals("An error occurred while creating the battery : Battery 'idBattery1' : Target reactive power must be provided", message);
     }
 
     @Override
@@ -98,6 +122,11 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
                 .minQ(20.0)
                 .maxQ(25.0)
                 .droop(5f)
+                .voltageRegulationOn(true)
+                .targetV(225.)
+                .regulatingTerminalId("v2load")
+                .regulatingTerminalType("LOAD")
+                .regulatingTerminalVlId("v1")
                 .stepUpTransformerX(60.0)
                 .directTransX(61.0)
                 .participate(true)
@@ -118,9 +147,15 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         assertEquals(PROPERTY_VALUE, getNetwork().getBattery("idBattery1").getProperty(PROPERTY_NAME));
         Battery battery = getNetwork().getBattery("idBattery1");
         assertNotNull(battery.getExtension(ActivePowerControl.class));
-        ActivePowerControl activePowerControl = battery.getExtension(ActivePowerControl.class);
+        ActivePowerControl<Battery> activePowerControl = battery.getExtension(ActivePowerControl.class);
         assertEquals(5, activePowerControl.getDroop());
         assertTrue(activePowerControl.isParticipate());
+        assertNotNull(battery.getExtension(VoltageRegulation.class));
+        VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
+        assertNotNull(voltageRegulation.getRegulatingTerminal());
+        assertEquals("v2load", voltageRegulation.getRegulatingTerminal().getConnectable().getId());
+        assertEquals(225.0, voltageRegulation.getTargetV());
+        assertTrue(voltageRegulation.isVoltageRegulatorOn());
     }
 
     @Test
@@ -135,13 +170,13 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         batteryCreationInfos.setEquipmentId("idBattery1");
         batteryCreationInfos.setVoltageLevelId("notFoundVoltageLevelId");
         exception = assertThrows(NetworkModificationException.class, () -> batteryCreationInfos.toModification().check(getNetwork()));
-        assertEquals("VOLTAGE_LEVEL_NOT_FOUND : notFoundVoltageLevelId", exception.getMessage());
+        assertEquals(VOLTAGE_LEVEL_NOT_FOUND.getMessage() + " : notFoundVoltageLevelId", exception.getMessage());
 
         // not found busbar section
         batteryCreationInfos.setVoltageLevelId("v2");
         batteryCreationInfos.setBusOrBusbarSectionId("notFoundBusbarSection");
         exception = assertThrows(NetworkModificationException.class, () -> batteryCreationInfos.toModification().check(getNetwork()));
-        assertEquals("BUSBAR_SECTION_NOT_FOUND : notFoundBusbarSection", exception.getMessage());
+        assertEquals(BUSBAR_SECTION_NOT_FOUND.getMessage() + " : notFoundBusbarSection", exception.getMessage());
 
         // invalid min active power
         batteryCreationInfos.setVoltageLevelId("v2");
@@ -157,32 +192,44 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         batteryCreationInfos1.setMinQ(Double.NaN);
 
         exception = assertThrows(NetworkModificationException.class, () -> batteryCreationInfos1.toModification().check(getNetwork()));
-        assertEquals("CREATE_BATTERY_ERROR : Battery 'idBattery1' : minimum reactive power is not set", exception.getMessage());
+        assertEquals(CREATE_BATTERY_ERROR.getMessage() + " : Battery 'idBattery1' : minimum reactive power is not set", exception.getMessage());
 
         BatteryCreationInfos batteryCreationInfos2 = (BatteryCreationInfos) buildModification();
         batteryCreationInfos2.setReactiveCapabilityCurve(false);
         batteryCreationInfos2.setMaxQ(Double.NaN);
 
         exception = assertThrows(NetworkModificationException.class, () -> batteryCreationInfos2.toModification().check(getNetwork()));
-        assertEquals("CREATE_BATTERY_ERROR : Battery 'idBattery1' : maximum reactive power is not set", exception.getMessage());
+        assertEquals(CREATE_BATTERY_ERROR.getMessage() + " : Battery 'idBattery1' : maximum reactive power is not set", exception.getMessage());
 
         batteryCreationInfos2.setReactiveCapabilityCurve(false);
         batteryCreationInfos2.setMinQ(200.);
         batteryCreationInfos2.setMaxQ(100.);
         exception = assertThrows(NetworkModificationException.class, () -> batteryCreationInfos2.toModification().check(getNetwork()));
-        assertEquals("CREATE_BATTERY_ERROR : Battery 'idBattery1' : maximum reactive power is expected to be greater than or equal to minimum reactive power", exception.getMessage());
+        assertEquals(CREATE_BATTERY_ERROR.getMessage() + " : Battery 'idBattery1' : maximum reactive power is expected to be greater than or equal to minimum reactive power", exception.getMessage());
 
         // invalid reactive capability curve limit
         BatteryCreationInfos batteryCreationInfos3 = (BatteryCreationInfos) buildModification();
         batteryCreationInfos3.getReactiveCapabilityCurvePoints().get(0).setP(Double.NaN);
-
         exception = assertThrows(NetworkModificationException.class, () -> batteryCreationInfos3.toModification().check(getNetwork()));
-        assertEquals("CREATE_BATTERY_ERROR : Battery 'idBattery1' : P is not set in a reactive capability curve limits point", exception.getMessage());
+        assertEquals(CREATE_BATTERY_ERROR.getMessage() + " : Battery 'idBattery1' : P is not set in a reactive capability curve limits point", exception.getMessage());
         // try to create an existing battery
         BatteryCreationInfos batteryCreationInfos4 = (BatteryCreationInfos) buildModification();
         batteryCreationInfos4.setEquipmentId("v3Battery");
         exception = assertThrows(NetworkModificationException.class, () -> batteryCreationInfos4.toModification().check(getNetwork()));
-        assertEquals("BATTERY_ALREADY_EXISTS : v3Battery", exception.getMessage());
+        assertEquals(BATTERY_ALREADY_EXISTS.getMessage() + " : v3Battery", exception.getMessage());
+
+        BatteryCreationInfos batteryCreationInfos5 = BatteryCreationInfos.builder()
+                .equipmentId("v5Battery")
+                .voltageLevelId("v2")
+                .busOrBusbarSectionId("1B")
+                .targetQ(100.0)
+                .targetV(-100d)
+                .build();
+        BatteryCreation batteryCreation = (BatteryCreation) batteryCreationInfos5.toModification();
+        Network network = getNetwork();
+        String message = assertThrows(NetworkModificationException.class,
+                () -> batteryCreation.check(network)).getMessage();
+        assertEquals("An error occurred while creating the battery : Battery 'v5Battery' : can not have a negative value for Target Voltage", message);
     }
 
     @Override
@@ -252,5 +299,10 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         batteryCreationInfos2.toModification().apply(network);
         Battery battery2 = network.getBattery("idBattery4");
         assertNull(battery2.getExtension(ActivePowerControl.class));
+    }
+
+    @Override
+    public String getReportFilePath() {
+        return "/report/create-node-breaker-battery.txt";
     }
 }

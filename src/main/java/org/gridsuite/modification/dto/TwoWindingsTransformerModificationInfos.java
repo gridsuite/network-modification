@@ -11,7 +11,6 @@ import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.TwoWindingsTransformerModification;
 
@@ -25,7 +24,6 @@ import org.gridsuite.modification.modifications.TwoWindingsTransformerModificati
 @ToString(callSuper = true)
 @Schema(description = "Two windings transformer modification")
 @JsonTypeName("TWO_WINDINGS_TRANSFORMER_MODIFICATION")
-@ModificationErrorTypeName("MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR")
 public class TwoWindingsTransformerModificationInfos extends BranchModificationInfos {
 
     @Schema(description = "Magnetizing conductance")

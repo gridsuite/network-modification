@@ -18,6 +18,7 @@ import org.gridsuite.modification.report.NetworkModificationReportResourceBundle
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -43,36 +44,42 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
                         .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
                         .sectionCount(1).maximumSectionCount(1)
                         .maxSusceptance(2.)
+                        .date(Instant.now())
                         .build(),
                 ShuntCompensatorCreationInfos.builder()
                         .equipmentId("id2").equipmentName("name2").voltageLevelId("v2").busOrBusbarSectionId("1A")
                         .connectionName("feederId2").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false)
                         .sectionCount(5).maximumSectionCount(10)
                         .shuntCompensatorType(ShuntCompensatorType.REACTOR).maxQAtNominalV(2.)
+                        .date(Instant.now())
                         .build(),
                 ShuntCompensatorCreationInfos.builder()
                         .equipmentId("id3").equipmentName("name3").voltageLevelId("v3").busOrBusbarSectionId("3A")
                         .connectionName("feederId3").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                         .sectionCount(6).maximumSectionCount(8)
                         .maxSusceptance(88.)
+                        .date(Instant.now())
                         .build(),
                 ShuntCompensatorCreationInfos.builder()
                         .equipmentId("id4").equipmentName("name4").voltageLevelId("v4").busOrBusbarSectionId("1.A")
                         .connectionName("feederId4").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false)
                         .sectionCount(2).maximumSectionCount(2)
                         .shuntCompensatorType(ShuntCompensatorType.CAPACITOR).maxQAtNominalV(7.)
+                        .date(Instant.now())
                         .build(),
                 ShuntCompensatorCreationInfos.builder()
                         .equipmentId("id5").equipmentName("name5").voltageLevelId("v5").busOrBusbarSectionId("1A1")
                         .connectionName("name5").connectionDirection(ConnectablePosition.Direction.BOTTOM).connectionPosition(100).terminalConnected(false).terminalConnected(true)
                         .sectionCount(15).maximumSectionCount(20)
                         .shuntCompensatorType(ShuntCompensatorType.CAPACITOR).maxQAtNominalV(2.)
+                        .date(Instant.now())
                         .build()
         );
         return TabularCreationInfos.builder()
                 .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
                 .modifications(creations)
                 .stashed(false)
+                .date(Instant.now())
                 .build();
     }
 
@@ -84,12 +91,14 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
                         .connectionName("feederId1").connectionDirection(ConnectablePosition.Direction.TOP).connectionPosition(100).terminalConnected(true)
                         .sectionCount(1).maximumSectionCount(1)
                         .shuntCompensatorType(ShuntCompensatorType.CAPACITOR).maxSusceptance(2.)
+                        .date(Instant.now())
                         .build()
         );
 
         ModificationInfos creationInfos = TabularCreationInfos.builder()
                 .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
                 .modifications(creations)
+                .date(Instant.now())
                 .build();
         ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)

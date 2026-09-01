@@ -8,6 +8,7 @@
 package org.gridsuite.modification.dto.byfilter.formula;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,10 +19,11 @@ import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
  */
 
-@SuperBuilder
-@NoArgsConstructor
 @Getter
 @Setter
+@SuperBuilder
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class FormulaInfos extends AbstractAssignmentInfos {
 
     @Schema(description = "First reference field or value")
@@ -32,5 +34,4 @@ public class FormulaInfos extends AbstractAssignmentInfos {
 
     @Schema(description = "Operator")
     private Operator operator;
-
 }

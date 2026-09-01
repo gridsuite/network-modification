@@ -15,11 +15,12 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 import groovyjarjarantlr4.v4.runtime.misc.NotNull;
 import lombok.*;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.*;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.*;
 import static org.gridsuite.modification.modifications.LineCreation.addLimits;
 
 /**
@@ -27,8 +28,10 @@ import static org.gridsuite.modification.modifications.LineCreation.addLimits;
  */
 @Getter
 @Setter
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LineAttachToVoltageLevel extends AbstractModification {
 
     private String lineToAttachToId;
@@ -160,6 +163,6 @@ public class LineAttachToVoltageLevel extends AbstractModification {
 
     @Override
     public String getName() {
-        return "LineAttachToVoltageLevel";
+        return ModificationType.LINE_ATTACH_TO_VOLTAGE_LEVEL.name();
     }
 }

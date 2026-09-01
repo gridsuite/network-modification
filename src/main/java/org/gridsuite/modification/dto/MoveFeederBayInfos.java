@@ -8,6 +8,7 @@ package org.gridsuite.modification.dto;
 
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -16,9 +17,10 @@ import lombok.experimental.SuperBuilder;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-@SuperBuilder
-@NoArgsConstructor
 @Getter
+@SuperBuilder
+@EqualsAndHashCode
+@NoArgsConstructor
 @ToString(callSuper = true)
 @Schema(description = "Move feeder bay")
 public class MoveFeederBayInfos {

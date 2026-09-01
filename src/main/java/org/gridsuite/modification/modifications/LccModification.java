@@ -13,10 +13,11 @@ import com.powsybl.iidm.network.*;
 import jakarta.annotation.Nonnull;
 import lombok.*;
 import org.apache.commons.math3.util.Pair;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.LccShuntCompensatorModificationInfos;
+import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.modifications.data.LccConverterStationModification;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -31,6 +32,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.NO_VALUE;
 
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LccModification extends AbstractEquipmentModification {
 
     private AttributeModification<Double> nominalV;
@@ -61,7 +64,7 @@ public class LccModification extends AbstractEquipmentModification {
 
     @Override
     public String getName() {
-        return "LCC_Modification";
+        return ModificationType.LCC_MODIFICATION.name();
     }
 
     @Override
@@ -83,14 +86,14 @@ public class LccModification extends AbstractEquipmentModification {
 
         // Nominal Voltage
         if (nominalV != null) {
-            ModificationUtils.checkIsNotNegativeValue(errorMessage, nominalV.getValue(), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Nominal voltage");
+            ModificationUtils.checkIsNotNegativeValue(errorMessage, nominalV.getValue(), NetworkModificationExceptionType.MODIFY_LCC_ERROR, "Nominal voltage");
             characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setNominalV,
                 hvdcLine::getNominalV, nominalV, "DC nominal voltage"));
         }
 
         // DC resistance
         if (r != null) {
-            ModificationUtils.checkIsNotNegativeValue(errorMessage, r.getValue(), NetworkModificationException.Type.MODIFY_LCC_ERROR, "DC resistance");
+            ModificationUtils.checkIsNotNegativeValue(errorMessage, r.getValue(), NetworkModificationExceptionType.MODIFY_LCC_ERROR, "DC resistance");
             characteristicsReportsContainer.add(ModificationUtils.getInstance().applyAndBuildModificationReport(hvdcLine::setR,
                 hvdcLine::getR, r, "DC resistance"));
         }
@@ -163,14 +166,14 @@ public class LccModification extends AbstractEquipmentModification {
         }
 
         if (lccConverterStationModification.getLossFactor() != null) {
-            ModificationUtils.checkIsPercentage(errorMessage, lccConverterStationModification.getLossFactor().getValue(), NetworkModificationException.Type.MODIFY_LCC_ERROR, "Loss factor");
+            ModificationUtils.checkIsPercentage(errorMessage, lccConverterStationModification.getLossFactor().getValue(), NetworkModificationExceptionType.MODIFY_LCC_ERROR, "Loss factor");
             characteristicsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setLossFactor,
                 converterStation::getLossFactor, lccConverterStationModification.getLossFactor(), "Loss factor"));
         }
 
         if (lccConverterStationModification.getPowerFactor() != null) {
-            ModificationUtils.checkIsInInterval(errorMessage, lccConverterStationModification.getPowerFactor().getValue(), new Pair<>(0.f, 1.f), NetworkModificationException.Type.MODIFY_LCC_ERROR,
-                    "Power factor");
+            ModificationUtils.checkIsInInterval(errorMessage, lccConverterStationModification.getPowerFactor().getValue(), new Pair<>(0.f, 1.f), NetworkModificationExceptionType.MODIFY_LCC_ERROR,
+                                                "Power factor");
             characteristicsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setPowerFactor,
                 converterStation::getPowerFactor, lccConverterStationModification.getPowerFactor(), "Power factor"));
         }

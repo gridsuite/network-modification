@@ -14,7 +14,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.GenerationDispatch;
 
@@ -29,7 +28,6 @@ import java.util.List;
 @Setter
 @Schema(description = "Generation dispatch creation")
 @JsonTypeName("GENERATION_DISPATCH")
-@ModificationErrorTypeName("GENERATION_DISPATCH_ERROR")
 public class GenerationDispatchInfos extends ModificationInfos {
     @Schema(description = "loss coefficient")
     private Double lossCoefficient;

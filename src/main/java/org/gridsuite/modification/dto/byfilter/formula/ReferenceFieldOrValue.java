@@ -9,19 +9,20 @@ package org.gridsuite.modification.dto.byfilter.formula;
 
 import com.powsybl.iidm.network.Identifiable;
 import lombok.*;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationException;
+import org.gridsuite.modification.error.NetworkModificationExceptionType;
 
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils.getFieldValue;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
  */
-
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
+@Builder
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 public class ReferenceFieldOrValue {
     private String equipmentField;
 
@@ -29,8 +30,8 @@ public class ReferenceFieldOrValue {
 
     public Double getRefOrValue(Identifiable<?> identifiable) {
         if (value == null && equipmentField == null) {
-            throw new NetworkModificationException(NetworkModificationException.Type.BY_FORMULA_MODIFICATION_ERROR,
-                    "There is no value or reference to any of the equipment fields");
+            throw new NetworkModificationException(NetworkModificationExceptionType.BY_FORMULA_MODIFICATION_ERROR,
+                                                   "There is no value or reference to any of the equipment fields");
         }
 
         if (value != null && !Double.isNaN(value)) {

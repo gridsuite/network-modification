@@ -11,8 +11,8 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
-import org.gridsuite.modification.NetworkModificationException;
 import org.gridsuite.modification.dto.*;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.DummyNamingStrategy;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Assertions;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.LINE_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

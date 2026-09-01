@@ -18,8 +18,8 @@ import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.List;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_LINE_ERROR;
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_LINE_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR;
 import static org.gridsuite.modification.modifications.TwoWindingsTransformerModification.*;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
 import static org.gridsuite.modification.utils.ModificationUtils.parseDoubleOrNaNIfNull;

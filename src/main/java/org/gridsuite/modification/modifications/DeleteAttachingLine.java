@@ -11,10 +11,11 @@ import com.powsybl.iidm.modification.topology.RevertCreateLineOnLine;
 import com.powsybl.iidm.modification.topology.RevertCreateLineOnLineBuilder;
 import com.powsybl.iidm.network.Network;
 import lombok.*;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.error.NetworkModificationException;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.LINE_ALREADY_EXISTS;
-import static org.gridsuite.modification.NetworkModificationException.Type.LINE_NOT_FOUND;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.LINE_ALREADY_EXISTS;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.LINE_NOT_FOUND;
 import static org.gridsuite.modification.utils.ModificationLimitsUtils.applyRevertModificationWithMergingOfLimits;
 
 /**
@@ -22,8 +23,10 @@ import static org.gridsuite.modification.utils.ModificationLimitsUtils.applyReve
  */
 @Getter
 @Setter
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DeleteAttachingLine extends AbstractModification {
 
     private String lineToAttachTo1Id;
@@ -70,6 +73,6 @@ public class DeleteAttachingLine extends AbstractModification {
 
     @Override
     public String getName() {
-        return "DeleteAttachingLine";
+        return ModificationType.DELETE_ATTACHING_LINE.name();
     }
 }

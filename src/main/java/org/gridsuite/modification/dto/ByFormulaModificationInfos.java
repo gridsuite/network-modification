@@ -11,13 +11,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.dto.annotation.ModificationErrorTypeName;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.modifications.byfilter.ByFormulaModification;
 
@@ -26,15 +21,14 @@ import java.util.List;
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
  */
-
+@Getter
+@Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
-@JsonTypeName("BY_FORMULA_MODIFICATION")
-@ModificationErrorTypeName("BY_FORMULA_MODIFICATION_ERROR")
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeName("BY_FORMULA_MODIFICATION")
 @Schema(description = "Modification by formula")
 public class ByFormulaModificationInfos extends ModificationInfos {
     @Schema(description = "Identifiable type")

@@ -6,12 +6,14 @@
  */
 package org.gridsuite.modification.modifications.data;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.LccShuntCompensatorModificationInfos;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -21,6 +23,8 @@ import java.util.List;
 @Getter
 @Setter
 @SuperBuilder
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class LccConverterStationModification extends AbstractInjectionModification {
 
     private AttributeModification<Float> lossFactor;

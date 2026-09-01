@@ -15,10 +15,11 @@ import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRangeAdder;
 import jakarta.annotation.Nonnull;
 import lombok.*;
-import org.gridsuite.modification.NetworkModificationException;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ReactiveCapabilityCurvePointsInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.modifications.data.VscConverterStationModification;
 import org.gridsuite.modification.utils.MeasurementUtils;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -29,8 +30,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static org.gridsuite.modification.NetworkModificationException.Type.MODIFY_VSC_ERROR;
-import static org.gridsuite.modification.NetworkModificationException.Type.WRONG_HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_VSC_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.WRONG_HVDC_ANGLE_DROOP_ACTIVE_POWER_CONTROL;
 import static org.gridsuite.modification.modifications.VscCreation.VSC_CHARACTERISTICS;
 import static org.gridsuite.modification.modifications.VscCreation.VSC_SETPOINTS;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
@@ -41,6 +42,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.checkIsPercenta
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class VscModification extends AbstractEquipmentModification {
     public static final String NO_VALUE = "No value";
     public static final String ANGLE_DROOP_ACTIVE_POWER_CONTROL_FIELD = "AngleDroopActivePowerControl";
@@ -164,7 +167,7 @@ public class VscModification extends AbstractEquipmentModification {
 
     @Override
     public String getName() {
-        return "VscModification";
+        return ModificationType.VSC_MODIFICATION.name();
     }
 
     private void modifyVsc(@Nonnull Network network, @Nonnull HvdcLine hvdcLine, ReportNode subReportNode) {

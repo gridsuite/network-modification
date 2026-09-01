@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import lombok.*;
+import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
@@ -22,6 +23,8 @@ import java.util.List;
  */
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SubstationCreation extends AbstractEquipmentCreation {
 
     private Country country;
@@ -43,7 +46,7 @@ public class SubstationCreation extends AbstractEquipmentCreation {
 
     @Override
     public String getName() {
-        return "SubstationCreation";
+        return ModificationType.SUBSTATION_CREATION.name();
     }
 
 }
