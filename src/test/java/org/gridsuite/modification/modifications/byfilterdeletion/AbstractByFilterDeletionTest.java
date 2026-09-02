@@ -85,7 +85,7 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
 
         ModificationContext modificationContext = ModificationContext.builder().filterLoader(_ -> Map.of()).build();
         ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification(modificationContext);
-        ReportNode report = byFilterDeletionInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = byFilterDeletion.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());

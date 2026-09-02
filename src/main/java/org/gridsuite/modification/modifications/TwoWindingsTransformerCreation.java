@@ -114,6 +114,14 @@ public class TwoWindingsTransformerCreation extends AbstractBranchCreation {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.twoWindingsTransformerCreation")
+                .withUntypedValue("twoWindingsTransformerId", getEquipmentId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.TWO_WINDINGS_TRANSFORMER_CREATION.name();
     }

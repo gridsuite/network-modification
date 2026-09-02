@@ -63,6 +63,14 @@ public class LccModification extends AbstractEquipmentModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("network.modification.lcc.modification")
+            .withUntypedValue("lccId", getEquipmentId())
+            .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.LCC_MODIFICATION.name();
     }

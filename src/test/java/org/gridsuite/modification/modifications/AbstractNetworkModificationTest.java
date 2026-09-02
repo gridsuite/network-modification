@@ -62,11 +62,11 @@ public abstract class AbstractNetworkModificationTest {
     @Test
     public void testApply() throws Exception {
         ModificationInfos modificationInfos = buildModification();
-        ReportNode report = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        AbstractModification modification = modificationInfos.toModification(null);
+        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME, FilterReportResourceBundle.BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
-        AbstractModification modification = modificationInfos.toModification(null);
         modification.check(network);
         initApplicationContext(modification);
         modification.apply(network, report);

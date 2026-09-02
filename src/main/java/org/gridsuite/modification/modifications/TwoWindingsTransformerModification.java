@@ -168,6 +168,14 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.twoWindingsTransformerModification.modification")
+                .withUntypedValue("twoWindingsTransformerId", getEquipmentId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.TWO_WINDINGS_TRANSFORMER_MODIFICATION.name();
     }

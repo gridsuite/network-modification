@@ -91,6 +91,14 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("network.modification.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS")
+            .withUntypedValue("voltageLevelId", getVoltageLevelId())
+            .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS.name();
     }
@@ -119,6 +127,11 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
             public String getName() {
                 return "";
             }
+
+            @Override
+            public ReportNode createSubReportNode(ReportNode reportNode) {
+                throw new UnsupportedOperationException("For this locally defined AbstractInjectionModification, createSubReportNode should not be called");
+            }
         };
         injectionModification.setEquipmentId(newConnectablePositionInfos.getEquipmentId());
         setConnectionAttributes(injectionModification::setConnectionPosition,
@@ -133,6 +146,11 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
             @Override
             protected void modifyCharacteristics(Branch<?> branch, ReportNode subReportNode) {
                 throw new UnsupportedOperationException("For this locally defined AbstractBranchModification, modifyCharacteristics should not be called");
+            }
+
+            @Override
+            public ReportNode createSubReportNode(ReportNode reportNode) {
+                throw new UnsupportedOperationException("For this locally defined AbstractBranchModification, createSubReportNode should not be called");
             }
 
             @Override
