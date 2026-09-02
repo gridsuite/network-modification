@@ -68,6 +68,14 @@ public class SubstationModification extends AbstractEquipmentModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.substation.modification")
+                .withUntypedValue("substationId", this.getEquipmentId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.SUBSTATION_MODIFICATION.name();
     }

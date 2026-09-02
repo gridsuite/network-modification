@@ -79,6 +79,14 @@ public class LoadModification extends AbstractInjectionModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.load.modification")
+                .withUntypedValue("loadId", getEquipmentId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.LOAD_MODIFICATION.name();
     }

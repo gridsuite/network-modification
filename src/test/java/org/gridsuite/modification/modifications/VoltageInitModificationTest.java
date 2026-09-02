@@ -233,7 +233,7 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
                     .connect(connect)
                     .build()))
             .build();
-        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = modification.toModification().createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         modification.toModification().apply(getNetwork(), report);

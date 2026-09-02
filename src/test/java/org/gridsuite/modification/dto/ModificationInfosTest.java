@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.dto;
 
-import com.powsybl.commons.report.ReportNode;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -33,22 +32,6 @@ class ModificationInfosTest {
         modificationInfos.setActivated(activated);
         modificationInfos.setApplicabilityByRootNetworkTag(applicabilityByRootNetworkTag);
         return modificationInfos;
-    }
-
-    @Test
-    void testCreateSubReportNodeThrowsUnsupportedOperationException() {
-        ModificationInfos modificationInfos = new TestModificationInfos();
-        ReportNode mockReportNode = ReportNode.newRootReportNode().withMessageTemplate("test").build();
-
-        UnsupportedOperationException exception = assertThrows(
-                UnsupportedOperationException.class,
-                () -> modificationInfos.createSubReportNode(mockReportNode),
-                "createSubReportNode should throw UnsupportedOperationException when not implemented"
-        );
-
-        String expectedMessage = "Method createSubReportNode must be implemented in subclass TestModificationInfos";
-        assertEquals(expectedMessage, exception.getMessage(),
-                "Exception message should indicate which method and class need implementation");
     }
 
     @Test

@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -123,11 +122,6 @@ public class ModificationInfos {
 
     @Schema(description = "User description")
     private String description;
-
-    @JsonIgnore
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        throw new UnsupportedOperationException("Method createSubReportNode must be implemented in subclass " + this.getClass().getSimpleName());
-    }
 
     @JsonIgnore
     public AbstractModification toModification() {

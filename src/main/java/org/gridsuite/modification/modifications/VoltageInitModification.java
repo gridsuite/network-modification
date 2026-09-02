@@ -98,6 +98,11 @@ public class VoltageInitModification extends AbstractModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode().withMessageTemplate("network.modification.voltageInitModification").add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.VOLTAGE_INIT_MODIFICATION.name();
     }

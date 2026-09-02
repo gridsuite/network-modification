@@ -79,6 +79,13 @@ public class LinesAttachToSplitLines extends AbstractModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.linesAttachToSplitLines")
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.LINES_ATTACH_TO_SPLIT_LINES.name();
     }

@@ -96,7 +96,7 @@ class OperatingStatusModificationEnergiseSideTwoLineTest extends AbstractNetwork
 
         OperatingStatusModificationInfos modification = (OperatingStatusModificationInfos) buildModification();
 
-        modification.createSubReportNode(reportNode);
+        modification.toModification().createSubReportNode(reportNode);
         assertLogMessage("Energise " + TARGET_LINE_ID, "network.modification.OPERATING_STATUS_MODIFICATION_ENERGISE_END_TWO", reportNode);
     }
 }

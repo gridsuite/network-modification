@@ -162,6 +162,14 @@ public class BatteryModification extends AbstractInjectionModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.battery.modification")
+                .withUntypedValue("batteryId", this.getEquipmentId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.BATTERY_MODIFICATION.name();
     }

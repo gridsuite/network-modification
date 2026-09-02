@@ -8,7 +8,6 @@ package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -49,14 +48,6 @@ public class CompositeModificationInfos extends ModificationInfos {
     @Override
     public AbstractModification toModification() {
         return new CompositeModification(this);
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.composite.apply")
-                .withUntypedValue("modificationName", getName())
-                .add();
     }
 
     @Override

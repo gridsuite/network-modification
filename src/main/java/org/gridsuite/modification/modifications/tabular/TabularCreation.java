@@ -38,6 +38,14 @@ public class TabularCreation extends AbstractTabularModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.tabularCreation")
+                .withUntypedValue("creationType", modificationInfos.formatEquipmentTypeName())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.TABULAR_CREATION.name();
     }

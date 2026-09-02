@@ -260,7 +260,7 @@ class MoveVoltageLevelFeederBaysTest extends AbstractNetworkModificationTest {
         MoveVoltageLevelFeederBaysInfos modification = (MoveVoltageLevelFeederBaysInfos) buildModification();
         MoveVoltageLevelFeederBays moveVoltageLevelFeederBays = (MoveVoltageLevelFeederBays) modification.toModification();
         assertEquals(MOVE_VOLTAGE_LEVEL_FEEDER_BAYS.toString(), moveVoltageLevelFeederBays.getName());
-        modification.createSubReportNode(reportNode);
+        modification.toModification().createSubReportNode(reportNode);
         assertLogMessage("Moving connections in v3", "network.modification.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS", reportNode);
     }
 
