@@ -85,6 +85,7 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
     protected ModificationInfos buildModification() {
         return VoltageInitModificationInfos.builder()
             .stashed(false)
+            .batteries(List.of())//TODO ici une fois les valeurs membres confirmées
             .generators(List.of(
                 VoltageInitGeneratorModificationInfos.builder()
                     .generatorId("idGenerator")
@@ -222,6 +223,7 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
         VoltageInitModificationInfos modification = VoltageInitModificationInfos.builder()
             .stashed(false)
             .generators(List.of())
+            .batteries(List.of())
             .transformers(List.of())
             .staticVarCompensators(List.of())
             .vscConverterStations(List.of())

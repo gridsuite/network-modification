@@ -258,7 +258,7 @@ public class BatteryModification extends AbstractInjectionModification {
         return voltageRegulationReports;
     }
 
-    private static void setTargetV(VoltageRegulation voltageRegulation, AttributeModification<Double> targetV, List<ReportNode> voltageRegulationReports) {
+    public static void setTargetV(VoltageRegulation voltageRegulation, AttributeModification<Double> targetV, List<ReportNode> voltageRegulationReports) {
         Double oldValue = voltageRegulation.getTargetV();
         Double newValue = Double.NaN;
         if (targetV.getOp() == OperationType.SET) {
