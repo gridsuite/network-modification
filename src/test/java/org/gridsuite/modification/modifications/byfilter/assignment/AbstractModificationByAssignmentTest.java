@@ -59,7 +59,7 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     public abstract Map<UUID, Set<String>> getFilterMapping();
 
     @Getter
-    private final FilterLoader filterLoader = TestUtils.createFilterLoader(getEquipmentType(), getFilterMapping());
+    private final FilterLoader filterLoader = TestUtils.createFilterLoader(getEquipmentType(), getFilterMapping(), Collections.emptyMap());
 
     @BeforeEach
     void specificSetUp() {
@@ -72,7 +72,7 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     @Override
     public void testApply() throws Exception {
         ModificationInfos modificationInfo = buildModification();
-        AbstractModification modification = modificationInfo.toModification(this::loadFilters);
+        AbstractModification modification = modificationInfo.toModification(getFilterLoader());
         modification.apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication();
     }

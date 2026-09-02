@@ -14,10 +14,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.LoadScaling;
+import org.gridsuite.modification.modifications.data.ScalingVariationData;
+import org.gridsuite.modification.modifications.scaling.LoadScaling;
 
-import static org.gridsuite.modification.error.NetworkModificationExceptionType.LOAD_SCALING_ERROR;
+import java.util.List;
 
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
@@ -32,11 +34,14 @@ import static org.gridsuite.modification.error.NetworkModificationExceptionType.
 public class LoadScalingInfos extends ScalingInfos {
 
     @Override
-    public AbstractModification toModification() {
+    public AbstractModification toModification(FilterLoader filterLoader) {
+        List<ScalingVariationData> scalingVariations = getVariations().stream()
+                .map(svi -> svi.toData(filterLoader))
+                .toList();
+
         return LoadScaling.builder()
-                .variations(getVariations())
+                .scalingVariations(scalingVariations)
                 .variationType(getVariationType())
-                .exceptionType(LOAD_SCALING_ERROR)
                 .build();
     }
 

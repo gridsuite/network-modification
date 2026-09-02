@@ -1,31 +1,33 @@
-/**
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+/*
+ * Copyright (c) 2024-2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
-package org.gridsuite.modification.modifications;
+package org.gridsuite.modification.modifications.saling;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
-import org.gridsuite.modification.IFilterService;
+import lombok.Getter;
+import org.gridsuite.filter.utils.EquipmentType;
+import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.modification.ReactiveVariationMode;
 import org.gridsuite.modification.VariationMode;
 import org.gridsuite.modification.VariationType;
-import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.FilterInfos;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.dto.LoadScalingInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.ScalingVariationInfos;
+import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
+import org.gridsuite.modification.modifications.scaling.LoadScaling;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
+import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -34,8 +36,6 @@ import java.util.stream.Stream;
 
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
@@ -64,12 +64,26 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
     private static final String LOAD_ID_10 = "load10";
     private static final String LOAD_WRONG_ID_1 = "wrongId1";
 
-    @Mock
-    private IFilterService filterService;
+    private static final Map<UUID, Set<String>> FILTER_MAPPING = Map.of(
+            FILTER_ID_1, Set.of(LOAD_ID_1, LOAD_ID_2),
+            FILTER_ID_2, Set.of(LOAD_ID_3, LOAD_ID_4),
+            FILTER_ID_3, Set.of(LOAD_ID_5, LOAD_ID_6),
+            FILTER_ID_4, Set.of(LOAD_ID_7, LOAD_ID_8),
+            FILTER_ID_5, Set.of(LOAD_ID_9, LOAD_ID_10));
+
+    private static final Map<String, Double> DISTRIBUTION_KEYS_MAPPING = Map.of(
+            LOAD_ID_1, 1.0, LOAD_ID_2, 2.0,
+            LOAD_ID_3, 2.0, LOAD_ID_4, 5.0,
+            LOAD_ID_5, 6.0, LOAD_ID_6, 7.0,
+            LOAD_ID_7, 3.0, LOAD_ID_8, 8.0,
+            LOAD_ID_9, 0.0, LOAD_ID_10, 9.0
+    );
+
+    @Getter
+    private final FilterLoader filterLoader = TestUtils.createFilterLoader(EquipmentType.LOAD, FILTER_MAPPING, DISTRIBUTION_KEYS_MAPPING);
 
     @BeforeEach
-    public void specificSetUp() {
-        MockitoAnnotations.openMocks(this);
+    void specificSetUp() {
         //createLoads
         getNetwork().getVariantManager().setWorkingVariant("variant_1");
         getNetwork().getLoad(LOAD_ID_1).setP0(100).setQ0(10);
@@ -84,64 +98,41 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
         getNetwork().getLoad(LOAD_ID_10).setP0(100).setQ0(1.0);
     }
 
-    private static Map<UUID, FilterEquipments> getTestFilters() {
-        FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(new IdentifiableAttributes(LOAD_ID_1, IdentifiableType.LOAD, 1.0),
-            new IdentifiableAttributes(LOAD_ID_2, IdentifiableType.LOAD, 2.0))).build();
-
-        FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(new IdentifiableAttributes(LOAD_ID_3, IdentifiableType.LOAD, 2.0),
-            new IdentifiableAttributes(LOAD_ID_4, IdentifiableType.LOAD, 5.0))).build();
-
-        FilterEquipments filter3 = FilterEquipments.builder().filterId(FILTER_ID_3).identifiableAttributes(List.of(new IdentifiableAttributes(LOAD_ID_5, IdentifiableType.LOAD, 6.0),
-            new IdentifiableAttributes(LOAD_ID_6, IdentifiableType.LOAD, 7.0))).build();
-
-        FilterEquipments filter4 = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(new IdentifiableAttributes(LOAD_ID_7, IdentifiableType.LOAD, 3.0),
-            new IdentifiableAttributes(LOAD_ID_8, IdentifiableType.LOAD, 8.0))).build();
-
-        FilterEquipments filter5 = FilterEquipments.builder().filterId(FILTER_ID_5).identifiableAttributes(List.of(new IdentifiableAttributes(LOAD_ID_9, IdentifiableType.LOAD, 0.0),
-            new IdentifiableAttributes(LOAD_ID_10, IdentifiableType.LOAD, 9.0))).build();
-
-        return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3, FILTER_ID_4, filter4, FILTER_ID_5, filter5);
-    }
-
     @Test
     @Override
     public void testApply() throws Exception {
         LoadScalingInfos modificationInfo = (LoadScalingInfos) buildModification();
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(getTestFilters());
-        LoadScaling loadScaling = (LoadScaling) modificationInfo.toModification();
-        loadScaling.initApplicationContext(filterService, null);
+        LoadScaling loadScaling = (LoadScaling) modificationInfo.toModification(filterLoader);
         loadScaling.apply(getNetwork());
         assertAfterNetworkModificationApplication();
     }
 
     @Test
-    void testVentilationModeWithoutDistributionKey() throws Exception {
-        List<IdentifiableAttributes> identifiableAttributes = List.of(new IdentifiableAttributes(LOAD_ID_2, IdentifiableType.LOAD, null),
-            new IdentifiableAttributes(LOAD_ID_3, IdentifiableType.LOAD, null));
-        Map<UUID, FilterEquipments> filters = Map.of(FILTER_NO_DK, FilterEquipments.builder().filterId(FILTER_NO_DK).identifiableAttributes(identifiableAttributes).build());
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filters);
+    void testVentilationModeWithoutDistributionKey() {
+        Map<UUID, Set<String>> filterMappings = Map.of(FILTER_NO_DK, Set.of(LOAD_ID_2, LOAD_ID_3));
+        FilterLoader customFilterLoader = TestUtils.createFilterLoader(EquipmentType.LOAD, filterMappings, Collections.emptyMap());
+
         FilterInfos filter = FilterInfos.builder()
-            .id(FILTER_NO_DK)
-            .name("filter")
-            .build();
+                .id(FILTER_NO_DK)
+                .name("filter")
+                .build();
 
         ScalingVariationInfos variation1 = ScalingVariationInfos.builder()
-            .variationValue(100D)
-            .variationMode(VariationMode.VENTILATION)
-            .reactiveVariationMode(ReactiveVariationMode.TAN_PHI_FIXED)
-            .filters(List.of(filter))
-            .build();
+                .variationValue(100D)
+                .variationMode(VariationMode.VENTILATION)
+                .reactiveVariationMode(ReactiveVariationMode.TAN_PHI_FIXED)
+                .filters(List.of(filter))
+                .build();
 
         ModificationInfos modificationToCreate = LoadScalingInfos.builder()
-            .stashed(false)
-            .uuid(LOAD_SCALING_ID)
-            .date(Instant.now().truncatedTo(ChronoUnit.MICROS))
-            .variationType(VariationType.DELTA_P)
-            .variations(List.of(variation1))
-            .build();
+                .stashed(false)
+                .uuid(LOAD_SCALING_ID)
+                .date(Instant.now().truncatedTo(ChronoUnit.MICROS))
+                .variationType(VariationType.DELTA_P)
+                .variations(List.of(variation1))
+                .build();
 
-        LoadScaling loadScaling = (LoadScaling) modificationToCreate.toModification();
-        loadScaling.initApplicationContext(filterService, null);
+        LoadScaling loadScaling = (LoadScaling) modificationToCreate.toModification(customFilterLoader);
         loadScaling.apply(getNetwork());
 
         assertEquals(200, getNetwork().getLoad(LOAD_ID_2).getP0(), 0.01D);
@@ -149,77 +140,108 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void testFilterWithWrongIds() throws Exception {
-        Map<UUID, FilterEquipments> filters = Map.of(FILTER_WRONG_ID_1, FilterEquipments.builder().filterId(FILTER_WRONG_ID_1).identifiableAttributes(List.of()).build());
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filters);
+    void testFilterWithWrongIds() {
+        Map<UUID, Set<String>> filterMappings = Map.of(FILTER_WRONG_ID_1, Collections.emptySet());
+        FilterLoader customFilterLoader = TestUtils.createFilterLoader(EquipmentType.LOAD, filterMappings, Collections.emptyMap());
 
         FilterInfos filter = FilterInfos.builder()
-            .name("filter")
-            .id(FILTER_WRONG_ID_1)
-            .build();
+                .name("filter")
+                .id(FILTER_WRONG_ID_1)
+                .build();
 
         ScalingVariationInfos variation = ScalingVariationInfos.builder()
-            .variationMode(VariationMode.PROPORTIONAL)
-            .reactiveVariationMode(ReactiveVariationMode.TAN_PHI_FIXED)
-            .variationValue(100D)
-            .filters(List.of(filter))
-            .build();
+                .variationMode(VariationMode.PROPORTIONAL)
+                .reactiveVariationMode(ReactiveVariationMode.TAN_PHI_FIXED)
+                .variationValue(100D)
+                .filters(List.of(filter))
+                .build();
 
         LoadScalingInfos loadScalingInfo = LoadScalingInfos.builder()
-            .variationType(VariationType.TARGET_P)
-            .variations(List.of(variation))
-            .build();
-        LoadScaling loadScaling = (LoadScaling) loadScalingInfo.toModification();
-        loadScaling.initApplicationContext(filterService, null);
+                .variationType(VariationType.TARGET_P)
+                .variations(List.of(variation))
+                .build();
+        LoadScaling loadScaling = (LoadScaling) loadScalingInfo.toModification(customFilterLoader);
         ReportNode report = loadScalingInfo.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         loadScaling.apply(getNetwork(), report);
-        assertLogMessage(loadScaling.getName() + ": There is no valid equipment ID among the provided filter(s)",
-                "network.modification.invalidFilters", report);
+        assertLogMessage("No equipment will be scaled",
+                "network.modification.scaling.noEquipmentToScale", report);
     }
 
     @Test
-    void testScalingCreationWithWarning() throws Exception {
-        Map<UUID, FilterEquipments> filters = Map.of(FILTER_ID_5, FilterEquipments.builder()
-                .filterId(FILTER_ID_5)
-                .identifiableAttributes(List.of(new IdentifiableAttributes(LOAD_ID_9, IdentifiableType.LOAD, 0.0),
-                        new IdentifiableAttributes(LOAD_ID_10, IdentifiableType.LOAD, 9.0)))
-                .build(),
-                FILTER_WRONG_ID_2, FilterEquipments.builder()
-                        .filterId(FILTER_WRONG_ID_2)
-                        .identifiableAttributes(
-                                List.of(new IdentifiableAttributes(LOAD_WRONG_ID_1, IdentifiableType.LOAD, 2.0)))
-                        .build());
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filters);
+    void testScalingCreationWithWarning() {
+        Map<UUID, Set<String>> filterMappings = Map.of(FILTER_ID_5, Set.of(LOAD_ID_9, LOAD_ID_10),
+                FILTER_WRONG_ID_2, Set.of(LOAD_WRONG_ID_1));
+        Map<String, Double> distributionKeysMapping = Map.of(LOAD_ID_9, 0.0, LOAD_ID_10, 9.0, LOAD_WRONG_ID_1, 2.0);
+        FilterLoader customFilterLoader = TestUtils.createFilterLoader(EquipmentType.LOAD, filterMappings, distributionKeysMapping);
 
         FilterInfos filter = FilterInfos.builder()
-            .name("filter")
-            .id(FILTER_WRONG_ID_2)
-            .build();
+                .name("filter")
+                .id(FILTER_WRONG_ID_2)
+                .build();
 
         FilterInfos filter2 = FilterInfos.builder()
-            .name("filter2")
-            .id(FILTER_ID_5)
-            .build();
+                .name("filter2")
+                .id(FILTER_ID_5)
+                .build();
 
         ScalingVariationInfos variation = ScalingVariationInfos.builder()
-            .variationMode(VariationMode.PROPORTIONAL)
-            .reactiveVariationMode(ReactiveVariationMode.TAN_PHI_FIXED)
-            .variationValue(900D)
-            .filters(List.of(filter, filter2))
-            .build();
+                .variationMode(VariationMode.PROPORTIONAL)
+                .reactiveVariationMode(ReactiveVariationMode.TAN_PHI_FIXED)
+                .variationValue(900D)
+                .filters(List.of(filter, filter2))
+                .build();
 
         LoadScalingInfos loadScalingInfo = LoadScalingInfos.builder()
-            .variationType(VariationType.TARGET_P)
-            .variations(List.of(variation))
-            .build();
+                .variationType(VariationType.TARGET_P)
+                .variations(List.of(variation))
+                .build();
 
-        LoadScaling loadScaling = (LoadScaling) loadScalingInfo.toModification();
-        loadScaling.initApplicationContext(filterService, null);
+        LoadScaling loadScaling = (LoadScaling) loadScalingInfo.toModification(customFilterLoader);
         loadScaling.apply(getNetwork());
         assertEquals(600, getNetwork().getLoad(LOAD_ID_9).getP0(), 0.01D);
         assertEquals(300, getNetwork().getLoad(LOAD_ID_10).getP0(), 0.01D);
+    }
+
+    @Test
+    void testFilteredDuplicatedEquipmentsRemoved() {
+        Map<UUID, Set<String>> filterMappings = Map.of(FILTER_ID_4, Set.of(LOAD_ID_9, LOAD_ID_10),
+                FILTER_ID_5, Set.of(LOAD_ID_9));
+        FilterLoader customFilterLoader = TestUtils.createFilterLoader(EquipmentType.LOAD, filterMappings, Collections.emptyMap());
+
+        FilterInfos filter = FilterInfos.builder()
+                .name("filter")
+                .id(FILTER_ID_4)
+                .build();
+
+        FilterInfos filter2 = FilterInfos.builder()
+                .name("filter2")
+                .id(FILTER_ID_5)
+                .build();
+
+        ScalingVariationInfos variation = ScalingVariationInfos.builder()
+                .reactiveVariationMode(ReactiveVariationMode.CONSTANT_Q)
+                .variationMode(VariationMode.PROPORTIONAL)
+                .variationValue(900D)
+                .filters(List.of(filter, filter2))
+                .build();
+        LoadScalingInfos loadScalingInfo = LoadScalingInfos.builder()
+                .stashed(false)
+                .variationType(VariationType.TARGET_P)
+                .variations(List.of(variation))
+                .build();
+
+        LoadScaling loadScaling = (LoadScaling) loadScalingInfo.toModification(customFilterLoader);
+        ReportNode report = loadScalingInfo.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+        loadScaling.apply(getNetwork(), report);
+
+        assertEquals(600, getNetwork().getLoad(LOAD_ID_9).getP0(), 0.01D);
+        assertEquals(300, getNetwork().getLoad(LOAD_ID_10).getP0(), 0.01D);
+        assertLogMessage("Equipment load9 already seen in previous filter evaluation, skipping it",
+                "network.modification.filterEvaluation.equipmentAlreadySeen", report);
     }
 
     @Override
@@ -337,15 +359,10 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
                 .filter(l -> !loadsToDisconnect.contains(l))
                 .toList();
 
-        List<IdentifiableAttributes> identifiableAttributes = List.of(
-            new IdentifiableAttributes("LD1", IdentifiableType.LOAD, 0.0),
-            new IdentifiableAttributes("LD2", IdentifiableType.LOAD, 100.0),
-            new IdentifiableAttributes("LD3", IdentifiableType.LOAD, 100.0),
-            new IdentifiableAttributes("LD4", IdentifiableType.LOAD, 100.0),
-            new IdentifiableAttributes("LD5", IdentifiableType.LOAD, 100.0),
-            new IdentifiableAttributes("LD6", IdentifiableType.LOAD, 100.0));
-        Map<UUID, FilterEquipments> filters = Map.of(FILTER_ID_ALL_LOADS, FilterEquipments.builder().filterId(FILTER_ID_ALL_LOADS).identifiableAttributes(identifiableAttributes).build());
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filters);
+        Map<UUID, Set<String>> filterMappings = Map.of(FILTER_ID_ALL_LOADS, Set.of("LD1", "LD2", "LD3", "LD4", "LD5", "LD6"));
+        Map<String, Double> distributionKeysMapping = Map.of("LD1", 0.0, "LD2", 100.0, "LD3", 100.0,
+                "LD4", 100.0, "LD5", 100.0, "LD6", 100.0);
+        FilterLoader customFilterLoader = TestUtils.createFilterLoader(EquipmentType.LOAD, filterMappings, distributionKeysMapping);
 
         FilterInfos filter = FilterInfos.builder()
                 .name("filter")
@@ -366,8 +383,7 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
                 .variations(List.of(variation))
                 .build();
 
-        LoadScaling loadScaling = (LoadScaling) loadScalingInfo.toModification();
-        loadScaling.initApplicationContext(filterService, null);
+        LoadScaling loadScaling = (LoadScaling) loadScalingInfo.toModification(customFilterLoader);
         loadScaling.apply(getNetwork());
 
         // If we sum the P0 for all expected modified loads, we should have the requested variation value

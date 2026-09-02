@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -195,12 +196,27 @@ public final class TestUtils {
                 .replace("\r", "\n");
     }
 
-    public static FilterLoader createFilterLoader(EquipmentType equipmentType, Map<UUID, Set<String>> filtersMapping) {
-        return filterUuids -> filterUuids.stream()
-                .map(filtersMapping::get)
-                .filter(Objects::nonNull)
-                .map(equipmentIds -> equipmentFilter(equipmentType, equipmentIds))
-                .toList();
+    public static FilterLoader createFilterLoader(EquipmentType equipmentType, Map<UUID, Set<String>> filtersMapping, Map<String, Double> distributionKeysMapping) {
+        return new FilterLoader() {
+            @Override
+            public List<Filter> load(List<UUID> filterUuids) {
+                return filterUuids.stream()
+                        .map(filtersMapping::get)
+                        .filter(Objects::nonNull)
+                        .map(equipmentIds -> equipmentFilter(equipmentType, equipmentIds))
+                        .toList();
+            }
+
+            @Override
+            public Map<String, Double> loadDistributionKeys(List<UUID> filterUuids) {
+                return filterUuids.stream()
+                        .map(filtersMapping::get)
+                        .flatMap(Set::stream)
+                        .distinct()
+                        .filter(distributionKeysMapping::containsKey)
+                        .collect(Collectors.toMap(s -> s, distributionKeysMapping::get));
+            }
+        };
     }
 
     private static Filter equipmentFilter(EquipmentType equipmentType, Set<String> equipmentsIds) {

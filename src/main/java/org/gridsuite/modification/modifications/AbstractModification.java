@@ -22,6 +22,8 @@ import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.modifications.byfilter.ByFormulaModification;
 import org.gridsuite.modification.modifications.byfilter.ModificationByAssignment;
+import org.gridsuite.modification.modifications.scaling.GeneratorScaling;
+import org.gridsuite.modification.modifications.scaling.LoadScaling;
 import org.gridsuite.modification.modifications.tabular.TabularCreation;
 import org.gridsuite.modification.modifications.tabular.TabularModification;
 

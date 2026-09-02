@@ -24,10 +24,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -46,7 +44,7 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
     public abstract Map<UUID, Set<String>> getFilterMapping();
 
     @Getter
-    private final FilterLoader filterLoader = TestUtils.createFilterLoader(getEquipmentType(), getFilterMapping());
+    private final FilterLoader filterLoader = TestUtils.createFilterLoader(getEquipmentType(), getFilterMapping(), Collections.emptyMap());
 
     @BeforeEach
     void specificSetUp() {
@@ -80,7 +78,8 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
                 .filters(List.of(filter1))
                 .build();
 
-        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification(_ -> List.of());
+        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification(
+                TestUtils.createFilterLoader(getEquipmentType(), Map.of(), Map.of()));
         ReportNode report = byFilterDeletionInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")

@@ -13,7 +13,6 @@ import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.filter.report.FilterReportResourceBundle;
-import org.gridsuite.filter.wip.Filter;
 import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
@@ -22,7 +21,6 @@ import org.gridsuite.modification.report.NetworkModificationReportResourceBundle
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -78,13 +76,6 @@ public abstract class AbstractNetworkModificationTest {
         // Nothing to init by default
     }
 
-    public final List<Filter> loadFilters(List<UUID> filterUuids) {
-        if (getFilterLoader() != null) {
-            return getFilterLoader().load(filterUuids);
-        }
-        return List.of();
-    }
-
     public FilterLoader getFilterLoader() {
         return null;
     }
@@ -98,7 +89,7 @@ public abstract class AbstractNetworkModificationTest {
     public void testRoundTripSerializationDeserialization() throws JsonProcessingException {
         ILoadFlowService loadFlowServiceMock = mock(ILoadFlowService.class);
         IFilterService filterServiceMock = mock(IFilterService.class);
-        AbstractModification expectedModification = buildModification().toModification(this::loadFilters);
+        AbstractModification expectedModification = buildModification().toModification(getFilterLoader());
         expectedModification.initApplicationContext(filterServiceMock, loadFlowServiceMock);
 
         String serializedModification = mapper.writeValueAsString(expectedModification);

@@ -17,10 +17,7 @@ import org.gridsuite.modification.modifications.data.assignment.ReferenceFieldOr
 import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.gridsuite.modification.utils.NetworkUtil.createTwoWindingsTransformer;
 import static org.junit.jupiter.api.Assertions.*;
@@ -66,7 +63,7 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
                 .stashed(false)
                 .build();
         apply(modificationInfos, TestUtils.createFilterLoader(
-                EquipmentType.TWO_WINDINGS_TRANSFORMER, Map.of(FILTER_ID_4, Set.of(TWT_ID_4, TWT_ID_6))));
+                EquipmentType.TWO_WINDINGS_TRANSFORMER, Map.of(FILTER_ID_4, Set.of(TWT_ID_4, TWT_ID_6)), Collections.emptyMap()));
 
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_4).getRatioTapChanger());
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_6).getRatioTapChanger());
@@ -86,7 +83,7 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
                 .stashed(false)
                 .build();
         apply(modificationInfos2, TestUtils.createFilterLoader(
-                EquipmentType.TWO_WINDINGS_TRANSFORMER, Map.of(FILTER_ID_1, Set.of(TWT_ID_1, TWT_ID_2))));
+                EquipmentType.TWO_WINDINGS_TRANSFORMER, Map.of(FILTER_ID_1, Set.of(TWT_ID_1, TWT_ID_2)), Collections.emptyMap()));
 
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_1).getPhaseTapChanger());
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_2).getPhaseTapChanger());
@@ -110,7 +107,7 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
         apply(modificationInfos, TestUtils.createFilterLoader(EquipmentType.TWO_WINDINGS_TRANSFORMER, Map.of(
                 FILTER_ID_1, Set.of(TWT_ID_1, TWT_ID_2),
                 FILTER_ID_4, Set.of(TWT_ID_4, TWT_ID_6)
-        )));
+        ), Collections.emptyMap()));
 
         assertNotNull(getNetwork().getTwoWindingsTransformer(TWT_ID_1).getRatioTapChanger());
         assertNotNull(getNetwork().getTwoWindingsTransformer(TWT_ID_2).getRatioTapChanger());

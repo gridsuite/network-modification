@@ -6,11 +6,15 @@
  */
 package org.gridsuite.modification.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.modification.ReactiveVariationMode;
 import org.gridsuite.modification.VariationMode;
+import org.gridsuite.modification.modifications.data.ScalingVariationData;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -40,4 +44,15 @@ public class ScalingVariationInfos {
     @Schema(description = "reactiveVariationMode")
     private ReactiveVariationMode reactiveVariationMode;
 
+    @JsonIgnore
+    public ScalingVariationData toData(FilterLoader filterLoader) {
+        List<UUID> filterUuids = filters.stream().map(FilterInfos::getId).distinct().toList();
+        return ScalingVariationData.builder()
+                .filters(filterLoader.load(filterUuids))
+                .distributionKeysPerEquipmentId(filterLoader.loadDistributionKeys(filterUuids))
+                .variationMode(variationMode)
+                .variationValue(variationValue)
+                .reactiveVariationMode(reactiveVariationMode)
+                .build();
+    }
 }

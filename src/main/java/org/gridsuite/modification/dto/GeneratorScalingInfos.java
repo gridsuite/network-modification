@@ -14,8 +14,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.GeneratorScaling;
+import org.gridsuite.modification.modifications.data.ScalingVariationData;
+import org.gridsuite.modification.modifications.scaling.GeneratorScaling;
+
+import java.util.List;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -30,9 +34,13 @@ import org.gridsuite.modification.modifications.GeneratorScaling;
 public class GeneratorScalingInfos extends ScalingInfos {
 
     @Override
-    public AbstractModification toModification() {
+    public AbstractModification toModification(FilterLoader filterLoader) {
+        List<ScalingVariationData> scalingVariations = getVariations().stream()
+                .map(svi -> svi.toData(filterLoader))
+                .toList();
+
         return GeneratorScaling.builder()
-                .variations(getVariations())
+                .scalingVariations(scalingVariations)
                 .variationType(getVariationType())
                 .build();
     }

@@ -10,7 +10,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
@@ -20,10 +19,7 @@ import org.gridsuite.modification.dto.byfilter.equipmentfield.TwoWindingsTransfo
 import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.gridsuite.modification.utils.NetworkUtil.createTwoWindingsTransformer;
 import static org.junit.jupiter.api.Assertions.*;
@@ -65,7 +61,7 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
                 .assignmentInfosList(List.of(assignmentInfos))
                 .stashed(false)
                 .build();
-        apply(modificationInfos, _ -> List.of(IdentifierListFilter.builder().equipmentType(EquipmentType.TWO_WINDINGS_TRANSFORMER).equipmentIds(Set.of(TWT_ID_4, TWT_ID_6)).build()));
+        apply(modificationInfos, getFilterLoader());
 
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_4).getRatioTapChanger());
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_6).getRatioTapChanger());
@@ -82,7 +78,7 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
                 .assignmentInfosList(List.of(assignmentInfos2))
                 .stashed(false)
                 .build();
-        apply(modificationInfos2, _ -> List.of(IdentifierListFilter.builder().equipmentType(EquipmentType.TWO_WINDINGS_TRANSFORMER).equipmentIds(Set.of(TWT_ID_1, TWT_ID_2)).build()));
+        apply(modificationInfos2, getFilterLoader());
 
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_1).getPhaseTapChanger());
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_2).getPhaseTapChanger());
@@ -104,7 +100,7 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         apply(modificationInfos, TestUtils.createFilterLoader(EquipmentType.TWO_WINDINGS_TRANSFORMER, Map.of(
                 FILTER_ID_1, Set.of(TWT_ID_1, TWT_ID_2),
                 FILTER_ID_4, Set.of(TWT_ID_4, TWT_ID_6)
-        )));
+        ), Collections.emptyMap()));
 
         assertNotNull(getNetwork().getTwoWindingsTransformer(TWT_ID_1).getRatioTapChanger());
         assertNotNull(getNetwork().getTwoWindingsTransformer(TWT_ID_2).getRatioTapChanger());
