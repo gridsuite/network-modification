@@ -48,12 +48,16 @@ public final class NetworkUtil {
     }
 
     public static void createBusBarSection(VoltageLevel vl, String id, String name, int node) {
+        createBusBarSection(vl, id, name, node, 0, 0);
+    }
+
+    public static void createBusBarSection(VoltageLevel vl, String id, String name, int node, int busbarIndex, int sectionIndex) {
         var bbs = vl.getNodeBreakerView().newBusbarSection()
             .setId(id)
             .setName(name)
             .setNode(node)
             .add();
-        bbs.newExtension(BusbarSectionPositionAdder.class).withBusbarIndex(0).withSectionIndex(0).add();
+        bbs.newExtension(BusbarSectionPositionAdder.class).withBusbarIndex(busbarIndex).withSectionIndex(sectionIndex).add();
     }
 
     public static void createBus(VoltageLevel vl, String id, String name) {
@@ -189,6 +193,7 @@ public final class NetworkUtil {
                 .withName(feederName)
                 .withOrder(feederOrder)
                 .withDirection(direction)
+                .add()
                 .add();
     }
 
@@ -225,7 +230,9 @@ public final class NetworkUtil {
                 .newFeeder()
                 .withName(feederName)
                 .withOrder(feederOrder)
-                .withDirection(direction).add();
+                .withDirection(direction)
+                .add()
+                .add();
     }
 
     public static void createGeneratorOnBus(VoltageLevel vl, String id, String busId, double targetP, double targetQ) {
@@ -361,7 +368,8 @@ public final class NetworkUtil {
                 .newFeeder()
                 .withName(feederName)
                 .withOrder(feederOrder)
-                .withDirection(direction).add();
+                .withDirection(direction).add()
+                .add();
     }
 
     public static void createStaticVarCompensator(VoltageLevel vl, String id, String name,
