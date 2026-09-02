@@ -54,6 +54,13 @@ public class GroovyScript extends AbstractModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.groovyScript")
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.GROOVY_SCRIPT.name();
     }

@@ -146,6 +146,11 @@ public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode().withMessageTemplate("network.modification.staticVarCompensatorCreation").withUntypedValue("id", this.getEquipmentId()).add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.STATIC_VAR_COMPENSATOR_CREATION.name();
     }

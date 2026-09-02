@@ -354,7 +354,7 @@ class LineModificationTest extends AbstractNetworkModificationTest {
                 .equipmentName(AttributeModification.toAttributeModification("newName", OperationType.SET))
                 .equipmentId("line1")
                 .build();
-        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         modificationInfos.toModification().apply(getNetwork(), reportNode);

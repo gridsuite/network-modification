@@ -41,7 +41,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         CompositeModificationInfos compositeModificationInfos = (CompositeModificationInfos) buildModification();
 
         // checks that the sub sub sub netmod is executed at the right depth
-        ReportNode report = compositeModificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = compositeModificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
@@ -66,7 +66,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         Network network = getNetwork();
         CompositeModificationInfos compositeModificationInfos = (CompositeModificationInfos) buildModification();
 
-        ReportNode report = compositeModificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = compositeModificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
@@ -111,7 +111,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                 .stashed(false)
                 .build();
 
-        ReportNode report = composite.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = composite.toModification().createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());

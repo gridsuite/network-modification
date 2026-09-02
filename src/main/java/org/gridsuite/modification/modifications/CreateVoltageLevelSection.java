@@ -137,6 +137,14 @@ public class CreateVoltageLevelSection extends AbstractModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.voltageLevel.section.created")
+                .withUntypedValue("voltageLevelId", getVoltageLevelId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.CREATE_VOLTAGE_LEVEL_SECTION.name();
     }

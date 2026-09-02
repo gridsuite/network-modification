@@ -113,7 +113,7 @@ class CreateVoltageLevelSectionTest extends AbstractNetworkModificationTest {
 
         CreateVoltageLevelSectionInfos modification = (CreateVoltageLevelSectionInfos) buildModification();
 
-        modification.createSubReportNode(reportNode);
+        modification.toModification().createSubReportNode(reportNode);
         assertLogMessage("Adding busbar section on v1", "network.modification.voltageLevel.section.created", reportNode);
     }
 

@@ -171,7 +171,7 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
             .build();
         LoadScaling loadScaling = (LoadScaling) loadScalingInfo.toModification();
         loadScaling.initApplicationContext(filterService, null, null);
-        ReportNode report = loadScalingInfo.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = loadScalingInfo.toModification().createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         loadScaling.apply(getNetwork(), report);

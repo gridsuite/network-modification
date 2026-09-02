@@ -155,6 +155,14 @@ public class GeneratorCreation extends AbstractInjectionCreation implements Reac
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.generator.creation")
+                .withUntypedValue("generatorId", this.getEquipmentId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.GENERATOR_CREATION.name();
     }

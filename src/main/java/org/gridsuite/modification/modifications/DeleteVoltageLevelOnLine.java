@@ -67,6 +67,11 @@ public class DeleteVoltageLevelOnLine extends AbstractModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode().withMessageTemplate("network.modification.deleteVoltageLevelOnLine").add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.DELETE_VOLTAGE_LEVEL_ON_LINE.name();
     }

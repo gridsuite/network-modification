@@ -125,6 +125,13 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.modificationByAssignment")
+                .withUntypedValue("equipmentType", equipmentType.name()).add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.MODIFICATION_BY_ASSIGNMENT.name();
     }

@@ -125,6 +125,14 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.shuntCompensatorModification.modification")
+                .withUntypedValue("shuntCompensatorId", this.getEquipmentId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.SHUNT_COMPENSATOR_MODIFICATION.name();
     }
