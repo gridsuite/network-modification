@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
@@ -15,11 +14,9 @@ import lombok.*;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.ModificationReferenceInfos;
 
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -30,40 +27,27 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ModificationReference extends AbstractModification {
 
-    private UUID referenceId;
     private ModificationReferenceInfos.Type referenceType;
-    private ModificationInfos referenceInfos;
-
-    @JsonIgnore
-    @EqualsAndHashCode.Exclude
-    protected IFilterService filterService;
-
-    @JsonIgnore
-    @EqualsAndHashCode.Exclude
-    protected ILoadFlowService loadFlowService;
+    private AbstractModification referenceModification;
 
     @Builder
-    public ModificationReference(UUID referenceId,
-                                 ModificationReferenceInfos.Type referenceType,
-                                 ModificationInfos referenceInfos) {
-        this.referenceId = referenceId;
+    public ModificationReference(ModificationReferenceInfos.Type referenceType,
+                                 AbstractModification referenceModification) {
         this.referenceType = referenceType;
-        this.referenceInfos = referenceInfos;
+        this.referenceModification = referenceModification;
     }
 
     @Override
-    protected void initServices(IFilterService filterService, ILoadFlowService loadFlowService) {
-        this.filterService = filterService;
-        this.loadFlowService = loadFlowService;
+    public void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService) {
+        referenceModification.initApplicationContext(filterService, loadFlowService);
     }
 
     @Override
     public void check(Network network) {
         super.check(network);
-        Objects.requireNonNull(referenceId, "referenceId is required");
         Objects.requireNonNull(referenceType, "referenceType is required");
-        Objects.requireNonNull(referenceInfos, "referenceInfos is required");
-        referenceInfos.check();
+        Objects.requireNonNull(referenceModification, "referenceInfos is required");
+        referenceModification.check(network);
     }
 
     @Override
@@ -73,10 +57,7 @@ public class ModificationReference extends AbstractModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
-        AbstractModification modification = referenceInfos.toModification();
-        modification.check(network);
-        modification.initApplicationContext(filterService, loadFlowService, getRootNetworkTag());
-        modification.apply(network, namingStrategy, modification.createSubReportNode(subReportNode));
+        referenceModification.apply(network, namingStrategy, referenceModification.createSubReportNode(subReportNode));
     }
 
     @Override
