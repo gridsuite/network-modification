@@ -47,7 +47,15 @@ public class CompositeModificationInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification() {
-        return new CompositeModification(this);
+        return CompositeModification.builder()
+                .name(name)
+                .maxDepth(maxDepth)
+                .modificationsInfos(modificationsInfos.stream()
+                        .filter(modificationInfos -> Boolean.TRUE.equals(modificationInfos.getActivated())
+                                && Boolean.FALSE.equals(modificationInfos.getStashed()))
+                        .map(ModificationInfos::toModification)
+                        .toList())
+                .build();
     }
 
     @Override
