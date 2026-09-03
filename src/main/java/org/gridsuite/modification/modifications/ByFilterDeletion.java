@@ -102,11 +102,6 @@ public class ByFilterDeletion extends AbstractModification {
     }
 
     @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.byFilter.deletion").add();
-    }
-
-    @Override
     public String getName() {
         return ModificationType.BY_FILTER_DELETION.name();
     }

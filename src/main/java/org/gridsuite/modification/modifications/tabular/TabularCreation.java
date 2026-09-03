@@ -10,13 +10,16 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.EquipmentModificationInfos;
-import org.gridsuite.modification.dto.ShuntCompensatorCreationInfos;
-import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
 import org.gridsuite.modification.error.NetworkModificationException;
+import org.gridsuite.modification.modifications.AbstractEquipmentBase;
+import org.gridsuite.modification.modifications.ShuntCompensatorCreation;
+
+import java.util.List;
+
 import static org.gridsuite.modification.error.NetworkModificationExceptionType.TABULAR_CREATION_ERROR;
 
 /**
@@ -26,13 +29,14 @@ import static org.gridsuite.modification.error.NetworkModificationExceptionType.
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TabularCreation extends AbstractTabularModification {
 
-    public TabularCreation(TabularCreationInfos modificationInfos) {
-        super(modificationInfos);
+    @Builder
+    public TabularCreation(ModificationType modificationType, List<AbstractEquipmentBase> modifications) {
+        super(modificationType, modifications);
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (modificationInfos == null) {
+        if (modifications == null) {
             throw new NetworkModificationException(TABULAR_CREATION_ERROR, "No tabular creation to apply !!");
         }
     }
@@ -41,7 +45,7 @@ public class TabularCreation extends AbstractTabularModification {
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.tabularCreation")
-                .withUntypedValue("creationType", modificationInfos.formatEquipmentTypeName())
+                .withUntypedValue("creationType", formatEquipmentTypeName())
                 .add();
     }
 
@@ -52,7 +56,7 @@ public class TabularCreation extends AbstractTabularModification {
 
     @Override
     public String defaultMessage() {
-        return modificationInfos.formatEquipmentTypeName() + " have been created";
+        return formatEquipmentTypeName() + " have been created";
     }
 
     @Override
@@ -61,8 +65,8 @@ public class TabularCreation extends AbstractTabularModification {
     }
 
     @Override
-    public void specificCheck(EquipmentModificationInfos equipmentModificationInfos, Network network, ReportNode subReportNode) {
-        if (equipmentModificationInfos instanceof ShuntCompensatorCreationInfos shuntCompensatorCreationInfos && shuntCompensatorCreationInfos.getMaxSusceptance() != null) {
+    public void specificCheck(AbstractEquipmentBase equipmentModificationInfos, Network network, ReportNode subReportNode) {
+        if (equipmentModificationInfos instanceof ShuntCompensatorCreation shuntCompensatorCreationInfos && shuntCompensatorCreationInfos.getMaxSusceptance() != null) {
             if (shuntCompensatorCreationInfos.getShuntCompensatorType() != null && shuntCompensatorCreationInfos.getMaxQAtNominalV() != null) {
                 subReportNode.newReportNode()
                         .withMessageTemplate("network.modification.tabular.creation.shuntCompensator.maxSusceptanceIgnored.1")
