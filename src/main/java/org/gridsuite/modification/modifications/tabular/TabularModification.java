@@ -11,13 +11,16 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.EquipmentModificationInfos;
-import org.gridsuite.modification.dto.ShuntCompensatorModificationInfos;
-import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
 import org.gridsuite.modification.error.NetworkModificationException;
+import org.gridsuite.modification.modifications.AbstractEquipmentBase;
+import org.gridsuite.modification.modifications.ShuntCompensatorModification;
+
+import java.util.List;
+
 import static org.gridsuite.modification.error.NetworkModificationExceptionType.TABULAR_MODIFICATION_ERROR;
 
 /**
@@ -27,13 +30,14 @@ import static org.gridsuite.modification.error.NetworkModificationExceptionType.
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TabularModification extends AbstractTabularModification {
 
-    public TabularModification(TabularModificationInfos modificationInfos) {
-        super(modificationInfos);
+    @Builder
+    public TabularModification(ModificationType modificationType, List<AbstractEquipmentBase> modifications) {
+        super(modificationType, modifications);
     }
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (modificationInfos == null) {
+        if (modifications == null) {
             throw new NetworkModificationException(TABULAR_MODIFICATION_ERROR, "No tabular modification to apply !!");
         }
     }
@@ -42,7 +46,7 @@ public class TabularModification extends AbstractTabularModification {
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.tabularModification")
-                .withUntypedValue("modificationType", modificationInfos.formatEquipmentTypeName())
+                .withUntypedValue("modificationType", formatEquipmentTypeName())
                 .add();
     }
 
@@ -53,7 +57,7 @@ public class TabularModification extends AbstractTabularModification {
 
     @Override
     public String defaultMessage() {
-        return modificationInfos.formatEquipmentTypeName() + " have been modified";
+        return formatEquipmentTypeName() + " have been modified";
     }
 
     @Override
@@ -62,8 +66,8 @@ public class TabularModification extends AbstractTabularModification {
     }
 
     @Override
-    public void specificCheck(EquipmentModificationInfos equipmentModificationInfos, Network network, ReportNode subReportNode) {
-        if (equipmentModificationInfos instanceof ShuntCompensatorModificationInfos shuntCompensatorModificationInfos) {
+    public void specificCheck(AbstractEquipmentBase equipmentModificationInfos, Network network, ReportNode subReportNode) {
+        if (equipmentModificationInfos instanceof ShuntCompensatorModification shuntCompensatorModificationInfos) {
             var shuntCompensator = network.getShuntCompensator(shuntCompensatorModificationInfos.getEquipmentId());
             if (shuntCompensator.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
                 subReportNode.newReportNode()

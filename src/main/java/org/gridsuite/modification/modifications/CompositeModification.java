@@ -43,9 +43,9 @@ public class CompositeModification extends AbstractModification {
     }
 
     @Override
-    public void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService) {
+    protected void initServices(IFilterService filterService, ILoadFlowService loadFlowService) {
         modificationsInfos.forEach(modif ->
-                modif.initApplicationContext(filterService, loadFlowService));
+                modif.initServices(filterService, loadFlowService));
     }
 
     @Override

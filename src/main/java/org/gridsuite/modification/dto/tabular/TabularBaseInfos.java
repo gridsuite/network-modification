@@ -42,18 +42,4 @@ public class TabularBaseInfos extends ModificationInfos {
     @Schema(description = "modifications")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<ModificationInfos> modifications;
-
-    public String formatEquipmentTypeName() {
-        return switch (getModificationType()) {
-            case GENERATOR_CREATION, GENERATOR_MODIFICATION -> getModifications().size() > 1 ? "generators" : "generator";
-            case LOAD_CREATION, LOAD_MODIFICATION -> getModifications().size() > 1 ? "loads" : "load";
-            case SHUNT_COMPENSATOR_CREATION, SHUNT_COMPENSATOR_MODIFICATION -> getModifications().size() > 1 ? "shunt compensators" : "shunt compensator";
-            case BATTERY_CREATION, BATTERY_MODIFICATION -> getModifications().size() > 1 ? "batteries" : "battery";
-            case TWO_WINDINGS_TRANSFORMER_MODIFICATION -> getModifications().size() > 1 ? "two windings transformers" : "two windings transformer";
-            case VOLTAGE_LEVEL_MODIFICATION -> getModifications().size() > 1 ? "voltage levels" : "voltage level";
-            case LINE_MODIFICATION -> getModifications().size() > 1 ? "lines" : "line";
-            case SUBSTATION_MODIFICATION -> getModifications().size() > 1 ? "substations" : "substation";
-            default -> "equipments of unknown type";
-        };
-    }
 }
