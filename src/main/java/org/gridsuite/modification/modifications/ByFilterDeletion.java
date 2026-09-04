@@ -106,6 +106,11 @@ public class ByFilterDeletion extends AbstractModification {
         return ModificationType.BY_FILTER_DELETION.name();
     }
 
+    @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode().withMessageTemplate("network.modification.byFilter.deletion").add();
+    }
+
     private void applyFilterDeletion(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes) {
         IdentifiableType identifiableType = equipmentType;
         if (CONNECTABLE_TYPES.contains(identifiableType)) {

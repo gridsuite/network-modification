@@ -223,7 +223,7 @@ class GeneratorCreationInNodeBreakerTest extends AbstractNetworkModificationTest
         GeneratorCreationInfos generatorCreationInfos = (GeneratorCreationInfos) buildModification();
         generatorCreationInfos.setDirectTransX(Double.NaN);
 
-        ReportNode report = generatorCreationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = generatorCreationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         generatorCreationInfos.toModification().apply(getNetwork(), report);

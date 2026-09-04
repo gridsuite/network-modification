@@ -7,7 +7,6 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -115,8 +114,4 @@ public class BatteryCreationInfos extends InjectionCreationInfos implements Reac
                 .build();
     }
 
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.batteryCreation").withUntypedValue("batteryId", this.getEquipmentId()).add();
-    }
 }

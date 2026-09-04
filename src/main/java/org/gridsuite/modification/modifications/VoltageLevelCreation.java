@@ -83,6 +83,14 @@ public class VoltageLevelCreation extends AbstractEquipmentCreation {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.voltageLevel.creation")
+                .withUntypedValue("voltageLevelId", getEquipmentId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.VOLTAGE_LEVEL_CREATION.name();
     }

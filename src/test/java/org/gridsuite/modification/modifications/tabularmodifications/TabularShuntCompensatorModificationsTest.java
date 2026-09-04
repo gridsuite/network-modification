@@ -78,7 +78,7 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
     @Override
     public void testApply() {
         ModificationInfos modificationInfos = buildModification();
-        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         modificationInfos.toModification().apply(getNetwork(), reportNode);

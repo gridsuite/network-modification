@@ -166,6 +166,14 @@ public class VscModification extends AbstractEquipmentModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.vsc.modification")
+                .withUntypedValue("vscId", getEquipmentId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.VSC_MODIFICATION.name();
     }
