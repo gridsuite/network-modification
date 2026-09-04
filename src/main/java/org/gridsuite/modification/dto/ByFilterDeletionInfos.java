@@ -16,7 +16,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.filter.wip.FilterLoader;
+import org.gridsuite.modification.context.FilterUtils;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.ByFilterDeletion;
 
@@ -43,10 +44,10 @@ public class ByFilterDeletionInfos extends ModificationInfos {
     private List<FilterInfos> filters;
 
     @Override
-    public AbstractModification toModification(FilterLoader filterLoader) {
+    public AbstractModification toModification(ModificationContext modificationContext) {
         return ByFilterDeletion.builder()
                 .equipmentType(getEquipmentType())
-                .filters(filterLoader.load(getFilters().stream().map(FilterInfos::getId).distinct().toList()))
+                .filters(FilterUtils.loadFilterWithNames(getFilters(), modificationContext.filterLoader()))
                 .build();
     }
 
