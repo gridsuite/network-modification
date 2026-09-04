@@ -56,6 +56,7 @@ public class ModificationReference extends AbstractModification {
         this.referenceType = referenceType;
         this.referencedInfos = referencedInfos;
         this.filterLoader = filterLoader;
+        this.filterLoader = filterLoader;
     }
 
     @Override
