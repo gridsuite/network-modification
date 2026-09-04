@@ -48,7 +48,7 @@ public class CompositeModification extends AbstractModification {
     }
 
     @Override
-    public void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService) {
+    protected void initServices(IFilterService filterService, ILoadFlowService loadFlowService) {
         this.filterService = filterService;
         this.loadFlowService = loadFlowService;
     }
@@ -61,15 +61,14 @@ public class CompositeModification extends AbstractModification {
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
         compositeModificationInfos.getModificationsInfos().stream()
-                .filter(modificationInfos -> Boolean.TRUE.equals(modificationInfos.getActivated())
-                        && Boolean.FALSE.equals(modificationInfos.getStashed()))
+                .filter(modificationInfos -> modificationInfos.isActivatedOn(getRootNetworkTag()))
                 .forEach(
                         modif -> {
                             ReportNode modifNode = modif.createSubReportNode(subReportNode);
                             AbstractModification modification = modif.toModification();
                             try {
                                 modification.check(network);
-                                modification.initApplicationContext(filterService, loadFlowService);
+                                modification.initApplicationContext(filterService, loadFlowService, getRootNetworkTag());
                                 modification.apply(network, namingStrategy, modifNode);
                             } catch (Exception e) {
                                 // in case of error in a network modification, the composite modification doesn't interrupt its execution :

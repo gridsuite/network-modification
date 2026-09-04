@@ -84,7 +84,7 @@ public abstract class AbstractNetworkModificationTest {
         ILoadFlowService loadFlowServiceMock = mock(ILoadFlowService.class);
         IFilterService filterServiceMock = mock(IFilterService.class);
         AbstractModification expectedModification = buildModification().toModification();
-        expectedModification.initApplicationContext(filterServiceMock, loadFlowServiceMock);
+        expectedModification.initApplicationContext(filterServiceMock, loadFlowServiceMock, null);
 
         String serializedModification = mapper.writeValueAsString(expectedModification);
         AbstractModification deserializedModification = mapper.readValue(serializedModification, AbstractModification.class);
