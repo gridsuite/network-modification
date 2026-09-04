@@ -38,7 +38,7 @@ class ModificationReferenceTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void initApplicationContext(AbstractModification modification) {
-        modification.initApplicationContext(null, null);
+        modification.initApplicationContext(null, null, null);
     }
 
     @Override

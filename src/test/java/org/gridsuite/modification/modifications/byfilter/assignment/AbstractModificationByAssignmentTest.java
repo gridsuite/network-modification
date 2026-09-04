@@ -78,7 +78,7 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
         ModificationInfos modificationInfo = buildModification();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(getTestFilters());
         AbstractModification modification = modificationInfo.toModification();
-        modification.initApplicationContext(filterService, null);
+        modification.initApplicationContext(filterService, null, null);
         modification.apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication();
     }
@@ -104,7 +104,7 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
 
     protected void apply(ModificationByAssignmentInfos modificationByAssignmentInfos) {
         AbstractModification modification = modificationByAssignmentInfos.toModification();
-        modification.initApplicationContext(filterService, null);
+        modification.initApplicationContext(filterService, null, null);
         modification.apply(getNetwork());
     }
 

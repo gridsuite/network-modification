@@ -156,7 +156,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
                         )))
                         .build());
         BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
-        modification.initApplicationContext(null, loadFlowService);
+        modification.initApplicationContext(null, loadFlowService, null);
         modification.apply(getNetwork(), new DefaultNamingStrategy(), ReportNode.NO_OP);
 
         assertEquals(-58d, getNetwork().getGenerator("GH1").getTerminal().getP(), PRECISION);
@@ -193,7 +193,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
                 .thenReturn(null);
 
         BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
-        modification.initApplicationContext(null, loadFlowService);
+        modification.initApplicationContext(null, loadFlowService, null);
 
         Network network = getNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
@@ -236,7 +236,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
                         .build());
 
         BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
-        modification.initApplicationContext(null, loadFlowService);
+        modification.initApplicationContext(null, loadFlowService, null);
 
         Network network = getNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
@@ -272,7 +272,7 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
                 .build();
 
         BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
-        modification.initApplicationContext(null, loadFlowService);
+        modification.initApplicationContext(null, loadFlowService, null);
 
         Network network = getNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
