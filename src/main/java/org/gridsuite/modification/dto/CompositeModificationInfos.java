@@ -12,7 +12,7 @@ import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.filter.wip.FilterLoader;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.CompositeModification;
 
@@ -48,8 +48,8 @@ public class CompositeModificationInfos extends ModificationInfos {
     private Integer maxDepth;
 
     @Override
-    public AbstractModification toModification(FilterLoader filterLoader) {
-        return new CompositeModification(this, filterLoader);
+    public AbstractModification toModification(ModificationContext modificationContext) {
+        return new CompositeModification(this, modificationContext);
     }
 
     @Override

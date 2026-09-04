@@ -12,7 +12,8 @@ import com.powsybl.iidm.network.Network;
 import lombok.Getter;
 import org.gridsuite.filter.report.FilterReportResourceBundle;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.filter.wip.FilterLoader;
+import org.gridsuite.modification.context.FilterLoader;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -74,7 +75,8 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     @Override
     public void testApply() throws Exception {
         ModificationInfos modificationInfo = buildModification();
-        AbstractModification modification = modificationInfo.toModification(this::loadFilters);
+        ModificationContext modificationContext = ModificationContext.builder().filterLoader(this::loadFilters).build();
+        AbstractModification modification = modificationInfo.toModification(modificationContext);
         modification.apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication();
     }
@@ -99,7 +101,8 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
     }
 
     protected void apply(ModificationByAssignmentInfos modificationByAssignmentInfos, FilterLoader filterLoader) {
-        AbstractModification modification = modificationByAssignmentInfos.toModification(filterLoader);
+        ModificationContext modificationContext = ModificationContext.builder().filterLoader(filterLoader).build();
+        AbstractModification modification = modificationByAssignmentInfos.toModification(modificationContext);
         modification.apply(getNetwork());
     }
 
@@ -160,7 +163,8 @@ abstract class AbstractModificationByAssignmentTest extends AbstractNetworkModif
                 .date(Instant.now())
                 .build();
 
-        ModificationByAssignment modificationByAssignment = (ModificationByAssignment) modificationInfos.toModification(getFilterLoader());
+        ModificationContext modificationContext = ModificationContext.builder().filterLoader(getFilterLoader()).build();
+        ModificationByAssignment modificationByAssignment = (ModificationByAssignment) modificationInfos.toModification(modificationContext);
         modificationByAssignment.getAssignments().forEach(assignment ->
                 assertEquals(1, assignment.getFilters().size()));
     }

@@ -13,7 +13,8 @@ import com.powsybl.iidm.network.IdentifiableType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.filter.wip.FilterLoader;
+import org.gridsuite.modification.context.FilterUtils;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.modifications.byfilter.ByFormulaModification;
 import org.gridsuite.modification.modifications.data.assignment.FormulaAssignmentData;
@@ -40,16 +41,18 @@ public class ByFormulaModificationInfos extends ModificationInfos {
     private List<FormulaInfos> formulaInfosList;
 
     @Override
-    public ByFormulaModification toModification(FilterLoader filterLoader) {
+    public ByFormulaModification toModification(ModificationContext modificationContext) {
         return ByFormulaModification.builder()
                 .identifiableType(getIdentifiableType())
-                .formulaAssignments(getFormulaInfosList().stream().map(formulaInfos -> (FormulaAssignmentData) FormulaAssignmentData.builder()
+                .formulaAssignments(getFormulaInfosList().stream().map(formulaInfos ->
+                        (FormulaAssignmentData) FormulaAssignmentData.builder()
                             .editedField(formulaInfos.getEditedField())
                             .operator(formulaInfos.getOperator())
                             .fieldOrValue1(formulaInfos.getFieldOrValue1())
                             .fieldOrValue2(formulaInfos.getFieldOrValue2())
-                            .filters(filterLoader.load(formulaInfos.getFilters().stream().map(FilterInfos::getId).distinct().toList()))
-                            .build()).toList())
+                            .filters(FilterUtils.loadFilterWithNames(formulaInfos.getFilters(), modificationContext.filterLoader()))
+                            .build())
+                        .toList())
                 .build();
     }
 

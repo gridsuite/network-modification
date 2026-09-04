@@ -11,7 +11,8 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import lombok.Getter;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.filter.wip.FilterLoader;
+import org.gridsuite.modification.context.FilterLoader;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.ByFormulaModificationInfos;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -77,7 +78,8 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
     @Override
     public void testApply() throws Exception {
         ModificationInfos modificationInfo = buildModification();
-        AbstractModification modification = modificationInfo.toModification(this::loadFilters);
+        ModificationContext modificationContext = ModificationContext.builder().filterLoader(this::loadFilters).build();
+        AbstractModification modification = modificationInfo.toModification(modificationContext);
         modification.apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication();
     }
@@ -102,7 +104,8 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
     }
 
     protected void apply(ByFormulaModificationInfos modificationInfos, FilterLoader filterLoader) {
-        AbstractModification modification = modificationInfos.toModification(filterLoader);
+        ModificationContext modificationContext = ModificationContext.builder().filterLoader(filterLoader).build();
+        AbstractModification modification = modificationInfos.toModification(modificationContext);
         modification.apply(getNetwork());
     }
 
@@ -136,8 +139,8 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
                 .stashed(false)
                 .date(Instant.now())
                 .build();
-
-        ByFormulaModification byFormulaModification = (ByFormulaModification) modificationInfos.toModification(getFilterLoader());
+        ModificationContext modificationContext = ModificationContext.builder().filterLoader(getFilterLoader()).build();
+        ByFormulaModification byFormulaModification = (ByFormulaModification) modificationInfos.toModification(modificationContext);
         assertEquals(1, byFormulaModification.getAssignments().get(0).getFilters().size());
     }
 }

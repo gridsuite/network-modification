@@ -10,8 +10,8 @@ package org.gridsuite.modification.dto.byfilter.assignment;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.filter.wip.FilterLoader;
-import org.gridsuite.modification.dto.FilterInfos;
+import org.gridsuite.modification.context.FilterLoader;
+import org.gridsuite.modification.context.FilterUtils;
 import org.gridsuite.modification.modifications.data.assignment.DataType;
 import org.gridsuite.modification.modifications.data.assignment.EnumAssignmentData;
 
@@ -33,7 +33,7 @@ public class EnumAssignmentInfos extends AssignmentInfos<String> {
         return EnumAssignmentData.builder()
                 .editedField(getEditedField())
                 .value(getValue())
-                .filters(filterLoader.load(getFilters().stream().map(FilterInfos::getId).distinct().toList()))
+                .filters(FilterUtils.loadFilterWithNames(getFilters(), filterLoader))
                 .build();
     }
 }
