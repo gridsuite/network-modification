@@ -64,7 +64,7 @@ public abstract class AbstractNetworkModificationTest {
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME, FilterReportResourceBundle.BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
-        AbstractModification modification = modificationInfos.toModification();
+        AbstractModification modification = modificationInfos.toModification(null);
         modification.check(network);
         initApplicationContext(modification);
         modification.apply(network, report);
