@@ -11,7 +11,8 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import lombok.Getter;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.filter.wip.FilterLoader;
+import org.gridsuite.modification.context.FilterLoader;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.ByFilterDeletionInfos;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -59,7 +60,8 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
     @Override
     public void testApply() throws Exception {
         ModificationInfos modificationInfo = buildModification();
-        AbstractModification modification = modificationInfo.toModification(filterLoader);
+        ModificationContext modificationContext = ModificationContext.builder().filterLoader(filterLoader).build();
+        AbstractModification modification = modificationInfo.toModification(modificationContext);
         modification.apply(getNetwork());
         assertAfterNetworkModificationApplication();
     }
@@ -81,7 +83,8 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
                 .filters(List.of(filter1))
                 .build();
 
-        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification(_ -> List.of());
+        ModificationContext modificationContext = ModificationContext.builder().filterLoader(_ -> Map.of()).build();
+        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification(modificationContext);
         ReportNode report = byFilterDeletionInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
@@ -130,7 +133,8 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
                 .filters(List.of(filter1, filter1))
                 .build();
 
-        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) modificationInfos.toModification(getFilterLoader());
+        ModificationContext modificationContext = ModificationContext.builder().filterLoader(getFilterLoader()).build();
+        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) modificationInfos.toModification(modificationContext);
         assertEquals(1, byFilterDeletion.getFilters().size());
     }
 
@@ -152,10 +156,11 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
                 .filters(List.of(filter1, filter2))
                 .build();
 
-        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) modificationInfos.toModification(TestUtils.createFilterLoader(getEquipmentType(), Map.of(
+        ModificationContext modificationContext = ModificationContext.builder().filterLoader(TestUtils.createFilterLoader(getEquipmentType(), Map.of(
                 FILTER_ID_1, getExistingEquipments(), // duplicating existing equipments in 2 different filters
                 FILTER_ID_2, getExistingEquipments()
-        )));
+        ))).build();
+        ByFilterDeletion byFilterDeletion = (ByFilterDeletion) modificationInfos.toModification(modificationContext);
         ReportNode rootReportNode = ReportNode.newRootReportNode().withAllResourceBundlesFromClasspath().withMessageTemplate("test").build();
         byFilterDeletion.apply(getNetwork(), rootReportNode);
         assertEquals("%d equipments of type=%s will be removed".formatted(getExistingEquipments().size(), getEquipmentType()), rootReportNode.getChildren().get(3).getMessage());

@@ -12,6 +12,7 @@ import org.gridsuite.modification.dto.FilterInfos;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -25,9 +26,9 @@ public final class FilterUtils {
 
     public static List<Filter> loadFilterWithNames(List<FilterInfos> filterInfosList, FilterLoader filterLoader) {
         Map<UUID, Filter> filterMap = filterLoader.load(filterInfosList.stream().map(FilterInfos::getId).distinct().toList());
-        filterInfosList.forEach(filterInfos -> {
-            filterMap.get(filterInfos.getId()).setName(filterInfos.getName());
-        });
+        filterInfosList.forEach(filterInfos ->
+                Optional.ofNullable(filterMap.get(filterInfos.getId()))
+                        .ifPresent(filter -> filter.setName(filterInfos.getName())));
         return filterMap.values().stream().toList();
     }
 }
