@@ -94,6 +94,10 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
                     VoltageInitBatteryModificationInfos.builder()
                             .batteryId("v2Battery")
                             .targetV(226.)
+                            .build(),
+                    VoltageInitBatteryModificationInfos.builder()
+                            .batteryId("nonExistingBattery")
+                            .targetV(226.)
                             .build()
                     )
             )
