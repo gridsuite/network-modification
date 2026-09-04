@@ -9,8 +9,6 @@ package org.gridsuite.modification.modifications.byfilter.assignment;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.LoadType;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.EnumAssignmentInfos;
@@ -18,6 +16,7 @@ import org.gridsuite.modification.dto.byfilter.equipmentfield.LoadField;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,6 +32,15 @@ class LoadModificationByAssignmentTest extends AbstractModificationByAssignmentT
     private static final String LOAD_ID_2 = "load2";
     private static final String LOAD_ID_3 = "load3";
     private static final String LOAD_ID_4 = "load4";
+    private static final Map<UUID, Set<String>> FILTER_MAPPING = Map.of(
+            FILTER_ID_1, Set.of(LOAD_ID_1, LOAD_ID_2),
+            FILTER_ID_2, Set.of(LOAD_ID_3, LOAD_ID_4)
+    );
+
+    @Override
+    public Map<UUID, Set<String>> getFilterMapping() {
+        return FILTER_MAPPING;
+    }
 
     @Override
     protected void createEquipments() {
@@ -40,21 +48,6 @@ class LoadModificationByAssignmentTest extends AbstractModificationByAssignmentT
         createLoad(getNetwork().getVoltageLevel("v2"), LOAD_ID_2, "load2", 200, 80, 90, null, 5, null);
         createLoad(getNetwork().getVoltageLevel("v3"), LOAD_ID_3, "load3", 300, 100, 70, null, 5, null);
         createLoad(getNetwork().getVoltageLevel("v4"), LOAD_ID_4, "load4", 400, 50, 150, null, 5, null);
-    }
-
-    @Override
-    protected Map<UUID, FilterEquipments> getTestFilters() {
-        FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(
-            new IdentifiableAttributes(LOAD_ID_1, IdentifiableType.LOAD, 1.0),
-            new IdentifiableAttributes(LOAD_ID_2, IdentifiableType.LOAD, 2.0)))
-            .build();
-
-        FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(
-            new IdentifiableAttributes(LOAD_ID_3, IdentifiableType.LOAD, 2.0),
-            new IdentifiableAttributes(LOAD_ID_4, IdentifiableType.LOAD, 5.0)))
-            .build();
-
-        return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2);
     }
 
     @Override

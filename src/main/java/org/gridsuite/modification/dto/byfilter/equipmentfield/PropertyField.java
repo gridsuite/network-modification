@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.TwoSides;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.error.NetworkModificationExceptionType;
-import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 
 import java.util.List;
 
@@ -34,7 +33,7 @@ public enum PropertyField {
     public static final String REPORT_KEY_OPERATIONAL_LIMITS_GROUP_PROPERTY_VALUE_NOT_FOUND_ERROR = "network.modification.operationalLimitsGroupPropertyValueNotFoundError";
     public static final String REPORT_KEY_OPERATIONAL_LIMITS_GROUP_PROPERTY_VALUE_MULTIPLE_ERROR = "network.modification.operationalLimitsGroupPropertyValueMultipleError";
 
-    public static boolean isEquipmentEditable(Identifiable<?> equipment, String editedField, String propertyName, String propertyValue, List<ReportNode> equipmentsReport) {
+    public static boolean isEquipmentEditable(Identifiable<?> equipment, String editedField, String propertyName, String propertyValue, ReportNode reportNode) {
         PropertyField field = PropertyField.valueOf(editedField);
         if (field == FREE_PROPERTIES) {
             return true;
@@ -42,9 +41,9 @@ public enum PropertyField {
             return switch (equipment.getType()) {
                 case LINE, TWO_WINDINGS_TRANSFORMER -> switch (field) {
                     case OPERATIONAL_LIMITS_GROUP_1_WITH_PROPERTIES ->
-                        isEditableOperationalLimitsGroupPropertyValue((Branch<?>) equipment, propertyName, propertyValue, TwoSides.ONE, equipmentsReport);
+                        isEditableOperationalLimitsGroupPropertyValue((Branch<?>) equipment, propertyName, propertyValue, TwoSides.ONE, reportNode);
                     case OPERATIONAL_LIMITS_GROUP_2_WITH_PROPERTIES ->
-                        isEditableOperationalLimitsGroupPropertyValue((Branch<?>) equipment, propertyName, propertyValue, TwoSides.TWO, equipmentsReport);
+                        isEditableOperationalLimitsGroupPropertyValue((Branch<?>) equipment, propertyName, propertyValue, TwoSides.TWO, reportNode);
                     default -> true;
                 };
                 default -> true;
@@ -52,7 +51,7 @@ public enum PropertyField {
         }
     }
 
-    static boolean isEditableOperationalLimitsGroupPropertyValue(Branch<?> branch, String propertyName, String propertyValue, TwoSides side, List<ReportNode> equipmentsReport) {
+    static boolean isEditableOperationalLimitsGroupPropertyValue(Branch<?> branch, String propertyName, String propertyValue, TwoSides side, ReportNode reportNode) {
         List<OperationalLimitsGroup> operationalLimitsGroupList = (
             switch (side) {
                 case ONE -> branch.getOperationalLimitsGroups1();
@@ -64,26 +63,24 @@ public enum PropertyField {
                 .toList();
 
         if (operationalLimitsGroupList.isEmpty()) {
-            equipmentsReport.add(ReportNode.newRootReportNode()
-                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            reportNode.newReportNode()
                     .withMessageTemplate(REPORT_KEY_OPERATIONAL_LIMITS_GROUP_PROPERTY_VALUE_NOT_FOUND_ERROR)
                     .withUntypedValue(VALUE_KEY_ID, branch.getId())
                     .withUntypedValue(VALUE_KEY_SIDE, side.ordinal() + 1)
                     .withUntypedValue(VALUE_KEY_PROPERTY_NAME, propertyName)
                     .withUntypedValue(VALUE_KEY_PROPERTY_VALUE, propertyValue)
                     .withSeverity(TypedValue.WARN_SEVERITY)
-                    .build());
+                    .add();
             return false;
         } else if (operationalLimitsGroupList.size() > 1) {
-            equipmentsReport.add(ReportNode.newRootReportNode()
-                    .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+            reportNode.newReportNode()
                     .withMessageTemplate(REPORT_KEY_OPERATIONAL_LIMITS_GROUP_PROPERTY_VALUE_MULTIPLE_ERROR)
                     .withUntypedValue(VALUE_KEY_ID, branch.getId())
                     .withUntypedValue(VALUE_KEY_SIDE, side.ordinal() + 1)
                     .withUntypedValue(VALUE_KEY_PROPERTY_NAME, propertyName)
                     .withUntypedValue(VALUE_KEY_PROPERTY_VALUE, propertyValue)
                     .withSeverity(TypedValue.WARN_SEVERITY)
-                    .build());
+                    .add();
             return false;
         }
 

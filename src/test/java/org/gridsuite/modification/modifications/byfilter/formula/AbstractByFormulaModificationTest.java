@@ -9,28 +9,34 @@ package org.gridsuite.modification.modifications.byfilter.formula;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
+import lombok.Getter;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.IFilterService;
+import org.gridsuite.modification.context.FilterLoader;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.ByFormulaModificationInfos;
-import org.gridsuite.modification.dto.FilterEquipments;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
+import org.gridsuite.modification.dto.byfilter.assignment.*;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
-import org.gridsuite.modification.dto.byfilter.formula.Operator;
-import org.gridsuite.modification.dto.byfilter.formula.ReferenceFieldOrValue;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
+import org.gridsuite.modification.modifications.byfilter.ByFormulaModification;
+import org.gridsuite.modification.modifications.data.assignment.Operator;
+import org.gridsuite.modification.modifications.data.assignment.ReferenceFieldOrValue;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
+import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.Instant;
-import java.util.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -44,8 +50,6 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
     protected static final UUID FILTER_ID_5 = UUID.randomUUID();
     protected static final UUID FILTER_ID_6 = UUID.randomUUID();
     protected static final UUID FILTER_ID_7 = UUID.randomUUID();
-    protected static final UUID FILTER_WITH_ALL_WRONG_IDS = UUID.randomUUID();
-    protected static final UUID FILTER_WITH_ONE_WRONG_ID = UUID.randomUUID();
     protected final FilterInfos filter1 = new FilterInfos(FILTER_ID_1, "filter1");
     protected final FilterInfos filter2 = new FilterInfos(FILTER_ID_2, "filter2");
     protected final FilterInfos filter3 = new FilterInfos(FILTER_ID_3, "filter3");
@@ -53,14 +57,15 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
     protected final FilterInfos filter5 = new FilterInfos(FILTER_ID_5, "filter5");
     protected final FilterInfos filter6 = new FilterInfos(FILTER_ID_6, "filter6");
     protected final FilterInfos filter7 = new FilterInfos(FILTER_ID_7, "filter7");
-    protected final FilterInfos filterWithOneWrongId = new FilterInfos(FILTER_WITH_ONE_WRONG_ID, "filterWithOneWrongId");
     protected final ReportNode reportNode = ReportNode.newRootReportNode()
             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test")
             .build();
 
-    @Mock
-    protected IFilterService filterService;
+    public abstract Map<UUID, Set<String>> getFilterMapping();
+
+    @Getter
+    private final FilterLoader filterLoader = TestUtils.createFilterLoader(getEquipmentType(), getFilterMapping());
 
     @BeforeEach
     void specificSetUp() {
@@ -73,9 +78,8 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
     @Override
     public void testApply() throws Exception {
         ModificationInfos modificationInfo = buildModification();
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(getTestFilters());
-        AbstractModification modification = modificationInfo.toModification();
-        modification.initApplicationContext(filterService, null, null);
+        ModificationContext modificationContext = ModificationContext.builder().filterLoader(this::loadFilters).build();
+        AbstractModification modification = modificationInfo.toModification(modificationContext);
         modification.apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication();
     }
@@ -99,9 +103,9 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
     protected void checkModification() {
     }
 
-    protected void apply(ByFormulaModificationInfos modificationInfos) {
-        AbstractModification modification = modificationInfos.toModification();
-        modification.initApplicationContext(filterService, null, null);
+    protected void apply(ByFormulaModificationInfos modificationInfos, FilterLoader filterLoader) {
+        ModificationContext modificationContext = ModificationContext.builder().filterLoader(filterLoader).build();
+        AbstractModification modification = modificationInfos.toModification(modificationContext);
         modification.apply(getNetwork());
     }
 
@@ -121,11 +125,22 @@ abstract class AbstractByFormulaModificationTest extends AbstractNetworkModifica
 
     protected abstract void createEquipments();
 
-    protected abstract Map<UUID, FilterEquipments> getTestFilters();
-
     protected abstract List<FormulaInfos> getFormulaInfos();
 
     protected abstract IdentifiableType getIdentifiableType();
 
     protected abstract EquipmentType getEquipmentType();
+
+    @Test
+    void testApplyWithDuplicateFilters() {
+        ModificationInfos modificationInfos = ByFormulaModificationInfos.builder()
+                .identifiableType(getIdentifiableType())
+                .formulaInfosList(List.of(FormulaInfos.builder().filters(List.of(filter1, filter1)).build()))
+                .stashed(false)
+                .date(Instant.now())
+                .build();
+        ModificationContext modificationContext = ModificationContext.builder().filterLoader(getFilterLoader()).build();
+        ByFormulaModification byFormulaModification = (ByFormulaModification) modificationInfos.toModification(modificationContext);
+        assertEquals(1, byFormulaModification.getAssignments().get(0).getFilters().size());
+    }
 }
