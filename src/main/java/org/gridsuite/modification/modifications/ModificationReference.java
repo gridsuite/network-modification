@@ -12,6 +12,7 @@ import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import lombok.*;
+import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.ModificationType;
@@ -36,6 +37,10 @@ public class ModificationReference extends AbstractModification {
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
+    private FilterLoader filterLoader;
+
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     protected IFilterService filterService;
 
     @JsonIgnore
@@ -45,10 +50,12 @@ public class ModificationReference extends AbstractModification {
     @Builder
     public ModificationReference(UUID referencedId,
                                  ModificationReferenceInfos.Type referenceType,
-                                 ModificationInfos referencedInfos) {
+                                 ModificationInfos referencedInfos,
+                                 FilterLoader filterLoader) {
         this.referencedId = referencedId;
         this.referenceType = referenceType;
         this.referencedInfos = referencedInfos;
+        this.filterLoader = filterLoader;
     }
 
     @Override
@@ -73,7 +80,7 @@ public class ModificationReference extends AbstractModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
-        AbstractModification modification = referencedInfos.toModification();
+        AbstractModification modification = referencedInfos.toModification(filterLoader);
         modification.check(network);
         modification.initApplicationContext(filterService, loadFlowService, getRootNetworkTag());
         modification.apply(network, namingStrategy, referencedInfos.createSubReportNode(subReportNode));

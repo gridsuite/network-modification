@@ -16,6 +16,7 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.ModificationType;
@@ -37,14 +38,19 @@ public class CompositeModification extends AbstractModification {
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
+    private FilterLoader filterLoader;
+
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     protected IFilterService filterService;
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
     protected ILoadFlowService loadFlowService;
 
-    public CompositeModification(CompositeModificationInfos compositeModificationInfos) {
+    public CompositeModification(CompositeModificationInfos compositeModificationInfos, FilterLoader filterLoader) {
         this.compositeModificationInfos = compositeModificationInfos;
+        this.filterLoader = filterLoader;
     }
 
     @Override
@@ -65,7 +71,7 @@ public class CompositeModification extends AbstractModification {
                 .forEach(
                         modif -> {
                             ReportNode modifNode = modif.createSubReportNode(subReportNode);
-                            AbstractModification modification = modif.toModification();
+                            AbstractModification modification = modif.toModification(filterLoader);
                             try {
                                 modification.check(network);
                                 modification.initApplicationContext(filterService, loadFlowService, getRootNetworkTag());
