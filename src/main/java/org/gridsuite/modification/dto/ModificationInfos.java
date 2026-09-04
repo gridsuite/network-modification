@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.tabular.LimitSetsTabularModificationInfos;
 import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
 import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
@@ -132,6 +133,17 @@ public class ModificationInfos {
     @JsonIgnore
     public AbstractModification toModification() {
         throw new UnsupportedOperationException("Method toModification must be implemented in subclass " + this.getClass().getSimpleName());
+    }
+
+    /**
+     * Builds the executable modification, resolving beforehand the dependencies it references.
+     *
+     * <p>Only modifications that actually have dependencies need to override this method; the others keep
+     * overriding {@link #toModification()}, to which this method delegates by default.
+     */
+    @JsonIgnore
+    public AbstractModification toModification(ModificationContext context) {
+        return toModification();
     }
 
     public final ModificationType getType() {
