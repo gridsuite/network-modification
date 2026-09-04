@@ -7,6 +7,7 @@
 package org.gridsuite.modification.dto;
 
 import com.powsybl.commons.report.ReportNode;
+import org.gridsuite.modification.context.ModificationContext;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -64,6 +65,22 @@ class ModificationInfosTest {
         String expectedMessage = "Method toModification must be implemented in subclass TestModificationInfos";
         assertEquals(expectedMessage, exception.getMessage(),
                 "Exception message should indicate which method and class need implementation");
+    }
+
+    @Test
+    void testToModificationWithContextDelegatesToToModification() {
+        ModificationInfos modificationInfos = new TestModificationInfos();
+        ModificationContext context = ModificationContext.empty();
+
+        UnsupportedOperationException exception = assertThrows(
+                UnsupportedOperationException.class,
+                () -> modificationInfos.toModification(context),
+                "toModification(context) must delegate to toModification() for modifications without dependency"
+        );
+
+        String expectedMessage = "Method toModification must be implemented in subclass TestModificationInfos";
+        assertEquals(expectedMessage, exception.getMessage(),
+                "The delegation must surface the error of toModification(), not one of its own");
     }
 
     @Test
