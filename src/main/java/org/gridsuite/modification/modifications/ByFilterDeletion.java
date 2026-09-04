@@ -69,7 +69,7 @@ public class ByFilterDeletion extends AbstractModification {
     }
 
     @Override
-    public void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService) {
+    protected void initServices(IFilterService filterService, ILoadFlowService loadFlowService) {
         this.filterService = filterService;
     }
 

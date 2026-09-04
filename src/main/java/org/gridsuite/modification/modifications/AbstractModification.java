@@ -6,6 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -16,6 +17,7 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
@@ -33,7 +35,7 @@ import org.gridsuite.modification.modifications.tabular.TabularModification;
  * the {@code @JsonSubTypes} registry of this class.
  *
  * <p>The injected application context ({@code filterService}, {@code loadFlowService}) is not serialized.
- * After deserialization, {@link #initApplicationContext(IFilterService, ILoadFlowService)} must be called
+ * After deserialization, {@link #initApplicationContext(IFilterService, ILoadFlowService, String)} must be called
  * again with valid services before the modification can be applied.
  *
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -96,6 +98,11 @@ import org.gridsuite.modification.modifications.tabular.TabularModification;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractModification extends AbstractNetworkModification {
 
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
+    @Getter
+    private String rootNetworkTag;
+
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         apply(network, reportNode);
@@ -106,13 +113,18 @@ public abstract class AbstractModification extends AbstractNetworkModification {
     }
 
     /**
-     * Injects the application context services ({@code filterService}, {@code loadFlowService}) required
-     * to {@link #apply(Network, ReportNode)}.
+     * Injects the application context required to {@link #apply(Network, ReportNode)}: the services, and the tag of
+     * the root network being applied on.
      *
-     * <p>These services are not serialized with the modification: after deserialization, this method must
-     * be called again with valid services before the modification can be applied.
+     * <p>None of it is serialized with the modification: after deserialization, this method must be called again
+     * before the modification can be applied.
      */
-    public void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService) {
+    public final void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService, String rootNetworkTag) {
+        this.rootNetworkTag = rootNetworkTag;
+        initServices(filterService, loadFlowService);
+    }
+
+    protected void initServices(IFilterService filterService, ILoadFlowService loadFlowService) {
         // To add some specific information
     }
 

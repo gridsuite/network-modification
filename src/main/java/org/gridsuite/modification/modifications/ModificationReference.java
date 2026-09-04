@@ -52,7 +52,7 @@ public class ModificationReference extends AbstractModification {
     }
 
     @Override
-    public void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService) {
+    protected void initServices(IFilterService filterService, ILoadFlowService loadFlowService) {
         this.filterService = filterService;
         this.loadFlowService = loadFlowService;
     }
@@ -75,7 +75,7 @@ public class ModificationReference extends AbstractModification {
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
         AbstractModification modification = referenceInfos.toModification();
         modification.check(network);
-        modification.initApplicationContext(filterService, loadFlowService);
+        modification.initApplicationContext(filterService, loadFlowService, getRootNetworkTag());
         modification.apply(network, namingStrategy, referenceInfos.createSubReportNode(subReportNode));
     }
 

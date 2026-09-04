@@ -64,7 +64,7 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
         ModificationInfos modificationInfo = buildModification();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(getTestFilters());
         AbstractModification modification = modificationInfo.toModification();
-        modification.initApplicationContext(filterService, null);
+        modification.initApplicationContext(filterService, null, null);
         modification.apply(getNetwork());
         assertAfterNetworkModificationApplication();
     }
@@ -90,7 +90,7 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filterEquipments);
 
         ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification();
-        byFilterDeletion.initApplicationContext(filterService, null);
+        byFilterDeletion.initApplicationContext(filterService, null, null);
         ReportNode report = byFilterDeletionInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
@@ -120,7 +120,7 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(filters);
 
         ByFilterDeletion byFilterDeletion = (ByFilterDeletion) byFilterDeletionInfos.toModification();
-        byFilterDeletion.initApplicationContext(filterService, null);
+        byFilterDeletion.initApplicationContext(filterService, null, null);
         ReportNode report = byFilterDeletionInfos.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
