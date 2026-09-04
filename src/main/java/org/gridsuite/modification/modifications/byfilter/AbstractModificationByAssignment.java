@@ -154,7 +154,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     }
 
     @Override
-    public void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService) {
+    protected void initServices(IFilterService filterService, ILoadFlowService loadFlowService) {
         this.filterService = filterService;
     }
 

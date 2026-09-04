@@ -82,7 +82,7 @@ public class BalancesAdjustmentModification extends AbstractModification {
     }
 
     @Override
-    public void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService) {
+    protected void initServices(IFilterService filterService, ILoadFlowService loadFlowService) {
         this.loadFlowService = loadFlowService;
     }
 

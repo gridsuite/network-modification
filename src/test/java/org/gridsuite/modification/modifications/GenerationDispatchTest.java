@@ -101,7 +101,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
     @Test
     public void testApply() throws Exception {
         GenerationDispatch modif = (GenerationDispatch) buildModification().toModification();
-        modif.initApplicationContext(filterService, null);
+        modif.initApplicationContext(filterService, null, null);
         modif.apply(getNetwork());
         assertAfterNetworkModificationApplication();
     }
@@ -118,7 +118,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
                 .withMessageTemplate("test")
                 .build());
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
-        modif.initApplicationContext(filterService, null);
+        modif.initApplicationContext(filterService, null, null);
         modif.apply(getNetwork(), report);
         assertNetworkAfterCreationWithStandardLossCoefficient();
 
@@ -141,7 +141,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
-        modif.initApplicationContext(filterService, null);
+        modif.initApplicationContext(filterService, null, null);
         modif.apply(getNetwork(), report);
         assertLogReportsForDefaultNetwork(batteryTotalTargetP, report);
     }
@@ -164,7 +164,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
-        modif.initApplicationContext(filterService, null);
+        modif.initApplicationContext(filterService, null, null);
         modif.apply(getNetwork(), report);
         assertLogReportsForDefaultNetwork(batteryTotalTargetP, report);
     }
@@ -179,7 +179,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
-        modif.initApplicationContext(filterService, null);
+        modif.initApplicationContext(filterService, null, null);
         modif.apply(getNetwork(), report);
 
         assertLogMessageWithoutRank("The total demand is : 768.0 MW", "network.modification.TotalDemand", report);
@@ -204,7 +204,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
-        modif.initApplicationContext(filterService, null);
+        modif.initApplicationContext(filterService, null, null);
         modif.apply(getNetwork(), report);
 
         assertEquals(100., getNetwork().getGenerator(GH1_ID).getTargetP(), 0.001);
@@ -247,7 +247,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
-        modif.initApplicationContext(filterService, null);
+        modif.initApplicationContext(filterService, null, null);
         modif.apply(getNetwork(), report);
 
         assertEquals(100., getNetwork().getGenerator(GH1_ID).getTargetP(), 0.001);
@@ -297,7 +297,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         when(filterService.getFilters(List.of(FILTER_ID_1, FILTER_ID_2, FILTER_ID_3))).thenReturn(filters);
 
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
-        modif.initApplicationContext(filterService, null);
+        modif.initApplicationContext(filterService, null, null);
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
@@ -368,7 +368,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         when(filterService.getFilters(List.of(FILTER_ID_1, FILTER_ID_2, FILTER_ID_3, FILTER_ID_4))).thenReturn(filters);
 
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
-        modif.initApplicationContext(filterService, null);
+        modif.initApplicationContext(filterService, null, null);
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
@@ -469,7 +469,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         when(filterService.getFilters(List.of(FILTER_ID_1, FILTER_ID_2, FILTER_ID_3, FILTER_ID_4, FILTER_ID_5, FILTER_ID_6))).thenReturn(filters);
 
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
-        modif.initApplicationContext(filterService, null);
+        modif.initApplicationContext(filterService, null, null);
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
@@ -520,7 +520,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         // network
         setNetwork(Network.read("ieee118cdf_testDemGroupe.xiidm", getClass().getResourceAsStream("/ieee118cdf_testDemGroupe.xiidm")));
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
-        modif.initApplicationContext(filterService, null);
+        modif.initApplicationContext(filterService, null, null);
         modif.apply(getNetwork());
 
         // generators modified
@@ -618,7 +618,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         when(filterService.getFilters(List.of(FILTER_ID_1))).thenReturn(filters);
 
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
-        modif.initApplicationContext(filterService, null);
+        modif.initApplicationContext(filterService, null, null);
         modif.apply(getNetwork());
 
         // Check expected target active power values
@@ -697,7 +697,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         when(filterService.getFilters(List.of(FILTER_ID_1, FILTER_ID_2, FILTER_ID_3, FILTER_ID_4, FILTER_ID_5, FILTER_ID_6))).thenReturn(filters);
 
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
-        modif.initApplicationContext(filterService, null);
+        modif.initApplicationContext(filterService, null, null);
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
@@ -801,7 +801,7 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         setNetwork(Network.read("testGenerationDispatchReduceMaxP.xiidm", getClass().getResourceAsStream("/testGenerationDispatchReduceMaxP.xiidm")));
 
         GenerationDispatch modif = (GenerationDispatch) modification.toModification();
-        modif.initApplicationContext(filterService, null);
+        modif.initApplicationContext(filterService, null, null);
         ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test").build());
