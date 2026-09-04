@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.Network;
 import lombok.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.gridsuite.filter.wip.Filter;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.error.NetworkModificationExceptionType;
@@ -55,8 +56,9 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     public static final String VALUE_KEY_ERROR_MESSAGE = "errorMessage";
     public static final String VALUE_KEY_ARROW_NAME = "arrow";
     public static final String VALUE_KEY_ARROW_VALUE = "→";
-    public static final String VALUE_KEY_FILTER_COUNT = "filterCount";
+    public static final String VALUE_KEY_FILTER_IDENTIFIER = "filterIdentifier";
     public static final String REPORT_KEY_ASSIGNING_VALUES = "network.modification.assignValues";
+    public static final String REPORT_KEY_FILTERS_EVALUATION = "network.modification.filtersEvaluation";
     public static final String REPORT_KEY_FILTER_EVALUATION = "network.modification.filterEvaluation";
     public static final String REPORT_KEY_FILTER_EVALUATION_RESULT = "network.modification.filterEvaluationResult";
     public static final String REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO = "network.modification.equipmentModifiedError.zero";
@@ -148,13 +150,17 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                     .withMessageTemplate(REPORT_KEY_EDITED_FIELD_FILTER)
                     .withUntypedValue(VALUE_KEY_FIELD_NAME, getAssignments().get(i).getEditedFieldLabel())
                     .add();
+            ReportNode filterContainer = assignmentContainer.newReportNode()
+                    .withMessageTemplate(REPORT_KEY_FILTERS_EVALUATION)
+                    .add();
             List<Identifiable<?>> equipments = new ArrayList<>();
             for (int j = 0; j < getAssignments().get(i).getFilters().size(); j++) {
-                ReportNode filterReport = assignmentContainer.newReportNode()
+                Filter filter = getAssignments().get(i).getFilters().get(j);
+                ReportNode filterReport = filterContainer.newReportNode()
                         .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION)
-                        .withUntypedValue(VALUE_KEY_FILTER_COUNT, j + 1)
+                        .withUntypedValue(VALUE_KEY_FILTER_IDENTIFIER, filter.getName() == null ? Integer.toString(j + 1) : filter.getName())
                         .add();
-                equipments.addAll(getAssignments().get(i).getFilters().get(j).evaluate(network, filterReport));
+                equipments.addAll(filter.evaluate(network, filterReport));
             }
             assignmentContainer.newReportNode()
                     .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION_RESULT)
@@ -167,7 +173,12 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
             equipmentCount += equipments.size();
             equipmentModifiedCount += applyOnAssignmentEquipments(equipments, assigningValuesContainer, getAssignments().get(i));
         }
-        createCountReports(subReportNode, equipmentCount, equipmentModifiedCount);
+        if (equipmentModifiedCount == 0) {
+            subReportNode.newReportNode()
+                    .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_NONE)
+                    .withSeverity(TypedValue.ERROR_SEVERITY)
+                    .add();
+        }
     }
 
     private long applyOnAssignmentEquipments(List<Identifiable<?>> equipments,
