@@ -34,6 +34,9 @@ public class VoltageInitModificationInfos extends ModificationInfos {
     @Schema(description = "generators modifications")
     private List<VoltageInitGeneratorModificationInfos> generators;
 
+    @Schema(description = "batteries modifications")
+    private List<VoltageInitBatteryModificationInfos> batteries;
+
     @Schema(description = "transformers modifications")
     private List<VoltageInitTransformerModificationInfos> transformers;
 
@@ -62,6 +65,7 @@ public class VoltageInitModificationInfos extends ModificationInfos {
     public AbstractModification toModification() {
         return VoltageInitModification.builder()
                 .generators(getGenerators())
+                .batteries(getBatteries())
                 .transformers(getTransformers())
                 .staticVarCompensators(getStaticVarCompensators())
                 .vscConverterStations(getVscConverterStations())

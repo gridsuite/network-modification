@@ -10,6 +10,8 @@ import com.powsybl.commons.report.ReportConstants;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.VoltageRegulation;
+import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
@@ -21,6 +23,7 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.gridsuite.modification.modifications.BatteryModification.setTargetV;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 
 /**
@@ -33,6 +36,7 @@ import static org.gridsuite.modification.utils.ModificationUtils.insertReportNod
 public class VoltageInitModification extends AbstractModification {
 
     private static final String GENERATORS_KEY = "network.modification.GeneratorsModifications";
+    private static final String BATTERIES_KEY = "network.modification.BatteriesModifications";
     private static final String TWO_WINDINGS_TRANSFORMERS_KEY = "network.modification.2WindingsTransformersModifications";
     private static final String THREE_WINDINGS_TRANSFORMERS_KEY = "network.modification.3WindingsTransformersModifications";
     private static final String STATIC_VAR_COMPENSATORS_KEY = "network.modification.StaticVarCompensatorsModifications";
@@ -47,6 +51,7 @@ public class VoltageInitModification extends AbstractModification {
     private static final String COUNT = "count";
 
     private List<VoltageInitGeneratorModificationInfos> generators;
+    private List<VoltageInitBatteryModificationInfos> batteries;
     private List<VoltageInitTransformerModificationInfos> transformers;
     private List<VoltageInitStaticVarCompensatorModificationInfos> staticVarCompensators;
     private List<VoltageInitVscConverterStationModificationInfos> vscConverterStations;
@@ -55,11 +60,13 @@ public class VoltageInitModification extends AbstractModification {
 
     @Builder
     public VoltageInitModification(List<VoltageInitGeneratorModificationInfos> generators,
+                                   List<VoltageInitBatteryModificationInfos> batteries,
                                    List<VoltageInitTransformerModificationInfos> transformers,
                                    List<VoltageInitStaticVarCompensatorModificationInfos> staticVarCompensators,
                                    List<VoltageInitVscConverterStationModificationInfos> vscConverterStations,
                                    List<VoltageInitShuntCompensatorModificationInfos> shuntCompensators,
                                    List<VoltageInitBusModificationInfos> buses) {
+        this.batteries = batteries == null ? List.of() : batteries;
         this.generators = generators == null ? List.of() : generators;
         this.transformers = transformers == null ? List.of() : transformers;
         this.staticVarCompensators = staticVarCompensators == null ? List.of() : staticVarCompensators;
@@ -70,7 +77,7 @@ public class VoltageInitModification extends AbstractModification {
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (generators.isEmpty() && transformers.isEmpty() && staticVarCompensators.isEmpty()
+        if (generators.isEmpty() && batteries.isEmpty() && transformers.isEmpty() && staticVarCompensators.isEmpty()
                 && vscConverterStations.isEmpty() && shuntCompensators.isEmpty() && buses.isEmpty()) {
             throw new NetworkModificationException(NetworkModificationExceptionType.VOLTAGE_INIT_MODIFICATION_ERROR, "No voltage init modification to apply !!");
         }
@@ -78,6 +85,7 @@ public class VoltageInitModification extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
+        applyBatteryModification(network, subReportNode);
         // apply generators modifications
         applyGeneratorModification(network, subReportNode);
 
@@ -197,6 +205,57 @@ public class VoltageInitModification extends AbstractModification {
         if (modificationsCount > 0) {
             subReportNode.newReportNode()
                     .withMessageTemplate("network.modification.generatorModificationsResume")
+                    .withUntypedValue(COUNT, modificationsCount)
+                    .withTypedValue(ReportConstants.SEVERITY_KEY, TypedValue.INFO_SEVERITY.toString(), TypedValue.SEVERITY)
+                    .add();
+        }
+    }
+
+    private void applyBatteryModification(Network network, ReportNode subReportNode) {
+        int modificationsCount = 0;
+        List<ReportNode> reports = new ArrayList<>();
+        for (final VoltageInitBatteryModificationInfos m : batteries) {
+            final Battery battery = network.getBattery(m.getBatteryId());
+            if (battery == null) {
+                reports.add(ReportNode.newRootReportNode()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                        .withMessageTemplate("network.modification.batteryNotFound")
+                        .withUntypedValue("id", m.getBatteryId())
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .build());
+            } else if (m.getTargetV() != null || m.getTargetQ() != null) {
+                modificationsCount++;
+                reports.add(ReportNode.newRootReportNode()
+                        .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                        .withMessageTemplate("network.modification.batteryModification")
+                        .withUntypedValue("id", m.getBatteryId())
+                        .withSeverity(TypedValue.DETAIL_SEVERITY)
+                        .build());
+
+                if (m.getTargetV() != null) {
+                    VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
+                    if (voltageRegulation == null) {
+                        voltageRegulation = battery.newExtension(VoltageRegulationAdder.class)
+                                .withVoltageRegulatorOn(false)
+                                .add();
+                    }
+                    // TODO : vérifier logs etc
+                    setTargetV(voltageRegulation, new AttributeModification<Double>(m.getTargetV(), OperationType.SET), reports);
+                }
+                if (m.getTargetQ() != null) {
+                    final double oldTargetQ = battery.getTargetQ();
+                    battery.setTargetQ(m.getTargetQ());
+                    reports.add(ModificationUtils.buildModificationReport(oldTargetQ, m.getTargetQ(), REACTIVE_POWER_SET_POINT, TypedValue.DETAIL_SEVERITY));
+                }
+            }
+        }
+        if (!reports.isEmpty()) {
+            ReportNode batteriesReportNode = subReportNode.newReportNode().withMessageTemplate(BATTERIES_KEY).add();
+            reports.forEach(report -> insertReportNode(batteriesReportNode, report));
+        }
+        if (modificationsCount > 0) {
+            subReportNode.newReportNode()
+                    .withMessageTemplate("network.modification.batteryModificationsResume")
                     .withUntypedValue(COUNT, modificationsCount)
                     .withTypedValue(ReportConstants.SEVERITY_KEY, TypedValue.INFO_SEVERITY.toString(), TypedValue.SEVERITY)
                     .add();
