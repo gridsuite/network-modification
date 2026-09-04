@@ -109,7 +109,7 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
         LoadScalingInfos modificationInfo = (LoadScalingInfos) buildModification();
         when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(getTestFilters());
         LoadScaling loadScaling = (LoadScaling) modificationInfo.toModification();
-        loadScaling.initApplicationContext(filterService, null);
+        loadScaling.initApplicationContext(filterService, null, null);
         loadScaling.apply(getNetwork());
         assertAfterNetworkModificationApplication();
     }
@@ -141,7 +141,7 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
             .build();
 
         LoadScaling loadScaling = (LoadScaling) modificationToCreate.toModification();
-        loadScaling.initApplicationContext(filterService, null);
+        loadScaling.initApplicationContext(filterService, null, null);
         loadScaling.apply(getNetwork());
 
         assertEquals(200, getNetwork().getLoad(LOAD_ID_2).getP0(), 0.01D);
@@ -170,7 +170,7 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
             .variations(List.of(variation))
             .build();
         LoadScaling loadScaling = (LoadScaling) loadScalingInfo.toModification();
-        loadScaling.initApplicationContext(filterService, null);
+        loadScaling.initApplicationContext(filterService, null, null);
         ReportNode report = loadScalingInfo.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
@@ -216,7 +216,7 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
             .build();
 
         LoadScaling loadScaling = (LoadScaling) loadScalingInfo.toModification();
-        loadScaling.initApplicationContext(filterService, null);
+        loadScaling.initApplicationContext(filterService, null, null);
         loadScaling.apply(getNetwork());
         assertEquals(600, getNetwork().getLoad(LOAD_ID_9).getP0(), 0.01D);
         assertEquals(300, getNetwork().getLoad(LOAD_ID_10).getP0(), 0.01D);
@@ -367,7 +367,7 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
                 .build();
 
         LoadScaling loadScaling = (LoadScaling) loadScalingInfo.toModification();
-        loadScaling.initApplicationContext(filterService, null);
+        loadScaling.initApplicationContext(filterService, null, null);
         loadScaling.apply(getNetwork());
 
         // If we sum the P0 for all expected modified loads, we should have the requested variation value
