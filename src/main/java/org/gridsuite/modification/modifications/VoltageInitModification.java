@@ -239,8 +239,7 @@ public class VoltageInitModification extends AbstractModification {
                                 .withVoltageRegulatorOn(false)
                                 .add();
                     }
-                    // TODO : vérifier logs etc
-                    setTargetV(voltageRegulation, new AttributeModification<Double>(m.getTargetV(), OperationType.SET), reports);
+                    setTargetV(voltageRegulation, new AttributeModification<>(m.getTargetV(), OperationType.SET), reports, TypedValue.DETAIL_SEVERITY);
                 }
                 if (m.getTargetQ() != null) {
                     final double oldTargetQ = battery.getTargetQ();
