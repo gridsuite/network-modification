@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
@@ -57,10 +58,10 @@ class TabularGeneratorModificationsTest extends AbstractNetworkModificationTest 
     @Override
     public void testApply() {
         ModificationInfos modificationInfos = buildModification();
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication(reportNode);
     }
 
@@ -92,10 +93,10 @@ class TabularGeneratorModificationsTest extends AbstractNetworkModificationTest 
                 .stashed(false)
                 .date(Instant.now())
                 .build();
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
             .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         assertLogMessage("Tabular modification: No generators have been modified", "network.modification.tabular.modification.error", reportNode);
         assertLogMessage("Modification errors", "network.modification.tabular.modification.error.equipmentError", reportNode);

@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
 import org.gridsuite.modification.modifications.AbstractEquipmentBase;
@@ -79,10 +80,10 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
     @Override
     public void testApply() {
         ModificationInfos modificationInfos = buildModification();
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication(reportNode);
     }
 
@@ -125,7 +126,7 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
                 .date(Instant.now())
                 .build();
 
-        var tabularModification = (TabularModification) tabularModificationInfos.toModification();
+        var tabularModification = (TabularModification) tabularModificationInfos.toModification(ModificationContext.empty());
 
         when(network.getShuntCompensator("id")).thenReturn(shuntCompensator);
         when(shuntCompensator.getModelType()).thenReturn(ShuntCompensatorModelType.LINEAR);
@@ -135,13 +136,13 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
                 .withMessageTemplate("test")
                 .build();
 
-        tabularModification.specificCheck((AbstractEquipmentBase) shuntModification.toModification(), network, reportNode);
+        tabularModification.specificCheck((AbstractEquipmentBase) shuntModification.toModification(ModificationContext.empty()), network, reportNode);
 
         shuntModification.setShuntCompensatorType(AttributeModification.toAttributeModification(ShuntCompensatorType.CAPACITOR, OperationType.SET));
-        tabularModification.specificCheck((AbstractEquipmentBase) shuntModification.toModification(), network, reportNode);
+        tabularModification.specificCheck((AbstractEquipmentBase) shuntModification.toModification(ModificationContext.empty()), network, reportNode);
 
         shuntModification.setMaxQAtNominalV(null);
-        tabularModification.specificCheck((AbstractEquipmentBase) shuntModification.toModification(), network, reportNode);
+        tabularModification.specificCheck((AbstractEquipmentBase) shuntModification.toModification(ModificationContext.empty()), network, reportNode);
 
         assertEquals(TypedValue.WARN_SEVERITY, reportNode.getChildren().get(0).getValues().get(ReportConstants.SEVERITY_KEY));
     }
@@ -162,7 +163,7 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
                 .date(Instant.now())
                 .build();
 
-        var tabularModification = (TabularModification) tabularModificationInfos.toModification();
+        var tabularModification = (TabularModification) tabularModificationInfos.toModification(ModificationContext.empty());
 
         when(network.getShuntCompensator("id")).thenReturn(shuntCompensator);
         when(shuntCompensator.getModelType()).thenReturn(ShuntCompensatorModelType.NON_LINEAR);
@@ -172,7 +173,7 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build();
-        tabularModification.specificCheck((AbstractEquipmentBase) shuntModification.toModification(), network, reportNode);
+        tabularModification.specificCheck((AbstractEquipmentBase) shuntModification.toModification(ModificationContext.empty()), network, reportNode);
 
         assertEquals(TypedValue.ERROR_SEVERITY, reportNode.getChildren().get(0).getValues().get(ReportConstants.SEVERITY_KEY));
 
@@ -194,7 +195,7 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
                 .date(Instant.now())
                 .build();
 
-        var tabularModification = (TabularModification) tabularModificationInfos.toModification();
+        var tabularModification = (TabularModification) tabularModificationInfos.toModification(ModificationContext.empty());
 
         when(network.getShuntCompensator("id")).thenReturn(shuntCompensator);
         when(shuntCompensator.getModelType()).thenReturn(ShuntCompensatorModelType.LINEAR);
@@ -204,7 +205,7 @@ class TabularShuntCompensatorModificationsTest extends AbstractNetworkModificati
                 .withMessageTemplate("test")
                 .build();
 
-        tabularModification.specificCheck((AbstractEquipmentBase) shuntModification.toModification(), network, reportNode);
+        tabularModification.specificCheck((AbstractEquipmentBase) shuntModification.toModification(ModificationContext.empty()), network, reportNode);
         assertEquals(0, reportNode.getChildren().size());
     }
 

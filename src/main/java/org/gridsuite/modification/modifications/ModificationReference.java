@@ -38,8 +38,8 @@ public class ModificationReference extends AbstractModification {
     }
 
     @Override
-    protected void initServices(IFilterService filterService, ILoadFlowService loadFlowService) {
-        referenceModification.initServices(filterService, loadFlowService);
+    public void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService) {
+        referenceModification.initApplicationContext(filterService, loadFlowService);
     }
 
     @Override

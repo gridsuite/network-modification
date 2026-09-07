@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.LoadCreationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
@@ -112,10 +113,10 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
             .modifications(creations)
             .date(Instant.now())
             .build();
-        ReportNode reportNode = creationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = creationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        creationInfos.toModification().apply(getNetwork(), reportNode);
+        creationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: 1 load have been created", "network.modification.tabular.creation", reportNode);
         assertLogMessage("Creation of id1", "network.modification.tabular.creation.equipmentId", reportNode);
     }
@@ -147,10 +148,10 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
                 .modifications(creations)
                 .date(Instant.now())
                 .build();
-        ReportNode reportNode = creationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = creationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        creationInfos.toModification().apply(getNetwork(), reportNode);
+        creationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: No loads have been created", "network.modification.tabular.creation.error", reportNode);
         assertLogMessage("Creation errors", "network.modification.tabular.creation.error.equipmentError", reportNode);
     }

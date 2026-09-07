@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.CompositeModificationInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.ModificationReferenceInfos;
@@ -33,12 +34,12 @@ class ModificationReferenceTest extends AbstractNetworkModificationTest {
 
     @Override
     public void checkModification() {
-        assertEquals(ModificationType.MODIFICATION_REFERENCE.name(), buildModification().toModification().getName());
+        assertEquals(ModificationType.MODIFICATION_REFERENCE.name(), buildModification().toModification(ModificationContext.empty()).getName());
     }
 
     @Override
     protected void initApplicationContext(AbstractModification modification) {
-        modification.initApplicationContext(null, null, null);
+        modification.initApplicationContext(null, null);
     }
 
     @Override
