@@ -245,7 +245,7 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         BatteryCreationInfos batteryCreationInfos = (BatteryCreationInfos) buildModification();
         batteryCreationInfos.setDirectTransX(Double.NaN);
 
-        ReportNode report = batteryCreationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = batteryCreationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         batteryCreationInfos.toModification().apply(getNetwork(), report);

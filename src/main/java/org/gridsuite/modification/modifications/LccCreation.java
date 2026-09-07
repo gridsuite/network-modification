@@ -123,6 +123,14 @@ public class LccCreation extends AbstractEquipmentCreation {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.lcc.creation")
+                .withUntypedValue("lccId", getEquipmentId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.LCC_CREATION.name();
     }

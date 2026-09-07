@@ -39,6 +39,14 @@ public class TabularModification extends AbstractTabularModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.tabularModification")
+                .withUntypedValue("modificationType", modificationInfos.formatEquipmentTypeName())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.TABULAR_MODIFICATION.name();
     }

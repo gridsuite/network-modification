@@ -8,7 +8,6 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -70,11 +69,4 @@ public class ShuntCompensatorModificationInfos extends InjectionModificationInfo
             .build();
     }
 
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.shuntCompensatorModification.modification")
-                .withUntypedValue("shuntCompensatorId", this.getEquipmentId())
-                .add();
-    }
 }

@@ -81,6 +81,13 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.lineSplitWithVoltageLevel")
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.LINE_SPLIT_WITH_VOLTAGE_LEVEL.name();
     }

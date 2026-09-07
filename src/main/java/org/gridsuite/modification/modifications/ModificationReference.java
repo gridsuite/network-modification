@@ -76,7 +76,15 @@ public class ModificationReference extends AbstractModification {
         AbstractModification modification = referenceInfos.toModification();
         modification.check(network);
         modification.initApplicationContext(filterService, loadFlowService, getRootNetworkTag());
-        modification.apply(network, namingStrategy, referenceInfos.createSubReportNode(subReportNode));
+        modification.apply(network, namingStrategy, modification.createSubReportNode(subReportNode));
+    }
+
+    @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        String messageTemplate = referenceType == ModificationReferenceInfos.Type.BASIC
+                ? "network.modification.basic.reference.apply"
+                : "network.modification.directory.reference.apply";
+        return reportNode.newReportNode().withMessageTemplate(messageTemplate).add();
     }
 
     @Override

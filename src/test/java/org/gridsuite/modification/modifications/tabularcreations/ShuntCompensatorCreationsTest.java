@@ -100,7 +100,7 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
                 .modifications(creations)
                 .date(Instant.now())
                 .build();
-        ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = creationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         creationInfos.toModification().apply(getNetwork(), reportNode);
@@ -122,7 +122,7 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
                 .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
                 .modifications(creations)
                 .build();
-        ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = creationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         creationInfos.toModification().apply(getNetwork(), reportNode);
@@ -187,7 +187,7 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
                 .modifications(List.of(shuntCreation, shuntCreation2, shuntCreation3))
                 .build();
 
-        ReportNode reportNode = tabularCreationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = tabularCreationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         tabularCreationInfos.toModification().apply(getNetwork(), reportNode);

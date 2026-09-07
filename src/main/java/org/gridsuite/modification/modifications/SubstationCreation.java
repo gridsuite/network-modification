@@ -45,6 +45,14 @@ public class SubstationCreation extends AbstractEquipmentCreation {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.substation.creation")
+                .withUntypedValue("substationId", this.getEquipmentId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.SUBSTATION_CREATION.name();
     }

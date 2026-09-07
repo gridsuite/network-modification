@@ -8,7 +8,6 @@ package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -47,11 +46,4 @@ public class EquipmentDeletionInfos extends EquipmentModificationInfos {
                 .build();
     }
 
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.equipmentDeletion")
-                .withUntypedValue("equipmentId", this.getEquipmentId())
-                .add();
-    }
 }

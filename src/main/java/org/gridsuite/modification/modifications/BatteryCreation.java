@@ -145,6 +145,11 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode().withMessageTemplate("network.modification.batteryCreation").withUntypedValue("batteryId", this.getEquipmentId()).add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.BATTERY_CREATION.name();
     }

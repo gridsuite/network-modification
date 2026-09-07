@@ -177,6 +177,14 @@ public class LineCreation extends AbstractBranchCreation {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.lineCreation")
+                .withUntypedValue("lineId", getEquipmentId())
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.LINE_CREATION.name();
     }

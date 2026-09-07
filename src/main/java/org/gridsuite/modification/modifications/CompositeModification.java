@@ -64,8 +64,8 @@ public class CompositeModification extends AbstractModification {
                 .filter(modificationInfos -> modificationInfos.isActivatedOn(getRootNetworkTag()))
                 .forEach(
                         modif -> {
-                            ReportNode modifNode = modif.createSubReportNode(subReportNode);
                             AbstractModification modification = modif.toModification();
+                            ReportNode modifNode = modification.createSubReportNode(subReportNode);
                             try {
                                 modification.check(network);
                                 modification.initApplicationContext(filterService, loadFlowService, getRootNetworkTag());
@@ -76,13 +76,21 @@ public class CompositeModification extends AbstractModification {
                                 modifNode.newReportNode()
                                         .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                                         .withMessageTemplate("network.modification.composite.exception.report")
-                                        .withUntypedValue("modificationName", modif.toModification().getName())
+                                        .withUntypedValue("modificationName", modification.getName())
                                         .withUntypedValue(VALUE_KEY_ERROR_MESSAGE, e.getMessage())
                                         .withSeverity(TypedValue.ERROR_SEVERITY)
                                         .add();
                             }
                         }
         );
+    }
+
+    @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.composite.apply")
+                .withUntypedValue("modificationName", compositeModificationInfos.getName())
+                .add();
     }
 
     @Override

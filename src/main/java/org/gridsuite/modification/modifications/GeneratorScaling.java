@@ -196,6 +196,13 @@ public class GeneratorScaling extends AbstractScaling {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.generatorScaling")
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.GENERATOR_SCALING.name();
     }

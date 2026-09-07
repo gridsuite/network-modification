@@ -39,6 +39,13 @@ public class CreateCouplingDevice extends AbstractModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode().withMessageTemplate("network.modification.createCouplingDevice")
+            .withUntypedValue("voltageLevelId", getVoltageLevelId())
+            .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.CREATE_COUPLING_DEVICE.toString();
     }

@@ -7,7 +7,6 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.SwitchKind;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -42,13 +41,6 @@ public class CreateVoltageLevelTopologyInfos extends ModificationInfos {
 
     @Schema(description = "sectionCount")
     private Integer sectionCount;
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.createVoltageLevelTopology")
-            .withUntypedValue("voltageLevelId", getVoltageLevelId())
-            .add();
-    }
 
     @Override
     public Map<String, String> getMapMessageValues() {

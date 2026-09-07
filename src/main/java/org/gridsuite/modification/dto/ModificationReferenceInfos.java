@@ -8,7 +8,6 @@ package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -58,11 +57,6 @@ public class ModificationReferenceInfos extends ModificationInfos {
                 .referenceType(getReferenceType())
                 .referenceInfos(getReferenceInfos())
                 .build();
-    }
-
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate(referenceType == Type.BASIC ? "network.modification.basic.reference.apply" : "network.modification.directory.reference.apply").add();
     }
 
     @Override

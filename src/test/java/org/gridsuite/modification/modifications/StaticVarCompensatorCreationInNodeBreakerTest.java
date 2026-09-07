@@ -166,7 +166,7 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
         compensatorCreationInfos1.setLowVoltageThreshold(250.0);
         compensatorCreationInfos1.setHighVoltageThreshold(300.0);
         compensatorCreationInfos1.setQ0(Double.NaN);
-        ReportNode report = compensatorCreationInfos1.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = compensatorCreationInfos1.toModification().createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         compensatorCreationInfos1.toModification().apply(getNetwork(), report);
