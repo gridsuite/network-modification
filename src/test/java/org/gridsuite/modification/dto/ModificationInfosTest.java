@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.dto;
 
-import com.powsybl.commons.report.ReportNode;
 import org.gridsuite.modification.context.ModificationContext;
 import org.junit.jupiter.api.Test;
 
