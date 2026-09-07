@@ -11,6 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
@@ -100,10 +101,10 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
                 .modifications(creations)
                 .date(Instant.now())
                 .build();
-        ReportNode reportNode = creationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = creationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        creationInfos.toModification().apply(getNetwork(), reportNode);
+        creationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: 1 shunt compensator have been created", "network.modification.tabular.creation", reportNode);
         assertLogMessage("Creation of id1", "network.modification.tabular.creation.equipmentId", reportNode);
     }
@@ -122,10 +123,10 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
                 .modificationType(ModificationType.SHUNT_COMPENSATOR_CREATION)
                 .modifications(creations)
                 .build();
-        ReportNode reportNode = creationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = creationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        creationInfos.toModification().apply(getNetwork(), reportNode);
+        creationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: No shunt compensator have been created", "network.modification.tabular.creation.error", reportNode);
         assertLogMessage("Creation errors", "network.modification.tabular.creation.error.equipmentError", reportNode);
     }
@@ -187,10 +188,10 @@ class ShuntCompensatorCreationsTest extends AbstractNetworkModificationTest {
                 .modifications(List.of(shuntCreation, shuntCreation2, shuntCreation3))
                 .build();
 
-        ReportNode reportNode = tabularCreationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = tabularCreationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        tabularCreationInfos.toModification().apply(getNetwork(), reportNode);
+        tabularCreationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         assertLogMessage("Tabular creation: Input for maximum susceptance has been ignored since it is not possible to simultaneously set type, maximum reactive power and maximum susceptance for "
                 + "shunt compensator with id id1",

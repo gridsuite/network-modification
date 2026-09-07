@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.ModificationReference;
 
@@ -51,11 +52,10 @@ public class ModificationReferenceInfos extends ModificationInfos {
     private ModificationInfos referenceInfos;
 
     @Override
-    public AbstractModification toModification() {
+    public AbstractModification toModification(ModificationContext context) {
         return ModificationReference.builder()
-                .referenceId(getReferenceId())
                 .referenceType(getReferenceType())
-                .referenceInfos(getReferenceInfos())
+                .referenceModification(getReferenceInfos().toModification(context))
                 .build();
     }
 

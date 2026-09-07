@@ -11,6 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
@@ -60,10 +61,10 @@ class TabularSubstationModificationsTest extends AbstractNetworkModificationTest
     @Override
     public void testApply() {
         ModificationInfos modificationInfos = buildModification();
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication(reportNode);
     }
 

@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.dto.tabular.LimitSetsTabularModificationInfos;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
@@ -214,10 +215,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
     @Override
     public void testApply() {
         ModificationInfos modificationInfos = buildModification();
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication(reportNode);
     }
 
@@ -250,10 +251,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 ))
                 .build();
 
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
@@ -292,10 +293,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 ))
                 .build();
 
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
@@ -335,10 +336,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 ))
                 .build();
 
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
@@ -376,10 +377,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 ))
                 .build();
 
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
@@ -428,10 +429,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 ))
                 .build();
 
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
@@ -453,10 +454,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
     void testTemporaryLimitMissingFieldIsSkipped(TemporaryLimitModificationType op, MissingField missing, String expectedKey, String expectedMessage) {
         ModificationInfos modificationInfos = buildMissingFieldModification(op, missing);
 
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
@@ -547,10 +548,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                 )).build()
                 )).build();
 
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
@@ -601,10 +602,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 ))
                 .build();
 
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line2")
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
@@ -651,10 +652,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 ))
                 .build();
 
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
@@ -699,10 +700,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 ))
                 .build();
 
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         assertLogMessageWithoutRank("Duplicate duration for temporary limit different_name (duration: 32) to ADD: ignored",
                 "network.modification.temporaryLimitsDuplicateDuration", reportNode);
@@ -738,10 +739,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 ))
                 .build();
 
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         assertLogMessageWithoutRank("Duplicate name for temporary limit name32 (duration: 99) to ADD: ignored",
                 "network.modification.temporaryLimitsDuplicateName", reportNode);
@@ -785,10 +786,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 ))
                 .build();
 
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
@@ -830,10 +831,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 ))
                 .build();
 
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
@@ -877,10 +878,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 ))
                 .build();
 
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
@@ -923,10 +924,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 ))
                 .build();
 
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
@@ -968,10 +969,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 ))
                 .build();
 
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
@@ -1011,10 +1012,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 ))
                 .build();
 
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))
@@ -1064,10 +1065,10 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 ))
                 .build();
 
-        ReportNode reportNode = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
-        modificationInfos.toModification().apply(getNetwork(), reportNode);
+        modificationInfos.toModification(ModificationContext.empty()).apply(getNetwork(), reportNode);
 
         CurrentLimits limits = Objects.requireNonNull(getNetwork().getLine("line1")
                         .getOperationalLimitsGroup1("DEFAULT").orElse(null))

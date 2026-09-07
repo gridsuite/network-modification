@@ -12,6 +12,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.context.ModificationContext;
+import org.gridsuite.modification.modifications.AbstractEquipmentBase;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.tabular.TabularCreation;
 
@@ -30,8 +32,14 @@ import java.util.Map;
 public class TabularCreationInfos extends TabularBaseInfos {
 
     @Override
-    public AbstractModification toModification() {
-        return new TabularCreation(this);
+    public AbstractModification toModification(ModificationContext context) {
+        return TabularCreation.builder()
+                .modificationType(getModificationType())
+                .modifications(getModifications().stream()
+                    .map(modificationInfos -> modificationInfos.toModification(context))
+                    .map(m -> (AbstractEquipmentBase) m)
+                    .toList())
+                .build();
     }
 
     @Override

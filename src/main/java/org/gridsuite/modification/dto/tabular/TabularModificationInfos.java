@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.context.ModificationContext;
+import org.gridsuite.modification.modifications.AbstractEquipmentBase;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.tabular.TabularModification;
 import java.util.HashMap;
@@ -26,8 +28,14 @@ import java.util.Map;
 @Schema(description = "Tabular modification")
 public class TabularModificationInfos extends TabularBaseInfos {
     @Override
-    public AbstractModification toModification() {
-        return new TabularModification(this);
+    public AbstractModification toModification(ModificationContext context) {
+        return TabularModification.builder()
+                .modificationType(getModificationType())
+                .modifications(getModifications().stream()
+                        .map(modificationInfos -> modificationInfos.toModification(context))
+                        .map(m -> (AbstractEquipmentBase) m)
+                        .toList())
+                .build();
     }
 
     @Override

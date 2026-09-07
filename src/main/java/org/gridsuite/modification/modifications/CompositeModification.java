@@ -6,21 +6,18 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.CompositeModificationInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
+
+import java.util.List;
 
 import static org.gridsuite.modification.modifications.byfilter.AbstractModificationByAssignment.VALUE_KEY_ERROR_MESSAGE;
 
@@ -29,28 +26,26 @@ import static org.gridsuite.modification.modifications.byfilter.AbstractModifica
  */
 
 @Getter
+@Setter
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CompositeModification extends AbstractModification {
 
-    private CompositeModificationInfos compositeModificationInfos;
+    private String compositeName;
+    private Integer maxDepth;
+    private List<AbstractModification> modificationsInfos;
 
-    @JsonIgnore
-    @EqualsAndHashCode.Exclude
-    protected IFilterService filterService;
-
-    @JsonIgnore
-    @EqualsAndHashCode.Exclude
-    protected ILoadFlowService loadFlowService;
-
-    public CompositeModification(CompositeModificationInfos compositeModificationInfos) {
-        this.compositeModificationInfos = compositeModificationInfos;
+    @Builder
+    public CompositeModification(String name, Integer maxDepth, List<AbstractModification> modificationsInfos) {
+        this.compositeName = name;
+        this.maxDepth = maxDepth;
+        this.modificationsInfos = modificationsInfos;
     }
 
     @Override
-    protected void initServices(IFilterService filterService, ILoadFlowService loadFlowService) {
-        this.filterService = filterService;
-        this.loadFlowService = loadFlowService;
+    public void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService) {
+        modificationsInfos.forEach(modif ->
+                modif.initApplicationContext(filterService, loadFlowService));
     }
 
     @Override
@@ -60,23 +55,20 @@ public class CompositeModification extends AbstractModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
-        compositeModificationInfos.getModificationsInfos().stream()
-                .filter(modificationInfos -> modificationInfos.isActivatedOn(getRootNetworkTag()))
+        modificationsInfos
                 .forEach(
                         modif -> {
-                            AbstractModification modification = modif.toModification();
-                            ReportNode modifNode = modification.createSubReportNode(subReportNode);
+                            ReportNode modifNode = modif.createSubReportNode(subReportNode);
                             try {
-                                modification.check(network);
-                                modification.initApplicationContext(filterService, loadFlowService, getRootNetworkTag());
-                                modification.apply(network, namingStrategy, modifNode);
+                                modif.check(network);
+                                modif.apply(network, namingStrategy, modifNode);
                             } catch (Exception e) {
                                 // in case of error in a network modification, the composite modification doesn't interrupt its execution :
                                 // the following modifications will be carried out
                                 modifNode.newReportNode()
                                         .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                                         .withMessageTemplate("network.modification.composite.exception.report")
-                                        .withUntypedValue("modificationName", modification.getName())
+                                        .withUntypedValue("modificationName", modif.getName())
                                         .withUntypedValue(VALUE_KEY_ERROR_MESSAGE, e.getMessage())
                                         .withSeverity(TypedValue.ERROR_SEVERITY)
                                         .add();
@@ -89,7 +81,7 @@ public class CompositeModification extends AbstractModification {
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.composite.apply")
-                .withUntypedValue("modificationName", compositeModificationInfos.getName())
+                .withUntypedValue("modificationName", compositeName)
                 .add();
     }
 

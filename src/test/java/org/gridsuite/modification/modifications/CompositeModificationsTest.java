@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationCreation;
@@ -41,11 +42,11 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         CompositeModificationInfos compositeModificationInfos = (CompositeModificationInfos) buildModification();
 
         // checks that the sub sub sub netmod is executed at the right depth
-        ReportNode report = compositeModificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = compositeModificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
-        CompositeModification netmod = (CompositeModification) compositeModificationInfos.toModification();
+        CompositeModification netmod = (CompositeModification) compositeModificationInfos.toModification(ModificationContext.empty());
         assertDoesNotThrow(() -> netmod.apply(network, report));
         assertLogMessageAtDepth(
                 "Generator with id=idGenerator modified :",
@@ -66,16 +67,16 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         Network network = getNetwork();
         CompositeModificationInfos compositeModificationInfos = (CompositeModificationInfos) buildModification();
 
-        ReportNode report = compositeModificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = compositeModificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
         // regular throwing exception netmod
-        GeneratorCreation throwingExceptionNetMod = (GeneratorCreation) buildThrowingModification().toModification();
+        GeneratorCreation throwingExceptionNetMod = (GeneratorCreation) buildThrowingModification().toModification(ModificationContext.empty());
         assertThrows(PowsyblException.class, () -> throwingExceptionNetMod.apply(network));
         // but doesn't throw once inside a composite modification
         compositeModificationInfos.setModificationsInfos(List.of(buildThrowingModification()));
-        CompositeModification netmodContainingError = (CompositeModification) compositeModificationInfos.toModification();
+        CompositeModification netmodContainingError = (CompositeModification) compositeModificationInfos.toModification(ModificationContext.empty());
         assertDoesNotThrow(() -> netmodContainingError.apply(network, report));
         // but the thrown message is inside the report :
         assertLogMessageWithoutRank(
@@ -111,12 +112,12 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                 .stashed(false)
                 .build();
 
-        ReportNode report = composite.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = composite.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
 
-        CompositeModification netmod = (CompositeModification) composite.toModification();
+        CompositeModification netmod = (CompositeModification) composite.toModification(ModificationContext.empty());
         assertDoesNotThrow(() -> netmod.apply(network, report));
 
         // Only the baseline rename (activated=true, stashed=false) should have been applied;

@@ -22,7 +22,8 @@ import lombok.Builder;
  */
 @Builder
 public record ModificationContext(FilterLoader filterLoader,
-                                  LoadFlowParametersLoader loadFlowParametersLoader) {
+                                  LoadFlowParametersLoader loadFlowParametersLoader,
+                                  String rootNetworkTag) {
 
     private static final FilterLoader NO_FILTER_LOADER = filterUuids -> {
         throw missingLoader("filter loader");

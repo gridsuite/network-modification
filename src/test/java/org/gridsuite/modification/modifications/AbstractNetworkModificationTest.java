@@ -14,6 +14,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,11 +57,11 @@ public abstract class AbstractNetworkModificationTest {
     @Test
     public void testApply() throws Exception {
         ModificationInfos modificationInfos = buildModification();
-        ReportNode report = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = modificationInfos.toModification(ModificationContext.empty()).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
-        AbstractModification modification = modificationInfos.toModification();
+        AbstractModification modification = modificationInfos.toModification(ModificationContext.empty());
         modification.check(network);
         initApplicationContext(modification);
         modification.apply(network, report);
@@ -83,8 +84,8 @@ public abstract class AbstractNetworkModificationTest {
     public void testRoundTripSerializationDeserialization() throws JsonProcessingException {
         ILoadFlowService loadFlowServiceMock = mock(ILoadFlowService.class);
         IFilterService filterServiceMock = mock(IFilterService.class);
-        AbstractModification expectedModification = buildModification().toModification();
-        expectedModification.initApplicationContext(filterServiceMock, loadFlowServiceMock, null);
+        AbstractModification expectedModification = buildModification().toModification(ModificationContext.empty());
+        expectedModification.initApplicationContext(filterServiceMock, loadFlowServiceMock);
 
         String serializedModification = mapper.writeValueAsString(expectedModification);
         AbstractModification deserializedModification = mapper.readValue(serializedModification, AbstractModification.class);

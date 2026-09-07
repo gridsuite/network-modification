@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.CompositeModification;
 
@@ -46,8 +47,15 @@ public class CompositeModificationInfos extends ModificationInfos {
     private Integer maxDepth;
 
     @Override
-    public AbstractModification toModification() {
-        return new CompositeModification(this);
+    public AbstractModification toModification(ModificationContext context) {
+        return CompositeModification.builder()
+                .name(name)
+                .maxDepth(maxDepth)
+                .modificationsInfos(modificationsInfos.stream()
+                        .filter(modificationInfos -> modificationInfos.isActivatedOn(context.rootNetworkTag()))
+                        .map(modificationInfos -> modificationInfos.toModification(context))
+                        .toList())
+                .build();
     }
 
     @Override
