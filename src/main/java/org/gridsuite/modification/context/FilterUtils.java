@@ -26,7 +26,10 @@ public final class FilterUtils {
     public static List<Filter> loadFilterWithNames(List<FilterInfos> filterInfosList, FilterLoader filterLoader) {
         Map<UUID, Filter> filterMap = filterLoader.load(filterInfosList.stream().map(FilterInfos::getId).distinct().toList());
         filterInfosList.forEach(filterInfos -> {
-            filterMap.get(filterInfos.getId()).setName(filterInfos.getName());
+            Filter filter = filterMap.get(filterInfos.getId());
+            if (filter != null) {
+                filter.setName(filterInfos.getName());
+            }
         });
         return filterMap.values().stream().toList();
     }
