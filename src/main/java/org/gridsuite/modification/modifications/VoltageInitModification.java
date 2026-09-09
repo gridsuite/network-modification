@@ -85,23 +85,12 @@ public class VoltageInitModification extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        applyBatteryModification(network, subReportNode);
-        // apply generators modifications
         applyGeneratorModification(network, subReportNode);
-
-        // apply transformers modifications
+        applyBatteryModification(network, subReportNode);
         applyTransformerModification(network, subReportNode);
-
-        // apply static var compensators modifications
         applyStaticVarCompensatorModification(network, subReportNode);
-
-        // apply shunt compensators modifications
         applyShuntCompensatorModification(network, subReportNode);
-
-        // apply vsc converter stations modifications
         applyVscConverterStationModification(network, subReportNode);
-
-        // apply buses modifications
         applyBusModification(network, subReportNode);
     }
 
