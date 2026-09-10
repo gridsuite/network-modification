@@ -242,7 +242,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                                                                         .modificationType(TemporaryLimitModificationType.MODIFY)
                                                                         .name(toAttributeModification("renamed_limit", OperationType.SET))
                                                                         .acceptableDuration(toAttributeModification(32, OperationType.SET))
-                                                                        .value(null) // No value modification
+                                                                        .value(null) // erase value
                                                                         .build()
                                                         )).build())
                                                 .build()
@@ -260,7 +260,7 @@ class LimitSetModificationsTest extends AbstractNetworkModificationTest {
                 .getCurrentLimits().orElse(null);
         assertNotNull(limits);
         assertEquals("renamed_limit", limits.getTemporaryLimit(32).getName());
-        assertEquals(15.0, limits.getTemporaryLimit(32).getValue(), 0.01);
+        assertEquals(Double.MAX_VALUE, limits.getTemporaryLimit(32).getValue(), 0.01);
     }
 
     /**
