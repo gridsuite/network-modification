@@ -10,12 +10,10 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.utils.NetworkCreation;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -28,6 +26,20 @@ class EquipmentByFilterDeletionTest extends AbstractByFilterDeletionTest {
     private static final String LOAD_ID_2 = "load2";
     private static final String LOAD_ID_3 = "load3";
     private static final String LOAD_ID_4 = "load4";
+    private static final Map<UUID, Set<String>> FILTER_MAPPING = Map.of(
+            FILTER_ID_1, Set.of(LOAD_ID_1, LOAD_ID_2),
+            FILTER_ID_2, Set.of(LOAD_ID_3, LOAD_ID_4)
+    );
+
+    @Override
+    public Map<UUID, Set<String>> getFilterMapping() {
+        return FILTER_MAPPING;
+    }
+
+    @Override
+    public Set<String> getExistingEquipments() {
+        return Set.of(LOAD_ID_1, LOAD_ID_2, LOAD_ID_3, LOAD_ID_4);
+    }
 
     @Override
     protected Network createNetwork(UUID networkUuid) {
@@ -50,25 +62,5 @@ class EquipmentByFilterDeletionTest extends AbstractByFilterDeletionTest {
     @Override
     protected EquipmentType getEquipmentType() {
         return EquipmentType.LOAD;
-    }
-
-    @Override
-    protected String getExistingId() {
-        return LOAD_ID_1;
-    }
-
-    @Override
-    protected Map<UUID, FilterEquipments> getTestFilters() {
-        FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(
-            new IdentifiableAttributes(LOAD_ID_1, IdentifiableType.LOAD, null),
-            new IdentifiableAttributes(LOAD_ID_2, IdentifiableType.LOAD, null)
-        )).build();
-
-        FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(
-            new IdentifiableAttributes(LOAD_ID_3, IdentifiableType.LOAD, null),
-            new IdentifiableAttributes(LOAD_ID_4, IdentifiableType.LOAD, null)
-        )).build();
-
-        return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2);
     }
 }
