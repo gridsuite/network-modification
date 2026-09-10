@@ -10,25 +10,23 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
+import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.IntegerAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.StringAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.TwoWindingsTransformerField;
+import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.gridsuite.modification.utils.NetworkUtil.createTwoWindingsTransformer;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
@@ -41,14 +39,21 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
     private static final String TWT_ID_4 = "twt4";
     private static final String TWT_ID_5 = "twt5";
     private static final String TWT_ID_6 = "twt6";
+    private static final Map<UUID, Set<String>> FILTER_MAPPING = Map.of(
+            FILTER_ID_1, Set.of(TWT_ID_1, TWT_ID_2),
+            FILTER_ID_2, Set.of(TWT_ID_1, TWT_ID_3),
+            FILTER_ID_3, Set.of(TWT_ID_4, TWT_ID_5),
+            FILTER_ID_4, Set.of(TWT_ID_4, TWT_ID_6)
+    );
+
+    @Override
+    public Map<UUID, Set<String>> getFilterMapping() {
+        return FILTER_MAPPING;
+    }
 
     @Test
-    void testModifyTwtWithError() throws Exception {
+    void testModifyTwtWithError() {
         // Test modifying ratio tab changer field when ratio tab changer is null
-        IdentifiableAttributes identifiableAttributes1 = new IdentifiableAttributes(TWT_ID_4, getIdentifiableType(), 1.);
-        IdentifiableAttributes identifiableAttributes2 = new IdentifiableAttributes(TWT_ID_6, getIdentifiableType(), 1.);
-        FilterEquipments filter = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(identifiableAttributes1, identifiableAttributes2)).build();
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_ID_4, filter));
         DoubleAssignmentInfos assignmentInfos = DoubleAssignmentInfos.builder()
                 .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
                 .value(1.)
@@ -60,16 +65,12 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
                 .assignmentInfosList(List.of(assignmentInfos))
                 .stashed(false)
                 .build();
-        apply(modificationInfos);
+        apply(modificationInfos, _ -> Map.of(FILTER_ID_4, IdentifierListFilter.builder().equipmentType(EquipmentType.TWO_WINDINGS_TRANSFORMER).equipmentIds(Set.of(TWT_ID_4, TWT_ID_6)).build()));
 
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_4).getRatioTapChanger());
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_6).getRatioTapChanger());
 
         // Test modifying phase tab changer field when phase tab changer is null
-        IdentifiableAttributes identifiableAttributes3 = new IdentifiableAttributes(TWT_ID_1, getIdentifiableType(), 1.);
-        IdentifiableAttributes identifiableAttributes4 = new IdentifiableAttributes(TWT_ID_2, getIdentifiableType(), 1.);
-        FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(identifiableAttributes3, identifiableAttributes4)).build();
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_ID_1, filter2));
         DoubleAssignmentInfos assignmentInfos2 = DoubleAssignmentInfos.builder()
                 .editedField(TwoWindingsTransformerField.PHASE_TAP_POSITION.name())
                 .value(1.)
@@ -81,23 +82,14 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
                 .assignmentInfosList(List.of(assignmentInfos2))
                 .stashed(false)
                 .build();
-        apply(modificationInfos2);
+        apply(modificationInfos2, _ -> Map.of(FILTER_ID_1, IdentifierListFilter.builder().equipmentType(EquipmentType.TWO_WINDINGS_TRANSFORMER).equipmentIds(Set.of(TWT_ID_1, TWT_ID_2)).build()));
 
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_1).getPhaseTapChanger());
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_2).getPhaseTapChanger());
     }
 
     @Test
-    void testModifyTwtWithWarning() throws Exception {
-        IdentifiableAttributes identifiableAttributes1 = new IdentifiableAttributes(TWT_ID_1, getIdentifiableType(), 1.);
-        IdentifiableAttributes identifiableAttributes2 = new IdentifiableAttributes(TWT_ID_2, getIdentifiableType(), 1.);
-        IdentifiableAttributes identifiableAttributes3 = new IdentifiableAttributes(TWT_ID_4, getIdentifiableType(), 1.);
-        IdentifiableAttributes identifiableAttributes4 = new IdentifiableAttributes(TWT_ID_6, getIdentifiableType(), 1.);
-        FilterEquipments filterTwt1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(identifiableAttributes1, identifiableAttributes2)).build();
-        FilterEquipments filterTwt2 = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(identifiableAttributes3, identifiableAttributes4)).build();
-
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_ID_1, filterTwt1, FILTER_ID_4, filterTwt2));
-
+    void testPartialModificationOfTwt() {
         IntegerAssignmentInfos assignmentInfos = IntegerAssignmentInfos.builder()
                 .filters(List.of(filter1, filter4))
                 .editedField(TwoWindingsTransformerField.RATIO_TAP_POSITION.name())
@@ -109,8 +101,10 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
                 .assignmentInfosList(List.of(assignmentInfos))
                 .stashed(false)
                 .build();
-
-        apply(modificationInfos);
+        apply(modificationInfos, TestUtils.createFilterLoader(EquipmentType.TWO_WINDINGS_TRANSFORMER, Map.of(
+                FILTER_ID_1, Set.of(TWT_ID_1, TWT_ID_2),
+                FILTER_ID_4, Set.of(TWT_ID_4, TWT_ID_6)
+        )));
 
         assertNotNull(getNetwork().getTwoWindingsTransformer(TWT_ID_1).getRatioTapChanger());
         assertNotNull(getNetwork().getTwoWindingsTransformer(TWT_ID_2).getRatioTapChanger());
@@ -125,10 +119,8 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         TwoWindingsTransformer twtRatio = getNetwork().getTwoWindingsTransformer(TWT_ID_1);
         TwoWindingsTransformer twtPhase = getNetwork().getTwoWindingsTransformer(TWT_ID_4);
 
-        List<ReportNode> equipReports = new ArrayList<>();
-        boolean editableRatioHigh = TwoWindingsTransformerField.isEquipmentEditable(twtRatio, TwoWindingsTransformerField.RATIO_HIGH_TAP_POSITION.name(), equipReports);
-        boolean editablePhaseHigh = TwoWindingsTransformerField.isEquipmentEditable(twtPhase, TwoWindingsTransformerField.PHASE_HIGH_TAP_POSITION.name(), equipReports);
-
+        boolean editableRatioHigh = TwoWindingsTransformerField.isEquipmentEditable(twtRatio, TwoWindingsTransformerField.RATIO_HIGH_TAP_POSITION.name(), ReportNode.NO_OP);
+        boolean editablePhaseHigh = TwoWindingsTransformerField.isEquipmentEditable(twtPhase, TwoWindingsTransformerField.PHASE_HIGH_TAP_POSITION.name(), ReportNode.NO_OP);
         assertFalse(editableRatioHigh);
         assertFalse(editablePhaseHigh);
     }
@@ -202,31 +194,6 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
                 "trf1", 49, ConnectablePosition.Direction.BOTTOM);
         twt6.setRatedS(20);
         addPhaseTapChangerSteps(twt6.newPhaseTapChanger().setRegulationValue(47).setLowTapPosition(1).setTapPosition(1).setTargetDeadband(36));
-    }
-
-    @Override
-    protected Map<UUID, FilterEquipments> getTestFilters() {
-        FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(
-            new IdentifiableAttributes(TWT_ID_1, IdentifiableType.TWO_WINDINGS_TRANSFORMER, 1.0),
-            new IdentifiableAttributes(TWT_ID_2, IdentifiableType.TWO_WINDINGS_TRANSFORMER, 2.0)
-        )).build();
-
-        FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(
-            new IdentifiableAttributes(TWT_ID_1, IdentifiableType.TWO_WINDINGS_TRANSFORMER, 1.0),
-            new IdentifiableAttributes(TWT_ID_3, IdentifiableType.TWO_WINDINGS_TRANSFORMER, 2.0)
-        )).build();
-
-        FilterEquipments filter3 = FilterEquipments.builder().filterId(FILTER_ID_3).identifiableAttributes(List.of(
-            new IdentifiableAttributes(TWT_ID_4, IdentifiableType.TWO_WINDINGS_TRANSFORMER, 5.0),
-            new IdentifiableAttributes(TWT_ID_5, IdentifiableType.TWO_WINDINGS_TRANSFORMER, 6.0)
-        )).build();
-
-        FilterEquipments filter4 = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(
-            new IdentifiableAttributes(TWT_ID_4, IdentifiableType.TWO_WINDINGS_TRANSFORMER, 5.0),
-            new IdentifiableAttributes(TWT_ID_6, IdentifiableType.TWO_WINDINGS_TRANSFORMER, 7.0)
-        )).build();
-
-        return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3, FILTER_ID_4, filter4);
     }
 
     @Override

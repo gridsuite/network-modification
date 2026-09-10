@@ -2042,7 +2042,7 @@ public final class ModificationUtils {
         }
     }
 
-    public static boolean validateMinimumActivePower(Generator generator, List<ReportNode> reports, double newValue) {
+    public static boolean validateMinimumActivePower(Generator generator, ReportNode reportNode, double newValue) {
         GeneratorStartup generatorStartup = generator.getExtension(GeneratorStartup.class);
         Double plannedActivePowerSetPoint = generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) ? generatorStartup.getPlannedActivePowerSetpoint() : null;
 
@@ -2053,20 +2053,20 @@ public final class ModificationUtils {
         }
 
         if (minP < newValue) {
-            reports.add(ReportNode.newRootReportNode()
+            reportNode.newReportNode()
                 .withMessageTemplate("network.modification.generator.ValueShouldBeSmallerThan")
                 .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, generator.getId())
                 .withUntypedValue(VALUE_KEY_FIELD_NAME, FIELD_MIN_ACTIVE_POWER)
                 .withUntypedValue(VALUE_KEY_FIELD_VALUE, newValue)
                 .withUntypedValue(VALUE_KEY_TARGET_VALUE, minP)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
             return false;
         }
         return true;
     }
 
-    public static boolean validateMaximumActivePower(Generator generator, List<ReportNode> reports, double newValue) {
+    public static boolean validateMaximumActivePower(Generator generator, ReportNode reportNode, double newValue) {
         GeneratorStartup generatorStartup = generator.getExtension(GeneratorStartup.class);
         Double pImp = generatorStartup != null && !Double.isNaN(generatorStartup.getPlannedActivePowerSetpoint()) ? generatorStartup.getPlannedActivePowerSetpoint() : null;
 
@@ -2077,22 +2077,22 @@ public final class ModificationUtils {
         }
 
         if (newValue < maxP) {
-            reports.add(ReportNode.newRootReportNode()
+            reportNode.newReportNode()
                 .withMessageTemplate("network.modification.generator.ValueShouldBeGreaterThan")
                 .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, generator.getId())
                 .withUntypedValue(VALUE_KEY_FIELD_NAME, FIELD_MAX_ACTIVE_POWER)
                 .withUntypedValue(VALUE_KEY_FIELD_VALUE, newValue)
                 .withUntypedValue(VALUE_KEY_TARGET_VALUE, maxP)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
             return false;
         }
         return true;
     }
 
-    public static boolean validateActivePowerValue(Generator generator, String fieldName, List<ReportNode> reports, double newValue) {
+    public static boolean validateActivePowerValue(Generator generator, String fieldName, ReportNode reportNode, double newValue) {
         if (newValue > generator.getMaxP() || newValue < generator.getMinP()) {
-            reports.add(ReportNode.newRootReportNode()
+            reportNode.newReportNode()
                 .withMessageTemplate("network.modification.generator.ValueShouldBeWithinInterval")
                 .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, generator.getId())
                 .withUntypedValue(VALUE_KEY_FIELD_NAME, fieldName)
@@ -2100,7 +2100,7 @@ public final class ModificationUtils {
                 .withUntypedValue(VALUE_KEY_MIN_VALUE, generator.getMinP())
                 .withUntypedValue(VALUE_KEY_MAX_VALUE, generator.getMaxP())
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
             return false;
         }
         return true;

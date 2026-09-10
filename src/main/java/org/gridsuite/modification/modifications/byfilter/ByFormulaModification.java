@@ -15,11 +15,10 @@ import com.powsybl.iidm.network.IdentifiableType;
 import jakarta.annotation.Nonnull;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.byfilter.AbstractAssignmentInfos;
-import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
-import org.gridsuite.modification.dto.byfilter.formula.Operator;
 import org.gridsuite.modification.error.NetworkModificationExceptionType;
-import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
+import org.gridsuite.modification.modifications.data.assignment.AbstractAssignmentData;
+import org.gridsuite.modification.modifications.data.assignment.FormulaAssignmentData;
+import org.gridsuite.modification.modifications.data.assignment.Operator;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -37,12 +36,12 @@ import static org.gridsuite.modification.error.NetworkModificationExceptionType.
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ByFormulaModification extends AbstractModificationByAssignment {
     private IdentifiableType identifiableType;
-    private List<FormulaInfos> formulaInfosList;
+    private List<FormulaAssignmentData> formulaAssignments;
 
     @Builder
-    public ByFormulaModification(IdentifiableType identifiableType, List<FormulaInfos> formulaInfosList) {
+    public ByFormulaModification(IdentifiableType identifiableType, List<FormulaAssignmentData> formulaAssignments) {
         this.identifiableType = identifiableType;
-        this.formulaInfosList = formulaInfosList;
+        this.formulaAssignments = formulaAssignments;
     }
 
     @Override
@@ -63,47 +62,44 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
 
     @Override
     @JsonIgnore
-    public List<AbstractAssignmentInfos> getAssignmentInfosList() {
-        return Collections.unmodifiableList(formulaInfosList);
+    public List<AbstractAssignmentData> getAssignments() {
+        return Collections.unmodifiableList(formulaAssignments);
     }
 
     @Override
-    protected boolean preCheckValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos, List<ReportNode> reports, List<String> notEditableEquipments) {
-        FormulaInfos formulaInfos = (FormulaInfos) abstractAssignmentInfos;
-        Double value1 = formulaInfos.getFieldOrValue1().getRefOrValue(equipment);
-        Double value2 = formulaInfos.getFieldOrValue2().getRefOrValue(equipment);
+    protected boolean preCheckValue(Identifiable<?> equipment, AbstractAssignmentData abstractAssignmentData, ReportNode reportNode) {
+        FormulaAssignmentData formulaAssignmentData = (FormulaAssignmentData) abstractAssignmentData;
+        Double value1 = formulaAssignmentData.getFieldOrValue1().getRefOrValue(equipment);
+        Double value2 = formulaAssignmentData.getFieldOrValue2().getRefOrValue(equipment);
         // value 1 and value 2 cannot be null because getRefOrValue returns NaN if value is null
         if (Double.isNaN(value1) || Double.isNaN(value2)) {
-            return reportErrorOnEquipment(equipment, notEditableEquipments, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_MISSING, reports);
+            return reportErrorOnEquipment(equipment, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_MISSING, reportNode);
         }
 
-        if (value2 == 0 && formulaInfos.getOperator() == Operator.DIVISION) {
-            return reportErrorOnEquipment(equipment, notEditableEquipments, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO, reports);
+        if (value2 == 0 && formulaAssignmentData.getOperator() == Operator.DIVISION) {
+            return reportErrorOnEquipment(equipment, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO, reportNode);
         }
         if (equipment.getType() == IdentifiableType.GENERATOR) {
-            return checkGeneratorsPowerValues(equipment, abstractAssignmentInfos, reports);
+            return checkGeneratorsPowerValues(equipment, abstractAssignmentData, reportNode);
         }
         return true;
     }
 
-    private boolean reportErrorOnEquipment(Identifiable<?> equipment, List<String> notEditableEquipments, String reportKey, List<ReportNode> reports) {
-        equipmentNotModifiedCount += 1;
-        notEditableEquipments.add(equipment.getId());
-        reports.add(ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+    private boolean reportErrorOnEquipment(Identifiable<?> equipment, String reportKey, ReportNode reportNode) {
+        reportNode.newReportNode()
                 .withMessageTemplate(reportKey)
                 .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
         return false;
     }
 
     @Override
-    protected String getNewValue(Identifiable<?> equipment, AbstractAssignmentInfos abstractAssignmentInfos) {
-        FormulaInfos formulaInfos = (FormulaInfos) abstractAssignmentInfos;
-        Double value1 = formulaInfos.getFieldOrValue1().getRefOrValue(equipment);
-        Double value2 = formulaInfos.getFieldOrValue2().getRefOrValue(equipment);
-        return applyOperation(formulaInfos.getOperator(), value1, value2).toString();
+    protected String getNewValue(Identifiable<?> equipment, AbstractAssignmentData abstractAssignmentData) {
+        FormulaAssignmentData formulaAssignmentData = (FormulaAssignmentData) abstractAssignmentData;
+        Double value1 = formulaAssignmentData.getFieldOrValue1().getRefOrValue(equipment);
+        Double value2 = formulaAssignmentData.getFieldOrValue2().getRefOrValue(equipment);
+        return applyOperation(formulaAssignmentData.getOperator(), value1, value2).toString();
     }
 
     static final int MAX_SCALE = 10;

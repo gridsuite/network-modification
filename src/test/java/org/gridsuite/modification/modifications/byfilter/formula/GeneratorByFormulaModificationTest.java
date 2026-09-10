@@ -10,24 +10,19 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.extensions.*;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.ByFormulaModificationInfos;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.GeneratorField;
 import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
-import org.gridsuite.modification.dto.byfilter.formula.Operator;
-import org.gridsuite.modification.dto.byfilter.formula.ReferenceFieldOrValue;
-import org.junit.jupiter.api.Test;
+import org.gridsuite.modification.modifications.data.assignment.Operator;
+import org.gridsuite.modification.modifications.data.assignment.ReferenceFieldOrValue;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.gridsuite.modification.utils.NetworkUtil.createGenerator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -44,31 +39,17 @@ class GeneratorByFormulaModificationTest extends AbstractByFormulaModificationTe
     private static final String GENERATOR_ID_8 = "gen8";
     private static final String GENERATOR_ID_9 = "gen9";
     private static final String GENERATOR_ID_10 = "gen10";
+    private static final Map<UUID, Set<String>> FILTER_MAPPING = Map.of(
+            FILTER_ID_1, Set.of(GENERATOR_ID_1, GENERATOR_ID_2),
+            FILTER_ID_2, Set.of(GENERATOR_ID_3, GENERATOR_ID_4),
+            FILTER_ID_3, Set.of(GENERATOR_ID_5, GENERATOR_ID_6),
+            FILTER_ID_4, Set.of(GENERATOR_ID_7, GENERATOR_ID_8),
+            FILTER_ID_5, Set.of(GENERATOR_ID_9, GENERATOR_ID_10)
+    );
 
-    @Test
-    void testCreateWithWarning() throws Exception {
-        IdentifiableAttributes identifiableAttributes = new IdentifiableAttributes(GENERATOR_ID_1, getIdentifiableType(), 1.0);
-        FilterEquipments filter = FilterEquipments.builder().filterId(FILTER_WITH_ONE_WRONG_ID)
-                .identifiableAttributes(List.of(identifiableAttributes))
-                .notFoundEquipments(List.of("wrongId"))
-                .build();
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_WITH_ONE_WRONG_ID, filter));
-
-        FormulaInfos formulaInfos = FormulaInfos.builder()
-                .filters(List.of(filterWithOneWrongId))
-                .editedField(GeneratorField.ACTIVE_POWER_SET_POINT.name())
-                .fieldOrValue1(ReferenceFieldOrValue.builder().value(55.).build())
-                .operator(Operator.ADDITION)
-                .fieldOrValue2(ReferenceFieldOrValue.builder().value(20.).build())
-                .build();
-
-        ByFormulaModificationInfos modificationInfos = ByFormulaModificationInfos.builder()
-                .identifiableType(getIdentifiableType())
-                .formulaInfosList(List.of(formulaInfos))
-                .stashed(false)
-                .build();
-        apply(modificationInfos);
-        assertEquals(75, getNetwork().getGenerator(GENERATOR_ID_1).getTargetP(), 0);
+    @Override
+    public Map<UUID, Set<String>> getFilterMapping() {
+        return FILTER_MAPPING;
     }
 
     protected void createEquipments() {
@@ -133,36 +114,6 @@ class GeneratorByFormulaModificationTest extends AbstractByFormulaModificationTe
 
         createGenerator(getNetwork().getVoltageLevel("v5"), GENERATOR_ID_10, 10, 100, 1.0, "cn10", 17, ConnectablePosition.Direction.TOP, 500, 20);
         getNetwork().getGenerator(GENERATOR_ID_10).setRatedS(30.);
-    }
-
-    @Override
-    protected Map<UUID, FilterEquipments> getTestFilters() {
-        FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_1, getIdentifiableType(), 1.0),
-            new IdentifiableAttributes(GENERATOR_ID_2, getIdentifiableType(), 2.0)))
-                .build();
-
-        FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_3, getIdentifiableType(), 2.0),
-            new IdentifiableAttributes(GENERATOR_ID_4, getIdentifiableType(), 5.0)))
-                .build();
-
-        FilterEquipments filter3 = FilterEquipments.builder().filterId(FILTER_ID_3).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_5, getIdentifiableType(), 6.0),
-            new IdentifiableAttributes(GENERATOR_ID_6, getIdentifiableType(), 7.0)))
-                .build();
-
-        FilterEquipments filter4 = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_7, getIdentifiableType(), 3.0),
-            new IdentifiableAttributes(GENERATOR_ID_8, getIdentifiableType(), 8.0)))
-                .build();
-
-        FilterEquipments filter5 = FilterEquipments.builder().filterId(FILTER_ID_5).identifiableAttributes(List.of(
-            new IdentifiableAttributes(GENERATOR_ID_9, getIdentifiableType(), 0.0),
-            new IdentifiableAttributes(GENERATOR_ID_10, getIdentifiableType(), 10.0)))
-                .build();
-
-        return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3, FILTER_ID_4, filter4, FILTER_ID_5, filter5);
     }
 
     @Override

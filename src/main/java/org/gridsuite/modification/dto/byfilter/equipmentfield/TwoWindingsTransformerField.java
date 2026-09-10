@@ -13,10 +13,7 @@ import com.powsybl.iidm.network.*;
 import jakarta.validation.constraints.NotNull;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
-import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
-
-import java.util.List;
 
 import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_LINE_ERROR;
 import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR;
@@ -54,33 +51,31 @@ public enum TwoWindingsTransformerField {
     public static final String REPORT_KEY_RATIO_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR = "network.modification.ratioTapChangerEquipmentModifiedError";
     public static final String REPORT_KEY_PHASE_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR = "network.modification.phaseTapChangerEquipmentModifiedError";
 
-    public static boolean isEquipmentEditable(TwoWindingsTransformer twoWindingsTransformer, String editedField, List<ReportNode> equipmentsReport) {
+    public static boolean isEquipmentEditable(TwoWindingsTransformer twoWindingsTransformer, String editedField, ReportNode reportNode) {
         TwoWindingsTransformerField field = TwoWindingsTransformerField.valueOf(editedField);
 
         return switch (field) {
             case TARGET_V, RATIO_LOW_TAP_POSITION, RATIO_TAP_POSITION, RATIO_TARGET_DEADBAND -> {
                 boolean isEditable = twoWindingsTransformer.getRatioTapChanger() != null;
                 if (!isEditable) {
-                    equipmentsReport.add(ReportNode.newRootReportNode()
-                            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                    reportNode.newReportNode()
                             .withMessageTemplate(REPORT_KEY_RATIO_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR)
                             .withUntypedValue(VALUE_KEY_FIELD_NAME, field.name())
                             .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, twoWindingsTransformer.getId())
                             .withSeverity(TypedValue.DETAIL_SEVERITY)
-                            .build());
+                            .add();
                 }
                 yield isEditable;
             }
             case REGULATION_VALUE, PHASE_LOW_TAP_POSITION, PHASE_TAP_POSITION, PHASE_TARGET_DEADBAND -> {
                 boolean isEditable = twoWindingsTransformer.getPhaseTapChanger() != null;
                 if (!isEditable) {
-                    equipmentsReport.add(ReportNode.newRootReportNode()
-                            .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                    reportNode.newReportNode()
                             .withMessageTemplate(REPORT_KEY_PHASE_TAP_CHANGER_EQUIPMENT_MODIFIED_ERROR)
                             .withUntypedValue(VALUE_KEY_FIELD_NAME, field.name())
                             .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, twoWindingsTransformer.getId())
                             .withSeverity(TypedValue.DETAIL_SEVERITY)
-                            .build());
+                            .add();
                 }
                 yield isEditable;
             }

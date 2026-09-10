@@ -10,6 +10,10 @@ package org.gridsuite.modification.dto.byfilter.assignment;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.context.FilterLoader;
+import org.gridsuite.modification.context.FilterUtils;
+import org.gridsuite.modification.modifications.data.assignment.DataType;
+import org.gridsuite.modification.modifications.data.assignment.IntegerAssignmentData;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
@@ -22,5 +26,14 @@ public class IntegerAssignmentInfos extends AssignmentInfos<Integer> {
     @Override
     public DataType getDataType() {
         return DataType.INTEGER;
+    }
+
+    @Override
+    public IntegerAssignmentData toData(FilterLoader filterLoader) {
+        return IntegerAssignmentData.builder()
+                .editedField(getEditedField())
+                .value(getValue())
+                .filters(FilterUtils.loadFilterWithNames(getFilters(), filterLoader))
+                .build();
     }
 }

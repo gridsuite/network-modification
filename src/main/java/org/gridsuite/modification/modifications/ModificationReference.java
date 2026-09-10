@@ -15,6 +15,7 @@ import lombok.*;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.ModificationReferenceInfos;
 
@@ -36,6 +37,10 @@ public class ModificationReference extends AbstractModification {
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
+    private ModificationContext modificationContext;
+
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     protected IFilterService filterService;
 
     @JsonIgnore
@@ -45,10 +50,12 @@ public class ModificationReference extends AbstractModification {
     @Builder
     public ModificationReference(UUID referenceId,
                                  ModificationReferenceInfos.Type referenceType,
-                                 ModificationInfos referenceInfos) {
+                                 ModificationInfos referenceInfos,
+                                 ModificationContext modificationContext) {
         this.referenceId = referenceId;
         this.referenceType = referenceType;
         this.referenceInfos = referenceInfos;
+        this.modificationContext = modificationContext;
     }
 
     @Override
@@ -73,7 +80,7 @@ public class ModificationReference extends AbstractModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
-        AbstractModification modification = referenceInfos.toModification();
+        AbstractModification modification = referenceInfos.toModification(modificationContext);
         modification.check(network);
         modification.initApplicationContext(filterService, loadFlowService, getRootNetworkTag());
         modification.apply(network, namingStrategy, referenceInfos.createSubReportNode(subReportNode));
