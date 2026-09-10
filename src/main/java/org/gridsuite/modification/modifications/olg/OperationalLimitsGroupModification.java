@@ -743,7 +743,7 @@ public class OperationalLimitsGroupModification {
         // For others: keep the existing value when it is not explicitly modified.
         String finalName = limitModificationInfos.getName().getValue();
 
-        double finalValue = (isReplace || hasModification(limitModificationInfos.getValue()))
+        double finalValue = (isReplace || limitModificationInfos.getValue() == null || hasModification(limitModificationInfos.getValue()))
                 ? limitValue
                 : limitToModify.getValue();
 
