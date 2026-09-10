@@ -9,6 +9,7 @@ package org.gridsuite.modification.modifications;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.VoltageRegulation;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
@@ -85,6 +86,21 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
     protected ModificationInfos buildModification() {
         return VoltageInitModificationInfos.builder()
             .stashed(false)
+            .batteries(List.of(
+                    VoltageInitBatteryModificationInfos.builder()
+                            .batteryId("v1Battery")
+                            .targetQ(225.)
+                            .build(),
+                    VoltageInitBatteryModificationInfos.builder()
+                            .batteryId("v2Battery")
+                            .targetV(226.)
+                            .build(),
+                    VoltageInitBatteryModificationInfos.builder()
+                            .batteryId("nonExistingBattery")
+                            .targetV(226.)
+                            .build()
+                    )
+            )
             .generators(List.of(
                 VoltageInitGeneratorModificationInfos.builder()
                     .generatorId("idGenerator")
@@ -215,13 +231,14 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
             .build();
     }
 
-    private ReportNode testVoltageInitShunt(String shuntCompensatorId, int currentSectionCount, Integer sectionCount, Boolean connect) throws Exception {
+    private ReportNode testVoltageInitShunt(String shuntCompensatorId, int currentSectionCount, Integer sectionCount, Boolean connect) {
         setNetwork(createNetwork(getNetworkId()));
         getNetwork().getShuntCompensator(shuntCompensatorId).setSectionCount(currentSectionCount);
 
         VoltageInitModificationInfos modification = VoltageInitModificationInfos.builder()
             .stashed(false)
             .generators(List.of())
+            .batteries(List.of())
             .transformers(List.of())
             .staticVarCompensators(List.of())
             .vscConverterStations(List.of())
@@ -241,7 +258,7 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void testVoltageInitConnectedSectionCountNull() throws Exception {
+    void testVoltageInitConnectedSectionCountNull() {
         ReportNode report = testVoltageInitShunt("v2shunt", 0, null, false);
         assertLogMessage("Section count value is undefined", "network.modification.shuntCompensatorSectionCountUndefined", report);
     }
@@ -253,13 +270,13 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void testVoltageInitDisconnectedConnectNull() throws Exception {
+    void testVoltageInitDisconnectedConnectNull() {
         ReportNode report = testVoltageInitShunt("v5shunt", 0, 0, null);
         assertLogMessage("Connect value is undefined", "network.modification.shuntCompensatorConnectUndefined", report);
     }
 
     @Test
-    void testVoltageInitDisconnectedCurrentSection0Section2() throws Exception {
+    void testVoltageInitDisconnectedCurrentSection0Section2() {
         ReportNode report = testVoltageInitShunt("v5shunt", 0, 2, true);
         assertLogMessage("Shunt compensator reconnected", "network.modification.shuntCompensatorReconnected", report);
         assertLogMessage("Section count : 0 → 2", "network.modification.fieldModification", report);
@@ -267,7 +284,7 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void testVoltageInitDisconnectedCurrentSection1Section1() throws Exception {
+    void testVoltageInitDisconnectedCurrentSection1Section1() {
         ReportNode report = testVoltageInitShunt("v5shunt", 1, 1, true);
         assertLogMessage("Shunt compensator reconnected", "network.modification.shuntCompensatorReconnected", report);
         assertEquals(1, getNetwork().getShuntCompensator("v5shunt").getSectionCount());
@@ -285,6 +302,8 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
     protected void assertAfterNetworkModificationApplication() {
         assertEquals(10., getNetwork().getGenerator("idGenerator").getTargetQ(), 0.001);
         assertEquals(226., getNetwork().getGenerator("newGen").getTargetV(), 0.001);
+        assertEquals(225., getNetwork().getBattery("v1Battery").getTargetQ(), 0.001);
+        assertEquals(226., getNetwork().getBattery("v2Battery").getExtension(VoltageRegulation.class).getTargetV(), 0.001);
         assertEquals(2, getNetwork().getTwoWindingsTransformer("trf1").getRatioTapChanger().getTapPosition());
         assertEquals(223, getNetwork().getTwoWindingsTransformer("trf1").getRatioTapChanger().getTargetV(), 0.001);
         assertEquals(2, getNetwork().getThreeWindingsTransformer("trf6").getLeg2().getRatioTapChanger().getTapPosition());
