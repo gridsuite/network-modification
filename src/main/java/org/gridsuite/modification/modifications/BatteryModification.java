@@ -241,7 +241,7 @@ public class BatteryModification extends AbstractInjectionModification {
         }
         // target V
         if (voltageRegulationModification.getTargetV() != null) {
-            setTargetV(voltageRegulation, voltageRegulationModification.getTargetV(), voltageRegulationReports);
+            setTargetV(voltageRegulation, voltageRegulationModification.getTargetV(), voltageRegulationReports, TypedValue.INFO_SEVERITY);
         }
         // voltage Regulation On
         ReportNode voltageRegulationOnReportNode = ModificationUtils.getInstance()
@@ -258,7 +258,7 @@ public class BatteryModification extends AbstractInjectionModification {
         return voltageRegulationReports;
     }
 
-    private static void setTargetV(VoltageRegulation voltageRegulation, AttributeModification<Double> targetV, List<ReportNode> voltageRegulationReports) {
+    public static void setTargetV(VoltageRegulation voltageRegulation, AttributeModification<Double> targetV, List<ReportNode> voltageRegulationReports, TypedValue severity) {
         Double oldValue = voltageRegulation.getTargetV();
         Double newValue = Double.NaN;
         if (targetV.getOp() == OperationType.SET) {
@@ -268,8 +268,7 @@ public class BatteryModification extends AbstractInjectionModification {
         } else {
             voltageRegulation.setTargetV(Double.NaN);
         }
-        voltageRegulationReports.add(ModificationUtils.getInstance()
-                .buildModificationReport(oldValue, newValue, "Target V"));
+        voltageRegulationReports.add(buildModificationReport(oldValue, newValue, "Target V", severity));
     }
 
     private static void setRegulatingTerminal(Battery battery,
