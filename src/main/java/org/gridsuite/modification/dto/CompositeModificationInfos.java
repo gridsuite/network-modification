@@ -63,6 +63,7 @@ public class CompositeModificationInfos extends ModificationInfos {
     public Map<String, String> getMapMessageValues() {
         Map<String, String> mapMessageValues = new HashMap<>();
         mapMessageValues.put("name", getName());
+        mapMessageValues.put("description", getDescription());
         return mapMessageValues;
     }
 }
