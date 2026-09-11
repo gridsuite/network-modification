@@ -41,7 +41,7 @@ public class ModificationReferenceInfos extends ModificationInfos {
 
     @Schema(description = "modification reference id")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private UUID referenceId;
+    private UUID referencedId;
 
     @Schema(description = "modification reference type")
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -49,14 +49,14 @@ public class ModificationReferenceInfos extends ModificationInfos {
 
     @Schema(description = "modification reference info")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private ModificationInfos referenceInfos;
+    private ModificationInfos referencedInfos;
 
     @Override
     public AbstractModification toModification() {
         return ModificationReference.builder()
-                .referenceId(getReferenceId())
+                .referencedId(getReferencedId())
                 .referenceType(getReferenceType())
-                .referenceInfos(getReferenceInfos())
+                .referencedInfos(getReferencedInfos())
                 .build();
     }
 
@@ -73,8 +73,8 @@ public class ModificationReferenceInfos extends ModificationInfos {
     @Override
     public void check() {
         super.check();
-        Objects.requireNonNull(referenceId, "referenceId is required");
+        Objects.requireNonNull(referencedId, "referencedId is required");
         Objects.requireNonNull(referenceType, "referenceType is required");
-        Objects.requireNonNull(referenceInfos, "referenceInfos is required");
+        Objects.requireNonNull(referencedInfos, "referencedInfos is required");
     }
 }

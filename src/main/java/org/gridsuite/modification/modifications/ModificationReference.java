@@ -30,9 +30,9 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ModificationReference extends AbstractModification {
 
-    private UUID referenceId;
+    private UUID referencedId;
     private ModificationReferenceInfos.Type referenceType;
-    private ModificationInfos referenceInfos;
+    private ModificationInfos referencedInfos;
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
@@ -43,12 +43,12 @@ public class ModificationReference extends AbstractModification {
     protected ILoadFlowService loadFlowService;
 
     @Builder
-    public ModificationReference(UUID referenceId,
+    public ModificationReference(UUID referencedId,
                                  ModificationReferenceInfos.Type referenceType,
-                                 ModificationInfos referenceInfos) {
-        this.referenceId = referenceId;
+                                 ModificationInfos referencedInfos) {
+        this.referencedId = referencedId;
         this.referenceType = referenceType;
-        this.referenceInfos = referenceInfos;
+        this.referencedInfos = referencedInfos;
     }
 
     @Override
@@ -60,10 +60,10 @@ public class ModificationReference extends AbstractModification {
     @Override
     public void check(Network network) {
         super.check(network);
-        Objects.requireNonNull(referenceId, "referenceId is required");
+        Objects.requireNonNull(referencedId, "referencedId is required");
         Objects.requireNonNull(referenceType, "referenceType is required");
-        Objects.requireNonNull(referenceInfos, "referenceInfos is required");
-        referenceInfos.check();
+        Objects.requireNonNull(referencedInfos, "referencedInfos is required");
+        referencedInfos.check();
     }
 
     @Override
@@ -73,10 +73,10 @@ public class ModificationReference extends AbstractModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
-        AbstractModification modification = referenceInfos.toModification();
+        AbstractModification modification = referencedInfos.toModification();
         modification.check(network);
         modification.initApplicationContext(filterService, loadFlowService, getRootNetworkTag());
-        modification.apply(network, namingStrategy, referenceInfos.createSubReportNode(subReportNode));
+        modification.apply(network, namingStrategy, referencedInfos.createSubReportNode(subReportNode));
     }
 
     @Override
