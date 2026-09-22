@@ -162,19 +162,28 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                         .add();
                 equipments.addAll(filter.evaluate(network, filterReport));
             }
-            assignmentContainer.newReportNode()
-                    .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION_RESULT)
-                    .withSeverity(TypedValue.INFO_SEVERITY)
-                    .withUntypedValue(VALUE_KEY_EQUIPMENT_COUNT, equipments.size())
-                    .add();
-            ReportNode assigningValuesContainer = assignmentContainer.newReportNode()
-                    .withMessageTemplate(REPORT_KEY_ASSIGNING_VALUES)
-                    .add();
-            equipmentCount += equipments.size();
-            equipmentModifiedCount += applyOnAssignmentEquipments(equipments, assigningValuesContainer, getAssignments().get(i));
+
+            // If filters do not evaluate to any equipment, we just add a warn report and go to the next assignment
+            if (equipments.isEmpty()) {
+                assignmentContainer.newReportNode()
+                        .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_NONE)
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .add();
+            } else {
+                assignmentContainer.newReportNode()
+                        .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION_RESULT)
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .withUntypedValue(VALUE_KEY_EQUIPMENT_COUNT, equipments.size())
+                        .add();
+                ReportNode assigningValuesContainer = assignmentContainer.newReportNode()
+                        .withMessageTemplate(REPORT_KEY_ASSIGNING_VALUES)
+                        .add();
+                equipmentCount += equipments.size();
+                equipmentModifiedCount += applyOnAssignmentEquipments(equipments, assigningValuesContainer, getAssignments().get(i));
+            }
         }
         if (equipmentModifiedCount == 0) {
-            subReportNode.newReportNode()
+            subReporter.newReportNode()
                     .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_NONE)
                     .withSeverity(TypedValue.ERROR_SEVERITY)
                     .add();
