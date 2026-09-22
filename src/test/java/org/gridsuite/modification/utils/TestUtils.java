@@ -17,8 +17,8 @@ import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import org.apache.commons.text.StringSubstitutor;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.filter.wip.Filter;
-import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.filter.wip.IdentifierListFilter;
+import org.gridsuite.modification.context.FilterLoader;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.junit.jupiter.api.Assertions;
 import org.junit.platform.commons.util.StringUtils;
@@ -28,6 +28,8 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -197,10 +199,10 @@ public final class TestUtils {
 
     public static FilterLoader createFilterLoader(EquipmentType equipmentType, Map<UUID, Set<String>> filtersMapping) {
         return filterUuids -> filterUuids.stream()
-                .map(filtersMapping::get)
-                .filter(Objects::nonNull)
-                .map(equipmentIds -> equipmentFilter(equipmentType, equipmentIds))
-                .toList();
+                .collect(Collectors.toMap(
+                        Function.identity(),
+                        uuid -> equipmentFilter(equipmentType, filtersMapping.getOrDefault(uuid, Set.of()))
+                ));
     }
 
     private static Filter equipmentFilter(EquipmentType equipmentType, Set<String> equipmentsIds) {

@@ -16,10 +16,10 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.CompositeModificationInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 
@@ -38,7 +38,7 @@ public class CompositeModification extends AbstractModification {
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    private FilterLoader filterLoader;
+    private ModificationContext modificationContext;
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
@@ -48,9 +48,9 @@ public class CompositeModification extends AbstractModification {
     @EqualsAndHashCode.Exclude
     protected ILoadFlowService loadFlowService;
 
-    public CompositeModification(CompositeModificationInfos compositeModificationInfos, FilterLoader filterLoader) {
+    public CompositeModification(CompositeModificationInfos compositeModificationInfos, ModificationContext modificationContext) {
         this.compositeModificationInfos = compositeModificationInfos;
-        this.filterLoader = filterLoader;
+        this.modificationContext = modificationContext;
     }
 
     @Override
@@ -71,7 +71,7 @@ public class CompositeModification extends AbstractModification {
                 .forEach(
                         modif -> {
                             ReportNode modifNode = modif.createSubReportNode(subReportNode);
-                            AbstractModification modification = modif.toModification(filterLoader);
+                            AbstractModification modification = modif.toModification(modificationContext);
                             try {
                                 modification.check(network);
                                 modification.initApplicationContext(filterService, loadFlowService, getRootNetworkTag());

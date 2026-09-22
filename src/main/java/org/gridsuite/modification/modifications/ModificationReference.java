@@ -12,10 +12,10 @@ import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import lombok.*;
-import org.gridsuite.filter.wip.FilterLoader;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.ModificationReferenceInfos;
 
@@ -37,7 +37,7 @@ public class ModificationReference extends AbstractModification {
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    private FilterLoader filterLoader;
+    private ModificationContext modificationContext;
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
@@ -51,12 +51,11 @@ public class ModificationReference extends AbstractModification {
     public ModificationReference(UUID referencedId,
                                  ModificationReferenceInfos.Type referenceType,
                                  ModificationInfos referencedInfos,
-                                 FilterLoader filterLoader) {
+                                 ModificationContext modificationContext) {
         this.referencedId = referencedId;
         this.referenceType = referenceType;
         this.referencedInfos = referencedInfos;
-        this.filterLoader = filterLoader;
-        this.filterLoader = filterLoader;
+        this.modificationContext = modificationContext;
     }
 
     @Override
@@ -81,7 +80,7 @@ public class ModificationReference extends AbstractModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
-        AbstractModification modification = referencedInfos.toModification(filterLoader);
+        AbstractModification modification = referencedInfos.toModification(modificationContext);
         modification.check(network);
         modification.initApplicationContext(filterService, loadFlowService, getRootNetworkTag());
         modification.apply(network, namingStrategy, referencedInfos.createSubReportNode(subReportNode));
