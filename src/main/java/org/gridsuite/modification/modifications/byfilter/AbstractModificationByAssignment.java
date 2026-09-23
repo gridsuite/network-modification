@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import lombok.*;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.gridsuite.filter.wip.Filter;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils;
 import org.gridsuite.modification.error.NetworkModificationException;
@@ -52,7 +51,6 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     public static final String VALUE_KEY_NB_UNCHANGED = "nbUnchanged";
     public static final String VALUE_KEY_OLD_VALUE = "oldValue";
     public static final String VALUE_KEY_NEW_VALUE = "newValue";
-    public static final String VALUE_KEY_MODIFICATION_TYPE_LABEL = "modificationTypeLabel";
     public static final String VALUE_KEY_ERROR_MESSAGE = "errorMessage";
     public static final String VALUE_KEY_ARROW_NAME = "arrow";
     public static final String VALUE_KEY_ARROW_VALUE = "→";
@@ -67,7 +65,6 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     public static final String REPORT_KEY_EDITED_FIELD_FILTER = "network.modification.editedFieldFilter";
     public static final String REPORT_KEY_EQUIPMENT_MODIFIED_REPORT = "network.modification.equipmentModifiedReport";
     public static final String REPORT_KEY_EQUIPMENT_MODIFIED_REPORT_EXCEPTION = "network.modification.equipmentModifiedReportException";
-    public static final String REPORT_KEY_APPLIED_BY_FILTER_MODIFICATIONS = "network.modification.appliedByFilterModifications";
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_ALL = "network.modification.byFilterModificationAll";
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_NONE = "network.modification.byFilterModificationNone";
 
@@ -140,12 +137,6 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
 
     @Override
     public void apply(Network network, ReportNode reportNode) {
-        reportNode.newReportNode()
-                .withMessageTemplate(REPORT_KEY_APPLIED_BY_FILTER_MODIFICATIONS)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .withUntypedValue(VALUE_KEY_MODIFICATION_TYPE_LABEL, StringUtils.capitalize(getModificationTypeLabel()))
-                .withUntypedValue(VALUE_KEY_EQUIPMENT_TYPE, getEquipmentType().name())
-                .add();
         for (int i = 0; i < getAssignments().size(); i++) {
             AbstractAssignmentData assignment = getAssignments().get(i);
             ReportNode assignmentContainer = reportNode.newReportNode()

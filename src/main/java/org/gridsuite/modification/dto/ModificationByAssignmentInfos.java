@@ -51,6 +51,8 @@ public class ModificationByAssignmentInfos extends ModificationInfos {
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.modificationByAssignment").add();
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.modificationByAssignment")
+                .withUntypedValue("equipmentType", equipmentType.name()).add();
     }
 }

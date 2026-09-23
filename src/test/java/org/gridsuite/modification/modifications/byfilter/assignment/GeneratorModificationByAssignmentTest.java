@@ -367,21 +367,21 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
         assertEquals(2, getNetwork().getGenerator(GENERATOR_ID_10).getRatedS(), 0);
 
         // check failed with filter 6 and generator 11
-        List<String> filter6OnPlannedOutageRateLogs = TestUtils.getAllMessages(reportNode.getChildren().get(18));
+        List<String> filter6OnPlannedOutageRateLogs = TestUtils.getAllMessages(reportNode.getChildren().get(17));
         assertTrue(filter6OnPlannedOutageRateLogs.contains("Edited field : PLANNED_OUTAGE_RATE"));
         assertTrue(filter6OnPlannedOutageRateLogs.contains("No equipment have been modified"));
         assertTrue(filter6OnPlannedOutageRateLogs.contains("Cannot modify equipment gen11 : "
                 + MODIFY_GENERATOR_ERROR.getMessage()
                 + " : Generator 'gen11' : must have PLANNED_OUTAGE_RATE between 0 and 1"));
 
-        List<String> filter6OnForcedOutageRateLogs = TestUtils.getAllMessages(reportNode.getChildren().get(19));
+        List<String> filter6OnForcedOutageRateLogs = TestUtils.getAllMessages(reportNode.getChildren().get(18));
         assertTrue(filter6OnForcedOutageRateLogs.contains("Edited field : FORCED_OUTAGE_RATE"));
         assertTrue(filter6OnForcedOutageRateLogs.contains("No equipment have been modified"));
         assertTrue(filter6OnForcedOutageRateLogs.contains("Cannot modify equipment gen11 : "
                 + MODIFY_GENERATOR_ERROR.getMessage()
                 + " : Generator 'gen11' : must have FORCED_OUTAGE_RATE between 0 and 1"));
 
-        List<String> filter6OnQPercentLogs = TestUtils.getAllMessages(reportNode.getChildren().get(20));
+        List<String> filter6OnQPercentLogs = TestUtils.getAllMessages(reportNode.getChildren().get(19));
         assertTrue(filter6OnQPercentLogs.contains("Edited field : Q_PERCENT"));
         assertTrue(filter6OnQPercentLogs.contains("No equipment have been modified"));
         assertTrue(filter6OnQPercentLogs.contains("Cannot modify equipment gen11 : "

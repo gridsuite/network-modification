@@ -195,28 +195,28 @@ class VoltageLevelModificationByAssignmentTest extends AbstractModificationByAss
         assertEquals(80, identifiableShortCircuit6.getIpMax(), 0);
 
         // check failed with filter 6 and voltage level 7
-        List<String> filter6OnLowVoltageLimitLogs = TestUtils.getAllMessages(reportNode.getChildren().get(6));
+        List<String> filter6OnLowVoltageLimitLogs = TestUtils.getAllMessages(reportNode.getChildren().get(5));
         assertTrue(filter6OnLowVoltageLimitLogs.contains("Edited field : LOW_VOLTAGE_LIMIT"));
         assertTrue(filter6OnLowVoltageLimitLogs.contains("No equipment have been modified"));
         assertTrue(filter6OnLowVoltageLimitLogs.contains("Cannot modify equipment v7 : "
                 + MODIFY_VOLTAGE_LEVEL_ERROR.getMessage()
                 + " : Voltage level 'v7' :  Low voltage limit (440.0) must be inferior to High voltage limit (430.0)"));
 
-        List<String> filter6OnHighVoltageLimitLogs = TestUtils.getAllMessages(reportNode.getChildren().get(7));
+        List<String> filter6OnHighVoltageLimitLogs = TestUtils.getAllMessages(reportNode.getChildren().get(6));
         assertTrue(filter6OnHighVoltageLimitLogs.contains("Edited field : HIGH_VOLTAGE_LIMIT"));
         assertTrue(filter6OnHighVoltageLimitLogs.contains("No equipment have been modified"));
         assertTrue(filter6OnHighVoltageLimitLogs.contains("Cannot modify equipment v7 : "
                 + MODIFY_VOLTAGE_LEVEL_ERROR.getMessage()
                 + " : Voltage level 'v7' :  High voltage limit (360.0) must be superior to Low voltage limit (370.0)"));
 
-        List<String> filter6OnLowShortCircuitCurrentLimitLogs = TestUtils.getAllMessages(reportNode.getChildren().get(8));
+        List<String> filter6OnLowShortCircuitCurrentLimitLogs = TestUtils.getAllMessages(reportNode.getChildren().get(7));
         assertTrue(filter6OnLowShortCircuitCurrentLimitLogs.contains("Edited field : LOW_SHORT_CIRCUIT_CURRENT_LIMIT"));
         assertTrue(filter6OnLowShortCircuitCurrentLimitLogs.contains("No equipment have been modified"));
         assertTrue(filter6OnLowShortCircuitCurrentLimitLogs.contains("Cannot modify equipment v7 : "
                 + MODIFY_VOLTAGE_LEVEL_ERROR.getMessage()
                 + " : Voltage level 'v7' :  Low short circuit current limit (220.0) must be inferior to High short circuit current limit (200.0)"));
 
-        List<String> filter6OnHighShortCircuitCurrentLimitLogs = TestUtils.getAllMessages(reportNode.getChildren().get(9));
+        List<String> filter6OnHighShortCircuitCurrentLimitLogs = TestUtils.getAllMessages(reportNode.getChildren().get(8));
         assertTrue(filter6OnHighShortCircuitCurrentLimitLogs.contains("Edited field : HIGH_SHORT_CIRCUIT_CURRENT_LIMIT"));
         assertTrue(filter6OnHighShortCircuitCurrentLimitLogs.contains("No equipment have been modified"));
         assertTrue(filter6OnHighShortCircuitCurrentLimitLogs.contains("Cannot modify equipment v7 : "
