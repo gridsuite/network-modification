@@ -163,6 +163,6 @@ abstract class AbstractByFilterDeletionTest extends AbstractNetworkModificationT
         ByFilterDeletion byFilterDeletion = (ByFilterDeletion) modificationInfos.toModification(modificationContext);
         ReportNode rootReportNode = ReportNode.newRootReportNode().withAllResourceBundlesFromClasspath().withMessageTemplate("test").build();
         byFilterDeletion.apply(getNetwork(), rootReportNode);
-        assertEquals("%d equipments of type=%s will be removed".formatted(getExistingEquipments().size(), getEquipmentType()), rootReportNode.getChildren().get(3).getMessage());
+        assertEquals("%d equipment(s) evaluated by filters".formatted(getExistingEquipments().size()), rootReportNode.getChildren().get(0).getChildren().get(2).getMessage());
     }
 }
