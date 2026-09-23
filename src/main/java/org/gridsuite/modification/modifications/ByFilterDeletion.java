@@ -14,7 +14,6 @@ import com.powsybl.iidm.modification.topology.RemoveSubstationBuilder;
 import com.powsybl.iidm.modification.topology.RemoveVoltageLevel;
 import com.powsybl.iidm.network.*;
 import lombok.*;
-import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.filter.wip.Filter;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.error.NetworkModificationException;
@@ -32,11 +31,12 @@ import static org.gridsuite.modification.modifications.byfilter.AbstractModifica
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ByFilterDeletion extends AbstractModification {
+    public static final String VALUE_KEY_FILTER_IDENTIFIER = "filterIdentifier";
+    public static final String REPORT_KEY_FILTER_EVALUATION = "network.modification.filterEvaluation";
+    public static final String REPORT_KEY_FILTERS_EVALUATION = "network.modification.filtersEvaluation";
+    public static final String REPORT_KEY_FILTER_EVALUATION_RESULT = "network.modification.filterEvaluationResult";
 
-    private static final String REPORT_KEY_FILTER_EVALUATION = "network.modification.byFilterDeletion.filterEvaluation";
-    private static final String REPORT_KEY_FILTER_EVALUATION_RESULT = "network.modification.byFilterDeletion.filterEvaluationResult";
     private static final String REPORT_KEY_NO_EQUIPMENT_TO_REMOVE = "network.modification.byFilterDeletion.noEquipmentToRemove";
-    private static final String REPORT_KEY_EQUIPMENTS_TO_REMOVE = "network.modification.byFilterDeletion.equipmentsToRemove";
     private static final String REPORT_KEY_REMOVE_EQUIPMENTS = "network.modification.byFilterDeletion.removeEquipments";
 
     private IdentifiableType equipmentType;
@@ -61,39 +61,40 @@ public class ByFilterDeletion extends AbstractModification {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
-        Set<Identifiable<?>> equipments = new HashSet<>();
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode filtersContainer = reportNode.newReportNode()
+                .withMessageTemplate(REPORT_KEY_FILTERS_EVALUATION)
+                .add();
+        Set<Identifiable<?>> evaluatedEquipments = new HashSet<>();
         for (int i = 0; i < filters.size(); i++) {
-            ReportNode filterReportNode = subReportNode.newReportNode()
+            Filter filter = getFilters().get(i);
+            String filterIdentifier = filter.getName() == null ? Integer.toString(i + 1) : filter.getName();
+            ReportNode filterContainer = filtersContainer.newReportNode()
                     .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION)
-                    .withUntypedValue("filterCount", i)
+                    .withUntypedValue(VALUE_KEY_FILTER_IDENTIFIER, filterIdentifier)
                     .add();
 
-            equipments.addAll(filters.get(i).evaluate(network, filterReportNode));
+            evaluatedEquipments.addAll(filters.get(i).evaluate(network, filterContainer));
         }
-        subReportNode.newReportNode()
-                .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION_RESULT)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .withUntypedValue(VALUE_KEY_EQUIPMENT_COUNT, equipments.size())
-                .add();
-        if (CollectionUtils.isEmpty(equipments)) {
-            subReportNode.newReportNode()
+
+        // If filters do not evaluate to any equipment, we just add a warn report
+        if (evaluatedEquipments.isEmpty()) {
+            reportNode.newReportNode()
                     .withMessageTemplate(REPORT_KEY_NO_EQUIPMENT_TO_REMOVE)
                     .withSeverity(TypedValue.WARN_SEVERITY)
                     .add();
         } else {
-            subReportNode.newReportNode()
-                    .withMessageTemplate(REPORT_KEY_EQUIPMENTS_TO_REMOVE)
-                    .withUntypedValue("nbEquipments", (long) equipments.size())
-                    .withUntypedValue("type", equipmentType.name())
+            filtersContainer.newReportNode()
+                    .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION_RESULT)
                     .withSeverity(TypedValue.INFO_SEVERITY)
+                    .withUntypedValue(VALUE_KEY_EQUIPMENT_COUNT, evaluatedEquipments.size())
                     .add();
-            ReportNode removeEquipmentsNode = subReportNode.newReportNode()
+            ReportNode removeEquipmentsNode = reportNode.newReportNode()
                     .withMessageTemplate(REPORT_KEY_REMOVE_EQUIPMENTS)
                     .add();
             // Report node is pushed to network instance to allow deletion logs from other libraries to be added
             network.getReportNodeContext().pushReportNode(removeEquipmentsNode);
-            applyFilterDeletion(network, removeEquipmentsNode, equipments);
+            applyFilterDeletion(network, removeEquipmentsNode, evaluatedEquipments);
         }
     }
 

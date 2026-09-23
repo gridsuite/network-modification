@@ -53,7 +53,10 @@ public class ByFilterDeletionInfos extends ModificationInfos {
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.byFilter.deletion").add();
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.byFilter.deletion")
+                .withUntypedValue("equipmentType", equipmentType.name())
+                .add();
     }
 
     @Override
