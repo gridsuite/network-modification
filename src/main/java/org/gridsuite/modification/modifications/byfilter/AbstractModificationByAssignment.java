@@ -57,7 +57,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     public static final String VALUE_KEY_ARROW_NAME = "arrow";
     public static final String VALUE_KEY_ARROW_VALUE = "→";
     public static final String VALUE_KEY_FILTER_IDENTIFIER = "filterIdentifier";
-    public static final String REPORT_KEY_ASSIGNING_VALUES = "network.modification.assignValues";
+    public static final String REPORT_KEY_APPLY_ASSIGNMENT = "network.modification.applyAssignment";
     public static final String REPORT_KEY_FILTERS_EVALUATION = "network.modification.filtersEvaluation";
     public static final String REPORT_KEY_FILTER_EVALUATION = "network.modification.filterEvaluation";
     public static final String REPORT_KEY_FILTER_EVALUATION_RESULT = "network.modification.filterEvaluationResult";
@@ -73,11 +73,11 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    protected long equipmentModifiedCount = 0;
+    protected long evaluatedEquipmentCount = 0;
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
-    protected long equipmentCount = 0;
+    protected long modifiedEquipmentCount = 0;
 
     @JsonIgnore
     public abstract String getModificationTypeLabel();
@@ -139,32 +139,35 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
-        ReportNode subReporter = subReportNode.newReportNode()
+    public void apply(Network network, ReportNode reportNode) {
+        reportNode.newReportNode()
                 .withMessageTemplate(REPORT_KEY_APPLIED_BY_FILTER_MODIFICATIONS)
+                .withSeverity(TypedValue.INFO_SEVERITY)
                 .withUntypedValue(VALUE_KEY_MODIFICATION_TYPE_LABEL, StringUtils.capitalize(getModificationTypeLabel()))
                 .withUntypedValue(VALUE_KEY_EQUIPMENT_TYPE, getEquipmentType().name())
                 .add();
         for (int i = 0; i < getAssignments().size(); i++) {
-            ReportNode assignmentContainer = subReporter.newReportNode()
+            AbstractAssignmentData assignment = getAssignments().get(i);
+            ReportNode assignmentContainer = reportNode.newReportNode()
                     .withMessageTemplate(REPORT_KEY_EDITED_FIELD_FILTER)
-                    .withUntypedValue(VALUE_KEY_FIELD_NAME, getAssignments().get(i).getEditedFieldLabel())
+                    .withUntypedValue(VALUE_KEY_FIELD_NAME, assignment.getEditedFieldLabel())
                     .add();
-            ReportNode filterContainer = assignmentContainer.newReportNode()
+            ReportNode filtersContainer = assignmentContainer.newReportNode()
                     .withMessageTemplate(REPORT_KEY_FILTERS_EVALUATION)
                     .add();
-            List<Identifiable<?>> equipments = new ArrayList<>();
-            for (int j = 0; j < getAssignments().get(i).getFilters().size(); j++) {
-                Filter filter = getAssignments().get(i).getFilters().get(j);
-                ReportNode filterReport = filterContainer.newReportNode()
+            List<Identifiable<?>> evaluatedEquipments = new ArrayList<>();
+            for (int j = 0; j < assignment.getFilters().size(); j++) {
+                Filter filter = assignment.getFilters().get(j);
+                String filterIdentifier = filter.getName() == null ? Integer.toString(j + 1) : filter.getName();
+                ReportNode filterContainer = filtersContainer.newReportNode()
                         .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION)
-                        .withUntypedValue(VALUE_KEY_FILTER_IDENTIFIER, filter.getName() == null ? Integer.toString(j + 1) : filter.getName())
+                        .withUntypedValue(VALUE_KEY_FILTER_IDENTIFIER, filterIdentifier)
                         .add();
-                equipments.addAll(filter.evaluate(network, filterReport));
+                evaluatedEquipments.addAll(filter.evaluate(network, filterContainer));
             }
 
             // If filters do not evaluate to any equipment, we just add a warn report and go to the next assignment
-            if (equipments.isEmpty()) {
+            if (evaluatedEquipments.isEmpty()) {
                 assignmentContainer.newReportNode()
                         .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_NONE)
                         .withSeverity(TypedValue.WARN_SEVERITY)
@@ -173,33 +176,30 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                 assignmentContainer.newReportNode()
                         .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION_RESULT)
                         .withSeverity(TypedValue.INFO_SEVERITY)
-                        .withUntypedValue(VALUE_KEY_EQUIPMENT_COUNT, equipments.size())
+                        .withUntypedValue(VALUE_KEY_EQUIPMENT_COUNT, evaluatedEquipments.size())
                         .add();
-                ReportNode assigningValuesContainer = assignmentContainer.newReportNode()
-                        .withMessageTemplate(REPORT_KEY_ASSIGNING_VALUES)
+                ReportNode applyAssignmentContainer = assignmentContainer.newReportNode()
+                        .withMessageTemplate(REPORT_KEY_APPLY_ASSIGNMENT)
                         .add();
-                equipmentCount += equipments.size();
-                equipmentModifiedCount += applyOnAssignmentEquipments(equipments, assigningValuesContainer, getAssignments().get(i));
+                evaluatedEquipmentCount += evaluatedEquipments.size();
+                modifiedEquipmentCount += applyAssignmentOnEquipments(assignment, evaluatedEquipments, applyAssignmentContainer);
             }
         }
-        if (equipmentModifiedCount == 0) {
-            subReporter.newReportNode()
-                    .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_NONE)
-                    .withSeverity(TypedValue.ERROR_SEVERITY)
-                    .add();
+        if (modifiedEquipmentCount == 0) {
+            reportNode.newReportNode().withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_NONE).withSeverity(TypedValue.ERROR_SEVERITY).add();
         }
     }
 
-    private long applyOnAssignmentEquipments(List<Identifiable<?>> equipments,
-                                            ReportNode assignmentReportNode,
-                                            AbstractAssignmentData abstractAssignmentData) {
+    private long applyAssignmentOnEquipments(AbstractAssignmentData assignment,
+                                             List<Identifiable<?>> equipments,
+                                             ReportNode reportNode) {
         long modifiedEquipments = equipments.stream()
-                .filter(equipment -> isEquipmentEditable(equipment, abstractAssignmentData, assignmentReportNode))
-                .filter(equipment -> preCheckValue(equipment, abstractAssignmentData, assignmentReportNode)) // Why not in the same pre-condition ??
-                .map(equipment -> applyModification(equipment, abstractAssignmentData, assignmentReportNode))
+                .filter(equipment -> isEquipmentEditable(equipment, assignment, reportNode))
+                .filter(equipment -> preCheckValue(equipment, assignment, reportNode)) // Why not in the same pre-condition ??
+                .map(equipment -> applyModification(assignment, equipment, reportNode))
                 .filter(applied -> applied)
                 .count();
-        createCountReports(assignmentReportNode, equipments.size(), modifiedEquipments);
+        createCountReports(reportNode, equipments.size(), modifiedEquipments);
         return modifiedEquipments;
     }
 
@@ -210,17 +210,17 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
         return FieldUtils.isEquipmentEditable(equipment, abstractAssignmentData.getEditedField(), reportNode);
     }
 
-    private boolean applyModification(Identifiable<?> equipment,
-                                      AbstractAssignmentData abstractAssignmentData,
+    private boolean applyModification(AbstractAssignmentData assignment,
+                                      Identifiable<?> equipment,
                                       ReportNode reportNode) {
         try {
-            final String oldValue = getOldValue(equipment, abstractAssignmentData);
-            final String newValue = applyValue(equipment, abstractAssignmentData);
+            final String oldValue = getOldValue(equipment, assignment);
+            final String newValue = applyValue(equipment, assignment);
             reportNode.newReportNode()
                     .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_REPORT)
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_TYPE, equipment.getType().name())
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
-                    .withUntypedValue(VALUE_KEY_FIELD_NAME, abstractAssignmentData.getEditedFieldLabel())
+                    .withUntypedValue(VALUE_KEY_FIELD_NAME, assignment.getEditedFieldLabel())
                     .withUntypedValue(VALUE_KEY_OLD_VALUE, oldValue == null ? NO_VALUE : oldValue)
                     .withUntypedValue(VALUE_KEY_NEW_VALUE, newValue == null ? NO_VALUE : newValue)
                     .withUntypedValue(VALUE_KEY_ARROW_NAME, VALUE_KEY_ARROW_VALUE) // Workaround to use non-ISO-8859-1 characters in the internationalization file
