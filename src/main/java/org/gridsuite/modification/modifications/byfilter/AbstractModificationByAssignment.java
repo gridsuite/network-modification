@@ -59,6 +59,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     public static final String REPORT_KEY_FILTERS_EVALUATION = "network.modification.filtersEvaluation";
     public static final String REPORT_KEY_FILTER_EVALUATION = "network.modification.filterEvaluation";
     public static final String REPORT_KEY_FILTER_EVALUATION_RESULT = "network.modification.filterEvaluationResult";
+    public static final String REPORT_KEY_FILTER_EVALUATION_WITH_NO_RESULT = "network.modification.filterEvaluationResult.noResult";
     public static final String REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO = "network.modification.equipmentModifiedError.zero";
     public static final String REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_MISSING = "network.modification.equipmentModifiedError.missing";
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_SOME = "network.modification.byFilterModificationSome";
@@ -160,7 +161,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
             // If filters do not evaluate to any equipment, we just add a warn report and go to the next assignment
             if (evaluatedEquipments.isEmpty()) {
                 assignmentContainer.newReportNode()
-                        .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_NONE)
+                        .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION_WITH_NO_RESULT)
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
             } else {
