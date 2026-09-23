@@ -89,23 +89,23 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
 
     protected abstract boolean preCheckValue(Identifiable<?> equipment,
                                              AbstractAssignmentData abstractAssignmentData,
-                                             ReportNode reportNode);
+                                             List<ReportNode> reports);
 
     protected abstract String getNewValue(Identifiable<?> equipment, AbstractAssignmentData abstractAssignmentData);
 
-    protected boolean checkGeneratorsPowerValues(Identifiable<?> equipment, AbstractAssignmentData abstractAssignmentData, ReportNode reportNode) {
+    protected boolean checkGeneratorsPowerValues(Identifiable<?> equipment, AbstractAssignmentData abstractAssignmentData, List<ReportNode> reports) {
         if (equipment.getType() == IdentifiableType.GENERATOR) {
             Generator generator = (Generator) equipment;
             if (abstractAssignmentData.getEditedField().equals(PLANNED_ACTIVE_POWER_SET_POINT.name())) {
-                return validateActivePowerValue(generator, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, reportNode, Double.parseDouble(getNewValue(equipment, abstractAssignmentData)));
+                return validateActivePowerValue(generator, FIELD_PLANNED_ACTIVE_POWER_SET_POINT, reports, Double.parseDouble(getNewValue(equipment, abstractAssignmentData)));
             } else if (abstractAssignmentData.getEditedField().equals(MINIMUM_ACTIVE_POWER.name())) {
-                return validateMinimumActivePower(generator, reportNode, Double.parseDouble(getNewValue(equipment, abstractAssignmentData)));
+                return validateMinimumActivePower(generator, reports, Double.parseDouble(getNewValue(equipment, abstractAssignmentData)));
             } else if (abstractAssignmentData.getEditedField().equals(MAXIMUM_ACTIVE_POWER.name())) {
-                return validateMaximumActivePower(generator, reportNode, Double.parseDouble(getNewValue(equipment, abstractAssignmentData)));
+                return validateMaximumActivePower(generator, reports, Double.parseDouble(getNewValue(equipment, abstractAssignmentData)));
             } else if (abstractAssignmentData.getEditedField().equals(ACTIVE_POWER_SET_POINT.name())) {
                 double newValue = Double.parseDouble(getNewValue(equipment, abstractAssignmentData));
                 if (newValue != 0) { // 0 is an exception to the rule
-                    return validateActivePowerValue(generator, FIELD_ACTIVE_POWER_TARGET, reportNode, newValue);
+                    return validateActivePowerValue(generator, FIELD_ACTIVE_POWER_TARGET, reports, newValue);
                 }
             }
         }
@@ -185,30 +185,32 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     private long applyAssignmentOnEquipments(AbstractAssignmentData assignment,
                                              List<Identifiable<?>> equipments,
                                              ReportNode reportNode) {
+        List<ReportNode> applyModificationReports = new ArrayList<>();
         long modifiedEquipments = equipments.stream()
-                .filter(equipment -> isEquipmentEditable(equipment, assignment, reportNode))
-                .filter(equipment -> preCheckValue(equipment, assignment, reportNode)) // Why not in the same pre-condition ??
-                .map(equipment -> applyModification(assignment, equipment, reportNode))
+                .filter(equipment -> isEquipmentEditable(equipment, assignment, applyModificationReports))
+                .filter(equipment -> preCheckValue(equipment, assignment, applyModificationReports)) // Why not in the same pre-condition ??
+                .map(equipment -> applyModification(assignment, equipment, applyModificationReports))
                 .filter(applied -> applied)
                 .count();
-        createCountReports(reportNode, equipments.size(), modifiedEquipments);
+        ReportNode countReport = createCountReports(reportNode, equipments.size(), modifiedEquipments);
+        applyModificationReports.forEach(report -> insertReportNode(countReport, report));
         return modifiedEquipments;
     }
 
-    protected boolean isEquipmentEditable(Identifiable<?> equipment, AbstractAssignmentData abstractAssignmentData, ReportNode reportNode) {
+    protected boolean isEquipmentEditable(Identifiable<?> equipment, AbstractAssignmentData abstractAssignmentData, List<ReportNode> reports) {
         if (abstractAssignmentData.getEditedField() == null) {
             return false;
         }
-        return FieldUtils.isEquipmentEditable(equipment, abstractAssignmentData.getEditedField(), reportNode);
+        return FieldUtils.isEquipmentEditable(equipment, abstractAssignmentData.getEditedField(), reports);
     }
 
     private boolean applyModification(AbstractAssignmentData assignment,
                                       Identifiable<?> equipment,
-                                      ReportNode reportNode) {
+                                      List<ReportNode> reports) {
         try {
             final String oldValue = getOldValue(equipment, assignment);
             final String newValue = applyValue(equipment, assignment);
-            reportNode.newReportNode()
+            reports.add(ReportNode.newRootReportNode()
                     .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_REPORT)
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_TYPE, equipment.getType().name())
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
@@ -217,34 +219,34 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                     .withUntypedValue(VALUE_KEY_NEW_VALUE, newValue == null ? NO_VALUE : newValue)
                     .withUntypedValue(VALUE_KEY_ARROW_NAME, VALUE_KEY_ARROW_VALUE) // Workaround to use non-ISO-8859-1 characters in the internationalization file
                     .withSeverity(TypedValue.DETAIL_SEVERITY)
-                    .add();
+                    .build());
             return true;
         } catch (Exception e) {
-            reportNode.newReportNode()
+            reports.add(ReportNode.newRootReportNode()
                     .withMessageTemplate(REPORT_KEY_EQUIPMENT_MODIFIED_REPORT_EXCEPTION)
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
                     .withUntypedValue(VALUE_KEY_ERROR_MESSAGE, e.getMessage())
                     .withSeverity(TypedValue.WARN_SEVERITY)
-                    .add();
+                    .build());
             return false;
         }
     }
 
-    private void createCountReports(ReportNode subReportNode, long allEquipmentsCount, long modifiedEquipmentCount) {
+    private ReportNode createCountReports(ReportNode subReportNode, long allEquipmentsCount, long modifiedEquipmentCount) {
         if (allEquipmentsCount == modifiedEquipmentCount && modifiedEquipmentCount != 0) {
-            subReportNode.newReportNode()
+            return subReportNode.newReportNode()
                     .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_ALL)
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_COUNT, allEquipmentsCount)
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
         } else {
             if (modifiedEquipmentCount == 0) {
-                subReportNode.newReportNode()
+                return subReportNode.newReportNode()
                         .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_NONE)
                         .withSeverity(TypedValue.WARN_SEVERITY)
                         .add();
             } else {
-                subReportNode.newReportNode()
+                return subReportNode.newReportNode()
                         .withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_SOME)
                         .withUntypedValue(VALUE_KEY_NB_CHANGED, modifiedEquipmentCount)
                         .withUntypedValue(VALUE_KEY_NB_UNCHANGED, allEquipmentsCount - modifiedEquipmentCount)

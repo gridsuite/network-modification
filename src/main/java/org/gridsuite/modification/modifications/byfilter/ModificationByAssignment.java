@@ -62,22 +62,22 @@ public class ModificationByAssignment extends AbstractModificationByAssignment {
     }
 
     @Override
-    protected boolean isEquipmentEditable(Identifiable<?> equipment, AbstractAssignmentData abstractAssignmentData, ReportNode reportNode) {
+    protected boolean isEquipmentEditable(Identifiable<?> equipment, AbstractAssignmentData abstractAssignmentData, List<ReportNode> reports) {
         ValueAssignmentData<?> valueAssignment = (ValueAssignmentData<?>) abstractAssignmentData;
         if (valueAssignment.getDataType() == DataType.PROPERTY) {
             String editedField = abstractAssignmentData.getEditedField();
             String propertyName = ((PropertyAssignmentData) abstractAssignmentData).getPropertyName();
             String propertyValue = ((PropertyAssignmentData) abstractAssignmentData).getValue();
-            return PropertyField.isEquipmentEditable(equipment, editedField, propertyName, propertyValue, reportNode);
+            return PropertyField.isEquipmentEditable(equipment, editedField, propertyName, propertyValue, reports);
         } else {
-            return super.isEquipmentEditable(equipment, abstractAssignmentData, reportNode);
+            return super.isEquipmentEditable(equipment, abstractAssignmentData, reports);
         }
     }
 
     @Override
-    protected boolean preCheckValue(Identifiable<?> equipment, AbstractAssignmentData abstractAssignmentData, ReportNode reportNode) {
+    protected boolean preCheckValue(Identifiable<?> equipment, AbstractAssignmentData abstractAssignmentData, List<ReportNode> reports) {
         if (equipment.getType() == IdentifiableType.GENERATOR) {
-            return checkGeneratorsPowerValues(equipment, abstractAssignmentData, reportNode);
+            return checkGeneratorsPowerValues(equipment, abstractAssignmentData, reports);
         }
         return true;
     }

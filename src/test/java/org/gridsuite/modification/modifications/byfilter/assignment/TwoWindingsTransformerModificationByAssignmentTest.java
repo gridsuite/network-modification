@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications.byfilter.assignment;
 
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
@@ -20,10 +19,7 @@ import org.gridsuite.modification.dto.byfilter.equipmentfield.TwoWindingsTransfo
 import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.gridsuite.modification.utils.NetworkUtil.createTwoWindingsTransformer;
 import static org.junit.jupiter.api.Assertions.*;
@@ -119,8 +115,8 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         TwoWindingsTransformer twtRatio = getNetwork().getTwoWindingsTransformer(TWT_ID_1);
         TwoWindingsTransformer twtPhase = getNetwork().getTwoWindingsTransformer(TWT_ID_4);
 
-        boolean editableRatioHigh = TwoWindingsTransformerField.isEquipmentEditable(twtRatio, TwoWindingsTransformerField.RATIO_HIGH_TAP_POSITION.name(), ReportNode.NO_OP);
-        boolean editablePhaseHigh = TwoWindingsTransformerField.isEquipmentEditable(twtPhase, TwoWindingsTransformerField.PHASE_HIGH_TAP_POSITION.name(), ReportNode.NO_OP);
+        boolean editableRatioHigh = TwoWindingsTransformerField.isEquipmentEditable(twtRatio, TwoWindingsTransformerField.RATIO_HIGH_TAP_POSITION.name(), Collections.emptyList());
+        boolean editablePhaseHigh = TwoWindingsTransformerField.isEquipmentEditable(twtPhase, TwoWindingsTransformerField.PHASE_HIGH_TAP_POSITION.name(), Collections.emptyList());
         assertFalse(editableRatioHigh);
         assertFalse(editablePhaseHigh);
     }

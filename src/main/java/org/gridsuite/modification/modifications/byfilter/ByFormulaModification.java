@@ -19,6 +19,7 @@ import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.modifications.data.assignment.AbstractAssignmentData;
 import org.gridsuite.modification.modifications.data.assignment.FormulaAssignmentData;
 import org.gridsuite.modification.modifications.data.assignment.Operator;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -67,30 +68,31 @@ public class ByFormulaModification extends AbstractModificationByAssignment {
     }
 
     @Override
-    protected boolean preCheckValue(Identifiable<?> equipment, AbstractAssignmentData abstractAssignmentData, ReportNode reportNode) {
+    protected boolean preCheckValue(Identifiable<?> equipment, AbstractAssignmentData abstractAssignmentData, List<ReportNode> reports) {
         FormulaAssignmentData formulaAssignmentData = (FormulaAssignmentData) abstractAssignmentData;
         Double value1 = formulaAssignmentData.getFieldOrValue1().getRefOrValue(equipment);
         Double value2 = formulaAssignmentData.getFieldOrValue2().getRefOrValue(equipment);
         // value 1 and value 2 cannot be null because getRefOrValue returns NaN if value is null
         if (Double.isNaN(value1) || Double.isNaN(value2)) {
-            return reportErrorOnEquipment(equipment, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_MISSING, reportNode);
+            return reportErrorOnEquipment(equipment, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_MISSING, reports);
         }
 
         if (value2 == 0 && formulaAssignmentData.getOperator() == Operator.DIVISION) {
-            return reportErrorOnEquipment(equipment, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO, reportNode);
+            return reportErrorOnEquipment(equipment, REPORT_KEY_EQUIPMENT_MODIFIED_ERROR_ZERO, reports);
         }
         if (equipment.getType() == IdentifiableType.GENERATOR) {
-            return checkGeneratorsPowerValues(equipment, abstractAssignmentData, reportNode);
+            return checkGeneratorsPowerValues(equipment, abstractAssignmentData, reports);
         }
         return true;
     }
 
-    private boolean reportErrorOnEquipment(Identifiable<?> equipment, String reportKey, ReportNode reportNode) {
-        reportNode.newReportNode()
+    private boolean reportErrorOnEquipment(Identifiable<?> equipment, String reportKey, List<ReportNode> reports) {
+        reports.add(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate(reportKey)
                 .withUntypedValue(VALUE_KEY_EQUIPMENT_NAME, equipment.getId())
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .add();
+                .build());
         return false;
     }
 
