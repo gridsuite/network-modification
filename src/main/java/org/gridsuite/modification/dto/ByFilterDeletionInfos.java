@@ -16,6 +16,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.context.FilterUtils;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.ByFilterDeletion;
 
@@ -42,16 +44,19 @@ public class ByFilterDeletionInfos extends ModificationInfos {
     private List<FilterInfos> filters;
 
     @Override
-    public AbstractModification toModification() {
+    public AbstractModification toModification(ModificationContext modificationContext) {
         return ByFilterDeletion.builder()
                 .equipmentType(getEquipmentType())
-                .filters(getFilters())
+                .filters(FilterUtils.loadFilterWithNames(getFilters(), modificationContext.filterLoader()))
                 .build();
     }
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate("network.modification.byFilter.deletion").add();
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.byFilter.deletion")
+                .withUntypedValue("equipmentType", equipmentType.name())
+                .add();
     }
 
     @Override
