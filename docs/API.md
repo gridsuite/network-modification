@@ -615,7 +615,7 @@ Contains collections of voltage initialization targets for `generators`, `transf
 | `referencedId` | `UUID` | UUID of the referenced modification |
 | `referenceType` | `Type` | `BASIC` or `DIRECTORY` |
 | `referencedInfos` | `ModificationInfos` | Resolved DTO representation |
-| `permission` | `PermissionType` | `NONE`, `READ`, `WRITE` or `MANAGE` the user holds on the referenced modification, left out when unresolved |
+| `permission` | `PermissionType` | `NONE`, `READ`, `WRITE` or `MANAGE` : the right the user holds on a shared modification |
 
 ---
 

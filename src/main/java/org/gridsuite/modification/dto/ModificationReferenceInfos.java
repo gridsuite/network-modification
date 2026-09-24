@@ -53,8 +53,7 @@ public class ModificationReferenceInfos extends ModificationInfos {
 
     /**
      * The permission the user who asked for this modification holds on the shared modification it points at.
-     * Read only: it is never persisted, and the server never reads it back. Left null when it was not resolved,
-     * which is the case whenever no user is known, and when the directory could not be asked.
+     * Resolved by asking directory server, and left null otherwise.
      */
     @Schema(description = "permission of the user on the referenced modification")
     @JsonInclude(JsonInclude.Include.NON_NULL)
