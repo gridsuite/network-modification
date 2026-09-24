@@ -95,6 +95,13 @@ public class CreateVoltageLevelTopology extends AbstractModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode().withMessageTemplate("network.modification.createVoltageLevelTopology")
+            .withUntypedValue("voltageLevelId", getVoltageLevelId())
+            .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.CREATE_VOLTAGE_LEVEL_TOPOLOGY.toString();
     }

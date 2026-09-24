@@ -145,6 +145,13 @@ public class LoadScaling extends AbstractScaling {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.loadScaling")
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.LOAD_SCALING.name();
     }

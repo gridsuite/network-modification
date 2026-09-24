@@ -162,6 +162,11 @@ public class LineAttachToVoltageLevel extends AbstractModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode().withMessageTemplate("network.modification.lineAttachToVoltageLevel").add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.LINE_ATTACH_TO_VOLTAGE_LEVEL.name();
     }

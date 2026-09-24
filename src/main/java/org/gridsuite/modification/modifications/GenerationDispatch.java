@@ -634,6 +634,13 @@ public class GenerationDispatch extends AbstractModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.generationDispatch")
+                .add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.GENERATION_DISPATCH.name();
     }

@@ -78,7 +78,7 @@ class OperatingStatusModificationSwitchOnLineTest extends AbstractNetworkModific
 
         OperatingStatusModificationInfos modification = (OperatingStatusModificationInfos) buildModification();
 
-        modification.createSubReportNode(reportNode);
+        modification.toModification().createSubReportNode(reportNode);
         assertLogMessage("Switch on " + TARGET_LINE_ID, "network.modification.OPERATING_STATUS_MODIFICATION_SWITCH_ON", reportNode);
     }
 }

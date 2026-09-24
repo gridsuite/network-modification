@@ -72,6 +72,11 @@ public class DeleteAttachingLine extends AbstractModification {
     }
 
     @Override
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode().withMessageTemplate("network.modification.deleteAttachingLine").add();
+    }
+
+    @Override
     public String getName() {
         return ModificationType.DELETE_ATTACHING_LINE.name();
     }

@@ -169,7 +169,7 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
 
         GeneratorScaling generatorScaling = (GeneratorScaling) generatorScalingInfo.toModification();
         generatorScaling.initApplicationContext(filterService, null, null);
-        ReportNode report = generatorScalingInfo.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = generatorScalingInfo.toModification().createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         generatorScaling.apply(getNetwork(), report);

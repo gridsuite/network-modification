@@ -41,7 +41,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         CompositeModificationInfos compositeModificationInfos = (CompositeModificationInfos) buildModification();
 
         // checks that the sub sub sub netmod is executed at the right depth
-        ReportNode report = compositeModificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = compositeModificationInfos.toModification(null).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
@@ -66,7 +66,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         Network network = getNetwork();
         CompositeModificationInfos compositeModificationInfos = (CompositeModificationInfos) buildModification();
 
-        ReportNode report = compositeModificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = compositeModificationInfos.toModification(null).createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
@@ -110,13 +110,12 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                 .modificationsInfos(List.of(renameModif, deactivatedRenameModif, stashedRenameModif, invalidModif))
                 .stashed(false)
                 .build();
+        CompositeModification netmod = (CompositeModification) composite.toModification(null);
 
-        ReportNode report = composite.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = netmod.createSubReportNode(ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
-
-        CompositeModification netmod = (CompositeModification) composite.toModification(null);
         assertDoesNotThrow(() -> netmod.apply(network, report));
 
         // Only the baseline rename (activated=true, stashed=false) should have been applied;

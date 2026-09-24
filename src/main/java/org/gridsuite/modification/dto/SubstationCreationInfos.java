@@ -7,7 +7,6 @@
 package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Country;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -44,11 +43,4 @@ public class SubstationCreationInfos extends EquipmentCreationInfos {
                 .build();
     }
 
-    @Override
-    public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.substation.creation")
-                .withUntypedValue("substationId", this.getEquipmentId())
-                .add();
-    }
 }
