@@ -51,6 +51,10 @@ public class ModificationReferenceInfos extends ModificationInfos {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private ModificationInfos referencedInfos;
 
+    @Schema(description = "max depth of the referenced composite")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer maxDepth;
+
     @Override
     public AbstractModification toModification() {
         return ModificationReference.builder()
