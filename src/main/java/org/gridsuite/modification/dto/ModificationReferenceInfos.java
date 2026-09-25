@@ -51,6 +51,14 @@ public class ModificationReferenceInfos extends ModificationInfos {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private ModificationInfos referencedInfos;
 
+    /**
+     * The permission the user who asked for this modification holds on the shared modification it points at.
+     * Resolved by asking directory server, and left null otherwise.
+     */
+    @Schema(description = "permission of the user on the referenced modification")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private PermissionType permission;
+
     @Override
     public AbstractModification toModification() {
         return ModificationReference.builder()
