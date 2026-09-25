@@ -13,7 +13,6 @@ package org.gridsuite.modification.dto;
  * @author Florent MILLOT <florent.millot at rte-france.com>
  */
 public enum PermissionType {
-    NONE,
     READ,
     WRITE,
     MANAGE;

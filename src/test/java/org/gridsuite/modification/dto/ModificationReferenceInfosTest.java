@@ -32,7 +32,7 @@ class ModificationReferenceInfosTest {
     @Test
     void aResolvedPermissionIsSerialized() throws JsonProcessingException {
         assertTrue(mapper.writeValueAsString(buildReference(PermissionType.WRITE)).contains("\"permission\":\"WRITE\""));
-        assertTrue(mapper.writeValueAsString(buildReference(PermissionType.NONE)).contains("\"permission\":\"NONE\""));
+        assertTrue(mapper.writeValueAsString(buildReference(PermissionType.READ)).contains("\"permission\":\"READ\""));
     }
 
     @Test
@@ -47,8 +47,7 @@ class ModificationReferenceInfosTest {
         assertTrue(PermissionType.WRITE.grants(PermissionType.WRITE));
         assertTrue(PermissionType.WRITE.grants(PermissionType.READ));
         assertFalse(PermissionType.READ.grants(PermissionType.WRITE));
-        assertFalse(PermissionType.NONE.grants(PermissionType.READ));
-        assertEquals(PermissionType.NONE, PermissionType.values()[0]);
+        assertEquals(PermissionType.READ, PermissionType.values()[0]);
     }
 
     private ModificationReferenceInfos buildReference(PermissionType permission) {
