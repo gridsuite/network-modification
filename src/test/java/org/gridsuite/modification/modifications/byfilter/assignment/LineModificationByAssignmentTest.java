@@ -10,24 +10,19 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.dto.FilterEquipments;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
-import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.IntegerAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.StringAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.LineField;
-import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.gridsuite.modification.utils.NetworkUtil.createLineWithLimits;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Etienne LESOT <etienne.lesot at rte-france.com>
@@ -39,34 +34,16 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
     private static final String LINE_ID_4 = "line_4";
     private static final String LINE_ID_5 = "line_5";
     private static final String LINE_ID_6 = "line_6";
+    private static final Map<UUID, Set<String>> FILTER_MAPPING = Map.of(
+            FILTER_ID_1, Set.of(LINE_ID_1, LINE_ID_2),
+            FILTER_ID_2, Set.of(LINE_ID_1, LINE_ID_3),
+            FILTER_ID_3, Set.of(LINE_ID_4, LINE_ID_5),
+            FILTER_ID_4, Set.of(LINE_ID_4, LINE_ID_6)
+    );
 
-    @Test
-    void testModifyLineWithWarning() {
-        IdentifiableAttributes identifiableAttributes1 = new IdentifiableAttributes(LINE_ID_1, getIdentifiableType(), 1.);
-        IdentifiableAttributes identifiableAttributes2 = new IdentifiableAttributes(LINE_ID_2, getIdentifiableType(), 1.);
-        IdentifiableAttributes identifiableAttributes3 = new IdentifiableAttributes(LINE_ID_4, getIdentifiableType(), 1.);
-        IdentifiableAttributes identifiableAttributes4 = new IdentifiableAttributes(LINE_ID_6, getIdentifiableType(), 1.);
-        FilterEquipments filterLine1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(identifiableAttributes1, identifiableAttributes2)).build();
-        FilterEquipments filterLine2 = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(identifiableAttributes3, identifiableAttributes4)).build();
-
-        when(filterService.getUuidFilterEquipmentsMap(any(), any())).thenReturn(Map.of(FILTER_ID_1, filterLine1, FILTER_ID_4, filterLine2));
-
-        IntegerAssignmentInfos assignmentInfos = IntegerAssignmentInfos.builder()
-                .filters(List.of(filter1, filter4))
-                .editedField(LineField.R.name())
-                .value(4)
-                .build();
-
-        ModificationByAssignmentInfos modificationInfos = ModificationByAssignmentInfos.builder()
-                .equipmentType(getIdentifiableType())
-                .assignmentInfosList(List.of(assignmentInfos))
-                .stashed(false)
-                .build();
-
-        apply(modificationInfos);
-
-        assertEquals(4, getNetwork().getLine(LINE_ID_1).getR());
-        assertEquals(4, getNetwork().getLine(LINE_ID_2).getR());
+    @Override
+    public Map<UUID, Set<String>> getFilterMapping() {
+        return FILTER_MAPPING;
     }
 
     @Override
@@ -100,31 +77,6 @@ class LineModificationByAssignmentTest extends AbstractModificationByAssignmentT
             3, 5, 1, 0.002, 0.0025,
             "line_6", 13, ConnectablePosition.Direction.TOP,
             "line_6", 23, ConnectablePosition.Direction.BOTTOM);
-    }
-
-    @Override
-    protected Map<UUID, FilterEquipments> getTestFilters() {
-        FilterEquipments filter1 = FilterEquipments.builder().filterId(FILTER_ID_1).identifiableAttributes(List.of(
-            new IdentifiableAttributes(LINE_ID_1, IdentifiableType.LINE, 1.0),
-            new IdentifiableAttributes(LINE_ID_2, IdentifiableType.LINE, 2.0)
-        )).build();
-
-        FilterEquipments filter2 = FilterEquipments.builder().filterId(FILTER_ID_2).identifiableAttributes(List.of(
-            new IdentifiableAttributes(LINE_ID_1, IdentifiableType.LINE, 1.0),
-            new IdentifiableAttributes(LINE_ID_3, IdentifiableType.LINE, 2.0)
-        )).build();
-
-        FilterEquipments filter3 = FilterEquipments.builder().filterId(FILTER_ID_3).identifiableAttributes(List.of(
-            new IdentifiableAttributes(LINE_ID_4, IdentifiableType.LINE, 5.0),
-            new IdentifiableAttributes(LINE_ID_5, IdentifiableType.LINE, 6.0)
-        )).build();
-
-        FilterEquipments filter4 = FilterEquipments.builder().filterId(FILTER_ID_4).identifiableAttributes(List.of(
-            new IdentifiableAttributes(LINE_ID_4, IdentifiableType.LINE, 5.0),
-            new IdentifiableAttributes(LINE_ID_6, IdentifiableType.LINE, 7.0)
-        )).build();
-
-        return Map.of(FILTER_ID_1, filter1, FILTER_ID_2, filter2, FILTER_ID_3, filter3, FILTER_ID_4, filter4);
     }
 
     @Override
