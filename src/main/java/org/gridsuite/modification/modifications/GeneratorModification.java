@@ -424,6 +424,12 @@ public class GeneratorModification extends AbstractInjectionModification {
 
         String oldVoltageLevel = null;
         String oldEquipment = null;
+
+        // if field voltageRegulationType is null or its value is null, we do not modify the regulating terminal
+        if (voltageRegulationType == null || voltageRegulationType.getValue() == null) {
+            return;
+        }
+
         // If there is no regulating terminal in file, regulating terminal voltage level
         // is equal to generator voltage level
         if (regulatingTerminal != null

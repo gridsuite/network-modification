@@ -684,6 +684,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 .terminalRefConnectableId(new AttributeModification<>("v3load", OperationType.SET))
                 .terminalRefConnectableType(new AttributeModification<>("LOAD", OperationType.SET))
                 .terminalRefConnectableVlId(new AttributeModification<>("v3", OperationType.SET))
+                .regulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.SET))
                 .steps(List.of(TapChangerStepCreationInfos.builder()
                         .index(0)
                         .r(0)
@@ -876,6 +877,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertEquals(120.0, ratioTapChanger.getTargetV());
 
         ratioTapChangerModification.getRatioTapChanger().setRegulationSide(new AttributeModification<>(RegulationSide.SIDE1, OperationType.SET));
+        ratioTapChangerModification.getRatioTapChanger().setRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.SET));
         ratioTapChangerModification.toModification().apply(getNetwork());
         assertFalse(ratioTapChanger.getRegulationTerminal().isConnected());
     }

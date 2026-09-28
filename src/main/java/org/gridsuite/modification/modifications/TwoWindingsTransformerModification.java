@@ -667,6 +667,11 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         String oldVoltageLevel = null;
         String oldEquipment = null;
 
+        // if field voltageRegulationType is null or its value is null, we do not modify the regulating terminal
+        if (tapChangerModificationInfos.getRegulationType() == null || tapChangerModificationInfos.getRegulationType().getValue() == null) {
+            return;
+        }
+
         if (isModification && tapChanger.getRegulationTerminal() != null) {
             oldVoltageLevel = tapChanger.getRegulationTerminal().getVoltageLevel().getId();
             oldEquipment = tapChanger.getRegulationTerminal().getConnectable().getType()
