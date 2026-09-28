@@ -52,13 +52,16 @@ public abstract class AbstractScaling extends AbstractModification {
         this.exceptionType = exceptionType;
     }
 
+    protected abstract ReportNode createSubReportNode(ReportNode reportNode);
+
     @Override
     protected void initServices(IFilterService filterService, ILoadFlowService loadFlowService) {
         this.filterService = filterService;
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         // collect all filters from all variations
         var filters = variations.stream()
                 .flatMap(v -> v.getFilters().stream())

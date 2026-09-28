@@ -159,7 +159,7 @@ class OperatingStatusModificationLockoutLineTest extends AbstractNetworkModifica
 
         OperatingStatusModificationInfos modification = (OperatingStatusModificationInfos) buildModification();
 
-        modification.toModification().createSubReportNode(reportNode);
+        ((OperatingStatusModification) modification.toModification()).createSubReportNode(reportNode);
         assertLogMessage("Lockout " + TARGET_LINE_ID, "network.modification.OPERATING_STATUS_MODIFICATION_LOCKOUT", reportNode);
     }
 }

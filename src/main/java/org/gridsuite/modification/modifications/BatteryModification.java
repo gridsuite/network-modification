@@ -155,13 +155,13 @@ public class BatteryModification extends AbstractInjectionModification {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         Battery battery = ModificationUtils.getInstance().getBattery(network, equipmentId);
         // modify the battery in the network
         modifyBattery(battery, subReportNode);
     }
 
-    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.battery.modification")

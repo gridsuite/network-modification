@@ -57,7 +57,8 @@ public class EquipmentAttributeModification extends AbstractEquipmentBase {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         Identifiable<?> identifiable = network.getIdentifiable(equipmentId);
         if (identifiable instanceof Switch) {
             changeSwitchAttribute((Switch) identifiable, equipmentAttributeName, equipmentAttributeValue, subReportNode);
@@ -80,7 +81,6 @@ public class EquipmentAttributeModification extends AbstractEquipmentBase {
         }
     }
 
-    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.equipmentAttributeModification")

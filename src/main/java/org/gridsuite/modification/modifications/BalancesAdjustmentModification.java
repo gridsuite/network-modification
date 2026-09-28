@@ -86,7 +86,6 @@ public class BalancesAdjustmentModification extends AbstractModification {
         this.loadFlowService = loadFlowService;
     }
 
-    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode().withMessageTemplate("network.modification.balancesAdjustment").add();
     }
@@ -171,15 +170,16 @@ public class BalancesAdjustmentModification extends AbstractModification {
     @SneakyThrows
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode) {
-        BalanceComputationParameters parameters = createBalanceComputationParameters(reportNode);
+        ReportNode subReportNode = createSubReportNode(reportNode);
+        BalanceComputationParameters parameters = createBalanceComputationParameters(subReportNode);
 
-        List<BalanceComputationArea> balanceComputationAreas = createBalanceComputationAreas(network, reportNode);
+        List<BalanceComputationArea> balanceComputationAreas = createBalanceComputationAreas(network, subReportNode);
 
         BalanceComputation balanceComputation = new BalanceComputationFactoryImpl()
             .create(balanceComputationAreas, LoadFlow.find(), new LocalComputationManager(Runnable::run));
 
         balanceComputation
-            .run(network, network.getVariantManager().getWorkingVariantId(), parameters, reportNode)
+            .run(network, network.getVariantManager().getWorkingVariantId(), parameters, subReportNode)
             .join();
     }
 

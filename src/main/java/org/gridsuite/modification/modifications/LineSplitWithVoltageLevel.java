@@ -58,7 +58,8 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         apply(network, new DefaultNamingStrategy(), subReportNode);
     }
 
@@ -80,7 +81,6 @@ public class LineSplitWithVoltageLevel extends AbstractModification {
         algo.apply(network, true, subReportNode);
     }
 
-    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.lineSplitWithVoltageLevel")

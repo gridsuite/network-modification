@@ -128,7 +128,8 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         // create the battery in the network
         VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
         if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
@@ -144,7 +145,6 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
         PropertiesUtils.applyProperties(battery, subReportNode, properties, "network.modification.BatteryProperties");
     }
 
-    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode().withMessageTemplate("network.modification.batteryCreation").withUntypedValue("batteryId", this.getEquipmentId()).add();
     }

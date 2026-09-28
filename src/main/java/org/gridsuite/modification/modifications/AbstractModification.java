@@ -131,6 +131,4 @@ public abstract class AbstractModification extends AbstractNetworkModification {
     @Override
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public abstract String getName();
-
-    public abstract ReportNode createSubReportNode(ReportNode reportNode);
 }

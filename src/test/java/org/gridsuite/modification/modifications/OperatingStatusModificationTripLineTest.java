@@ -84,7 +84,7 @@ class OperatingStatusModificationTripLineTest extends AbstractNetworkModificatio
 
         OperatingStatusModificationInfos modification = (OperatingStatusModificationInfos) buildModification();
 
-        modification.toModification().createSubReportNode(reportNode);
+        ((OperatingStatusModification) modification.toModification()).createSubReportNode(reportNode);
         assertLogMessage("Trip " + TARGET_LINE_ID, "network.modification.OPERATING_STATUS_MODIFICATION_TRIP", reportNode);
     }
 }

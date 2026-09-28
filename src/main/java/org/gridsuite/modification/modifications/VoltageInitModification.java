@@ -84,7 +84,8 @@ public class VoltageInitModification extends AbstractModification {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         applyGeneratorModification(network, subReportNode);
         applyBatteryModification(network, subReportNode);
         applyTransformerModification(network, subReportNode);
@@ -94,7 +95,6 @@ public class VoltageInitModification extends AbstractModification {
         applyBusModification(network, subReportNode);
     }
 
-    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode().withMessageTemplate("network.modification.voltageInitModification").add();
     }

@@ -73,16 +73,16 @@ public class VoltageLevelCreation extends AbstractEquipmentCreation {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
-        apply(network, new DefaultNamingStrategy(), subReportNode);
+    public void apply(Network network, ReportNode reportNode) {
+        apply(network, new DefaultNamingStrategy(), reportNode);
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
+    public void apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         ModificationUtils.getInstance().createVoltageLevel(this, subReportNode, network, namingStrategy);
     }
 
-    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.voltageLevel.creation")

@@ -62,7 +62,8 @@ public class ByFilterDeletion extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode reportNode) {
-        ReportNode filtersContainer = reportNode.newReportNode()
+        ReportNode subReportNode = createSubReportNode(reportNode);
+        ReportNode filtersContainer = subReportNode.newReportNode()
                 .withMessageTemplate(REPORT_KEY_FILTERS_EVALUATION)
                 .add();
         Set<Identifiable<?>> evaluatedEquipments = new HashSet<>();
@@ -79,7 +80,7 @@ public class ByFilterDeletion extends AbstractModification {
 
         // If filters do not evaluate to any equipment, we just add a warn report
         if (evaluatedEquipments.isEmpty()) {
-            reportNode.newReportNode()
+            subReportNode.newReportNode()
                     .withMessageTemplate(REPORT_KEY_NO_EQUIPMENT_TO_REMOVE)
                     .withSeverity(TypedValue.WARN_SEVERITY)
                     .add();
@@ -89,7 +90,7 @@ public class ByFilterDeletion extends AbstractModification {
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_COUNT, evaluatedEquipments.size())
                     .add();
-            ReportNode removeEquipmentsNode = reportNode.newReportNode()
+            ReportNode removeEquipmentsNode = subReportNode.newReportNode()
                     .withMessageTemplate(REPORT_KEY_REMOVE_EQUIPMENTS)
                     .add();
             // Report node is pushed to network instance to allow deletion logs from other libraries to be added
@@ -103,7 +104,6 @@ public class ByFilterDeletion extends AbstractModification {
         return ModificationType.BY_FILTER_DELETION.name();
     }
 
-    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.byFilter.deletion")

@@ -125,6 +125,8 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
         return newValue;
     }
 
+    protected abstract ReportNode createSubReportNode(ReportNode reportNode);
+
     @Override
     public void check(Network network) throws NetworkModificationException {
         if (CollectionUtils.isEmpty(getAssignments())) {
@@ -138,9 +140,10 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
 
     @Override
     public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         for (int i = 0; i < getAssignments().size(); i++) {
             AbstractAssignmentData assignment = getAssignments().get(i);
-            ReportNode assignmentContainer = reportNode.newReportNode()
+            ReportNode assignmentContainer = subReportNode.newReportNode()
                     .withMessageTemplate(REPORT_KEY_EDITED_FIELD_FILTER)
                     .withUntypedValue(VALUE_KEY_FIELD_NAME, assignment.getEditedFieldLabel())
                     .add();
@@ -178,7 +181,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
             }
         }
         if (modifiedEquipmentCount == 0) {
-            reportNode.newReportNode().withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_NONE).withSeverity(TypedValue.ERROR_SEVERITY).add();
+            subReportNode.newReportNode().withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_NONE).withSeverity(TypedValue.ERROR_SEVERITY).add();
         }
     }
 

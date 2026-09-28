@@ -68,7 +68,8 @@ public class OperatingStatusModification extends AbstractEquipmentBase {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         Identifiable<?> equipment = network.getIdentifiable(equipmentId);
         if (equipment == null) {
             throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, equipmentId);
@@ -88,7 +89,6 @@ public class OperatingStatusModification extends AbstractEquipmentBase {
         }
     }
 
-    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         String messageKey = switch (action) {
             case LOCKOUT -> "network.modification.OPERATING_STATUS_MODIFICATION_LOCKOUT";

@@ -91,7 +91,8 @@ public class LccCreation extends AbstractEquipmentCreation {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         LccConverterStation createdConverterStation1 = createConverterStation(network, converterStation1, subReportNode);
         LccConverterStation createdConverterStation2 = createConverterStation(network, converterStation2, subReportNode);
         if (!converterStation1.isTerminalConnected()) {
@@ -122,7 +123,6 @@ public class LccCreation extends AbstractEquipmentCreation {
         addReportConverterStationLcc(converterStation2, "2", subReportNode);
     }
 
-    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.lcc.creation")

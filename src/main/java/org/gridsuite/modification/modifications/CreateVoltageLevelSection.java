@@ -81,7 +81,8 @@ public class CreateVoltageLevelSection extends AbstractModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
+    public void apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         BusbarSection busbarSection = network.getBusbarSection(busbarSectionId);
         List<String> busBarIds = new ArrayList<>();
@@ -136,7 +137,6 @@ public class CreateVoltageLevelSection extends AbstractModification {
         }
     }
 
-    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.voltageLevel.section.created")

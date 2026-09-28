@@ -94,7 +94,8 @@ public class TwoWindingsTransformerCreation extends AbstractBranchCreation {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         // create the 2wt in the network
         VoltageLevel voltageLevel1 = getInstance().getVoltageLevel(network, voltageLevelId1);
         VoltageLevel voltageLevel2 = getInstance().getVoltageLevel(network, voltageLevelId2);
@@ -113,7 +114,6 @@ public class TwoWindingsTransformerCreation extends AbstractBranchCreation {
                 .add();
     }
 
-    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.twoWindingsTransformerCreation")

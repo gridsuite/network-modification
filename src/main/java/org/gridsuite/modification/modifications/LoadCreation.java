@@ -58,7 +58,8 @@ public class LoadCreation extends AbstractInjectionCreation {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReporter) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReporter = createSubReportNode(reportNode);
         // create the load in the network
         VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
         if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
@@ -80,7 +81,6 @@ public class LoadCreation extends AbstractInjectionCreation {
         PropertiesUtils.applyProperties(load, subReporter, properties, "network.modification.LoadProperties");
     }
 
-    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.load.creation")

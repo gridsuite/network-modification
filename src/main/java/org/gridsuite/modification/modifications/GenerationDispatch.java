@@ -500,7 +500,8 @@ public class GenerationDispatch extends AbstractModification {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         // check existence of all filters
         boolean missingFilters = checkMissingFilters(subReportNode);
         if (missingFilters) {
@@ -633,7 +634,6 @@ public class GenerationDispatch extends AbstractModification {
         }
     }
 
-    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.generationDispatch")

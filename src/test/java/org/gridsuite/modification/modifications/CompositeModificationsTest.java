@@ -41,10 +41,10 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         CompositeModificationInfos compositeModificationInfos = (CompositeModificationInfos) buildModification();
 
         // checks that the sub sub sub netmod is executed at the right depth
-        ReportNode report = compositeModificationInfos.toModification(null).createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
-                .build());
+                .build();
         CompositeModification netmod = (CompositeModification) compositeModificationInfos.toModification(null);
         assertDoesNotThrow(() -> netmod.apply(network, report));
         assertLogMessageAtDepth(
@@ -57,7 +57,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                 "Composite modification : 'sub sub composite'",
                 "network.modification.composite.apply",
                 report,
-                2
+                3
         );
     }
 
@@ -66,10 +66,10 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
         Network network = getNetwork();
         CompositeModificationInfos compositeModificationInfos = (CompositeModificationInfos) buildModification();
 
-        ReportNode report = compositeModificationInfos.toModification(null).createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
-                .build());
+                .build();
         // regular throwing exception netmod
         GeneratorCreation throwingExceptionNetMod = (GeneratorCreation) buildThrowingModification().toModification(null);
         assertThrows(PowsyblException.class, () -> throwingExceptionNetMod.apply(network));

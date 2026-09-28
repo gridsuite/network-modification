@@ -161,13 +161,13 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(equipmentId);
         // modify the 2wt in the network
         modifyTwoWindingsTransformer(twoWindingsTransformer, subReportNode, network);
     }
 
-    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.twoWindingsTransformerModification.modification")

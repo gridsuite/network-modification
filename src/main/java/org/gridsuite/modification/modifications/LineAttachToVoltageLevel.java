@@ -77,7 +77,8 @@ public class LineAttachToVoltageLevel extends AbstractModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
+    public void apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         if (mayNewVoltageLevel != null) {
             ModificationUtils.getInstance().createVoltageLevel(mayNewVoltageLevel, subReportNode, network, namingStrategy);
         }
@@ -161,7 +162,6 @@ public class LineAttachToVoltageLevel extends AbstractModification {
         PropertiesUtils.applyProperties(substation, substationCreation.getProperties());
     }
 
-    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode().withMessageTemplate("network.modification.lineAttachToVoltageLevel").add();
     }

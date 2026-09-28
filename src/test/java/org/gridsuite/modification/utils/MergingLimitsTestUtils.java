@@ -74,10 +74,10 @@ public final class MergingLimitsTestUtils {
                 .setAcceptableDuration(21)
                 .endTemporaryLimit()
                 .add();
-        ReportNode report = modificationInfos.toModification().createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
-                .build());
+                .build();
         modificationInfos.toModification().apply(network, report);
 
         Line line = network.getLine(replacementLineId);
@@ -106,6 +106,6 @@ public final class MergingLimitsTestUtils {
         // side 2
         assertNotNull(line.getOperationalLimitsGroups2());
         assertEquals(4, line.getOperationalLimitsGroups2().size());
-        testReportNode(report, expectedReportNodePath);
+        testReportNode(report.getChildren().get(0), expectedReportNodePath);
     }
 }

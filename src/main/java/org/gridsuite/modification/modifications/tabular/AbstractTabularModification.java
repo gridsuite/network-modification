@@ -41,8 +41,11 @@ public abstract class AbstractTabularModification extends AbstractModification {
 
     public abstract String baseTemplateMessage();
 
+    protected abstract ReportNode createSubReportNode(ReportNode reportNode);
+
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         int applicationFailuresCount = 0;
         for (var modifInfos : modificationInfos.getModifications()) {
             EquipmentModificationInfos equipmentModificationInfos = (EquipmentModificationInfos) modifInfos;

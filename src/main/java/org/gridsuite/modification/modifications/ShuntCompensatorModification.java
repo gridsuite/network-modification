@@ -102,7 +102,8 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         ShuntCompensator shuntCompensator = network.getShuntCompensator(equipmentId);
         VoltageLevel voltageLevel = shuntCompensator.getTerminal().getVoltageLevel();
 
@@ -124,7 +125,6 @@ public class ShuntCompensatorModification extends AbstractInjectionModification 
         PropertiesUtils.applyProperties(shuntCompensator, subReportNode, properties, "network.modification.ShuntCompensatorProperties");
     }
 
-    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.shuntCompensatorModification.modification")

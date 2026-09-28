@@ -306,8 +306,9 @@ class BatteryModificationTest extends AbstractInjectionModificationTest {
         batteryModificationInfos.toModification().apply(network, rootNode);
 
         assertMeasurements(network.getBattery("v3Battery"), newPMeasurementValue, newPMeasurementValidity, newQMeasurementValue, newQMeasurementValidity);
-        assertMeasurementsReportNodes(rootNode, MEASUREMENT_P_VALUE, newPMeasurementValue, MEASUREMENT_P_VALID, newPMeasurementValidity, MEASUREMENT_Q_VALUE, newQMeasurementValue, MEASUREMENT_Q_VALID,
-                newQMeasurementValidity);
+        assertMeasurementsReportNodes(rootNode.getChildren().get(0), MEASUREMENT_P_VALUE, newPMeasurementValue,
+                MEASUREMENT_P_VALID, newPMeasurementValidity, MEASUREMENT_Q_VALUE, newQMeasurementValue,
+                MEASUREMENT_Q_VALID, newQMeasurementValidity);
     }
 
     @Test

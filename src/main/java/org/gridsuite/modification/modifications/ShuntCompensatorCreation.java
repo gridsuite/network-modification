@@ -77,7 +77,8 @@ public class ShuntCompensatorCreation extends AbstractInjectionCreation {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         // create the shunt compensator in the network
         VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
         if (maxQAtNominalV != null && shuntCompensatorType != null) {
@@ -103,7 +104,6 @@ public class ShuntCompensatorCreation extends AbstractInjectionCreation {
         PropertiesUtils.applyProperties(shuntCompensator, subReportNode, properties, "network.modification.ShuntCompensatorProperties");
     }
 
-    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.shuntCompensatorCreation")

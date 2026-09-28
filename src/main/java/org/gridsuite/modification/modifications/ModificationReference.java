@@ -79,14 +79,14 @@ public class ModificationReference extends AbstractModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
+    public void apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode) {
+        ReportNode referenceNode = createSubReportNode(reportNode);
         AbstractModification modification = referencedInfos.toModification(modificationContext);
         modification.check(network);
         modification.initApplicationContext(filterService, loadFlowService, getRootNetworkTag());
-        modification.apply(network, namingStrategy, modification.createSubReportNode(subReportNode));
+        modification.apply(network, namingStrategy, referenceNode);
     }
 
-    @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         String messageTemplate = referenceType == ModificationReferenceInfos.Type.BASIC
                 ? "network.modification.basic.reference.apply"

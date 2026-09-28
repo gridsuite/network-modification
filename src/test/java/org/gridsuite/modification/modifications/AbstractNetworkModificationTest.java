@@ -63,16 +63,16 @@ public abstract class AbstractNetworkModificationTest {
     public void testApply() throws Exception {
         ModificationInfos modificationInfos = buildModification();
         AbstractModification modification = modificationInfos.toModification(null);
-        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME, FilterReportResourceBundle.BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
-                .build());
+                .build();
         modification.check(network);
         initApplicationContext(modification);
         modification.apply(network, report);
         assertAfterNetworkModificationApplication();
         if (reportFilePath != null) {
-            testReportNode(report, reportFilePath);
+            testReportNode(report.getChildren().get(0), reportFilePath);
         }
     }
 
