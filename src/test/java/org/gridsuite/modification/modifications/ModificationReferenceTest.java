@@ -45,7 +45,7 @@ class ModificationReferenceTest extends AbstractNetworkModificationTest {
     protected ModificationInfos buildModification() {
         ModificationInfos compositeInfo = buildCompositeModification();
         return ModificationReferenceInfos.builder()
-            .referenceType(ModificationReferenceInfos.Type.BASIC)
+            .referenceType(ModificationReferenceInfos.Type.COMPOSITE)
             .referencedId(UUID.randomUUID())
             .referencedInfos(compositeInfo)
             .stashed(false)

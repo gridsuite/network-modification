@@ -35,8 +35,9 @@ import java.util.UUID;
 @JsonTypeName("MODIFICATION_REFERENCE")
 public class ModificationReferenceInfos extends ModificationInfos {
     public enum Type {
-        BASIC,
+        ELEMENTARY,
         DIRECTORY,
+        COMPOSITE
     }
 
     @Schema(description = "modification reference id")
@@ -62,7 +63,14 @@ public class ModificationReferenceInfos extends ModificationInfos {
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate(referenceType == Type.BASIC ? "network.modification.basic.reference.apply" : "network.modification.directory.reference.apply").add();
+        return switch (referenceType) {
+            case Type.ELEMENTARY ->
+                reportNode.newReportNode().withMessageTemplate("network.modification.basic.reference.apply").add();
+            case Type.DIRECTORY ->
+                reportNode.newReportNode().withMessageTemplate("network.modification.directory.reference.apply").add();
+            case Type.COMPOSITE ->
+                reportNode.newReportNode().withMessageTemplate("network.modification.composite.reference.apply").add();
+        };
     }
 
     @Override
