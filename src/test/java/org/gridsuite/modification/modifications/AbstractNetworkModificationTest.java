@@ -12,13 +12,19 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
+import org.gridsuite.filter.report.FilterReportResourceBundle;
+import org.gridsuite.filter.wip.Filter;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
+import org.gridsuite.modification.context.FilterLoader;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,10 +63,10 @@ public abstract class AbstractNetworkModificationTest {
     public void testApply() throws Exception {
         ModificationInfos modificationInfos = buildModification();
         ReportNode report = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
-                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME, FilterReportResourceBundle.BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
-        AbstractModification modification = modificationInfos.toModification();
+        AbstractModification modification = modificationInfos.toModification(null);
         modification.check(network);
         initApplicationContext(modification);
         modification.apply(network, report);
@@ -74,6 +80,17 @@ public abstract class AbstractNetworkModificationTest {
         // Nothing to init by default
     }
 
+    public final Map<UUID, Filter> loadFilters(List<UUID> filterUuids) {
+        if (getFilterLoader() != null) {
+            return getFilterLoader().load(filterUuids);
+        }
+        return Map.of();
+    }
+
+    public FilterLoader getFilterLoader() {
+        return null;
+    }
+
     @Test
     public void testCheck() {
         checkModification();
@@ -83,7 +100,8 @@ public abstract class AbstractNetworkModificationTest {
     public void testRoundTripSerializationDeserialization() throws JsonProcessingException {
         ILoadFlowService loadFlowServiceMock = mock(ILoadFlowService.class);
         IFilterService filterServiceMock = mock(IFilterService.class);
-        AbstractModification expectedModification = buildModification().toModification();
+        ModificationContext modificationContext = ModificationContext.builder().filterLoader(this::loadFilters).build();
+        AbstractModification expectedModification = buildModification().toModification(modificationContext);
         expectedModification.initApplicationContext(filterServiceMock, loadFlowServiceMock, null);
 
         String serializedModification = mapper.writeValueAsString(expectedModification);
