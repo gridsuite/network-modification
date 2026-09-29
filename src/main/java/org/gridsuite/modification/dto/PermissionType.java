@@ -8,7 +8,7 @@
 package org.gridsuite.modification.dto;
 
 /**
- * The permission a user holds on an element, from the weakest to the strongest: each one grants the previous ones.
+ * The permission a user holds on a modification, from the weakest to the strongest: each one grants the previous ones.
  *
  * @author Florent MILLOT <florent.millot at rte-france.com>
  */
