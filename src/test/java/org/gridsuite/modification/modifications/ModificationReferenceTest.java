@@ -33,7 +33,7 @@ class ModificationReferenceTest extends AbstractNetworkModificationTest {
 
     @Override
     public void checkModification() {
-        assertEquals(ModificationType.MODIFICATION_REFERENCE.name(), buildModification().toModification().getName());
+        assertEquals(ModificationType.MODIFICATION_REFERENCE.name(), buildModification().toModification(null).getName());
     }
 
     @Override
