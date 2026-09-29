@@ -30,7 +30,7 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "Composite modification")
 @JsonTypeName("COMPOSITE_MODIFICATION")
-public class CompositeModificationInfos extends ModificationInfos {
+public class CompositeModificationInfos extends ModificationInfos implements MaxDepthHolderInfos {
 
     @Schema(description = "composite modification name")
     @JsonInclude(JsonInclude.Include.NON_NULL)

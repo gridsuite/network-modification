@@ -33,7 +33,7 @@ import java.util.UUID;
 @ToString(callSuper = true)
 @Schema(description = "Modification reference")
 @JsonTypeName("MODIFICATION_REFERENCE")
-public class ModificationReferenceInfos extends ModificationInfos {
+public class ModificationReferenceInfos extends ModificationInfos implements MaxDepthHolderInfos {
     public enum Type {
         BASIC,
         DIRECTORY,
