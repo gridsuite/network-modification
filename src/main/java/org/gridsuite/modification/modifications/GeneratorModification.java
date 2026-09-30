@@ -459,8 +459,7 @@ public class GeneratorModification extends AbstractInjectionModification {
 
         // if the voltageRegulationType is set to LOCAL, we set the regulatingTerminal
         // to null
-        if (voltageRegulationType != null
-                && voltageRegulationType.getValue() == VoltageRegulationType.LOCAL
+        if (voltageRegulationType.getValue() == VoltageRegulationType.LOCAL
                 && oldEquipment != null && oldVoltageLevel != null) {
             generator.setRegulatingTerminal(null);
             modificationReports.add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel,
