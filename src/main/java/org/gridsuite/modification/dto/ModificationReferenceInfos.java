@@ -67,7 +67,7 @@ public class ModificationReferenceInfos extends ModificationInfos {
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return switch (referenceType) {
             case Type.ELEMENTARY ->
-                reportNode.newReportNode().withMessageTemplate("network.modification.basic.reference.apply").add();
+                reportNode.newReportNode().withMessageTemplate("network.modification.elementary.reference.apply").add();
             case Type.DIRECTORY ->
                 reportNode.newReportNode().withMessageTemplate("network.modification.directory.reference.apply").add();
             case Type.COMPOSITE ->
