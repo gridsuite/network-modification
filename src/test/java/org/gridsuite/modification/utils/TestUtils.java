@@ -15,6 +15,10 @@ import com.powsybl.iidm.network.OperationalLimitsGroup;
 import com.powsybl.iidm.network.extensions.OperatingStatus;
 import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 import org.apache.commons.text.StringSubstitutor;
+import org.gridsuite.filter.utils.EquipmentType;
+import org.gridsuite.filter.wip.Filter;
+import org.gridsuite.filter.wip.IdentifierListFilter;
+import org.gridsuite.modification.context.FilterLoader;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.junit.jupiter.api.Assertions;
 import org.junit.platform.commons.util.StringUtils;
@@ -23,10 +27,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -192,5 +195,31 @@ public final class TestUtils {
     private static String normalizeLineSeparator(String str) {
         return Objects.requireNonNull(str).replace("\r\n", "\n")
                 .replace("\r", "\n");
+    }
+
+    public static FilterLoader createFilterLoader(EquipmentType equipmentType, Map<UUID, Set<String>> filtersMapping) {
+        return filterUuids -> filterUuids.stream()
+                .collect(Collectors.toMap(
+                        Function.identity(),
+                        uuid -> equipmentFilter(equipmentType, filtersMapping.getOrDefault(uuid, Set.of()))
+                ));
+    }
+
+    private static Filter equipmentFilter(EquipmentType equipmentType, Set<String> equipmentsIds) {
+        return IdentifierListFilter.builder()
+                .equipmentType(equipmentType)
+                .equipmentIds(equipmentsIds)
+                .build();
+    }
+
+    public static List<String> getAllMessages(ReportNode reportNode) {
+        List<String> messages = new ArrayList<>();
+        getAllMessagesRecursively(reportNode, messages);
+        return messages;
+    }
+
+    private static void getAllMessagesRecursively(ReportNode reportNode, List<String> messages) {
+        messages.add(reportNode.getMessage());
+        reportNode.getChildren().forEach(child -> getAllMessagesRecursively(child, messages));
     }
 }
