@@ -14,10 +14,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.filter.wip.Filter;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.GenerationDispatch;
 
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -36,10 +41,10 @@ public class GenerationDispatchInfos extends ModificationInfos {
     private Double defaultOutageRate;
 
     @Schema(description = "generators without outage")
-    private List<GeneratorsFilterInfos> generatorsWithoutOutage;
+    private List<FilterInfos> generatorsWithoutOutage;
 
     @Schema(description = "generators with fixed supply")
-    private List<GeneratorsFilterInfos> generatorsWithFixedSupply;
+    private List<FilterInfos> generatorsWithFixedSupply;
 
     @Schema(description = "generators frequency reserve")
     private List<GeneratorsFrequencyReserveInfos> generatorsFrequencyReserve;
@@ -48,15 +53,55 @@ public class GenerationDispatchInfos extends ModificationInfos {
     private List<SubstationsGeneratorsOrderingInfos> substationsGeneratorsOrdering;
 
     @Override
-    public AbstractModification toModification() {
+    public AbstractModification toModification(ModificationContext modificationContext) {
+        Set<UUID> referencedFilterIds = streamReferencedFilters().map(FilterInfos::getId).collect(Collectors.toCollection(LinkedHashSet::new));
+        Map<UUID, Filter> filtersById = referencedFilterIds.isEmpty()
+                ? Map.of()
+                : modificationContext.filterLoader().load(List.copyOf(referencedFilterIds));
+
         return GenerationDispatch.builder()
                 .lossCoefficient(getLossCoefficient())
                 .defaultOutageRate(getDefaultOutageRate())
-                .generatorsWithoutOutage(getGeneratorsWithoutOutage())
-                .generatorsWithFixedSupply(getGeneratorsWithFixedSupply())
-                .generatorsFrequencyReserve(getGeneratorsFrequencyReserve())
-                .substationsGeneratorsOrdering(getSubstationsGeneratorsOrdering())
+                .generatorsWithoutOutage(resolveFilters(getGeneratorsWithoutOutage(), filtersById))
+                .generatorsWithFixedSupply(resolveFilters(getGeneratorsWithFixedSupply(), filtersById))
+                .generatorsFrequencyReserve(nullToEmpty(getGeneratorsFrequencyReserve()).stream()
+                        .map(reserve -> new GenerationDispatch.GeneratorsFrequencyReserve(
+                                resolveFilters(reserve.getGeneratorsFilters(), filtersById),
+                                reserve.getFrequencyReserve()))
+                        .toList())
+                .substationsGeneratorsOrdering(nullToEmpty(getSubstationsGeneratorsOrdering()).stream()
+                        .map(SubstationsGeneratorsOrderingInfos::getSubstationIds)
+                        .toList())
+                .missingFiltersCount((int) referencedFilterIds.stream().filter(id -> !filtersById.containsKey(id)).count())
                 .build();
+    }
+
+    private Stream<FilterInfos> streamReferencedFilters() {
+        return Stream.of(
+                nullToEmpty(getGeneratorsWithoutOutage()).stream(),
+                nullToEmpty(getGeneratorsWithFixedSupply()).stream(),
+                nullToEmpty(getGeneratorsFrequencyReserve()).stream().flatMap(reserve -> nullToEmpty(reserve.getGeneratorsFilters()).stream())
+        ).flatMap(Function.identity());
+    }
+
+    /**
+     * Resolves filter references against the loaded filters, keeping their order and dropping duplicates.
+     * Filters that could not be loaded are skipped: they are accounted for by the modification's missing filters count.
+     */
+    private static List<Filter> resolveFilters(List<FilterInfos> filterInfosList, Map<UUID, Filter> filtersById) {
+        Map<UUID, Filter> resolvedFilters = new LinkedHashMap<>();
+        for (FilterInfos filterInfos : nullToEmpty(filterInfosList)) {
+            Filter filter = filtersById.get(filterInfos.getId());
+            if (filter != null && !resolvedFilters.containsKey(filterInfos.getId())) {
+                filter.setName(filterInfos.getName());
+                resolvedFilters.put(filterInfos.getId(), filter);
+            }
+        }
+        return List.copyOf(resolvedFilters.values());
+    }
+
+    private static <T> List<T> nullToEmpty(List<T> list) {
+        return list == null ? List.of() : list;
     }
 
     @Override
