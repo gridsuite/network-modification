@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -26,35 +25,26 @@ class ModificationReferenceInfosTest {
 
     @Test
     void anUnresolvedPermissionIsLeftOutOfTheJson() throws JsonProcessingException {
-        assertFalse(mapper.writeValueAsString(buildReference(null)).contains("permission"));
+        assertFalse(mapper.writeValueAsString(buildReference(null)).contains("editable"));
     }
 
     @Test
     void aResolvedPermissionIsSerialized() throws JsonProcessingException {
-        assertTrue(mapper.writeValueAsString(buildReference(PermissionType.WRITE)).contains("\"permission\":\"WRITE\""));
-        assertTrue(mapper.writeValueAsString(buildReference(PermissionType.READ)).contains("\"permission\":\"READ\""));
+        assertTrue(mapper.writeValueAsString(buildReference(true)).contains("\"editable\":true"));
+        assertTrue(mapper.writeValueAsString(buildReference(false)).contains("\"editable\":false"));
     }
 
     @Test
     void aJsonWithoutPermissionLeavesItUnresolved() throws JsonProcessingException {
         String json = mapper.writeValueAsString(buildReference(null));
-        assertNull(mapper.readValue(json, ModificationReferenceInfos.class).getPermission());
+        assertNull(mapper.readValue(json, ModificationReferenceInfos.class).getEditable());
     }
 
-    @Test
-    void aPermissionGrantsTheWeakerOnes() {
-        assertTrue(PermissionType.MANAGE.grants(PermissionType.WRITE));
-        assertTrue(PermissionType.WRITE.grants(PermissionType.WRITE));
-        assertTrue(PermissionType.WRITE.grants(PermissionType.READ));
-        assertFalse(PermissionType.READ.grants(PermissionType.WRITE));
-        assertEquals(PermissionType.READ, PermissionType.values()[0]);
-    }
-
-    private ModificationReferenceInfos buildReference(PermissionType permission) {
+    private ModificationReferenceInfos buildReference(Boolean editable) {
         return ModificationReferenceInfos.builder()
             .referenceType(ModificationReferenceInfos.Type.DIRECTORY)
             .referencedId(UUID.randomUUID())
-            .permission(permission)
+            .editable(editable)
             .build();
     }
 }
