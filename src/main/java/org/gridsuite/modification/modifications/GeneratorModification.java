@@ -24,6 +24,7 @@ import java.util.List;
 
 import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_GENERATOR_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
+import static org.gridsuite.modification.utils.ModificationUtils.isRegulatingTerminalModified;
 
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
@@ -425,8 +426,7 @@ public class GeneratorModification extends AbstractInjectionModification {
         String oldVoltageLevel = null;
         String oldEquipment = null;
 
-        // if field voltageRegulationType is null or its value is null, we do not modify the regulating terminal
-        if (voltageRegulationType == null || voltageRegulationType.getValue() == null) {
+        if (!isRegulatingTerminalModified(voltageRegulationType)) {
             return;
         }
 

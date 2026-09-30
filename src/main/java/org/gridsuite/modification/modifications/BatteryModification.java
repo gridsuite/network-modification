@@ -281,8 +281,8 @@ public class BatteryModification extends AbstractInjectionModification {
         Terminal regulatingTerminal = voltageRegulation.getRegulatingTerminal();
         String oldVoltageLevel = null;
         String oldEquipment = null;
-        // if field voltageRegulationType is null or its value is null, we do not modify the regulating terminal
-        if (voltageRegulationType == null || voltageRegulationType.getValue() == null) {
+
+        if (!isRegulatingTerminalModified(voltageRegulationType)) {
             return;
         }
         // If there is no regulating terminal in file, regulating terminal voltage level
