@@ -31,7 +31,7 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "Composite modification")
 @JsonTypeName("COMPOSITE_MODIFICATION")
-public class CompositeModificationInfos extends ModificationInfos implements MaxDepthHolderInfos {
+public class CompositeModificationInfos extends ModificationInfos implements SublevelCountHolderInfos {
 
     @Schema(description = "composite modification name")
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -43,9 +43,9 @@ public class CompositeModificationInfos extends ModificationInfos implements Max
 
     // While composite submodifications are lazy loaded we need an indicator to know if we allow depth sensitive operation
     // added only to the DTO so it can be computed while retrieving composite metadata at runtime
-    @Schema(description = "composite modification max depth")
+    @Schema(description = "composite modification sublevel count")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Integer maxDepth;
+    private Integer sublevelCount;
 
     @Override
     public AbstractModification toModification(ModificationContext context) {

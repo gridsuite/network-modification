@@ -12,8 +12,8 @@ package org.gridsuite.modification.dto;
  *
  * @author Hugo Marcellin <hugo.marcelin at rte-france.com>
  */
-public interface MaxDepthHolderInfos {
-    Integer getMaxDepth();
+public interface SublevelCountHolderInfos {
+    Integer getSublevelCount();
 
-    void setMaxDepth(Integer maxDepth);
+    void setSublevelCount(Integer sublevelCount);
 }

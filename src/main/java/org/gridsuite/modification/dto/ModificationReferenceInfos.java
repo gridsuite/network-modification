@@ -34,7 +34,7 @@ import java.util.UUID;
 @ToString(callSuper = true)
 @Schema(description = "Modification reference")
 @JsonTypeName("MODIFICATION_REFERENCE")
-public class ModificationReferenceInfos extends ModificationInfos implements MaxDepthHolderInfos {
+public class ModificationReferenceInfos extends ModificationInfos implements SublevelCountHolderInfos {
     public enum Type {
         BASIC,
         DIRECTORY,
@@ -52,9 +52,9 @@ public class ModificationReferenceInfos extends ModificationInfos implements Max
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private ModificationInfos referencedInfos;
 
-    @Schema(description = "max depth of the referenced composite")
+    @Schema(description = "sublevel count of the referenced composite")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Integer maxDepth;
+    private Integer sublevelCount;
 
     @Override
     public AbstractModification toModification(ModificationContext context) {
