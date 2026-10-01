@@ -1,11 +1,12 @@
-/**
- * Copyright (c) 2023, RTE (http://www.rte-france.com)
+/*
+ * Copyright (c) 2023-2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
-package org.gridsuite.modification.dto;
+package org.gridsuite.modification.dto.scaling;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
@@ -14,8 +15,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.context.ModificationContext;
+import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
 import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.GeneratorScaling;
+import org.gridsuite.modification.modifications.data.ScalingVariationData;
+import org.gridsuite.modification.modifications.scaling.GeneratorScaling;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -30,9 +38,14 @@ import org.gridsuite.modification.modifications.GeneratorScaling;
 public class GeneratorScalingInfos extends ScalingInfos {
 
     @Override
-    public AbstractModification toModification() {
+    public AbstractModification toModification(ModificationContext modificationContext) {
+        Map<UUID, FilterWithDistributionKeys> resolvedFilters = resolveFilters(modificationContext);
+        List<ScalingVariationData> scalingVariations = getVariations().stream()
+                .map(svi -> svi.toData(resolvedFilters))
+                .toList();
+
         return GeneratorScaling.builder()
-                .variations(getVariations())
+                .scalingVariations(scalingVariations)
                 .variationType(getVariationType())
                 .build();
     }

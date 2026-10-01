@@ -16,8 +16,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.context.FilterUtils;
 import org.gridsuite.modification.context.ModificationContext;
+import org.gridsuite.modification.context.utils.FilterUtils;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.ByFilterDeletion;
 
