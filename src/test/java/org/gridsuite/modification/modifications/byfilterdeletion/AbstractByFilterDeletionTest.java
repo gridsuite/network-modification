@@ -11,8 +11,8 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import lombok.Getter;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.modification.context.FilterLoader;
 import org.gridsuite.modification.context.ModificationContext;
+import org.gridsuite.modification.context.loaders.FilterLoader;
 import org.gridsuite.modification.dto.ByFilterDeletionInfos;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

@@ -16,6 +16,8 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.context.ModificationContext;
+import org.gridsuite.modification.dto.scaling.GeneratorScalingInfos;
+import org.gridsuite.modification.dto.scaling.LoadScalingInfos;
 import org.gridsuite.modification.dto.tabular.LimitSetsTabularModificationInfos;
 import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
 import org.gridsuite.modification.dto.tabular.TabularModificationInfos;

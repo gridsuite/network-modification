@@ -18,7 +18,9 @@ import org.apache.commons.text.StringSubstitutor;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.filter.wip.Filter;
 import org.gridsuite.filter.wip.IdentifierListFilter;
-import org.gridsuite.modification.context.FilterLoader;
+import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
+import org.gridsuite.modification.context.loaders.FilterLoader;
+import org.gridsuite.modification.context.loaders.FilterWithDistributionKeysLoader;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.junit.jupiter.api.Assertions;
 import org.junit.platform.commons.util.StringUtils;
@@ -154,7 +156,7 @@ public final class TestUtils {
     }
 
     public static void checkLimitsGroupOnLine(Line line, String side1SelectedGroupId, String side2SelectedGroupId,
-                                        List<String> side1GroupIds, List<String> side2GroupIds) {
+                                              List<String> side1GroupIds, List<String> side2GroupIds) {
         assertFalse(line.getOperationalLimitsGroups1().isEmpty());
         assertFalse(line.getOperationalLimitsGroups2().isEmpty());
         assertEquals(side1GroupIds.size(), line.getOperationalLimitsGroups1().size());
@@ -209,6 +211,28 @@ public final class TestUtils {
         return IdentifierListFilter.builder()
                 .equipmentType(equipmentType)
                 .equipmentIds(equipmentsIds)
+                .build();
+    }
+
+    public static FilterWithDistributionKeysLoader createFilterWithDistributionKeysLoader(EquipmentType equipmentType, Map<UUID, Set<String>> filtersMapping,
+                                                                                          Map<String, Double> distributionKeyMappings) {
+        return filterUuids -> filterUuids.stream()
+                .collect(Collectors.toMap(
+                        Function.identity(),
+                        uuid -> buildFilterWithDistributionKeys(uuid, equipmentType, filtersMapping, distributionKeyMappings)));
+    }
+
+    private static FilterWithDistributionKeys buildFilterWithDistributionKeys(UUID filterUuid, EquipmentType equipmentType, Map<UUID, Set<String>> filtersMapping,
+                                                                              Map<String, Double> distributionKeyMappings) {
+        Set<String> equipmentIds = filtersMapping.getOrDefault(filterUuid, Set.of());
+        Map<String, Double> distributionKeys = new HashMap<>();
+        equipmentIds.stream()
+                .filter(distributionKeyMappings::containsKey)
+                .forEach(equipmentId -> distributionKeys.put(equipmentId, distributionKeyMappings.get(equipmentId)));
+
+        return FilterWithDistributionKeys.builder()
+                .filter(equipmentFilter(equipmentType, equipmentIds))
+                .distributionKeys(distributionKeys)
                 .build();
     }
 
