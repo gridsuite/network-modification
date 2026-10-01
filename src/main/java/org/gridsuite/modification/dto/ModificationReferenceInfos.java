@@ -34,7 +34,7 @@ import java.util.UUID;
 @ToString(callSuper = true)
 @Schema(description = "Modification reference")
 @JsonTypeName("MODIFICATION_REFERENCE")
-public class ModificationReferenceInfos extends ModificationInfos {
+public class ModificationReferenceInfos extends ModificationInfos implements SublevelCountHolderInfos {
     public enum Type {
         BASIC,
         DIRECTORY,
@@ -51,6 +51,10 @@ public class ModificationReferenceInfos extends ModificationInfos {
     @Schema(description = "modification reference info")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private ModificationInfos referencedInfos;
+
+    @Schema(description = "sublevel count of the referenced composite")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer sublevelCount;
 
     @Override
     public AbstractModification toModification(ModificationContext context) {
