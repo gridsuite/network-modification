@@ -250,9 +250,9 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
                     .connect(connect)
                     .build()))
             .build();
-        ReportNode report = modification.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test").build());
+                .withMessageTemplate("test").build();
         modification.toModification().apply(getNetwork(), report);
         return report;
     }
@@ -266,7 +266,7 @@ class VoltageInitModificationTest extends AbstractNetworkModificationTest {
     @Test
     void testVoltageInitConnectedCurrentSection0Section0() throws Exception {
         ReportNode report = testVoltageInitShunt("v2shunt", 1, 0, false);
-        testReportNode(report, "/report/voltage-init-modification-0-section-count-for-shunt.txt");
+        testReportNode(report.getChildren().get(0), "/report/voltage-init-modification-0-section-count-for-shunt.txt");
     }
 
     @Test

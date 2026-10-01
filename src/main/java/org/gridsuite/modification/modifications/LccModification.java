@@ -62,13 +62,21 @@ public class LccModification extends AbstractEquipmentModification {
         this.converterStation2 = converterStation2;
     }
 
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("network.modification.lcc.modification")
+            .withUntypedValue("lccId", getEquipmentId())
+            .add();
+    }
+
     @Override
     public String getName() {
         return ModificationType.LCC_MODIFICATION.name();
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         HvdcLine hvdcLine = ModificationUtils.getInstance().getHvdcLine(network, equipmentId);
         modifyLcc(network, hvdcLine, subReportNode);
     }

@@ -40,7 +40,8 @@ public class GroovyScript extends AbstractModification {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         var conf = new CompilerConfiguration();
         var binding = new Binding();
         binding.setProperty("network", network);
@@ -51,6 +52,12 @@ public class GroovyScript extends AbstractModification {
             .withMessageTemplate("network.modification.groovyScriptApplied")
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.groovyScript")
+                .add();
     }
 
     @Override

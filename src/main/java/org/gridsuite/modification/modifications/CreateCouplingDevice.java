@@ -28,14 +28,21 @@ public class CreateCouplingDevice extends AbstractModification {
 
     /**
      * @param network
-     * @param subReportNode
+     * @param reportNode
      */
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         new com.powsybl.iidm.modification.topology.CreateCouplingDeviceBuilder()
             .withBusOrBusbarSectionId1(busbarSectionId1)
             .withBusOrBusbarSectionId2(busbarSectionId2)
             .build().apply(network, false, subReportNode);
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode().withMessageTemplate("network.modification.createCouplingDevice")
+            .withUntypedValue("voltageLevelId", getVoltageLevelId())
+            .add();
     }
 
     @Override

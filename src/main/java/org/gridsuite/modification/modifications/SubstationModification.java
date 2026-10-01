@@ -51,7 +51,8 @@ public class SubstationModification extends AbstractEquipmentModification {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         Substation station = network.getSubstation(equipmentId);
 
         // modify the substation in the network
@@ -65,6 +66,13 @@ public class SubstationModification extends AbstractEquipmentModification {
         ModificationUtils.getInstance().applyElementaryModifications(station::setCountry, station::getNullableCountry, country, subReportNode, "Country");
         // properties
         PropertiesUtils.applyProperties(station, subReportNode, properties, "network.modification.SubstationProperties");
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.substation.modification")
+                .withUntypedValue("substationId", this.getEquipmentId())
+                .add();
     }
 
     @Override

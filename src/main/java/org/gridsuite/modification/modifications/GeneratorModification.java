@@ -202,10 +202,18 @@ public class GeneratorModification extends AbstractInjectionModification {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         Generator generator = ModificationUtils.getInstance().getGenerator(network, equipmentId);
         // modify the generator in the network
         modifyGenerator(generator, subReportNode);
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.generator.modification")
+                .withUntypedValue("generatorId", this.getEquipmentId())
+                .add();
     }
 
     @Override

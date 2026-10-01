@@ -54,7 +54,8 @@ public class DeleteAttachingLine extends AbstractModification {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         RevertCreateLineOnLineBuilder builder = new RevertCreateLineOnLineBuilder();
         RevertCreateLineOnLine algo = builder.withLineToBeMerged1Id(lineToAttachTo1Id)
                 .withLineToBeMerged2Id(lineToAttachTo2Id)
@@ -69,6 +70,10 @@ public class DeleteAttachingLine extends AbstractModification {
                 replacingLine1Id,
                 algo,
                 subReportNode);
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode().withMessageTemplate("network.modification.deleteAttachingLine").add();
     }
 
     @Override

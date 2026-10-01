@@ -37,11 +37,19 @@ public class SubstationCreation extends AbstractEquipmentCreation {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         ModificationUtils.getInstance().createSubstation(this, subReportNode, network);
         Substation substation = network.getSubstation(equipmentId);
         // properties
         PropertiesUtils.applyProperties(substation, subReportNode, properties, "network.modification.SubstationProperties");
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.substation.creation")
+                .withUntypedValue("substationId", this.getEquipmentId())
+                .add();
     }
 
     @Override

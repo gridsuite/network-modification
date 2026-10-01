@@ -129,7 +129,8 @@ public class VscCreation extends AbstractEquipmentCreation {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         VscConverterStation createdConverterStation1 = createConverterStation(network, converterStation1, subReportNode, "1");
 
         VscConverterStation createdConverterStation2 = createConverterStation(network, converterStation2, subReportNode, "2");
@@ -177,6 +178,13 @@ public class VscCreation extends AbstractEquipmentCreation {
         }
 
         PropertiesUtils.applyProperties(hvdcLine, subReportNode, properties, "network.modification.VscProperties");
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.vsc.creation")
+                .withUntypedValue("vscId", getEquipmentId())
+                .add();
     }
 
     @Override

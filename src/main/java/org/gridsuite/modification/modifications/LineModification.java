@@ -113,10 +113,18 @@ public class LineModification extends AbstractBranchModification {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         Line line = network.getLine(equipmentId);
         // modify the line in the network
         modifyLine(line, subReportNode);
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.line.modification")
+                .withUntypedValue("lineId", getEquipmentId())
+                .add();
     }
 
     @Override

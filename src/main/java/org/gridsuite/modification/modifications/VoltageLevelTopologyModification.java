@@ -56,7 +56,8 @@ public class VoltageLevelTopologyModification extends AbstractEquipmentBase {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         for (EquipmentAttributeModification equipmentAttributeModification : equipmentAttributeModificationList) {
             equipmentAttributeModification.apply(network, subReportNode);
         }
@@ -64,6 +65,13 @@ public class VoltageLevelTopologyModification extends AbstractEquipmentBase {
                 .withMessageTemplate("network.modification.voltageLevelTopologyModified")
                 .withUntypedValue("id", equipmentId)
                 .withSeverity(TypedValue.DEBUG_SEVERITY)
+                .add();
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.VOLTAGE_LEVEL_TOPOLOGY_MODIFICATION")
+                .withUntypedValue("voltageLevelId", getEquipmentId())
                 .add();
     }
 

@@ -72,10 +72,18 @@ public class LoadModification extends AbstractInjectionModification {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         Load load = network.getLoad(equipmentId);
         // modify the load in the network
         modifyLoad(load, subReportNode);
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.load.modification")
+                .withUntypedValue("loadId", getEquipmentId())
+                .add();
     }
 
     @Override

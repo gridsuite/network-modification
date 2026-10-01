@@ -245,9 +245,9 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         BatteryCreationInfos batteryCreationInfos = (BatteryCreationInfos) buildModification();
         batteryCreationInfos.setDirectTransX(Double.NaN);
 
-        ReportNode report = batteryCreationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test").build());
+                .withMessageTemplate("test").build();
         batteryCreationInfos.toModification().apply(getNetwork(), report);
         assertLogMessage("cannot add short-circuit extension on battery with id=idBattery1 : Undefined directTransX", "network.modification.ShortCircuitExtensionAddError", report);
     }

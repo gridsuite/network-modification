@@ -50,7 +50,8 @@ public class DeleteVoltageLevelOnLine extends AbstractModification {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         RevertConnectVoltageLevelOnLineBuilder builder = new RevertConnectVoltageLevelOnLineBuilder();
         RevertConnectVoltageLevelOnLine algo = builder.withLine1Id(lineToAttachTo1Id)
                 .withLine2Id(lineToAttachTo2Id)
@@ -64,6 +65,10 @@ public class DeleteVoltageLevelOnLine extends AbstractModification {
                 replacingLine1Id,
                 algo,
                 subReportNode);
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode().withMessageTemplate("network.modification.deleteVoltageLevelOnLine").add();
     }
 
     @Override

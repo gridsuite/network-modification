@@ -126,7 +126,8 @@ public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         // create the static var compensator in the network
         VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
         if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
@@ -143,6 +144,10 @@ public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
                 .withUntypedValue("id", equipmentId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode().withMessageTemplate("network.modification.staticVarCompensatorCreation").withUntypedValue("id", this.getEquipmentId()).add();
     }
 
     @Override

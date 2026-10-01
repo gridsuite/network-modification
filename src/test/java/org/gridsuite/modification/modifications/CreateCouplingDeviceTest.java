@@ -89,7 +89,7 @@ class CreateCouplingDeviceTest extends AbstractNetworkModificationTest {
             .withMessageTemplate("test")
             .build();
         Assertions.assertDoesNotThrow(() -> modification.apply(network, report));
-        Assertions.assertEquals(1, report.getChildren().size());
-        Assertions.assertEquals("core.iidm.modification.unexpectedDifferentVoltageLevels", report.getChildren().getFirst().getMessageKey());
+        Assertions.assertEquals(1, report.getChildren().get(0).getChildren().size());
+        Assertions.assertEquals("core.iidm.modification.unexpectedDifferentVoltageLevels", report.getChildren().get(0).getChildren().getFirst().getMessageKey());
     }
 }

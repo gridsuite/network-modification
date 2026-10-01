@@ -112,9 +112,9 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
             .modifications(creations)
             .date(Instant.now())
             .build();
-        ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test").build());
+                .withMessageTemplate("test").build();
         creationInfos.toModification().apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: 1 load have been created", "network.modification.tabular.creation", reportNode);
         assertLogMessage("Creation of id1", "network.modification.tabular.creation.equipmentId", reportNode);
@@ -147,9 +147,9 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
                 .modifications(creations)
                 .date(Instant.now())
                 .build();
-        ReportNode reportNode = creationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test").build());
+                .withMessageTemplate("test").build();
         creationInfos.toModification().apply(getNetwork(), reportNode);
         assertLogMessage("Tabular creation: No loads have been created", "network.modification.tabular.creation.error", reportNode);
         assertLogMessage("Creation errors", "network.modification.tabular.creation.error.equipmentError", reportNode);

@@ -55,9 +55,9 @@ class TabularLoadModificationsTest extends AbstractNetworkModificationTest {
     @Override
     public void testApply() {
         ModificationInfos modificationInfos = buildModification();
-        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test").build());
+                .withMessageTemplate("test").build();
         modificationInfos.toModification().apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication(reportNode);
     }

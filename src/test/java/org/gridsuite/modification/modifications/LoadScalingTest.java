@@ -171,9 +171,9 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
             .build();
         LoadScaling loadScaling = (LoadScaling) loadScalingInfo.toModification();
         loadScaling.initApplicationContext(filterService, null, null);
-        ReportNode report = loadScalingInfo.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode report = ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test").build());
+                .withMessageTemplate("test").build();
         loadScaling.apply(getNetwork(), report);
         assertLogMessage(loadScaling.getName() + ": There is no valid equipment ID among the provided filter(s)",
                 "network.modification.invalidFilters", report);

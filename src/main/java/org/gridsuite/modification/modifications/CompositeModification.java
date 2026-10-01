@@ -65,30 +65,37 @@ public class CompositeModification extends AbstractModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
+    public void apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode) {
+        ReportNode compositeNode = createSubReportNode(reportNode);
         compositeModificationInfos.getModificationsInfos().stream()
                 .filter(modificationInfos -> modificationInfos.isActivatedOn(getRootNetworkTag()))
                 .forEach(
                         modif -> {
-                            ReportNode modifNode = modif.createSubReportNode(subReportNode);
                             AbstractModification modification = modif.toModification(modificationContext);
                             try {
                                 modification.check(network);
                                 modification.initApplicationContext(filterService, loadFlowService, getRootNetworkTag());
-                                modification.apply(network, namingStrategy, modifNode);
+                                modification.apply(network, namingStrategy, compositeNode);
                             } catch (Exception e) {
                                 // in case of error in a network modification, the composite modification doesn't interrupt its execution :
                                 // the following modifications will be carried out
-                                modifNode.newReportNode()
+                                compositeNode.newReportNode()
                                         .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                                         .withMessageTemplate("network.modification.composite.exception.report")
-                                        .withUntypedValue("modificationName", modif.toModification().getName())
+                                        .withUntypedValue("modificationName", modification.getName())
                                         .withUntypedValue(VALUE_KEY_ERROR_MESSAGE, e.getMessage())
                                         .withSeverity(TypedValue.ERROR_SEVERITY)
                                         .add();
                             }
                         }
         );
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.composite.apply")
+                .withUntypedValue("modificationName", compositeModificationInfos.getName())
+                .add();
     }
 
     @Override

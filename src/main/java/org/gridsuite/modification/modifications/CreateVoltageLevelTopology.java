@@ -56,12 +56,13 @@ public class CreateVoltageLevelTopology extends AbstractModification {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
-        apply(network, new DefaultNamingStrategy(), subReportNode);
+    public void apply(Network network, ReportNode reportNode) {
+        apply(network, new DefaultNamingStrategy(), reportNode);
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
+    public void apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         createVoltageLevelBusBarSection(network, namingStrategy, subReportNode, voltageLevel);
     }
@@ -92,6 +93,12 @@ public class CreateVoltageLevelTopology extends AbstractModification {
         Optional<BusbarSectionPosition> maxBusBarSectionPosition = busbarExtensions.stream()
             .max(Comparator.comparingInt(BusbarSectionPosition::getBusbarIndex));
         return maxBusBarSectionPosition.map(busbarSectionPosition -> busbarSectionPosition.getBusbarIndex() + 1).orElse(1);
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode().withMessageTemplate("network.modification.createVoltageLevelTopology")
+            .withUntypedValue("voltageLevelId", getVoltageLevelId())
+            .add();
     }
 
     @Override

@@ -68,7 +68,8 @@ public class OperatingStatusModification extends AbstractEquipmentBase {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         Identifiable<?> equipment = network.getIdentifiable(equipmentId);
         if (equipment == null) {
             throw new NetworkModificationException(EQUIPMENT_NOT_FOUND, equipmentId);
@@ -86,6 +87,20 @@ public class OperatingStatusModification extends AbstractEquipmentBase {
             default ->
                     throw NetworkModificationException.createOperatingActionTypeUnsupported(action);
         }
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        String messageKey = switch (action) {
+            case LOCKOUT -> "network.modification.OPERATING_STATUS_MODIFICATION_LOCKOUT";
+            case TRIP -> "network.modification.OPERATING_STATUS_MODIFICATION_TRIP";
+            case ENERGISE_END_ONE -> "network.modification.OPERATING_STATUS_MODIFICATION_ENERGISE_END_ONE";
+            case ENERGISE_END_TWO -> "network.modification.OPERATING_STATUS_MODIFICATION_ENERGISE_END_TWO";
+            case SWITCH_ON -> "network.modification.OPERATING_STATUS_MODIFICATION_SWITCH_ON";
+        };
+        return reportNode.newReportNode()
+                .withMessageTemplate(messageKey)
+                .withUntypedValue("equipmentId", this.getEquipmentId())
+                .add();
     }
 
     @Override

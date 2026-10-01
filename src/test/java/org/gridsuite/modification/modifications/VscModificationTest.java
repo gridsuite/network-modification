@@ -431,9 +431,9 @@ class VscModificationTest extends AbstractNetworkModificationTest {
         assertMeasurements((VscConverterStation) hvdcLine.getConverterStation1(), Measurement.Type.REACTIVE_POWER, newCs1QMeasurementValue, newCs1QMeasurementValidity);
         assertMeasurements((VscConverterStation) hvdcLine.getConverterStation2(), Measurement.Type.ACTIVE_POWER, newCs2PMeasurementValue, newCs2PMeasurementValidity);
         assertMeasurements((VscConverterStation) hvdcLine.getConverterStation2(), Measurement.Type.REACTIVE_POWER, newCs2QMeasurementValue, newCs2QMeasurementValidity);
-        assertMeasurementsReportNodes(rootNode, vsc1.getEquipmentId(), CS_1_MEASUREMENT_P_VALUE, newCs1PMeasurementValue, CS_1_MEASUREMENT_P_VALID, newCs1PMeasurementValidity,
+        assertMeasurementsReportNodes(rootNode.getChildren().get(0), vsc1.getEquipmentId(), CS_1_MEASUREMENT_P_VALUE, newCs1PMeasurementValue, CS_1_MEASUREMENT_P_VALID, newCs1PMeasurementValidity,
                 CS_1_MEASUREMENT_Q_VALUE, newCs1QMeasurementValue, CS_1_MEASUREMENT_Q_VALID, newCs1QMeasurementValidity);
-        assertMeasurementsReportNodes(rootNode, vsc2.getEquipmentId(), CS_2_MEASUREMENT_P_VALUE, newCs2PMeasurementValue, CS_2_MEASUREMENT_P_VALID, newCs2PMeasurementValidity,
+        assertMeasurementsReportNodes(rootNode.getChildren().get(0), vsc2.getEquipmentId(), CS_2_MEASUREMENT_P_VALUE, newCs2PMeasurementValue, CS_2_MEASUREMENT_P_VALID, newCs2PMeasurementValidity,
                 CS_2_MEASUREMENT_Q_VALUE, newCs2QMeasurementValue, CS_2_MEASUREMENT_Q_VALID, newCs2QMeasurementValidity);
     }
 

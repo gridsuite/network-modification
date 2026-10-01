@@ -138,7 +138,8 @@ public class GeneratorCreation extends AbstractInjectionCreation implements Reac
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         // create the generator in the network
         VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId);
         if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
@@ -152,6 +153,13 @@ public class GeneratorCreation extends AbstractInjectionCreation implements Reac
         // apply the properties
         Generator generator = network.getGenerator(equipmentId);
         PropertiesUtils.applyProperties(generator, subReportNode, properties, "network.modification.GeneratorProperties");
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.generator.creation")
+                .withUntypedValue("generatorId", this.getEquipmentId())
+                .add();
     }
 
     @Override

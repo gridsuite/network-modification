@@ -284,7 +284,7 @@ class VoltageLevelModificationTest extends AbstractNetworkModificationTest {
         updateModif.toModification().apply(getNetwork(), rootNode);
 
         assertBusbarSectionMeasurement(getNetwork().getBusbarSection("1.1"), updatedValue, updatedValidity);
-        assertVoltageMeasurementReportNodes(rootNode, MEASUREMENT_V_VALUE, updatedValue, MEASUREMENT_V_VALID, updatedValidity);
+        assertVoltageMeasurementReportNodes(rootNode.getChildren().get(0), MEASUREMENT_V_VALUE, updatedValue, MEASUREMENT_V_VALID, updatedValidity);
     }
 
     private void assertVoltageMeasurementReportNodes(ReportNode rootNode, Double oldValue, Double newValue, Boolean oldValidity, Boolean newValidity) {

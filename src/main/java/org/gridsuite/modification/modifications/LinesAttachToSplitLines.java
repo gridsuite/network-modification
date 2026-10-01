@@ -64,7 +64,8 @@ public class LinesAttachToSplitLines extends AbstractModification {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         ReplaceTeePointByVoltageLevelOnLine algo = new ReplaceTeePointByVoltageLevelOnLineBuilder()
                 .withTeePointLine1(lineToAttachTo1Id)
                 .withTeePointLine2(lineToAttachTo2Id)
@@ -76,6 +77,12 @@ public class LinesAttachToSplitLines extends AbstractModification {
                 .withNewLine2Name(replacingLine2Name)
                 .build();
         algo.apply(network, true, subReportNode);
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.linesAttachToSplitLines")
+                .add();
     }
 
     @Override

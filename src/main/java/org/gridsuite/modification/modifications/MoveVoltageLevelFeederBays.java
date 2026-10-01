@@ -75,7 +75,8 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         for (MoveFeederBayInfos info : feederBays) {
             Connectable<?> connectable = network.getConnectable(info.getEquipmentId());
             if (connectable != null) {
@@ -88,6 +89,13 @@ public class MoveVoltageLevelFeederBays extends AbstractModification {
                         .add();
             }
         }
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+            .withMessageTemplate("network.modification.MOVE_VOLTAGE_LEVEL_FEEDER_BAYS")
+            .withUntypedValue("voltageLevelId", getVoltageLevelId())
+            .add();
     }
 
     @Override

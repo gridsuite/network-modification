@@ -160,9 +160,17 @@ public class VscModification extends AbstractEquipmentModification {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         HvdcLine hvdcLine = ModificationUtils.getInstance().getHvdcLine(network, equipmentId);
         modifyVsc(network, hvdcLine, subReportNode);
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.vsc.modification")
+                .withUntypedValue("vscId", getEquipmentId())
+                .add();
     }
 
     @Override

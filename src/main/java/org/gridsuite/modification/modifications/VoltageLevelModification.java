@@ -120,7 +120,8 @@ public class VoltageLevelModification extends AbstractEquipmentModification {
     }
 
     @Override
-    public void apply(Network network, ReportNode subReportNode) {
+    public void apply(Network network, ReportNode reportNode) {
+        ReportNode subReportNode = createSubReportNode(reportNode);
         VoltageLevel voltageLevel = ModificationUtils.getInstance().getVoltageLevel(network, equipmentId);
 
         subReportNode.newReportNode()
@@ -167,6 +168,13 @@ public class VoltageLevelModification extends AbstractEquipmentModification {
             measurements = (Measurements<?>) bbs.newExtension(MeasurementsAdder.class).add();
         }
         upsertMeasurement(measurements, Measurement.Type.VOLTAGE, vValue, vValidity, reports);
+    }
+
+    public ReportNode createSubReportNode(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("network.modification.voltageLevel.modification")
+                .withUntypedValue("voltageLevelId", getEquipmentId())
+                .add();
     }
 
     @Override

@@ -57,9 +57,9 @@ class TabularGeneratorModificationsTest extends AbstractNetworkModificationTest 
     @Override
     public void testApply() {
         ModificationInfos modificationInfos = buildModification();
-        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("test").build());
+                .withMessageTemplate("test").build();
         modificationInfos.toModification().apply(getNetwork(), reportNode);
         assertAfterNetworkModificationApplication(reportNode);
     }
@@ -92,9 +92,9 @@ class TabularGeneratorModificationsTest extends AbstractNetworkModificationTest 
                 .stashed(false)
                 .date(Instant.now())
                 .build();
-        ReportNode reportNode = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+        ReportNode reportNode = ReportNode.newRootReportNode()
             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-            .withMessageTemplate("test").build());
+            .withMessageTemplate("test").build();
         modificationInfos.toModification().apply(getNetwork(), reportNode);
 
         assertLogMessage("Tabular modification: No generators have been modified", "network.modification.tabular.modification.error", reportNode);
