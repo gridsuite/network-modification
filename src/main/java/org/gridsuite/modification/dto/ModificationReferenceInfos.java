@@ -65,7 +65,12 @@ public class ModificationReferenceInfos extends ModificationInfos {
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
-        return switch (referenceType) {
+         String messageKey = switch (referenceType) {
+        case ELEMENTARY -> "network.modification.elementary.reference.apply";
+        case DIRECTORY -> "network.modification.directory.reference.apply";
+        case COMPOSITE -> "network.modification.composite.reference.apply";
+    };
+    return reportNode.newReportNode().withMessageTemplate(messageKey).add();
             case Type.ELEMENTARY ->
                 reportNode.newReportNode().withMessageTemplate("network.modification.elementary.reference.apply").add();
             case Type.DIRECTORY ->
