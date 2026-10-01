@@ -13,6 +13,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.context.FilterLoader;
+import org.gridsuite.modification.context.FilterUtils;
+import org.gridsuite.modification.modifications.data.assignment.DataType;
+import org.gridsuite.modification.modifications.data.assignment.PropertyAssignmentData;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
@@ -35,6 +39,16 @@ public class PropertyAssignmentInfos extends AssignmentInfos<String> {
     @Override
     public String getEditedFieldLabel() {
         return propertyName + " " + super.getEditedFieldLabel();
+    }
+
+    @Override
+    public PropertyAssignmentData toData(FilterLoader filterLoader) {
+        return PropertyAssignmentData.builder()
+                .editedField(getEditedField())
+                .value(getValue())
+                .propertyName(propertyName)
+                .filters(FilterUtils.loadFilterWithNames(getFilters(), filterLoader))
+                .build();
     }
 
 }

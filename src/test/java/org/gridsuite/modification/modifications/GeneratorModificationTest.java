@@ -334,6 +334,21 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         assertEquals(52.0, modifiedGenerator.getTargetV());
     }
 
+    @Test
+    void testSetRegulationToLocal() {
+        Network network = getNetwork();
+        Generator generator = network.getGenerator("idGenerator");
+        generator.setRegulatingTerminal(network.getLoad("v5load").getTerminal());
+        GeneratorModificationInfos modificationInfos = GeneratorModificationInfos.builder()
+                .stashed(false)
+                .equipmentId("idGenerator")
+                .voltageRegulationType(new AttributeModification<>(VoltageRegulationType.LOCAL, OperationType.SET))
+                .build();
+        modificationInfos.toModification().apply(network);
+        Generator modifiedGenerator = network.getGenerator("idGenerator");
+        assertEquals(modifiedGenerator.getTerminal(), modifiedGenerator.getRegulatingTerminal());
+    }
+
     private void assertMeasurements(Generator generator) {
         Measurements<?> measurements = (Measurements<?>) generator.getExtension(Measurements.class);
         assertNotNull(measurements);

@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.ModificationReference;
 
@@ -56,11 +57,12 @@ public class ModificationReferenceInfos extends ModificationInfos implements Max
     private Integer maxDepth;
 
     @Override
-    public AbstractModification toModification() {
+    public AbstractModification toModification(ModificationContext context) {
         return ModificationReference.builder()
                 .referencedId(getReferencedId())
                 .referenceType(getReferenceType())
                 .referencedInfos(getReferencedInfos())
+                .modificationContext(context)
                 .build();
     }
 

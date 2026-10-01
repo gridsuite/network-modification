@@ -45,7 +45,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test")
                 .build());
-        CompositeModification netmod = (CompositeModification) compositeModificationInfos.toModification();
+        CompositeModification netmod = (CompositeModification) compositeModificationInfos.toModification(null);
         assertDoesNotThrow(() -> netmod.apply(network, report));
         assertLogMessageAtDepth(
                 "Generator with id=idGenerator modified :",
@@ -71,11 +71,11 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                 .withMessageTemplate("test")
                 .build());
         // regular throwing exception netmod
-        GeneratorCreation throwingExceptionNetMod = (GeneratorCreation) buildThrowingModification().toModification();
+        GeneratorCreation throwingExceptionNetMod = (GeneratorCreation) buildThrowingModification().toModification(null);
         assertThrows(PowsyblException.class, () -> throwingExceptionNetMod.apply(network));
         // but doesn't throw once inside a composite modification
         compositeModificationInfos.setModificationsInfos(List.of(buildThrowingModification()));
-        CompositeModification netmodContainingError = (CompositeModification) compositeModificationInfos.toModification();
+        CompositeModification netmodContainingError = (CompositeModification) compositeModificationInfos.toModification(null);
         assertDoesNotThrow(() -> netmodContainingError.apply(network, report));
         // but the thrown message is inside the report :
         assertLogMessageWithoutRank(
@@ -116,7 +116,7 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                 .withMessageTemplate("test")
                 .build());
 
-        CompositeModification netmod = (CompositeModification) composite.toModification();
+        CompositeModification netmod = (CompositeModification) composite.toModification(null);
         assertDoesNotThrow(() -> netmod.apply(network, report));
 
         // Only the baseline rename (activated=true, stashed=false) should have been applied;
