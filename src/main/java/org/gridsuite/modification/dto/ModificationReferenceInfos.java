@@ -52,6 +52,10 @@ public class ModificationReferenceInfos extends ModificationInfos {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private ModificationInfos referencedInfos;
 
+    @Schema(description = "true when the user may write into the referenced modification")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Boolean editable;
+
     @Override
     public AbstractModification toModification(ModificationContext context) {
         return ModificationReference.builder()
