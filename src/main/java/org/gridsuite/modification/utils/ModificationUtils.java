@@ -2269,4 +2269,8 @@ public final class ModificationUtils {
         }
 
     }
+
+    public static boolean isRegulatingTerminalModified(AttributeModification<VoltageRegulationType> regulationType) {
+        return regulationType != null && regulationType.getValue() != null;
+    }
 }
