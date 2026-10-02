@@ -26,8 +26,7 @@ import java.util.List;
 
 import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 import static org.gridsuite.modification.error.NetworkModificationExceptionType.*;
-import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
-import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
+import static org.gridsuite.modification.utils.ModificationUtils.*;
 
 /**
  * @author Florent MILLOT <florent.millot at rte-france.com>
@@ -666,6 +665,10 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
             boolean isModification) {
         String oldVoltageLevel = null;
         String oldEquipment = null;
+
+        if (!isRegulatingTerminalModified(tapChangerModificationInfos.getRegulationType())) {
+            return;
+        }
 
         if (isModification && tapChanger.getRegulationTerminal() != null) {
             oldVoltageLevel = tapChanger.getRegulationTerminal().getVoltageLevel().getId();

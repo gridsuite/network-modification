@@ -24,6 +24,7 @@ import java.util.List;
 
 import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_GENERATOR_ERROR;
 import static org.gridsuite.modification.utils.ModificationUtils.*;
+import static org.gridsuite.modification.utils.ModificationUtils.isRegulatingTerminalModified;
 
 /**
  * @author Ayoub Labidi <ayoub.labidi at rte-france.com>
@@ -424,6 +425,11 @@ public class GeneratorModification extends AbstractInjectionModification {
 
         String oldVoltageLevel = null;
         String oldEquipment = null;
+
+        if (!isRegulatingTerminalModified(voltageRegulationType)) {
+            return;
+        }
+
         // If there is no regulating terminal in file, regulating terminal voltage level
         // is equal to generator voltage level
         if (regulatingTerminal != null
@@ -453,8 +459,7 @@ public class GeneratorModification extends AbstractInjectionModification {
 
         // if the voltageRegulationType is set to LOCAL, we set the regulatingTerminal
         // to null
-        if (voltageRegulationType != null
-                && voltageRegulationType.getValue() == VoltageRegulationType.LOCAL
+        if (voltageRegulationType.getValue() == VoltageRegulationType.LOCAL
                 && oldEquipment != null && oldVoltageLevel != null) {
             generator.setRegulatingTerminal(null);
             modificationReports.add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel,
