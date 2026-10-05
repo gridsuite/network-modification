@@ -21,7 +21,7 @@ import org.gridsuite.modification.ReactiveVariationMode;
 import org.gridsuite.modification.VariationType;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.error.NetworkModificationExceptionType;
-import org.gridsuite.modification.modifications.data.ScalingVariationData;
+import org.gridsuite.modification.modifications.data.scaling.ScalingVariationData;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.*;
@@ -112,7 +112,7 @@ public class LoadScaling extends AbstractScaling {
 
             equipments.forEach(equipment -> {
                 Load load = (Load) equipment;
-                Double distributionKey = scalingVariation.getDistributionKeys().get(equipment.getId());
+                Double distributionKey = scalingVariation.getDistributionKeys().getDistributionKey(equipment.getId());
                 if (ModificationUtils.isInjectionConnected(load)) {
                     sum.set(load.getP0() + sum.get());
                     scalables.add(getScalable(equipment.getId()));
@@ -134,12 +134,6 @@ public class LoadScaling extends AbstractScaling {
     }
 
     private ScalingParameters provideScalingParameters(ReactiveVariationMode reactiveVariationMode) {
-        // Checked here rather than in AbstractScaling because GeneratorScaling ignores the reactive
-        // variation mode altogether, so a missing one only makes a scaling unusable when it scales
-        // loads. Switching on a null enum would throw a NullPointerException, not report anything.
-        if (reactiveVariationMode == null) {
-            throw new NetworkModificationException(exceptionType, MISSING_REACTIVE_VARIATION_MODE_TEMPLATE);
-        }
         return switch (reactiveVariationMode) {
             case CONSTANT_Q -> new ScalingParameters().setScalingConvention(Scalable.ScalingConvention.LOAD);
             case TAN_PHI_FIXED ->

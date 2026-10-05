@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.gridsuite.modification.error.NetworkModificationException.createModificationAttributeMissing;
+
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
  */
@@ -54,5 +56,19 @@ public class ScalingInfos extends ModificationInfos {
                 .distinct()
                 .toList();
         return modificationContext.filterWithDistributionKeysLoader().load(allFilterUuids);
+    }
+
+    @Override
+    public void check() {
+        super.check();
+
+        for (ScalingVariationInfos variation : getVariations()) {
+            if (variation.getVariationMode() == null) {
+                createModificationAttributeMissing("variationMode");
+            }
+            if (variation.getVariationValue() == null) {
+                createModificationAttributeMissing("variationValue");
+            }
+        }
     }
 }

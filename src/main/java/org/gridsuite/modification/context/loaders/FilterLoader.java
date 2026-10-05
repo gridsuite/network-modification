@@ -16,7 +16,8 @@ import java.util.UUID;
 /**
  * Resolves filters from their identifiers.
  *
- * <p>Filters that cannot be found are silently omitted rather than resolving to {@code null}.
+ * <p>A resolved {@link Filter} is self-contained: it carries everything needed to evaluate it against a
+ *  * network. Filters that cannot be found are silently omitted rather than resolving to {@code null}.
  *
  * @author Achour BERRAHMA <achour.berrahma at rte-france.com>
  */

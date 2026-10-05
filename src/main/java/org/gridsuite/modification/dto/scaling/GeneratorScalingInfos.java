@@ -18,7 +18,7 @@ import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
 import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.data.ScalingVariationData;
+import org.gridsuite.modification.modifications.data.scaling.ScalingVariationData;
 import org.gridsuite.modification.modifications.scaling.GeneratorScaling;
 
 import java.util.List;
@@ -39,6 +39,8 @@ public class GeneratorScalingInfos extends ScalingInfos {
 
     @Override
     public AbstractModification toModification(ModificationContext modificationContext) {
+        check();
+
         Map<UUID, FilterWithDistributionKeys> resolvedFilters = resolveFilters(modificationContext);
         List<ScalingVariationData> scalingVariations = getVariations().stream()
                 .map(svi -> svi.toData(resolvedFilters))

@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.Network;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.VariationType;
-import org.gridsuite.modification.modifications.data.ScalingVariationData;
+import org.gridsuite.modification.modifications.data.scaling.ScalingVariationData;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.*;
@@ -139,7 +139,7 @@ public class GeneratorScaling extends AbstractScaling {
 
             equipments.forEach(equipment -> {
                 Generator generator = (Generator) equipment;
-                Double distributionKey = scalingVariation.getDistributionKeys().get(equipment.getId());
+                Double distributionKey = scalingVariation.getDistributionKeys().getDistributionKey(equipment.getId());
                 if (ModificationUtils.isInjectionConnected(generator)) {
                     sum.set(generator.getTargetP() + sum.get());
                     scalables.add(getScalable(equipment.getId()));

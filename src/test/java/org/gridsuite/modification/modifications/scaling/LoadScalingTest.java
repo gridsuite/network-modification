@@ -24,9 +24,9 @@ import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.scaling.LoadScalingInfos;
 import org.gridsuite.modification.dto.scaling.ScalingVariationInfos;
 import org.gridsuite.modification.error.NetworkModificationException;
-import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
-import org.gridsuite.modification.modifications.data.ScalingVariationData;
+import org.gridsuite.modification.modifications.data.scaling.DistributionKeyStatus;
+import org.gridsuite.modification.modifications.data.scaling.ScalingVariationData;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.gridsuite.modification.utils.TestUtils;
@@ -72,9 +72,11 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
     private static final String LOAD_ID_9 = "load9";
     private static final String LOAD_ID_10 = "load10";
     private static final String LOAD_WRONG_ID_1 = "wrongId1";
-    private static final String DISTRIBUTION_KEYS_ISSUE_MESSAGE = "Ventilation mode could not be applied: the total of the distribution keys "
-            + "of the selected equipment is zero, so no key could weight the variation. A distribution key is taken into account only "
-            + "if every filter of the variation was found, carries at least one key, and no equipment is selected by two filters.";
+    /** Reported when an equipment is given a key by more than one filter of the variation. */
+    private static final String DUPLICATED_KEY_MESSAGE = "Ventilation mode could not be applied: multiple distribution keys "
+            + "exist for the same equipment across filters";
+    /** Every error a variation reports when its distribution keys are unusable shares this prefix. */
+    private static final String DISTRIBUTION_KEYS_ERROR_PREFIX = "Ventilation mode could not be applied: ";
 
     private static final Map<UUID, Set<String>> FILTER_MAPPINGS = Map.of(
             FILTER_ID_1, Set.of(LOAD_ID_1, LOAD_ID_2),
@@ -167,8 +169,8 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
                 .withMessageTemplate("test").build());
         loadScaling.apply(getNetwork(), report);
 
-        assertThat(TestUtils.getAllMessages(report)).as("No variation reports a distribution keys issue")
-                .noneMatch(message -> message.contains(DISTRIBUTION_KEYS_ISSUE_MESSAGE));
+        assertThat(TestUtils.getAllMessages(report)).as("No variation reports a distribution keys error")
+                .noneMatch(message -> message.contains(DISTRIBUTION_KEYS_ERROR_PREFIX));
         assertEquals(200, getNetwork().getLoad(LOAD_ID_1).getP0(), 0.01D, "load1 is scaled once per variation");
     }
 
@@ -181,8 +183,12 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
         loadScaling.apply(getNetwork());
 
         Map<String, Double> expectedDistributionKeys = Map.of(LOAD_ID_5, 6.0, LOAD_ID_6, 7.0);
-        loadScaling.getScalingVariations().forEach(scalingVariation -> assertEquals(expectedDistributionKeys, scalingVariation.getDistributionKeys(),
-                "The deduplicated resolution of the shared filter must keep its distribution keys"));
+        loadScaling.getScalingVariations().forEach(scalingVariation -> {
+            assertEquals(expectedDistributionKeys, scalingVariation.getDistributionKeys().distributionKeys(),
+                    "The deduplicated resolution of the shared filter must keep its distribution keys");
+            assertEquals(DistributionKeyStatus.VALID_KEYS, scalingVariation.getDistributionKeys().status(),
+                    "A filter shared by two variations stays valid in each of them");
+        });
         // 50 MW of key-weighted ventilation, i.e. 6/13 and 7/13 of it, applied twice
         assertEquals(246.15, getNetwork().getLoad(LOAD_ID_5).getP0(), 0.01D);
         assertEquals(173.85, getNetwork().getLoad(LOAD_ID_6).getP0(), 0.01D);
@@ -274,8 +280,6 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         loadScaling.apply(getNetwork(), report);
-        assertLogMessage("Preparing 1 scaling variations for equipments of type=LOAD",
-                "network.modification.scaling.preparingScalingVariations", report);
         assertLogMessage("No equipment evaluated by filters",
                 "network.modification.filterEvaluationResult.noResult", report);
     }
@@ -397,7 +401,7 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
                 .withMessageTemplate("test").build());
         loadScaling.apply(getNetwork(), report);
 
-        assertLogMessage(DISTRIBUTION_KEYS_ISSUE_MESSAGE, "network.modification.distributionKeysIssue", report);
+        assertLogMessage(DUPLICATED_KEY_MESSAGE, "network.modification.distributionKeys.duplicatedKey", report);
         assertEquals(100, getNetwork().getLoad(LOAD_ID_1).getP0(), 0.01D);
         assertEquals(200, getNetwork().getLoad(LOAD_ID_2).getP0(), 0.01D);
         assertEquals(200, getNetwork().getLoad(LOAD_ID_3).getP0(), 0.01D);
@@ -620,12 +624,11 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void nullVariationModeIsRejectedAsAnUnsupportedVariation() {
-        // Nothing validates variationMode on the DTO, so a client may omit it. The unsupported mode
-        // error must be raised rather than a NullPointerException, which is what currently happens:
-        // the preparingScalingVariation report node calls getVariationMode().name() before the mode is
-        // ever dispatched. The default branch of applyVariation cannot help either, since a switch on a
-        // null enum throws while building its jump table.
+    void nullVariationModeIsRejectedWhenTheModificationIsBuilt() {
+        // A client may omit variationMode. toModification calls check() before anything is built, so
+        // the modification is never created and no Network can be left half applied. This used to be
+        // an apply time failure, once the preparingScalingVariation report node had already called
+        // getVariationMode().name() and the switch of applyVariation was building its jump table.
         FilterInfos filter = FilterInfos.builder()
                 .id(FILTER_ID_1)
                 .name("filter1")
@@ -644,25 +647,19 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
                 .variations(List.of(variation))
                 .build();
 
-        LoadScaling loadScaling = (LoadScaling) loadScalingInfos.toModification(
-                ModificationContext.builder().filterWithDistributionKeysLoader(this::loadFiltersWithDistributionKeys).build());
+        ModificationContext modificationContext = ModificationContext.builder().filterWithDistributionKeysLoader(this::loadFiltersWithDistributionKeys).build();
 
-        // the null mode survives toModification untouched, so the failure is an apply time one
-        assertNull(loadScaling.getScalingVariations().get(0).getVariationMode());
-
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> loadScaling.apply(getNetwork()),
-                "A missing variation mode must be reported as an unsupported variation, not as an NPE");
-        assertTrue(exception.getMessage().contains("This variation mode is not supported"));
-        assertTrue(exception.getMessage().startsWith(NetworkModificationExceptionType.LOAD_SCALING_ERROR.getMessage()),
-                "The exception must carry the type hardcoded by the constructor");
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> loadScalingInfos.toModification(modificationContext),
+                "A missing variation mode must be reported as an invalid modification, not as an NPE");
+        assertEquals("Invalid modification : Attribute 'variationMode' is missing from modification", exception.getMessage());
     }
 
     @Test
     void nullVariationModeIsRejectedEvenWhenNoFilterMatches() {
-        // Before the migration, filters were resolved at apply time and a variation matching nothing was
-        // reported without ever reading the variation mode. The mode is now read while building the
-        // report node, before the filters are evaluated, so a missing mode must fail the same way
-        // whether the filters select something or not.
+        // The attributes are checked before the filters are resolved, so a missing mode must be
+        // rejected the same way whether or not the filters would have selected an equipment. Before
+        // the migration, filters were resolved at apply time and a variation matching nothing was
+        // reported without ever reading the variation mode.
         FilterInfos missingFilter = FilterInfos.builder()
                 .id(FILTER_WRONG_ID_1)
                 .name("filter")
@@ -685,16 +682,15 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
                 .filterWithDistributionKeysLoader(TestUtils.createFilterWithDistributionKeysLoader(EquipmentType.LOAD,
                         Map.of(FILTER_WRONG_ID_1, Set.of(LOAD_WRONG_ID_1)), Map.of(LOAD_WRONG_ID_1, 1.0)))
                 .build();
-        LoadScaling loadScaling = (LoadScaling) loadScalingInfos.toModification(modificationContext);
 
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> loadScaling.apply(getNetwork()),
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> loadScalingInfos.toModification(modificationContext),
                 "A missing variation mode is an error whether or not the filters select an equipment");
-        assertTrue(exception.getMessage().contains("This variation mode is not supported"));
+        assertEquals("Invalid modification : Attribute 'variationMode' is missing from modification", exception.getMessage());
     }
 
     @Test
     void nullVariationValueIsRejected() {
-        // getAsked returns the variation value as a primitive, so a null one is unboxed blindly
+        // getAsked returns the variation value as a primitive, so a null one used to be unboxed blindly
         FilterInfos filter = FilterInfos.builder()
                 .id(FILTER_ID_1)
                 .name("filter1")
@@ -713,16 +709,17 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
                 .variations(List.of(variation))
                 .build();
 
-        LoadScaling loadScaling = (LoadScaling) loadScalingInfos.toModification(
-                ModificationContext.builder().filterWithDistributionKeysLoader(this::loadFiltersWithDistributionKeys).build());
+        ModificationContext modificationContext = ModificationContext.builder().filterWithDistributionKeysLoader(this::loadFiltersWithDistributionKeys).build();
 
-        assertThrows(NetworkModificationException.class, () -> loadScaling.apply(getNetwork()),
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> loadScalingInfos.toModification(modificationContext),
                 "A missing variation value must be reported, not unboxed into a NullPointerException");
+        assertEquals("Invalid modification : Attribute 'variationValue' is missing from modification", exception.getMessage());
     }
 
     @Test
     void nullReactiveVariationModeIsRejected() {
-        // provideScalingParameters switches on the reactive variation mode, which throws on a null one
+        // provideScalingParameters switches on the reactive variation mode, which used to throw on a
+        // null one. Only LoadScalingInfos requires it, so this check is specific to load scaling.
         FilterInfos filter = FilterInfos.builder()
                 .id(FILTER_ID_1)
                 .name("filter1")
@@ -740,11 +737,11 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
                 .variations(List.of(variation))
                 .build();
 
-        LoadScaling loadScaling = (LoadScaling) loadScalingInfos.toModification(
-                ModificationContext.builder().filterWithDistributionKeysLoader(this::loadFiltersWithDistributionKeys).build());
+        ModificationContext modificationContext = ModificationContext.builder().filterWithDistributionKeysLoader(this::loadFiltersWithDistributionKeys).build();
 
-        assertThrows(NetworkModificationException.class, () -> loadScaling.apply(getNetwork()),
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> loadScalingInfos.toModification(modificationContext),
                 "A missing reactive variation mode must be reported, not switched on blindly");
+        assertEquals("Invalid modification : Attribute 'reactiveVariationMode' is missing from modification", exception.getMessage());
     }
 
     private void testVariationWithSomeDisconnections(VariationMode variationMode, List<String> loadsToDisconnect) throws Exception {

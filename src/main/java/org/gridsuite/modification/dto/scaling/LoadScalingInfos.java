@@ -18,12 +18,14 @@ import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
 import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.data.ScalingVariationData;
+import org.gridsuite.modification.modifications.data.scaling.ScalingVariationData;
 import org.gridsuite.modification.modifications.scaling.LoadScaling;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import static org.gridsuite.modification.error.NetworkModificationException.createModificationAttributeMissing;
 
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
@@ -39,6 +41,8 @@ public class LoadScalingInfos extends ScalingInfos {
 
     @Override
     public AbstractModification toModification(ModificationContext modificationContext) {
+        check();
+
         Map<UUID, FilterWithDistributionKeys> resolvedFilters = resolveFilters(modificationContext);
         List<ScalingVariationData> scalingVariations = getVariations().stream()
                 .map(svi -> svi.toData(resolvedFilters))
@@ -55,5 +59,16 @@ public class LoadScalingInfos extends ScalingInfos {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.loadScaling")
                 .add();
+    }
+
+    @Override
+    public void check() {
+        super.check();
+
+        for (ScalingVariationInfos variation : getVariations()) {
+            if (variation.getReactiveVariationMode() == null) {
+                createModificationAttributeMissing("reactiveVariationMode");
+            }
+        }
     }
 }

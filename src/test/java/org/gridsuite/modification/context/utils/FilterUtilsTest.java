@@ -15,6 +15,7 @@ import org.gridsuite.modification.context.loaders.FilterLoader;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -133,6 +134,32 @@ class FilterUtilsTest {
         List<FilterInfos> filterInfosList = List.of(new FilterInfos(FILTER_ID_1, "filter1"));
 
         assertThrows(NullPointerException.class, () -> FilterUtils.loadFilterWithNames(filterInfosList, (Map<UUID, FilterWithDistributionKeys>) null));
+    }
+
+    @Test
+    void aResolvedEntryWithoutAnyValueIsLeftOutInsteadOfFailing() {
+        // Map.of does not allow null values, a HashMap is needed to reach the null check
+        Map<UUID, FilterWithDistributionKeys> filtersWithDistributionKeys = new HashMap<>();
+        filtersWithDistributionKeys.put(FILTER_ID_1, null);
+        filtersWithDistributionKeys.put(FILTER_ID_2, FilterWithDistributionKeys.builder().filter(aFilter()).build());
+        List<FilterInfos> filterInfosList = List.of(
+                new FilterInfos(FILTER_ID_1, "noFilterAtAll"),
+                new FilterInfos(FILTER_ID_2, "filter2"));
+
+        List<Filter> filters = assertDoesNotThrow(() -> FilterUtils.loadFilterWithNames(filterInfosList, filtersWithDistributionKeys),
+                "An entry without any resolved filter must not fail the whole resolution");
+
+        assertEquals(List.of("filter2"), namesOf(filters));
+    }
+
+    @Test
+    void aResolvedEntryWithoutAnyValueIsNotNamedAfterItsReference() {
+        Map<UUID, FilterWithDistributionKeys> filtersWithDistributionKeys = new HashMap<>();
+        filtersWithDistributionKeys.put(FILTER_ID_1, null);
+
+        List<Filter> filters = FilterUtils.loadFilterWithNames(List.of(new FilterInfos(FILTER_ID_1, "filter1")), filtersWithDistributionKeys);
+
+        assertTrue(filters.isEmpty(), "A null entry yields no filter to name");
     }
 
     @Test

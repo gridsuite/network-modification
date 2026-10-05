@@ -22,7 +22,8 @@ import org.gridsuite.modification.VariationType;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.data.ScalingVariationData;
+import org.gridsuite.modification.modifications.data.scaling.DistributionKeyStatus;
+import org.gridsuite.modification.modifications.data.scaling.ScalingVariationData;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -37,7 +38,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractScaling extends AbstractModification {
 
-    private static final String REPORT_KEY_PREPARING_SCALING_VARIATIONS = "network.modification.scaling.preparingScalingVariations";
     private static final String REPORT_KEY_PREPARING_SCALING_VARIATION = "network.modification.scaling.preparingScalingVariation";
     private static final String REPORT_KEY_FILTER_DUPLICATED_EQUIPMENT = "network.modification.filterEvaluation.equipmentAlreadySeen";
     private static final String REPORT_KEY_SCALING_APPLIED = "network.modification.scaling.scalingApplied";
@@ -45,21 +45,20 @@ public abstract class AbstractScaling extends AbstractModification {
     private static final String REPORT_KEY_FILTER_EVALUATION_RESULT = "network.modification.filterEvaluationResult";
     private static final String REPORT_KEY_FILTER_EVALUATION_WITH_NO_RESULT = "network.modification.filterEvaluationResult.noResult";
     private static final String REPORT_KEY_APPLY_ASSIGNMENT = "network.modification.applyAssignment";
-    private static final String REPORT_KEY_DISTRIBUTION_KEYS_INVALID = "network.modification.distributionKeysIssue";
+    private static final String REPORT_KEY_UNEXPECTED_DISTRIBUTION_KEY_SUM = "network.modification.distributionKeys.unexpectedSum";
     private static final String VALUE_KEY_ACTUAL_VALUE = "actualValue";
     private static final String VALUE_KEY_ASKED_VALUE = "askedValue";
     private static final String VALUE_KEY_EQUIPMENT_COUNT = "equipmentCount";
     private static final String VALUE_KEY_EQUIPMENT_ID = "equipmentId";
-    private static final String VALUE_KEY_EQUIPMENT_TYPE = "equipmentType";
+    public static final String REPORT_KEY_FILTERS_EVALUATION = "network.modification.filtersEvaluation";
     private static final String VALUE_KEY_FILTER_IDENTIFIER = "filterIdentifier";
     private static final String VALUE_KEY_SCALING_VARIATIONS_COUNT = "scalingVariationsCount";
     private static final String VALUE_KEY_SCALING_VARIATION_INDEX = "scalingVariationIndex";
+    private static final String VALUE_KEY_SCALING_VARIATION_VALUE = "scalingVariationValue";
     private static final String VALUE_KEY_SCALING_VARIATION_TYPE = "scalingVariationType";
     private static final String VALUE_KEY_VARIATION_MODE = "variationMode";
 
     protected static final String UNSUPPORTED_VARIATION_MODE_TEMPLATE = "This variation mode is not supported : %s";
-    protected static final String MISSING_VARIATION_VALUE_TEMPLATE = "This variation value is not supported : it is missing";
-    protected static final String MISSING_REACTIVE_VARIATION_MODE_TEMPLATE = "This reactive variation mode is not supported : it is missing";
 
     protected List<ScalingVariationData> scalingVariations;
     protected VariationType variationType;
@@ -67,18 +66,13 @@ public abstract class AbstractScaling extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        ReportNode subReporter = subReportNode.newReportNode()
-                .withMessageTemplate(REPORT_KEY_PREPARING_SCALING_VARIATIONS)
-                .withUntypedValue(VALUE_KEY_SCALING_VARIATIONS_COUNT, scalingVariations.size())
-                .withUntypedValue(VALUE_KEY_EQUIPMENT_TYPE, getEquipmentType().name())
-                .add();
         for (int i = 0; i < scalingVariations.size(); i++) {
             ScalingVariationData scalingVariation = scalingVariations.get(i);
-            checkVariationIsComplete(scalingVariation);
-            ReportNode scalingVariationContainer = subReporter.newReportNode()
+            ReportNode scalingVariationContainer = subReportNode.newReportNode()
                     .withMessageTemplate(REPORT_KEY_PREPARING_SCALING_VARIATION)
                     .withUntypedValue(VALUE_KEY_SCALING_VARIATION_INDEX, i + 1)
                     .withUntypedValue(VALUE_KEY_SCALING_VARIATIONS_COUNT, scalingVariations.size())
+                    .withUntypedValue(VALUE_KEY_SCALING_VARIATION_VALUE, scalingVariation.getVariationValue())
                     .withUntypedValue(VALUE_KEY_SCALING_VARIATION_TYPE, scalingVariation.getVariationMode().name())
                     .add();
             List<Identifiable<?>> equipments = evaluateFilters(network, scalingVariation, scalingVariationContainer);
@@ -134,10 +128,13 @@ public abstract class AbstractScaling extends AbstractModification {
     private List<Identifiable<?>> evaluateFilters(Network network, ScalingVariationData scalingVariation, ReportNode scalingVariationContainer) {
         Set<String> alreadySeenEquipments = new HashSet<>();
         List<Identifiable<?>> equipments = new ArrayList<>();
+        ReportNode filtersContainer = scalingVariationContainer.newReportNode()
+                .withMessageTemplate(REPORT_KEY_FILTERS_EVALUATION)
+                .add();
         for (int i = 0; i < scalingVariation.getFilters().size(); i++) {
             Filter filter = scalingVariation.getFilters().get(i);
             String filterIdentifier = filter.getName() == null ? Integer.toString(i + 1) : filter.getName();
-            ReportNode filterReportNode = scalingVariationContainer.newReportNode()
+            ReportNode filterReportNode = filtersContainer.newReportNode()
                     .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION)
                     .withUntypedValue(VALUE_KEY_FILTER_IDENTIFIER, filterIdentifier)
                     .add();
@@ -147,7 +144,7 @@ public abstract class AbstractScaling extends AbstractModification {
                 if (alreadySeenEquipments.add(equipment.getId())) {
                     equipments.add(equipment);
                 } else {
-                    scalingVariationContainer.newReportNode()
+                    filterReportNode.newReportNode()
                             .withMessageTemplate(REPORT_KEY_FILTER_DUPLICATED_EQUIPMENT)
                             .withUntypedValue(VALUE_KEY_EQUIPMENT_ID, equipment.getId())
                             .withSeverity(TypedValue.WARN_SEVERITY)
@@ -158,27 +155,7 @@ public abstract class AbstractScaling extends AbstractModification {
         return equipments;
     }
 
-    /**
-     * Checks that the variation holds everything {@link #apply} needs before reporting on and applying it.
-     *
-     * <p>{@link ScalingVariationData} is not validated when built and can be deserialized on its own, so a
-     * variation may reach here with a missing mode or value; both are checked here rather than left to fail
-     * later as a {@link NullPointerException}.
-     */
-    private void checkVariationIsComplete(ScalingVariationData scalingVariation) {
-        if (scalingVariation.getVariationMode() == null) {
-            throw new NetworkModificationException(exceptionType, String.format(UNSUPPORTED_VARIATION_MODE_TEMPLATE, "it is missing"));
-        }
-        if (scalingVariation.getVariationValue() == null) {
-            throw new NetworkModificationException(exceptionType, MISSING_VARIATION_VALUE_TEMPLATE);
-        }
-    }
-
     private void applyVariation(Network network, ReportNode subReportNode, List<Identifiable<?>> equipments, ScalingVariationData scalingVariation) {
-        // The variation mode is known to be non null here, so this switch cannot throw on it. The
-        // default branch is unreachable with the modes of VariationMode, all of them being handled
-        // above, but it is kept as the only runtime guard against a mode added to the enum later: as a
-        // switch statement rather than an expression, the compiler does not enforce exhaustiveness.
         switch (scalingVariation.getVariationMode()) {
             case PROPORTIONAL -> applyProportionalVariation(network, subReportNode, equipments, scalingVariation);
             case PROPORTIONAL_TO_PMAX -> applyProportionalToPmaxVariation(network, subReportNode, equipments, scalingVariation);
@@ -190,20 +167,35 @@ public abstract class AbstractScaling extends AbstractModification {
     }
 
     private Double getDistributionKeysSum(ScalingVariationData scalingVariation, List<Identifiable<?>> equipments, ReportNode subReportNode) {
+        DistributionKeyStatus status = scalingVariation.getDistributionKeys().status();
+        if (!DistributionKeyStatus.VALID_KEYS.equals(status)) {
+            subReportNode.newReportNode()
+                    .withMessageTemplate(status.getReportKey())
+                    .withSeverity(TypedValue.ERROR_SEVERITY)
+                    .add();
+            return null;
+        }
+
+        Map<String, Double> distributionKeys = scalingVariation.getDistributionKeys().distributionKeys();
         double distributionKeysSum = equipments.stream()
                 .map(Identifiable::getId)
-                .map(id -> scalingVariation.getDistributionKeys().get(id))
+                .map(distributionKeys::get)
                 .filter(Objects::nonNull)
                 .mapToDouble(Double::doubleValue)
                 .sum();
 
         if (distributionKeysSum == 0) {
             subReportNode.newReportNode()
-                    .withMessageTemplate(REPORT_KEY_DISTRIBUTION_KEYS_INVALID)
+                    .withMessageTemplate(REPORT_KEY_UNEXPECTED_DISTRIBUTION_KEY_SUM)
                     .withSeverity(TypedValue.ERROR_SEVERITY)
                     .add();
             return null;
         }
+
+        subReportNode.newReportNode()
+                .withMessageTemplate(status.getReportKey())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
         return distributionKeysSum;
     }
 

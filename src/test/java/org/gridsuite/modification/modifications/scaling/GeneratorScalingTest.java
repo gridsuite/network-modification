@@ -21,8 +21,8 @@ import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.scaling.GeneratorScalingInfos;
 import org.gridsuite.modification.dto.scaling.ScalingVariationInfos;
 import org.gridsuite.modification.error.NetworkModificationException;
-import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
+import org.gridsuite.modification.modifications.data.scaling.DistributionKeyStatus;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.gridsuite.modification.utils.TestUtils;
@@ -37,9 +37,7 @@ import java.util.stream.Stream;
 
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -67,9 +65,8 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
     private static final String GENERATOR_ID_9 = "gen9";
     private static final String GENERATOR_ID_10 = "gen10";
     private static final String GENERATOR_WRONG_ID_1 = "wrongId1";
-    private static final String DISTRIBUTION_KEYS_ISSUE_MESSAGE = "Ventilation mode could not be applied: the total of the distribution keys "
-            + "of the selected equipment is zero, so no key could weight the variation. A distribution key is taken into account only "
-            + "if every filter of the variation was found, carries at least one key, and no equipment is selected by two filters.";
+    private static final String DUPLICATED_KEY_MESSAGE = "Ventilation mode could not be applied: multiple distribution keys "
+            + "exist for the same equipment across filters";
 
     private static final Map<UUID, Set<String>> FILTER_MAPPINGS = Map.of(
             FILTER_ID_1, Set.of(GENERATOR_ID_1, GENERATOR_ID_2),
@@ -112,6 +109,8 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
         GeneratorScalingInfos modificationInfo = (GeneratorScalingInfos) buildModification();
         ModificationContext modificationContext = ModificationContext.builder().filterWithDistributionKeysLoader(this::loadFiltersWithDistributionKeys).build();
         GeneratorScaling generatorScaling = (GeneratorScaling) modificationInfo.toModification(modificationContext);
+        assertEquals(DistributionKeyStatus.VALID_KEYS, generatorScaling.getScalingVariations().get(3).getDistributionKeys().status(),
+                "toModification resolves the filters and validates the distribution keys of every variation");
         generatorScaling.apply(getNetwork());
         assertAfterNetworkModificationApplication();
     }
@@ -174,8 +173,6 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                 .withMessageTemplate("test").build());
         generatorScaling.apply(getNetwork(), report);
-        assertLogMessage("Preparing 1 scaling variations for equipments of type=GENERATOR",
-                "network.modification.scaling.preparingScalingVariations", report);
         assertLogMessage("No equipment evaluated by filters",
                 "network.modification.filterEvaluationResult.noResult", report);
     }
@@ -295,7 +292,7 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                 .withMessageTemplate("test").build());
         generatorScaling.apply(getNetwork(), report);
 
-        assertLogMessage(DISTRIBUTION_KEYS_ISSUE_MESSAGE, "network.modification.distributionKeysIssue", report);
+        assertLogMessage(DUPLICATED_KEY_MESSAGE, "network.modification.distributionKeys.duplicatedKey", report);
         assertEquals(100, getNetwork().getGenerator(GENERATOR_ID_1).getTargetP(), 0.01D);
         assertEquals(200, getNetwork().getGenerator(GENERATOR_ID_2).getTargetP(), 0.01D);
         assertEquals(200, getNetwork().getGenerator(GENERATOR_ID_3).getTargetP(), 0.01D);
@@ -484,11 +481,10 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                 .withMessageTemplate("test").build();
         generatorScaling.apply(getNetwork(), report);
 
-        assertEquals(List.of("Preparing 1/2 scaling variation using mode REGULAR_DISTRIBUTION",
-                        "Preparing 2/2 scaling variation using mode REGULAR_DISTRIBUTION"),
+        assertEquals(List.of("Variation 1/2 : 100.0MW in REGULAR_DISTRIBUTION mode",
+                        "Variation 2/2 : 100.0MW in REGULAR_DISTRIBUTION mode"),
                 TestUtils.getAllMessages(report).stream()
-                        .filter(message -> message.startsWith("Preparing "))
-                        .skip(1) // the "Preparing 2 scaling variations ..." parent message
+                        .filter(message -> message.startsWith("Variation "))
                         .toList());
         // The duplicate is really applied twice: 100 MW of DELTA_P is shared equally, so 50 MW on each generator and variation
         assertEquals(200, getNetwork().getGenerator(GENERATOR_ID_1).getTargetP(), 0.01D);
@@ -496,11 +492,7 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void nullVariationModeIsRejectedAsAnUnsupportedVariation() {
-        // GeneratorScaling implements all the variation modes and raises no unsupported mode error of
-        // its own, so the check carried by AbstractScaling is the only thing that can reject a missing
-        // mode. Nothing validates variationMode on the DTO, and the preparingScalingVariation report
-        // node reads it before any dispatch, so today this throws a NullPointerException instead.
+    void nullVariationModeIsRejectedWhenTheModificationIsBuilt() {
         ScalingVariationInfos variation = ScalingVariationInfos.builder()
                 .variationMode(null)
                 .variationValue(50D)
@@ -515,21 +507,16 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                 .build();
 
         ModificationContext modificationContext = ModificationContext.builder().filterWithDistributionKeysLoader(this::loadFiltersWithDistributionKeys).build();
-        GeneratorScaling generatorScaling = (GeneratorScaling) generatorScalingInfo.toModification(modificationContext);
 
-        assertNull(generatorScaling.getScalingVariations().get(0).getVariationMode());
-
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> generatorScaling.apply(getNetwork()),
-                "A missing variation mode must be reported as an unsupported variation, not as an NPE");
-        assertTrue(exception.getMessage().contains("This variation mode is not supported"));
-        assertTrue(exception.getMessage().startsWith(NetworkModificationExceptionType.GENERATOR_SCALING_ERROR.getMessage()),
-                "The exception must carry the type hardcoded by the constructor");
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> generatorScalingInfo.toModification(modificationContext),
+                "A missing variation mode must be reported as an invalid modification, not as an NPE");
+        assertEquals("Invalid modification : Attribute 'variationMode' is missing from modification", exception.getMessage());
     }
 
     @Test
     void nullVariationModeIsRejectedEvenWhenNoFilterMatches() {
-        // The mode is read while building the report node, before the filters are evaluated, so a
-        // missing mode must fail the same way whether the filters select something or not.
+        // The attributes are checked before the filters are resolved, so a missing mode must be
+        // rejected the same way whether or not the filters would have selected an equipment.
         ScalingVariationInfos variation = ScalingVariationInfos.builder()
                 .variationMode(null)
                 .variationValue(50D)
@@ -547,16 +534,15 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                 .filterWithDistributionKeysLoader(TestUtils.createFilterWithDistributionKeysLoader(EquipmentType.GENERATOR,
                         Map.of(FILTER_WRONG_ID_1, Set.of(GENERATOR_WRONG_ID_1)), Map.of(GENERATOR_WRONG_ID_1, 1.0)))
                 .build();
-        GeneratorScaling generatorScaling = (GeneratorScaling) generatorScalingInfo.toModification(modificationContext);
 
-        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> generatorScaling.apply(getNetwork()),
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> generatorScalingInfo.toModification(modificationContext),
                 "A missing variation mode is an error whether or not the filters select an equipment");
-        assertTrue(exception.getMessage().contains("This variation mode is not supported"));
+        assertEquals("Invalid modification : Attribute 'variationMode' is missing from modification", exception.getMessage());
     }
 
     @Test
     void nullVariationValueIsRejected() {
-        // getAsked returns the variation value as a primitive, so a null one is unboxed blindly
+        // getAsked returns the variation value as a primitive, so a null one used to be unboxed blindly
         ScalingVariationInfos variation = ScalingVariationInfos.builder()
                 .variationMode(VariationMode.PROPORTIONAL)
                 .variationValue(null)
@@ -571,10 +557,10 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                 .build();
 
         ModificationContext modificationContext = ModificationContext.builder().filterWithDistributionKeysLoader(this::loadFiltersWithDistributionKeys).build();
-        GeneratorScaling generatorScaling = (GeneratorScaling) generatorScalingInfo.toModification(modificationContext);
 
-        assertThrows(NetworkModificationException.class, () -> generatorScaling.apply(getNetwork()),
+        NetworkModificationException exception = assertThrows(NetworkModificationException.class, () -> generatorScalingInfo.toModification(modificationContext),
                 "A missing variation value must be reported, not unboxed into a NullPointerException");
+        assertEquals("Invalid modification : Attribute 'variationValue' is missing from modification", exception.getMessage());
     }
 
     @Override

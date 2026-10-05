@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package org.gridsuite.modification.modifications.data;
+package org.gridsuite.modification.modifications.data.scaling;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,7 +20,6 @@ import org.gridsuite.modification.ReactiveVariationMode;
 import org.gridsuite.modification.VariationMode;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Kamil MARUT {@literal <kamil.marut at rte-france.com>}
@@ -37,7 +36,7 @@ public class ScalingVariationData {
     private List<Filter> filters;
 
     @Schema(description = "Distribution key of each selected equipment")
-    private Map<String, Double> distributionKeys;
+    private LoadedDistributionKeys distributionKeys;
 
     @Schema(description = "Variation mode")
     private VariationMode variationMode;

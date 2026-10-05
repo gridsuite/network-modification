@@ -17,7 +17,7 @@ import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
 import org.gridsuite.modification.context.utils.DistributionKeyUtils;
 import org.gridsuite.modification.context.utils.FilterUtils;
 import org.gridsuite.modification.dto.FilterInfos;
-import org.gridsuite.modification.modifications.data.ScalingVariationData;
+import org.gridsuite.modification.modifications.data.scaling.ScalingVariationData;
 
 import java.util.List;
 import java.util.Map;
@@ -66,7 +66,7 @@ public class ScalingVariationInfos {
 
         return ScalingVariationData.builder()
                 .filters(FilterUtils.loadFilterWithNames(getFilters(), filtersWithDistributionKeys))
-                .distributionKeys(DistributionKeyUtils.loadIfValid(filterUuids, filtersWithDistributionKeys))
+                .distributionKeys(DistributionKeyUtils.reduceDistributionKeys(filterUuids, filtersWithDistributionKeys))
                 .variationMode(variationMode)
                 .variationValue(variationValue)
                 .reactiveVariationMode(reactiveVariationMode)
