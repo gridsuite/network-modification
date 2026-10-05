@@ -616,6 +616,7 @@ Contains collections of voltage initialization targets for `generators`, `transf
 | `referenceType` | `Type` | `BASIC` or `DIRECTORY` |
 | `referencedInfos` | `ModificationInfos` | Resolved DTO representation |
 | `sublevelCount` | `Integer` | Computed maximum nesting depth |
+| `editable` | `Boolean` | `true` when the user may write into the referenced modification |
 
 ---
 
