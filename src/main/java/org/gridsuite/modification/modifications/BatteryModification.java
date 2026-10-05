@@ -281,6 +281,10 @@ public class BatteryModification extends AbstractInjectionModification {
         Terminal regulatingTerminal = voltageRegulation.getRegulatingTerminal();
         String oldVoltageLevel = null;
         String oldEquipment = null;
+
+        if (!isRegulatingTerminalModified(voltageRegulationType)) {
+            return;
+        }
         // If there is no regulating terminal in file, regulating terminal voltage level
         // is equal to generator voltage level
         if (regulatingTerminal != null
@@ -305,9 +309,7 @@ public class BatteryModification extends AbstractInjectionModification {
                             + regulatingTerminalId.getValue(),
                     "Equipment"));
         }
-        if (voltageRegulationType != null
-                && voltageRegulationType.getValue() == VoltageRegulationType.LOCAL
-                && oldEquipment != null && oldVoltageLevel != null) {
+        if (voltageRegulationType.getValue() == VoltageRegulationType.LOCAL && oldEquipment != null && oldVoltageLevel != null) {
             // setting regulating terminal to null set to local terminal
             voltageRegulation.setRegulatingTerminal(null);
             voltageRegulationReports.add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel,
