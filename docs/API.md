@@ -615,6 +615,7 @@ Contains collections of voltage initialization targets for `generators`, `transf
 | `referencedId` | `UUID` | UUID of the referenced modification |
 | `referenceType` | `Type` | `BASIC` or `DIRECTORY` |
 | `referencedInfos` | `ModificationInfos` | Resolved DTO representation |
+| `editable` | `Boolean` | `true` when the user may write into the referenced modification |
 
 ---
 
