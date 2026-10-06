@@ -15,7 +15,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.filter.wip.Filter;
 import org.gridsuite.modification.ReactiveVariationMode;
 import org.gridsuite.modification.VariationMode;
 
@@ -32,11 +31,8 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ScalingVariationData {
 
-    @Schema(description = "List of filters")
-    private List<Filter> filters;
-
-    @Schema(description = "Distribution key of each selected equipment")
-    private LoadedDistributionKeys distributionKeys;
+    @Schema(description = "Filters of the variation, each with the distribution keys of the equipments it may select")
+    private List<VariationFilterData> filters;
 
     @Schema(description = "Variation mode")
     private VariationMode variationMode;

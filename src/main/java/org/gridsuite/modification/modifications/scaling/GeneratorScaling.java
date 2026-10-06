@@ -131,19 +131,18 @@ public class GeneratorScaling extends AbstractScaling {
     }
 
     @Override
-    protected void applyVentilationVariation(Network network, ReportNode subReportNode, List<Identifiable<?>> equipments, ScalingVariationData scalingVariation, Double distributionKeysSum) {
-        if (distributionKeysSum != null) {
+    protected void applyVentilationVariation(Network network, ReportNode subReportNode, List<Identifiable<?>> equipments, ScalingVariationData scalingVariation, DistributionKeys distributionKeys) {
+        if (distributionKeys != null) {
             AtomicReference<Double> sum = new AtomicReference<>(0D);
             List<Double> percentages = new ArrayList<>();
             List<Scalable> scalables = new ArrayList<>();
 
             equipments.forEach(equipment -> {
                 Generator generator = (Generator) equipment;
-                Double distributionKey = scalingVariation.getDistributionKeys().getDistributionKey(equipment.getId());
                 if (ModificationUtils.isInjectionConnected(generator)) {
                     sum.set(generator.getTargetP() + sum.get());
                     scalables.add(getScalable(equipment.getId()));
-                    percentages.add((distributionKey / distributionKeysSum) * 100);
+                    percentages.add(distributionKeys.percentageOf(equipment.getId()));
                 }
             });
             Scalable ventilationScalable = Scalable.proportional(percentages, scalables);

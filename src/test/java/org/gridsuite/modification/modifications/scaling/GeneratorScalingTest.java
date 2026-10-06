@@ -22,7 +22,6 @@ import org.gridsuite.modification.dto.scaling.GeneratorScalingInfos;
 import org.gridsuite.modification.dto.scaling.ScalingVariationInfos;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
-import org.gridsuite.modification.modifications.data.scaling.DistributionKeyStatus;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.gridsuite.modification.utils.TestUtils;
@@ -37,7 +36,9 @@ import java.util.stream.Stream;
 
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -109,8 +110,12 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
         GeneratorScalingInfos modificationInfo = (GeneratorScalingInfos) buildModification();
         ModificationContext modificationContext = ModificationContext.builder().filterWithDistributionKeysLoader(this::loadFiltersWithDistributionKeys).build();
         GeneratorScaling generatorScaling = (GeneratorScaling) modificationInfo.toModification(modificationContext);
-        assertEquals(DistributionKeyStatus.VALID_KEYS, generatorScaling.getScalingVariations().get(3).getDistributionKeys().status(),
-                "toModification resolves the filters and validates the distribution keys of every variation");
+        assertFalse(generatorScaling.getScalingVariations().get(3).getFilters().isEmpty(),
+                "toModification resolves the filters of every variation");
+        assertTrue(generatorScaling.getScalingVariations().stream()
+                        .flatMap(variation -> variation.getFilters().stream())
+                        .allMatch(filter -> filter.isResolved() && !filter.distributionKeys().isEmpty()),
+                "every filter of every variation is resolved, with the distribution keys it was loaded with");
         generatorScaling.apply(getNetwork());
         assertAfterNetworkModificationApplication();
     }

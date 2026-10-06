@@ -15,6 +15,10 @@ import org.gridsuite.filter.wip.Filter;
 import java.util.Map;
 
 /**
+ * A resolved filter, and the distribution key of each equipment it may select.
+ *
+ * <p>A filter carrying no key at all resolves with an empty key map, never with a {@code null} one.
+ *
  * @author Kamil MARUT {@literal <kamil.marut at rte-france.com>}
  */
 @Getter
@@ -27,6 +31,7 @@ public final class FilterWithDistributionKeys {
     @Schema(description = "Standalone filter")
     private Filter filter;
 
-    @Schema(description = "Distribution keys")
-    private Map<String, Double> distributionKeys;
+    @Builder.Default
+    @Schema(description = "Distribution key of each equipment the filter may select")
+    private Map<String, Double> distributionKeys = Map.of();
 }

@@ -39,7 +39,7 @@ org.gridsuite.modification
 ├── context/                     # ModificationContext: dependencies resolved once, at build time
 │   ├── dto/                     # Context value objects
 │   ├── loaders/                 # Loader functional interfaces (filter, filter+distribution keys, load-flow parameters)
-│   └── utils/                   # Context-side resolution helpers (FilterUtils, DistributionKeyUtils)
+│   └── utils/                   # Context-side resolution helpers (FilterUtils)
 ├── dto/                         # Data Transfer Objects (deserialization, models)
 │   ├── byfilter/                # DTOs for filter-based modifications
 │   │   ├── assignment/          # Assignment descriptors (String, Double, Boolean, Enum)
@@ -323,7 +323,7 @@ Consumer Application / Service
 | `org.gridsuite.modification.context` | `ModificationContext`: dependencies a modification needs, resolved once at build time |
 | `org.gridsuite.modification.context.dto` | Context value objects (`FilterWithDistributionKeys`) |
 | `org.gridsuite.modification.context.loaders` | Loader functional interfaces (`FilterLoader`, `FilterWithDistributionKeysLoader`, `LoadFlowParametersLoader`) |
-| `org.gridsuite.modification.context.utils` | Context-side resolution helpers (`FilterUtils`, `DistributionKeyUtils`) |
+| `org.gridsuite.modification.context.utils` | Context-side resolution helpers (`FilterUtils`) |
 | `org.gridsuite.modification.dto` | Core modification DTOs (CRUD, topology, dispatch, operational, references) |
 | `org.gridsuite.modification.dto.byfilter` | Filter-based modification DTOs |
 | `org.gridsuite.modification.dto.byfilter.assignment` | Assignment descriptors for typed modifications (String, Double, Boolean, Enum) |

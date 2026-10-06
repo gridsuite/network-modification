@@ -12,12 +12,12 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import lombok.Getter;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.filter.wip.Filter;
 import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.ReactiveVariationMode;
 import org.gridsuite.modification.VariationMode;
 import org.gridsuite.modification.VariationType;
 import org.gridsuite.modification.context.ModificationContext;
+import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
 import org.gridsuite.modification.context.loaders.FilterWithDistributionKeysLoader;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -25,8 +25,8 @@ import org.gridsuite.modification.dto.scaling.LoadScalingInfos;
 import org.gridsuite.modification.dto.scaling.ScalingVariationInfos;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
-import org.gridsuite.modification.modifications.data.scaling.DistributionKeyStatus;
 import org.gridsuite.modification.modifications.data.scaling.ScalingVariationData;
+import org.gridsuite.modification.modifications.data.scaling.VariationFilterData;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.gridsuite.modification.utils.TestUtils;
@@ -39,6 +39,7 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -184,10 +185,10 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
 
         Map<String, Double> expectedDistributionKeys = Map.of(LOAD_ID_5, 6.0, LOAD_ID_6, 7.0);
         loadScaling.getScalingVariations().forEach(scalingVariation -> {
-            assertEquals(expectedDistributionKeys, scalingVariation.getDistributionKeys().distributionKeys(),
-                    "The deduplicated resolution of the shared filter must keep its distribution keys");
-            assertEquals(DistributionKeyStatus.VALID_KEYS, scalingVariation.getDistributionKeys().status(),
-                    "A filter shared by two variations stays valid in each of them");
+            List<VariationFilterData> filters = scalingVariation.getFilters();
+            assertEquals(1, filters.size(), "The reference is resolved once, and stays a single filter");
+            assertEquals(expectedDistributionKeys, filters.getFirst().distributionKeys(),
+                    "A filter shared by two variations keeps its distribution keys in both of them");
         });
         // 50 MW of key-weighted ventilation, i.e. 6/13 and 7/13 of it, applied twice
         assertEquals(246.15, getNetwork().getLoad(LOAD_ID_5).getP0(), 0.01D);
@@ -211,8 +212,9 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
                 .build();
     }
 
-    private static Set<String> equipmentIdsOf(List<Filter> filters) {
+    private static Set<String> equipmentIdsOf(List<VariationFilterData> filters) {
         return filters.stream()
+                .map(VariationFilterData::filter)
                 .map(IdentifierListFilter.class::cast)
                 .map(IdentifierListFilter::getEquipmentIds)
                 .flatMap(Set::stream)
@@ -408,6 +410,89 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
     }
 
     @Test
+    void aFilterThatCannotBeResolvedIsReportedInsteadOfBeingDropped() {
+        // the loader cannot resolve the second filter, so the variation must say so rather than scale the
+        // equipments of the one it did resolve with a value sized for both
+        Map<UUID, Set<String>> filterMappings = Map.of(FILTER_ID_1, Set.of(LOAD_ID_1, LOAD_ID_2));
+        Map<String, Double> distributionKeys = Map.of(LOAD_ID_1, 1.0, LOAD_ID_2, 2.0);
+        FilterWithDistributionKeysLoader loader = omittingUnknownFilters(
+                TestUtils.createFilterWithDistributionKeysLoader(EquipmentType.LOAD, filterMappings, distributionKeys));
+        LoadScalingInfos loadScalingInfo = ventilationOver(FilterInfos.builder().id(FILTER_ID_1).name("filter1").build(),
+                FilterInfos.builder().id(UUID.randomUUID()).name("deletedFilter").build());
+
+        ReportNode report = applyAndReport(loader, loadScalingInfo);
+
+        assertLogMessage("Ventilation mode could not be applied: one of the filters is missing",
+                "network.modification.distributionKeys.missingFilter", report);
+        assertEquals(100, getNetwork().getLoad(LOAD_ID_1).getP0(), 0.01D, "nothing is scaled when a filter is missing");
+        assertEquals(200, getNetwork().getLoad(LOAD_ID_2).getP0(), 0.01D);
+    }
+
+    @Test
+    void aFilterKeyingOnlyPartOfWhatItSelectsIsReportedInsteadOfThrowing() {
+        // load2 is selected but has no key: it cannot be weighted, so the variation reports it rather than
+        // dividing every share by a null key
+        Map<UUID, Set<String>> filterMappings = Map.of(FILTER_ID_1, Set.of(LOAD_ID_1, LOAD_ID_2));
+        Map<String, Double> partialKeys = new HashMap<>();
+        partialKeys.put(LOAD_ID_1, 1.0);
+        FilterWithDistributionKeysLoader loader = TestUtils.createFilterWithDistributionKeysLoader(EquipmentType.LOAD, filterMappings, partialKeys);
+        LoadScalingInfos loadScalingInfo = ventilationOver(FilterInfos.builder().id(FILTER_ID_1).name("filter1").build());
+
+        ReportNode report = applyAndReport(loader, loadScalingInfo);
+
+        assertLogMessage("Ventilation mode could not be applied: at least one equipment is missing a distribution key",
+                "network.modification.distributionKeys.missingEquipmentKey", report);
+        assertEquals(100, getNetwork().getLoad(LOAD_ID_1).getP0(), 0.01D);
+        assertEquals(200, getNetwork().getLoad(LOAD_ID_2).getP0(), 0.01D);
+    }
+
+    @Test
+    void distributionKeysThatAddUpToZeroAreReported() {
+        Map<UUID, Set<String>> filterMappings = Map.of(FILTER_ID_1, Set.of(LOAD_ID_1, LOAD_ID_2));
+        Map<String, Double> zeroKeys = Map.of(LOAD_ID_1, 0.0, LOAD_ID_2, 0.0);
+        FilterWithDistributionKeysLoader loader = TestUtils.createFilterWithDistributionKeysLoader(EquipmentType.LOAD, filterMappings, zeroKeys);
+        LoadScalingInfos loadScalingInfo = ventilationOver(FilterInfos.builder().id(FILTER_ID_1).name("filter1").build());
+
+        ReportNode report = applyAndReport(loader, loadScalingInfo);
+
+        assertLogMessage("Ventilation mode could not be applied: the total of the distribution keys of the selected equipment is zero",
+                "network.modification.distributionKeys.unexpectedSum", report);
+        assertEquals(100, getNetwork().getLoad(LOAD_ID_1).getP0(), 0.01D);
+        assertEquals(200, getNetwork().getLoad(LOAD_ID_2).getP0(), 0.01D);
+    }
+
+    /** One ventilation variation over all the given filters, as opposed to one variation per filter. */
+    private LoadScalingInfos ventilationOver(FilterInfos... filters) {
+        return LoadScalingInfos.builder()
+                .stashed(false)
+                .variationType(VariationType.DELTA_P)
+                .variations(List.of(ScalingVariationInfos.builder()
+                        .reactiveVariationMode(ReactiveVariationMode.CONSTANT_Q)
+                        .variationMode(VariationMode.VENTILATION)
+                        .variationValue(50D)
+                        .filters(Arrays.asList(filters))
+                        .build()))
+                .build();
+    }
+
+    /** {@link TestUtils} loaders resolve every identifier they are given; a real one may not. */
+    private static FilterWithDistributionKeysLoader omittingUnknownFilters(FilterWithDistributionKeysLoader delegate) {
+        Map<UUID, FilterWithDistributionKeys> known = delegate.load(List.of(FILTER_ID_1, FILTER_ID_2, FILTER_ID_3, FILTER_ID_4, FILTER_ID_5));
+        return filterUuids -> filterUuids.stream()
+                .filter(known::containsKey)
+                .collect(Collectors.toMap(Function.identity(), known::get));
+    }
+
+    private ReportNode applyAndReport(FilterWithDistributionKeysLoader loader, LoadScalingInfos loadScalingInfo) {
+        LoadScaling loadScaling = (LoadScaling) loadScalingInfo.toModification(ModificationContext.builder().filterWithDistributionKeysLoader(loader).build());
+        ReportNode report = loadScalingInfo.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+        loadScaling.apply(getNetwork(), report);
+        return report;
+    }
+
+    @Test
     void filterReportUsesTheFilterNameWhenAvailable() {
         ReportNode report = applyScalingOverASingleFilter(FilterInfos.builder()
                 .id(FILTER_ID_1)
@@ -597,6 +682,7 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
     @ParameterizedTest
     @EnumSource(value = VariationMode.class, names = {"STACKING_UP", "PROPORTIONAL_TO_PMAX"})
     void testUnsupportedVariations(VariationMode variationMode) {
+        Network network = getNetwork();
         FilterInfos filter = FilterInfos.builder()
                 .id(FILTER_ID_1)
                 .name("filter1")
@@ -619,7 +705,7 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
         ModificationContext modificationContext = ModificationContext.builder().filterWithDistributionKeysLoader(this::loadFiltersWithDistributionKeys).build();
         LoadScaling loadScaling = (LoadScaling) loadScalingInfos.toModification(modificationContext);
 
-        NetworkModificationException networkModificationException = assertThrows(NetworkModificationException.class, () -> loadScaling.apply(getNetwork()));
+        NetworkModificationException networkModificationException = assertThrows(NetworkModificationException.class, () -> loadScaling.apply(network));
         assertTrue(networkModificationException.getMessage().contains("This variation mode is not supported"));
     }
 

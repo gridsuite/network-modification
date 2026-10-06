@@ -6,12 +6,14 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package org.gridsuite.modification.modifications.data.scaling;
+package org.gridsuite.modification.modifications.scaling;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
+ * Why the distribution keys of a scaling variation can, or cannot, weight it.
+ *
  * @author Kamil MARUT {@literal <kamil.marut at rte-france.com>}
  */
 @Getter
@@ -21,6 +23,7 @@ public enum DistributionKeyStatus {
     FILTER_HAS_NO_KEYS("network.modification.distributionKeys.filterHasNoKeys"),
     MISSING_EQUIPMENT_KEY("network.modification.distributionKeys.missingEquipmentKey"),
     DUPLICATED_EQUIPMENT_KEY("network.modification.distributionKeys.duplicatedKey"),
+    UNEXPECTED_SUM("network.modification.distributionKeys.unexpectedSum"),
     VALID_KEYS("network.modification.distributionKeys.valid");
 
     private final String reportKey;

@@ -42,12 +42,12 @@ public class ScalingInfos extends ModificationInfos {
     private VariationType variationType;
 
     /**
-     * Resolves, in one call, every filter referenced by the variations of this scaling, with its distribution
-     * keys. Identifiers are deduplicated, as {@link org.gridsuite.modification.context.utils.DistributionKeyUtils}
-     * expects distinct ones.
+     * Resolves, in one call, every filter referenced by the variations of this scaling, with its
+     * distribution keys.
      *
-     * <p>The result is the union of what every variation needs: a variation is responsible for keeping only
-     * the filters it references.
+     * <p>Identifiers are deduplicated, so that a filter shared by several variations is only asked for
+     * once. The result is the union of what every variation needs: a variation keeps only the filters it
+     * references.
      */
     protected Map<UUID, FilterWithDistributionKeys> resolveFilters(ModificationContext modificationContext) {
         List<UUID> allFilterUuids = getVariations().stream()

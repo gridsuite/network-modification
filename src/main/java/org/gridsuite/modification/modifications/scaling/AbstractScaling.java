@@ -22,8 +22,8 @@ import org.gridsuite.modification.VariationType;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.error.NetworkModificationExceptionType;
 import org.gridsuite.modification.modifications.AbstractModification;
-import org.gridsuite.modification.modifications.data.scaling.DistributionKeyStatus;
 import org.gridsuite.modification.modifications.data.scaling.ScalingVariationData;
+import org.gridsuite.modification.modifications.data.scaling.VariationFilterData;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -45,7 +45,6 @@ public abstract class AbstractScaling extends AbstractModification {
     private static final String REPORT_KEY_FILTER_EVALUATION_RESULT = "network.modification.filterEvaluationResult";
     private static final String REPORT_KEY_FILTER_EVALUATION_WITH_NO_RESULT = "network.modification.filterEvaluationResult.noResult";
     private static final String REPORT_KEY_APPLY_ASSIGNMENT = "network.modification.applyAssignment";
-    private static final String REPORT_KEY_UNEXPECTED_DISTRIBUTION_KEY_SUM = "network.modification.distributionKeys.unexpectedSum";
     private static final String VALUE_KEY_ACTUAL_VALUE = "actualValue";
     private static final String VALUE_KEY_ASKED_VALUE = "askedValue";
     private static final String VALUE_KEY_EQUIPMENT_COUNT = "equipmentCount";
@@ -116,23 +115,34 @@ public abstract class AbstractScaling extends AbstractModification {
 
     protected abstract void applyProportionalVariation(Network network, ReportNode subReportNode, List<Identifiable<?>> equipments, ScalingVariationData scalingVariation);
 
-    protected abstract void applyVentilationVariation(Network network, ReportNode subReportNode, List<Identifiable<?>> equipments, ScalingVariationData scalingVariation, Double distributionKeysSum);
+    /**
+     * @param distributionKeys the keys of the selected equipments and their total, or {@code null} if they
+     *                         cannot be used, in which case the reason has already been reported
+     */
+    protected abstract void applyVentilationVariation(Network network, ReportNode subReportNode,
+                                                      List<Identifiable<?>> equipments,
+                                                      ScalingVariationData scalingVariation,
+                                                      DistributionKeys distributionKeys);
 
     protected abstract IdentifiableType getEquipmentType();
 
-    // TODO filters are now resolved at build time, where no ReportNode is in scope, so a filter that cannot
-    //  be resolved is silently dropped with no trace in the report: a variation may then scale a subset of
-    //  the requested equipments, or scale them with a value sized for a larger set. Agreed fix is an ERROR
-    //  report node per missing filter (not aborting the modification, as for distributionKeysIssue today).
-    //  Applies to every FilterUtils consumer, scaling or not.
+    // TODO a filter that could not be resolved is skipped here with no trace in the report: a variation may
+    //  then scale a subset of the requested equipments. Agreed fix is an ERROR report node per unresolved
+    //  filter (not aborting the modification, as ventilation does today). Applies to every FilterUtils
+    //  consumer, scaling or not.
     private List<Identifiable<?>> evaluateFilters(Network network, ScalingVariationData scalingVariation, ReportNode scalingVariationContainer) {
         Set<String> alreadySeenEquipments = new HashSet<>();
         List<Identifiable<?>> equipments = new ArrayList<>();
         ReportNode filtersContainer = scalingVariationContainer.newReportNode()
                 .withMessageTemplate(REPORT_KEY_FILTERS_EVALUATION)
                 .add();
-        for (int i = 0; i < scalingVariation.getFilters().size(); i++) {
-            Filter filter = scalingVariation.getFilters().get(i);
+        List<VariationFilterData> filters = scalingVariation.getFilters();
+        for (int i = 0; i < filters.size(); i++) {
+            Filter filter = filters.get(i).filter();
+            if (filter == null) {
+                // a reference the loader could not resolve selects nothing
+                continue;
+            }
             String filterIdentifier = filter.getName() == null ? Integer.toString(i + 1) : filter.getName();
             ReportNode filterReportNode = filtersContainer.newReportNode()
                     .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION)
@@ -160,43 +170,15 @@ public abstract class AbstractScaling extends AbstractModification {
             case PROPORTIONAL -> applyProportionalVariation(network, subReportNode, equipments, scalingVariation);
             case PROPORTIONAL_TO_PMAX -> applyProportionalToPmaxVariation(network, subReportNode, equipments, scalingVariation);
             case REGULAR_DISTRIBUTION -> applyRegularDistributionVariation(network, subReportNode, equipments, scalingVariation);
-            case VENTILATION -> applyVentilationVariation(network, subReportNode, equipments, scalingVariation, getDistributionKeysSum(scalingVariation, equipments, subReportNode));
+            case VENTILATION -> applyVentilationVariation(network, subReportNode, equipments, scalingVariation,
+                    DistributionKeys.resolve(scalingVariation.getFilters(), equipmentIdsOf(equipments), subReportNode));
             case STACKING_UP -> applyStackingUpVariation(network, subReportNode, equipments, scalingVariation);
             default -> throw new NetworkModificationException(exceptionType, String.format(UNSUPPORTED_VARIATION_MODE_TEMPLATE, scalingVariation.getVariationMode().name()));
         }
     }
 
-    private Double getDistributionKeysSum(ScalingVariationData scalingVariation, List<Identifiable<?>> equipments, ReportNode subReportNode) {
-        DistributionKeyStatus status = scalingVariation.getDistributionKeys().status();
-        if (!DistributionKeyStatus.VALID_KEYS.equals(status)) {
-            subReportNode.newReportNode()
-                    .withMessageTemplate(status.getReportKey())
-                    .withSeverity(TypedValue.ERROR_SEVERITY)
-                    .add();
-            return null;
-        }
-
-        Map<String, Double> distributionKeys = scalingVariation.getDistributionKeys().distributionKeys();
-        double distributionKeysSum = equipments.stream()
-                .map(Identifiable::getId)
-                .map(distributionKeys::get)
-                .filter(Objects::nonNull)
-                .mapToDouble(Double::doubleValue)
-                .sum();
-
-        if (distributionKeysSum == 0) {
-            subReportNode.newReportNode()
-                    .withMessageTemplate(REPORT_KEY_UNEXPECTED_DISTRIBUTION_KEY_SUM)
-                    .withSeverity(TypedValue.ERROR_SEVERITY)
-                    .add();
-            return null;
-        }
-
-        subReportNode.newReportNode()
-                .withMessageTemplate(status.getReportKey())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
-        return distributionKeysSum;
+    private static List<String> equipmentIdsOf(List<Identifiable<?>> equipments) {
+        return equipments.stream().map(Identifiable::getId).toList();
     }
 
     private double getAsked(ScalingVariationData scalingVariation, AtomicReference<Double> sum) {

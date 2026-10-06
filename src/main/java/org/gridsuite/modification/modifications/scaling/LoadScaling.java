@@ -104,19 +104,18 @@ public class LoadScaling extends AbstractScaling {
     }
 
     @Override
-    protected void applyVentilationVariation(Network network, ReportNode subReportNode, List<Identifiable<?>> equipments, ScalingVariationData scalingVariation, Double distributionKeysSum) {
-        if (distributionKeysSum != null) {
+    protected void applyVentilationVariation(Network network, ReportNode subReportNode, List<Identifiable<?>> equipments, ScalingVariationData scalingVariation, DistributionKeys distributionKeys) {
+        if (distributionKeys != null) {
             AtomicReference<Double> sum = new AtomicReference<>(0D);
             List<Double> percentages = new ArrayList<>();
             List<Scalable> scalables = new ArrayList<>();
 
             equipments.forEach(equipment -> {
                 Load load = (Load) equipment;
-                Double distributionKey = scalingVariation.getDistributionKeys().getDistributionKey(equipment.getId());
                 if (ModificationUtils.isInjectionConnected(load)) {
                     sum.set(load.getP0() + sum.get());
                     scalables.add(getScalable(equipment.getId()));
-                    percentages.add((distributionKey / distributionKeysSum) * 100);
+                    percentages.add(distributionKeys.percentageOf(equipment.getId()));
                 }
             });
             Scalable ventilationScalable = Scalable.proportional(percentages, scalables);

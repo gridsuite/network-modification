@@ -14,7 +14,6 @@ import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ReactiveVariationMode;
 import org.gridsuite.modification.VariationMode;
 import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
-import org.gridsuite.modification.context.utils.DistributionKeyUtils;
 import org.gridsuite.modification.context.utils.FilterUtils;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.modifications.data.scaling.ScalingVariationData;
@@ -52,21 +51,15 @@ public class ScalingVariationInfos {
     /**
      * Builds the data of this variation from the filters already resolved for the whole scaling.
      *
-     * <p>The given map is shared by all the variations, so only the identifiers of <b>this</b> variation are
-     * looked up, both to name its filters and to gather its distribution keys: a filter another variation
-     * also uses must not invalidate this variation's keys.
-     *
-     * <p>Being shared, a filter used by several variations is the same
+     * <p>The given map is shared by all the variations, so only the references of <b>this</b> variation are
+     * looked up. Being shared, a filter used by several variations is the same
      * {@link org.gridsuite.filter.wip.Filter} instance in each of them, and its name is set again for every
      * variation: the name of the last one referencing it wins.
      */
     @JsonIgnore
     public ScalingVariationData toData(Map<UUID, FilterWithDistributionKeys> filtersWithDistributionKeys) {
-        List<UUID> filterUuids = getFilters().stream().map(FilterInfos::getId).distinct().toList();
-
         return ScalingVariationData.builder()
-                .filters(FilterUtils.loadFilterWithNames(getFilters(), filtersWithDistributionKeys))
-                .distributionKeys(DistributionKeyUtils.reduceDistributionKeys(filterUuids, filtersWithDistributionKeys))
+                .filters(FilterUtils.loadFiltersWithDistributionKeys(getFilters(), filtersWithDistributionKeys))
                 .variationMode(variationMode)
                 .variationValue(variationValue)
                 .reactiveVariationMode(reactiveVariationMode)
