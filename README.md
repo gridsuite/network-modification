@@ -1,3 +1,5 @@
+TEST
+
 # GridSuite Network Modification
 
 [![Actions Status](https://github.com/gridsuite/network-modification/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/gridsuite/network-modification/actions)
