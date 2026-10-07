@@ -384,7 +384,7 @@ public class GenerationDispatch extends AbstractModification {
         if (CollectionUtils.isEmpty(generatorsFilters)) {
             return List.of();
         }
-        var filters = generatorsFilters.stream().collect(Collectors.toMap(GeneratorsFilterInfos::getId, GeneratorsFilterInfos::getName, (id1, id2) -> id1, LinkedHashMap::new));
+        var filters = generatorsFilters.stream().collect(Collectors.toMap(GeneratorsFilterInfos::getId, GeneratorsFilterInfos::label, (id1, id2) -> id1, LinkedHashMap::new));
 
         // export filters
         Map<UUID, FilterEquipments> exportedGenerators = filterService

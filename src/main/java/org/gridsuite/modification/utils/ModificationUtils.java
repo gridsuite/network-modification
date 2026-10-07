@@ -1735,7 +1735,7 @@ public final class ModificationUtils {
     public static Set<IdentifiableAttributes> getIdentifiableAttributes(Map<UUID, FilterEquipments> exportFilters, List<FilterInfos> filterInfos, ReportNode subReportNode) {
         filterInfos.stream()
                 .filter(f -> !exportFilters.containsKey(f.getId()))
-                .forEach(f -> createReport(subReportNode, "network.modification.filterNotFound", Map.of("name", f.getName()), TypedValue.WARN_SEVERITY));
+                .forEach(f -> createReport(subReportNode, "network.modification.filterNotFound", Map.of("name", f.label()), TypedValue.WARN_SEVERITY));
 
         return filterInfos
                 .stream()

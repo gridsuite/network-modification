@@ -28,7 +28,14 @@ public class FilterInfos {
     @Schema(description = "id of filter")
     private UUID id;
 
-    @Schema(description = "name of filter")
+    @Schema(description = "name of filter, not stored: resolved from the directory which owns it, null if the filter no longer exists there")
     private String name;
+
+    /**
+     * @return what reports show for this filter: its resolved name, or its id when it could not be resolved
+     */
+    public String label() {
+        return name != null ? name : String.valueOf(id);
+    }
 
 }

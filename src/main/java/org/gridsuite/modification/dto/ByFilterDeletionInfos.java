@@ -24,6 +24,7 @@ import org.gridsuite.modification.modifications.ByFilterDeletion;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * @author Antoine Bouhours <antoine.bouhours at rte-france.com>
@@ -64,5 +65,10 @@ public class ByFilterDeletionInfos extends ModificationInfos {
         Map<String, String> mapMessageValues = new HashMap<>();
         mapMessageValues.put("equipmentType", getEquipmentType().name());
         return mapMessageValues;
+    }
+
+    @Override
+    public Stream<? extends FilterInfos> referencedFilters() {
+        return Stream.ofNullable(filters).flatMap(List::stream);
     }
 }
