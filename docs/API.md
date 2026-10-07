@@ -606,7 +606,7 @@ Contains collections of voltage initialization targets for `generators`, `transf
 |---|---|---|
 | `name` | `String` | Descriptive scenario/composite name |
 | `modificationsInfos` | `List<ModificationInfos>` | Ordered list of child modifications |
-| `maxDepth` | `Integer` | Computed maximum nesting depth |
+| `sublevelCount` | `Integer` | Computed maximum nesting depth |
 
 #### `ModificationReferenceInfos` ← `ModificationInfos`
 
@@ -615,6 +615,8 @@ Contains collections of voltage initialization targets for `generators`, `transf
 | `referencedId` | `UUID` | UUID of the referenced modification |
 | `referenceType` | `Type` | `BASIC` or `DIRECTORY` |
 | `referencedInfos` | `ModificationInfos` | Resolved DTO representation |
+| `sublevelCount` | `Integer` | Computed maximum nesting depth |
+| `editable` | `Boolean` | `true` when the user may write into the referenced modification |
 
 ---
 
