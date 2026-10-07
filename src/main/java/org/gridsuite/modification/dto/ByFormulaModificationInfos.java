@@ -64,7 +64,7 @@ public class ByFormulaModificationInfos extends ModificationInfos {
     }
 
     @Override
-    public Stream<? extends FilterInfos> collectFilters() {
+    public Stream<FilterInfos> collectFilters() {
         return Stream.ofNullable(formulaInfosList)
                 .flatMap(List::stream)
                 .flatMap(formulaInfos -> Stream.ofNullable(formulaInfos.getFilters()).flatMap(List::stream));
