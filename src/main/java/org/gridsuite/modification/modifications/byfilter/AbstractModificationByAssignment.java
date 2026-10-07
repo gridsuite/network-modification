@@ -24,7 +24,9 @@ import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.data.assignment.AbstractAssignmentData;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils.getFieldValue;
 import static org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils.setFieldValue;
@@ -47,6 +49,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     public static final String VALUE_KEY_EQUIPMENT_NAME = "equipmentName";
     public static final String VALUE_KEY_EQUIPMENT_TYPE = "equipmentType";
     public static final String VALUE_KEY_EQUIPMENT_COUNT = "equipmentCount";
+    public static final String VALUE_KEY_EQUIPMENT_LIST = "equipmentList";
     public static final String VALUE_KEY_NB_CHANGED = "nbChanged";
     public static final String VALUE_KEY_NB_UNCHANGED = "nbUnchanged";
     public static final String VALUE_KEY_OLD_VALUE = "oldValue";
@@ -68,6 +71,8 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
     public static final String REPORT_KEY_EQUIPMENT_MODIFIED_REPORT_EXCEPTION = "network.modification.equipmentModifiedReportException";
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_ALL = "network.modification.byFilterModificationAll";
     public static final String REPORT_KEY_BY_FILTER_MODIFICATION_NONE = "network.modification.byFilterModificationNone";
+    public static final String REPORT_KEY_FILTER_EVALUATION_WITH_IGNORED_EQUIPMENT = "network.modification.duplicatedElementInByFilterModification";
+    public static final String REPORT_KEY_FILTER_EVALUATION_WITH_IGNORED_EQUIPMENT_LISTING = "network.modification.duplicatedElementInByFilterModificationListing";
 
     @JsonIgnore
     @EqualsAndHashCode.Exclude
@@ -148,6 +153,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                     .withMessageTemplate(REPORT_KEY_FILTERS_EVALUATION)
                     .add();
             List<Identifiable<?>> evaluatedEquipments = new ArrayList<>();
+            Set<String> ignoredEquipments = new HashSet<>();
             for (int j = 0; j < assignment.getFilters().size(); j++) {
                 Filter filter = assignment.getFilters().get(j);
                 String filterIdentifier = filter.getName() == null ? Integer.toString(j + 1) : filter.getName();
@@ -155,7 +161,28 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                         .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION)
                         .withUntypedValue(VALUE_KEY_FILTER_IDENTIFIER, filterIdentifier)
                         .add();
-                evaluatedEquipments.addAll(filter.evaluate(network, filterContainer));
+                List<Identifiable<?>> evaluatedEquipmentsForFilter = filter.evaluate(network, filterContainer);
+                for (Identifiable<?> equipment : evaluatedEquipmentsForFilter) {
+                    if (evaluatedEquipments.contains(equipment)) {
+                        ignoredEquipments.add(equipment.getId());
+                    } else {
+                        evaluatedEquipments.add(equipment);
+                    }
+                }
+            }
+
+            if (!ignoredEquipments.isEmpty()) {
+                assignmentContainer.newReportNode()
+                        .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION_WITH_IGNORED_EQUIPMENT)
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .withUntypedValue(VALUE_KEY_EQUIPMENT_COUNT, ignoredEquipments.size())
+                        .add();
+                assignmentContainer.newReportNode()
+                        .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION_WITH_IGNORED_EQUIPMENT_LISTING)
+                        .withSeverity(TypedValue.DETAIL_SEVERITY)
+                        .withUntypedValue(VALUE_KEY_EQUIPMENT_LIST, ignoredEquipments.toString())
+                        .add();
+
             }
 
             // If filters do not evaluate to any equipment, we just add a warn report and go to the next assignment
