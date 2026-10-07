@@ -69,7 +69,7 @@ public class GenerationDispatchInfos extends ModificationInfos {
     }
 
     @Override
-    public Stream<? extends FilterInfos> referencedFilters() {
+    public Stream<? extends FilterInfos> collectFilters() {
         return Stream.of(
                         Stream.ofNullable(generatorsWithoutOutage).flatMap(List::stream),
                         Stream.ofNullable(generatorsWithFixedSupply).flatMap(List::stream),

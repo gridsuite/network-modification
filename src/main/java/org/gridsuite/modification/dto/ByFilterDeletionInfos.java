@@ -68,7 +68,7 @@ public class ByFilterDeletionInfos extends ModificationInfos {
     }
 
     @Override
-    public Stream<? extends FilterInfos> referencedFilters() {
+    public Stream<? extends FilterInfos> collectFilters() {
         return Stream.ofNullable(filters).flatMap(List::stream);
     }
 }

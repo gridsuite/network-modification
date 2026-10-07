@@ -34,7 +34,7 @@ public class ScalingInfos extends ModificationInfos {
     private VariationType variationType;
 
     @Override
-    public Stream<? extends FilterInfos> referencedFilters() {
+    public Stream<? extends FilterInfos> collectFilters() {
         return Stream.ofNullable(variations)
                 .flatMap(List::stream)
                 .flatMap(variation -> Stream.ofNullable(variation.getFilters()).flatMap(List::stream));
