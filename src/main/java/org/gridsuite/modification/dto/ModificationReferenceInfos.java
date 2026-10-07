@@ -34,10 +34,11 @@ import java.util.UUID;
 @ToString(callSuper = true)
 @Schema(description = "Modification reference")
 @JsonTypeName("MODIFICATION_REFERENCE")
-public class ModificationReferenceInfos extends ModificationInfos {
+public class ModificationReferenceInfos extends ModificationInfos implements SublevelCountHolderInfos {
     public enum Type {
-        BASIC,
+        ELEMENTARY,
         DIRECTORY,
+        COMPOSITE
     }
 
     @Schema(description = "modification reference id")
@@ -52,6 +53,14 @@ public class ModificationReferenceInfos extends ModificationInfos {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private ModificationInfos referencedInfos;
 
+    @Schema(description = "sublevel count of the referenced composite")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer sublevelCount;
+
+    @Schema(description = "true when the user may write into the referenced modification")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Boolean editable;
+
     @Override
     public AbstractModification toModification(ModificationContext context) {
         return ModificationReference.builder()
@@ -64,7 +73,12 @@ public class ModificationReferenceInfos extends ModificationInfos {
 
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
-        return reportNode.newReportNode().withMessageTemplate(referenceType == Type.BASIC ? "network.modification.basic.reference.apply" : "network.modification.directory.reference.apply").add();
+        String messageKey = switch (referenceType) {
+            case ELEMENTARY -> "network.modification.elementary.reference.apply";
+            case DIRECTORY -> "network.modification.directory.reference.apply";
+            case COMPOSITE -> "network.modification.composite.reference.apply";
+        };
+        return reportNode.newReportNode().withMessageTemplate(messageKey).add();
     }
 
     @Override
