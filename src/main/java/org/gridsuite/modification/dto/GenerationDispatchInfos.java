@@ -15,14 +15,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.filter.wip.Filter;
+import org.gridsuite.modification.context.FilterLoader;
 import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.GenerationDispatch;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.gridsuite.modification.context.FilterUtils.loadFilterWithNames;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -54,19 +56,21 @@ public class GenerationDispatchInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification(ModificationContext modificationContext) {
-        Set<UUID> referencedFilterIds = streamReferencedFilters().map(FilterInfos::getId).collect(Collectors.toCollection(LinkedHashSet::new));
+        List<UUID> referencedFilterIds = streamReferencedFilters().map(FilterInfos::getId).distinct().toList();
         Map<UUID, Filter> filtersById = referencedFilterIds.isEmpty()
                 ? Map.of()
-                : modificationContext.filterLoader().load(List.copyOf(referencedFilterIds));
+                : modificationContext.filterLoader().load(referencedFilterIds);
+        // the filters of all the sections are loaded at once, each section then names and orders its own ones
+        FilterLoader loadedFilters = filterUuids -> filtersById;
 
         return GenerationDispatch.builder()
                 .lossCoefficient(getLossCoefficient())
                 .defaultOutageRate(getDefaultOutageRate())
-                .generatorsWithoutOutage(resolveFilters(getGeneratorsWithoutOutage(), filtersById))
-                .generatorsWithFixedSupply(resolveFilters(getGeneratorsWithFixedSupply(), filtersById))
+                .generatorsWithoutOutage(loadFilterWithNames(nullToEmpty(getGeneratorsWithoutOutage()), loadedFilters))
+                .generatorsWithFixedSupply(loadFilterWithNames(nullToEmpty(getGeneratorsWithFixedSupply()), loadedFilters))
                 .generatorsFrequencyReserve(nullToEmpty(getGeneratorsFrequencyReserve()).stream()
                         .map(reserve -> new GenerationDispatch.GeneratorsFrequencyReserve(
-                                resolveFilters(reserve.getGeneratorsFilters(), filtersById),
+                                loadFilterWithNames(nullToEmpty(reserve.getGeneratorsFilters()), loadedFilters),
                                 reserve.getFrequencyReserve()))
                         .toList())
                 .substationsGeneratorsOrdering(nullToEmpty(getSubstationsGeneratorsOrdering()).stream()
@@ -82,22 +86,6 @@ public class GenerationDispatchInfos extends ModificationInfos {
                 nullToEmpty(getGeneratorsWithFixedSupply()).stream(),
                 nullToEmpty(getGeneratorsFrequencyReserve()).stream().flatMap(reserve -> nullToEmpty(reserve.getGeneratorsFilters()).stream())
         ).flatMap(Function.identity());
-    }
-
-    /**
-     * Resolves filter references against the loaded filters, keeping their order and dropping duplicates.
-     * Filters that could not be loaded are skipped: they are accounted for by the modification's missing filters count.
-     */
-    private static List<Filter> resolveFilters(List<FilterInfos> filterInfosList, Map<UUID, Filter> filtersById) {
-        Map<UUID, Filter> resolvedFilters = new LinkedHashMap<>();
-        for (FilterInfos filterInfos : nullToEmpty(filterInfosList)) {
-            Filter filter = filtersById.get(filterInfos.getId());
-            if (filter != null && !resolvedFilters.containsKey(filterInfos.getId())) {
-                filter.setName(filterInfos.getName());
-                resolvedFilters.put(filterInfos.getId(), filter);
-            }
-        }
-        return List.copyOf(resolvedFilters.values());
     }
 
     private static <T> List<T> nullToEmpty(List<T> list) {

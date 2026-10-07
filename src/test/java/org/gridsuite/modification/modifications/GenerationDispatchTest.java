@@ -8,8 +8,10 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
+import lombok.Getter;
 import org.gridsuite.filter.report.FilterReportResourceBundle;
 import org.gridsuite.filter.utils.EquipmentType;
+import org.gridsuite.modification.context.FilterLoader;
 import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.error.NetworkModificationException;
@@ -63,6 +65,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
             FILTER_ID_5, Set.of(GTH2_ID, GH3_ID, GEN1_NOT_FOUND_ID),
             FILTER_ID_6, Set.of(TEST1_ID));
 
+    @Getter
+    private final FilterLoader filterLoader = createFilterLoader(EquipmentType.GENERATOR, GENERATORS_BY_FILTER);
+
     private static FilterInfos filterInfos(UUID id, String name) {
         return FilterInfos.builder().id(id).name(name).build();
     }
@@ -74,8 +79,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         return (GenerationDispatch) modificationInfos.toModification(modificationContext);
     }
 
-    private static GenerationDispatch toModification(GenerationDispatchInfos modificationInfos) {
-        return toModification(modificationInfos, GENERATORS_BY_FILTER);
+    private GenerationDispatch toModification(GenerationDispatchInfos modificationInfos) {
+        ModificationContext modificationContext = ModificationContext.builder().filterLoader(filterLoader).build();
+        return (GenerationDispatch) modificationInfos.toModification(modificationContext);
     }
 
     private static ReportNode createReportNode(GenerationDispatchInfos modificationInfos) {
@@ -107,6 +113,16 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
         assertLogMessageWithoutRank("The supply-demand balance could be met", "network.modification.SupplyDemandBalanceCouldBeMet", report);
         assertLogMessageWithoutRank("Sum of generator active power setpoints in SOUTH region: " + totalAmount + " MW (NUCLEAR: 0.0 MW, THERMAL: 0.0 MW, HYDRO: " + totalAmount
                 + " MW, WIND AND SOLAR: 0.0 MW, OTHER: 0.0 MW).", "network.modification.SumGeneratorActivePower", report);
+    }
+
+    @Test
+    @Override
+    public void testApply() throws Exception {
+        ModificationInfos modificationInfo = buildModification();
+        ModificationContext modificationContext = ModificationContext.builder().filterLoader(filterLoader).build();
+        AbstractModification modification = modificationInfo.toModification(modificationContext);
+        modification.apply(getNetwork());
+        assertAfterNetworkModificationApplication();
     }
 
     @Test
@@ -637,7 +653,9 @@ class GenerationDispatchTest extends AbstractNetworkModificationTest {
             .stashed(false)
             .lossCoefficient(20.)
             .defaultOutageRate(0.)
-            .generatorsWithoutOutage(List.of())
+            // filter 3 only contains generators missing in the test networks: the filter is loaded and serialized
+            // by the generic tests (apply, round trip serialization) without changing the dispatch
+            .generatorsWithoutOutage(List.of(filterInfos(FILTER_ID_3, "filter3")))
             .generatorsWithFixedSupply(List.of())
             .generatorsFrequencyReserve(List.of())
             .substationsGeneratorsOrdering(List.of())
