@@ -17,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Filters referenced by modifications, whose names are resolved from the directory by the caller.
+ *
+ * @author Hugo Marcellin <hugo.marcelin at rte-france.com>
  */
 class ModificationFiltersTest {
 
