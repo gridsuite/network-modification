@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package org.gridsuite.modification.context.loaders;
+package org.gridsuite.modification.context;
 
 import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;

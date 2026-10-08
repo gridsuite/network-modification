@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package org.gridsuite.modification.modifications.scaling;
+package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
@@ -16,15 +16,14 @@ import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.ReactiveVariationMode;
 import org.gridsuite.modification.VariationMode;
 import org.gridsuite.modification.VariationType;
+import org.gridsuite.modification.context.FilterWithDistributionKeysLoader;
 import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
-import org.gridsuite.modification.context.loaders.FilterWithDistributionKeysLoader;
 import org.gridsuite.modification.dto.FilterInfos;
+import org.gridsuite.modification.dto.LoadScalingInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.scaling.LoadScalingInfos;
-import org.gridsuite.modification.dto.scaling.ScalingVariationInfos;
+import org.gridsuite.modification.dto.ScalingVariationInfos;
 import org.gridsuite.modification.error.NetworkModificationException;
-import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.modifications.data.scaling.ScalingVariationData;
 import org.gridsuite.modification.modifications.data.scaling.VariationFilterData;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;

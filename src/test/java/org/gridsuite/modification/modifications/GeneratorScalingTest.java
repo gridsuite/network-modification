@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package org.gridsuite.modification.modifications.scaling;
+package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
@@ -14,14 +14,13 @@ import lombok.Getter;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.VariationMode;
 import org.gridsuite.modification.VariationType;
+import org.gridsuite.modification.context.FilterWithDistributionKeysLoader;
 import org.gridsuite.modification.context.ModificationContext;
-import org.gridsuite.modification.context.loaders.FilterWithDistributionKeysLoader;
 import org.gridsuite.modification.dto.FilterInfos;
+import org.gridsuite.modification.dto.GeneratorScalingInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
-import org.gridsuite.modification.dto.scaling.GeneratorScalingInfos;
-import org.gridsuite.modification.dto.scaling.ScalingVariationInfos;
+import org.gridsuite.modification.dto.ScalingVariationInfos;
 import org.gridsuite.modification.error.NetworkModificationException;
-import org.gridsuite.modification.modifications.AbstractNetworkModificationTest;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.gridsuite.modification.utils.TestUtils;

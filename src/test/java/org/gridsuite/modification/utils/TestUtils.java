@@ -18,9 +18,9 @@ import org.apache.commons.text.StringSubstitutor;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.filter.wip.Filter;
 import org.gridsuite.filter.wip.IdentifierListFilter;
+import org.gridsuite.modification.context.FilterLoader;
+import org.gridsuite.modification.context.FilterWithDistributionKeysLoader;
 import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
-import org.gridsuite.modification.context.loaders.FilterLoader;
-import org.gridsuite.modification.context.loaders.FilterWithDistributionKeysLoader;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.junit.jupiter.api.Assertions;
 import org.junit.platform.commons.util.StringUtils;
@@ -156,7 +156,7 @@ public final class TestUtils {
     }
 
     public static void checkLimitsGroupOnLine(Line line, String side1SelectedGroupId, String side2SelectedGroupId,
-                                              List<String> side1GroupIds, List<String> side2GroupIds) {
+                                        List<String> side1GroupIds, List<String> side2GroupIds) {
         assertFalse(line.getOperationalLimitsGroups1().isEmpty());
         assertFalse(line.getOperationalLimitsGroups2().isEmpty());
         assertEquals(side1GroupIds.size(), line.getOperationalLimitsGroups1().size());

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package org.gridsuite.modification.context.loaders;
+package org.gridsuite.modification.context;
 
 import org.gridsuite.filter.wip.Filter;
 

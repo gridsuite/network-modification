@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package org.gridsuite.modification.modifications.scaling;
+package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
@@ -21,7 +21,6 @@ import org.gridsuite.filter.wip.Filter;
 import org.gridsuite.modification.VariationType;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.error.NetworkModificationExceptionType;
-import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.data.scaling.ScalingVariationData;
 import org.gridsuite.modification.modifications.data.scaling.VariationFilterData;
 

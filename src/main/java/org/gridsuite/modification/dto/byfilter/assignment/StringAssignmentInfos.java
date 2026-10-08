@@ -10,8 +10,8 @@ package org.gridsuite.modification.dto.byfilter.assignment;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.modification.context.loaders.FilterLoader;
-import org.gridsuite.modification.context.utils.FilterUtils;
+import org.gridsuite.modification.context.FilterLoader;
+import org.gridsuite.modification.context.FilterUtils;
 import org.gridsuite.modification.modifications.data.assignment.DataType;
 import org.gridsuite.modification.modifications.data.assignment.StringAssignmentData;
 

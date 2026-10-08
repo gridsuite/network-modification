@@ -6,8 +6,6 @@
  */
 package org.gridsuite.modification.context;
 
-import org.gridsuite.modification.context.loaders.FilterLoader;
-import org.gridsuite.modification.context.loaders.LoadFlowParametersLoader;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

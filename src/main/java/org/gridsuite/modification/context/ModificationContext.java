@@ -7,9 +7,6 @@
 package org.gridsuite.modification.context;
 
 import lombok.Builder;
-import org.gridsuite.modification.context.loaders.FilterLoader;
-import org.gridsuite.modification.context.loaders.FilterWithDistributionKeysLoader;
-import org.gridsuite.modification.context.loaders.LoadFlowParametersLoader;
 
 /**
  * Everything a modification may need to be built from its description.

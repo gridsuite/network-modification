@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package org.gridsuite.modification.dto.scaling;
+package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,9 +13,8 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.ReactiveVariationMode;
 import org.gridsuite.modification.VariationMode;
+import org.gridsuite.modification.context.FilterUtils;
 import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
-import org.gridsuite.modification.context.utils.FilterUtils;
-import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.modifications.data.scaling.ScalingVariationData;
 
 import java.util.List;

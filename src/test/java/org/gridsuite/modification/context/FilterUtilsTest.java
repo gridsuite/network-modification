@@ -5,13 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package org.gridsuite.modification.context.utils;
+package org.gridsuite.modification.context;
 
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.filter.wip.Filter;
 import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
-import org.gridsuite.modification.context.loaders.FilterLoader;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.modifications.data.scaling.VariationFilterData;
 import org.junit.jupiter.api.Test;

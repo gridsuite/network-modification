@@ -5,7 +5,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package org.gridsuite.modification.dto.scaling;
+
+package org.gridsuite.modification.dto;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
@@ -13,31 +14,28 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
 import org.gridsuite.modification.modifications.AbstractModification;
+import org.gridsuite.modification.modifications.GeneratorScaling;
 import org.gridsuite.modification.modifications.data.scaling.ScalingVariationData;
-import org.gridsuite.modification.modifications.scaling.LoadScaling;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.gridsuite.modification.error.NetworkModificationException.createModificationAttributeMissing;
-
 /**
- * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
+ * @author Seddik Yengui <Seddik.yengui at rte-france.com>
  */
+
 @SuperBuilder
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString(callSuper = true)
-@Schema(description = "Load scaling creation")
-@JsonTypeName("LOAD_SCALING")
-public class LoadScalingInfos extends ScalingInfos {
+@JsonTypeName("GENERATOR_SCALING")
+@Schema(description = "Generator scaling creation")
+public class GeneratorScalingInfos extends ScalingInfos {
 
     @Override
     public AbstractModification toModification(ModificationContext modificationContext) {
@@ -48,7 +46,7 @@ public class LoadScalingInfos extends ScalingInfos {
                 .map(svi -> svi.toData(resolvedFilters))
                 .toList();
 
-        return LoadScaling.builder()
+        return GeneratorScaling.builder()
                 .scalingVariations(scalingVariations)
                 .variationType(getVariationType())
                 .build();
@@ -57,18 +55,7 @@ public class LoadScalingInfos extends ScalingInfos {
     @Override
     public ReportNode createSubReportNode(ReportNode reportNode) {
         return reportNode.newReportNode()
-                .withMessageTemplate("network.modification.loadScaling")
+                .withMessageTemplate("network.modification.generatorScaling")
                 .add();
-    }
-
-    @Override
-    public void check() {
-        super.check();
-
-        for (ScalingVariationInfos variation : getVariations()) {
-            if (variation.getReactiveVariationMode() == null) {
-                createModificationAttributeMissing("reactiveVariationMode");
-            }
-        }
     }
 }
