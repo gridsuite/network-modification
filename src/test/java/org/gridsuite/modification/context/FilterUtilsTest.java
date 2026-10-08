@@ -11,23 +11,14 @@ import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.filter.wip.Filter;
 import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
-import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
 import org.gridsuite.modification.dto.FilterInfos;
-import org.gridsuite.modification.modifications.data.scaling.VariationFilterData;
 import org.gridsuite.modification.modifications.data.scaling.VariationFilterData;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
