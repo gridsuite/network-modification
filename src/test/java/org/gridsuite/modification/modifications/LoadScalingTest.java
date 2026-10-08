@@ -18,7 +18,6 @@ import org.gridsuite.modification.VariationMode;
 import org.gridsuite.modification.VariationType;
 import org.gridsuite.modification.context.FilterWithDistributionKeysLoader;
 import org.gridsuite.modification.context.ModificationContext;
-import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.LoadScalingInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -38,7 +37,6 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -453,14 +451,6 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
                         .filters(Arrays.asList(filters))
                         .build()))
                 .build();
-    }
-
-    /** {@link TestUtils} loaders resolve every identifier they are given; a real one may not. */
-    private static FilterWithDistributionKeysLoader omittingUnknownFilters(FilterWithDistributionKeysLoader delegate) {
-        Map<UUID, FilterWithDistributionKeys> known = delegate.load(List.of(FILTER_ID_1, FILTER_ID_2, FILTER_ID_3, FILTER_ID_4, FILTER_ID_5));
-        return filterUuids -> filterUuids.stream()
-                .filter(known::containsKey)
-                .collect(Collectors.toMap(Function.identity(), known::get));
     }
 
     private ReportNode applyAndReport(FilterWithDistributionKeysLoader loader, LoadScalingInfos loadScalingInfo) {
