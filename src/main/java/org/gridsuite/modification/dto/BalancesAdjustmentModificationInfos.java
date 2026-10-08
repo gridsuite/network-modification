@@ -13,6 +13,7 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.BalancesAdjustmentModification;
 
@@ -65,7 +66,8 @@ public class BalancesAdjustmentModificationInfos extends ModificationInfos {
     private boolean subtractLoadFlowBalancing = DEFAULT_SUBTRACT_LOAD_FLOW_BALANCING;
 
     @Override
-    public AbstractModification toModification() {
+    public AbstractModification toModification(ModificationContext modificationContext) {
+        LoadFlowParametersResolution loadFlowParameters = resolveLoadFlowParameters(modificationContext);
         return BalancesAdjustmentModification.builder()
                 .areas(getAreas())
                 .maxNumberIterations(getMaxNumberIterations())
@@ -73,10 +75,40 @@ public class BalancesAdjustmentModificationInfos extends ModificationInfos {
                 .countriesToBalance(getCountriesToBalance())
                 .balanceType(getBalanceType())
                 .withLoadFlow(isWithLoadFlow())
-                .loadFlowParametersId(getLoadFlowParametersId())
+                .loadFlowParameters(loadFlowParameters.parameters())
+                .defaultLoadFlowParametersReason(loadFlowParameters.defaultReason())
                 .withRatioTapChangers(isWithRatioTapChangers())
                 .subtractLoadFlowBalancing(isSubtractLoadFlowBalancing())
                 .build();
+    }
+
+    private LoadFlowParametersResolution resolveLoadFlowParameters(ModificationContext modificationContext) {
+        if (!isWithLoadFlow()) {
+            return LoadFlowParametersResolution.NOT_NEEDED;
+        }
+        if (loadFlowParametersId == null) {
+            return LoadFlowParametersResolution.useDefault("Load flow parameters ID is null");
+        }
+        return modificationContext.loadFlowParametersLoader().load(loadFlowParametersId)
+                .map(parameters -> parameters.getProvider() == null
+                        ? LoadFlowParametersResolution.useDefault("Load flow provider is null in parameters with id " + loadFlowParametersId)
+                        : LoadFlowParametersResolution.found(parameters))
+                .orElseGet(() -> LoadFlowParametersResolution.useDefault("Load flow parameters with id " + loadFlowParametersId + " not found"));
+    }
+
+    /**
+     * Either the load flow parameters to use, or the reason why the default ones are used instead.
+     */
+    private record LoadFlowParametersResolution(LoadFlowParametersInfos parameters, String defaultReason) {
+        static final LoadFlowParametersResolution NOT_NEEDED = new LoadFlowParametersResolution(null, null);
+
+        static LoadFlowParametersResolution found(LoadFlowParametersInfos parameters) {
+            return new LoadFlowParametersResolution(parameters, null);
+        }
+
+        static LoadFlowParametersResolution useDefault(String reason) {
+            return new LoadFlowParametersResolution(null, reason);
+        }
     }
 
     @Override

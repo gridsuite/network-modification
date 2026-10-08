@@ -12,33 +12,40 @@ import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
-import org.gridsuite.modification.ILoadFlowService;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Joris Mancini <joris.mancini_externe at rte-france.com>
  */
-@ExtendWith(MockitoExtension.class)
 class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest {
     private static final double PRECISION = 1d;
     private static final UUID LOADFLOW_PARAMETERS_UUID = UUID.randomUUID();
     private static final UUID INVALID_LOADFLOW_PARAMETERS_UUID = UUID.randomUUID();
 
-    @Mock
-    private ILoadFlowService loadFlowService;
+    private static ModificationContext contextWithLoadFlowParameters(LoadFlowParametersInfos parameters) {
+        return ModificationContext.builder()
+                .loadFlowParametersLoader(uuid -> uuid.equals(LOADFLOW_PARAMETERS_UUID) ? Optional.ofNullable(parameters) : Optional.empty())
+                .build();
+    }
+
+    private static LoadFlowParametersInfos openLoadFlowParameters(Map<String, Map<String, String>> specificParametersPerProvider) {
+        return LoadFlowParametersInfos.builder()
+                .provider("OpenLoadFlow")
+                .commonParameters(LoadFlowParameters.load())
+                .specificParametersPerProvider(specificParametersPerProvider)
+                .build();
+    }
 
     @Override
     protected Network createNetwork(UUID networkUuid) {
@@ -106,7 +113,8 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
     @Override
     @Test
     public void testApply() throws Exception {
-        buildModification().toModification().apply(getNetwork(), new DefaultNamingStrategy(), ReportNode.NO_OP);
+        // no load flow: the parameters are not needed, so the context provides no loader
+        buildModification().toModification(ModificationContext.empty()).apply(getNetwork(), new DefaultNamingStrategy(), ReportNode.NO_OP);
         assertAfterNetworkModificationApplication();
     }
 
@@ -147,16 +155,9 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
             .loadFlowParametersId(LOADFLOW_PARAMETERS_UUID)
             .build();
 
-        when(loadFlowService.getLoadFlowParametersInfos(LOADFLOW_PARAMETERS_UUID))
-                .thenReturn(LoadFlowParametersInfos.builder()
-                        .provider("OpenLoadFlow")
-                        .commonParameters(LoadFlowParameters.load())
-                        .specificParametersPerProvider(Map.of("OpenLoadFlow", Map.of(
-                                "key1", "value1"
-                        )))
-                        .build());
-        BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
-        modification.initApplicationContext(null, loadFlowService, null);
+        ModificationContext context = contextWithLoadFlowParameters(
+                openLoadFlowParameters(Map.of("OpenLoadFlow", Map.of("key1", "value1"))));
+        BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification(context);
         modification.apply(getNetwork(), new DefaultNamingStrategy(), ReportNode.NO_OP);
 
         assertEquals(-58d, getNetwork().getGenerator("GH1").getTerminal().getP(), PRECISION);
@@ -189,11 +190,9 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
                 .loadFlowParametersId(INVALID_LOADFLOW_PARAMETERS_UUID)
                 .build();
 
-        when(loadFlowService.getLoadFlowParametersInfos(INVALID_LOADFLOW_PARAMETERS_UUID))
-                .thenReturn(null);
-
-        BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
-        modification.initApplicationContext(null, loadFlowService, null);
+        ModificationContext context = contextWithLoadFlowParameters(openLoadFlowParameters(Map.of()));
+        BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification(context);
+        assertNull(modification.getLoadFlowParameters());
 
         Network network = getNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
@@ -228,15 +227,12 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
                 .loadFlowParametersId(LOADFLOW_PARAMETERS_UUID)
                 .build();
 
-        when(loadFlowService.getLoadFlowParametersInfos(LOADFLOW_PARAMETERS_UUID))
-                .thenReturn(LoadFlowParametersInfos.builder()
-                        .provider(null) // No provider specified
-                        .commonParameters(LoadFlowParameters.load())
-                        .specificParametersPerProvider(Map.of())
-                        .build());
-
-        BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
-        modification.initApplicationContext(null, loadFlowService, null);
+        ModificationContext context = contextWithLoadFlowParameters(LoadFlowParametersInfos.builder()
+                .provider(null) // No provider specified
+                .commonParameters(LoadFlowParameters.load())
+                .specificParametersPerProvider(Map.of())
+                .build());
+        BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification(context);
 
         Network network = getNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
@@ -271,8 +267,8 @@ class BalancesAdjustmentModificationTest extends AbstractNetworkModificationTest
                 .loadFlowParametersId(null)
                 .build();
 
-        BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification();
-        modification.initApplicationContext(null, loadFlowService, null);
+        // without identifier, nothing is loaded: the context provides no loader
+        BalancesAdjustmentModification modification = (BalancesAdjustmentModification) infos.toModification(ModificationContext.empty());
 
         Network network = getNetwork();
         ReportNode reportNode = ReportNode.newRootReportNode()
