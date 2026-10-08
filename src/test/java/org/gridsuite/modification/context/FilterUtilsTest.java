@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,12 +30,18 @@ class FilterUtilsTest {
 
     private static final UUID FILTER_ID_1 = UUID.randomUUID();
     private static final UUID FILTER_ID_2 = UUID.randomUUID();
+    private static final UUID FILTER_ID_3 = UUID.randomUUID();
+    private static final UUID FILTER_ID_4 = UUID.randomUUID();
 
     private static Filter aFilter() {
         return IdentifierListFilter.builder()
                 .equipmentType(EquipmentType.GENERATOR)
                 .equipmentIds(Set.of("GEN_1"))
                 .build();
+    }
+
+    private static List<String> namesOf(List<Filter> filters) {
+        return filters.stream().map(Filter::getName).toList();
     }
 
     @Test
@@ -69,5 +77,18 @@ class FilterUtilsTest {
         List<Filter> filters = assertDoesNotThrow(() -> FilterUtils.loadFilterWithNames(filterInfosList, filterLoader));
 
         assertTrue(filters.isEmpty());
+    }
+
+    @Test
+    void resolvedFiltersKeepTheOrderTheyAreReferencedIn() {
+        FilterLoader filterLoader = filterUuids -> filterUuids.stream()
+                .collect(Collectors.toMap(Function.identity(), uuid -> aFilter()));
+        List<FilterInfos> filterInfosList = List.of(
+                new FilterInfos(FILTER_ID_1, "filter1"),
+                new FilterInfos(FILTER_ID_2, "filter2"),
+                new FilterInfos(FILTER_ID_3, "filter3"),
+                new FilterInfos(FILTER_ID_4, "filter4"));
+
+        assertEquals(List.of("filter1", "filter2", "filter3", "filter4"), namesOf(FilterUtils.loadFilterWithNames(filterInfosList, filterLoader)));
     }
 }
