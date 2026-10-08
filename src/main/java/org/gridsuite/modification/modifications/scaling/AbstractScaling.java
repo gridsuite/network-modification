@@ -126,10 +126,10 @@ public abstract class AbstractScaling extends AbstractModification {
 
     protected abstract IdentifiableType getEquipmentType();
 
-    // TODO a filter that could not be resolved is skipped here with no trace in the report: a variation may
-    //  then scale a subset of the requested equipments. Agreed fix is an ERROR report node per unresolved
-    //  filter (not aborting the modification, as ventilation does today). Applies to every FilterUtils
-    //  consumer, scaling or not.
+    // TODO Today, a filter that could not be resolved is skipped without notifying the user, and the
+    //  modification continues with a subset of the equipments its filters were meant to select.
+    //  Agreed fix: add an error node to the report indicating the number of unresolved filters and, if
+    //  possible, their names/location
     private List<Identifiable<?>> evaluateFilters(Network network, ScalingVariationData scalingVariation, ReportNode scalingVariationContainer) {
         Set<String> alreadySeenEquipments = new HashSet<>();
         List<Identifiable<?>> equipments = new ArrayList<>();
@@ -140,7 +140,7 @@ public abstract class AbstractScaling extends AbstractModification {
         for (int i = 0; i < filters.size(); i++) {
             Filter filter = filters.get(i).filter();
             if (filter == null) {
-                // a reference the loader could not resolve selects nothing
+                // unresolved filter
                 continue;
             }
             String filterIdentifier = filter.getName() == null ? Integer.toString(i + 1) : filter.getName();

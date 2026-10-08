@@ -114,7 +114,7 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
                 "toModification resolves the filters of every variation");
         assertTrue(generatorScaling.getScalingVariations().stream()
                         .flatMap(variation -> variation.getFilters().stream())
-                        .allMatch(filter -> filter.isResolved() && !filter.distributionKeys().isEmpty()),
+                        .allMatch(filter -> filter.filter() != null && !filter.distributionKeys().isEmpty()),
                 "every filter of every variation is resolved, with the distribution keys it was loaded with");
         generatorScaling.apply(getNetwork());
         assertAfterNetworkModificationApplication();

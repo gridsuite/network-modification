@@ -410,25 +410,6 @@ class LoadScalingTest extends AbstractNetworkModificationTest {
     }
 
     @Test
-    void aFilterThatCannotBeResolvedIsReportedInsteadOfBeingDropped() {
-        // the loader cannot resolve the second filter, so the variation must say so rather than scale the
-        // equipments of the one it did resolve with a value sized for both
-        Map<UUID, Set<String>> filterMappings = Map.of(FILTER_ID_1, Set.of(LOAD_ID_1, LOAD_ID_2));
-        Map<String, Double> distributionKeys = Map.of(LOAD_ID_1, 1.0, LOAD_ID_2, 2.0);
-        FilterWithDistributionKeysLoader loader = omittingUnknownFilters(
-                TestUtils.createFilterWithDistributionKeysLoader(EquipmentType.LOAD, filterMappings, distributionKeys));
-        LoadScalingInfos loadScalingInfo = ventilationOver(FilterInfos.builder().id(FILTER_ID_1).name("filter1").build(),
-                FilterInfos.builder().id(UUID.randomUUID()).name("deletedFilter").build());
-
-        ReportNode report = applyAndReport(loader, loadScalingInfo);
-
-        assertLogMessage("Ventilation mode could not be applied: one of the filters is missing",
-                "network.modification.distributionKeys.missingFilter", report);
-        assertEquals(100, getNetwork().getLoad(LOAD_ID_1).getP0(), 0.01D, "nothing is scaled when a filter is missing");
-        assertEquals(200, getNetwork().getLoad(LOAD_ID_2).getP0(), 0.01D);
-    }
-
-    @Test
     void aFilterKeyingOnlyPartOfWhatItSelectsIsReportedInsteadOfThrowing() {
         // load2 is selected but has no key: it cannot be weighted, so the variation reports it rather than
         // dividing every share by a null key

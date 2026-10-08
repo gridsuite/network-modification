@@ -8,7 +8,6 @@
 
 package org.gridsuite.modification.modifications.data.scaling;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.gridsuite.filter.wip.Filter;
@@ -28,10 +27,5 @@ public record VariationFilterData(Filter filter, Map<String, Double> distributio
 
     public VariationFilterData {
         distributionKeys = distributionKeys == null ? Map.of() : distributionKeys;
-    }
-
-    @JsonIgnore
-    public boolean isResolved() {
-        return filter != null;
     }
 }

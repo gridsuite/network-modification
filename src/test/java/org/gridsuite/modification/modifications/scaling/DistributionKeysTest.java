@@ -29,6 +29,13 @@ class DistributionKeysTest {
     private static final String GEN_3 = "gen3";
     private static final String GEN_4 = "gen4";
     private static final String NOT_IN_THE_NETWORK = "notInTheNetwork";
+    private static final String REPORT_KEY_FILTER_HAS_NO_KEYS = "network.modification.distributionKeys.filterHasNoKeys";
+    private static final String REPORT_KEY_MISSING_EQUIPMENT_KEY = "network.modification.distributionKeys.missingEquipmentKey";
+    private static final String REPORT_KEY_DUPLICATED_EQUIPMENT_KEY = "network.modification.distributionKeys.duplicatedKey";
+    private static final String REPORT_KEY_UNEXPECTED_SUM = "network.modification.distributionKeys.unexpectedSum";
+    private static final String REPORT_KEY_VALID_KEYS = "network.modification.distributionKeys.valid";
+    private static final List<String> REPORT_KEY_REASONS = List.of(REPORT_KEY_FILTER_HAS_NO_KEYS, REPORT_KEY_MISSING_EQUIPMENT_KEY,
+            REPORT_KEY_DUPLICATED_EQUIPMENT_KEY, REPORT_KEY_UNEXPECTED_SUM, REPORT_KEY_VALID_KEYS);
 
     /** (equipmentId, key) couples, so that a null key can be built, which Map.of does not allow. */
     private static Map<String, Double> keys(Object... equipmentIdAndKey) {
@@ -47,11 +54,6 @@ class DistributionKeysTest {
         return new VariationFilterData(filter, distributionKeys);
     }
 
-    /** What a reference the loader could not resolve looks like in a built modification. */
-    private static VariationFilterData anUnresolvedFilter() {
-        return new VariationFilterData(null, Map.of());
-    }
-
     private static ReportNode aReport() {
         return ReportNode.newRootReportNode().withMessageTemplate("test").build();
     }
@@ -61,10 +63,10 @@ class DistributionKeysTest {
     }
 
     /** The reason the variation refused to be ventilated, read back from the report it was given. */
-    private static Optional<DistributionKeyStatus> reportedReason(ReportNode reportNode) {
+    private static Optional<String> reportedReason(ReportNode reportNode) {
         List<String> messages = TestUtils.getAllMessages(reportNode);
-        return Arrays.stream(DistributionKeyStatus.values())
-                .filter(status -> messages.stream().anyMatch(message -> message.contains(status.getReportKey())))
+        return REPORT_KEY_REASONS.stream()
+                .filter(reason -> messages.stream().anyMatch(message -> message.contains(reason)))
                 .findFirst();
     }
 
@@ -82,19 +84,7 @@ class DistributionKeysTest {
         assertEquals(6.5, distributionKeys.total());
         assertEquals(100 * 1.0 / 6.5, distributionKeys.percentageOf(GEN_1), 1e-9);
         assertEquals(100 * 0.5 / 6.5, distributionKeys.percentageOf(GEN_4), 1e-9);
-        assertEquals(Optional.of(DistributionKeyStatus.VALID_KEYS), reportedReason(report));
-    }
-
-    @Test
-    void aFilterThatCouldNotBeResolvedInvalidatesTheWholeSet() {
-        ReportNode report = aReport();
-
-        DistributionKeys distributionKeys = resolve(report,
-                List.of(aFilter(keys(GEN_1, 1.0), GEN_1), anUnresolvedFilter()),
-                GEN_1);
-
-        assertNull(distributionKeys);
-        assertEquals(Optional.of(DistributionKeyStatus.MISSING_FILTER), reportedReason(report));
+        assertEquals(Optional.of(REPORT_KEY_VALID_KEYS), reportedReason(report));
     }
 
     @Test
@@ -106,7 +96,7 @@ class DistributionKeysTest {
                 GEN_1, GEN_2);
 
         assertNull(distributionKeys);
-        assertEquals(Optional.of(DistributionKeyStatus.FILTER_HAS_NO_KEYS), reportedReason(report),
+        assertEquals(Optional.of(REPORT_KEY_FILTER_HAS_NO_KEYS), reportedReason(report),
                 "A filter whose equipments have no distribution key at all is not usable");
     }
 
@@ -117,7 +107,7 @@ class DistributionKeysTest {
         DistributionKeys distributionKeys = resolve(report, List.of(aFilter(keys(GEN_1, 1.0, GEN_2, null), GEN_1, GEN_2)), GEN_1, GEN_2);
 
         assertNull(distributionKeys);
-        assertEquals(Optional.of(DistributionKeyStatus.MISSING_EQUIPMENT_KEY), reportedReason(report),
+        assertEquals(Optional.of(REPORT_KEY_MISSING_EQUIPMENT_KEY), reportedReason(report),
                 "A null distribution key is not a valid distribution key");
     }
 
@@ -131,7 +121,7 @@ class DistributionKeysTest {
                 GEN_1, GEN_2, GEN_3);
 
         assertNull(distributionKeys, "An equipment selected twice cannot be weighted once, so nothing is weighted at all");
-        assertEquals(Optional.of(DistributionKeyStatus.DUPLICATED_EQUIPMENT_KEY), reportedReason(report));
+        assertEquals(Optional.of(REPORT_KEY_DUPLICATED_EQUIPMENT_KEY), reportedReason(report));
     }
 
     @Test
@@ -143,7 +133,7 @@ class DistributionKeysTest {
                 GEN_1);
 
         assertNull(distributionKeys);
-        assertEquals(Optional.of(DistributionKeyStatus.DUPLICATED_EQUIPMENT_KEY), reportedReason(report),
+        assertEquals(Optional.of(REPORT_KEY_DUPLICATED_EQUIPMENT_KEY), reportedReason(report),
                 "Two filters keying the same equipment is a duplication, null keys or not");
     }
 
@@ -177,7 +167,7 @@ class DistributionKeysTest {
         DistributionKeys distributionKeys = resolve(report, List.of(aFilter(keys(GEN_1, 0.0, GEN_2, 0.0), GEN_1, GEN_2)), GEN_1, GEN_2);
 
         assertNull(distributionKeys, "A zero total would make every percentage infinite");
-        assertEquals(Optional.of(DistributionKeyStatus.UNEXPECTED_SUM), reportedReason(report));
+        assertEquals(Optional.of(REPORT_KEY_UNEXPECTED_SUM), reportedReason(report));
     }
 
     @Test
@@ -198,7 +188,7 @@ class DistributionKeysTest {
         DistributionKeys distributionKeys = resolve(report, List.of(aFilter(keys(GEN_1, 1.0), GEN_1, GEN_2)), GEN_1, GEN_2);
 
         assertNull(distributionKeys, "GEN_2 is selected but keyed by nobody: it cannot be given a share of the variation");
-        assertEquals(Optional.of(DistributionKeyStatus.MISSING_EQUIPMENT_KEY), reportedReason(report));
+        assertEquals(Optional.of(REPORT_KEY_MISSING_EQUIPMENT_KEY), reportedReason(report));
     }
 
     @Test
@@ -231,11 +221,11 @@ class DistributionKeysTest {
         ReportNode report = aReport();
 
         DistributionKeys distributionKeys = resolve(report,
-                List.of(aFilter(keys(GEN_1, 1.0), GEN_1), anUnresolvedFilter(), aFilter(keys(GEN_1, 5.0), GEN_1)),
+                List.of(aFilter(keys(GEN_1, 1.0), GEN_1), aFilter(Map.of(), GEN_2), aFilter(keys(GEN_1, 5.0), GEN_1)),
                 GEN_1);
 
         assertNull(distributionKeys, "The check stops at the first problem met, in reference order");
-        assertEquals(Optional.of(DistributionKeyStatus.MISSING_FILTER), reportedReason(report));
+        assertEquals(Optional.of(REPORT_KEY_FILTER_HAS_NO_KEYS), reportedReason(report));
     }
 
     @Test
@@ -256,7 +246,7 @@ class DistributionKeysTest {
         DistributionKeys distributionKeys = resolve(report, List.of(aFilter(keys(GEN_1, 1.0), GEN_1)));
 
         assertNull(distributionKeys, "An empty variation is never ventilated");
-        assertEquals(Optional.of(DistributionKeyStatus.UNEXPECTED_SUM), reportedReason(report));
+        assertEquals(Optional.of(REPORT_KEY_UNEXPECTED_SUM), reportedReason(report));
     }
 
     @Test

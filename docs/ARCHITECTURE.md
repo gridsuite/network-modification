@@ -36,7 +36,7 @@ It is intended to be consumed as a library by backend services (such as GridSuit
 
 ```
 org.gridsuite.modification
-├── context/                     # ModificationContext: dependencies resolved once, at build time
+├── context/                     # ModificationContext: dependencies resolved once, at run time (during modification build)
 │   ├── dto/                     # Context value objects
 │   ├── loaders/                 # Loader functional interfaces (filter, filter+distribution keys, load-flow parameters)
 │   └── utils/                   # Context-side resolution helpers (FilterUtils)
@@ -320,7 +320,7 @@ Consumer Application / Service
 | Package | Description |
 |---|---|
 | `org.gridsuite.modification` | Root package: core interfaces (`IFilterService`, `ILoadFlowService`), enums (`ModificationType`, `VariationType`, `VariationMode`, `ReactiveVariationMode`, `TapChangerType`) |
-| `org.gridsuite.modification.context` | `ModificationContext`: dependencies a modification needs, resolved once at build time |
+| `org.gridsuite.modification.context` | `ModificationContext`: dependencies a modification needs, resolved once at run time |
 | `org.gridsuite.modification.context.dto` | Context value objects (`FilterWithDistributionKeys`) |
 | `org.gridsuite.modification.context.loaders` | Loader functional interfaces (`FilterLoader`, `FilterWithDistributionKeysLoader`, `LoadFlowParametersLoader`) |
 | `org.gridsuite.modification.context.utils` | Context-side resolution helpers (`FilterUtils`) |
@@ -334,8 +334,8 @@ Consumer Application / Service
 | `org.gridsuite.modification.error` | `NetworkModificationException` and `NetworkModificationExceptionType` |
 | `org.gridsuite.modification.modifications` | Executable modification logic classes |
 | `org.gridsuite.modification.modifications.byfilter` | Filter-based and formula-based execution classes |
-| `org.gridsuite.modification.modifications.data` | Pre-resolved execution data passed to modifications (`ScalingVariationData`, HVDC/injection bases) |
-| `org.gridsuite.modification.modifications.data.assignment` | Pre-resolved assignment data, one class per value type |
+| `org.gridsuite.modification.modifications.data` | Execution data passed to modifications (`ScalingVariationData`, HVDC/injection bases) |
+| `org.gridsuite.modification.modifications.data.assignment` | Assignment data, one class per value type |
 | `org.gridsuite.modification.modifications.olg` | Operational-limits-group bulk modification classes |
 | `org.gridsuite.modification.modifications.scaling` | Scaling execution classes (`AbstractScaling`, `GeneratorScaling`, `LoadScaling`) |
 | `org.gridsuite.modification.modifications.tabular` | Tabular batch execution classes |

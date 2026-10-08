@@ -51,7 +51,7 @@ class FilterUtilsTest {
 
     private static List<String> namesOfPairedFilters(List<VariationFilterData> filters) {
         return filters.stream()
-                .map(filter -> filter.isResolved() ? filter.filter().getName() : "unresolved")
+                .map(filter -> filter.filter() != null ? filter.filter().getName() : "unresolved")
                 .toList();
     }
 
@@ -120,7 +120,7 @@ class FilterUtilsTest {
         assertEquals(1, filters.size());
         assertEquals("filter1", filters.getFirst().filter().getName());
         assertEquals(DISTRIBUTION_KEYS, filters.getFirst().distributionKeys(), "the keys are carried, not interpreted");
-        assertTrue(filters.getFirst().isResolved());
+        assertNotNull(filters.getFirst());
     }
 
     @Test
@@ -134,9 +134,9 @@ class FilterUtilsTest {
         List<VariationFilterData> filters = FilterUtils.loadFiltersWithDistributionKeys(filterInfosList, resolved);
 
         assertEquals(2, filters.size(), "A filter that no longer exists is kept, so that it can be reported");
-        assertFalse(filters.getFirst().isResolved());
+        assertNull(filters.getFirst().filter());
         assertEquals(Map.of(), filters.getFirst().distributionKeys());
-        assertTrue(filters.get(1).isResolved());
+        assertNotNull(filters.get(1).filter());
         assertEquals("filter2", filters.get(1).filter().getName(), "the resolved filter is still named after its reference");
     }
 
@@ -177,7 +177,7 @@ class FilterUtilsTest {
                 "An entry without any resolved filter must not fail the whole resolution");
 
         assertEquals(2, filters.size());
-        assertFalse(filters.getFirst().isResolved());
+        assertNull(filters.getFirst().filter());
         assertEquals(List.of("unresolved", "filter2"), namesOfPairedFilters(filters));
     }
 
@@ -189,7 +189,7 @@ class FilterUtilsTest {
         List<VariationFilterData> filters = FilterUtils.loadFiltersWithDistributionKeys(filterInfosList, resolved);
 
         assertEquals(1, filters.size());
-        assertFalse(filters.getFirst().isResolved(), "no standalone filter means an unresolved filter");
+        assertNull(filters.getFirst().filter(), "no standalone filter means an unresolved filter");
         assertEquals(Map.of(), filters.getFirst().distributionKeys(), "a null key map is normalised to an empty one");
     }
 

@@ -24,6 +24,12 @@ import java.util.*;
  */
 public record DistributionKeys(Map<String, Double> keys, double total) {
 
+    private static final String REPORT_KEY_FILTER_HAS_NO_KEYS = "network.modification.distributionKeys.filterHasNoKeys";
+    private static final String REPORT_KEY_MISSING_EQUIPMENT_KEY = "network.modification.distributionKeys.missingEquipmentKey";
+    private static final String REPORT_KEY_DUPLICATED_EQUIPMENT_KEY = "network.modification.distributionKeys.duplicatedKey";
+    private static final String REPORT_KEY_UNEXPECTED_SUM = "network.modification.distributionKeys.unexpectedSum";
+    private static final String REPORT_KEY_VALID_KEYS = "network.modification.distributionKeys.valid";
+
     public double percentageOf(String equipmentId) {
         return keys.get(equipmentId) / total * 100;
     }
@@ -45,15 +51,24 @@ public record DistributionKeys(Map<String, Double> keys, double total) {
     public static DistributionKeys resolve(List<VariationFilterData> filters, Collection<String> selectedEquipmentIds, ReportNode reportNode) {
         Map<String, Double> keys = new LinkedHashMap<>();
         for (VariationFilterData filter : filters) {
-            if (!filter.isResolved()) {
-                return reportError(DistributionKeyStatus.MISSING_FILTER, reportNode);
+            if (filter.filter() == null) {
+                // unresolved filter
+                continue;
             }
             if (filter.distributionKeys().isEmpty()) {
-                return reportError(DistributionKeyStatus.FILTER_HAS_NO_KEYS, reportNode);
+                reportNode.newReportNode()
+                        .withMessageTemplate(REPORT_KEY_FILTER_HAS_NO_KEYS)
+                        .withSeverity(TypedValue.ERROR_SEVERITY)
+                        .add();
+                return null;
             }
             for (Map.Entry<String, Double> key : filter.distributionKeys().entrySet()) {
                 if (keys.containsKey(key.getKey())) {
-                    return reportError(DistributionKeyStatus.DUPLICATED_EQUIPMENT_KEY, reportNode);
+                    reportNode.newReportNode()
+                            .withMessageTemplate(REPORT_KEY_DUPLICATED_EQUIPMENT_KEY)
+                            .withSeverity(TypedValue.ERROR_SEVERITY)
+                            .add();
+                    return null;
                 }
                 keys.put(key.getKey(), key.getValue());
             }
@@ -64,28 +79,27 @@ public record DistributionKeys(Map<String, Double> keys, double total) {
         for (String equipmentId : selectedEquipmentIds) {
             Double key = keys.get(equipmentId);
             if (key == null) {
-                return reportError(DistributionKeyStatus.MISSING_EQUIPMENT_KEY, reportNode);
+                reportNode.newReportNode()
+                        .withMessageTemplate(REPORT_KEY_MISSING_EQUIPMENT_KEY)
+                        .withSeverity(TypedValue.ERROR_SEVERITY)
+                        .add();
+                return null;
             }
             selectedKeys.put(equipmentId, key);
             total += key;
         }
         if (total == 0) {
-            return reportError(DistributionKeyStatus.UNEXPECTED_SUM, reportNode);
+            reportNode.newReportNode()
+                    .withMessageTemplate(REPORT_KEY_UNEXPECTED_SUM)
+                    .withSeverity(TypedValue.ERROR_SEVERITY)
+                    .add();
+            return null;
         }
 
-        return report(DistributionKeyStatus.VALID_KEYS, reportNode, TypedValue.INFO_SEVERITY, selectedKeys, total);
-    }
-
-    private static DistributionKeys reportError(DistributionKeyStatus status, ReportNode reportNode) {
-        return report(status, reportNode, TypedValue.ERROR_SEVERITY, Map.of(), 0);
-    }
-
-    private static DistributionKeys report(DistributionKeyStatus status, ReportNode reportNode, TypedValue severity,
-                                           Map<String, Double> keys, double total) {
         reportNode.newReportNode()
-                .withMessageTemplate(status.getReportKey())
-                .withSeverity(severity)
+                .withMessageTemplate(REPORT_KEY_VALID_KEYS)
+                .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
-        return DistributionKeyStatus.VALID_KEYS.equals(status) ? new DistributionKeys(keys, total) : null;
+        return new DistributionKeys(selectedKeys, total);
     }
 }
