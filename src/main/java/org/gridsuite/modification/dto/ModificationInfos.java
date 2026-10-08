@@ -25,6 +25,7 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -144,6 +145,14 @@ public class ModificationInfos {
     @JsonIgnore
     public AbstractModification toModification(ModificationContext context) {
         return toModification();
+    }
+
+    /**
+     * @return the filters this modification references, not those of the modifications it holds. Only their ids are
+     * stored: the directory owns their names, which the caller resolves before exposing or applying the modification.
+     */
+    public Stream<FilterInfos> collectFilters() {
+        return Stream.empty();
     }
 
     public final ModificationType getType() {

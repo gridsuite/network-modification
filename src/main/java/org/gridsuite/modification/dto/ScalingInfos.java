@@ -15,6 +15,7 @@ import lombok.experimental.SuperBuilder;
 import org.gridsuite.modification.VariationType;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
@@ -32,4 +33,10 @@ public class ScalingInfos extends ModificationInfos {
     @Schema(description = "variation type")
     private VariationType variationType;
 
+    @Override
+    public Stream<FilterInfos> collectFilters() {
+        return Stream.ofNullable(variations)
+                .flatMap(List::stream)
+                .flatMap(variation -> Stream.ofNullable(variation.getFilters()).flatMap(List::stream));
+    }
 }

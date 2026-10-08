@@ -16,17 +16,12 @@ import java.util.UUID;
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 @SuperBuilder
-@Getter
-@Setter
-@EqualsAndHashCode
 @NoArgsConstructor
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @Schema(description = "Generators filter Infos")
-public class GeneratorsFilterInfos {
+public class GeneratorsFilterInfos extends FilterInfos {
 
-    @Schema(description = "id of generators filter")
-    private UUID id;
-
-    @Schema(description = "name of generators filter")
-    private String name;
+    public GeneratorsFilterInfos(UUID id, String name) {
+        super(id, name);
+    }
 }

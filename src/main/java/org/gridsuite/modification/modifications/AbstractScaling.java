@@ -63,7 +63,7 @@ public abstract class AbstractScaling extends AbstractModification {
         var filters = variations.stream()
                 .flatMap(v -> v.getFilters().stream())
                 .filter(distinctByKey(FilterInfos::getId))
-                .collect(Collectors.toMap(FilterInfos::getId, FilterInfos::getName));
+                .collect(Collectors.toMap(FilterInfos::getId, FilterInfos::getLabel));
 
         Map<UUID, FilterEquipments> exportFilters = ModificationUtils.getUuidFilterEquipmentsMap(filterService, network, subReportNode, filters, getName());
         if (exportFilters != null) {
@@ -74,7 +74,7 @@ public abstract class AbstractScaling extends AbstractModification {
                 Set<IdentifiableAttributes> identifiableAttributes = ModificationUtils.getIdentifiableAttributes(exportFilters, variation.getFilters(), subReportNode);
 
                 if (CollectionUtils.isEmpty(identifiableAttributes)) {
-                    String filterNames = variation.getFilters().stream().map(FilterInfos::getName).collect(Collectors.joining(", "));
+                    String filterNames = variation.getFilters().stream().map(FilterInfos::getLabel).collect(Collectors.joining(", "));
                     createReport(subReportNode, "network.modification.allFiltersWrong.variation", Map.of("filterNames", filterNames), TypedValue.WARN_SEVERITY);
                 } else {
                     applyVariation(network, subReportNode, identifiableAttributes, variation);

@@ -18,6 +18,8 @@ import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.GenerationDispatch;
 
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -64,5 +66,16 @@ public class GenerationDispatchInfos extends ModificationInfos {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.generationDispatch")
                 .add();
+    }
+
+    @Override
+    public Stream<FilterInfos> collectFilters() {
+        return Stream.of(
+                        Stream.ofNullable(generatorsWithoutOutage).flatMap(List::stream),
+                        Stream.ofNullable(generatorsWithFixedSupply).flatMap(List::stream),
+                        Stream.ofNullable(generatorsFrequencyReserve)
+                                .flatMap(List::stream)
+                                .flatMap(frequencyReserve -> Stream.ofNullable(frequencyReserve.getGeneratorsFilters()).flatMap(List::stream)))
+                .flatMap(Function.identity());
     }
 }
