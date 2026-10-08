@@ -78,7 +78,7 @@ class ModificationFiltersTest {
     @Test
     void testLabelFallsBackToIdWhenNameIsNotResolved() {
         UUID id = UUID.randomUUID();
-        assertEquals("filter1", new FilterInfos(id, "filter1").label());
-        assertEquals(id.toString(), new FilterInfos(id, null).label());
+        assertEquals("filter1", new FilterInfos(id, "filter1").getLabel());
+        assertEquals(id.toString(), new FilterInfos(id, null).getLabel());
     }
 }
