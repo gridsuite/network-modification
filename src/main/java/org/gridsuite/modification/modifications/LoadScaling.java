@@ -1,30 +1,31 @@
-/**
- * Copyright (c) 2023, RTE (http://www.rte-france.com)
+/*
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
+
 package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.modification.scalable.ScalingParameters;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.VariationMode;
+import org.gridsuite.modification.ReactiveVariationMode;
 import org.gridsuite.modification.VariationType;
-import org.gridsuite.modification.dto.IdentifiableAttributes;
-import org.gridsuite.modification.dto.ScalingVariationInfos;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.error.NetworkModificationExceptionType;
+import org.gridsuite.modification.modifications.data.scaling.ScalingVariationData;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
@@ -35,61 +36,54 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LoadScaling extends AbstractScaling {
 
+    private static final IdentifiableType EQUIPMENT_TYPE = IdentifiableType.LOAD;
+
     @Builder
-    public LoadScaling(List<ScalingVariationInfos> variations, VariationType variationType, NetworkModificationExceptionType exceptionType) {
-        super(variations, variationType, exceptionType);
+    public LoadScaling(List<ScalingVariationData> scalingVariations, VariationType variationType) {
+        super(scalingVariations, variationType, NetworkModificationExceptionType.LOAD_SCALING_ERROR);
     }
 
     @Override
-    protected void applyVentilationVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos,
-            Double distributionKeys) {
-        if (distributionKeys != null) {
-            AtomicReference<Double> sum = new AtomicReference<>(0D);
-            List<Double> percentages = new ArrayList<>();
-            List<Scalable> scalables = new ArrayList<>();
-
-            identifiableAttributes.forEach(equipment -> {
-                Load load = network.getLoad(equipment.getId());
-                if (ModificationUtils.isInjectionConnected(load)) {
-                    sum.set(load.getP0() + sum.get());
-                    scalables.add(getScalable(equipment.getId()));
-                    percentages.add((equipment.getDistributionKey() / distributionKeys) * 100);
-                }
-            });
-            Scalable ventilationScalable = Scalable.proportional(percentages, scalables);
-            var asked = getAsked(scalingVariationInfos, sum);
-            var done = scale(network, scalingVariationInfos, asked, ventilationScalable);
-            reportScaling(subReportNode, scalingVariationInfos.getVariationMode(), asked, done);
-        }
+    public String getName() {
+        return ModificationType.LOAD_SCALING.name();
     }
 
     @Override
-    protected void applyRegularDistributionVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos) {
-        List<Load> loads = identifiableAttributes
-                .stream()
-                .map(attribute -> network.getLoad(attribute.getId()))
+    protected void applyStackingUpVariation(Network network, ReportNode subReportNode, List<Identifiable<?>> equipments, ScalingVariationData scalingVariations) {
+        // no implementation for load scaling
+        throw new NetworkModificationException(exceptionType, String.format(UNSUPPORTED_VARIATION_MODE_TEMPLATE, scalingVariations.getVariationMode().name()));
+    }
+
+    @Override
+    protected void applyProportionalToPmaxVariation(Network network, ReportNode subReportNode, List<Identifiable<?>> equipments, ScalingVariationData scalingVariation) {
+        // no implementation for load scaling
+        throw new NetworkModificationException(exceptionType, String.format(UNSUPPORTED_VARIATION_MODE_TEMPLATE, scalingVariation.getVariationMode().name()));
+    }
+
+    @Override
+    protected void applyRegularDistributionVariation(Network network, ReportNode subReportNode, List<Identifiable<?>> equipments, ScalingVariationData scalingVariation) {
+        List<Load> loads = equipments.stream()
+                .map(Load.class::cast)
                 .filter(ModificationUtils::isInjectionConnected)
                 .toList();
 
         AtomicReference<Double> sum = new AtomicReference<>(0D);
-
         List<Scalable> scalables = loads.stream()
                 .map(load -> {
                     sum.set(sum.get() + load.getP0());
                     return getScalable(load.getId());
-                }).collect(Collectors.toList());
+                }).toList();
 
         List<Double> percentages = new ArrayList<>(Collections.nCopies(scalables.size(), 100.0 / scalables.size()));
         Scalable regularDistributionScalable = Scalable.proportional(percentages, scalables);
-        var asked = getAsked(scalingVariationInfos, sum);
-        var done = scale(network, scalingVariationInfos, asked, regularDistributionScalable);
-        reportScaling(subReportNode, scalingVariationInfos.getVariationMode(), asked, done);
+        scale(network, subReportNode, scalingVariation, sum, regularDistributionScalable, provideScalingParameters(scalingVariation.getReactiveVariationMode()));
+
     }
 
     @Override
-    protected void applyProportionalVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos) {
-        List<Load> loads = identifiableAttributes.stream()
-                .map(attribute -> network.getLoad(attribute.getId()))
+    protected void applyProportionalVariation(Network network, ReportNode subReportNode, List<Identifiable<?>> equipments, ScalingVariationData scalingVariation) {
+        List<Load> loads = equipments.stream()
+                .map(Load.class::cast)
                 .filter(ModificationUtils::isInjectionConnected)
                 .toList();
         AtomicReference<Double> sum = new AtomicReference<>(0D);
@@ -106,56 +100,43 @@ public class LoadScaling extends AbstractScaling {
         });
 
         Scalable proportionalScalable = Scalable.proportional(percentages, scalables);
-        var asked = getAsked(scalingVariationInfos, sum);
-        var done = scale(network, scalingVariationInfos, asked, proportionalScalable);
-        reportScaling(subReportNode, scalingVariationInfos.getVariationMode(), asked, done);
+        scale(network, subReportNode, scalingVariation, sum, proportionalScalable, provideScalingParameters(scalingVariation.getReactiveVariationMode()));
     }
 
     @Override
-    protected void applyProportionalToPmaxVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos) {
-        // no implementation for load scaling
-        throw new NetworkModificationException(exceptionType, String.format("This variation mode is not supported : %s", scalingVariationInfos.getVariationMode().name()));
+    protected void applyVentilationVariation(Network network, ReportNode subReportNode, List<Identifiable<?>> equipments, ScalingVariationData scalingVariation, DistributionKeys distributionKeys) {
+        if (distributionKeys != null) {
+            AtomicReference<Double> sum = new AtomicReference<>(0D);
+            List<Double> percentages = new ArrayList<>();
+            List<Scalable> scalables = new ArrayList<>();
+
+            equipments.forEach(equipment -> {
+                Load load = (Load) equipment;
+                if (ModificationUtils.isInjectionConnected(load)) {
+                    sum.set(load.getP0() + sum.get());
+                    scalables.add(getScalable(equipment.getId()));
+                    percentages.add(distributionKeys.percentageOf(equipment.getId()));
+                }
+            });
+            Scalable ventilationScalable = Scalable.proportional(percentages, scalables);
+            scale(network, subReportNode, scalingVariation, sum, ventilationScalable, provideScalingParameters(scalingVariation.getReactiveVariationMode()));
+        }
     }
 
     @Override
-    protected void applyStackingUpVariation(Network network, ReportNode subReportNode, Set<IdentifiableAttributes> identifiableAttributes, ScalingVariationInfos scalingVariationInfos) {
-        // no implementation for load scaling
-        throw new NetworkModificationException(exceptionType, String.format("This variation mode is not supported : %s", scalingVariationInfos.getVariationMode().name()));
+    protected IdentifiableType getEquipmentType() {
+        return EQUIPMENT_TYPE;
     }
 
-    private double scale(Network network, ScalingVariationInfos scalingVariationInfos, double asked, Scalable proportionalScalable) {
-        return switch (scalingVariationInfos.getReactiveVariationMode()) {
-            case CONSTANT_Q ->
-                proportionalScalable.scale(network, asked, new ScalingParameters().setScalingConvention(Scalable.ScalingConvention.LOAD));
-            case TAN_PHI_FIXED ->
-                proportionalScalable.scale(network, asked, new ScalingParameters().setScalingConvention(Scalable.ScalingConvention.LOAD).setConstantPowerFactor(true));
-        };
-    }
-
-    @Override
-    public double getAsked(ScalingVariationInfos scalingVariationInfos, AtomicReference<Double> sum) {
-        return variationType == VariationType.DELTA_P
-                ? scalingVariationInfos.getVariationValue()
-                : scalingVariationInfos.getVariationValue() - sum.get();
-    }
-
-    @Override
-    protected Scalable getScalable(String id) {
+    private Scalable getScalable(String id) {
         return Scalable.onLoad(id, -Double.MAX_VALUE, Double.MAX_VALUE);
     }
 
-    @Override
-    public String getName() {
-        return ModificationType.LOAD_SCALING.name();
-    }
-
-    private void reportScaling(ReportNode subReportNode, VariationMode variationMode, double askedValue, double actualValue) {
-        subReportNode.newReportNode()
-                .withMessageTemplate("network.modification.scalingApplied")
-                .withUntypedValue("variationMode", variationMode.name())
-                .withUntypedValue("askedValue", askedValue)
-                .withUntypedValue("actualValue", actualValue)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
+    private ScalingParameters provideScalingParameters(ReactiveVariationMode reactiveVariationMode) {
+        return switch (reactiveVariationMode) {
+            case CONSTANT_Q -> new ScalingParameters().setScalingConvention(Scalable.ScalingConvention.LOAD);
+            case TAN_PHI_FIXED ->
+                new ScalingParameters().setScalingConvention(Scalable.ScalingConvention.LOAD).setConstantPowerFactor(true);
+        };
     }
 }

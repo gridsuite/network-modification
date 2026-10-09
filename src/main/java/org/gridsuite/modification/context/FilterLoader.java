@@ -1,8 +1,9 @@
-/**
+/*
  * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package org.gridsuite.modification.context;
 
@@ -13,10 +14,10 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Resolves filter definitions from their identifiers.
+ * Resolves filters from their identifiers.
  *
  * <p>A resolved {@link Filter} is self-contained: it carries everything needed to evaluate it against a
- * network.
+ *  * network. Filters that cannot be found are silently omitted rather than resolving to {@code null}.
  *
  * @author Achour BERRAHMA <achour.berrahma at rte-france.com>
  */
