@@ -17,7 +17,9 @@ import org.gridsuite.filter.wip.Filter;
 import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.context.FilterLoader;
+import org.gridsuite.modification.context.FilterWithDistributionKeysLoader;
 import org.gridsuite.modification.context.ModificationContext;
+import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.junit.jupiter.api.BeforeEach;
@@ -91,6 +93,17 @@ public abstract class AbstractNetworkModificationTest {
         return null;
     }
 
+    public final Map<UUID, FilterWithDistributionKeys> loadFiltersWithDistributionKeys(List<UUID> filterUuids) {
+        if (getFilterWithDistributionKeysLoader() != null) {
+            return getFilterWithDistributionKeysLoader().load(filterUuids);
+        }
+        return Map.of();
+    }
+
+    public FilterWithDistributionKeysLoader getFilterWithDistributionKeysLoader() {
+        return null;
+    }
+
     @Test
     public void testCheck() {
         checkModification();
@@ -100,7 +113,7 @@ public abstract class AbstractNetworkModificationTest {
     public void testRoundTripSerializationDeserialization() throws JsonProcessingException {
         ILoadFlowService loadFlowServiceMock = mock(ILoadFlowService.class);
         IFilterService filterServiceMock = mock(IFilterService.class);
-        ModificationContext modificationContext = ModificationContext.builder().filterLoader(this::loadFilters).build();
+        ModificationContext modificationContext = ModificationContext.builder().filterLoader(this::loadFilters).filterWithDistributionKeysLoader(this::loadFiltersWithDistributionKeys).build();
         AbstractModification expectedModification = buildModification().toModification(modificationContext);
         expectedModification.initApplicationContext(filterServiceMock, loadFlowServiceMock, null);
 
