@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.modification.ModificationType;
+import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationCreation;
@@ -84,6 +85,47 @@ class CompositeModificationsTest extends AbstractNetworkModificationTest {
                 report
         );
 
+    }
+
+    @Test
+    void checkCompositeExecutionReportsErrorAndContinues() {
+        Network network = getNetwork();
+        // Balances Adjustment uses a context to resolve its dependencies (lf params), which may fail during toModification(ctx) call.
+        // In this test, we create such a modification without context, so that its dependencies cannot be resolved (throw expected in apply, but not in composite apply flow)
+        BalancesAdjustmentModificationInfos balancesAdjustmentWithoutContext = BalancesAdjustmentModificationInfos.builder()
+                .areas(List.of())
+                .withLoadFlow(true)
+                .loadFlowParametersId(UUID.randomUUID())
+                .activated(true)
+                .build();
+        ModificationInfos generatorRename = ModificationCreation.getModificationGenerator("idGenerator", "successfully rename");
+        generatorRename.setActivated(true);
+
+        CompositeModificationInfos composite = CompositeModificationInfos.builder()
+                .name("Composite including a failure")
+                // contains 2 modifications: first will fail, second must succeed
+                .modificationsInfos(List.of(balancesAdjustmentWithoutContext, generatorRename))
+                .build();
+
+        // execution
+        ReportNode report = composite.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build());
+        CompositeModification netmod = (CompositeModification) composite.toModification(ModificationContext.empty());
+        assertDoesNotThrow(() -> netmod.apply(network, report));
+
+        assertLogMessageWithoutRank(
+                "Cannot execute BALANCES_ADJUSTMENT_MODIFICATION : This modification requires a load flow parameters loader, none was provided in the modification context",
+                "network.modification.composite.exception.report",
+                report
+        );
+        assertLogMessageWithoutRank(
+                "Generator with id=idGenerator modified :",
+                "network.modification.generatorModification",
+                report
+        );
+        assertEquals("successfully rename", network.getGenerator("idGenerator").getOptionalName().orElseThrow());
     }
 
     @Test

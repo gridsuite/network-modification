@@ -71,8 +71,8 @@ public class CompositeModification extends AbstractModification {
                 .forEach(
                         modif -> {
                             ReportNode modifNode = modif.createSubReportNode(subReportNode);
-                            AbstractModification modification = modif.toModification(modificationContext);
                             try {
+                                AbstractModification modification = modif.toModification(modificationContext);
                                 modification.check(network);
                                 modification.initApplicationContext(filterService, loadFlowService, getRootNetworkTag());
                                 modification.apply(network, namingStrategy, modifNode);
@@ -82,7 +82,7 @@ public class CompositeModification extends AbstractModification {
                                 modifNode.newReportNode()
                                         .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
                                         .withMessageTemplate("network.modification.composite.exception.report")
-                                        .withUntypedValue("modificationName", modif.toModification().getName())
+                                        .withUntypedValue("modificationName", modif.getType().name())
                                         .withUntypedValue(VALUE_KEY_ERROR_MESSAGE, e.getMessage())
                                         .withSeverity(TypedValue.ERROR_SEVERITY)
                                         .add();
