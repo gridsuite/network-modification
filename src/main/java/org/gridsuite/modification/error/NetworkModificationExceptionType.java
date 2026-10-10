@@ -79,7 +79,8 @@ public enum NetworkModificationExceptionType {
     UNSUPPORTED_HYBRID_HVDC("The hybrid HVDC line is not supported"),
     MODIFY_VOLTAGE_LEVEL_TOPOLOGY_ERROR("An error occurred while modifying the voltage level topology"),
     CREATE_VOLTAGE_LEVEL_TOPOLOGY_ERROR("An error occurred while creating the voltage level topology"),
-    MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR("An error occurred while moving the voltage level feeder bays");
+    MOVE_VOLTAGE_LEVEL_FEEDER_BAYS_ERROR("An error occurred while moving the voltage level feeder bays"),
+    MISSING_ROOT_NETWORK_APPLICABILITY("The modification has no applicability for the root network");
 
     private final String message;
 
