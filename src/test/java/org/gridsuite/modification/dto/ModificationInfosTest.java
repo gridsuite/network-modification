@@ -8,6 +8,7 @@ package org.gridsuite.modification.dto;
 
 import com.powsybl.commons.report.ReportNode;
 import org.gridsuite.modification.context.ModificationContext;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -116,24 +117,35 @@ class ModificationInfosTest {
     }
 
     @Test
-    void testActivatedWhenNoApplicabilityDefined() {
-        assertTrue(modificationInfos(true, null).isActivatedOn(TAG),
-                "A modification without any applicability is activated on every root network");
+    void testThrowsWhenNoApplicabilityDefined() {
+        ModificationInfos modificationInfos = modificationInfos(true, null);
+        assertThrows(NetworkModificationException.class, () -> modificationInfos.isActivatedOn(TAG),
+                "A modification without any applicability is associated with no root network");
+        assertTrue(modificationInfos.isActivatedOn(null),
+                "Without a root network context, no applicability is needed");
     }
 
     @Test
-    void testActivatedWhenTagHasNoEntry() {
-        assertTrue(modificationInfos(true, Map.of()).isActivatedOn(TAG),
-                "A modification without any applicability entry for a tag is activated on it");
-        assertTrue(modificationInfos(true, Map.of(OTHER_TAG, false)).isActivatedOn(TAG),
-                "An entry deactivating another tag leaves this one applicable");
+    void testThrowsWhenTagHasNoEntry() {
+        ModificationInfos withoutEntry = modificationInfos(true, Map.of());
+        assertThrows(NetworkModificationException.class, () -> withoutEntry.isActivatedOn(TAG),
+                "A modification without any applicability entry for a tag is not associated with it");
+        ModificationInfos withOtherEntry = modificationInfos(true, Map.of(OTHER_TAG, false));
+        assertThrows(NetworkModificationException.class, () -> withOtherEntry.isActivatedOn(TAG),
+                "An entry for another tag says nothing about this one");
     }
 
     @Test
-    void testActivatedWhenTagEntryIsNull() {
-        // singletonMap, not Map.of, which rejects a null value
-        assertTrue(modificationInfos(true, Collections.singletonMap(TAG, null)).isActivatedOn(TAG),
-                "A tag mapped to no value is applicable: only an explicit false deactivates it");
+    void testThrowsWhenTagEntryIsNull() {
+        ModificationInfos modificationInfos = modificationInfos(true, Collections.singletonMap(TAG, null));
+        assertThrows(NetworkModificationException.class, () -> modificationInfos.isActivatedOn(TAG),
+                "A tag mapped to no value is not an applicability");
+    }
+
+    @Test
+    void testNoApplicabilityNeededWhenNotActivated() {
+        assertFalse(modificationInfos(false, Map.of()).isActivatedOn(TAG),
+                "A deactivated modification is not applied, whether it is associated with the root network or not");
     }
 
     @Test
