@@ -149,41 +149,7 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
                     .withMessageTemplate(REPORT_KEY_EDITED_FIELD_FILTER)
                     .withUntypedValue(VALUE_KEY_FIELD_NAME, assignment.getEditedFieldLabel())
                     .add();
-            ReportNode filtersContainer = assignmentContainer.newReportNode()
-                    .withMessageTemplate(REPORT_KEY_FILTERS_EVALUATION)
-                    .add();
-            List<Identifiable<?>> evaluatedEquipments = new ArrayList<>();
-            Set<String> ignoredEquipments = new HashSet<>();
-            for (int j = 0; j < assignment.getFilters().size(); j++) {
-                Filter filter = assignment.getFilters().get(j);
-                String filterIdentifier = filter.getName() == null ? Integer.toString(j + 1) : filter.getName();
-                ReportNode filterContainer = filtersContainer.newReportNode()
-                        .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION)
-                        .withUntypedValue(VALUE_KEY_FILTER_IDENTIFIER, filterIdentifier)
-                        .add();
-                List<Identifiable<?>> evaluatedEquipmentsForFilter = filter.evaluate(network, filterContainer);
-                for (Identifiable<?> equipment : evaluatedEquipmentsForFilter) {
-                    if (evaluatedEquipments.contains(equipment)) {
-                        ignoredEquipments.add(equipment.getId());
-                    } else {
-                        evaluatedEquipments.add(equipment);
-                    }
-                }
-            }
-
-            if (!ignoredEquipments.isEmpty()) {
-                assignmentContainer.newReportNode()
-                        .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION_WITH_IGNORED_EQUIPMENT)
-                        .withSeverity(TypedValue.INFO_SEVERITY)
-                        .withUntypedValue(VALUE_KEY_EQUIPMENT_COUNT, ignoredEquipments.size())
-                        .add();
-                assignmentContainer.newReportNode()
-                        .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION_WITH_IGNORED_EQUIPMENT_LISTING)
-                        .withSeverity(TypedValue.DETAIL_SEVERITY)
-                        .withUntypedValue(VALUE_KEY_EQUIPMENT_LIST, ignoredEquipments.toString())
-                        .add();
-
-            }
+            List<Identifiable<?>> evaluatedEquipments = getEquipmentsFromFilters(assignment, network, assignmentContainer);
 
             // If filters do not evaluate to any equipment, we just add a warn report and go to the next assignment
             if (evaluatedEquipments.isEmpty()) {
@@ -206,6 +172,48 @@ public abstract class AbstractModificationByAssignment extends AbstractModificat
         }
         if (modifiedEquipmentCount == 0) {
             reportNode.newReportNode().withMessageTemplate(REPORT_KEY_BY_FILTER_MODIFICATION_NONE).withSeverity(TypedValue.ERROR_SEVERITY).add();
+        }
+    }
+
+    private List<Identifiable<?>> getEquipmentsFromFilters(AbstractAssignmentData assignment, Network network, ReportNode assignmentContainer) {
+        ReportNode filtersContainer = assignmentContainer.newReportNode()
+                .withMessageTemplate(REPORT_KEY_FILTERS_EVALUATION)
+                .add();
+        Set<String> ignoredEquipments = new HashSet<>();
+        List<Identifiable<?>> evaluatedEquipments = new ArrayList<>();
+        for (int j = 0; j < assignment.getFilters().size(); j++) {
+            Filter filter = assignment.getFilters().get(j);
+            String filterIdentifier = filter.getName() == null ? Integer.toString(j + 1) : filter.getName();
+            ReportNode filterContainer = filtersContainer.newReportNode()
+                    .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION)
+                    .withUntypedValue(VALUE_KEY_FILTER_IDENTIFIER, filterIdentifier)
+                    .add();
+            List<Identifiable<?>> evaluatedEquipmentsForFilter = filter.evaluate(network, filterContainer);
+            for (Identifiable<?> equipment : evaluatedEquipmentsForFilter) {
+                if (evaluatedEquipments.contains(equipment)) {
+                    ignoredEquipments.add(equipment.getId());
+                } else {
+                    evaluatedEquipments.add(equipment);
+                }
+            }
+        }
+        logIgnoredEquipments(ignoredEquipments, assignmentContainer);
+        return evaluatedEquipments;
+    }
+
+    private void logIgnoredEquipments(Set<String> ignoredEquipments, ReportNode assignmentContainer) {
+        if (!ignoredEquipments.isEmpty()) {
+            assignmentContainer.newReportNode()
+                    .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION_WITH_IGNORED_EQUIPMENT)
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .withUntypedValue(VALUE_KEY_EQUIPMENT_COUNT, ignoredEquipments.size())
+                    .add();
+            assignmentContainer.newReportNode()
+                    .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION_WITH_IGNORED_EQUIPMENT_LISTING)
+                    .withSeverity(TypedValue.DETAIL_SEVERITY)
+                    .withUntypedValue(VALUE_KEY_EQUIPMENT_LIST, ignoredEquipments.toString())
+                    .add();
+
         }
     }
 
