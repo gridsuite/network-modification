@@ -12,11 +12,9 @@ import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.util.BusbarSectionFinderTraverser;
-import jakarta.annotation.Nullable;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
-import org.gridsuite.modification.IFilterService;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.error.NetworkModificationExceptionType;
@@ -1717,56 +1715,6 @@ public final class ModificationUtils {
         addToReports(reports, point.getP(), "P" + fieldSuffix);
         addToReports(reports, point.getMinQ(), "QminP" + fieldSuffix);
         addToReports(reports, point.getMaxQ(), "QmaxP" + fieldSuffix);
-    }
-
-    public boolean isValidFilter(ReportNode subReportNode,
-                                 Map<UUID, FilterEquipments> exportFilters, String modificationName) {
-        boolean noValidEquipmentId = exportFilters.values().stream()
-                .allMatch(filterEquipments -> CollectionUtils.isEmpty(filterEquipments.getIdentifiableAttributes()));
-
-        if (noValidEquipmentId) {
-            createReport(subReportNode, "network.modification.invalidFilters", Map.of("modificationName", modificationName), TypedValue.ERROR_SEVERITY);
-            return false;
-        }
-
-        return true;
-    }
-
-    public static Set<IdentifiableAttributes> getIdentifiableAttributes(Map<UUID, FilterEquipments> exportFilters, List<FilterInfos> filterInfos, ReportNode subReportNode) {
-        filterInfos.stream()
-                .filter(f -> !exportFilters.containsKey(f.getId()))
-                .forEach(f -> createReport(subReportNode, "network.modification.filterNotFound", Map.of("name", f.getName()), TypedValue.WARN_SEVERITY));
-
-        return filterInfos
-                .stream()
-                .filter(f -> exportFilters.containsKey(f.getId()))
-                .flatMap(f -> exportFilters.get(f.getId())
-                        .getIdentifiableAttributes()
-                        .stream())
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-    }
-
-    @Nullable
-    public static Map<UUID, FilterEquipments> getUuidFilterEquipmentsMap(IFilterService filterService, Network network,
-                                                                         ReportNode subReportNode, Map<UUID, String> filters,
-                                                                         String modificationName) {
-        Map<UUID, FilterEquipments> exportFilters = filterService.getUuidFilterEquipmentsMap(network, filters);
-
-        boolean isValidFilter = ModificationUtils.getInstance().isValidFilter(subReportNode, exportFilters, modificationName);
-        return isValidFilter ? exportFilters : null;
-    }
-
-    public static void logWrongEquipmentsIdsFilters(ReportNode subReportNode, Map<UUID, FilterEquipments> exportFilters, Map<UUID, String> filters) {
-        // collect logs for all filters with wrong equipments ids
-        exportFilters.entrySet().stream()
-                .filter(e -> !CollectionUtils.isEmpty(e.getValue().getNotFoundEquipments()))
-                .forEach(f -> {
-                    FilterEquipments filterEquipments = f.getValue();
-                    var equipmentIds = String.join(", ", filterEquipments.getNotFoundEquipments());
-                    createReport(subReportNode,
-                            "network.modification.filterEquipmentsNotFound.inFilter",
-                            Map.of("equipmentIds", equipmentIds, "filters", filters.get(filterEquipments.getFilterId())), TypedValue.WARN_SEVERITY);
-                });
     }
 
     public static void insertReportNode(ReportNode parent, ReportNode child) {

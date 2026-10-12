@@ -36,6 +36,8 @@ It is intended to be consumed as a library by backend services (such as GridSuit
 
 ```
 org.gridsuite.modification
+├── context/                     # ModificationContext and the loaders it resolves dependencies with
+│   └── dto/                     # Context value objects
 ├── dto/                         # Data Transfer Objects (deserialization, models)
 │   ├── byfilter/                # DTOs for filter-based modifications
 │   │   ├── assignment/          # Assignment descriptors (String, Double, Boolean, Enum)
@@ -45,6 +47,10 @@ org.gridsuite.modification
 ├── error/                       # Unified exception hierarchy and exception types
 ├── modifications/               # Concrete modification business logic implementations
 │   ├── byfilter/                # Filter-based modification execution logic
+│   ├── data/                    # Execution data handed to modifications
+│   │   ├── assignment/          # Assignment data (one class per value type)
+│   │   └── scaling/             # Scaling variation data
+│   ├── olg/                     # Operational-limits-group bulk modification logic
 │   └── tabular/                 # Tabular and limit-set bulk modification execution logic
 ├── report/                      # i18n report resource bundle registration (SPI)
 ├── utils/                       # Utility classes (limits, measurements, properties, load-flow)
@@ -311,6 +317,8 @@ Consumer Application / Service
 | Package | Description |
 |---|---|
 | `org.gridsuite.modification` | Root package: core interfaces (`IFilterService`, `ILoadFlowService`), enums (`ModificationType`, `VariationType`, `VariationMode`, `ReactiveVariationMode`, `TapChangerType`) |
+| `org.gridsuite.modification.context` | `ModificationContext`: dependencies a modification needs, resolved once at run time, plus the loaders resolving them and the `FilterUtils` helpers |
+| `org.gridsuite.modification.context.dto` | Context value objects (`FilterWithDistributionKeys`) |
 | `org.gridsuite.modification.dto` | Core modification DTOs (CRUD, topology, scaling, dispatch, operational, references) |
 | `org.gridsuite.modification.dto.byfilter` | Filter-based modification DTOs |
 | `org.gridsuite.modification.dto.byfilter.assignment` | Assignment descriptors for typed modifications (String, Double, Boolean, Enum) |
@@ -320,6 +328,10 @@ Consumer Application / Service
 | `org.gridsuite.modification.error` | `NetworkModificationException` and `NetworkModificationExceptionType` |
 | `org.gridsuite.modification.modifications` | Executable modification logic classes |
 | `org.gridsuite.modification.modifications.byfilter` | Filter-based and formula-based execution classes |
+| `org.gridsuite.modification.modifications.data` | Execution data passed to modifications (HVDC/injection bases) |
+| `org.gridsuite.modification.modifications.data.assignment` | Assignment data, one class per value type |
+| `org.gridsuite.modification.modifications.data.scaling` | Scaling variation data, resolved against the network before the modification runs |
+| `org.gridsuite.modification.modifications.olg` | Operational-limits-group bulk modification classes |
 | `org.gridsuite.modification.modifications.tabular` | Tabular batch execution classes |
 | `org.gridsuite.modification.report` | Internationalized report bundle SPI (`NetworkModificationReportResourceBundle`) |
 | `org.gridsuite.modification.utils` | Shared utility classes (limits, measurements, properties, load-flow configuration) |

@@ -1,8 +1,9 @@
-/**
- * Copyright (c) 2023, RTE (http://www.rte-france.com)
+/*
+ * Copyright (c) 2023-2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package org.gridsuite.modification.dto;
 
@@ -14,10 +15,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.gridsuite.modification.context.ModificationContext;
+import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.LoadScaling;
+import org.gridsuite.modification.modifications.data.scaling.ScalingVariationData;
 
-import static org.gridsuite.modification.error.NetworkModificationExceptionType.LOAD_SCALING_ERROR;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import static org.gridsuite.modification.error.NetworkModificationException.createModificationAttributeMissing;
 
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
@@ -32,11 +40,17 @@ import static org.gridsuite.modification.error.NetworkModificationExceptionType.
 public class LoadScalingInfos extends ScalingInfos {
 
     @Override
-    public AbstractModification toModification() {
+    public AbstractModification toModification(ModificationContext modificationContext) {
+        check();
+
+        Map<UUID, FilterWithDistributionKeys> resolvedFilters = resolveFilters(modificationContext);
+        List<ScalingVariationData> scalingVariations = getVariations().stream()
+                .map(svi -> svi.toData(resolvedFilters))
+                .toList();
+
         return LoadScaling.builder()
-                .variations(getVariations())
+                .scalingVariations(scalingVariations)
                 .variationType(getVariationType())
-                .exceptionType(LOAD_SCALING_ERROR)
                 .build();
     }
 
@@ -45,5 +59,16 @@ public class LoadScalingInfos extends ScalingInfos {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.loadScaling")
                 .add();
+    }
+
+    @Override
+    public void check() {
+        super.check();
+
+        for (ScalingVariationInfos variation : getVariations()) {
+            if (variation.getReactiveVariationMode() == null) {
+                createModificationAttributeMissing("reactiveVariationMode");
+            }
+        }
     }
 }

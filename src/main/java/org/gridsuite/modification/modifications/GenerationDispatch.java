@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
@@ -16,19 +15,14 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import lombok.*;
 import org.apache.commons.collections4.CollectionUtils;
-import org.gridsuite.filter.AbstractFilter;
-import org.gridsuite.modification.IFilterService;
-import org.gridsuite.modification.ILoadFlowService;
+import org.gridsuite.filter.wip.Filter;
 import org.gridsuite.modification.ModificationType;
-import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -58,31 +52,51 @@ public class GenerationDispatch extends AbstractModification {
     private static final String GENERATORS_WITH_FIXED_SUPPLY = "generatorsWithFixedSupply";
     private static final String GENERATORS_WITHOUT_OUTAGE = "generatorsWithoutOutage";
     private static final String GENERATORS_FREQUENCY_RESERVE = "generatorsFrequencyReserve";
+    private static final String FREQUENCY_RESERVE = "frequencyReserve";
+
+    private static final String REPORT_KEY_GENERATORS_FILTERS_EVALUATION = "network.modification.generationDispatch.filtersEvaluation.";
+    private static final String REPORT_KEY_FILTER_EVALUATION = "network.modification.filterEvaluation";
+    private static final String REPORT_KEY_FILTER_EVALUATION_RESULT = "network.modification.filterEvaluationResult";
+    private static final String REPORT_KEY_MISSING_FILTERS = "network.modification.missingFiltersInGenerationDispatch";
+    private static final String VALUE_KEY_FILTER_IDENTIFIER = "filterIdentifier";
+    private static final String VALUE_KEY_EQUIPMENT_COUNT = "equipmentCount";
 
     private Double lossCoefficient;
     private Double defaultOutageRate;
-    private List<GeneratorsFilterInfos> generatorsWithoutOutage;
-    private List<GeneratorsFilterInfos> generatorsWithFixedSupply;
-    private List<GeneratorsFrequencyReserveInfos> generatorsFrequencyReserve;
-    private List<SubstationsGeneratorsOrderingInfos> substationsGeneratorsOrdering;
+    private List<Filter> generatorsWithoutOutage;
+    private List<Filter> generatorsWithFixedSupply;
+    private List<GeneratorsFrequencyReserve> generatorsFrequencyReserve;
+    private List<List<String>> substationsGeneratorsOrdering;
+    /** Number of filters referenced by the modification description that could not be resolved when it was built. */
+    private int missingFiltersCount;
 
-    @JsonIgnore
-    @EqualsAndHashCode.Exclude
-    protected IFilterService filterService;
+    /**
+     * Frequency reserve applied to the generators selected by the given filters.
+     */
+    public record GeneratorsFrequencyReserve(List<Filter> generatorsFilters, double frequencyReserve) {
+    }
+
+    /**
+     * Frequency reserve applied to the generators resulting from the evaluation of {@link GeneratorsFrequencyReserve} filters.
+     */
+    private record EvaluatedFrequencyReserve(Set<String> generatorIds, double frequencyReserve) {
+    }
 
     @Builder
     public GenerationDispatch(@NonNull Double lossCoefficient,
                               @NonNull Double defaultOutageRate,
-                              List<GeneratorsFilterInfos> generatorsWithoutOutage,
-                              List<GeneratorsFilterInfos> generatorsWithFixedSupply,
-                              List<GeneratorsFrequencyReserveInfos> generatorsFrequencyReserve,
-                              List<SubstationsGeneratorsOrderingInfos> substationsGeneratorsOrdering) {
+                              List<Filter> generatorsWithoutOutage,
+                              List<Filter> generatorsWithFixedSupply,
+                              List<GeneratorsFrequencyReserve> generatorsFrequencyReserve,
+                              List<List<String>> substationsGeneratorsOrdering,
+                              int missingFiltersCount) {
         this.lossCoefficient = lossCoefficient;
         this.defaultOutageRate = defaultOutageRate;
-        this.generatorsWithoutOutage = generatorsWithoutOutage == null ? List.of() : generatorsWithoutOutage;
-        this.generatorsWithFixedSupply = generatorsWithFixedSupply == null ? List.of() : generatorsWithFixedSupply;
-        this.generatorsFrequencyReserve = generatorsFrequencyReserve == null ? List.of() : generatorsFrequencyReserve;
-        this.substationsGeneratorsOrdering = substationsGeneratorsOrdering == null ? List.of() : substationsGeneratorsOrdering;
+        this.generatorsWithoutOutage = Objects.requireNonNullElse(generatorsWithoutOutage, List.of());
+        this.generatorsWithFixedSupply = Objects.requireNonNullElse(generatorsWithFixedSupply, List.of());
+        this.generatorsFrequencyReserve = Objects.requireNonNullElse(generatorsFrequencyReserve, List.of());
+        this.substationsGeneratorsOrdering = Objects.requireNonNullElse(substationsGeneratorsOrdering, List.of());
+        this.missingFiltersCount = missingFiltersCount;
     }
 
     private static void report(ReportNode reportNode, String key, Map<String, Object> values, TypedValue severity) {
@@ -110,7 +124,7 @@ public class GenerationDispatch extends AbstractModification {
                 .sum();
     }
 
-    private static double computeTotalAmountFixedSupply(Network network, Component component, List<String> generatorsWithFixedSupply, ReportNode reportNode) {
+    private static double computeTotalAmountFixedSupply(Network network, Component component, Set<String> generatorsWithFixedSupply, ReportNode reportNode) {
         double totalAmountFixedSupply = 0.;
         List<Generator> generatorsWithoutSetpointList = new ArrayList<>();
         totalAmountFixedSupply += generatorsWithFixedSupply.stream().map(network::getGenerator)
@@ -226,10 +240,10 @@ public class GenerationDispatch extends AbstractModification {
         return generatorsByMarginalCost;
     }
 
-    private static void reportUnknownSubstations(Network network, List<SubstationsGeneratorsOrderingInfos> substationsGeneratorsOrderingInfos, ReportNode reportNode) {
-        if (!CollectionUtils.isEmpty(substationsGeneratorsOrderingInfos)) {
-            substationsGeneratorsOrderingInfos.forEach(sInfo ->
-                    sInfo.getSubstationIds().forEach(sId -> {
+    private static void reportUnknownSubstations(Network network, List<List<String>> substationsGeneratorsOrdering, ReportNode reportNode) {
+        if (!CollectionUtils.isEmpty(substationsGeneratorsOrdering)) {
+            substationsGeneratorsOrdering.forEach(substationIds ->
+                    substationIds.forEach(sId -> {
                         Substation substation = network.getSubstation(sId);
                         if (substation == null) {
                             report(reportNode, "network.modification.SubstationNotFound",
@@ -239,13 +253,13 @@ public class GenerationDispatch extends AbstractModification {
         }
     }
 
-    private static List<Generator> computeAdjustableGenerators(Network network, Component component, List<String> generatorsWithFixedSupply,
-                                                               List<SubstationsGeneratorsOrderingInfos> substationsGeneratorsOrderingInfos,
+    private static List<Generator> computeAdjustableGenerators(Network network, Component component, Set<String> generatorsWithFixedSupply,
+                                                               List<List<String>> substationsGeneratorsOrdering,
                                                                ReportNode reportNode) {
         List<String> generatorsToReturn = new ArrayList<>();
 
         // log substations not found
-        reportUnknownSubstations(network, substationsGeneratorsOrderingInfos, reportNode);
+        reportUnknownSubstations(network, substationsGeneratorsOrdering, reportNode);
 
         // get all connected generators in the component
         List<Generator> generators = component.getBusStream().flatMap(Bus::getGeneratorStream).collect(Collectors.toList());
@@ -255,16 +269,16 @@ public class GenerationDispatch extends AbstractModification {
 
         Map<Double, List<String>> generatorsByMarginalCost = getGeneratorsByMarginalCost(generators, reportNode);
         generatorsByMarginalCost.forEach((mCost, gList) -> {  // loop on generators of same cost
-            if (!CollectionUtils.isEmpty(substationsGeneratorsOrderingInfos)) {  // substations hierarchy provided
+            if (!CollectionUtils.isEmpty(substationsGeneratorsOrdering)) {  // substations hierarchy provided
                 // build mapGeneratorsBySubstationsList, that will contain all the generators with the same marginal cost as mCost contained in each list of substations
                 LinkedHashMap<Integer, Set<String>> mapGeneratorsBySubstationsList = new LinkedHashMap<>();
 
                 AtomicInteger i = new AtomicInteger(0);
-                substationsGeneratorsOrderingInfos.forEach(sInfo -> {
+                substationsGeneratorsOrdering.forEach(substationIds -> {
                     mapGeneratorsBySubstationsList.computeIfAbsent(i.get(), k -> new TreeSet<>());
 
                     // get generators with marginal cost == mCost in all substations of the current list
-                    sInfo.getSubstationIds().forEach(sId -> {
+                    substationIds.forEach(sId -> {
                         Substation substation = network.getSubstation(sId);
                         if (substation != null) {
                             substation.getVoltageLevelStream().forEach(v ->
@@ -358,18 +372,6 @@ public class GenerationDispatch extends AbstractModification {
         }
     }
 
-    @Builder
-    @Getter
-    private static final class GeneratorsFrequencyReserve {
-        private final List<String> generators;
-        private final double frequencyReserve;
-    }
-
-    @Override
-    protected void initServices(IFilterService filterService, ILoadFlowService loadFlowService) {
-        this.filterService = filterService;
-    }
-
     @Override
     public void check(Network network) throws NetworkModificationException {
         if (lossCoefficient < 0. || lossCoefficient > 100.) {
@@ -380,71 +382,64 @@ public class GenerationDispatch extends AbstractModification {
         }
     }
 
-    private List<String> exportFilters(List<GeneratorsFilterInfos> generatorsFilters, Network network, ReportNode subReportNode, String generatorsType) {
-        if (CollectionUtils.isEmpty(generatorsFilters)) {
-            return List.of();
+    private static Set<String> evaluateGeneratorsFilters(List<Filter> filters, Network network, ReportNode filtersReportNode) {
+        Set<String> generatorIds = new LinkedHashSet<>();
+        for (int i = 0; i < filters.size(); i++) {
+            Filter filter = filters.get(i);
+            ReportNode filterReportNode = filtersReportNode.newReportNode()
+                    .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION)
+                    .withUntypedValue(VALUE_KEY_FILTER_IDENTIFIER, Objects.requireNonNullElse(filter.getName(), Integer.toString(i + 1)))
+                    .add();
+            filter.evaluate(network, filterReportNode).stream()
+                    .filter(Generator.class::isInstance)
+                    .map(Identifiable::getId)
+                    .forEach(generatorIds::add);
         }
-        var filters = generatorsFilters.stream().collect(Collectors.toMap(GeneratorsFilterInfos::getId, GeneratorsFilterInfos::getName, (id1, id2) -> id1, LinkedHashMap::new));
-
-        // export filters
-        Map<UUID, FilterEquipments> exportedGenerators = filterService
-            .exportFilters(new ArrayList<>(filters.keySet()), network)
-            .map(f -> new FilterEquipments(f.getFilterId(), filters.get(f.getFilterId()),
-                f.getIdentifiableAttributes().stream().map(i -> new IdentifiableAttributes(i.getId(), i.getType(), i.getDistributionKey())).toList(),
-                f.getNotFoundEquipments()))
-            .collect(Collectors.toMap(FilterEquipments::getFilterId, Function.identity()));
-
-        // report filters with generators not found
-        Map<UUID, FilterEquipments> filtersWithGeneratorsNotFound = exportedGenerators.entrySet().stream()
-            .filter(e -> !CollectionUtils.isEmpty(e.getValue().getNotFoundEquipments()))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        filtersWithGeneratorsNotFound.values().forEach(f -> {
-            var filterName = filters.get(f.getFilterId());
-            var notFoundGenerators = f.getNotFoundEquipments();
-            report(subReportNode, "network.modification.filterGeneratorsNotFound." + generatorsType,
-                Map.of("nbNotFoundGen", notFoundGenerators.size(), "filterName", filterName),
-                TypedValue.WARN_SEVERITY);
-            f.getNotFoundEquipments().forEach(e -> report(subReportNode, "network.modification.generatorNotFound." + generatorsType,
-                Map.of("notFoundGeneratorId", e, "filterName", filterName), TypedValue.DETAIL_SEVERITY));
-        });
-
-        // return existing generators
-        return exportedGenerators.values().stream()
-            .flatMap(f -> f.getIdentifiableAttributes().stream())
-            .map(IdentifiableAttributes::getId)
-            .distinct()
-            .collect(Collectors.toList());
+        filtersReportNode.newReportNode()
+                .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION_RESULT)
+                .withUntypedValue(VALUE_KEY_EQUIPMENT_COUNT, generatorIds.size())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+        return generatorIds;
     }
 
-    private List<String> collectGeneratorsWithoutOutage(Network network, ReportNode subReportNode) {
-        return exportFilters(generatorsWithoutOutage, network, subReportNode, GENERATORS_WITHOUT_OUTAGE);
+    private static Set<String> collectGenerators(List<Filter> filters, Network network, ReportNode reportNode, String generatorsType) {
+        if (filters.isEmpty()) {
+            return Set.of();
+        }
+        ReportNode filtersReportNode = reportNode.newReportNode()
+                .withMessageTemplate(REPORT_KEY_GENERATORS_FILTERS_EVALUATION + generatorsType)
+                .add();
+        return evaluateGeneratorsFilters(filters, network, filtersReportNode);
     }
 
-    private List<String> collectGeneratorsWithFixedSupply(Network network, ReportNode subReportNode) {
-        return exportFilters(generatorsWithFixedSupply, network, subReportNode, GENERATORS_WITH_FIXED_SUPPLY);
+    private List<EvaluatedFrequencyReserve> collectGeneratorsWithFrequencyReserve(Network network, ReportNode reportNode) {
+        return generatorsFrequencyReserve.stream()
+                .filter(reserve -> !CollectionUtils.isEmpty(reserve.generatorsFilters()))
+                .map(reserve -> {
+                    ReportNode filtersReportNode = reportNode.newReportNode()
+                            .withMessageTemplate(REPORT_KEY_GENERATORS_FILTERS_EVALUATION + GENERATORS_FREQUENCY_RESERVE)
+                            .withUntypedValue(FREQUENCY_RESERVE, reserve.frequencyReserve())
+                            .add();
+                    return new EvaluatedFrequencyReserve(evaluateGeneratorsFilters(reserve.generatorsFilters(), network, filtersReportNode), reserve.frequencyReserve());
+                })
+                .toList();
     }
 
-    private List<GeneratorsFrequencyReserve> collectGeneratorsWithFrequencyReserve(Network network, ReportNode subReportNode) {
-        return generatorsFrequencyReserve.stream().map(g -> {
-            List<String> generators = exportFilters(g.getGeneratorsFilters(), network, subReportNode, GENERATORS_FREQUENCY_RESERVE);
-            return GeneratorsFrequencyReserve.builder().generators(generators).frequencyReserve(g.getFrequencyReserve()).build();
-        }).collect(Collectors.toList());
-    }
-
-    private static double computeGenFrequencyReserve(Generator generator,
-                                                     List<GeneratorsFrequencyReserve> generatorsFrequencyReserve) {
-        AtomicReference<Double> freqReserve = new AtomicReference<>(0.);
-        generatorsFrequencyReserve.forEach(g -> {
-            if (g.getGenerators().contains(generator.getId())) {
-                freqReserve.set(g.getFrequencyReserve());
-            }
-        });
-        return freqReserve.get();
+    /**
+     * When a generator belongs to several frequency reserve groups, the last one applies.
+     */
+    private static double computeGenFrequencyReserve(Generator generator, List<EvaluatedFrequencyReserve> generatorsFrequencyReserve) {
+        return generatorsFrequencyReserve.stream()
+                .filter(reserve -> reserve.generatorIds().contains(generator.getId()))
+                .reduce((first, second) -> second)
+                .map(EvaluatedFrequencyReserve::frequencyReserve)
+                .orElse(0.);
     }
 
     private double reduceGeneratorMaxPValue(Generator generator,
-                                            List<String> generatorsWithoutOutage,
-                                            List<GeneratorsFrequencyReserve> generatorsFrequencyReserve) {
+                                            Set<String> generatorsWithoutOutage,
+                                            List<EvaluatedFrequencyReserve> generatorsFrequencyReserve) {
         double res = generator.getMaxP();
         if (!generatorsWithoutOutage.contains(generator.getId())) {
             GeneratorStartup startupExtension = generator.getExtension(GeneratorStartup.class);
@@ -477,33 +472,12 @@ public class GenerationDispatch extends AbstractModification {
         }
     }
 
-    private boolean checkMissingFilters(ReportNode subReportNode) {
-        Map<UUID, String> filterNamesByUuid = new LinkedHashMap<>();
-        generatorsWithoutOutage.forEach(filterInfos -> filterNamesByUuid.put(filterInfos.getId(), filterInfos.getName()));
-        generatorsWithFixedSupply.forEach(filterInfos -> filterNamesByUuid.put(filterInfos.getId(), filterInfos.getName()));
-        generatorsFrequencyReserve.forEach(frequencyReserveInfos ->
-            frequencyReserveInfos.getGeneratorsFilters().forEach(filterInfos -> filterNamesByUuid.put(filterInfos.getId(), filterInfos.getName()))
-        );
-        if (!filterNamesByUuid.isEmpty()) {
-            List<AbstractFilter> filters = filterService.getFilters(new ArrayList<>(filterNamesByUuid.keySet()));
-            Set<UUID> validFilters = filters.stream().map(AbstractFilter::getId).collect(Collectors.toSet());
-            List<UUID> missingFilters = filterNamesByUuid.keySet().stream().filter(filterId -> !validFilters.contains(filterId)).toList();
-            if (!missingFilters.isEmpty()) {
-                report(subReportNode, "network.modification.missingFiltersInGenerationDispatch",
-                    Map.of("nb", missingFilters.size(), IS_PLURAL, missingFilters.size() > 1 ? "s" : ""),
-                    TypedValue.ERROR_SEVERITY);
-            }
-            return !missingFilters.isEmpty();
-        } else {
-            return false;
-        }
-    }
-
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        // check existence of all filters
-        boolean missingFilters = checkMissingFilters(subReportNode);
-        if (missingFilters) {
+        if (missingFiltersCount > 0) {
+            report(subReportNode, REPORT_KEY_MISSING_FILTERS,
+                    Map.of("nb", missingFiltersCount, IS_PLURAL, missingFiltersCount > 1 ? "s" : ""),
+                    TypedValue.ERROR_SEVERITY);
             return;
         }
 
@@ -524,13 +498,13 @@ public class GenerationDispatch extends AbstractModification {
                 .toList();
 
         // get generators for which there will be no reduction of maximal power
-        List<String> generatorsWithoutOutageIds = collectGeneratorsWithoutOutage(network, subReportNode);
+        Set<String> generatorsWithoutOutageIds = collectGenerators(generatorsWithoutOutage, network, subReportNode, GENERATORS_WITHOUT_OUTAGE);
 
         // get generators with fixed supply
-        List<String> generatorsWithFixedSupplyIds = collectGeneratorsWithFixedSupply(network, subReportNode);
+        Set<String> generatorsWithFixedSupplyIds = collectGenerators(generatorsWithFixedSupply, network, subReportNode, GENERATORS_WITH_FIXED_SUPPLY);
 
         // get generators with frequency reserve
-        List<GeneratorsFrequencyReserve> generatorsWithFrequencyReserve = collectGeneratorsWithFrequencyReserve(network, subReportNode);
+        List<EvaluatedFrequencyReserve> generatorsWithFrequencyReserve = collectGeneratorsWithFrequencyReserve(network, subReportNode);
 
         for (Component component : synchronousComponents) {
             int componentNum = component.getNum();
