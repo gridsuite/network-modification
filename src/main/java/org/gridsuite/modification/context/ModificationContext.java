@@ -22,10 +22,15 @@ import lombok.Builder;
  */
 @Builder
 public record ModificationContext(FilterLoader filterLoader,
+                                  FilterWithDistributionKeysLoader filterWithDistributionKeysLoader,
                                   LoadFlowParametersLoader loadFlowParametersLoader) {
 
     private static final FilterLoader NO_FILTER_LOADER = filterUuids -> {
         throw missingLoader("filter loader");
+    };
+
+    private static final FilterWithDistributionKeysLoader NO_FILTER_WITH_DISTRIBUTION_KEYS_LOADER = filterUuids -> {
+        throw missingLoader("filter with distribution keys loader");
     };
 
     private static final LoadFlowParametersLoader NO_LOAD_FLOW_PARAMETERS_LOADER = parametersUuid -> {
@@ -38,6 +43,7 @@ public record ModificationContext(FilterLoader filterLoader,
      */
     public ModificationContext {
         filterLoader = filterLoader != null ? filterLoader : NO_FILTER_LOADER;
+        filterWithDistributionKeysLoader = filterWithDistributionKeysLoader != null ? filterWithDistributionKeysLoader : NO_FILTER_WITH_DISTRIBUTION_KEYS_LOADER;
         loadFlowParametersLoader = loadFlowParametersLoader != null ? loadFlowParametersLoader : NO_LOAD_FLOW_PARAMETERS_LOADER;
     }
 

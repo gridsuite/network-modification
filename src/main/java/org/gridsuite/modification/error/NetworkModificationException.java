@@ -47,6 +47,11 @@ public class NetworkModificationException extends PowsyblException {
         throw new NetworkModificationException(NetworkModificationExceptionType.ATTRIBUTE_NOT_EDITABLE, equipmentType.name() + " attribute '" + attributeName + "' not editable");
     }
 
+    public static NetworkModificationException createModificationAttributeMissing(@NonNull String attributeName) {
+        throw new NetworkModificationException(NetworkModificationExceptionType.INVALID_MODIFICATION, "Attribute '" + attributeName + "' is missing from modification");
+
+    }
+
     public static NetworkModificationException createHybridHvdcUnsupported(String hvdcId) {
         Objects.requireNonNull(hvdcId);
         return new NetworkModificationException(NetworkModificationExceptionType.UNSUPPORTED_HYBRID_HVDC, String.format("The hybrid Hvdc line %s is unsupported", hvdcId));

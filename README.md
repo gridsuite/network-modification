@@ -108,6 +108,7 @@ gridsuite-network-modification
 │   ├── main/
 │   │   ├── java/
 │   │   │   └── org/gridsuite/modification/
+│   │   │       ├── context/        # ModificationContext and its loaders
 │   │   │       ├── dto/            # Data Transfer Objects (deserialization, models)
 │   │   │       ├── error/          # Exception types and error handling
 │   │   │       ├── modifications/  # Concrete modification business logic

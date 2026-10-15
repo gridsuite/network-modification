@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.balances_adjustment.balance_computation.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
@@ -21,8 +20,6 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.networkarea.CountryAreaFactory;
 import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import lombok.*;
-import org.gridsuite.modification.IFilterService;
-import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
 import org.slf4j.Logger;
@@ -30,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,6 +41,7 @@ import static org.gridsuite.modification.utils.LoadFlowParametersUtils.mapLoadFl
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BalancesAdjustmentModification extends AbstractModification {
     private static final Logger LOGGER = LoggerFactory.getLogger(BalancesAdjustmentModification.class);
+    private static final String OPEN_LOAD_FLOW_PROVIDER = "OpenLoadFlow";
 
     private List<BalancesAdjustmentAreaInfos> areas;
     private int maxNumberIterations;
@@ -52,13 +49,12 @@ public class BalancesAdjustmentModification extends AbstractModification {
     private List<Country> countriesToBalance;
     private LoadFlowParameters.BalanceType balanceType;
     private boolean withLoadFlow;
-    private UUID loadFlowParametersId;
+    /** Load flow parameters resolved when the modification was built, {@code null} to use the default ones. */
+    private LoadFlowParametersInfos loadFlowParameters;
+    /** Why the default load flow parameters are used, reported when {@link #loadFlowParameters} is {@code null}. */
+    private String defaultLoadFlowParametersReason;
     private boolean withRatioTapChangers;
     private boolean subtractLoadFlowBalancing;
-
-    @JsonIgnore
-    @EqualsAndHashCode.Exclude
-    protected ILoadFlowService loadFlowService;
 
     @Builder
     public BalancesAdjustmentModification(List<BalancesAdjustmentAreaInfos> areas,
@@ -67,7 +63,8 @@ public class BalancesAdjustmentModification extends AbstractModification {
                                           List<Country> countriesToBalance,
                                           LoadFlowParameters.BalanceType balanceType,
                                           boolean withLoadFlow,
-                                          UUID loadFlowParametersId,
+                                          LoadFlowParametersInfos loadFlowParameters,
+                                          String defaultLoadFlowParametersReason,
                                           boolean withRatioTapChangers,
                                           boolean subtractLoadFlowBalancing) {
         this.areas = areas;
@@ -76,14 +73,10 @@ public class BalancesAdjustmentModification extends AbstractModification {
         this.countriesToBalance = countriesToBalance;
         this.balanceType = balanceType;
         this.withLoadFlow = withLoadFlow;
-        this.loadFlowParametersId = loadFlowParametersId;
+        this.loadFlowParameters = loadFlowParameters;
+        this.defaultLoadFlowParametersReason = defaultLoadFlowParametersReason;
         this.withRatioTapChangers = withRatioTapChangers;
         this.subtractLoadFlowBalancing = subtractLoadFlowBalancing;
-    }
-
-    @Override
-    protected void initServices(IFilterService filterService, ILoadFlowService loadFlowService) {
-        this.loadFlowService = loadFlowService;
     }
 
     @Override
@@ -100,42 +93,14 @@ public class BalancesAdjustmentModification extends AbstractModification {
             return parameters;
         }
 
-        LoadFlowParametersInfos loadFlowParametersInfos = getLoadFlowParametersInfos(reportNode);
-
-        if (loadFlowParametersInfos != null &&
-                loadFlowParametersInfos.getProvider().equals("OpenLoadFlow")) {
-
-            LoadFlowParameters loadFlowParameters = mapLoadFlowPrameters(loadFlowParametersInfos);
-            parameters.setLoadFlowParameters(loadFlowParameters);
+        if (loadFlowParameters == null) {
+            reportUsingDefaultParameters(reportNode, defaultLoadFlowParametersReason);
+        } else if (OPEN_LOAD_FLOW_PROVIDER.equals(loadFlowParameters.getProvider())) {
+            parameters.setLoadFlowParameters(mapLoadFlowPrameters(loadFlowParameters));
         }
 
         overrideBalanceComputationParameters(parameters);
         return parameters;
-    }
-
-    private LoadFlowParametersInfos getLoadFlowParametersInfos(ReportNode reportNode) {
-        if (loadFlowParametersId == null) {
-            reportUsingDefaultParameters(reportNode, "Load flow parameters ID is null");
-            return null;
-        }
-
-        LoadFlowParametersInfos loadFlowParametersInfos = loadFlowService.getLoadFlowParametersInfos(
-                loadFlowParametersId
-        );
-
-        if (loadFlowParametersInfos == null) {
-            reportUsingDefaultParameters(reportNode,
-                    "Load flow parameters with id " + loadFlowParametersId + " not found");
-            return null;
-        }
-
-        if (loadFlowParametersInfos.getProvider() == null) {
-            reportUsingDefaultParameters(reportNode,
-                    "Load flow provider is null in parameters with id " + loadFlowParametersId);
-            return null;
-        }
-
-        return loadFlowParametersInfos;
     }
 
     private void reportUsingDefaultParameters(ReportNode reportNode, String reason) {
