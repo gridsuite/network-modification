@@ -18,9 +18,9 @@ import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
 
 import java.util.List;
-import java.util.stream.Stream;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.gridsuite.modification.error.NetworkModificationException.createModificationAttributeMissing;
 
