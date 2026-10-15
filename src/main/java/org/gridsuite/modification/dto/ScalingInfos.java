@@ -20,6 +20,7 @@ import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.gridsuite.modification.error.NetworkModificationException.createModificationAttributeMissing;
 
@@ -68,5 +69,12 @@ public class ScalingInfos extends ModificationInfos {
                 createModificationAttributeMissing("variationValue");
             }
         }
+    }
+
+    @Override
+    public Stream<FilterInfos> collectFilters() {
+        return Stream.ofNullable(variations)
+                .flatMap(List::stream)
+                .flatMap(variation -> Stream.ofNullable(variation.getFilters()).flatMap(List::stream));
     }
 }
