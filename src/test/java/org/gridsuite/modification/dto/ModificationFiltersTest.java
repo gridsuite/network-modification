@@ -26,10 +26,6 @@ class ModificationFiltersTest {
         return FilterInfos.builder().id(UUID.randomUUID()).build();
     }
 
-    private static GeneratorsFilterInfos generatorsFilter() {
-        return GeneratorsFilterInfos.builder().id(UUID.randomUUID()).build();
-    }
-
     @Test
     void testReferencedFilters() {
         FilterInfos deletionFilter = filter();
@@ -44,9 +40,9 @@ class ModificationFiltersTest {
                         ScalingVariationInfos.builder().filters(List.of(scalingFilter2)).build())).build()
                     .collectFilters().toList());
 
-        GeneratorsFilterInfos withoutOutage = generatorsFilter();
-        GeneratorsFilterInfos withFixedSupply = generatorsFilter();
-        GeneratorsFilterInfos frequencyReserve = generatorsFilter();
+        FilterInfos withoutOutage = filter();
+        FilterInfos withFixedSupply = filter();
+        FilterInfos frequencyReserve = filter();
         assertEquals(List.of(withoutOutage, withFixedSupply, frequencyReserve),
                 GenerationDispatchInfos.builder()
                     .generatorsWithoutOutage(List.of(withoutOutage))
@@ -75,12 +71,5 @@ class ModificationFiltersTest {
         assertEquals(0, new GenerationDispatchInfos().collectFilters().count());
         assertEquals(0, new ByFormulaModificationInfos().collectFilters().count());
         assertEquals(0, new ModificationByAssignmentInfos().collectFilters().count());
-    }
-
-    @Test
-    void testLabelFallsBackToIdWhenNameIsNotResolved() {
-        UUID id = UUID.randomUUID();
-        assertEquals("filter1", new FilterInfos(id, "filter1").getLabel());
-        assertEquals(id.toString(), new FilterInfos(id, null).getLabel());
     }
 }

@@ -21,9 +21,6 @@ import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.GenerationDispatch;
 
 import java.util.*;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -59,7 +56,7 @@ public class GenerationDispatchInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification(ModificationContext modificationContext) {
-        List<UUID> referencedFilterIds = streamReferencedFilters().map(FilterInfos::getId).distinct().toList();
+        List<UUID> referencedFilterIds = collectFilters().map(FilterInfos::getId).distinct().toList();
         Map<UUID, Filter> filtersById = referencedFilterIds.isEmpty()
                 ? Map.of()
                 : modificationContext.filterLoader().load(referencedFilterIds);
@@ -81,14 +78,6 @@ public class GenerationDispatchInfos extends ModificationInfos {
                         .toList())
                 .missingFiltersCount((int) referencedFilterIds.stream().filter(id -> !filtersById.containsKey(id)).count())
                 .build();
-    }
-
-    private Stream<FilterInfos> streamReferencedFilters() {
-        return Stream.of(
-                nullToEmpty(getGeneratorsWithoutOutage()).stream(),
-                nullToEmpty(getGeneratorsWithFixedSupply()).stream(),
-                nullToEmpty(getGeneratorsFrequencyReserve()).stream().flatMap(reserve -> nullToEmpty(reserve.getGeneratorsFilters()).stream())
-        ).flatMap(Function.identity());
     }
 
     private static <T> List<T> nullToEmpty(List<T> list) {

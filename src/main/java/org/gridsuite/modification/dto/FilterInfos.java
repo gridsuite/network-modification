@@ -6,7 +6,6 @@
  */
 package org.gridsuite.modification.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -31,13 +30,5 @@ public class FilterInfos {
 
     @Schema(description = "name of filter, null if the filter no longer exists")
     private String name;
-
-    /**
-     * @return what reports show for this filter: its resolved name, or its id when it could not be resolved
-     */
-    @JsonIgnore
-    public String getLabel() {
-        return name != null ? name : String.valueOf(id);
-    }
 
 }
