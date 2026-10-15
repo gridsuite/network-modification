@@ -31,6 +31,7 @@ public enum NetworkModificationExceptionType {
     CREATE_STATIC_VAR_COMPENSATOR_ERROR("An error occurred while creating the static var compensator"),
     EQUIPMENT_NOT_FOUND("The equipment could not be found"),
     ATTRIBUTE_NOT_EDITABLE("The equipment attribute is not editable"),
+    INVALID_MODIFICATION("Invalid modification"),
     CREATE_LINE_ERROR("An error occurred while creating the line"),
     MODIFY_LINE_ERROR("An error occurred while modifying the line"),
     CREATE_TWO_WINDINGS_TRANSFORMER_ERROR("An error occurred while creating the two windings transformer"),
