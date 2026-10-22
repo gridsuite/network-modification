@@ -1682,9 +1682,13 @@ public final class ModificationUtils {
     public void createReactiveCapabilityCurve(ReactiveLimitsHolderInfos creationInfos,
                                                      ReactiveLimitsHolder reactiveLimitsHolder,
                                               ReportNode subReportNode) {
+        List<ReactiveCapabilityCurvePointsInfos> points = creationInfos.getReactiveCapabilityCurvePoints();
+        if (CollectionUtils.isEmpty(points)) {
+            return;
+        }
+
         List<ReportNode> pointsReports = new ArrayList<>();
         ReactiveCapabilityCurveAdder adder = reactiveLimitsHolder.newReactiveCapabilityCurve();
-        List<ReactiveCapabilityCurvePointsInfos> points = creationInfos.getReactiveCapabilityCurvePoints();
         IntStream.range(0, points.size())
                 .forEach(i -> {
                     String fieldSuffix;
