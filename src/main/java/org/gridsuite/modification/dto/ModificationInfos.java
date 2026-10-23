@@ -19,12 +19,15 @@ import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.tabular.LimitSetsTabularModificationInfos;
 import org.gridsuite.modification.dto.tabular.TabularCreationInfos;
 import org.gridsuite.modification.dto.tabular.TabularModificationInfos;
+import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.modifications.AbstractModification;
 
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.MISSING_ROOT_NETWORK_APPLICABILITY;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -161,16 +164,23 @@ public class ModificationInfos {
 
     /**
      * A modification is activated on a root network when it is not stashed, when it is globally activated and when
-     * its applicability for that root network tag is not explicitly set to false. A tag without any entry is
-     * applicable, and a null tag matches any root network.
+     * its applicability for that root network tag is true. A null tag matches any root network.
+     *
+     * @throws NetworkModificationException when the modification holds no applicability for that tag
      */
     public boolean isActivatedOn(String rootNetworkTag) {
         if (Boolean.TRUE.equals(stashed) || !Boolean.TRUE.equals(activated)) {
             return false;
         }
-        return rootNetworkTag == null
-            || applicabilityByRootNetworkTag == null
-            || !Boolean.FALSE.equals(applicabilityByRootNetworkTag.get(rootNetworkTag));
+        if (rootNetworkTag == null) {
+            return true;
+        }
+        Boolean applicable = applicabilityByRootNetworkTag == null ? null : applicabilityByRootNetworkTag.get(rootNetworkTag);
+        if (applicable == null) {
+            throw new NetworkModificationException(MISSING_ROOT_NETWORK_APPLICABILITY,
+                String.format("modification %s, root network tag %s", uuid, rootNetworkTag));
+        }
+        return applicable;
     }
 
     @JsonIgnore
