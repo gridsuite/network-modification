@@ -166,6 +166,32 @@ class BatteryCreationInBusBreakerTest extends AbstractNetworkModificationTest {
         assertEquals("The equipment could not be found : Equipment with id=titi not found with type LINE", exception.getMessage());
     }
 
+    @Test
+    void testCreateWithReactiveCapabilityCurveNullPoints() {
+        BatteryCreationInfos batteryCreationInfos = (BatteryCreationInfos) buildModification();
+        batteryCreationInfos.setEquipmentId("idBatteryNullPoints");
+        batteryCreationInfos.setReactiveCapabilityCurve(true);
+        batteryCreationInfos.setReactiveCapabilityCurvePoints(null);
+
+        AbstractModification modification = batteryCreationInfos.toModification();
+        assertDoesNotThrow(() -> modification.check(getNetwork()));
+        assertDoesNotThrow(() -> modification.apply(getNetwork()));
+        assertNotNull(getNetwork().getBattery("idBatteryNullPoints"));
+    }
+
+    @Test
+    void testCreateWithReactiveCapabilityCurveEmptyPoints() {
+        BatteryCreationInfos batteryCreationInfos = (BatteryCreationInfos) buildModification();
+        batteryCreationInfos.setEquipmentId("idBatteryEmptyPoints");
+        batteryCreationInfos.setReactiveCapabilityCurve(true);
+        batteryCreationInfos.setReactiveCapabilityCurvePoints(List.of());
+
+        AbstractModification modification = batteryCreationInfos.toModification();
+        assertDoesNotThrow(() -> modification.check(getNetwork()));
+        assertDoesNotThrow(() -> modification.apply(getNetwork()));
+        assertNotNull(getNetwork().getBattery("idBatteryEmptyPoints"));
+    }
+
     @Override
     public String getReportFilePath() {
         return "/report/create-bus-breaker-battery.txt";
