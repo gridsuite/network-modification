@@ -7,7 +7,10 @@
 package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.reducer.IdentifierNetworkPredicate;
+import com.powsybl.iidm.reducer.NetworkReducer;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -17,6 +20,8 @@ import lombok.Setter;
 import org.gridsuite.filter.wip.Filter;
 import org.gridsuite.modification.ModificationType;
 
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 @Getter
@@ -33,10 +38,25 @@ public class NetworkReduction extends AbstractModification {
 
     @Override
     public void apply(Network network, ReportNode reportNode) {
+        NetworkReducer reducer = NetworkReducer.builder()
+                .withBoundaryLines(true)
+                .withNetworkPredicate(new IdentifierNetworkPredicate(getEquipmentsFromFilters(network).stream()
+                        .map(Identifiable::getId)
+                        .toList()))
+                .build();
+        reducer.reduce(network);
     }
 
     @Override
     public String getName() {
         return ModificationType.NETWORK_REDUCTION.name();
+    }
+
+    private Collection<Identifiable<?>> getEquipmentsFromFilters(Network network) {
+        Collection<Identifiable<?>> evaluatedEquipments = new LinkedHashSet<>();
+        for (Filter filter : filters) {
+            evaluatedEquipments.addAll(filter.evaluate(network));
+        }
+        return evaluatedEquipments;
     }
 }
