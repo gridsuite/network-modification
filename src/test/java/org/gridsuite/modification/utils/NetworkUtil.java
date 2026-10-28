@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 
 /**
  * @author Slimane Amar <slimane.amar at rte-france.com>
@@ -219,11 +220,14 @@ public final class NetworkUtil {
             .setId(id)
             .setName(id)
             .setTargetP(targetP)
-            .setTargetQ(targetQ)
+            .setLocalTargetQ(targetQ)
             .setNode(node)
             .setMinP(minP)
             .setMaxP(maxP)
-            .setVoltageRegulatorOn(false)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .add()
             .add();
 
         g.newExtension(ConnectablePositionAdder.class)
@@ -240,12 +244,15 @@ public final class NetworkUtil {
             .setId(id)
             .setName(id)
             .setTargetP(targetP)
-            .setTargetQ(targetQ)
+            .setLocalTargetQ(targetQ)
             .setBus(busId)
             .setConnectableBus(busId)
             .setMinP(-1.1)
             .setMaxP(1000.0)
-            .setVoltageRegulatorOn(false)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .add()
             .add();
     }
 
@@ -354,9 +361,12 @@ public final class NetworkUtil {
             .setId(id)
             .setName(name)
             .setNode(node)
-            .setTargetV(targetV)
-            .setTargetDeadband(targetDeadband)
-            .setVoltageRegulatorOn(voltageRegulatorOn)
+            .setLocalTargetV(targetV)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withTargetDeadband(targetDeadband)
+                .withRegulating(voltageRegulatorOn)
+                .add()
             .newLinearModel()
             .setMaximumSectionCount(maximumSectionCount)
             .setBPerSection(bPerSection)
@@ -373,18 +383,20 @@ public final class NetworkUtil {
     }
 
     public static void createStaticVarCompensator(VoltageLevel vl, String id, String name,
-                                                   int node, StaticVarCompensator.RegulationMode regulationMode, double voltageSetpoint,
+                                                   int node, RegulationMode regulationMode, double voltageSetpoint,
                                                    double reactivePowerSetpoint, double bMin, double bMax) {
         vl.newStaticVarCompensator()
             .setId(id)
             .setName(name)
-            .setRegulationMode(regulationMode)
-            .setVoltageSetpoint(voltageSetpoint)
-            .setReactivePowerSetpoint(reactivePowerSetpoint)
+            .setLocalTargetV(voltageSetpoint)
+            .setLocalTargetQ(reactivePowerSetpoint)
+            .newVoltageRegulation()
+                .withMode(regulationMode)
+                .withRegulating(true)
+                .add()
             .setBmin(bMin)
             .setBmax(bMax)
             .setNode(node)
-            .setRegulating(true)
             .add();
     }
 
@@ -396,7 +408,7 @@ public final class NetworkUtil {
             .setMinP(minP)
             .setMaxP(maxP)
             .setTargetP(targetP)
-            .setTargetQ(targetQ)
+            .setLocalTargetQ(targetQ)
             .setNode(node)
             .add();
     }
@@ -425,9 +437,12 @@ public final class NetworkUtil {
             .setName(name)
             .setNode(node)
             .setLossFactor(lossFactor)
-            .setReactivePowerSetpoint(reactivePowerSetpoint)
-            .setVoltageRegulatorOn(voltageRegulatorOn)
-            .setVoltageSetpoint(voltageSetpoint)
+            .setLocalTargetQ(reactivePowerSetpoint)
+            .setLocalTargetV(voltageSetpoint)
+            .newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(voltageRegulatorOn)
+                .add()
             .add();
 
         vsc.newMinMaxReactiveLimits().setMinQ(0).setMaxQ(10).add();

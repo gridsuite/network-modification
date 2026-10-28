@@ -44,7 +44,7 @@ class GeneratorCreationInNodeBreakerTest extends AbstractNetworkModificationTest
 
     @Override
     protected Network createNetwork(UUID networkUuid) {
-        return NetworkCreation.create(networkUuid, true);
+        return NetworkCreation.createWithSingleVariant(networkUuid, true);
     }
 
     @Override
@@ -94,8 +94,8 @@ class GeneratorCreationInNodeBreakerTest extends AbstractNetworkModificationTest
                 .filter(transformer -> transformer.getId().equals("idGenerator1")).count());
         assertEquals(PROPERTY_VALUE, getNetwork().getGenerator("idGenerator1").getProperty(PROPERTY_NAME));
         Generator generator = getNetwork().getGenerator("idGenerator1");
-        assertEquals(225.0, generator.getTargetV());
-        assertTrue(Double.isNaN(generator.getEquivalentLocalTargetV()));
+        assertEquals(225.0, generator.getRegulatingTargetV());
+        assertTrue(Double.isNaN(generator.getLocalTargetV()));
     }
 
     @Override
