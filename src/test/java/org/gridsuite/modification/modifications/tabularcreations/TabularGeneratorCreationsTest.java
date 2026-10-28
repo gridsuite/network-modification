@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TabularGeneratorCreationsTest extends AbstractNetworkModificationTest {
     @Override
     protected Network createNetwork(UUID networkUuid) {
-        return NetworkCreation.create(networkUuid, true);
+        return NetworkCreation.createWithSingleVariant(networkUuid, true);
     }
 
     @Override

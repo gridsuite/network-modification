@@ -8,6 +8,7 @@ package org.gridsuite.modification.modifications.byfilter.assignment;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
@@ -144,7 +145,9 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
                 "trf1", 11, ConnectablePosition.Direction.TOP,
                 "trf1", 22, ConnectablePosition.Direction.BOTTOM);
         twt1.setRatedS(11);
-        addRatioTapChangerSteps(twt1.newRatioTapChanger().setTargetV(50).setLowTapPosition(0).setTapPosition(1).setTargetDeadband(55));
+        addRatioTapChangerSteps(twt1.newRatioTapChanger()
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(50).withTargetDeadband(55).withRegulating(false).add()
+            .setLowTapPosition(0).setTapPosition(1));
 
         TwoWindingsTransformer twt2 = createTwoWindingsTransformer(s1, TWT_ID_2, TWT_ID_2, 35, 45, 55,
             65, 15, 25, 101, 100,
@@ -152,7 +155,9 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
                 "trf1", 33, ConnectablePosition.Direction.TOP,
                 "trf1", 44, ConnectablePosition.Direction.BOTTOM);
         twt2.setRatedS(10);
-        addRatioTapChangerSteps(twt2.newRatioTapChanger().setTargetV(53).setLowTapPosition(3).setTapPosition(4).setTargetDeadband(58));
+        addRatioTapChangerSteps(twt2.newRatioTapChanger()
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(53).withTargetDeadband(58).withRegulating(false).add()
+            .setLowTapPosition(3).setTapPosition(4));
 
         TwoWindingsTransformer twt3 = createTwoWindingsTransformer(s1, TWT_ID_3, TWT_ID_3, 40, 50, 60,
             70, 20, 30, 101, 101,
@@ -160,7 +165,9 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
                 "trf1", 10, ConnectablePosition.Direction.TOP,
                 "trf1", 20, ConnectablePosition.Direction.BOTTOM);
         twt3.setRatedS(25);
-        addRatioTapChangerSteps(twt3.newRatioTapChanger().setTargetV(56).setLowTapPosition(0).setTapPosition(1).setTargetDeadband(61));
+        addRatioTapChangerSteps(twt3.newRatioTapChanger()
+            .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withTargetValue(56).withTargetDeadband(61).withRegulating(false).add()
+            .setLowTapPosition(0).setTapPosition(1));
 
         TwoWindingsTransformer twt4 = createTwoWindingsTransformer(s3, TWT_ID_4, TWT_ID_4, 45, 55, 65,
             75, 25, 35, 100, 100,
@@ -363,11 +370,11 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         TwoWindingsTransformer twt1 = getNetwork().getTwoWindingsTransformer(TWT_ID_1);
         RatioTapChanger ratioTapChanger1 = twt1.getRatioTapChanger();
         assertNotNull(ratioTapChanger1);
-        assertEquals(2, ratioTapChanger1.getTargetV(), 0);
+        assertEquals(2, ratioTapChanger1.getVoltageRegulation().getTargetValue(), 0);
         assertEquals(4, ratioTapChanger1.getLowTapPosition());
         assertEquals(8, ratioTapChanger1.getTapPosition());
         assertEquals(9, ratioTapChanger1.getHighTapPosition());
-        assertEquals(5, ratioTapChanger1.getTargetDeadband(), 0);
+        assertEquals(5, ratioTapChanger1.getVoltageRegulation().getTargetDeadband(), 0);
         assertEquals(20, twt1.getX(), 0);
         assertEquals(2.5, twt1.getB(), 0);
         assertEquals(2, twt1.getR(), 0);
@@ -383,11 +390,11 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
         TwoWindingsTransformer twt2 = getNetwork().getTwoWindingsTransformer(TWT_ID_2);
         RatioTapChanger ratioTapChanger2 = twt2.getRatioTapChanger();
         assertNotNull(ratioTapChanger2);
-        assertEquals(2, ratioTapChanger2.getTargetV(), 0);
+        assertEquals(2, ratioTapChanger2.getVoltageRegulation().getTargetValue(), 0);
         assertEquals(3, ratioTapChanger2.getLowTapPosition());
         assertEquals(4, ratioTapChanger2.getTapPosition());
         assertEquals(8, ratioTapChanger2.getHighTapPosition());
-        assertEquals(5, ratioTapChanger2.getTargetDeadband(), 0);
+        assertEquals(5, ratioTapChanger2.getVoltageRegulation().getTargetDeadband(), 0);
         assertEquals(20, twt2.getX(), 0);
         assertEquals(2.5, twt2.getB(), 0);
         assertEquals(15, twt2.getRatedU1(), 0);

@@ -10,6 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import lombok.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.filter.utils.expertfilter.RatioRegulationModeType;
@@ -249,8 +250,14 @@ public class TwoWindingsTransformerCreation extends AbstractBranchCreation {
             targetDeadband = ratioTapChangerInfos.isRegulating() ? 0. : Double.NaN;
         }
         double targetV = ratioTapChangerInfos.getTargetV() != null ? ratioTapChangerInfos.getTargetV() : Double.NaN;
-        ratioTapChangerAdder.setTargetV(targetV).setTargetDeadband(targetDeadband).setRegulationTerminal(terminal);
-        ratioTapChangerAdder.setRegulating(ratioTapChangerInfos.isRegulating()).setLoadTapChangingCapabilities(ratioTapChangerInfos.isLoadTapChangingCapabilities());
+        ratioTapChangerAdder.newVoltageRegulation()
+                .withMode(ratioTapChangerInfos.isRegulating() ? RegulationMode.VOLTAGE : null)
+                .withTargetValue(targetV)
+                .withTargetDeadband(targetDeadband)
+                .withTerminal(terminal)
+                .withRegulating(ratioTapChangerInfos.isRegulating())
+                .add()
+                .setLoadTapChangingCapabilities(ratioTapChangerInfos.isLoadTapChangingCapabilities());
 
         if (ratioTapChangerInfos.isRegulating()) {
             regulationReports.add(getInstance().buildCreationReport(RatioRegulationModeType.VOLTAGE_REGULATION.name(), "Regulation mode"));

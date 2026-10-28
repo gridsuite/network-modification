@@ -36,24 +36,24 @@ public enum BatteryField {
     public static String getReferenceValue(Battery battery, String batteryField) {
         ActivePowerControl<Battery> activePowerControl = battery.getExtension(ActivePowerControl.class);
         BatteryShortCircuit batteryShortCircuit = battery.getExtension(BatteryShortCircuit.class);
-        VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
+        boolean hasVoltageRegulation = battery.getVoltageRegulation() != null;
+
         BatteryField field = BatteryField.valueOf(batteryField);
         return switch (field) {
             case MINIMUM_ACTIVE_POWER -> String.valueOf(battery.getMinP());
             case MAXIMUM_ACTIVE_POWER -> String.valueOf(battery.getMaxP());
             case ACTIVE_POWER_SET_POINT -> String.valueOf(battery.getTargetP());
-            case REACTIVE_POWER_SET_POINT -> String.valueOf(battery.getTargetQ());
+            case REACTIVE_POWER_SET_POINT -> String.valueOf(battery.getLocalTargetQ());
             case DROOP -> activePowerControl != null ? String.valueOf(activePowerControl.getDroop()) : null;
             case TRANSIENT_REACTANCE -> batteryShortCircuit != null ? String.valueOf(batteryShortCircuit.getDirectTransX()) : null;
             case STEP_UP_TRANSFORMER_REACTANCE -> batteryShortCircuit != null ? String.valueOf(batteryShortCircuit.getStepUpTransformerX()) : null;
-            case VOLTAGE_SET_POINT -> voltageRegulation != null ? String.valueOf(voltageRegulation.getTargetV()) : null;
-            case VOLTAGE_REGULATOR_ON -> voltageRegulation != null ? String.valueOf(voltageRegulation.isVoltageRegulatorOn()) : null;
+            case VOLTAGE_SET_POINT -> hasVoltageRegulation ? String.valueOf(battery.getRegulatingTargetV()) : null;
+            case VOLTAGE_REGULATOR_ON -> hasVoltageRegulation ? String.valueOf(battery.getVoltageRegulation() != null && battery.getVoltageRegulation().isRegulating()) : null;
         };
     }
 
     public static void setNewValue(Battery battery, String batteryField, String newValue) {
         BatteryField field = BatteryField.valueOf(batteryField);
-        VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
         String errorMessage = String.format(ERROR_MESSAGE, battery.getId());
         switch (field) {
             case MINIMUM_ACTIVE_POWER ->
@@ -89,7 +89,7 @@ public enum BatteryField {
                     () -> battery.newExtension(BatteryShortCircuitAdder.class), null);
             case VOLTAGE_REGULATOR_ON -> {
                 Boolean voltageRegulatorOn = newValue == null ? null : Boolean.parseBoolean(newValue);
-                checkVoltageRegulation(errorMessage, voltageRegulation, voltageRegulatorOn, MODIFY_BATTERY_ERROR);
+                checkVoltageRegulation(errorMessage, battery, voltageRegulatorOn, MODIFY_BATTERY_ERROR);
                 AttributeModification<Boolean> voltageRegulationOnModification =
                         new AttributeModification<>(voltageRegulatorOn, OperationType.SET);
                 modifyVoltageRegulation(battery, VoltageRegulationModification.builder().voltageRegulationOn(voltageRegulationOnModification).build());
@@ -97,7 +97,7 @@ public enum BatteryField {
             case VOLTAGE_SET_POINT -> {
                 Double targetV = Double.parseDouble(newValue);
                 checkIsNotNegativeValue(errorMessage, targetV, MODIFY_BATTERY_ERROR, "Target Voltage");
-                checkTargetV(errorMessage, voltageRegulation, targetV, MODIFY_BATTERY_ERROR);
+                checkTargetV(errorMessage, battery, targetV, MODIFY_BATTERY_ERROR);
                 AttributeModification<Double> voltageSetPointModification = new AttributeModification<>(Double.parseDouble(newValue), OperationType.SET);
                 modifyVoltageRegulation(battery, VoltageRegulationModification.builder().targetV(voltageSetPointModification).build());
             }

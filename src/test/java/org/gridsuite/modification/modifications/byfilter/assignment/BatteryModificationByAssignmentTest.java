@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
-import com.powsybl.iidm.network.extensions.VoltageRegulation;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.BooleanAssignmentInfos;
@@ -52,7 +51,7 @@ class BatteryModificationByAssignmentTest extends AbstractModificationByAssignme
 
     @Override
     protected void createEquipments() {
-        getNetwork().getBattery(BATTERY_ID_1).setTargetP(100).setMaxP(500).setMinP(0).setTargetQ(80);
+        getNetwork().getBattery(BATTERY_ID_1).setTargetP(100).setMaxP(500).setMinP(0).setLocalTargetQ(80);
         getNetwork().getBattery(BATTERY_ID_1).newExtension(ActivePowerControlAdder.class).withDroop(1).add();
 
         createBattery(getNetwork().getVoltageLevel("v2"), BATTERY_ID_2, "v2Battery2", 20, 50, 2000, 200, 50);
@@ -138,7 +137,7 @@ class BatteryModificationByAssignmentTest extends AbstractModificationByAssignme
     @Override
     protected void assertAfterNetworkModificationApplication() {
         assertEquals(80, getNetwork().getBattery(BATTERY_ID_1).getMaxP(), 0);
-        assertEquals(2, getNetwork().getBattery(BATTERY_ID_1).getTargetQ(), 0);
+        assertEquals(2, getNetwork().getBattery(BATTERY_ID_1).getLocalTargetQ(), 0);
         ActivePowerControl<Battery> activePowerControl1 = getNetwork().getBattery(BATTERY_ID_1).getExtension(ActivePowerControl.class);
         assertNotNull(activePowerControl1);
         assertEquals(2, activePowerControl1.getDroop(), 0);
@@ -150,7 +149,7 @@ class BatteryModificationByAssignmentTest extends AbstractModificationByAssignme
         assertEquals(80, getNetwork().getBattery(BATTERY_ID_4).getMaxP(), 0);
 
         assertEquals(30, getNetwork().getBattery(BATTERY_ID_5).getMinP(), 0);
-        assertEquals(2, getNetwork().getBattery(BATTERY_ID_5).getTargetQ(), 0);
+        assertEquals(2, getNetwork().getBattery(BATTERY_ID_5).getLocalTargetQ(), 0);
         ActivePowerControl<Battery> activePowerControl5 = getNetwork().getBattery(BATTERY_ID_5).getExtension(ActivePowerControl.class);
         assertNotNull(activePowerControl5);
         assertEquals(2, activePowerControl5.getDroop(), 0);
@@ -167,20 +166,18 @@ class BatteryModificationByAssignmentTest extends AbstractModificationByAssignme
         assertEquals(3, batteryShortCircuit1.getDirectTransX());
         assertEquals(4, batteryShortCircuit1.getStepUpTransformerX());
 
-        VoltageRegulation voltageRegulation = getNetwork().getBattery(BATTERY_ID_1).getExtension(VoltageRegulation.class);
-        assertNotNull(voltageRegulation);
-        assertTrue(voltageRegulation.isVoltageRegulatorOn());
-        assertEquals(400.0, voltageRegulation.getTargetV());
+        Battery battery1 = getNetwork().getBattery(BATTERY_ID_1);
+        assertNotNull(battery1.getVoltageRegulation());
+        assertTrue(battery1.getVoltageRegulation().isRegulating());
+        assertEquals(400.0, battery1.getRegulatingTargetV());
 
-        VoltageRegulation voltageRegulation2 = getNetwork().getBattery(BATTERY_ID_5).getExtension(VoltageRegulation.class);
-        assertNotNull(voltageRegulation2);
-        assertTrue(voltageRegulation2.isVoltageRegulatorOn());
-        assertEquals(400.0, voltageRegulation2.getTargetV());
+        Battery battery5 = getNetwork().getBattery(BATTERY_ID_5);
+        assertNotNull(battery5.getVoltageRegulation());
+        assertTrue(battery5.getVoltageRegulation().isRegulating());
+        assertEquals(400.0, battery5.getRegulatingTargetV());
 
-        VoltageRegulation voltageRegulation3 = getNetwork().getBattery(BATTERY_ID_2).getExtension(VoltageRegulation.class);
-        assertNull(voltageRegulation3);
-        VoltageRegulation voltageRegulation4 = getNetwork().getBattery(BATTERY_ID_3).getExtension(VoltageRegulation.class);
-        assertNull(voltageRegulation4);
+        assertNull(getNetwork().getBattery(BATTERY_ID_2).getVoltageRegulation());
+        assertNull(getNetwork().getBattery(BATTERY_ID_3).getVoltageRegulation());
     }
 
     @Override
