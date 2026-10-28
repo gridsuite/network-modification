@@ -21,8 +21,8 @@ import org.gridsuite.modification.modifications.data.assignment.FormulaAssignmen
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Stream;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>

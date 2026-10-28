@@ -22,8 +22,8 @@ import org.gridsuite.modification.modifications.byfilter.ModificationByAssignmen
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Stream;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
