@@ -56,7 +56,7 @@ public class GenerationDispatchInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification(ModificationContext modificationContext) {
-        List<UUID> referencedFilterIds = collectFilters().map(FilterInfos::getId).distinct().toList();
+        List<UUID> referencedFilterIds = getFiltersStream().map(FilterInfos::getId).distinct().toList();
         Map<UUID, Filter> filtersById = referencedFilterIds.isEmpty()
                 ? Map.of()
                 : modificationContext.filterLoader().load(referencedFilterIds);
@@ -92,7 +92,7 @@ public class GenerationDispatchInfos extends ModificationInfos {
     }
 
     @Override
-    public Stream<FilterInfos> collectFilters() {
+    public Stream<FilterInfos> getFiltersStream() {
         return Stream.of(
                         Stream.ofNullable(generatorsWithoutOutage).flatMap(List::stream),
                         Stream.ofNullable(generatorsWithFixedSupply).flatMap(List::stream),

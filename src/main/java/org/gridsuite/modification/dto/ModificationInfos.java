@@ -154,7 +154,7 @@ public class ModificationInfos {
      * @return the filters this modification references, not those of the modifications it holds. Only their ids are
      * stored: the directory owns their names, which the caller resolves before exposing or applying the modification.
      */
-    public Stream<FilterInfos> collectFilters() {
+    public Stream<FilterInfos> getFiltersStream() {
         return Stream.empty();
     }
 

@@ -72,7 +72,7 @@ public class ScalingInfos extends ModificationInfos {
     }
 
     @Override
-    public Stream<FilterInfos> collectFilters() {
+    public Stream<FilterInfos> getFiltersStream() {
         return Stream.ofNullable(variations)
                 .flatMap(List::stream)
                 .flatMap(variation -> Stream.ofNullable(variation.getFilters()).flatMap(List::stream));

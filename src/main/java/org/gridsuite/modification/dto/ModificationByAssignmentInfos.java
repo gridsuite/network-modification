@@ -60,7 +60,7 @@ public class ModificationByAssignmentInfos extends ModificationInfos {
     }
 
     @Override
-    public Stream<FilterInfos> collectFilters() {
+    public Stream<FilterInfos> getFiltersStream() {
         return Stream.ofNullable(assignmentInfosList)
                 .flatMap(List::stream)
                 .flatMap(assignmentInfos -> Stream.ofNullable(assignmentInfos.getFilters()).flatMap(List::stream));

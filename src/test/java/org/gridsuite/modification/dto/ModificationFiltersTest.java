@@ -30,7 +30,7 @@ class ModificationFiltersTest {
     void testReferencedFilters() {
         FilterInfos deletionFilter = filter();
         assertEquals(List.of(deletionFilter),
-                ByFilterDeletionInfos.builder().filters(List.of(deletionFilter)).build().collectFilters().toList());
+                ByFilterDeletionInfos.builder().filters(List.of(deletionFilter)).build().getFiltersStream().toList());
 
         FilterInfos scalingFilter1 = filter();
         FilterInfos scalingFilter2 = filter();
@@ -38,7 +38,7 @@ class ModificationFiltersTest {
                 GeneratorScalingInfos.builder().variations(List.of(
                         ScalingVariationInfos.builder().filters(List.of(scalingFilter1)).build(),
                         ScalingVariationInfos.builder().filters(List.of(scalingFilter2)).build())).build()
-                    .collectFilters().toList());
+                    .getFiltersStream().toList());
 
         FilterInfos withoutOutage = filter();
         FilterInfos withFixedSupply = filter();
@@ -49,27 +49,27 @@ class ModificationFiltersTest {
                     .generatorsWithFixedSupply(List.of(withFixedSupply))
                     .generatorsFrequencyReserve(List.of(GeneratorsFrequencyReserveInfos.builder().generatorsFilters(List.of(frequencyReserve)).build()))
                     .build()
-                    .collectFilters().toList());
+                    .getFiltersStream().toList());
 
         FilterInfos formulaFilter = filter();
         assertEquals(List.of(formulaFilter),
                 ByFormulaModificationInfos.builder().formulaInfosList(List.of(FormulaInfos.builder().filters(List.of(formulaFilter)).build())).build()
-                    .collectFilters().toList());
+                    .getFiltersStream().toList());
 
         FilterInfos assignmentFilter = filter();
         assertEquals(List.of(assignmentFilter),
                 ModificationByAssignmentInfos.builder().assignmentInfosList(List.of(DoubleAssignmentInfos.builder().filters(List.of(assignmentFilter)).build())).build()
-                    .collectFilters().toList());
+                    .getFiltersStream().toList());
     }
 
     @Test
     void testNoReferencedFilters() {
-        assertEquals(0, new ModificationInfos().collectFilters().count());
-        assertEquals(0, new ByFilterDeletionInfos().collectFilters().count());
-        assertEquals(0, new GeneratorScalingInfos().collectFilters().count());
-        assertEquals(0, GeneratorScalingInfos.builder().variations(List.of(new ScalingVariationInfos())).build().collectFilters().count());
-        assertEquals(0, new GenerationDispatchInfos().collectFilters().count());
-        assertEquals(0, new ByFormulaModificationInfos().collectFilters().count());
-        assertEquals(0, new ModificationByAssignmentInfos().collectFilters().count());
+        assertEquals(0, new ModificationInfos().getFiltersStream().count());
+        assertEquals(0, new ByFilterDeletionInfos().getFiltersStream().count());
+        assertEquals(0, new GeneratorScalingInfos().getFiltersStream().count());
+        assertEquals(0, GeneratorScalingInfos.builder().variations(List.of(new ScalingVariationInfos())).build().getFiltersStream().count());
+        assertEquals(0, new GenerationDispatchInfos().getFiltersStream().count());
+        assertEquals(0, new ByFormulaModificationInfos().getFiltersStream().count());
+        assertEquals(0, new ModificationByAssignmentInfos().getFiltersStream().count());
     }
 }
