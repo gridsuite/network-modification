@@ -22,6 +22,9 @@ import org.gridsuite.modification.modifications.NetworkReduction;
 
 import java.util.List;
 
+/**
+ * @author David Braquart <david.braquart at rte-france.com>
+ */
 @SuperBuilder
 @NoArgsConstructor
 @Getter
