@@ -29,7 +29,7 @@ import java.util.List;
  * The network reduction is relying on a NetworkPredicate instance, to define an area of interest (i.e., a list of equipments to keep in the network after the reduction).
  * The equipments outside this area are removed, and the lines, transformers and HVDC lines connecting voltage levels inside and outside this area will be replaced by
  * injections (loads rather than boundary lines in our case).
- * In this modification, the network predicate is built from a list of voltage levels filters.
+ * In this modification, the network predicate is the entire voltage level list minus the ones evaluated by the user-defined filters.
  *
  * @author David Braquart <david.braquart at rte-france.com>
  */

@@ -33,7 +33,7 @@ import java.util.List;
 @Schema(description = "Network reduction")
 @JsonTypeName("NETWORK_REDUCTION")
 public class NetworkReductionInfos extends ModificationInfos {
-    @Schema(description = "List of filters")
+    @Schema(description = "List of filters for excluded voltage levels")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<FilterInfos> filters;
 
