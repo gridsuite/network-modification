@@ -156,6 +156,7 @@ ModificationInfos
 ├── GeneratorScalingInfos / LoadScalingInfos        # Power scaling across equipment groups
 ├── GenerationDispatchInfos                         # Generation dispatch with loss & outage optimization
 ├── BalancesAdjustmentModificationInfos             # Area net position balances adjustment
+├── NetworkReduction                                # Extract a portion of the network on an area of interest
 ├── VoltageInitModificationInfos                    # Voltage initialization across buses and generators
 ├── GroovyScriptInfos                               # Direct Groovy script execution on Network
 ├── TabularModificationInfos / TabularCreationInfos # Bulk tabular modifications and creations
