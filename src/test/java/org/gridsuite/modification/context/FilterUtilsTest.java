@@ -78,6 +78,17 @@ class FilterUtilsTest {
     }
 
     @Test
+    void resolvedFiltersReferencedWithoutANameKeepTheNameTheyAreLoadedWith() {
+        Filter loadedFilter = aFilter();
+        loadedFilter.setName("loaded name");
+        FilterLoader filterLoader = filterUuids -> Map.of(FILTER_ID_1, loadedFilter);
+
+        List<Filter> filters = FilterUtils.loadFilterWithNames(List.of(new FilterInfos(FILTER_ID_1, null)), filterLoader);
+
+        assertEquals("loaded name", filters.getFirst().getName());
+    }
+
+    @Test
     void aFilterMissingFromTheLoaderIsLeftOutInsteadOfFailing() {
         // the loader contract omits the filters it cannot find, e.g. deleted since the modification was created
         FilterLoader filterLoader = filterUuids -> Map.of(FILTER_ID_2, aFilter());
