@@ -61,7 +61,7 @@ public final class FilterUtils {
         filterInfosList.forEach(filterInfos -> {
             UUID filterId = filterInfos.getId();
             FilterWithDistributionKeys resolved = resolvedFilters.get(filterId);
-            if (resolved != null && resolved.getFilter() != null) {
+            if (resolved != null && resolved.getFilter() != null && filterInfos.getName() != null) {
                 resolved.getFilter().setName(filterInfos.getName());
             }
             inReferenceOrder.putIfAbsent(filterId, new VariationFilterData(
@@ -77,7 +77,9 @@ public final class FilterUtils {
         filterInfosList.forEach(filterInfos -> {
             Filter filter = filterLoader.load(filterInfos.getId());
             if (filter != null) {
-                filter.setName(filterInfos.getName());
+                if (filterInfos.getName() != null) {
+                    filter.setName(filterInfos.getName());
+                }
                 resolvedFilters.putIfAbsent(filterInfos.getId(), filter);
             }
         });

@@ -56,7 +56,7 @@ public class GenerationDispatchInfos extends ModificationInfos {
 
     @Override
     public AbstractModification toModification(ModificationContext modificationContext) {
-        List<UUID> referencedFilterIds = streamReferencedFilters().map(FilterInfos::getId).distinct().toList();
+        List<UUID> referencedFilterIds = getFiltersStream().map(FilterInfos::getId).distinct().toList();
         Map<UUID, Filter> filtersById = referencedFilterIds.isEmpty()
                 ? Map.of()
                 : modificationContext.filterLoader().load(referencedFilterIds);
@@ -80,14 +80,6 @@ public class GenerationDispatchInfos extends ModificationInfos {
                 .build();
     }
 
-    private Stream<FilterInfos> streamReferencedFilters() {
-        return Stream.of(
-                nullToEmpty(getGeneratorsWithoutOutage()).stream(),
-                nullToEmpty(getGeneratorsWithFixedSupply()).stream(),
-                nullToEmpty(getGeneratorsFrequencyReserve()).stream().flatMap(reserve -> nullToEmpty(reserve.getGeneratorsFilters()).stream())
-        ).flatMap(Function.identity());
-    }
-
     private static <T> List<T> nullToEmpty(List<T> list) {
         return list == null ? List.of() : list;
     }
@@ -97,5 +89,16 @@ public class GenerationDispatchInfos extends ModificationInfos {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.generationDispatch")
                 .add();
+    }
+
+    @Override
+    public Stream<FilterInfos> getFiltersStream() {
+        return Stream.of(
+                        Stream.ofNullable(generatorsWithoutOutage).flatMap(List::stream),
+                        Stream.ofNullable(generatorsWithFixedSupply).flatMap(List::stream),
+                        Stream.ofNullable(generatorsFrequencyReserve)
+                                .flatMap(List::stream)
+                                .flatMap(frequencyReserve -> Stream.ofNullable(frequencyReserve.getGeneratorsFilters()).flatMap(List::stream)))
+                .flatMap(Function.identity());
     }
 }

@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import static org.gridsuite.modification.error.NetworkModificationExceptionType.MISSING_ROOT_NETWORK_APPLICABILITY;
 
@@ -147,6 +148,11 @@ public class ModificationInfos {
     @JsonIgnore
     public AbstractModification toModification(ModificationContext context) {
         return toModification();
+    }
+
+    @JsonIgnore
+    public Stream<FilterInfos> getFiltersStream() {
+        return Stream.empty();
     }
 
     public final ModificationType getType() {
