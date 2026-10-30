@@ -66,6 +66,7 @@ public class ModificationByAssignmentInfos extends ModificationInfos {
                 .flatMap(assignmentInfos -> Stream.ofNullable(assignmentInfos.getFilters()).flatMap(List::stream));
     }
 
+    @Override
     public Map<String, String> getMapMessageValues() {
         Map<String, String> mapMessageValues = new HashMap<>();
         mapMessageValues.put("equipmentType", getEquipmentType().name());

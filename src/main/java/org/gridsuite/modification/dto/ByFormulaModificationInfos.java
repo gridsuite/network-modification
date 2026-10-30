@@ -72,6 +72,7 @@ public class ByFormulaModificationInfos extends ModificationInfos {
                 .flatMap(formulaInfos -> Stream.ofNullable(formulaInfos.getFilters()).flatMap(List::stream));
     }
 
+    @Override
     public Map<String, String> getMapMessageValues() {
         Map<String, String> mapMessageValues = new HashMap<>();
         mapMessageValues.put("equipmentType", getIdentifiableType().name());
