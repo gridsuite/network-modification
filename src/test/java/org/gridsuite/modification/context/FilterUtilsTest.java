@@ -139,6 +139,17 @@ class FilterUtilsTest {
     }
 
     @Test
+    void alreadyResolvedFiltersReferencedWithoutANameKeepTheNameTheyAreLoadedWith() {
+        Filter loadedFilter = aFilter();
+        loadedFilter.setName("loaded name");
+
+        List<VariationFilterData> filters = FilterUtils.loadFiltersWithDistributionKeys(List.of(new FilterInfos(FILTER_ID_1, null)),
+                alreadyResolved(Map.of(FILTER_ID_1, loadedFilter)));
+
+        assertEquals("loaded name", filters.getFirst().filter().getName());
+    }
+
+    @Test
     void aFilterMissingFromTheResolvedMapIsKeptAsAnUnresolvedOne() {
         // it must stay visible: the modification is the one deciding that a missing filter is an error
         Map<UUID, FilterWithDistributionKeys> resolved = alreadyResolved(Map.of(FILTER_ID_2, aFilter()));
