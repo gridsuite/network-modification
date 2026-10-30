@@ -150,10 +150,6 @@ public class ModificationInfos {
         return toModification();
     }
 
-    /**
-     * @return the filters this modification references, not those of the modifications it holds. Only their ids are
-     * stored: the directory owns their names, which the caller resolves before exposing or applying the modification.
-     */
     @JsonIgnore
     public Stream<FilterInfos> getFiltersStream() {
         return Stream.empty();
