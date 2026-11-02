@@ -210,7 +210,7 @@ public final class TestUtils {
     private static Filter equipmentFilter(EquipmentType equipmentType, Set<String> equipmentsIds) {
         return IdentifierListFilter.builder()
                 .equipmentType(equipmentType)
-                .equipmentIds(equipmentsIds)
+                .equipmentIds(new TreeSet<>(equipmentsIds))
                 .build();
     }
 
