@@ -19,6 +19,7 @@ import org.gridsuite.modification.context.FilterLoader;
 import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.NetworkReductionInfos;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.gridsuite.modification.utils.TestUtils.createFilterLoader;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -135,6 +137,26 @@ class NetworkReductionTest extends AbstractNetworkModificationTest {
 
         apply(infos, createFilterLoader(EquipmentType.VOLTAGE_LEVEL, Map.of(FILTER_ID_1, Set.of("UNKNOWN"))));
 
+        assertUnreducedNetwork();
+    }
+
+    @Test
+    void testFilterWithWrongIds() {
+        UUID wrongFilterId = UUID.randomUUID();
+        FilterLoader customFilterLoader = createFilterLoader(EquipmentType.VOLTAGE_LEVEL,
+                Map.of(wrongFilterId, Set.of()));
+        NetworkReductionInfos infos = NetworkReductionInfos.builder()
+                .filters(List.of(new FilterInfos(wrongFilterId, "filter")))
+                .build();
+        NetworkReduction networkReduction = (NetworkReduction) infos.toModification(context(customFilterLoader));
+        ReportNode report = infos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+
+        networkReduction.apply(getNetwork(), report);
+
+        assertLogMessage("No equipment will be removed",
+                "network.modification.byFilterDeletion.noEquipmentToRemove", report);
         assertUnreducedNetwork();
     }
 
