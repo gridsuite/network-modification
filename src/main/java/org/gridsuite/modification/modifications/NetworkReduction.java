@@ -124,6 +124,13 @@ public class NetworkReduction extends AbstractModification {
     }
 
     private static final class ReductionReportObserver implements NetworkReducerObserver {
+        private static final String VALUE_KEY_SUBSTATION_ID = "substationId";
+        private static final String VALUE_KEY_VOLTAGE_LEVEL_ID = "voltageLevelId";
+        private static final String VALUE_KEY_LINE_ID = "lineId";
+        private static final String VALUE_KEY_TIE_LINE_ID = "tieLineId";
+        private static final String VALUE_KEY_TRANSFORMER_ID = "transformerId";
+        private static final String VALUE_KEY_HVDC_LINE_ID = "hvdcLineId";
+
         private final ReportNode reportNode;
 
         private ReductionReportObserver(ReportNode reportNode) {
@@ -132,57 +139,57 @@ public class NetworkReduction extends AbstractModification {
 
         @Override
         public void substationRemoved(Substation substation) {
-            reportRemoval("substationRemoved", "substationId", substation.getId());
+            reportRemoval("substationRemoved", VALUE_KEY_SUBSTATION_ID, substation.getId());
         }
 
         @Override
         public void voltageLevelRemoved(VoltageLevel voltageLevel) {
-            reportRemoval("voltageLevelRemoved", "voltageLevelId", voltageLevel.getId());
+            reportRemoval("voltageLevelRemoved", VALUE_KEY_VOLTAGE_LEVEL_ID, voltageLevel.getId());
         }
 
         @Override
         public void lineReplaced(Line line, Injection injection) {
-            reportReplacement("lineReplaced", "lineId", line.getId(), injection);
+            reportReplacement("lineReplaced", VALUE_KEY_LINE_ID, line.getId(), injection);
         }
 
         @Override
         public void lineRemoved(Line line) {
-            reportRemoval("lineRemoved", "lineId", line.getId());
+            reportRemoval("lineRemoved", VALUE_KEY_LINE_ID, line.getId());
         }
 
         @Override
         public void tieLineRemoved(TieLine tieLine) {
-            reportRemoval("tieLineRemoved", "tieLineId", tieLine.getId());
+            reportRemoval("tieLineRemoved", VALUE_KEY_TIE_LINE_ID, tieLine.getId());
         }
 
         @Override
         public void transformerReplaced(TwoWindingsTransformer transformer, Injection injection) {
-            reportReplacement("twoWindingsTransformerReplaced", "transformerId", transformer.getId(), injection);
+            reportReplacement("twoWindingsTransformerReplaced", VALUE_KEY_TRANSFORMER_ID, transformer.getId(), injection);
         }
 
         @Override
         public void transformerRemoved(TwoWindingsTransformer transformer) {
-            reportRemoval("twoWindingsTransformerRemoved", "transformerId", transformer.getId());
+            reportRemoval("twoWindingsTransformerRemoved", VALUE_KEY_TRANSFORMER_ID, transformer.getId());
         }
 
         @Override
         public void transformerReplaced(ThreeWindingsTransformer transformer, Injection injection) {
-            reportReplacement("threeWindingsTransformerReplaced", "transformerId", transformer.getId(), injection);
+            reportReplacement("threeWindingsTransformerReplaced", VALUE_KEY_TRANSFORMER_ID, transformer.getId(), injection);
         }
 
         @Override
         public void transformerRemoved(ThreeWindingsTransformer transformer) {
-            reportRemoval("threeWindingsTransformerRemoved", "transformerId", transformer.getId());
+            reportRemoval("threeWindingsTransformerRemoved", VALUE_KEY_TRANSFORMER_ID, transformer.getId());
         }
 
         @Override
         public void hvdcLineReplaced(HvdcLine hvdcLine, Injection injection) {
-            reportReplacement("hvdcLineReplaced", "hvdcLineId", hvdcLine.getId(), injection);
+            reportReplacement("hvdcLineReplaced", VALUE_KEY_HVDC_LINE_ID, hvdcLine.getId(), injection);
         }
 
         @Override
         public void hvdcLineRemoved(HvdcLine hvdcLine) {
-            reportRemoval("hvdcLineRemoved", "hvdcLineId", hvdcLine.getId());
+            reportRemoval("hvdcLineRemoved", VALUE_KEY_HVDC_LINE_ID, hvdcLine.getId());
         }
 
         private void reportRemoval(String event, String equipmentKey, String equipmentId) {
