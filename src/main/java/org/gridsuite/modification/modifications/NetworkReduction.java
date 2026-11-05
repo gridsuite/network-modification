@@ -8,11 +8,19 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.reducer.IdentifierNetworkPredicate;
 import com.powsybl.iidm.reducer.NetworkReducer;
+import com.powsybl.iidm.reducer.NetworkReducerObserver;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -76,7 +84,7 @@ public class NetworkReduction extends AbstractModification {
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .withUntypedValue(VALUE_KEY_EQUIPMENT_COUNT, excludedVoltageLevels.size())
                     .add();
-            reportNode.newReportNode()
+            ReportNode reductionReport = reportNode.newReportNode()
                     .withMessageTemplate(REPORT_KEY_REDUCTION_APPLIED)
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
@@ -87,8 +95,9 @@ public class NetworkReduction extends AbstractModification {
                     .toList();
 
             NetworkReducer reducer = NetworkReducer.builder()
-                    .withBoundaryLines(false) // implies replacement injections are exclusively Loads
+                    .withBoundaryLines(false) // means replacement injections are exclusively fictitious loads
                     .withNetworkPredicate(new IdentifierNetworkPredicate(retainedVoltageLevelIds))
+                    .withObservers(new ReductionReportObserver(reductionReport))
                     .build();
             reducer.reduce(network);
         }
@@ -112,5 +121,86 @@ public class NetworkReduction extends AbstractModification {
             evaluatedEquipments.addAll(filter.evaluate(network, filterContainer));
         }
         return evaluatedEquipments;
+    }
+
+    private static final class ReductionReportObserver implements NetworkReducerObserver {
+        private final ReportNode reportNode;
+
+        private ReductionReportObserver(ReportNode reportNode) {
+            this.reportNode = reportNode;
+        }
+
+        @Override
+        public void substationRemoved(Substation substation) {
+            reportRemoval("substationRemoved", "substationId", substation.getId());
+        }
+
+        @Override
+        public void voltageLevelRemoved(VoltageLevel voltageLevel) {
+            reportRemoval("voltageLevelRemoved", "voltageLevelId", voltageLevel.getId());
+        }
+
+        @Override
+        public void lineReplaced(Line line, Injection injection) {
+            reportReplacement("lineReplaced", "lineId", line.getId(), injection);
+        }
+
+        @Override
+        public void lineRemoved(Line line) {
+            reportRemoval("lineRemoved", "lineId", line.getId());
+        }
+
+        @Override
+        public void tieLineRemoved(TieLine tieLine) {
+            reportRemoval("tieLineRemoved", "tieLineId", tieLine.getId());
+        }
+
+        @Override
+        public void transformerReplaced(TwoWindingsTransformer transformer, Injection injection) {
+            reportReplacement("twoWindingsTransformerReplaced", "transformerId", transformer.getId(), injection);
+        }
+
+        @Override
+        public void transformerRemoved(TwoWindingsTransformer transformer) {
+            reportRemoval("twoWindingsTransformerRemoved", "transformerId", transformer.getId());
+        }
+
+        @Override
+        public void transformerReplaced(ThreeWindingsTransformer transformer, Injection injection) {
+            reportReplacement("threeWindingsTransformerReplaced", "transformerId", transformer.getId(), injection);
+        }
+
+        @Override
+        public void transformerRemoved(ThreeWindingsTransformer transformer) {
+            reportRemoval("threeWindingsTransformerRemoved", "transformerId", transformer.getId());
+        }
+
+        @Override
+        public void hvdcLineReplaced(HvdcLine hvdcLine, Injection injection) {
+            reportReplacement("hvdcLineReplaced", "hvdcLineId", hvdcLine.getId(), injection);
+        }
+
+        @Override
+        public void hvdcLineRemoved(HvdcLine hvdcLine) {
+            reportRemoval("hvdcLineRemoved", "hvdcLineId", hvdcLine.getId());
+        }
+
+        private void reportRemoval(String event, String equipmentKey, String equipmentId) {
+            reportNode.newReportNode()
+                    .withMessageTemplate("network.modification.networkReduction." + event)
+                    .withUntypedValue(equipmentKey, equipmentId)
+                    .withSeverity(TypedValue.DETAIL_SEVERITY)
+                    .add();
+        }
+
+        private void reportReplacement(String event, String equipmentKey, String equipmentId, Injection<?> injection) {
+            reportNode.newReportNode()
+                    .withMessageTemplate("network.modification.networkReduction." + event)
+                    .withUntypedValue(equipmentKey, equipmentId)
+                    .withUntypedValue("injectionId", injection.getId())
+                    .withUntypedValue("injectionType", injection.getType().name())
+                    .withSeverity(TypedValue.DETAIL_SEVERITY)
+                    .add();
+        }
     }
 }

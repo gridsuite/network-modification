@@ -8,10 +8,12 @@ package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.ModificationType;
@@ -29,6 +31,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
+import static org.gridsuite.modification.utils.TestUtils.assertLogMessageWithoutRank;
 import static org.gridsuite.modification.utils.TestUtils.createFilterLoader;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -123,6 +126,106 @@ class NetworkReductionTest extends AbstractNetworkModificationTest {
     }
 
     @Test
+    void testReductionReports() {
+        NetworkReductionInfos infos = NetworkReductionInfos.builder()
+                .filters(List.of(new FilterInfos(FILTER_ID_1, "S1VL1 and S3VL1")))
+                .build();
+        FilterLoader filterLoader = createFilterLoader(EquipmentType.VOLTAGE_LEVEL,
+                Map.of(FILTER_ID_1, Set.of("S1VL1", "S3VL1")));
+        ReportNode report = infos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+
+        infos.toModification(context(filterLoader)).apply(getNetwork(), report);
+
+        ReportNode reductionReport = report.getChildren().stream()
+                .filter(node -> node.getMessageKey().equals("network.modification.networkReduction.applied"))
+                .findFirst().orElseThrow();
+        assertLogMessageWithoutRank("Voltage level S1VL1 removed",
+                "network.modification.networkReduction.voltageLevelRemoved", reductionReport);
+        assertLogMessageWithoutRank("Line LINE_S2S3 replaced by LOAD LINE_S2S3",
+                "network.modification.networkReduction.lineReplaced", reductionReport);
+        assertLogMessageWithoutRank("Line LINE_S2S3 removed",
+                "network.modification.networkReduction.lineRemoved", reductionReport);
+        assertLogMessageWithoutRank("Substation S3 removed",
+                "network.modification.networkReduction.substationRemoved", reductionReport);
+        assertLogMessageWithoutRank("Two-winding transformer TWT replaced by LOAD TWT",
+                "network.modification.networkReduction.twoWindingsTransformerReplaced", reductionReport);
+        assertLogMessageWithoutRank("Two-winding transformer TWT removed",
+                "network.modification.networkReduction.twoWindingsTransformerRemoved", reductionReport);
+        assertLogMessageWithoutRank("HVDC line HVDC2 replaced by LOAD HVDC2",
+                "network.modification.networkReduction.hvdcLineReplaced", reductionReport);
+        assertLogMessageWithoutRank("HVDC line HVDC2 removed",
+                "network.modification.networkReduction.hvdcLineRemoved", reductionReport);
+        assertThat(reductionReport.getChildren()).extracting(ReportNode::getMessageKey)
+                .contains("network.modification.networkReduction.voltageLevelRemoved",
+                        "network.modification.networkReduction.lineReplaced");
+    }
+
+    @Test
+    void testReportsWithAllVoltageLevelsExcluded() {
+        ReportNode report = applyWithReport(getNetwork(), Set.of("S1VL1", "S1VL2", "S2VL1", "S3VL1", "S4VL1"));
+
+        assertEmptyNetwork();
+        assertLogMessageWithoutRank("Line LINE_S3S4 removed",
+                "network.modification.networkReduction.lineRemoved", report);
+        assertLogMessageWithoutRank("Two-winding transformer TWT removed",
+                "network.modification.networkReduction.twoWindingsTransformerRemoved", report);
+        assertLogMessageWithoutRank("HVDC line HVDC2 removed",
+                "network.modification.networkReduction.hvdcLineRemoved", report);
+        assertThat(report.getChildren()).extracting(ReportNode::getMessageKey)
+                .doesNotContain("network.modification.networkReduction.lineReplaced",
+                        "network.modification.networkReduction.twoWindingsTransformerReplaced",
+                        "network.modification.networkReduction.hvdcLineReplaced");
+    }
+
+    @Test
+    void testThreeWindingsTransformerReplacementAndTieLineReports() {
+        Network network = createThreeWindingsTransformerNetwork();
+        network.getThreeWindingsTransformer("3WT").getLeg1().getTerminal().setP(10).setQ(5);
+        network.getVoltageLevel("VL_132").newBoundaryLine()
+                .setId("BL1").setBus("BUS_132").setR(1).setX(1).setG(0).setB(0).setP0(0).setQ0(0).add();
+        network.getVoltageLevel("VL_33").newBoundaryLine()
+                .setId("BL2").setBus("BUS_33").setR(1).setX(1).setG(0).setB(0).setP0(0).setQ0(0).add();
+        network.newTieLine().setId("TL").setBoundaryLine1("BL1").setBoundaryLine2("BL2").add();
+
+        ReportNode report = applyWithReport(network, Set.of("VL_33", "VL_11"));
+
+        assertNotNull(network.getLoad("3WT"));
+        assertNull(network.getTieLine("TL"));
+        assertLogMessageWithoutRank("Three-winding transformer 3WT replaced by LOAD 3WT",
+                "network.modification.networkReduction.threeWindingsTransformerReplaced", report);
+        assertLogMessageWithoutRank("Three-winding transformer 3WT removed",
+                "network.modification.networkReduction.threeWindingsTransformerRemoved", report);
+        assertLogMessageWithoutRank("Tie line TL removed",
+                "network.modification.networkReduction.tieLineRemoved", report);
+    }
+
+    @Test
+    void testThreeWindingsTransformerRemovalReports() {
+        Network network = createThreeWindingsTransformerNetwork();
+
+        ReportNode report = applyWithReport(network, Set.of("VL_132", "VL_33", "VL_11"));
+
+        assertEquals(0, network.getThreeWindingsTransformerCount());
+        assertLogMessageWithoutRank("Three-winding transformer 3WT removed",
+                "network.modification.networkReduction.threeWindingsTransformerRemoved", report);
+        assertThat(report.getChildren()).extracting(ReportNode::getMessageKey)
+                .doesNotContain("network.modification.networkReduction.threeWindingsTransformerReplaced");
+    }
+
+    @Test
+    void testHvdcGeneratorReplacementReports() {
+        Network network = createVscNetwork();
+
+        ReportNode report = applyWithReport(network, Set.of("VL2"));
+
+        assertNotNull(network.getGenerator("L"));
+        assertLogMessageWithoutRank("HVDC line L replaced by GENERATOR L",
+                "network.modification.networkReduction.hvdcLineReplaced", report);
+    }
+
+    @Test
     void testApplyWithNoFilters() {
         apply(NetworkReductionInfos.builder().filters(List.of()).build(), getFilterLoader());
 
@@ -184,6 +287,59 @@ class NetworkReductionTest extends AbstractNetworkModificationTest {
 
     private void apply(NetworkReductionInfos infos, FilterLoader filterLoader) {
         infos.toModification(context(filterLoader)).apply(getNetwork(), new DefaultNamingStrategy(), ReportNode.NO_OP);
+    }
+
+    private ReportNode applyWithReport(Network network, Set<String> excludedVoltageLevelIds) {
+        NetworkReductionInfos infos = NetworkReductionInfos.builder()
+                .filters(List.of(new FilterInfos(FILTER_ID_1, "Excluded voltage levels")))
+                .build();
+        FilterLoader filterLoader = createFilterLoader(EquipmentType.VOLTAGE_LEVEL,
+                Map.of(FILTER_ID_1, excludedVoltageLevelIds));
+        ReportNode report = infos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test").build());
+
+        infos.toModification(context(filterLoader)).apply(network, report);
+
+        return report.getChildren().stream()
+                .filter(node -> node.getMessageKey().equals("network.modification.networkReduction.applied"))
+                .findFirst().orElseThrow();
+    }
+
+    private static Network createThreeWindingsTransformerNetwork() {
+        Network network = Network.create("three-windings-transformer", "test");
+        Substation substation = network.newSubstation().setId("S").add();
+        for (int nominalV : List.of(132, 33, 11)) {
+            substation.newVoltageLevel().setId("VL_" + nominalV).setNominalV(nominalV)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER).add()
+                    .getBusBreakerView().newBus().setId("BUS_" + nominalV).add();
+        }
+        substation.newThreeWindingsTransformer().setId("3WT").setRatedU0(132)
+                .newLeg1().setR(1).setX(1).setG(0).setB(0).setRatedU(132)
+                .setVoltageLevel("VL_132").setBus("BUS_132").add()
+                .newLeg2().setR(1).setX(1).setG(0).setB(0).setRatedU(33)
+                .setVoltageLevel("VL_33").setBus("BUS_33").add()
+                .newLeg3().setR(1).setX(1).setG(0).setB(0).setRatedU(11)
+                .setVoltageLevel("VL_11").setBus("BUS_11").add()
+                .add();
+        return network;
+    }
+
+    private static Network createVscNetwork() {
+        Network network = Network.create("vsc", "test");
+        for (int side : List.of(1, 2)) {
+            VoltageLevel voltageLevel = network.newSubstation().setId("S" + side).add()
+                    .newVoltageLevel().setId("VL" + side).setNominalV(400)
+                    .setTopologyKind(TopologyKind.BUS_BREAKER).add();
+            voltageLevel.getBusBreakerView().newBus().setId("B" + side).add();
+            voltageLevel.newVscConverterStation().setId("C" + side).setBus("B" + side)
+                    .setLossFactor(1).setVoltageSetpoint(400).setVoltageRegulatorOn(true).add()
+                    .getTerminal().setP(100).setQ(50);
+        }
+        network.newHvdcLine().setId("L").setConverterStationId1("C1").setConverterStationId2("C2")
+                .setR(1).setNominalV(400).setMaxP(300).setActivePowerSetpoint(100)
+                .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER).add();
+        return network;
     }
 
     private void assertEmptyNetwork() {
