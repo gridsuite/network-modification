@@ -8,6 +8,7 @@ package org.gridsuite.modification.modifications;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -18,6 +19,7 @@ import com.powsybl.iidm.network.util.BusbarSectionFinderTraverser;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.error.NetworkModificationException;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
@@ -48,6 +50,8 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
     private static final Double MEASUREMENT_Q_VALUE = -20.0;
     private static final Boolean MEASUREMENT_P_VALID = false;
     private static final Boolean MEASUREMENT_Q_VALID = true;
+    private static final int RATIO_TAP_POSITION_MEASUREMENT = 3;
+    private static final int PHASE_TAP_POSITION_MEASUREMENT = -2;
 
     @Override
     protected Network createNetwork(UUID networkUuid) {
@@ -83,6 +87,8 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 .q1MeasurementValidity(new AttributeModification<>(MEASUREMENT_Q_VALID, OperationType.SET))
                 .ratioTapChangerToBeEstimated(new AttributeModification<>(true, OperationType.SET))
                 .phaseTapChangerToBeEstimated(new AttributeModification<>(false, OperationType.SET))
+                .ratioTapChangerPositionMeasurement(new AttributeModification<>(RATIO_TAP_POSITION_MEASUREMENT, OperationType.SET))
+                .phaseTapChangerPositionMeasurement(new AttributeModification<>(PHASE_TAP_POSITION_MEASUREMENT, OperationType.SET))
                 .ratioTapChanger(RatioTapChangerModificationInfos.builder()
                         .enabled(new AttributeModification<>(true, OperationType.SET))
                         .loadTapChangingCapabilities(new AttributeModification<>(true, OperationType.SET))
@@ -189,6 +195,8 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         assertOLG(modifiedTwoWindingsTransformer);
         assertMeasurements(modifiedTwoWindingsTransformer);
         assertToBeEstimated(modifiedTwoWindingsTransformer);
+        assertTapPositionMeasurement(modifiedTwoWindingsTransformer, DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER, RATIO_TAP_POSITION_MEASUREMENT);
+        assertTapPositionMeasurement(modifiedTwoWindingsTransformer, DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER, PHASE_TAP_POSITION_MEASUREMENT);
     }
 
     private static void assertOLG(TwoWindingsTransformer modifiedTwt) {
@@ -1128,5 +1136,383 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
                 .build();
         modificationInfosFalseFromZero.toModification().apply(getNetwork());
         assertEquals("1", reactivePowerMeasurement.getProperty("validity"));
+    }
+
+    private static DiscreteMeasurements<?> getDiscreteMeasurements(TwoWindingsTransformer twt) {
+        return (DiscreteMeasurements<?>) twt.getExtension(DiscreteMeasurements.class);
+    }
+
+    private static DiscreteMeasurements<?> getOrCreateDiscreteMeasurements(TwoWindingsTransformer twt) {
+        DiscreteMeasurements<?> discreteMeasurements = getDiscreteMeasurements(twt);
+        if (discreteMeasurements == null) {
+            discreteMeasurements = (DiscreteMeasurements<?>) twt.newExtension(DiscreteMeasurementsAdder.class).add();
+        }
+        return discreteMeasurements;
+    }
+
+    private static List<DiscreteMeasurement> getTapPositionMeasurements(TwoWindingsTransformer twt, DiscreteMeasurement.TapChanger tapChanger) {
+        DiscreteMeasurements<?> discreteMeasurements = getDiscreteMeasurements(twt);
+        if (discreteMeasurements == null) {
+            return List.of();
+        }
+        return discreteMeasurements.getDiscreteMeasurements(DiscreteMeasurement.Type.TAP_POSITION).stream()
+                .filter(m -> m.getTapChanger() == tapChanger)
+                .toList();
+    }
+
+    private static DiscreteMeasurement addTapPositionMeasurement(TwoWindingsTransformer twt, DiscreteMeasurement.TapChanger tapChanger,
+                                                                 String id, Object value, boolean valid) {
+        DiscreteMeasurementAdder adder = getOrCreateDiscreteMeasurements(twt).newDiscreteMeasurement()
+                .setId(id)
+                .setType(DiscreteMeasurement.Type.TAP_POSITION)
+                .setTapChanger(tapChanger)
+                .setValid(valid);
+        if (value instanceof Integer intValue) {
+            adder.setValue(intValue);
+        } else if (value instanceof String stringValue) {
+            adder.setValue(stringValue);
+        }
+        return adder.add();
+    }
+
+    private static void assertTapPositionMeasurement(TwoWindingsTransformer twt, DiscreteMeasurement.TapChanger tapChanger, int expectedValue) {
+        List<DiscreteMeasurement> measurements = getTapPositionMeasurements(twt, tapChanger);
+        assertEquals(1, measurements.size());
+        DiscreteMeasurement measurement = measurements.get(0);
+        assertEquals(DiscreteMeasurement.ValueType.INT, measurement.getValueType());
+        assertEquals(expectedValue, measurement.getValueAsInt());
+        assertTrue(measurement.isValid());
+    }
+
+    private static TwoWindingsTransformerModificationInfos tapPositionModification(Integer ratio, Integer phase) {
+        return TwoWindingsTransformerModificationInfos.builder()
+                .equipmentId("trf1")
+                .ratioTapChangerPositionMeasurement(ratio == null ? null : new AttributeModification<>(ratio, OperationType.SET))
+                .phaseTapChangerPositionMeasurement(phase == null ? null : new AttributeModification<>(phase, OperationType.SET))
+                .build();
+    }
+
+    private ReportNode applyWithReport(ModificationInfos modificationInfos) {
+        ReportNode report = modificationInfos.createSubReportNode(ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build());
+        modificationInfos.toModification().apply(getNetwork(), report);
+        return report;
+    }
+
+    private static List<ReportNode> childrenWithKey(ReportNode node, String key) {
+        return node.getChildren().stream().filter(c -> key.equals(c.getMessageKey())).toList();
+    }
+
+    private static String fieldNameOf(ReportNode node) {
+        return node.getValue("fieldName").map(TypedValue::toString).orElseThrow();
+    }
+
+    private static String valueOf(ReportNode node, String key) {
+        return node.getValue(key).map(TypedValue::toString).orElseThrow();
+    }
+
+    @Test
+    void testCreateRatioTapPositionMeasurementWithoutExtension() {
+        TwoWindingsTransformer twt = getNetwork().getTwoWindingsTransformer("trf1");
+        assertNull(getDiscreteMeasurements(twt));
+
+        tapPositionModification(5, null).toModification().apply(getNetwork());
+
+        assertTapPositionMeasurement(twt, DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER, 5);
+        assertTrue(getTapPositionMeasurements(twt, DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER).isEmpty());
+        assertEquals(1, getDiscreteMeasurements(twt).getDiscreteMeasurements().size());
+        DiscreteMeasurement measurement = getTapPositionMeasurements(twt, DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER).get(0);
+        assertDoesNotThrow(() -> UUID.fromString(measurement.getId()));
+    }
+
+    @Test
+    void testCreatePhaseTapPositionMeasurementWithoutPhaseTapChanger() {
+        TwoWindingsTransformer twt = getNetwork().getTwoWindingsTransformer("trf1");
+        assertFalse(twt.hasPhaseTapChanger());
+
+        tapPositionModification(null, 7).toModification().apply(getNetwork());
+
+        assertTapPositionMeasurement(twt, DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER, 7);
+        assertTrue(getTapPositionMeasurements(twt, DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER).isEmpty());
+        assertFalse(twt.hasPhaseTapChanger());
+    }
+
+    @Test
+    void testCreateBothTapPositionMeasurementsWithExistingExtension() {
+        TwoWindingsTransformer twt = getNetwork().getTwoWindingsTransformer("trf1");
+        DiscreteMeasurement other = getOrCreateDiscreteMeasurements(twt).newDiscreteMeasurement()
+                .setId("other")
+                .setType(DiscreteMeasurement.Type.OTHER)
+                .setValue("some value")
+                .setValid(true)
+                .add();
+        other.putProperty("p", "v");
+
+        tapPositionModification(2, 4).toModification().apply(getNetwork());
+
+        assertTapPositionMeasurement(twt, DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER, 2);
+        assertTapPositionMeasurement(twt, DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER, 4);
+        assertEquals(3, getDiscreteMeasurements(twt).getDiscreteMeasurements().size());
+        assertSame(other, getDiscreteMeasurements(twt).getDiscreteMeasurement("other"));
+        assertEquals("some value", other.getValueAsString());
+        assertEquals("v", other.getProperty("p"));
+        assertNotEquals(getTapPositionMeasurements(twt, DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER).get(0).getId(),
+                getTapPositionMeasurements(twt, DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER).get(0).getId());
+    }
+
+    @Test
+    void testUpdateKeepsIdPropertiesAndOppositeMeasurement() {
+        TwoWindingsTransformer twt = getNetwork().getTwoWindingsTransformer("trf1");
+        DiscreteMeasurement ratio = addTapPositionMeasurement(twt, DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER, "ratio-id", 1, true);
+        ratio.putProperty("validity", "0").putProperty("custom", "x");
+        DiscreteMeasurement phase = addTapPositionMeasurement(twt, DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER, "phase-id", 9, true);
+        phase.putProperty("custom", "y");
+
+        tapPositionModification(6, null).toModification().apply(getNetwork());
+
+        assertEquals(2, getDiscreteMeasurements(twt).getDiscreteMeasurements().size());
+        assertSame(ratio, getDiscreteMeasurements(twt).getDiscreteMeasurement("ratio-id"));
+        assertEquals(6, ratio.getValueAsInt());
+        assertTrue(ratio.isValid());
+        assertEquals("0", ratio.getProperty("validity"));
+        assertEquals("x", ratio.getProperty("custom"));
+        assertEquals(9, phase.getValueAsInt());
+        assertEquals("y", phase.getProperty("custom"));
+
+        tapPositionModification(null, 8).toModification().apply(getNetwork());
+
+        assertEquals(2, getDiscreteMeasurements(twt).getDiscreteMeasurements().size());
+        assertEquals(6, ratio.getValueAsInt());
+        assertEquals(8, phase.getValueAsInt());
+        assertEquals("phase-id", phase.getId());
+    }
+
+    @Test
+    void testUpdateOnlyFirstMatchingMeasurement() {
+        TwoWindingsTransformer twt = getNetwork().getTwoWindingsTransformer("trf1");
+        DiscreteMeasurement first = addTapPositionMeasurement(twt, DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER, "first", 1, true);
+        DiscreteMeasurement second = addTapPositionMeasurement(twt, DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER, "second", 2, true);
+
+        tapPositionModification(10, null).toModification().apply(getNetwork());
+
+        assertEquals(10, first.getValueAsInt());
+        assertEquals(2, second.getValueAsInt());
+        assertEquals(2, getDiscreteMeasurements(twt).getDiscreteMeasurements().size());
+    }
+
+    @Test
+    void testInvalidMeasurementsBecomeValid() {
+        TwoWindingsTransformer twt = getNetwork().getTwoWindingsTransformer("trf1");
+        DiscreteMeasurement ratio = addTapPositionMeasurement(twt, DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER, "ratio-id", 1, false);
+        ratio.putProperty("validity", "1");
+        DiscreteMeasurement phase = addTapPositionMeasurement(twt, DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER, "phase-id", null, false);
+        assertNull(phase.getValueAsString());
+
+        tapPositionModification(3, 4).toModification().apply(getNetwork());
+
+        assertTrue(ratio.isValid());
+        assertEquals(3, ratio.getValueAsInt());
+        // validity is a plain property: it is neither masked nor transformed
+        assertEquals("1", ratio.getProperty("validity"));
+        assertTrue(phase.isValid());
+        assertEquals(DiscreteMeasurement.ValueType.INT, phase.getValueType());
+        assertEquals(4, phase.getValueAsInt());
+        assertEquals("phase-id", phase.getId());
+    }
+
+    @Test
+    void testInvalidMeasurementWithNonIntegerValueIsOverwritten() {
+        TwoWindingsTransformer twt = getNetwork().getTwoWindingsTransformer("trf1");
+        DiscreteMeasurement ratio = addTapPositionMeasurement(twt, DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER, "ratio-id", "not an int", false);
+
+        ReportNode report = applyWithReport(tapPositionModification(11, null));
+
+        assertTrue(ratio.isValid());
+        assertEquals(DiscreteMeasurement.ValueType.INT, ratio.getValueType());
+        assertEquals(11, ratio.getValueAsInt());
+        ReportNode tapReport = childrenWithKey(childrenWithKey(report, "network.modification.StateEstimationData").get(0),
+                "network.modification.tapPositionMeasurements").get(0);
+        assertEquals(2, tapReport.getChildren().size());
+        assertEquals("Ratio tap changer position measurement value", fieldNameOf(tapReport.getChildren().get(0)));
+        assertEquals("not an int", valueOf(tapReport.getChildren().get(0), "oldValue"));
+        assertEquals("11", valueOf(tapReport.getChildren().get(0), "newValue"));
+        assertEquals("Ratio tap changer position measurement validity", fieldNameOf(tapReport.getChildren().get(1)));
+    }
+
+    @Test
+    void testZeroAndNegativeValues() {
+        TwoWindingsTransformer twt = getNetwork().getTwoWindingsTransformer("trf1");
+
+        tapPositionModification(0, -4).toModification().apply(getNetwork());
+        assertTapPositionMeasurement(twt, DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER, 0);
+        assertTapPositionMeasurement(twt, DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER, -4);
+
+        tapPositionModification(-1, 0).toModification().apply(getNetwork());
+        assertTapPositionMeasurement(twt, DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER, -1);
+        assertTapPositionMeasurement(twt, DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER, 0);
+    }
+
+    @Test
+    void testNullValuesAreNoOpAndDoNotCreateExtension() {
+        TwoWindingsTransformer twt = getNetwork().getTwoWindingsTransformer("trf1");
+
+        tapPositionModification(null, null).toModification().apply(getNetwork());
+        assertNull(getDiscreteMeasurements(twt));
+
+        TwoWindingsTransformerModificationInfos nullValues = TwoWindingsTransformerModificationInfos.builder()
+                .equipmentId("trf1")
+                .ratioTapChangerPositionMeasurement(new AttributeModification<>(null, OperationType.SET))
+                .phaseTapChangerPositionMeasurement(new AttributeModification<>(null, OperationType.UNSET))
+                .build();
+        ReportNode report = applyWithReport(nullValues);
+        assertNull(getDiscreteMeasurements(twt));
+        assertTrue(childrenWithKey(report, "network.modification.StateEstimationData").isEmpty());
+        assertTrue(childrenWithKey(report, "network.modification.stateEstimationData").isEmpty());
+    }
+
+    @Test
+    void testNullValuesDoNotDeleteOrChangeExistingMeasurements() {
+        TwoWindingsTransformer twt = getNetwork().getTwoWindingsTransformer("trf1");
+        DiscreteMeasurement ratio = addTapPositionMeasurement(twt, DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER, "ratio-id", 1, false);
+        DiscreteMeasurement phase = addTapPositionMeasurement(twt, DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER, "phase-id", 2, true);
+
+        TwoWindingsTransformerModificationInfos nullValues = TwoWindingsTransformerModificationInfos.builder()
+                .equipmentId("trf1")
+                .ratioTapChangerPositionMeasurement(new AttributeModification<>(null, OperationType.UNSET))
+                .phaseTapChangerPositionMeasurement(new AttributeModification<>(null, OperationType.SET))
+                .build();
+        nullValues.toModification().apply(getNetwork());
+
+        assertEquals(2, getDiscreteMeasurements(twt).getDiscreteMeasurements().size());
+        assertEquals(1, ratio.getValueAsInt());
+        assertFalse(ratio.isValid());
+        assertEquals(2, phase.getValueAsInt());
+        assertTrue(phase.isValid());
+    }
+
+    @Test
+    void testPhysicalTapPositionsAreNotChanged() {
+        TwoWindingsTransformer twt = createPhaseTapChanger();
+        int ratioTapPosition = twt.getRatioTapChanger() == null ? Integer.MIN_VALUE : twt.getRatioTapChanger().getTapPosition();
+        int phaseTapPosition = twt.getPhaseTapChanger().getTapPosition();
+        TwoWindingsTransformer trf1 = getNetwork().getTwoWindingsTransformer("trf1");
+        int trf1RatioTapPosition = trf1.getRatioTapChanger().getTapPosition();
+
+        TwoWindingsTransformerModificationInfos.builder()
+                .equipmentId("trf3")
+                .ratioTapChangerPositionMeasurement(new AttributeModification<>(1, OperationType.SET))
+                .phaseTapChangerPositionMeasurement(new AttributeModification<>(0, OperationType.SET))
+                .build().toModification().apply(getNetwork());
+        tapPositionModification(1, 1).toModification().apply(getNetwork());
+
+        assertEquals(phaseTapPosition, twt.getPhaseTapChanger().getTapPosition());
+        assertEquals(ratioTapPosition, twt.getRatioTapChanger() == null ? Integer.MIN_VALUE : twt.getRatioTapChanger().getTapPosition());
+        assertEquals(trf1RatioTapPosition, trf1.getRatioTapChanger().getTapPosition());
+        assertEquals(1, getTapPositionMeasurements(twt, DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER).size());
+        assertTapPositionMeasurement(twt, DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER, 0);
+    }
+
+    @Test
+    void testStandaloneTapPositionReport() {
+        ReportNode report = applyWithReport(tapPositionModification(2, -3));
+
+        List<ReportNode> stateEstimation = childrenWithKey(report, "network.modification.StateEstimationData");
+        assertEquals(1, stateEstimation.size());
+        assertEquals(1, stateEstimation.get(0).getChildren().size());
+        ReportNode tapReport = stateEstimation.get(0).getChildren().get(0);
+        assertEquals("network.modification.tapPositionMeasurements", tapReport.getMessageKey());
+        assertEquals(2, tapReport.getChildren().size());
+        assertEquals("Ratio tap changer position measurement value", fieldNameOf(tapReport.getChildren().get(0)));
+        assertEquals("No value", valueOf(tapReport.getChildren().get(0), "oldValue"));
+        assertEquals("2", valueOf(tapReport.getChildren().get(0), "newValue"));
+        assertEquals("Phase tap changer position measurement value", fieldNameOf(tapReport.getChildren().get(1)));
+        assertEquals("-3", valueOf(tapReport.getChildren().get(1), "newValue"));
+        assertTrue(childrenWithKey(stateEstimation.get(0), "network.modification.twtToBeEstimated").isEmpty());
+        assertTrue(childrenWithKey(stateEstimation.get(0), "network.modification.measurementsSide1").isEmpty());
+    }
+
+    @Test
+    void testTapPositionReportIsEmittedWhenOnlyPhaseRequested() {
+        ReportNode report = applyWithReport(tapPositionModification(null, 1));
+
+        ReportNode tapReport = childrenWithKey(childrenWithKey(report, "network.modification.StateEstimationData").get(0),
+                "network.modification.tapPositionMeasurements").get(0);
+        assertEquals(1, tapReport.getChildren().size());
+        assertEquals("Phase tap changer position measurement value", fieldNameOf(tapReport.getChildren().get(0)));
+    }
+
+    @Test
+    void testCombinedStateEstimationReportHasSingleParent() {
+        TwoWindingsTransformerModificationInfos infos = TwoWindingsTransformerModificationInfos.builder()
+                .equipmentId("trf1")
+                .p1MeasurementValue(new AttributeModification<>(MEASUREMENT_P_VALUE, OperationType.SET))
+                .ratioTapChangerToBeEstimated(new AttributeModification<>(true, OperationType.SET))
+                .ratioTapChangerPositionMeasurement(new AttributeModification<>(4, OperationType.SET))
+                .phaseTapChangerPositionMeasurement(new AttributeModification<>(5, OperationType.SET))
+                .build();
+
+        ReportNode report = applyWithReport(infos);
+
+        assertEquals(1, childrenWithKey(report, "network.modification.stateEstimationData").size());
+        assertTrue(childrenWithKey(report, "network.modification.StateEstimationData").isEmpty());
+        ReportNode parent = childrenWithKey(report, "network.modification.stateEstimationData").get(0);
+        assertEquals(1, childrenWithKey(parent, "network.modification.measurementsSide1").size());
+        assertEquals(1, childrenWithKey(parent, "network.modification.tapPositionMeasurements").size());
+        assertEquals(1, childrenWithKey(parent, "network.modification.twtToBeEstimated").size());
+        assertEquals(3, parent.getChildren().size());
+    }
+
+    @Test
+    void testTapPositionAndToBeEstimatedShareParentWithoutPq() {
+        TwoWindingsTransformerModificationInfos infos = TwoWindingsTransformerModificationInfos.builder()
+                .equipmentId("trf1")
+                .phaseTapChangerToBeEstimated(new AttributeModification<>(true, OperationType.SET))
+                .ratioTapChangerPositionMeasurement(new AttributeModification<>(4, OperationType.SET))
+                .build();
+
+        ReportNode report = applyWithReport(infos);
+
+        assertEquals(1, childrenWithKey(report, "network.modification.StateEstimationData").size());
+        ReportNode parent = childrenWithKey(report, "network.modification.StateEstimationData").get(0);
+        assertEquals(1, childrenWithKey(parent, "network.modification.tapPositionMeasurements").size());
+        assertEquals(1, childrenWithKey(parent, "network.modification.twtToBeEstimated").size());
+        assertTrue(getNetwork().getTwoWindingsTransformer("trf1").getExtension(TwoWindingsTransformerToBeEstimated.class) != null);
+    }
+
+    @Test
+    void testToBeEstimatedOnlyStillWorksWithoutTapPositionMeasurements() {
+        TwoWindingsTransformerModificationInfos infos = TwoWindingsTransformerModificationInfos.builder()
+                .equipmentId("trf1")
+                .ratioTapChangerToBeEstimated(new AttributeModification<>(true, OperationType.SET))
+                .build();
+
+        ReportNode report = applyWithReport(infos);
+
+        ReportNode parent = childrenWithKey(report, "network.modification.StateEstimationData").get(0);
+        assertTrue(childrenWithKey(parent, "network.modification.tapPositionMeasurements").isEmpty());
+        assertEquals(1, childrenWithKey(parent, "network.modification.twtToBeEstimated").size());
+        assertNull(getDiscreteMeasurements(getNetwork().getTwoWindingsTransformer("trf1")));
+    }
+
+    @Test
+    void testTapPositionMeasurementFieldsRoundTrip() throws Exception {
+        TwoWindingsTransformerModificationInfos infos = tapPositionModification(-1, 12);
+
+        TwoWindingsTransformerModification modification = (TwoWindingsTransformerModification) infos.toModification();
+        assertEquals(-1, modification.getRatioTapChangerPositionMeasurement().getValue());
+        assertEquals(12, modification.getPhaseTapChangerPositionMeasurement().getValue());
+
+        TwoWindingsTransformerModificationInfos deserializedInfos = mapper.readValue(mapper.writeValueAsString(infos), TwoWindingsTransformerModificationInfos.class);
+        assertEquals(-1, deserializedInfos.getRatioTapChangerPositionMeasurement().getValue());
+        assertEquals(12, deserializedInfos.getPhaseTapChangerPositionMeasurement().getValue());
+
+        AbstractModification deserialized = mapper.readValue(mapper.writeValueAsString(modification), AbstractModification.class);
+        assertEquals(modification, deserialized);
+
+        TwoWindingsTransformerModification empty = (TwoWindingsTransformerModification) tapPositionModification(null, null).toModification();
+        assertNull(empty.getRatioTapChangerPositionMeasurement());
+        assertNull(empty.getPhaseTapChangerPositionMeasurement());
     }
 }
