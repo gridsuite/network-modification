@@ -104,12 +104,12 @@ public class NetworkReduction extends AbstractModification {
         for (int i = 0; i < filters.size(); i++) {
             Filter filter = getFilters().get(i);
             String filterIdentifier = filter.getName() == null ? Integer.toString(i + 1) : filter.getName();
-            filtersContainer.newReportNode()
+            ReportNode filterContainer = filtersContainer.newReportNode()
                     .withMessageTemplate(REPORT_KEY_FILTER_EVALUATION)
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .withUntypedValue(VALUE_KEY_FILTER_IDENTIFIER, filterIdentifier)
                     .add();
-            evaluatedEquipments.addAll(filter.evaluate(network));
+            evaluatedEquipments.addAll(filter.evaluate(network, filterContainer));
         }
         return evaluatedEquipments;
     }
