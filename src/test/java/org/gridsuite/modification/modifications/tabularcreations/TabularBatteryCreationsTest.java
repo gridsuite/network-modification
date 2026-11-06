@@ -29,6 +29,7 @@ import java.util.UUID;
 
 import static org.gridsuite.modification.utils.TestUtils.assertLogMessage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
@@ -237,6 +238,7 @@ class TabularBatteryCreationsTest extends AbstractNetworkModificationTest {
         assertEquals(ModificationType.TABULAR_CREATION.name(), modificationInfos.getMessageType());
         Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
         assertEquals(ModificationType.BATTERY_CREATION.name(), createdValues.get("tabularCreationType"));
+        assertFalse(createdValues.containsKey("csvFilename"));
     }
 
     @Override
