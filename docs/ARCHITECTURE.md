@@ -138,7 +138,8 @@ ModificationInfos
 │   │   ├── LoadModificationInfos                  # Load parameter updates
 │   │   ├── GeneratorModificationInfos             # Generator parameter updates
 │   │   ├── BatteryModificationInfos               # Battery parameter updates
-│   │   └── ShuntCompensatorModificationInfos      # Shunt compensator updates
+│   │   ├── ShuntCompensatorModificationInfos      # Shunt compensator updates
+│   │   └── StaticVarCompensatorModificationInfos  # Static var compensator updates
 │   ├── BranchModificationInfos                    # Attribute modifications for branches
 │   │   ├── LineModificationInfos                  # Line parameter updates
 │   │   └── TwoWindingsTransformerModificationInfos# Transformer parameter updates
