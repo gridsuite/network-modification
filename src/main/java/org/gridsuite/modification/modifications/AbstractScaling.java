@@ -39,6 +39,7 @@ public abstract class AbstractScaling extends AbstractModification {
 
     private static final String REPORT_KEY_PREPARING_SCALING_VARIATION = "network.modification.scaling.preparingScalingVariation";
     private static final String REPORT_KEY_FILTER_DUPLICATED_EQUIPMENT = "network.modification.filterEvaluation.equipmentAlreadySeen";
+    private static final String REPORT_KEY_FILTER_TOTAL_SKIPPED = "network.modification.filterEvaluationResult.totalSkipped";
     private static final String REPORT_KEY_SCALING_APPLIED = "network.modification.scaling.scalingApplied";
     private static final String REPORT_KEY_FILTER_EVALUATION = "network.modification.filterEvaluation";
     private static final String REPORT_KEY_FILTER_EVALUATION_RESULT = "network.modification.filterEvaluationResult";
@@ -47,6 +48,7 @@ public abstract class AbstractScaling extends AbstractModification {
     private static final String VALUE_KEY_ACTUAL_VALUE = "actualValue";
     private static final String VALUE_KEY_ASKED_VALUE = "askedValue";
     private static final String VALUE_KEY_EQUIPMENT_COUNT = "equipmentCount";
+    private static final String VALUE_KEY_SKIPPED_EQUIPMENTS_COUNT = "skippedCount";
     private static final String VALUE_KEY_EQUIPMENT_ID = "equipmentId";
     public static final String REPORT_KEY_FILTERS_EVALUATION = "network.modification.filtersEvaluation";
     private static final String VALUE_KEY_FILTER_IDENTIFIER = "filterIdentifier";
@@ -132,6 +134,7 @@ public abstract class AbstractScaling extends AbstractModification {
     private List<Identifiable<?>> evaluateFilters(Network network, ScalingVariationData scalingVariation, ReportNode scalingVariationContainer) {
         Set<String> alreadySeenEquipments = new HashSet<>();
         List<Identifiable<?>> equipments = new ArrayList<>();
+        int skippedEquipments = 0;
         ReportNode filtersContainer = scalingVariationContainer.newReportNode()
                 .withMessageTemplate(REPORT_KEY_FILTERS_EVALUATION)
                 .add();
@@ -156,10 +159,19 @@ public abstract class AbstractScaling extends AbstractModification {
                     filterReportNode.newReportNode()
                             .withMessageTemplate(REPORT_KEY_FILTER_DUPLICATED_EQUIPMENT)
                             .withUntypedValue(VALUE_KEY_EQUIPMENT_ID, equipment.getId())
-                            .withSeverity(TypedValue.WARN_SEVERITY)
+                            .withSeverity(TypedValue.DETAIL_SEVERITY)
                             .add();
+                    skippedEquipments++;
                 }
             }
+        }
+
+        if (skippedEquipments > 0) {
+            filtersContainer.newReportNode()
+                    .withMessageTemplate(REPORT_KEY_FILTER_TOTAL_SKIPPED)
+                    .withUntypedValue(VALUE_KEY_SKIPPED_EQUIPMENTS_COUNT, skippedEquipments)
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
         }
         return equipments;
     }
