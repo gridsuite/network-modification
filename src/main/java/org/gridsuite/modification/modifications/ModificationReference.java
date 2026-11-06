@@ -37,7 +37,6 @@ public class ModificationReference extends AbstractModification {
     @EqualsAndHashCode.Exclude
     private ModificationContext modificationContext;
 
-
     @Builder
     public ModificationReference(UUID referencedId,
                                  ModificationReferenceInfos.Type referenceType,
@@ -48,7 +47,6 @@ public class ModificationReference extends AbstractModification {
         this.referencedInfos = referencedInfos;
         this.modificationContext = modificationContext;
     }
-
 
     @Override
     public void check(Network network) {

@@ -38,12 +38,10 @@ public class CompositeModification extends AbstractModification {
     @EqualsAndHashCode.Exclude
     private ModificationContext modificationContext;
 
-
     public CompositeModification(CompositeModificationInfos compositeModificationInfos, ModificationContext modificationContext) {
         this.compositeModificationInfos = compositeModificationInfos;
         this.modificationContext = modificationContext;
     }
-
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
