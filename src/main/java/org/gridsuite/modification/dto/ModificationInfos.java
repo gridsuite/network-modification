@@ -54,6 +54,7 @@ import static org.gridsuite.modification.error.NetworkModificationExceptionType.
     @JsonSubTypes.Type(value = ShuntCompensatorCreationInfos.class),
     @JsonSubTypes.Type(value = ShuntCompensatorModificationInfos.class),
     @JsonSubTypes.Type(value = StaticVarCompensatorCreationInfos.class),
+    @JsonSubTypes.Type(value = StaticVarCompensatorModificationInfos.class),
     @JsonSubTypes.Type(value = TwoWindingsTransformerCreationInfos.class),
     @JsonSubTypes.Type(value = TwoWindingsTransformerModificationInfos.class),
     @JsonSubTypes.Type(value = EquipmentDeletionInfos.class),

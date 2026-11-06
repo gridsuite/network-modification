@@ -83,6 +83,7 @@ import org.gridsuite.modification.modifications.tabular.TabularModification;
     @JsonSubTypes.Type(value = ShuntCompensatorCreation.class, name = "SHUNT_COMPENSATOR_CREATION"),
     @JsonSubTypes.Type(value = ShuntCompensatorModification.class, name = "SHUNT_COMPENSATOR_MODIFICATION"),
     @JsonSubTypes.Type(value = StaticVarCompensatorCreation.class, name = "STATIC_VAR_COMPENSATOR_CREATION"),
+    @JsonSubTypes.Type(value = StaticVarCompensatorModification.class, name = "STATIC_VAR_COMPENSATOR_MODIFICATION"),
     @JsonSubTypes.Type(value = SubstationCreation.class, name = "SUBSTATION_CREATION"),
     @JsonSubTypes.Type(value = SubstationModification.class, name = "SUBSTATION_MODIFICATION"),
     @JsonSubTypes.Type(value = TwoWindingsTransformerCreation.class, name = "TWO_WINDINGS_TRANSFORMER_CREATION"),
