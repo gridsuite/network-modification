@@ -88,10 +88,11 @@ public final class DiscreteMeasurementUtils {
 
     /** Safe read of the previous value, which may be undefined (invalid measurement) or not an integer. */
     private static Object getOldValue(DiscreteMeasurement measurement) {
-        if (measurement.getValueType() == null) {
+        DiscreteMeasurement.ValueType valueType = measurement.getValueType();
+        if (valueType == null) {
             return null;
         }
-        return switch (measurement.getValueType()) {
+        return switch (valueType) {
             case INT -> measurement.getValueAsInt();
             case BOOLEAN -> measurement.getValueAsBoolean();
             case STRING -> measurement.getValueAsString();
