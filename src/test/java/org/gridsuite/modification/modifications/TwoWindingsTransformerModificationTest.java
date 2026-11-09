@@ -1478,7 +1478,7 @@ class TwoWindingsTransformerModificationTest extends AbstractNetworkModification
         ReportNode parent = childrenWithKey(report, "network.modification.StateEstimationData").get(0);
         assertEquals(1, childrenWithKey(parent, "network.modification.tapPositionMeasurements").size());
         assertEquals(1, childrenWithKey(parent, "network.modification.twtToBeEstimated").size());
-        assertTrue(getNetwork().getTwoWindingsTransformer("trf1").getExtension(TwoWindingsTransformerToBeEstimated.class) != null);
+        assertNotNull(getNetwork().getTwoWindingsTransformer("trf1").getExtension(TwoWindingsTransformerToBeEstimated.class));
     }
 
     @Test
