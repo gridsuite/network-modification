@@ -79,6 +79,7 @@ import org.gridsuite.modification.modifications.tabular.TabularModification;
     @JsonSubTypes.Type(value = LoadScaling.class, name = "LOAD_SCALING"),
     @JsonSubTypes.Type(value = ModificationReference.class, name = "MODIFICATION_REFERENCE"),
     @JsonSubTypes.Type(value = MoveVoltageLevelFeederBays.class, name = "MOVE_VOLTAGE_LEVEL_FEEDER_BAYS"),
+    @JsonSubTypes.Type(value = NetworkReduction.class, name = "NETWORK_REDUCTION"),
     @JsonSubTypes.Type(value = OperatingStatusModification.class, name = "OPERATING_STATUS_MODIFICATION"),
     @JsonSubTypes.Type(value = ShuntCompensatorCreation.class, name = "SHUNT_COMPENSATOR_CREATION"),
     @JsonSubTypes.Type(value = ShuntCompensatorModification.class, name = "SHUNT_COMPENSATOR_MODIFICATION"),
