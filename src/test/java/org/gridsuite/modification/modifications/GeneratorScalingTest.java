@@ -410,6 +410,8 @@ class GeneratorScalingTest extends AbstractNetworkModificationTest {
         assertEquals(300, getNetwork().getGenerator(GENERATOR_ID_10).getTargetP(), 0.01D);
         assertLogMessage("Equipment gen9 already seen in previous filter evaluation, skipping it",
                 "network.modification.filterEvaluation.equipmentAlreadySeen", report);
+        assertLogMessage("Total skipped equipment(s): 1",
+                "network.modification.filterEvaluationResult.totalSkipped", report);
     }
 
     @Test
