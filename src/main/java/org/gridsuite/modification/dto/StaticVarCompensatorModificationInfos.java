@@ -65,6 +65,30 @@ public class StaticVarCompensatorModificationInfos extends InjectionModification
     @Schema(description = "Regulating terminal voltage level id")
     private AttributeModification<String> regulatingTerminalVlId;
 
+    @Schema(description = "Standby automaton on: true to add or keep the automaton, false to remove it")
+    private AttributeModification<Boolean> standbyAutomatonOn;
+
+    @Schema(description = "Standby")
+    private AttributeModification<Boolean> standby;
+
+    @Schema(description = "Fixed part of susceptance")
+    private AttributeModification<Double> b0;
+
+    @Schema(description = "Fixed part of Q at nominal voltage")
+    private AttributeModification<Double> q0;
+
+    @Schema(description = "Low voltage set point")
+    private AttributeModification<Double> lowVoltageSetpoint;
+
+    @Schema(description = "High voltage set point")
+    private AttributeModification<Double> highVoltageSetpoint;
+
+    @Schema(description = "Low voltage threshold")
+    private AttributeModification<Double> lowVoltageThreshold;
+
+    @Schema(description = "High voltage threshold")
+    private AttributeModification<Double> highVoltageThreshold;
+
     @Override
     public AbstractModification toModification() {
         return StaticVarCompensatorModification.builder()
@@ -93,6 +117,14 @@ public class StaticVarCompensatorModificationInfos extends InjectionModification
                 .regulatingTerminalId(getRegulatingTerminalId())
                 .regulatingTerminalType(getRegulatingTerminalType())
                 .regulatingTerminalVlId(getRegulatingTerminalVlId())
+                .standbyAutomatonOn(getStandbyAutomatonOn())
+                .standby(getStandby())
+                .b0(getB0())
+                .q0(getQ0())
+                .lowVoltageSetpoint(getLowVoltageSetpoint())
+                .highVoltageSetpoint(getHighVoltageSetpoint())
+                .lowVoltageThreshold(getLowVoltageThreshold())
+                .highVoltageThreshold(getHighVoltageThreshold())
                 .build();
     }
 

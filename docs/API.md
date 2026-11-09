@@ -414,8 +414,18 @@ Mirrors generator modification attributes applicable to battery storage systems.
 | `voltageSetpoint` / `reactivePowerSetpoint` | `AttributeModification<Double>` | Set points |
 | `voltageRegulationType` | `AttributeModification<VoltageRegulationType>` | `LOCAL` or `DISTANT` |
 | `regulatingTerminalId` / `regulatingTerminalType` / `regulatingTerminalVlId` | `AttributeModification<String>` | Regulating terminal |
+| `standbyAutomatonOn` | `AttributeModification<Boolean>` | `true` adds the `StandbyAutomaton` extension (or keeps it), `false` removes it |
+| `standby` | `AttributeModification<Boolean>` | Standby status, only allowed in `VOLTAGE` regulation mode |
+| `b0` / `q0` | `AttributeModification<Double>` | Fixed part of susceptance (S) / of Q at nominal voltage (MVar), `b0` takes precedence |
+| `lowVoltageSetpoint` / `highVoltageSetpoint` | `AttributeModification<Double>` | Automaton voltage set points (kV) |
+| `lowVoltageThreshold` / `highVoltageThreshold` | `AttributeModification<Double>` | Automaton voltage thresholds (kV) |
 
-The standby automaton is not modifiable.
+Standby automaton rules:
+- extension absent and `standbyAutomatonOn` not `true`: any automaton field is rejected;
+- extension added: `b0` (or `q0`) and the four voltage values are required, `standby` defaults to `false`;
+- extension present: only the provided fields are modified, none of them can be unset;
+- `standbyAutomatonOn = false`: the extension is removed and the other automaton fields are ignored;
+- `b0` must stay within the final susceptance limits, and with standby on the low threshold must be lower than the high one.
 
 ---
 
