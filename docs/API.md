@@ -506,7 +506,7 @@ Adds `g`, `b`, `ratedU1`, `ratedU2`, `ratedS`, `ratioTapChanger`, and `phaseTapC
 | `CreateVoltageLevelSectionInfos` | `voltageLevelId`, `switchKinds` | Add a section to an existing voltage level |
 | `MoveVoltageLevelFeederBaysInfos` | `voltageLevelId`, `feederBaysMoves` | Reallocate bays across busbar sections |
 | `VoltageLevelTopologyModificationInfos` | `busbarSectionToSwitchesAttributes` | Update switch topology configuration |
-| `NetworkReductionInfos` | `filters` | Reduce the network to an area of interest: the voltage levels matched by the filters are excluded, the equipment outside the retained area is removed, and the lines, transformers and HVDC lines crossing the boundary are replaced by fictitious loads |
+| `NetworkReductionInfos` | `filters` | Reduce the network to an area of interest |
 
 ---
 
