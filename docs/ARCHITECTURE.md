@@ -156,7 +156,6 @@ ModificationInfos
 ├── GeneratorScalingInfos / LoadScalingInfos        # Power scaling across equipment groups
 ├── GenerationDispatchInfos                         # Generation dispatch with loss & outage optimization
 ├── BalancesAdjustmentModificationInfos             # Area net position balances adjustment
-├── NetworkReduction                                # Extract a portion of the network on an area of interest
 ├── VoltageInitModificationInfos                    # Voltage initialization across buses and generators
 ├── GroovyScriptInfos                               # Direct Groovy script execution on Network
 ├── TabularModificationInfos / TabularCreationInfos # Bulk tabular modifications and creations
@@ -164,6 +163,7 @@ ModificationInfos
 ├── ByFormulaModificationInfos                      # Dynamic formula-based attribute calculations
 ├── ModificationByAssignmentInfos                   # Value assignment based on filter conditions
 ├── ByFilterDeletionInfos                           # Bulk equipment deletion matching filter criteria
+├── NetworkReductionInfos                           # Network reduction to an area of interest defined by voltage level filters
 └── Topology Modifications                          # Line splits, line attachments, feeder bay moves, coupling devices
 ```
 
@@ -198,6 +198,7 @@ Complex topological and structural rewiring operations:
 - `CREATE_VOLTAGE_LEVEL_TOPOLOGY`: Builds complete bus-breaker or node-breaker topology arrangements.
 - `CREATE_VOLTAGE_LEVEL_SECTION`: Adds a new busbar section to a voltage level.
 - `MOVE_VOLTAGE_LEVEL_FEEDER_BAYS`: Reorganizes feeder bay connections across busbar sections.
+- `NETWORK_REDUCTION`: Reduces the network to an area of interest. The voltage levels matched by the supplied filters are excluded, all the equipment outside the retained area is removed, and the lines, transformers and HVDC lines crossing the boundary are replaced by fictitious loads.
 
 ### 4. Bulk & Programmatic Modifications
 
