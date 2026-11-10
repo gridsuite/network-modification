@@ -422,6 +422,15 @@ Adds `g1`, `b1`, `g2`, `b2` wrapped in `AttributeModification<Double>`.
 
 Adds `g`, `b`, `ratedU1`, `ratedU2`, `ratedS`, `ratioTapChanger`, and `phaseTapChanger` attribute modifications.
 
+| Field | Type | Description |
+|---|---|---|
+| `ratioTapChangerPositionMeasurement` | `AttributeModification<Integer>` | Measured ratio tap position for state estimation |
+| `phaseTapChangerPositionMeasurement` | `AttributeModification<Integer>` | Measured phase tap position for state estimation |
+
+A non-null `value` creates or updates the corresponding tap position measurement and marks it valid. Omitted fields or null values leave existing measurements unchanged; `op` is not interpreted, so `UNSET` does not delete measurements.
+
+These fields do not change physical tap positions or require the corresponding tap changer to exist. Zero and negative measurement values are accepted.
+
 ---
 
 ### 5.7 Substation & Voltage Level DTOs
