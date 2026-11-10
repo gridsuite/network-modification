@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import lombok.*;
 import org.apache.commons.collections4.CollectionUtils;
-import org.gridsuite.filter.wip.Filter;
+import org.gridsuite.filter.Filter;
 import org.gridsuite.modification.dto.byfilter.equipmentfield.FieldUtils;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.error.NetworkModificationExceptionType;

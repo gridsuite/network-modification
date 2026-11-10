@@ -52,7 +52,7 @@ public class ScalingVariationInfos {
      *
      * <p>The given map is shared by all the variations, so only the references of <b>this</b> variation are
      * looked up. Being shared, a filter used by several variations is the same
-     * {@link org.gridsuite.filter.wip.Filter} instance in each of them, and its name is set again for every
+     * {@link org.gridsuite.filter.Filter} instance in each of them, and its name is set again for every
      * variation: the name of the last one referencing it wins.
      */
     @JsonIgnore

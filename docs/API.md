@@ -56,7 +56,7 @@ public interface IFilterService {
      * @param network      the network to resolve against
      * @return stream of matched equipment per filter
      */
-    Stream<org.gridsuite.filter.identifierlistfilter.FilterEquipments> exportFilters(
+    Stream<org.gridsuite.filter.dto.identifierlistfilter.FilterEquipments> exportFilters(
             List<UUID> filtersUuids, Network network);
 
     /**

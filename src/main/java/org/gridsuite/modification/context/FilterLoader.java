@@ -7,7 +7,7 @@
  */
 package org.gridsuite.modification.context;
 
-import org.gridsuite.filter.wip.Filter;
+import org.gridsuite.filter.Filter;
 
 import java.util.List;
 import java.util.Map;
