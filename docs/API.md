@@ -98,7 +98,7 @@ The abstract base class for all concrete modification implementations.
 | Method | Description |
 |---|---|
 | `void check(Network network)` | Validates inputs and constraints against the live network. Throws `NetworkModificationException` on conflict or missing prerequisites. Default implementation does nothing. |
-| `final void initApplicationContext(String rootNetworkTag)` | Sets only the root network tag; does not inject services or resolve resources. Reinitialize after deserializing an executable modification. |
+| `void initApplicationContext(String rootNetworkTag)` | Sets only the root network tag; does not inject services or resolve resources. Reinitialize after deserializing an executable modification. |
 | `void apply(Network network, ReportNode subReportNode)` | Mutates the `Network` and logs structured progress and audit messages to `subReportNode`. |
 | `void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode)` | Variant supporting a custom naming strategy. Defaults to delegating to `apply(network, subReportNode)`. |
 | `String getName()` | Returns the descriptive name for the modification type. |

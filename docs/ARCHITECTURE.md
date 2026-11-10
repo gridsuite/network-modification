@@ -78,7 +78,7 @@ Every modification implementation inherits from `AbstractModification`, which ex
 | Method | Purpose |
 |---|---|
 | `void check(Network network)` | Pre-execution validation against a live `Network` instance. Throws `NetworkModificationException` on validation failure. Default implementation performs no check. |
-| `final void initApplicationContext(String rootNetworkTag)` | Sets only the root network tag. External resources are resolved through the construction context, not this method. The tag must be restored after executable deserialization. |
+| `void initApplicationContext(String rootNetworkTag)` | Sets only the root network tag. External resources are resolved through the construction context, not this method. The tag must be restored after executable deserialization. |
 | `void apply(Network network, ReportNode subReportNode)` | Executes the modification logic, mutating the `Network` and writing structured events to the provided `ReportNode`. Must be implemented by subclasses. |
 | `void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode)` | Variant accepting an explicit `NamingStrategy`. Delegates by default to `apply(network, subReportNode)`. |
 | `String getName()` | Returns a stable, human-readable name identifying the modification type. |
@@ -218,7 +218,7 @@ Complex topological and structural rewiring operations:
 
 ### 6. Composition & Orchestration
 
-- `COMPOSITE_MODIFICATION`: Executes an ordered list of sub-modifications, using the retained construction context to convert child DTOs and propagating the root network tag through `initApplicationContext(rootNetworkTag)`.
+- `COMPOSITE_MODIFICATION`: Executes an ordered list of sub-modifications, using the retained construction context to convert child DTOs and propagating the root network tag through `initApplicationContext(rootNetworkTag)`. Exceptions during child conversion, network validation, or application are recorded in the report, and subsequent children are still attempted. Applied changes are not rolled back. In particular, a missing loader can fail during child conversion inside `apply`, rather than when the composite itself is constructed.
 - `MODIFICATION_REFERENCE`: Converts and executes its referenced DTO using the retained construction context and propagates the root network tag through `initApplicationContext(rootNetworkTag)`.
 
 ---
@@ -245,7 +245,7 @@ modification.check(network); // Domain validation
 modification.apply(network, reportNode); // Network mutation
 ```
 
-For DTOs with no external dependencies, use `toModification()` or `toModification(ModificationContext.empty())`. Leaf modifications resolve resources during conversion. Composite and referenced modifications retain the context and defer conversion of nested DTOs until `apply`, so they must not be described as entirely loader-free executable values.
+For leaf DTOs with no external dependencies, use `toModification()` or `toModification(ModificationContext.empty())`. Composites and references must always use `toModification(context)`; use `ModificationContext.empty()` when their children require no external loaders. `CompositeModificationInfos` and `ModificationReferenceInfos` only override `toModification(ModificationContext)`, so their no-argument method throws `UnsupportedOperationException`. Leaf modifications resolve resources during conversion. Composite and referenced modifications retain the context and defer conversion of nested DTOs until `apply`, so they must not be described as entirely loader-free executable values.
 
 ### 2. Partial Updates via `AttributeModification<T>`
 
