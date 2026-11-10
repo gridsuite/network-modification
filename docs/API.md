@@ -187,6 +187,7 @@ Supported modification types in `ModificationType.java`:
 | `CREATE_VOLTAGE_LEVEL_TOPOLOGY` | Topology |
 | `CREATE_VOLTAGE_LEVEL_SECTION` | Topology |
 | `MOVE_VOLTAGE_LEVEL_FEEDER_BAYS` | Topology |
+| `NETWORK_REDUCTION` | Topology |
 | `GENERATOR_SCALING` | Scaling & Dispatch |
 | `LOAD_SCALING` | Scaling & Dispatch |
 | `GENERATION_DISPATCH` | Scaling & Dispatch |
@@ -514,6 +515,7 @@ These fields do not change physical tap positions or require the corresponding t
 | `CreateVoltageLevelSectionInfos` | `voltageLevelId`, `switchKinds` | Add a section to an existing voltage level |
 | `MoveVoltageLevelFeederBaysInfos` | `voltageLevelId`, `feederBaysMoves` | Reallocate bays across busbar sections |
 | `VoltageLevelTopologyModificationInfos` | `busbarSectionToSwitchesAttributes` | Update switch topology configuration |
+| `NetworkReductionInfos` | `filters` | Reduce the network to an area of interest |
 
 ---
 
