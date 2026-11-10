@@ -18,6 +18,7 @@ import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
+import org.gridsuite.modification.utils.DiscreteMeasurementUtils;
 import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.PropertiesUtils;
 
@@ -50,6 +51,8 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
     private PhaseTapChangerModificationInfos phaseTapChanger;
     private AttributeModification<Boolean> ratioTapChangerToBeEstimated;
     private AttributeModification<Boolean> phaseTapChangerToBeEstimated;
+    private AttributeModification<Integer> ratioTapChangerPositionMeasurement;
+    private AttributeModification<Integer> phaseTapChangerPositionMeasurement;
 
     @Builder
     public TwoWindingsTransformerModification(String equipmentId, List<FreePropertyInfos> properties,
@@ -88,7 +91,9 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                                               RatioTapChangerModificationInfos ratioTapChanger,
                                               PhaseTapChangerModificationInfos phaseTapChanger,
                                               AttributeModification<Boolean> ratioTapChangerToBeEstimated,
-                                              AttributeModification<Boolean> phaseTapChangerToBeEstimated) {
+                                              AttributeModification<Boolean> phaseTapChangerToBeEstimated,
+                                              AttributeModification<Integer> ratioTapChangerPositionMeasurement,
+                                              AttributeModification<Integer> phaseTapChangerPositionMeasurement) {
         super(equipmentId, properties, equipmentName, r, x, operationalLimitsGroupsModificationType,
             enableOLGModification,
             operationalLimitsGroups, selectedOperationalLimitsGroupId1, selectedOperationalLimitsGroupId2,
@@ -106,6 +111,8 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
         this.phaseTapChanger = phaseTapChanger == null ? new PhaseTapChangerModificationInfos() : phaseTapChanger;
         this.ratioTapChangerToBeEstimated = ratioTapChangerToBeEstimated;
         this.phaseTapChangerToBeEstimated = phaseTapChangerToBeEstimated;
+        this.ratioTapChangerPositionMeasurement = ratioTapChangerPositionMeasurement;
+        this.phaseTapChangerPositionMeasurement = phaseTapChangerPositionMeasurement;
     }
 
     @Override
@@ -293,6 +300,17 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
     private void updateStateEstimationData(TwoWindingsTransformer twt, ReportNode subReportNode) {
         // Common part for Branch measurements
         ReportNode estimSubReportNode = updateMeasurements(twt, subReportNode);
+
+        // tap position discrete measurements specific to 2WT
+        Integer ratioTapPositionMeasurement = ratioTapChangerPositionMeasurement != null ? ratioTapChangerPositionMeasurement.getValue() : null;
+        Integer phaseTapPositionMeasurement = phaseTapChangerPositionMeasurement != null ? phaseTapChangerPositionMeasurement.getValue() : null;
+        List<ReportNode> tapPositionReports = DiscreteMeasurementUtils.applyTapPositionMeasurements(twt, ratioTapPositionMeasurement, phaseTapPositionMeasurement);
+        if (!tapPositionReports.isEmpty()) {
+            if (estimSubReportNode == null) {
+                estimSubReportNode = subReportNode.newReportNode().withMessageTemplate("network.modification.StateEstimationData").add();
+            }
+            ModificationUtils.getInstance().reportModifications(estimSubReportNode, tapPositionReports, "network.modification.tapPositionMeasurements");
+        }
 
         // toBeEstimated part specific to 2WT
         Boolean rtcToBeEstim = ratioTapChangerToBeEstimated != null ? ratioTapChangerToBeEstimated.getValue() : null;

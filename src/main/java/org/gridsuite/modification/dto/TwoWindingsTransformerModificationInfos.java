@@ -55,6 +55,12 @@ public class TwoWindingsTransformerModificationInfos extends BranchModificationI
     @Schema(description = "Phase tap changer to be estimated status")
     private AttributeModification<Boolean> phaseTapChangerToBeEstimated;
 
+    @Schema(description = "Ratio tap changer position measurement")
+    private AttributeModification<Integer> ratioTapChangerPositionMeasurement;
+
+    @Schema(description = "Phase tap changer position measurement")
+    private AttributeModification<Integer> phaseTapChangerPositionMeasurement;
+
     @Override
     public AbstractModification toModification() {
         return TwoWindingsTransformerModification.builder()
@@ -97,6 +103,8 @@ public class TwoWindingsTransformerModificationInfos extends BranchModificationI
                 .phaseTapChanger(getPhaseTapChanger())
                 .ratioTapChangerToBeEstimated(getRatioTapChangerToBeEstimated())
                 .phaseTapChangerToBeEstimated(getPhaseTapChangerToBeEstimated())
+                .ratioTapChangerPositionMeasurement(getRatioTapChangerPositionMeasurement())
+                .phaseTapChangerPositionMeasurement(getPhaseTapChangerPositionMeasurement())
                 .build();
     }
 
