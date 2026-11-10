@@ -21,6 +21,7 @@ import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.NetworkReduction;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * @author David Braquart <david.braquart at rte-france.com>
@@ -49,5 +50,10 @@ public class NetworkReductionInfos extends ModificationInfos {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.networkReduction")
                 .add();
+    }
+
+    @Override
+    public Stream<FilterInfos> getFiltersStream() {
+        return filters.stream();
     }
 }
