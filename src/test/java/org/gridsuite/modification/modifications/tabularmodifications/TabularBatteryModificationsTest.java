@@ -47,6 +47,7 @@ class TabularBatteryModificationsTest extends AbstractNetworkModificationTest {
         return TabularModificationInfos.builder()
                 .modificationType(ModificationType.BATTERY_MODIFICATION)
                 .modifications(modifications)
+                .csvFilename("batteries.csv")
                 .stashed(false)
                 .date(Instant.now())
                 .build();
@@ -83,6 +84,7 @@ class TabularBatteryModificationsTest extends AbstractNetworkModificationTest {
         assertEquals(ModificationType.TABULAR_MODIFICATION.name(), modificationInfos.getMessageType());
         Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
         assertEquals(ModificationType.BATTERY_MODIFICATION.name(), createdValues.get("tabularModificationType"));
+        assertEquals("batteries.csv", createdValues.get("csvFilename"));
     }
 
     @Override
