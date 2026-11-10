@@ -384,18 +384,18 @@ public class VscModification extends AbstractEquipmentModification {
         // set points
         List<ReportNode> setPointsReports = new ArrayList<>();
         if (vscConverterStationModification.getReactivePowerSetpoint() != null) {
-            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setReactivePowerSetpoint,
-                converterStation::getReactivePowerSetpoint, vscConverterStationModification.getReactivePowerSetpoint(), "Reactive Power"));
+            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(q -> ModificationUtils.setRegulatingTargetQ(converterStation, q),
+                converterStation::getRegulatingTargetQ, vscConverterStationModification.getReactivePowerSetpoint(), "Reactive Power"));
         }
 
         if (vscConverterStationModification.getVoltageRegulationOn() != null) {
-            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setVoltageRegulatorOn,
-                converterStation::isVoltageRegulatorOn, vscConverterStationModification.getVoltageRegulationOn(), "VoltageRegulationOn"));
+            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(on -> ModificationUtils.setVoltageRegulationOn(converterStation, on),
+                () -> converterStation.getVoltageRegulation().isRegulating(), vscConverterStationModification.getVoltageRegulationOn(), "VoltageRegulationOn"));
         }
 
         if (vscConverterStationModification.getVoltageSetpoint() != null) {
-            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setVoltageSetpoint,
-                converterStation::getVoltageSetpoint, vscConverterStationModification.getVoltageSetpoint(), "Voltage"));
+            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(v -> ModificationUtils.setRegulatingTargetV(converterStation, v),
+                converterStation::getRegulatingTargetV, vscConverterStationModification.getVoltageSetpoint(), "Voltage"));
         }
         if (!setPointsReports.isEmpty()) {
             ModificationUtils.getInstance().reportModifications(converterStationReportNode,

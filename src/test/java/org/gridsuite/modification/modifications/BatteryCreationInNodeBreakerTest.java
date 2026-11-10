@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.iidm.network.extensions.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import org.gridsuite.modification.dto.BatteryCreationInfos;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -103,7 +103,7 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
 
     @Override
     protected Network createNetwork(UUID networkUuid) {
-        return NetworkCreation.create(networkUuid, true);
+        return NetworkCreation.createWithSingleVariant(networkUuid, true);
     }
 
     @Override
@@ -150,12 +150,12 @@ class BatteryCreationInNodeBreakerTest extends AbstractNetworkModificationTest {
         ActivePowerControl<Battery> activePowerControl = battery.getExtension(ActivePowerControl.class);
         assertEquals(5, activePowerControl.getDroop());
         assertTrue(activePowerControl.isParticipate());
-        assertNotNull(battery.getExtension(VoltageRegulation.class));
-        VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
-        assertNotNull(voltageRegulation.getRegulatingTerminal());
-        assertEquals("v2load", voltageRegulation.getRegulatingTerminal().getConnectable().getId());
-        assertEquals(225.0, voltageRegulation.getTargetV());
-        assertTrue(voltageRegulation.isVoltageRegulatorOn());
+        VoltageRegulation voltageRegulation = battery.getVoltageRegulation();
+        assertNotNull(voltageRegulation);
+        assertNotNull(voltageRegulation.getTerminal());
+        assertEquals("v2load", voltageRegulation.getTerminal().getConnectable().getId());
+        assertEquals(225.0, voltageRegulation.getTargetValue());
+        assertTrue(voltageRegulation.isRegulating());
     }
 
     @Test

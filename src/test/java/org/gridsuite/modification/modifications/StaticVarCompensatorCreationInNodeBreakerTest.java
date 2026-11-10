@@ -9,8 +9,8 @@ package org.gridsuite.modification.modifications;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.gridsuite.modification.dto.FreePropertyInfos;
 import org.gridsuite.modification.dto.ModificationInfos;
 import org.gridsuite.modification.dto.StaticVarCompensatorCreationInfos;
@@ -55,7 +55,7 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
                 .minSusceptance(200.0)
                 .maxQAtNominalV(null)
                 .minQAtNominalV(null)
-                .regulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .regulationMode(RegulationMode.VOLTAGE)
                 .voltageSetpoint(120.0)
                 .reactivePowerSetpoint(300.0)
                 .voltageRegulationType(VoltageRegulationType.LOCAL)
@@ -121,7 +121,7 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
 
         compensatorCreationInfos.setMaxSusceptance(100.0);
         compensatorCreationInfos.setMinSusceptance(200.0);
-        compensatorCreationInfos.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+        compensatorCreationInfos.setRegulationMode(RegulationMode.REACTIVE_POWER);
         compensatorCreationInfos.setReactivePowerSetpoint(null);
         StaticVarCompensatorCreation staticVarCompensatorCreation5 = (StaticVarCompensatorCreation) compensatorCreationInfos.toModification();
         exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreation5.check(network));
@@ -139,7 +139,7 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
                 exception.getMessage());
         compensatorCreationInfos.setMaxQAtNominalV(200.0);
         compensatorCreationInfos.setMinQAtNominalV(100.0);
-        compensatorCreationInfos.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+        compensatorCreationInfos.setRegulationMode(RegulationMode.REACTIVE_POWER);
         compensatorCreationInfos.setReactivePowerSetpoint(null);
         StaticVarCompensatorCreation staticVarCompensatorCreation7 = (StaticVarCompensatorCreation) compensatorCreationInfos.toModification();
         exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreation7.check(network));
@@ -147,7 +147,7 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
                         "StaticVarCompensator 'idStaticVarCompensator2' : Reactive power setpoint is not set",
                 exception.getMessage());
 
-        compensatorCreationInfos.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
+        compensatorCreationInfos.setRegulationMode(RegulationMode.VOLTAGE);
         compensatorCreationInfos.setVoltageSetpoint(null);
         StaticVarCompensatorCreation staticVarCompensatorCreation8 = (StaticVarCompensatorCreation) compensatorCreationInfos.toModification();
         exception = assertThrows(NetworkModificationException.class, () -> staticVarCompensatorCreation8.check(network));
@@ -203,7 +203,7 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
                 exception.getMessage());
         compensatorCreationInfos2.setB0(250.0);
         compensatorCreationInfos2.setRegulating(false);
-        compensatorCreationInfos2.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+        compensatorCreationInfos2.setRegulationMode(RegulationMode.REACTIVE_POWER);
         compensatorCreationInfos2.setStandby(true);
 
         StaticVarCompensatorCreation staticVarCompensatorCreation11 = (StaticVarCompensatorCreation) compensatorCreationInfos2.toModification();
@@ -231,7 +231,7 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
             .busOrBusbarSectionId("1B")
             .maxSusceptance(224.0)
             .minSusceptance(200.0)
-            .regulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+            .regulationMode(RegulationMode.VOLTAGE)
             .reactivePowerSetpoint(300.0)
             .voltageRegulationType(VoltageRegulationType.LOCAL)
             .standbyAutomatonOn(false)
@@ -248,7 +248,7 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
             .busOrBusbarSectionId("1B")
             .maxSusceptance(224.0)
             .minSusceptance(200.0)
-            .regulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+            .regulationMode(RegulationMode.VOLTAGE)
             .reactivePowerSetpoint(300.0)
             .voltageRegulationType(VoltageRegulationType.LOCAL)
             .standbyAutomatonOn(false)
@@ -266,7 +266,7 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
             .busOrBusbarSectionId("1B")
             .maxSusceptance(224.0)
             .minSusceptance(200.0)
-            .regulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+            .regulationMode(RegulationMode.VOLTAGE)
             .reactivePowerSetpoint(300.0)
             .voltageRegulationType(VoltageRegulationType.LOCAL)
             .standbyAutomatonOn(false)
@@ -284,7 +284,7 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
             .busOrBusbarSectionId("1B")
             .maxSusceptance(224.0)
             .minSusceptance(200.0)
-            .regulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+            .regulationMode(RegulationMode.VOLTAGE)
             .reactivePowerSetpoint(300.0)
             .voltageRegulationType(VoltageRegulationType.LOCAL)
             .standbyAutomatonOn(false)
@@ -302,7 +302,7 @@ class StaticVarCompensatorCreationInNodeBreakerTest extends AbstractNetworkModif
             .busOrBusbarSectionId("1B")
             .maxSusceptance(224.0)
             .minSusceptance(200.0)
-            .regulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+            .regulationMode(RegulationMode.VOLTAGE)
             .reactivePowerSetpoint(300.0)
             .voltageRegulationType(VoltageRegulationType.LOCAL)
             .standbyAutomatonOn(false)

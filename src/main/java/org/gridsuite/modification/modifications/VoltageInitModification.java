@@ -10,8 +10,6 @@ import com.powsybl.commons.report.ReportConstants;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.VoltageRegulation;
-import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
@@ -23,8 +21,11 @@ import org.gridsuite.modification.utils.ModificationUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.gridsuite.modification.modifications.BatteryModification.setTargetV;
+import static org.gridsuite.modification.modifications.BatteryModification.createVoltageRegulationIfMissing;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
+import static org.gridsuite.modification.utils.ModificationUtils.setRatioTapChangerTargetV;
+import static org.gridsuite.modification.utils.ModificationUtils.setRegulatingTargetQ;
+import static org.gridsuite.modification.utils.ModificationUtils.setRegulatingTargetV;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -176,13 +177,13 @@ public class VoltageInitModification extends AbstractModification {
                         .withSeverity(TypedValue.DETAIL_SEVERITY)
                         .build());
                 if (m.getTargetV() != null) {
-                    final double oldTargetV = generator.getTargetV();
-                    generator.setTargetV(m.getTargetV());
+                    final double oldTargetV = generator.getRegulatingTargetV();
+                    setRegulatingTargetV(generator, m.getTargetV());
                     reports.add(ModificationUtils.buildModificationReport(oldTargetV, m.getTargetV(), VOLTAGE_SET_POINT, TypedValue.DETAIL_SEVERITY));
                 }
                 if (m.getTargetQ() != null) {
-                    final double oldTargetQ = generator.getTargetQ();
-                    generator.setTargetQ(m.getTargetQ());
+                    final double oldTargetQ = generator.getLocalTargetQ();
+                    generator.setLocalTargetQ(m.getTargetQ());
                     reports.add(ModificationUtils.buildModificationReport(oldTargetQ, m.getTargetQ(), REACTIVE_POWER_SET_POINT, TypedValue.DETAIL_SEVERITY));
                 }
             }
@@ -222,17 +223,14 @@ public class VoltageInitModification extends AbstractModification {
                         .build());
 
                 if (m.getTargetV() != null) {
-                    VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
-                    if (voltageRegulation == null) {
-                        voltageRegulation = battery.newExtension(VoltageRegulationAdder.class)
-                                .withVoltageRegulatorOn(false)
-                                .add();
-                    }
-                    setTargetV(voltageRegulation, new AttributeModification<>(m.getTargetV(), OperationType.SET), reports, TypedValue.DETAIL_SEVERITY);
+                    createVoltageRegulationIfMissing(battery);
+                    final double oldTargetV = battery.getRegulatingTargetV();
+                    setRegulatingTargetV(battery, m.getTargetV());
+                    reports.add(ModificationUtils.buildModificationReport(oldTargetV, m.getTargetV(), "Target V", TypedValue.DETAIL_SEVERITY));
                 }
                 if (m.getTargetQ() != null) {
-                    final double oldTargetQ = battery.getTargetQ();
-                    battery.setTargetQ(m.getTargetQ());
+                    final double oldTargetQ = battery.getLocalTargetQ();
+                    battery.setLocalTargetQ(m.getTargetQ());
                     reports.add(ModificationUtils.buildModificationReport(oldTargetQ, m.getTargetQ(), REACTIVE_POWER_SET_POINT, TypedValue.DETAIL_SEVERITY));
                 }
             }
@@ -287,8 +285,8 @@ public class VoltageInitModification extends AbstractModification {
                                 TypedValue.DETAIL_SEVERITY));
                     }
                     if (t.getRatioTapChangerTargetV() != null) {
-                        final double oldTapTargetV = threeWindingsTransformer.getLeg(t.getLegSide()).getRatioTapChanger().getTargetV();
-                        threeWindingsTransformer.getLeg(t.getLegSide()).getRatioTapChanger().setTargetV(t.getRatioTapChangerTargetV());
+                        final double oldTapTargetV = threeWindingsTransformer.getLeg(t.getLegSide()).getRatioTapChanger().getRegulatingTargetV();
+                        setRatioTapChangerTargetV(threeWindingsTransformer.getLeg(t.getLegSide()).getRatioTapChanger(), t.getRatioTapChangerTargetV());
                         reports3WT.add(ModificationUtils.buildModificationReport(oldTapTargetV, t.getRatioTapChangerTargetV(), "Leg " + t.getLegSide().name() + " ratio tap changer target voltage",
                                 TypedValue.DETAIL_SEVERITY));
                     }
@@ -323,8 +321,8 @@ public class VoltageInitModification extends AbstractModification {
                         reports2WT.add(ModificationUtils.buildModificationReport(oldTapPosition, t.getRatioTapChangerPosition(), "Ratio tap changer position", TypedValue.DETAIL_SEVERITY));
                     }
                     if (t.getRatioTapChangerTargetV() != null) {
-                        final double oldTapTargetV = twoWindingsTransformer.getRatioTapChanger().getTargetV();
-                        twoWindingsTransformer.getRatioTapChanger().setTargetV(t.getRatioTapChangerTargetV());
+                        final double oldTapTargetV = twoWindingsTransformer.getRatioTapChanger().getRegulatingTargetV();
+                        setRatioTapChangerTargetV(twoWindingsTransformer.getRatioTapChanger(), t.getRatioTapChangerTargetV());
                         reports2WT.add(ModificationUtils.buildModificationReport(oldTapTargetV, t.getRatioTapChangerTargetV(), "Ratio tap changer target voltage", TypedValue.DETAIL_SEVERITY));
                     }
                 }
@@ -368,13 +366,13 @@ public class VoltageInitModification extends AbstractModification {
                         .withSeverity(TypedValue.DETAIL_SEVERITY)
                         .build());
                 if (s.getVoltageSetpoint() != null) {
-                    final double oldTargetV = staticVarCompensator.getVoltageSetpoint();
-                    staticVarCompensator.setVoltageSetpoint(s.getVoltageSetpoint());
+                    final double oldTargetV = staticVarCompensator.getRegulatingTargetV();
+                    setRegulatingTargetV(staticVarCompensator, s.getVoltageSetpoint());
                     reports.add(ModificationUtils.buildModificationReport(oldTargetV, s.getVoltageSetpoint(), VOLTAGE_SET_POINT, TypedValue.DETAIL_SEVERITY));
                 }
                 if (s.getReactivePowerSetpoint() != null) {
-                    final double oldTargetQ = staticVarCompensator.getReactivePowerSetpoint();
-                    staticVarCompensator.setReactivePowerSetpoint(s.getReactivePowerSetpoint());
+                    final double oldTargetQ = staticVarCompensator.getRegulatingTargetQ();
+                    setRegulatingTargetQ(staticVarCompensator, s.getReactivePowerSetpoint());
                     reports.add(ModificationUtils.buildModificationReport(oldTargetQ, s.getReactivePowerSetpoint(), REACTIVE_POWER_SET_POINT, TypedValue.DETAIL_SEVERITY));
                 }
             }
@@ -413,13 +411,13 @@ public class VoltageInitModification extends AbstractModification {
                         .withSeverity(TypedValue.DETAIL_SEVERITY)
                         .build());
                 if (v.getVoltageSetpoint() != null) {
-                    final double oldTargetV = vscConverterStation.getVoltageSetpoint();
-                    vscConverterStation.setVoltageSetpoint(v.getVoltageSetpoint());
+                    final double oldTargetV = vscConverterStation.getRegulatingTargetV();
+                    setRegulatingTargetV(vscConverterStation, v.getVoltageSetpoint());
                     reports.add(ModificationUtils.buildModificationReport(oldTargetV, v.getVoltageSetpoint(), VOLTAGE_SET_POINT, TypedValue.DETAIL_SEVERITY));
                 }
                 if (v.getReactivePowerSetpoint() != null) {
-                    final double oldTargetQ = vscConverterStation.getReactivePowerSetpoint();
-                    vscConverterStation.setReactivePowerSetpoint(v.getReactivePowerSetpoint());
+                    final double oldTargetQ = vscConverterStation.getRegulatingTargetQ();
+                    setRegulatingTargetQ(vscConverterStation, v.getReactivePowerSetpoint());
                     reports.add(ModificationUtils.buildModificationReport(oldTargetQ, v.getReactivePowerSetpoint(), REACTIVE_POWER_SET_POINT, TypedValue.DETAIL_SEVERITY));
                 }
             }
@@ -489,8 +487,8 @@ public class VoltageInitModification extends AbstractModification {
                     }
                 }
                 if (m.getTargetV() != null) {
-                    final double oldTargetV = shuntCompensator.getTargetV();
-                    shuntCompensator.setTargetV(m.getTargetV());
+                    final double oldTargetV = shuntCompensator.getRegulatingTargetV();
+                    setRegulatingTargetV(shuntCompensator, m.getTargetV());
                     reportsShunt.add(ModificationUtils.buildModificationReport(oldTargetV, m.getTargetV(), VOLTAGE_SET_POINT, TypedValue.DETAIL_SEVERITY));
                 }
                 if (!reportsShunt.isEmpty()) {

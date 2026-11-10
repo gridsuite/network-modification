@@ -12,7 +12,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationBuilder;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -164,7 +165,7 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setTargetP(targetP)
-                .setTargetQ(nanIfNull(targetQ));
+                .setLocalTargetQ(nanIfNull(targetQ));
     }
 
     private void createBatteryInBusBreaker(VoltageLevel voltageLevel, ReportNode subReportNode) {
@@ -179,7 +180,7 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setTargetP(targetP)
-                .setTargetQ(nanIfNull(targetQ))
+                .setLocalTargetQ(nanIfNull(targetQ))
                 .add();
 
         addExtensionsToBattery(battery, voltageLevel, subReportNode);
@@ -218,16 +219,21 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
                 regulatingTerminalType,
                 regulatingTerminalVlId);
         List<ReportNode> voltageReports = new ArrayList<>();
-        VoltageRegulationAdder voltageRegulationAdder = battery.newExtension(VoltageRegulationAdder.class)
-                .withRegulatingTerminal(regulatingTerminal)
-                .withVoltageRegulatorOn(Boolean.TRUE.equals(voltageRegulationOn));
+        VoltageRegulationBuilder voltageRegulationBuilder = battery.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(voltageRegulationOn)
+                .withTerminal(regulatingTerminal);
         if (targetV != null) {
-            voltageRegulationAdder.withTargetV(targetV);
+            if (regulatingTerminal != null) {
+                voltageRegulationBuilder.withTargetValue(targetV);
+            } else {
+                battery.setLocalTargetV(targetV);
+            }
             voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
                     targetV,
                     "Target V"));
         }
-        voltageRegulationAdder.add();
+        voltageRegulationBuilder.build();
         if (voltageRegulationOn != null) {
             voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
                     voltageRegulationOn,

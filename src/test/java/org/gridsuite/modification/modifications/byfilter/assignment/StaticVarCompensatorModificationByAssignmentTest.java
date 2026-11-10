@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.BooleanAssignmentInfos;
@@ -45,8 +46,8 @@ class StaticVarCompensatorModificationByAssignmentTest extends AbstractModificat
 
     @Override
     protected void createEquipments() {
-        createStaticVarCompensator(getNetwork().getVoltageLevel("v1"), SVC_ID_1, SVC_ID_1, 8, StaticVarCompensator.RegulationMode.VOLTAGE, 100.0, -50., 80., 120.);
-        createStaticVarCompensator(getNetwork().getVoltageLevel("v3"), SVC_ID_2, SVC_ID_2, 10, StaticVarCompensator.RegulationMode.VOLTAGE, 100.0, -50., 80., 120.);
+        createStaticVarCompensator(getNetwork().getVoltageLevel("v1"), SVC_ID_1, SVC_ID_1, 8, RegulationMode.VOLTAGE, 100.0, -50., 80., 120.);
+        createStaticVarCompensator(getNetwork().getVoltageLevel("v3"), SVC_ID_2, SVC_ID_2, 10, RegulationMode.VOLTAGE, 100.0, -50., 80., 120.);
     }
 
     @Override

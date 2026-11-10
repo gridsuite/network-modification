@@ -63,8 +63,8 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
                 .setTargetP(100)
                 .setMaxP(500)
                 .setMinP(0)
-                .setTargetV(10)
-                .setTargetQ(20)
+                .setLocalTargetV(10)
+                .setLocalTargetQ(20)
                 .newExtension(GeneratorStartupAdder.class)
                 .withMarginalCost(30.)
                 .withPlannedOutageRate(0.25)
@@ -76,8 +76,8 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
                 .setTargetP(200)
                 .setMaxP(2000)
                 .setMinP(10)
-                .setTargetV(10)
-                .setTargetQ(20)
+                .setLocalTargetV(10)
+                .setLocalTargetQ(20)
                 .newExtension(GeneratorStartupAdder.class)
                 .withMarginalCost(30.)
                 .withPlannedOutageRate(0.25)
@@ -128,7 +128,7 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
         // use to get warning
         createGenerator(getNetwork().getVoltageLevel("v5"), GENERATOR_ID_11, 12, 100, 1.0, "cn10", 19, ConnectablePosition.Direction.TOP, 500, 20);
         getNetwork().getGenerator(GENERATOR_ID_11)
-                .setTargetV(10)
+                .setLocalTargetV(10)
                 .newExtension(GeneratorStartupAdder.class)
                 .withMarginalCost(30.)
                 .withPlannedOutageRate(0.25)
@@ -300,7 +300,7 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
         assertEquals(10, generatorStartup1.getPlannedActivePowerSetpoint(), 0);
         assertEquals(300., generator1.getMaxP(), 0);
         assertEquals(2, generator1.getMinP(), 0);
-        assertTrue(generator1.isVoltageRegulatorOn());
+        assertTrue(generator1.getVoltageRegulation().isRegulating());
         ActivePowerControl<Generator> activePowerControl1 = generator1.getExtension(ActivePowerControl.class);
         assertNull(activePowerControl1);
 

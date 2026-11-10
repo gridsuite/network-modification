@@ -11,7 +11,11 @@ import com.powsybl.commons.report.*;
 import com.powsybl.iidm.modification.topology.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
+import com.powsybl.iidm.network.regulation.VoltageRegulationHolder;
 import com.powsybl.iidm.network.util.BusbarSectionFinderTraverser;
+import com.powsybl.iidm.network.util.VoltageRegulationUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.util.Pair;
@@ -1603,11 +1607,11 @@ public final class ModificationUtils {
         }
 
         // check set points
-        if (staticVarCompensatorCreation.getRegulationMode() == StaticVarCompensator.RegulationMode.VOLTAGE && staticVarCompensatorCreation.getVoltageSetpoint() == null) {
+        if (staticVarCompensatorCreation.getRegulationMode() == RegulationMode.VOLTAGE && staticVarCompensatorCreation.getVoltageSetpoint() == null) {
             throw makeEquipmentException(CREATE_STATIC_VAR_COMPENSATOR_ERROR,
                 staticVarCompensatorCreation.getEquipmentId(), equipmentName, "Voltage setpoint is not set");
         }
-        if (staticVarCompensatorCreation.getRegulationMode() == StaticVarCompensator.RegulationMode.REACTIVE_POWER && staticVarCompensatorCreation.getReactivePowerSetpoint() == null) {
+        if (staticVarCompensatorCreation.getRegulationMode() == RegulationMode.REACTIVE_POWER && staticVarCompensatorCreation.getReactivePowerSetpoint() == null) {
             throw makeEquipmentException(CREATE_STATIC_VAR_COMPENSATOR_ERROR,
                 staticVarCompensatorCreation.getEquipmentId(), equipmentName, "Reactive power setpoint is not set");
         }
@@ -1615,7 +1619,7 @@ public final class ModificationUtils {
 
     public void checkStandbyAutomatonCreation(StaticVarCompensatorCreation staticVarCompensatorCreation) {
         String equipmentName = "StaticVarCompensator";
-        if (staticVarCompensatorCreation.isStandby() && staticVarCompensatorCreation.getRegulationMode() != StaticVarCompensator.RegulationMode.VOLTAGE
+        if (staticVarCompensatorCreation.isStandby() && staticVarCompensatorCreation.getRegulationMode() != RegulationMode.VOLTAGE
             && !staticVarCompensatorCreation.isRegulating()) {
             throw makeEquipmentException(CREATE_STATIC_VAR_COMPENSATOR_ERROR,
                 staticVarCompensatorCreation.getEquipmentId(), equipmentName,
@@ -1963,23 +1967,22 @@ public final class ModificationUtils {
         }
     }
 
-    public static void checkVoltageRegulation(String errorMessage, VoltageRegulation voltageRegulation, AttributeModification<Boolean> voltageRegulatorOn,
+    public static void checkVoltageRegulation(String errorMessage, VoltageRegulationHolder<?> holder, AttributeModification<Boolean> voltageRegulatorOn,
                                               AttributeModification<Double> targetV, NetworkModificationExceptionType exceptionType) throws NetworkModificationException {
         // voltageRegulatorOn modification value
         Boolean voltageRegulatorOnModificationValue = voltageRegulatorOn == null ? null : voltageRegulatorOn.getValue();
         // if modification is null, then stored voltageRegulatorOn is checked
         boolean effectiveVoltageRegulatorOn = voltageRegulatorOnModificationValue != null ? voltageRegulatorOnModificationValue
-                        : voltageRegulation != null && voltageRegulation.isVoltageRegulatorOn();
+                        : holder.isRegulatingWithMode(RegulationMode.VOLTAGE);
         if (effectiveVoltageRegulatorOn) {
-            Double storedTargetV = voltageRegulation == null ? null : voltageRegulation.getTargetV();
-            Double effectiveTargetV = targetV != null ? targetV.getValue() : storedTargetV;
+            Double effectiveTargetV = targetV != null ? targetV.getValue() : holder.getRegulatingTargetV();
             checkVoltageRegulation(errorMessage, effectiveTargetV, true, exceptionType);
         }
     }
 
-    public static void checkVoltageRegulation(String errorMessage, VoltageRegulation voltageRegulation,
+    public static void checkVoltageRegulation(String errorMessage, VoltageRegulationHolder<?> holder,
                                               Boolean voltageRegulatorOn, NetworkModificationExceptionType exceptionType) throws NetworkModificationException {
-        checkVoltageRegulation(errorMessage, voltageRegulation == null ? null : voltageRegulation.getTargetV(), voltageRegulatorOn, exceptionType);
+        checkVoltageRegulation(errorMessage, holder.getRegulatingTargetV(), voltageRegulatorOn, exceptionType);
     }
 
     public static void checkVoltageRegulation(String errorMessage, Double targetV, Boolean voltageRegulatorOn, NetworkModificationExceptionType exceptionType) throws NetworkModificationException {
@@ -1988,10 +1991,76 @@ public final class ModificationUtils {
         }
     }
 
-    public static void checkTargetV(String errorMessage, VoltageRegulation voltageRegulation, Double targetV, NetworkModificationExceptionType exceptionType) throws NetworkModificationException {
-        if (voltageRegulation != null && voltageRegulation.isVoltageRegulatorOn() && (targetV == null || Double.isNaN(targetV))) {
+    public static void checkTargetV(String errorMessage, VoltageRegulationHolder<?> holder, Double targetV, NetworkModificationExceptionType exceptionType) throws NetworkModificationException {
+        if (holder.isRegulatingWithMode(RegulationMode.VOLTAGE) && (targetV == null || Double.isNaN(targetV))) {
             throw new NetworkModificationException(exceptionType, errorMessage + "voltage setpoint value (NaN) is invalid (voltage regulator is on)");
         }
+    }
+
+    public static void setRegulatingTargetV(VoltageRegulationHolder<?> holder, double targetV) {
+        if (holder.hasRegulatingTerminal() && (holder.isWithMode(RegulationMode.VOLTAGE) || holder.isWithMode(RegulationMode.VOLTAGE_PER_REACTIVE_POWER))) {
+            holder.getVoltageRegulation().setTargetValue(targetV);
+        } else {
+            holder.setLocalTargetV(targetV);
+        }
+    }
+
+    public static void setRegulatingTargetQ(VoltageRegulationHolder<?> holder, double targetQ) {
+        if (holder.hasRegulatingTerminal() && holder.isWithMode(RegulationMode.REACTIVE_POWER)) {
+            holder.getVoltageRegulation().setTargetValue(VoltageRegulationUtils.getSignToUseLoadSignConvention(holder) * targetQ);
+        } else {
+            holder.setLocalTargetQ(targetQ);
+        }
+    }
+
+    public static void setVoltageRegulationOn(VoltageRegulationHolder<?> holder, boolean voltageRegulationOn) {
+        VoltageRegulation voltageRegulation = holder.getVoltageRegulation();
+        if (voltageRegulation != null && voltageRegulation.getMode() == RegulationMode.VOLTAGE) {
+            voltageRegulation.setRegulating(voltageRegulationOn);
+        } else if (voltageRegulationOn) {
+            holder.newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).build();
+        }
+    }
+
+    public static void setRegulatingTerminal(VoltageRegulationHolder<?> holder, Terminal regulatingTerminal) {
+        VoltageRegulation voltageRegulation = holder.getVoltageRegulation();
+        if (regulatingTerminal == null) {
+            if (voltageRegulation != null && voltageRegulation.isWithTerminal()) {
+                holder.setLocalTargetV(holder.getRegulatingTargetV());
+                voltageRegulation.setTerminal(null, Double.NaN);
+            }
+        } else if (voltageRegulation == null) {
+            holder.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(false)
+                .withTerminal(regulatingTerminal)
+                .withTargetValue(holder.getLocalTargetV())
+                .build();
+        } else {
+            voltageRegulation.setTerminal(regulatingTerminal, voltageRegulation.isWithTerminal() ? voltageRegulation.getTargetValue() : holder.getRegulatingTargetV());
+        }
+    }
+
+    public static double getRatioTapChangerTargetV(RatioTapChanger ratioTapChanger) {
+        return ratioTapChanger.isWithMode(RegulationMode.VOLTAGE) ? ratioTapChanger.getVoltageRegulation().getTargetValue() : Double.NaN;
+    }
+
+    public static void setRatioTapChangerTargetV(RatioTapChanger ratioTapChanger, double targetV) {
+        VoltageRegulation voltageRegulation = getOrCreateVoltageRegulation(ratioTapChanger);
+        voltageRegulation.setTargetValue(targetV);
+        if (!Double.isNaN(targetV)) {
+            voltageRegulation.setMode(RegulationMode.VOLTAGE);
+        }
+    }
+
+    public static double getRatioTapChangerTargetDeadband(RatioTapChanger ratioTapChanger) {
+        VoltageRegulation voltageRegulation = ratioTapChanger.getVoltageRegulation();
+        return voltageRegulation != null ? voltageRegulation.getTargetDeadband() : Double.NaN;
+    }
+
+    public static VoltageRegulation getOrCreateVoltageRegulation(RatioTapChanger ratioTapChanger) {
+        VoltageRegulation voltageRegulation = ratioTapChanger.getVoltageRegulation();
+        return voltageRegulation != null ? voltageRegulation : ratioTapChanger.newVoltageRegulation().withRegulating(false).build();
     }
 
     public static boolean validateMinimumActivePower(Generator generator, List<ReportNode> reports, double newValue) {

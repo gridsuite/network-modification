@@ -22,6 +22,8 @@ import static org.gridsuite.modification.error.NetworkModificationExceptionType.
 import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_TWO_WINDINGS_TRANSFORMER_ERROR;
 import static org.gridsuite.modification.modifications.TwoWindingsTransformerModification.*;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
+import static org.gridsuite.modification.utils.ModificationUtils.getRatioTapChangerTargetDeadband;
+import static org.gridsuite.modification.utils.ModificationUtils.getRatioTapChangerTargetV;
 import static org.gridsuite.modification.utils.ModificationUtils.parseDoubleOrNaNIfNull;
 
 /**
@@ -102,7 +104,7 @@ public enum TwoWindingsTransformerField {
             case RATED_U1 -> String.valueOf(transformer.getRatedU1());
             case RATED_U2 -> String.valueOf(transformer.getRatedU2());
             case RATED_S -> String.valueOf(transformer.getRatedS());
-            case TARGET_V -> ratioTapChanger != null ? String.valueOf(ratioTapChanger.getTargetV()) : null;
+            case TARGET_V -> ratioTapChanger != null ? String.valueOf(getRatioTapChangerTargetV(ratioTapChanger)) : null;
             case RATIO_LOW_TAP_POSITION ->
                 ratioTapChanger != null ? String.valueOf(ratioTapChanger.getLowTapPosition()) : null;
             case RATIO_HIGH_TAP_POSITION ->
@@ -110,7 +112,7 @@ public enum TwoWindingsTransformerField {
             case RATIO_TAP_POSITION ->
                 ratioTapChanger != null ? String.valueOf(ratioTapChanger.getTapPosition()) : null;
             case RATIO_TARGET_DEADBAND ->
-                ratioTapChanger != null ? String.valueOf(ratioTapChanger.getTargetDeadband()) : null;
+                ratioTapChanger != null ? String.valueOf(getRatioTapChangerTargetDeadband(ratioTapChanger)) : null;
             case REGULATION_VALUE ->
                 phaseTapChanger != null ? String.valueOf(phaseTapChanger.getRegulationValue()) : null;
             case PHASE_LOW_TAP_POSITION ->

@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuitAdder;
 import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
@@ -184,15 +185,28 @@ public class GeneratorCreation extends AbstractInjectionCreation implements Reac
             .setMaxP(maxP)
             .setRatedS(nanIfNull(ratedS))
             .setTargetP(targetP)
-            .setTargetQ(nanIfNull(targetQ))
-            .setVoltageRegulatorOn(voltageRegulationOn)
-            .setTargetV(nanIfNull(targetV));
-
-        if (terminal != null) {
-            generatorAdder.setRegulatingTerminal(terminal);
-        }
-
+            .setLocalTargetQ(nanIfNull(targetQ));
+        addVoltageRegulation(generatorAdder, terminal);
         return generatorAdder;
+    }
+
+    private void addVoltageRegulation(GeneratorAdder generatorAdder, Terminal regulatingTerminal) {
+        if (regulatingTerminal == null) {
+            generatorAdder.setLocalTargetV(nanIfNull(targetV));
+            if (voltageRegulationOn) {
+                generatorAdder.newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withRegulating(true)
+                    .add();
+            }
+        } else {
+            generatorAdder.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(voltageRegulationOn)
+                .withTerminal(regulatingTerminal)
+                .withTargetValue(nanIfNull(targetV))
+                .add();
+        }
     }
 
     private void addExtensionsToGenerator(Generator generator, VoltageLevel voltageLevel, ReportNode subReportNode) {
@@ -221,7 +235,7 @@ public class GeneratorCreation extends AbstractInjectionCreation implements Reac
         Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, busOrBusbarSectionId);
 
         // creating the generator
-        Generator generator = voltageLevel.newGenerator()
+        GeneratorAdder generatorAdder = voltageLevel.newGenerator()
             .setId(equipmentId)
             .setName(equipmentName)
             .setEnergySource(energySource)
@@ -231,10 +245,12 @@ public class GeneratorCreation extends AbstractInjectionCreation implements Reac
             .setMaxP(maxP)
             .setRatedS(nanIfNull(ratedS))
             .setTargetP(targetP)
-            .setTargetQ(nanIfNull(targetQ))
-            .setVoltageRegulatorOn(voltageRegulationOn)
-            .setTargetV(nanIfNull(targetV))
-            .add();
+            .setLocalTargetQ(nanIfNull(targetQ));
+        addVoltageRegulation(generatorAdder, ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
+            regulatingTerminalId,
+            regulatingTerminalType,
+            regulatingTerminalVlId));
+        Generator generator = generatorAdder.add();
 
         addExtensionsToGenerator(generator, voltageLevel, subReportNode);
 
@@ -267,7 +283,7 @@ public class GeneratorCreation extends AbstractInjectionCreation implements Reac
                     regulatingTerminalType,
                     regulatingTerminalVlId);
             if (terminal != null) {
-                updateGeneratorRegulatingTerminal(generator, terminal, voltageReports);
+                reportGeneratorRegulatingTerminal(voltageReports);
             }
         }
         if (qPercent != null) {
@@ -289,16 +305,13 @@ public class GeneratorCreation extends AbstractInjectionCreation implements Reac
 
     }
 
-    private void updateGeneratorRegulatingTerminal(Generator generator, Terminal terminal, List<ReportNode> voltageReports) {
-        if (regulatingTerminalId != null && regulatingTerminalType != null && regulatingTerminalVlId != null) {
-            generator.setRegulatingTerminal(terminal);
-            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
-                    regulatingTerminalVlId,
-                    "Voltage level"));
-            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
-                    regulatingTerminalType + ":" + regulatingTerminalId,
-                    "Equipment"));
-        }
+    private void reportGeneratorRegulatingTerminal(List<ReportNode> voltageReports) {
+        voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
+                regulatingTerminalVlId,
+                "Voltage level"));
+        voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
+                regulatingTerminalType + ":" + regulatingTerminalId,
+                "Equipment"));
     }
 
     private ReportNode reportGeneratorActiveLimits(ReportNode subReportNode) {

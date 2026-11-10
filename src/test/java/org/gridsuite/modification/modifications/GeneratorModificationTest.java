@@ -14,6 +14,8 @@ import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.util.BusbarSectionFinderTraverser;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.error.NetworkModificationException;
@@ -43,9 +45,16 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
 
     @Override
     protected Network createNetwork(UUID networkUuid) {
-        Network network = NetworkCreation.create(networkUuid, true);
+        Network network = NetworkCreation.createWithSingleVariant(networkUuid, true);
         Generator generator = network.getGenerator("idGenerator");
-        generator.setTargetV(50, 40);
+        // the regulating terminal is explicitly set to hold the target voltage (50) apart from the local one (40)
+        generator.setLocalTargetV(40)
+            .newVoltageRegulation()
+            .withMode(RegulationMode.VOLTAGE)
+            .withRegulating(false)
+            .withTerminal(generator.getTerminal())
+            .withTargetValue(50)
+            .build();
         return network;
     }
 
@@ -102,10 +111,10 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         assertEquals("newV1Generator", modifiedGenerator.getNameOrId());
         assertEquals(EnergySource.SOLAR, modifiedGenerator.getEnergySource());
         assertEquals(80.0, modifiedGenerator.getTargetP());
-        assertEquals(40.0, modifiedGenerator.getTargetQ());
-        assertEquals(48.0, modifiedGenerator.getTargetV());
-        assertEquals(40.0, modifiedGenerator.getEquivalentLocalTargetV());
-        assertFalse(modifiedGenerator.isVoltageRegulatorOn());
+        assertEquals(40.0, modifiedGenerator.getLocalTargetQ());
+        assertEquals(48.0, modifiedGenerator.getRegulatingTargetV());
+        assertEquals(40.0, modifiedGenerator.getLocalTargetV());
+        assertFalse(modifiedGenerator.getVoltageRegulation().isRegulating());
         assertEquals(0., modifiedGenerator.getMinP());
         assertEquals(100., modifiedGenerator.getMaxP());
         assertEquals(220., modifiedGenerator.getRatedS());
@@ -160,7 +169,8 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         generatorModificationInfos4.setRegulatingTerminalVlId(new AttributeModification<>(null, OperationType.UNSET));
         generatorModificationInfos4.setRegulatingTerminalId(new AttributeModification<>(null, OperationType.UNSET));
         generatorModificationInfos4.setRegulatingTerminalType(new AttributeModification<>(null, OperationType.UNSET));
-        getNetwork().getGenerator("idGenerator").setRegulatingTerminal(getNetwork().getBusbarSection("1A1").getTerminal());
+        VoltageRegulation voltageRegulation = getNetwork().getGenerator("idGenerator").getVoltageRegulation();
+        voltageRegulation.setTerminal(getNetwork().getBusbarSection("1A1").getTerminal(), voltageRegulation.getTargetValue());
         assertDoesNotThrow(() -> generatorModificationInfos4.toModification().check(getNetwork()));
 
         GeneratorModificationInfos generatorModificationInfos5 = GeneratorModificationInfos.builder()
@@ -266,14 +276,14 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         generatorModificationInfos.setTargetV(new AttributeModification<>(null, OperationType.UNSET));
 
         generatorModificationInfos.toModification().apply(getNetwork());
-        assertEquals(Double.NaN, getNetwork().getGenerator("idGenerator").getTargetV());
+        assertEquals(Double.NaN, getNetwork().getGenerator("idGenerator").getRegulatingTargetV());
 
         //Unset TargetQ (voltage regulation needs to be turned on and voltage setpoint to have a value)
         generatorModificationInfos.setVoltageRegulationOn(new AttributeModification<>(true, OperationType.SET));
         generatorModificationInfos.setTargetV(new AttributeModification<>(44.0, OperationType.SET));
         generatorModificationInfos.setTargetQ(new AttributeModification<>(null, OperationType.UNSET));
         generatorModificationInfos.toModification().apply(getNetwork());
-        assertEquals(Double.NaN, getNetwork().getGenerator("idGenerator").getTargetQ());
+        assertEquals(Double.NaN, getNetwork().getGenerator("idGenerator").getLocalTargetQ());
 
     }
 
@@ -320,8 +330,8 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
     void testSettingTargetVKeepLocalTargetV() {
         Network network = getNetwork();
         Generator generator = network.getGenerator("idGenerator");
-        assertEquals(40.0, generator.getEquivalentLocalTargetV());
-        assertEquals(50.0, generator.getTargetV());
+        assertEquals(40.0, generator.getLocalTargetV());
+        assertEquals(50.0, generator.getRegulatingTargetV());
 
         GeneratorModificationInfos modificationInfos = GeneratorModificationInfos.builder()
                 .stashed(false)
@@ -330,15 +340,15 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
                 .build();
         modificationInfos.toModification().apply(network);
         Generator modifiedGenerator = network.getGenerator("idGenerator");
-        assertEquals(40.0, modifiedGenerator.getEquivalentLocalTargetV());
-        assertEquals(52.0, modifiedGenerator.getTargetV());
+        assertEquals(40.0, modifiedGenerator.getLocalTargetV());
+        assertEquals(52.0, modifiedGenerator.getRegulatingTargetV());
     }
 
     @Test
     void testSetRegulationToLocal() {
         Network network = getNetwork();
         Generator generator = network.getGenerator("idGenerator");
-        generator.setRegulatingTerminal(network.getLoad("v5load").getTerminal());
+        generator.getVoltageRegulation().setTerminal(network.getLoad("v5load").getTerminal(), generator.getRegulatingTargetV());
         GeneratorModificationInfos modificationInfos = GeneratorModificationInfos.builder()
                 .stashed(false)
                 .equipmentId("idGenerator")
