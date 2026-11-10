@@ -439,7 +439,19 @@ public class GeneratorModification extends AbstractInjectionModification {
                     + regulatingTerminal.getConnectable().getId();
         }
 
-        if (regulatingTerminalId != null
+        // if the voltageRegulationType is set to LOCAL, we set the regulatingTerminal
+        // to null
+        if (voltageRegulationType.getValue() == VoltageRegulationType.LOCAL) {
+            generator.setRegulatingTerminal(null);
+            if (oldEquipment != null && oldVoltageLevel != null) {
+                modificationReports.add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel,
+                        null,
+                        "Voltage level"));
+                modificationReports.add(ModificationUtils.getInstance().buildModificationReport(oldEquipment,
+                        null,
+                        "Equipment"));
+            }
+        } else if (regulatingTerminalId != null
                 && regulatingTerminalType != null
                 && regulatingTerminalVlId != null) {
             Terminal terminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(generator.getNetwork(),
@@ -454,19 +466,6 @@ public class GeneratorModification extends AbstractInjectionModification {
             modificationReports.add(ModificationUtils.getInstance().buildModificationReport(oldEquipment,
                     regulatingTerminalType.getValue() + ":"
                             + regulatingTerminalId.getValue(),
-                    "Equipment"));
-        }
-
-        // if the voltageRegulationType is set to LOCAL, we set the regulatingTerminal
-        // to null
-        if (voltageRegulationType.getValue() == VoltageRegulationType.LOCAL
-                && oldEquipment != null && oldVoltageLevel != null) {
-            generator.setRegulatingTerminal(null);
-            modificationReports.add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel,
-                    null,
-                    "Voltage level"));
-            modificationReports.add(ModificationUtils.getInstance().buildModificationReport(oldEquipment,
-                    null,
                     "Equipment"));
         }
     }
