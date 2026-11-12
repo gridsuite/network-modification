@@ -12,8 +12,6 @@ import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import lombok.*;
-import org.gridsuite.modification.IFilterService;
-import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.ModificationInfos;
@@ -39,14 +37,6 @@ public class ModificationReference extends AbstractModification {
     @EqualsAndHashCode.Exclude
     private ModificationContext modificationContext;
 
-    @JsonIgnore
-    @EqualsAndHashCode.Exclude
-    protected IFilterService filterService;
-
-    @JsonIgnore
-    @EqualsAndHashCode.Exclude
-    protected ILoadFlowService loadFlowService;
-
     @Builder
     public ModificationReference(UUID referencedId,
                                  ModificationReferenceInfos.Type referenceType,
@@ -56,12 +46,6 @@ public class ModificationReference extends AbstractModification {
         this.referenceType = referenceType;
         this.referencedInfos = referencedInfos;
         this.modificationContext = modificationContext;
-    }
-
-    @Override
-    protected void initServices(IFilterService filterService, ILoadFlowService loadFlowService) {
-        this.filterService = filterService;
-        this.loadFlowService = loadFlowService;
     }
 
     @Override
@@ -82,7 +66,7 @@ public class ModificationReference extends AbstractModification {
     public void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode) {
         AbstractModification modification = referencedInfos.toModification(modificationContext);
         modification.check(network);
-        modification.initApplicationContext(filterService, loadFlowService, getRootNetworkTag());
+        modification.initApplicationContext(getRootNetworkTag());
         modification.apply(network, namingStrategy, referencedInfos.createSubReportNode(subReportNode));
     }
 

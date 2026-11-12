@@ -16,8 +16,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.gridsuite.modification.IFilterService;
-import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.CompositeModificationInfos;
@@ -40,23 +38,9 @@ public class CompositeModification extends AbstractModification {
     @EqualsAndHashCode.Exclude
     private ModificationContext modificationContext;
 
-    @JsonIgnore
-    @EqualsAndHashCode.Exclude
-    protected IFilterService filterService;
-
-    @JsonIgnore
-    @EqualsAndHashCode.Exclude
-    protected ILoadFlowService loadFlowService;
-
     public CompositeModification(CompositeModificationInfos compositeModificationInfos, ModificationContext modificationContext) {
         this.compositeModificationInfos = compositeModificationInfos;
         this.modificationContext = modificationContext;
-    }
-
-    @Override
-    protected void initServices(IFilterService filterService, ILoadFlowService loadFlowService) {
-        this.filterService = filterService;
-        this.loadFlowService = loadFlowService;
     }
 
     @Override
@@ -74,7 +58,7 @@ public class CompositeModification extends AbstractModification {
                             try {
                                 AbstractModification modification = modif.toModification(modificationContext);
                                 modification.check(network);
-                                modification.initApplicationContext(filterService, loadFlowService, getRootNetworkTag());
+                                modification.initApplicationContext(getRootNetworkTag());
                                 modification.apply(network, namingStrategy, modifNode);
                             } catch (Exception e) {
                                 // in case of error in a network modification, the composite modification doesn't interrupt its execution :

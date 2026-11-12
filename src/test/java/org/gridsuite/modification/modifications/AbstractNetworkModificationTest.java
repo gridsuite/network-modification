@@ -14,8 +14,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import org.gridsuite.filter.Filter;
 import org.gridsuite.filter.report.FilterReportResourceBundle;
-import org.gridsuite.modification.IFilterService;
-import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.context.FilterLoader;
 import org.gridsuite.modification.context.FilterWithDistributionKeysLoader;
 import org.gridsuite.modification.context.ModificationContext;
@@ -32,7 +30,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.gridsuite.modification.utils.TestUtils.testReportNode;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 
 /**
  * Class to extend if you want to test a network modification.<ul>
@@ -111,11 +108,9 @@ public abstract class AbstractNetworkModificationTest {
 
     @Test
     public void testRoundTripSerializationDeserialization() throws JsonProcessingException {
-        ILoadFlowService loadFlowServiceMock = mock(ILoadFlowService.class);
-        IFilterService filterServiceMock = mock(IFilterService.class);
         ModificationContext modificationContext = ModificationContext.builder().filterLoader(this::loadFilters).filterWithDistributionKeysLoader(this::loadFiltersWithDistributionKeys).build();
         AbstractModification expectedModification = buildModification().toModification(modificationContext);
-        expectedModification.initApplicationContext(filterServiceMock, loadFlowServiceMock, null);
+        expectedModification.initApplicationContext(null);
 
         String serializedModification = mapper.writeValueAsString(expectedModification);
         AbstractModification deserializedModification = mapper.readValue(serializedModification, AbstractModification.class);

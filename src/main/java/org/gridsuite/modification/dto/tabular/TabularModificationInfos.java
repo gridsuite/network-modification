@@ -43,6 +43,9 @@ public class TabularModificationInfos extends TabularBaseInfos {
     public Map<String, String> getMapMessageValues() {
         Map<String, String> mapMessageValues = new HashMap<>();
         mapMessageValues.put("tabularModificationType", getModificationType().name());
+        if (getCsvFilename() != null && !getCsvFilename().isBlank()) {
+            mapMessageValues.put("csvFilename", getCsvFilename());
+        }
         return mapMessageValues;
     }
 }
