@@ -1577,39 +1577,72 @@ public final class ModificationUtils {
 
     public void checkReactivePowerLimitsAndSetPointsCreation(
         StaticVarCompensatorCreation staticVarCompensatorCreation) {
+        checkStaticVarCompensatorLimitsAndSetPoints(staticVarCompensatorCreation.getEquipmentId(), CREATE_STATIC_VAR_COMPENSATOR_ERROR,
+            staticVarCompensatorCreation.getMinSusceptance(), staticVarCompensatorCreation.getMaxSusceptance(),
+            staticVarCompensatorCreation.getMinQAtNominalV(), staticVarCompensatorCreation.getMaxQAtNominalV(),
+            staticVarCompensatorCreation.getRegulationMode(),
+            staticVarCompensatorCreation.getVoltageSetpoint(), staticVarCompensatorCreation.getReactivePowerSetpoint());
+    }
+
+    public void checkStaticVarCompensatorLimitsAndSetPoints(String equipmentId, NetworkModificationExceptionType exceptionType,
+                                                            Double minSusceptance, Double maxSusceptance,
+                                                            Double minQAtNominalV, Double maxQAtNominalV,
+                                                            StaticVarCompensator.RegulationMode regulationMode,
+                                                            Double voltageSetpoint, Double reactivePowerSetpoint) {
         String equipmentName = "StaticVarCompensator";
         // check min max reactive limits
-        if (Objects.isNull(staticVarCompensatorCreation.getMinSusceptance()) && Objects.isNull(
-            staticVarCompensatorCreation.getMinQAtNominalV())) {
-            throw makeEquipmentException(CREATE_STATIC_VAR_COMPENSATOR_ERROR,
-                staticVarCompensatorCreation.getEquipmentId(), equipmentName, "minimum susceptance is not set");
+        if (isNotSet(minSusceptance) && isNotSet(minQAtNominalV)) {
+            throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "minimum susceptance is not set");
         }
-        if (Objects.isNull(staticVarCompensatorCreation.getMaxSusceptance()) && Objects.isNull(
-            staticVarCompensatorCreation.getMaxQAtNominalV())) {
-            throw makeEquipmentException(CREATE_STATIC_VAR_COMPENSATOR_ERROR,
-                staticVarCompensatorCreation.getEquipmentId(), equipmentName, "maximum susceptance is not set");
+        if (isNotSet(maxSusceptance) && isNotSet(maxQAtNominalV)) {
+            throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "maximum susceptance is not set");
         }
-        if (Objects.nonNull(staticVarCompensatorCreation.getMaxSusceptance()) && Objects.nonNull(
-            staticVarCompensatorCreation.getMinSusceptance()) && staticVarCompensatorCreation.getMaxSusceptance() < staticVarCompensatorCreation.getMinSusceptance()) {
-            throw makeEquipmentException(CREATE_STATIC_VAR_COMPENSATOR_ERROR,
-                staticVarCompensatorCreation.getEquipmentId(), equipmentName,
+        if (!isNotSet(maxSusceptance) && !isNotSet(minSusceptance) && maxSusceptance < minSusceptance) {
+            throw makeEquipmentException(exceptionType, equipmentId, equipmentName,
                 "maximum susceptance is expected to be greater than or equal to minimum susceptance");
         }
-        if (Objects.nonNull(staticVarCompensatorCreation.getMaxQAtNominalV()) && Objects.nonNull(
-            staticVarCompensatorCreation.getMinQAtNominalV()) && staticVarCompensatorCreation.getMaxQAtNominalV() < staticVarCompensatorCreation.getMinQAtNominalV()) {
-            throw makeEquipmentException(CREATE_STATIC_VAR_COMPENSATOR_ERROR,
-                staticVarCompensatorCreation.getEquipmentId(), equipmentName,
+        if (!isNotSet(maxQAtNominalV) && !isNotSet(minQAtNominalV) && maxQAtNominalV < minQAtNominalV) {
+            throw makeEquipmentException(exceptionType, equipmentId, equipmentName,
                 "maximum Q at nominal voltage is expected to be greater than or equal to minimum Q");
         }
 
         // check set points
-        if (staticVarCompensatorCreation.getRegulationMode() == StaticVarCompensator.RegulationMode.VOLTAGE && staticVarCompensatorCreation.getVoltageSetpoint() == null) {
-            throw makeEquipmentException(CREATE_STATIC_VAR_COMPENSATOR_ERROR,
-                staticVarCompensatorCreation.getEquipmentId(), equipmentName, "Voltage setpoint is not set");
+        if (regulationMode == StaticVarCompensator.RegulationMode.VOLTAGE && isNotSet(voltageSetpoint)) {
+            throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "Voltage setpoint is not set");
         }
-        if (staticVarCompensatorCreation.getRegulationMode() == StaticVarCompensator.RegulationMode.REACTIVE_POWER && staticVarCompensatorCreation.getReactivePowerSetpoint() == null) {
-            throw makeEquipmentException(CREATE_STATIC_VAR_COMPENSATOR_ERROR,
-                staticVarCompensatorCreation.getEquipmentId(), equipmentName, "Reactive power setpoint is not set");
+        if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER && isNotSet(reactivePowerSetpoint)) {
+            throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "Reactive power setpoint is not set");
+        }
+    }
+
+    public static boolean hasValue(AttributeModification<?> modification) {
+        return modification != null && modification.getValue() != null;
+    }
+
+    public static boolean isNotSet(Double value) {
+        return value == null || Double.isNaN(value);
+    }
+
+    public static Double getFinalValue(AttributeModification<Double> modification, double currentValue) {
+        if (modification != null) {
+            return modification.applyModification(currentValue);
+        }
+        return currentValue;
+    }
+
+    public static void insertReportNodes(ReportNode parent, List<ReportNode> reports, String messageTemplate) {
+        List<ReportNode> validReports = new ArrayList<>();
+        for (ReportNode report : reports) {
+            if (report != null) {
+                validReports.add(report);
+            }
+        }
+        if (validReports.isEmpty()) {
+            return;
+        }
+        ReportNode reportNode = parent.newReportNode().withMessageTemplate(messageTemplate).add();
+        for (ReportNode report : validReports) {
+            insertReportNode(reportNode, report);
         }
     }
 
