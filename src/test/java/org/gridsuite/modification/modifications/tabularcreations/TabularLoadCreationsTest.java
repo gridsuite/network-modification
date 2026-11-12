@@ -160,6 +160,7 @@ class TabularLoadCreationsTest extends AbstractNetworkModificationTest {
         assertEquals(ModificationType.TABULAR_CREATION.name(), modificationInfos.getMessageType());
         Map<String, String> createdValues = mapper.readValue(modificationInfos.getMessageValues(), new TypeReference<>() { });
         assertEquals(ModificationType.LOAD_CREATION.name(), createdValues.get("tabularCreationType"));
+        assertEquals("filename", createdValues.get("csvFilename"));
     }
 
     @Override

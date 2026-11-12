@@ -54,8 +54,6 @@ org.gridsuite.modification
 │   └── tabular/                 # Tabular and limit-set bulk modification execution logic
 ├── report/                      # i18n report resource bundle registration (SPI)
 ├── utils/                       # Utility classes (limits, measurements, properties, load-flow)
-├── IFilterService.java          # Service interface: filter resolution against networks
-├── ILoadFlowService.java        # Service interface: load-flow parameter retrieval
 ├── ModificationType.java        # Enumeration of all supported modification types
 ├── ReactiveVariationMode.java   # Scaling reactive variation mode enum
 ├── TapChangerType.java          # Tap changer types enum
@@ -80,7 +78,7 @@ Every modification implementation inherits from `AbstractModification`, which ex
 | Method | Purpose |
 |---|---|
 | `void check(Network network)` | Pre-execution validation against a live `Network` instance. Throws `NetworkModificationException` on validation failure. Default implementation performs no check. |
-| `void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService)` | Injects external services (e.g., filter resolution or load-flow parameter store). Default implementation does nothing. |
+| `void initApplicationContext(String rootNetworkTag)` | Sets only the root network tag. External resources are resolved through the construction context, not this method. The tag must be restored after executable deserialization. |
 | `void apply(Network network, ReportNode subReportNode)` | Executes the modification logic, mutating the `Network` and writing structured events to the provided `ReportNode`. Must be implemented by subclasses. |
 | `void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode)` | Variant accepting an explicit `NamingStrategy`. Delegates by default to `apply(network, subReportNode)`. |
 | `String getName()` | Returns a stable, human-readable name identifying the modification type. |
@@ -106,7 +104,8 @@ Key methods:
 
 | Method | Description |
 |---|---|
-| `AbstractModification toModification()` | Factory method that instantiates the corresponding `AbstractModification` implementation. |
+| `AbstractModification toModification()` | Converts a DTO without supplied loaders; suitable for modifications without external dependencies. |
+| `AbstractModification toModification(ModificationContext context)` | Converts a DTO using the required loaders. Composite/reference children are converted during application. |
 | `ReportNode createSubReportNode(ReportNode reportNode)` | Creates and attaches a child `ReportNode` with the appropriate message template for this modification. |
 | `void check()` | Validates internal DTO fields before converting to an executable modification. |
 | `ModificationType getType()` | Returns the resolved `ModificationType` enum value. |
@@ -156,7 +155,6 @@ ModificationInfos
 ├── GeneratorScalingInfos / LoadScalingInfos        # Power scaling across equipment groups
 ├── GenerationDispatchInfos                         # Generation dispatch with loss & outage optimization
 ├── BalancesAdjustmentModificationInfos             # Area net position balances adjustment
-├── NetworkReduction                                # Extract a portion of the network on an area of interest
 ├── VoltageInitModificationInfos                    # Voltage initialization across buses and generators
 ├── GroovyScriptInfos                               # Direct Groovy script execution on Network
 ├── TabularModificationInfos / TabularCreationInfos # Bulk tabular modifications and creations
@@ -164,6 +162,7 @@ ModificationInfos
 ├── ByFormulaModificationInfos                      # Dynamic formula-based attribute calculations
 ├── ModificationByAssignmentInfos                   # Value assignment based on filter conditions
 ├── ByFilterDeletionInfos                           # Bulk equipment deletion matching filter criteria
+├── NetworkReductionInfos                           # Network reduction to an area of interest defined by voltage level filters
 └── Topology Modifications                          # Line splits, line attachments, feeder bay moves, coupling devices
 ```
 
@@ -183,7 +182,7 @@ Direct lifecycle operations on individual power system network elements:
 ### 2. Equipment Deletion
 
 - `EQUIPMENT_DELETION`: Deletes an individual equipment item specified by ID and type.
-- `BY_FILTER_DELETION`: Resolves filters via `IFilterService` and deletes all matched equipment from the network.
+- `BY_FILTER_DELETION`: Loads self-contained filter definitions through `FilterLoader` during DTO conversion, then evaluates them against the network to delete matching equipment.
 
 ### 3. Topology Modifications
 
@@ -198,6 +197,7 @@ Complex topological and structural rewiring operations:
 - `CREATE_VOLTAGE_LEVEL_TOPOLOGY`: Builds complete bus-breaker or node-breaker topology arrangements.
 - `CREATE_VOLTAGE_LEVEL_SECTION`: Adds a new busbar section to a voltage level.
 - `MOVE_VOLTAGE_LEVEL_FEEDER_BAYS`: Reorganizes feeder bay connections across busbar sections.
+- `NETWORK_REDUCTION`: Reduces the network to an area of interest. The voltage levels matched by the supplied filters are excluded, all the equipment outside the retained area is removed, and the lines, transformers and HVDC lines crossing the boundary are replaced by fictitious loads.
 
 ### 4. Bulk & Programmatic Modifications
 
@@ -218,8 +218,8 @@ Complex topological and structural rewiring operations:
 
 ### 6. Composition & Orchestration
 
-- `COMPOSITE_MODIFICATION`: Executes an ordered list of sub-modifications. Handles nested execution and isolates errors so failure of one modification does not abort the entire sequence unless desired.
-- `MODIFICATION_REFERENCE`: Resolves and executes a modification defined externally and referenced by UUID.
+- `COMPOSITE_MODIFICATION`: Executes an ordered list of sub-modifications, using the retained construction context to convert child DTOs and propagating the root network tag through `initApplicationContext(rootNetworkTag)`. Exceptions during child conversion, network validation, or application are recorded in the report, and subsequent children are still attempted. Applied changes are not rolled back. In particular, a missing loader can fail during child conversion inside `apply`, rather than when the composite itself is constructed.
+- `MODIFICATION_REFERENCE`: Converts and executes its referenced DTO using the retained construction context and propagates the root network tag through `initApplicationContext(rootNetworkTag)`.
 
 ---
 
@@ -227,22 +227,25 @@ Complex topological and structural rewiring operations:
 
 ### 1. DTO ↔ Implementation Factory Pattern
 
-Each concrete DTO overrides `toModification()` to instantiate its matching `AbstractModification` implementation. This preserves separation between network data representation (serializable DTOs) and business logic execution:
+Concrete DTOs implement conversion to their matching `AbstractModification`, using `toModification(context)` when external dependencies are needed. This separates serializable requests (which may carry UUIDs) from leaf execution data (resolved filters and parameters):
 
 ```java
-// DTO layer
-public AbstractModification toModification() {
-    return new GeneratorCreation(this);
-}
+// Caller execution workflow; the consumer supplies the required loaders.
+ModificationContext context = ModificationContext.builder()
+        .filterLoader(filterLoader)
+        .filterWithDistributionKeysLoader(filterWithDistributionKeysLoader)
+        .loadFlowParametersLoader(loadFlowParametersLoader)
+        .build();
 
-// Caller execution workflow
 ModificationInfos dto = ...;
 dto.check(); // DTO validation
-AbstractModification modification = dto.toModification();
-modification.initApplicationContext(filterService, loadFlowService);
+AbstractModification modification = dto.toModification(context);
+modification.initApplicationContext(rootNetworkTag);
 modification.check(network); // Domain validation
 modification.apply(network, reportNode); // Network mutation
 ```
+
+For leaf DTOs with no external dependencies, use `toModification()` or `toModification(ModificationContext.empty())`. Composites and references must always use `toModification(context)`; use `ModificationContext.empty()` when their children require no external loaders. `CompositeModificationInfos` and `ModificationReferenceInfos` only override `toModification(ModificationContext)`, so their no-argument method throws `UnsupportedOperationException`. Leaf modifications resolve resources during conversion. Composite and referenced modifications retain the context and defer conversion of nested DTOs until `apply`, so they must not be described as entirely loader-free executable values.
 
 ### 2. Partial Updates via `AttributeModification<T>`
 
@@ -256,15 +259,23 @@ To support partial updates where unspecified properties remain untouched, modifi
 
 Jackson's `@JsonTypeInfo` and `@JsonSubTypes` enable transparent serialization and deserialization of heterogeneous collections of modification descriptors via standard REST APIs and JSON files without custom parsing logic.
 
+The executable root network tag is excluded from JSON; restore it using `initApplicationContext(rootNetworkTag)` before application. Composite/reference construction contexts are also excluded from JSON. For nested DTOs requiring loaders, reconstruct the wrapper with a suitable context, for example by converting the original DTO again. Restoring the tag alone does not restore loaders.
+
 ### 4. Hierarchical Reporting
 
 All modifications log execution events, warnings, and messages through PowSyBl's `ReportNode` hierarchy. A dedicated SPI resource bundle (`NetworkModificationReportResourceBundle`) registers message templates in multiple languages (English, French).
 
-### 5. Service Abstraction
+### 5. Construction Context and Loader Abstraction
 
-Modifications requiring external infrastructure rely on interfaces:
-- `IFilterService`: Decouples filter evaluation and remote filter microservices from the modification core.
-- `ILoadFlowService`: Decouples load-flow parameter storage from power-flow-based modifications.
+`ModificationContext` holds three consumer-provided functional interfaces in `org.gridsuite.modification.context`:
+
+- `FilterLoader.load(List<UUID>)`: Returns a map of self-contained `org.gridsuite.filter.wip.Filter` objects indexed by UUID; missing filters are omitted and values are non-null.
+- `FilterWithDistributionKeysLoader.load(List<UUID>)`: Returns filters with equipment distribution keys as `FilterWithDistributionKeys` values. Non-identifier-list filters have an empty distribution-key map; missing filters are omitted.
+- `LoadFlowParametersLoader.load(UUID)`: Returns `Optional<LoadFlowParametersInfos>`; missing parameters produce `Optional.empty()`.
+
+Only required loaders need to be supplied. Unset components are replaced by loaders that throw an explicit `IllegalStateException` when used. Loading definitions does not evaluate equipment selection: filters are evaluated separately against the target network.
+
+Transport belongs to the consumer: loaders may delegate to HTTP clients, repositories or in-memory data. `IFilterService` and `ILoadFlowService` have been removed, but concrete clients can remain behind these loaders. Migration consists of supplying the context to `toModification(context)` and using `initApplicationContext(rootNetworkTag)` only for the tag.
 
 ---
 
@@ -293,11 +304,11 @@ Consumer Application / Service
               │
               │  2. Convert to executable modification
               ▼
-    ModificationInfos.toModification()         → AbstractModification
-              │
-              │  3. Inject external services (optional)
+    ModificationInfos.toModification(context) → AbstractModification
+              │                               ← Required loaders resolve leaf data
+              │  3. Initialize root network tag
               ▼
-    AbstractModification.initApplicationContext(filterService, loadFlowService)
+    AbstractModification.initApplicationContext(rootNetworkTag)
               │
               │  4. Validate against target network
               ▼
@@ -311,14 +322,16 @@ Consumer Application / Service
     Mutated PowSyBl Network + Populated ReportNode Tree
 ```
 
+For composites and references, nested DTO conversion occurs inside `apply`, using the retained context. The root network tag is propagated to each nested modification through `initApplicationContext(rootNetworkTag)`.
+
 ---
 
 ## Package Summary
 
 | Package | Description |
 |---|---|
-| `org.gridsuite.modification` | Root package: core interfaces (`IFilterService`, `ILoadFlowService`), enums (`ModificationType`, `VariationType`, `VariationMode`, `ReactiveVariationMode`, `TapChangerType`) |
-| `org.gridsuite.modification.context` | `ModificationContext`: dependencies a modification needs, resolved once at run time, plus the loaders resolving them and the `FilterUtils` helpers |
+| `org.gridsuite.modification` | Root package: enums (`ModificationType`, `VariationType`, `VariationMode`, `ReactiveVariationMode`, `TapChangerType`) |
+| `org.gridsuite.modification.context` | `ModificationContext`, construction-time loader contracts and `FilterUtils`; nested composite/reference conversion is deferred until application |
 | `org.gridsuite.modification.context.dto` | Context value objects (`FilterWithDistributionKeys`) |
 | `org.gridsuite.modification.dto` | Core modification DTOs (CRUD, topology, scaling, dispatch, operational, references) |
 | `org.gridsuite.modification.dto.byfilter` | Filter-based modification DTOs |

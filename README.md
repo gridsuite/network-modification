@@ -113,9 +113,7 @@ gridsuite-network-modification
 │   │   │       ├── error/          # Exception types and error handling
 │   │   │       ├── modifications/  # Concrete modification business logic
 │   │   │       ├── report/         # Report bundles and i18n support
-│   │   │       ├── utils/          # Utility classes and helpers
-│   │   │       ├── IFilterService.java
-│   │   │       └── ILoadFlowService.java
+│   │   │       └── utils/          # Utility classes and helpers
 │   │   ├── java-templates/         # Version templates processed at build time
 │   │   └── resources/              # Internationalization and message bundles
 │   └── test/
