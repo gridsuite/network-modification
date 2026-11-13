@@ -10,7 +10,7 @@ package org.gridsuite.modification.modifications.data.scaling;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.gridsuite.filter.wip.Filter;
+import org.gridsuite.filter.Filter;
 
 import java.util.Map;
 
