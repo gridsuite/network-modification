@@ -309,7 +309,7 @@ public class BatteryModification extends AbstractInjectionModification {
                             + regulatingTerminalId.getValue(),
                     "Equipment"));
         }
-        if (voltageRegulationType.getValue() == VoltageRegulationType.LOCAL && oldEquipment != null && oldVoltageLevel != null) {
+        if (voltageRegulationType.getValue() == VoltageRegulationType.LOCAL) {
             // setting regulating terminal to null set to local terminal
             voltageRegulation.setRegulatingTerminal(null);
             voltageRegulationReports.add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel,
