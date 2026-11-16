@@ -8,7 +8,7 @@
 
 package org.gridsuite.modification.context;
 
-import org.gridsuite.filter.wip.IdentifierListFilter;
+import org.gridsuite.filter.IdentifierListFilter;
 import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
 
 import java.util.List;
