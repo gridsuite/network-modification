@@ -277,6 +277,30 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
 
     }
 
+    @Test
+    void testDistantRegulationWithIncompleteRegulatingTerminalKeepsExistingTerminal() {
+        Terminal existingRegulatingTerminal = getNetwork().getLoad("v5load").getTerminal();
+        getNetwork().getGenerator("idGenerator").setRegulatingTerminal(existingRegulatingTerminal);
+
+        // Regulating terminal id missing
+        GeneratorModificationInfos generatorModificationInfos = (GeneratorModificationInfos) buildModification();
+        generatorModificationInfos.setRegulatingTerminalId(null);
+        generatorModificationInfos.toModification().apply(getNetwork());
+        assertEquals(existingRegulatingTerminal, getNetwork().getGenerator("idGenerator").getRegulatingTerminal());
+
+        // Regulating terminal type missing
+        generatorModificationInfos = (GeneratorModificationInfos) buildModification();
+        generatorModificationInfos.setRegulatingTerminalType(null);
+        generatorModificationInfos.toModification().apply(getNetwork());
+        assertEquals(existingRegulatingTerminal, getNetwork().getGenerator("idGenerator").getRegulatingTerminal());
+
+        // Regulating terminal voltage level missing
+        generatorModificationInfos = (GeneratorModificationInfos) buildModification();
+        generatorModificationInfos.setRegulatingTerminalVlId(null);
+        generatorModificationInfos.toModification().apply(getNetwork());
+        assertEquals(existingRegulatingTerminal, getNetwork().getGenerator("idGenerator").getRegulatingTerminal());
+    }
+
     @Override
     protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
         assertEquals("GENERATOR_MODIFICATION", modificationInfos.getMessageType());
