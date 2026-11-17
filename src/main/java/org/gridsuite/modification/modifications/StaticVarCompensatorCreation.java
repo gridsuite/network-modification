@@ -12,6 +12,8 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -42,7 +44,7 @@ public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
     private Double minSusceptance;
     private Double maxQAtNominalV;
     private Double minQAtNominalV;
-    private StaticVarCompensator.RegulationMode regulationMode;
+    private RegulationMode regulationMode;
     private Double voltageSetpoint;
     private Double reactivePowerSetpoint;
     private VoltageRegulationType voltageRegulationType;
@@ -65,7 +67,7 @@ public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
                                         ConnectablePosition.Direction connectionDirection, Integer connectionPosition,
                                         boolean terminalConnected, Double maxSusceptance, Double minSusceptance,
                                         Double maxQAtNominalV, Double minQAtNominalV,
-                                        StaticVarCompensator.RegulationMode regulationMode, Double voltageSetpoint,
+                                        RegulationMode regulationMode, Double voltageSetpoint,
                                         Double reactivePowerSetpoint, VoltageRegulationType voltageRegulationType,
                                         String regulatingTerminalId, String regulatingTerminalType,
                                         String regulatingTerminalVlId, boolean regulating, boolean standbyAutomatonOn,
@@ -170,19 +172,30 @@ public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
                 .setId(equipmentId)
                 .setName(equipmentName)
                 .setBmax(bMax)
-                .setBmin(bMin)
-                .setVoltageSetpoint(nanIfNull(voltageSetpoint))
-                .setReactivePowerSetpoint(nanIfNull(reactivePowerSetpoint))
-                .setRegulating(regulating);
-        if (regulating) {
-            staticVarCompensatorAdder.setRegulationMode(regulationMode);
-        }
-
-        if (terminal != null) {
-            staticVarCompensatorAdder.setRegulatingTerminal(terminal);
-        }
-
+                .setBmin(bMin);
+        addVoltageRegulation(staticVarCompensatorAdder, terminal);
         return staticVarCompensatorAdder;
+    }
+
+    private void addVoltageRegulation(StaticVarCompensatorAdder staticVarCompensatorAdder, Terminal regulatingTerminal) {
+        // the regulation mode is only taken into account when regulating, VOLTAGE being the default one
+        RegulationMode mode = regulating && regulationMode != null ? regulationMode : RegulationMode.VOLTAGE;
+        double targetV = nanIfNull(voltageSetpoint);
+        double targetQ = nanIfNull(reactivePowerSetpoint);
+        VoltageRegulationAdder<StaticVarCompensatorAdder> voltageRegulationAdder = staticVarCompensatorAdder.newVoltageRegulation()
+                .withMode(mode)
+                .withRegulating(regulating);
+        if (regulatingTerminal == null) {
+            staticVarCompensatorAdder.setLocalTargetV(targetV).setLocalTargetQ(targetQ);
+        } else if (mode == RegulationMode.REACTIVE_POWER) {
+            // remote regulation: the regulated set point is the target value of the regulation
+            voltageRegulationAdder.withTerminal(regulatingTerminal).withTargetValue(targetQ);
+            staticVarCompensatorAdder.setLocalTargetV(targetV);
+        } else {
+            voltageRegulationAdder.withTerminal(regulatingTerminal).withTargetValue(targetV);
+            staticVarCompensatorAdder.setLocalTargetQ(targetQ);
+        }
+        voltageRegulationAdder.add();
     }
 
     private void addExtensionsToStaticVarCompensator(StaticVarCompensator staticVarCompensator,
@@ -193,7 +206,7 @@ public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
         }
 
         reportInjectionCreationConnectivity(this, subReportNode);
-        reportStaticVarCompensatorLimitsAndSetpoints(staticVarCompensator, voltageLevel, subReportNode);
+        reportStaticVarCompensatorLimitsAndSetpoints(voltageLevel, subReportNode);
         reportStaticVarCompensatorStandbyAutomaton(staticVarCompensator, voltageLevel, subReportNode);
     }
 
@@ -263,19 +276,15 @@ public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
                 .setBus(bus.getId())
                 .setConnectableBus(bus.getId())
                 .setBmax(bMax)
-                .setBmin(bMin)
-                .setVoltageSetpoint(voltageSetpoint)
-                .setReactivePowerSetpoint(reactivePowerSetpoint)
-                .setRegulating(regulating);
-        if (regulating) {
-            staticVarCompensatorAdder.setRegulationMode(regulationMode);
-        }
+                .setBmin(bMin);
+        addVoltageRegulation(staticVarCompensatorAdder, ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
+                regulatingTerminalId, regulatingTerminalType, regulatingTerminalVlId));
         StaticVarCompensator staticVarCompensator = staticVarCompensatorAdder.add();
 
         addExtensionsToStaticVarCompensator(staticVarCompensator, voltageLevel, subReportNode);
     }
 
-    private void reportStaticVarCompensatorLimitsAndSetpoints(StaticVarCompensator staticVarCompensator, VoltageLevel voltageLevel, ReportNode subReportNode) {
+    private void reportStaticVarCompensatorLimitsAndSetpoints(VoltageLevel voltageLevel, ReportNode subReportNode) {
         List<ReportNode> voltageReports = new ArrayList<>();
         if (Objects.nonNull(minSusceptance)) {
             voltageReports.add(ModificationUtils.getInstance().buildCreationReport(minSusceptance, "Susceptance min"));
@@ -308,26 +317,20 @@ public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
                     regulatingTerminalType,
                     regulatingTerminalVlId);
             if (terminal != null) {
-                updateCompensatorRegulatingTerminal(staticVarCompensator, terminal, voltageReports);
+                reportCompensatorRegulatingTerminal(voltageReports);
             }
         }
         ModificationUtils.getInstance().reportModifications(subReportNode, voltageReports, "network.modification.LimitsAndSetpointsCreated");
     }
 
-    private void updateCompensatorRegulatingTerminal(StaticVarCompensator staticVarCompensator,
-                                                   Terminal terminal, List<ReportNode> voltageReports) {
-        if (regulatingTerminalId != null
-                && regulatingTerminalType != null
-                && regulatingTerminalVlId != null) {
-            staticVarCompensator.setRegulatingTerminal(terminal);
-            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
-                    regulatingTerminalVlId,
-                    "Voltage level"));
-            voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
-                    regulatingTerminalType + ":"
-                            + regulatingTerminalId,
-                    "Equipment"));
-        }
+    private void reportCompensatorRegulatingTerminal(List<ReportNode> voltageReports) {
+        voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
+                regulatingTerminalVlId,
+                "Voltage level"));
+        voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
+                regulatingTerminalType + ":"
+                        + regulatingTerminalId,
+                "Equipment"));
     }
 
 }

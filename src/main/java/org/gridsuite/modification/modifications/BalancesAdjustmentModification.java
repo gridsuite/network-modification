@@ -6,7 +6,7 @@
  */
 package org.gridsuite.modification.modifications;
 
-import com.powsybl.balances_adjustment.balance_computation.*;
+import com.powsybl.balancesadjustment.computation.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.local.LocalComputationManager;

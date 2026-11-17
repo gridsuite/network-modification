@@ -10,6 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
@@ -118,8 +119,7 @@ public class BatteryModification extends AbstractInjectionModification {
                 busOrBusbarSectionId, battery.getTerminal());
         ModificationUtils.getInstance().checkReactiveLimit(battery, minQ, maxQ,
                 reactiveCapabilityCurvePoints, MODIFY_BATTERY_ERROR, errorMessage);
-        VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
-        Terminal regulatingTerminal = voltageRegulation != null ? voltageRegulation.getRegulatingTerminal() : null;
+        Terminal regulatingTerminal = battery.getVoltageRegulation() != null ? battery.getRegulatingTerminal() : null;
         ModificationUtils.getInstance().checkEnableRegulation(
                 voltageRegulationType,
                 regulatingTerminalId,
@@ -137,7 +137,7 @@ public class BatteryModification extends AbstractInjectionModification {
         if (targetV != null) {
             checkIsNotNegativeValue(errorMessage, targetV.getValue(), MODIFY_BATTERY_ERROR, TARGET_VOLTAGE);
         }
-        ModificationUtils.checkVoltageRegulation(errorMessage, voltageRegulation, voltageRegulationOn, targetV, MODIFY_BATTERY_ERROR);
+        ModificationUtils.checkVoltageRegulation(errorMessage, battery, voltageRegulationOn, targetV, MODIFY_BATTERY_ERROR);
     }
 
     private void checkActivePowerZeroOrBetweenMinAndMaxActivePowerBattery(Battery battery, NetworkModificationExceptionType exceptionType,
@@ -203,7 +203,7 @@ public class BatteryModification extends AbstractInjectionModification {
                                                         Battery battery,
                                                         ReportNode subReportNode) {
         ReportNode reportActivePower = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(battery::setTargetP, battery::getTargetP, targetP, "Active power");
-        ReportNode reportReactivePower = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(battery::setTargetQ, battery::getTargetQ, targetQ, "Reactive power");
+        ReportNode reportReactivePower = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(battery::setLocalTargetQ, battery::getLocalTargetQ, targetQ, "Reactive power");
         List<ReportNode> voltageRegulationReports = modifyVoltageRegulation(battery, voltageRegulationModification);
         ReportNode subReporterSetpoints = null;
         if (subReportNode != null && (reportActivePower != null || reportReactivePower != null || !voltageRegulationReports.isEmpty())) {
@@ -233,52 +233,60 @@ public class BatteryModification extends AbstractInjectionModification {
         if (!hasVoltageRegulationChange) {
             return voltageRegulationReports;
         }
-        VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
-        if (voltageRegulation == null) {
-            voltageRegulation = battery.newExtension(VoltageRegulationAdder.class)
-                    .withVoltageRegulatorOn(false)
-                    .add();
-        }
+        createVoltageRegulationIfMissing(battery);
+        // the regulating terminal is modified first, so that the target voltage is then set where the voltage is regulated
+        List<ReportNode> regulatingTerminalReports = new ArrayList<>();
+        setRegulatingTerminal(battery,
+                voltageRegulationModification.getRegulatingTerminalId(), voltageRegulationModification.getRegulatingTerminalType(),
+                voltageRegulationModification.getRegulatingTerminalVlId(), voltageRegulationModification.getVoltageRegulationType(),
+                regulatingTerminalReports);
         // target V
-        if (voltageRegulationModification.getTargetV() != null) {
-            setTargetV(voltageRegulation, voltageRegulationModification.getTargetV(), voltageRegulationReports, TypedValue.INFO_SEVERITY);
+        AttributeModification<Double> targetV = voltageRegulationModification.getTargetV();
+        if (targetV != null) {
+            setTargetV(battery, targetV, voltageRegulationReports);
         }
         // voltage Regulation On
         ReportNode voltageRegulationOnReportNode = ModificationUtils.getInstance()
-                .applyElementaryModificationsAndReturnReport(voltageRegulation::setVoltageRegulatorOn, voltageRegulation::isVoltageRegulatorOn,
+                .applyElementaryModificationsAndReturnReport(on -> ModificationUtils.setVoltageRegulationOn(battery, on), () -> battery.isRegulatingWithMode(RegulationMode.VOLTAGE),
                 voltageRegulationModification.getVoltageRegulationOn(), "VoltageRegulationOn");
         if (voltageRegulationOnReportNode != null) {
             voltageRegulationReports.add(voltageRegulationOnReportNode);
         }
-        // regulating terminal
-        setRegulatingTerminal(battery, voltageRegulation,
-                voltageRegulationModification.getRegulatingTerminalId(), voltageRegulationModification.getRegulatingTerminalType(),
-                voltageRegulationModification.getRegulatingTerminalVlId(), voltageRegulationModification.getVoltageRegulationType(),
-                voltageRegulationReports);
+        voltageRegulationReports.addAll(regulatingTerminalReports);
+        // target V is unset after the regulation has been dealt with, otherwise it can cause unwanted validation exceptions
+        if (targetV != null && targetV.getOp() == OperationType.UNSET) {
+            setRegulatingTargetV(battery, Double.NaN);
+        }
         return voltageRegulationReports;
     }
 
-    public static void setTargetV(VoltageRegulation voltageRegulation, AttributeModification<Double> targetV, List<ReportNode> voltageRegulationReports, TypedValue severity) {
-        Double oldValue = voltageRegulation.getTargetV();
+    public static void createVoltageRegulationIfMissing(Battery battery) {
+        if (battery.getVoltageRegulation() == null) {
+            battery.newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withRegulating(false)
+                    .build();
+        }
+    }
+
+    private static void setTargetV(Battery battery, AttributeModification<Double> targetV, List<ReportNode> voltageRegulationReports) {
+        Double oldValue = battery.getRegulatingTargetV();
         Double newValue = Double.NaN;
         if (targetV.getOp() == OperationType.SET) {
             // we always keep the equivalent local target voltage in the network
-            voltageRegulation.setTargetV(targetV.getValue());
+            setRegulatingTargetV(battery, targetV.getValue());
             newValue = targetV.getValue();
-        } else {
-            voltageRegulation.setTargetV(Double.NaN);
         }
-        voltageRegulationReports.add(buildModificationReport(oldValue, newValue, "Target V", severity));
+        voltageRegulationReports.add(buildModificationReport(oldValue, newValue, "Target V", TypedValue.INFO_SEVERITY));
     }
 
     private static void setRegulatingTerminal(Battery battery,
-                                              VoltageRegulation voltageRegulation,
                                               AttributeModification<String> regulatingTerminalId,
                                               AttributeModification<String> regulatingTerminalType,
                                               AttributeModification<String> regulatingTerminalVlId,
                                               AttributeModification<VoltageRegulationType> voltageRegulationType,
                                               List<ReportNode> voltageRegulationReports) {
-        Terminal regulatingTerminal = voltageRegulation.getRegulatingTerminal();
+        Terminal regulatingTerminal = battery.getRegulatingTerminal();
         String oldVoltageLevel = null;
         String oldEquipment = null;
 
@@ -300,7 +308,7 @@ public class BatteryModification extends AbstractInjectionModification {
                     regulatingTerminalId.getValue(),
                     regulatingTerminalType.getValue(),
                     regulatingTerminalVlId.getValue());
-            voltageRegulation.setRegulatingTerminal(newRegulatingTerminal);
+            ModificationUtils.setRegulatingTerminal(battery, newRegulatingTerminal);
             voltageRegulationReports.add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel,
                     regulatingTerminalVlId.getValue(),
                     "Voltage level"));
@@ -311,7 +319,7 @@ public class BatteryModification extends AbstractInjectionModification {
         }
         if (voltageRegulationType.getValue() == VoltageRegulationType.LOCAL && oldEquipment != null && oldVoltageLevel != null) {
             // setting regulating terminal to null set to local terminal
-            voltageRegulation.setRegulatingTerminal(null);
+            ModificationUtils.setRegulatingTerminal(battery, null);
             voltageRegulationReports.add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel,
                     null,
                     "Voltage level"));
