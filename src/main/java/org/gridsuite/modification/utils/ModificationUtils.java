@@ -57,6 +57,7 @@ public final class ModificationUtils {
     public static final String OPERATIONAL_LIMITS_GROUP_ADDED_LOG_DETAIL = "network.modification.operationalLimitsGroupAdded.detail";
     private static final String SETPOINTS = "network.modification.Setpoints";
     private static final String CONNECTIVITY_MODIFIED = "network.modification.ConnectivityModified";
+    private static final String STATIC_VAR_COMPENSATOR = "StaticVarCompensator";
     private static final String MIN_REACTIVE_POWER_FIELDNAME = "Minimum reactive power";
     private static final String MAX_REACTIVE_POWER_FIELDNAME = "Maximum reactive power";
     public static final String CONNECTION_NAME_FIELD_NAME = "Connection name";
@@ -1602,7 +1603,7 @@ public final class ModificationUtils {
     public void checkStaticVarCompensatorLimits(String equipmentId, NetworkModificationExceptionType exceptionType,
                                                 Double minSusceptance, Double maxSusceptance,
                                                 Double minQAtNominalV, Double maxQAtNominalV) {
-        String equipmentName = "StaticVarCompensator";
+        String equipmentName = STATIC_VAR_COMPENSATOR;
         if (Objects.isNull(minSusceptance) && Objects.isNull(minQAtNominalV)) {
             throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "minimum susceptance is not set");
         }
@@ -1622,7 +1623,7 @@ public final class ModificationUtils {
     public void checkStaticVarCompensatorSetPoints(String equipmentId, NetworkModificationExceptionType exceptionType,
                                                    StaticVarCompensator.RegulationMode regulationMode,
                                                    Double voltageSetpoint, Double reactivePowerSetpoint) {
-        String equipmentName = "StaticVarCompensator";
+        String equipmentName = STATIC_VAR_COMPENSATOR;
         if (regulationMode == StaticVarCompensator.RegulationMode.VOLTAGE && voltageSetpoint == null) {
             throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "Voltage setpoint is not set");
         }
@@ -1643,7 +1644,7 @@ public final class ModificationUtils {
     }
 
     public void checkStandbyAutomatonCreation(StaticVarCompensatorCreation staticVarCompensatorCreation) {
-        String equipmentName = "StaticVarCompensator";
+        String equipmentName = STATIC_VAR_COMPENSATOR;
         if (staticVarCompensatorCreation.isStandby() && staticVarCompensatorCreation.getRegulationMode() != StaticVarCompensator.RegulationMode.VOLTAGE
             && !staticVarCompensatorCreation.isRegulating()) {
             throw makeEquipmentException(CREATE_STATIC_VAR_COMPENSATOR_ERROR,
