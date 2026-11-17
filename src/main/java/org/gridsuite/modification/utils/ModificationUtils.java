@@ -56,6 +56,7 @@ public final class ModificationUtils {
     public static final String REACTIVE_LIMITS = "network.modification.ReactiveLimits";
     public static final String OPERATIONAL_LIMITS_GROUP_ADDED_LOG_DETAIL = "network.modification.operationalLimitsGroupAdded.detail";
     private static final String SETPOINTS = "network.modification.Setpoints";
+    private static final String CONNECTIVITY_MODIFIED = "network.modification.ConnectivityModified";
     private static final String MIN_REACTIVE_POWER_FIELDNAME = "Minimum reactive power";
     private static final String MAX_REACTIVE_POWER_FIELDNAME = "Maximum reactive power";
     public static final String CONNECTION_NAME_FIELD_NAME = "Connection name";
@@ -716,7 +717,7 @@ public final class ModificationUtils {
         processConnectivityPosition(connectablePosition, connectablePositionAdder, injectionModification, injection.getNetwork(), reports);
         modifyConnection(injectionModification.getTerminalConnected(), injection, injection.getTerminal(), reports);
 
-        return reportModifications(connectivityReports, reports, "network.modification.ConnectivityModified");
+        return reportModifications(connectivityReports, reports, CONNECTIVITY_MODIFIED);
     }
 
     public ReportNode modifyBranchConnectivityAttributes(ConnectablePosition<?> connectablePosition,
@@ -757,7 +758,7 @@ public final class ModificationUtils {
                             "1 & 2")); // Exactly the both sides awaited here
         }
 
-        return reportModifications(connectivityReports, reports, "network.modification.ConnectivityModified");
+        return reportModifications(connectivityReports, reports, CONNECTIVITY_MODIFIED);
     }
 
     private void processConnectivityPosition(ConnectablePosition<?> connectablePosition,
@@ -2139,7 +2140,7 @@ public final class ModificationUtils {
                                                           AttributeModification<String> busOrBusbarSectionId) {
         ReportNode moveFeederBayReportNode = ReportNode.newRootReportNode()
                 .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("network.modification.ConnectivityModified")
+                .withMessageTemplate(CONNECTIVITY_MODIFIED)
                 .build();
         moveFeederBay(connectable, terminal, voltageLevelId, busOrBusbarSectionId, moveFeederBayReportNode);
         return new ArrayList<>(moveFeederBayReportNode.getChildren());
