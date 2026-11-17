@@ -141,7 +141,9 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
         if (voltageSetpoint != null) {
             checkIsNotNegativeValue(errorMessage, voltageSetpoint.getValue(), MODIFY_STATIC_VAR_COMPENSATOR_ERROR, "voltage set point");
         }
-        checkRegulationMode(errorMessage);
+        if (regulationMode != null && regulationMode.getValue() == null) {
+            throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR, errorMessage + "Regulation mode can not be unset");
+        }
         checkLimitsAndSetpoints(network, staticVarCompensator);
         checkStandbyAutomaton(network, staticVarCompensator, errorMessage);
         ModificationUtils.getInstance().checkEnableRegulation(
@@ -154,12 +156,6 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
                 network,
                 MODIFY_STATIC_VAR_COMPENSATOR_ERROR,
                 errorMessage);
-    }
-
-    private void checkRegulationMode(String errorMessage) {
-        if (regulationMode != null && regulationMode.getValue() == null) {
-            throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR, errorMessage + "Regulation mode can not be unset");
-        }
     }
 
     private void checkLimitsAndSetpoints(Network network, StaticVarCompensator staticVarCompensator) {
