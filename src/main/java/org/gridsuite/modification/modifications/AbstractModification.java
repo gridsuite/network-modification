@@ -19,8 +19,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.gridsuite.modification.IFilterService;
-import org.gridsuite.modification.ILoadFlowService;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.modifications.byfilter.ByFormulaModification;
 import org.gridsuite.modification.modifications.byfilter.ModificationByAssignment;
@@ -34,9 +32,9 @@ import org.gridsuite.modification.modifications.tabular.TabularModification;
  * {@link #getName()} (see {@code @JsonTypeInfo}) and each concrete subclass must be registered in
  * the {@code @JsonSubTypes} registry of this class.
  *
- * <p>The injected application context ({@code filterService}, {@code loadFlowService}) is not serialized.
- * After deserialization, {@link #initApplicationContext(IFilterService, ILoadFlowService, String)} must be called
- * again with valid services before the modification can be applied.
+ * <p>The root network tag is not serialized. After deserialization,
+ * {@link #initApplicationContext(String)} must be called again with the tag of the root network
+ * before the modification can be applied.
  *
  * @author Slimane Amar <slimane.amar at rte-france.com>
  */
@@ -114,19 +112,13 @@ public abstract class AbstractModification extends AbstractNetworkModification {
     }
 
     /**
-     * Injects the application context required to {@link #apply(Network, ReportNode)}: the services, and the tag of
-     * the root network being applied on.
+     * Sets the tag of the root network being applied on for {@link #apply(Network, ReportNode)}.
      *
      * <p>None of it is serialized with the modification: after deserialization, this method must be called again
      * before the modification can be applied.
      */
-    public final void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService, String rootNetworkTag) {
+    public final void initApplicationContext(String rootNetworkTag) {
         this.rootNetworkTag = rootNetworkTag;
-        initServices(filterService, loadFlowService);
-    }
-
-    protected void initServices(IFilterService filterService, ILoadFlowService loadFlowService) {
-        // To add some specific information
     }
 
     @Override

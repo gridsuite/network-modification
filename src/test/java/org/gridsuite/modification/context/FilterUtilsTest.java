@@ -7,9 +7,9 @@
  */
 package org.gridsuite.modification.context;
 
+import org.gridsuite.filter.Filter;
+import org.gridsuite.filter.IdentifierListFilter;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.filter.wip.Filter;
-import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.context.dto.FilterWithDistributionKeys;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.modifications.data.scaling.VariationFilterData;

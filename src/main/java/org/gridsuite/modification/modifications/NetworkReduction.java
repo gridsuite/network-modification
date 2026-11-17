@@ -27,7 +27,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.gridsuite.filter.wip.Filter;
+import org.gridsuite.filter.Filter;
 import org.gridsuite.modification.ModificationType;
 
 import java.util.Collection;
