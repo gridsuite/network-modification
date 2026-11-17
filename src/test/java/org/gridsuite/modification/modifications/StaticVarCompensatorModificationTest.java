@@ -6,12 +6,15 @@
  */
 package org.gridsuite.modification.modifications;
 
+import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.StandbyAutomaton;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.error.NetworkModificationException;
+import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 
@@ -81,6 +84,7 @@ class StaticVarCompensatorModificationTest extends AbstractInjectionModification
         assertCheckFails(builder().voltageRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.SET)).build(),
                 "Regulation is set to Distant but regulating terminal is local");
         assertCheckFails(builder().minSusceptance(set(30.)).maxQAtNominalV(set(3800000.)).build(), "maximum susceptance is expected to be greater than or equal to minimum susceptance");
+        assertCheckFails(builder().minQAtNominalV(set(20.)).maxQAtNominalV(set(10.)).build(), "maximum Q at nominal voltage is expected to be greater than or equal to minimum Q");
     }
 
     @Test
@@ -340,6 +344,33 @@ class StaticVarCompensatorModificationTest extends AbstractInjectionModification
                 .build().toModification().apply(getNetwork());
         assertEquals("v1", getSvc().getTerminal().getVoltageLevel().getId());
         assertEquals(5., getSvc().getBmax(), 1e-9);
+    }
+
+    @Test
+    void testConnectivityAndLimitsAndSetpointsReports() {
+        ReportNode rootReportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build();
+        StaticVarCompensatorModificationInfos infos = builder()
+                .voltageLevelId(new AttributeModification<>("v1", OperationType.SET))
+                .busOrBusbarSectionId(new AttributeModification<>("1.1", OperationType.SET))
+                .connectionName(new AttributeModification<>("newConnection", OperationType.SET))
+                .maxQAtNominalV(set(10.))
+                .voltageSetpoint(set(385.))
+                .regulating(new AttributeModification<>(true, OperationType.SET))
+                .build();
+        infos.toModification().apply(getNetwork(), infos.createSubReportNode(rootReportNode));
+
+        List<ReportNode> children = rootReportNode.getChildren().getFirst().getChildren();
+        assertEquals(List.of("network.modification.ConnectivityModified", "network.modification.LimitsAndSetpoints"),
+                children.stream().map(ReportNode::getMessageKey).toList());
+        List<String> connectivityKeys = children.getFirst().getChildren().stream().map(ReportNode::getMessageKey).toList();
+        assertTrue(connectivityKeys.contains("core.iidm.modification.newConnectableAdded"), connectivityKeys.toString());
+        List<String> limitsAndSetpoints = children.get(1).getChildren().stream().map(ReportNode::getMessage).toList();
+        assertEquals(2, limitsAndSetpoints.size(), limitsAndSetpoints.toString());
+        assertTrue(limitsAndSetpoints.get(0).startsWith("Q max at nominal voltage"), limitsAndSetpoints.toString());
+        assertTrue(limitsAndSetpoints.get(1).startsWith("Voltage set point"), limitsAndSetpoints.toString());
     }
 
     private void addStandbyAutomatonExtension(boolean standby) {

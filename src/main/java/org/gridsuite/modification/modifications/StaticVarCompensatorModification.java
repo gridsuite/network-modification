@@ -34,8 +34,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.gridsuite.modification.error.NetworkModificationExceptionType.MODIFY_STATIC_VAR_COMPENSATOR_ERROR;
+import static org.gridsuite.modification.error.NetworkModificationExceptionType.STATIC_VAR_COMPENSATOR_NOT_FOUND;
 import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegativeValue;
-import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
+import static org.gridsuite.modification.utils.ModificationUtils.getFinalValue;
+import static org.gridsuite.modification.utils.ModificationUtils.hasValue;
 import static org.gridsuite.modification.utils.ModificationUtils.isRegulatingTerminalModified;
 
 /**
@@ -128,15 +130,19 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
 
     @Override
     public void check(Network network) throws NetworkModificationException {
-        if (equipmentId == null) {
-            throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR, "Missing required attributes to modify the equipment");
+        StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator(equipmentId);
+        if (staticVarCompensator == null) {
+            throw new NetworkModificationException(STATIC_VAR_COMPENSATOR_NOT_FOUND,
+                    "Static var compensator " + equipmentId + " does not exist in network");
         }
-        StaticVarCompensator staticVarCompensator = ModificationUtils.getInstance().getStaticVarCompensator(network, equipmentId);
         String errorMessage = "Static var compensator '" + equipmentId + "' : ";
 
         ModificationUtils.getInstance().checkVoltageLevelModification(network, voltageLevelId, busOrBusbarSectionId, staticVarCompensator.getTerminal());
-        checkSusceptanceLimits(network, staticVarCompensator, errorMessage);
-        checkRegulation(staticVarCompensator, errorMessage);
+        if (voltageSetpoint != null) {
+            checkIsNotNegativeValue(errorMessage, voltageSetpoint.getValue(), MODIFY_STATIC_VAR_COMPENSATOR_ERROR, "voltage set point");
+        }
+        checkRegulationMode(errorMessage);
+        checkLimitsAndSetpoints(network, staticVarCompensator);
         checkStandbyAutomaton(network, staticVarCompensator, errorMessage);
         ModificationUtils.getInstance().checkEnableRegulation(
                 voltageRegulationType,
@@ -150,43 +156,37 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
                 errorMessage);
     }
 
-    private void checkSusceptanceLimits(Network network, StaticVarCompensator staticVarCompensator, String errorMessage) {
-        double nominalV = getFinalNominalV(network, staticVarCompensator);
-        Double finalMinSusceptance = getFinalValue(toSusceptanceModification(minSusceptance, minQAtNominalV, nominalV), staticVarCompensator.getBmin());
-        Double finalMaxSusceptance = getFinalValue(toSusceptanceModification(maxSusceptance, maxQAtNominalV, nominalV), staticVarCompensator.getBmax());
-        if (isNotSet(finalMinSusceptance)) {
-            throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR, errorMessage + "minimum susceptance is not set");
-        }
-        if (isNotSet(finalMaxSusceptance)) {
-            throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR, errorMessage + "maximum susceptance is not set");
-        }
-        if (finalMaxSusceptance < finalMinSusceptance) {
-            throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR, errorMessage + "maximum susceptance is expected to be greater than or equal to minimum susceptance");
-        }
-    }
-
-    private void checkRegulation(StaticVarCompensator staticVarCompensator, String errorMessage) {
-        if (voltageSetpoint != null) {
-            checkIsNotNegativeValue(errorMessage, voltageSetpoint.getValue(), MODIFY_STATIC_VAR_COMPENSATOR_ERROR, "voltage set point");
-        }
+    private void checkRegulationMode(String errorMessage) {
         if (regulationMode != null && regulationMode.getValue() == null) {
             throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR, errorMessage + "Regulation mode can not be unset");
         }
-        StaticVarCompensator.RegulationMode finalRegulationMode = getFinalRegulationMode(staticVarCompensator);
-        if (!getFinalRegulating(staticVarCompensator)) {
-            return;
+    }
+
+    private void checkLimitsAndSetpoints(Network network, StaticVarCompensator staticVarCompensator) {
+        double nominalV = getFinalNominalV(network, staticVarCompensator);
+        Double finalMinSusceptance = null;
+        Double finalMaxSusceptance = null;
+        Double finalMinQAtNominalV = null;
+        Double finalMaxQAtNominalV = null;
+        if (isQAtNominalVModification()) {
+            // limits are checked in Q so that the error message matches the values entered by the user
+            finalMinQAtNominalV = hasValue(minQAtNominalV) ? minQAtNominalV.getValue() : toQAtNominalV(staticVarCompensator.getBmin(), nominalV);
+            finalMaxQAtNominalV = hasValue(maxQAtNominalV) ? maxQAtNominalV.getValue() : toQAtNominalV(staticVarCompensator.getBmax(), nominalV);
+        } else {
+            finalMinSusceptance = getFinalValue(toSusceptanceModification(minSusceptance, minQAtNominalV, nominalV), staticVarCompensator.getBmin());
+            finalMaxSusceptance = getFinalValue(toSusceptanceModification(maxSusceptance, maxQAtNominalV, nominalV), staticVarCompensator.getBmax());
         }
-        if (finalRegulationMode == null) {
-            throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR, errorMessage + "Regulation mode is not set");
+        StaticVarCompensator.RegulationMode regulationModeToCheck = null;
+        if (getFinalRegulating(staticVarCompensator)) {
+            regulationModeToCheck = getFinalRegulationMode(staticVarCompensator);
         }
-        if (finalRegulationMode == StaticVarCompensator.RegulationMode.VOLTAGE
-                && isNotSet(getFinalValue(voltageSetpoint, staticVarCompensator.getVoltageSetpoint()))) {
-            throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR, errorMessage + "Voltage setpoint is not set");
-        }
-        if (finalRegulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER
-                && isNotSet(getFinalValue(reactivePowerSetpoint, staticVarCompensator.getReactivePowerSetpoint()))) {
-            throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR, errorMessage + "Reactive power setpoint is not set");
-        }
+        // the network values can be NaN : they are considered as not set
+        ModificationUtils.getInstance().checkStaticVarCompensatorLimits(equipmentId, MODIFY_STATIC_VAR_COMPENSATOR_ERROR,
+                finalMinSusceptance, finalMaxSusceptance, finalMinQAtNominalV, finalMaxQAtNominalV);
+        ModificationUtils.getInstance().checkStaticVarCompensatorSetPoints(equipmentId, MODIFY_STATIC_VAR_COMPENSATOR_ERROR,
+                regulationModeToCheck,
+                nanToNull(getFinalValue(voltageSetpoint, staticVarCompensator.getVoltageSetpoint())),
+                nanToNull(getFinalValue(reactivePowerSetpoint, staticVarCompensator.getReactivePowerSetpoint())));
     }
 
     private void checkStandbyAutomaton(Network network, StaticVarCompensator staticVarCompensator, String errorMessage) {
@@ -194,7 +194,7 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
             return;
         }
         StandbyAutomaton standbyAutomaton = staticVarCompensator.getExtension(StandbyAutomaton.class);
-        boolean isStandbyAutomatonAdded = standbyAutomaton == null && standbyAutomatonOn != null && Boolean.TRUE.equals(standbyAutomatonOn.getValue());
+        boolean isStandbyAutomatonAdded = standbyAutomaton == null && isStandbyAutomatonOn();
         if (standbyAutomaton == null && !isStandbyAutomatonAdded) {
             if (isStandbyAutomatonFieldModified()) {
                 throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR,
@@ -245,21 +245,13 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
 
     @Override
     public void apply(Network network, ReportNode subReportNode) {
-        StaticVarCompensator staticVarCompensator = ModificationUtils.getInstance().getStaticVarCompensator(network, equipmentId);
-        subReportNode.newReportNode()
-                .withMessageTemplate("network.modification.staticVarCompensatorModification")
-                .withUntypedValue("id", equipmentId)
-                .add();
-
-        if (equipmentName != null && equipmentName.getValue() != null) {
-            ModificationUtils.getInstance().applyElementaryModifications(staticVarCompensator::setName,
-                    () -> staticVarCompensator.getOptionalName().orElse("No value"), equipmentName, subReportNode, "Name");
-        }
-        ModificationUtils.getInstance().moveFeederBay(staticVarCompensator, staticVarCompensator.getTerminal(), voltageLevelId, busOrBusbarSectionId, subReportNode);
-        modifyLimits(staticVarCompensator, subReportNode);
-        modifySetpoints(staticVarCompensator, subReportNode);
-        modifyStandbyAutomaton(staticVarCompensator, subReportNode);
+        StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator(equipmentId);
+        ModificationUtils.getInstance().applyElementaryModifications(staticVarCompensator::setName,
+                () -> staticVarCompensator.getOptionalName().orElse("No value"), equipmentName, subReportNode, "Name");
+        // the feeder bay is moved first : the limits in Q are converted with the nominal voltage of the new voltage level
         modifyConnectivity(staticVarCompensator, subReportNode);
+        modifyLimitsAndSetpoints(staticVarCompensator, subReportNode);
+        modifyStandbyAutomaton(staticVarCompensator, subReportNode);
         updateMeasurements(staticVarCompensator, subReportNode);
         PropertiesUtils.applyProperties(staticVarCompensator, subReportNode, properties, "network.modification.StaticVarCompensatorProperties");
     }
@@ -269,21 +261,39 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
         return ModificationType.STATIC_VAR_COMPENSATOR_MODIFICATION.name();
     }
 
-    private void modifyLimits(StaticVarCompensator staticVarCompensator, ReportNode subReportNode) {
-        double nominalV = staticVarCompensator.getTerminal().getVoltageLevel().getNominalV();
-        List<ReportNode> reports = new ArrayList<>();
-        addReport(reports, ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(staticVarCompensator::setBmin, staticVarCompensator::getBmin,
-                toSusceptanceModification(minSusceptance, minQAtNominalV, nominalV), "Susceptance min"));
-        addReport(reports, ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(staticVarCompensator::setBmax, staticVarCompensator::getBmax,
-                toSusceptanceModification(maxSusceptance, maxQAtNominalV, nominalV), "Susceptance max"));
-        insertReports(reports, subReportNode, "network.modification.limits");
+    private void modifyConnectivity(StaticVarCompensator staticVarCompensator, ReportNode subReportNode) {
+        List<ReportNode> connectivityReports = ModificationUtils.getInstance().moveFeederBayAndReturnReports(staticVarCompensator,
+                staticVarCompensator.getTerminal(), voltageLevelId, busOrBusbarSectionId);
+        ConnectablePosition<StaticVarCompensator> connectablePosition = staticVarCompensator.getExtension(ConnectablePosition.class);
+        ConnectablePositionAdder<StaticVarCompensator> connectablePositionAdder = staticVarCompensator.newExtension(ConnectablePositionAdder.class);
+        ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder,
+                staticVarCompensator, this, subReportNode, connectivityReports);
     }
 
-    private void modifySetpoints(StaticVarCompensator staticVarCompensator, ReportNode subReportNode) {
+    private void modifyLimitsAndSetpoints(StaticVarCompensator staticVarCompensator, ReportNode subReportNode) {
         List<ReportNode> reports = new ArrayList<>();
+        modifyLimits(staticVarCompensator, reports);
         modifyRegulation(staticVarCompensator, reports);
         modifyRegulatingTerminal(staticVarCompensator, reports);
-        insertReports(reports, subReportNode, "network.modification.Setpoints");
+        ModificationUtils.getInstance().reportModifications(subReportNode, reports, "network.modification.LimitsAndSetpoints");
+    }
+
+    private void modifyLimits(StaticVarCompensator staticVarCompensator, List<ReportNode> reports) {
+        double nominalV = staticVarCompensator.getTerminal().getVoltageLevel().getNominalV();
+        if (isQAtNominalVModification()) {
+            // reported in Q, as entered by the user
+            reports.add(ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
+                    q -> staticVarCompensator.setBmin(toSusceptance(q, nominalV)), () -> toQAtNominalV(staticVarCompensator.getBmin(), nominalV),
+                    hasValue(minQAtNominalV) ? minQAtNominalV : null, "Q min at nominal voltage"));
+            reports.add(ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
+                    q -> staticVarCompensator.setBmax(toSusceptance(q, nominalV)), () -> toQAtNominalV(staticVarCompensator.getBmax(), nominalV),
+                    hasValue(maxQAtNominalV) ? maxQAtNominalV : null, "Q max at nominal voltage"));
+            return;
+        }
+        reports.add(ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(staticVarCompensator::setBmin, staticVarCompensator::getBmin,
+                toSusceptanceModification(minSusceptance, minQAtNominalV, nominalV), "Susceptance min"));
+        reports.add(ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(staticVarCompensator::setBmax, staticVarCompensator::getBmax,
+                toSusceptanceModification(maxSusceptance, maxQAtNominalV, nominalV), "Susceptance max"));
     }
 
     private void modifyRegulation(StaticVarCompensator staticVarCompensator, List<ReportNode> reports) {
@@ -294,16 +304,16 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
         boolean finalRegulating = getFinalRegulating(staticVarCompensator);
 
         staticVarCompensator.setRegulating(false);
-        addReport(reports, ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
+        reports.add(ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
                 value -> staticVarCompensator.setVoltageSetpoint(value != null ? value : Double.NaN),
-                staticVarCompensator::getVoltageSetpoint, voltageSetpoint, "Voltage"));
-        addReport(reports, ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
+                staticVarCompensator::getVoltageSetpoint, voltageSetpoint, "Voltage set point"));
+        reports.add(ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
                 value -> staticVarCompensator.setReactivePowerSetpoint(value != null ? value : Double.NaN),
-                staticVarCompensator::getReactivePowerSetpoint, reactivePowerSetpoint, "Reactive power"));
-        addReport(reports, ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(staticVarCompensator::setRegulationMode,
+                staticVarCompensator::getReactivePowerSetpoint, reactivePowerSetpoint, "Reactive power set point"));
+        reports.add(ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(staticVarCompensator::setRegulationMode,
                 staticVarCompensator::getRegulationMode, regulationMode, "Regulation mode"));
         staticVarCompensator.setRegulating(finalRegulating);
-        if (regulating != null) {
+        if (oldRegulating != finalRegulating) {
             reports.add(ModificationUtils.getInstance().buildModificationReport(oldRegulating, finalRegulating, "Regulating"));
         }
     }
@@ -354,13 +364,13 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
         double nominalV = staticVarCompensator.getTerminal().getVoltageLevel().getNominalV();
         List<ReportNode> reports = new ArrayList<>();
         if (standbyAutomaton == null) {
-            if (standbyAutomatonOn != null && Boolean.TRUE.equals(standbyAutomatonOn.getValue())) {
+            if (isStandbyAutomatonOn()) {
                 addStandbyAutomaton(staticVarCompensator, nominalV, reports);
             }
         } else {
             modifyExistingStandbyAutomaton(standbyAutomaton, nominalV, reports);
         }
-        insertReports(reports, subReportNode, "network.modification.StandbyAutomatonModification");
+        ModificationUtils.getInstance().reportModifications(subReportNode, reports, "network.modification.StandbyAutomatonModification");
     }
 
     private void addStandbyAutomaton(StaticVarCompensator staticVarCompensator, double nominalV, List<ReportNode> reports) {
@@ -392,16 +402,17 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
         boolean isVoltageConfigModified = lowVoltageSetpoint != null || highVoltageSetpoint != null
                 || lowVoltageThreshold != null || highVoltageThreshold != null;
 
+        // the thresholds can be checked against each other only when standby is off
         if (isVoltageConfigModified && oldStandby) {
             standbyAutomaton.setStandby(false);
         }
-        addReport(reports, ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(standbyAutomaton::setLowVoltageSetpoint,
+        reports.add(ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(standbyAutomaton::setLowVoltageSetpoint,
                 standbyAutomaton::getLowVoltageSetpoint, lowVoltageSetpoint, "Low voltage set point"));
-        addReport(reports, ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(standbyAutomaton::setHighVoltageSetpoint,
+        reports.add(ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(standbyAutomaton::setHighVoltageSetpoint,
                 standbyAutomaton::getHighVoltageSetpoint, highVoltageSetpoint, "High voltage set point"));
-        addReport(reports, ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(standbyAutomaton::setLowVoltageThreshold,
+        reports.add(ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(standbyAutomaton::setLowVoltageThreshold,
                 standbyAutomaton::getLowVoltageThreshold, lowVoltageThreshold, "Low voltage threshold"));
-        addReport(reports, ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(standbyAutomaton::setHighVoltageThreshold,
+        reports.add(ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(standbyAutomaton::setHighVoltageThreshold,
                 standbyAutomaton::getHighVoltageThreshold, highVoltageThreshold, "High voltage threshold"));
         if (standbyAutomaton.isStandby() != newStandby) {
             standbyAutomaton.setStandby(newStandby);
@@ -411,13 +422,17 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
         }
 
         if (b0 != null) {
-            addReport(reports, ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(standbyAutomaton::setB0,
+            reports.add(ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(standbyAutomaton::setB0,
                     standbyAutomaton::getB0, b0, "Fixed part of susceptance"));
-        } else if (q0 != null) {
-            double oldQ0 = standbyAutomaton.getB0() * Math.pow(nominalV, 2);
-            standbyAutomaton.setB0(toSusceptanceModification(null, q0, nominalV).getValue());
+        } else if (hasValue(q0)) {
+            double oldQ0 = toQAtNominalV(standbyAutomaton.getB0(), nominalV);
+            standbyAutomaton.setB0(toSusceptance(q0.getValue(), nominalV));
             reports.add(ModificationUtils.getInstance().buildModificationReport(oldQ0, q0.getValue(), "Fixed part of Q at nominal voltage"));
         }
+    }
+
+    private boolean isStandbyAutomatonOn() {
+        return standbyAutomatonOn != null && Boolean.TRUE.equals(standbyAutomatonOn.getValue());
     }
 
     private boolean isStandbyAutomatonRemoved() {
@@ -431,40 +446,44 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
     }
 
     private boolean getFinalStandby(StandbyAutomaton standbyAutomaton) {
-        if (standby != null && standby.getValue() != null) {
+        if (hasValue(standby)) {
             return standby.getValue();
         }
         return standbyAutomaton != null && standbyAutomaton.isStandby();
     }
 
-    private StaticVarCompensator.RegulationMode getFinalRegulationMode(StaticVarCompensator staticVarCompensator) {
-        return regulationMode != null ? regulationMode.getValue() : staticVarCompensator.getRegulationMode();
-    }
-
     private double getFinalNominalV(Network network, StaticVarCompensator staticVarCompensator) {
-        if (voltageLevelId != null && voltageLevelId.getValue() != null) {
+        if (hasValue(voltageLevelId)) {
             return ModificationUtils.getInstance().getVoltageLevel(network, voltageLevelId.getValue()).getNominalV();
         }
         return staticVarCompensator.getTerminal().getVoltageLevel().getNominalV();
     }
 
     private static void checkIsSet(Double value, String errorMessage, String fieldName) {
-        if (isNotSet(value)) {
+        if (nanToNull(value) == null) {
             throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR, errorMessage + "Standby automaton " + fieldName + " is not set");
         }
     }
 
-    private void modifyConnectivity(StaticVarCompensator staticVarCompensator, ReportNode subReportNode) {
-        ConnectablePosition<StaticVarCompensator> connectablePosition = staticVarCompensator.getExtension(ConnectablePosition.class);
-        ConnectablePositionAdder<StaticVarCompensator> connectablePositionAdder = staticVarCompensator.newExtension(ConnectablePositionAdder.class);
-        ModificationUtils.getInstance().modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, staticVarCompensator, this, subReportNode);
-    }
-
     private boolean getFinalRegulating(StaticVarCompensator staticVarCompensator) {
-        if (regulating != null && regulating.getValue() != null) {
+        if (hasValue(regulating)) {
             return regulating.getValue();
         }
         return staticVarCompensator.isRegulating();
+    }
+
+    private StaticVarCompensator.RegulationMode getFinalRegulationMode(StaticVarCompensator staticVarCompensator) {
+        if (regulationMode != null) {
+            return regulationMode.getValue();
+        }
+        return staticVarCompensator.getRegulationMode();
+    }
+
+    /**
+     * The limits are entered in Q at nominal voltage (and not in susceptance) when no susceptance is modified.
+     */
+    private boolean isQAtNominalVModification() {
+        return minSusceptance == null && maxSusceptance == null && (hasValue(minQAtNominalV) || hasValue(maxQAtNominalV));
     }
 
     /**
@@ -476,32 +495,21 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
         if (susceptance != null) {
             return susceptance;
         }
-        if (qAtNominalV != null && qAtNominalV.getValue() != null) {
-            return new AttributeModification<>(qAtNominalV.getValue() / Math.pow(nominalV, 2), OperationType.SET);
+        if (hasValue(qAtNominalV)) {
+            return new AttributeModification<>(toSusceptance(qAtNominalV.getValue(), nominalV), OperationType.SET);
         }
         return null;
     }
 
-    private static Double getFinalValue(AttributeModification<Double> modification, double currentValue) {
-        return modification != null ? modification.applyModification(currentValue) : Double.valueOf(currentValue);
+    private static double toSusceptance(double qAtNominalV, double nominalV) {
+        return qAtNominalV / Math.pow(nominalV, 2);
     }
 
-    private static boolean isNotSet(Double value) {
-        return value == null || Double.isNaN(value);
+    private static double toQAtNominalV(double susceptance, double nominalV) {
+        return susceptance * Math.pow(nominalV, 2);
     }
 
-    private static void addReport(List<ReportNode> reports, ReportNode report) {
-        if (report != null) {
-            reports.add(report);
-        }
-    }
-
-    private static void insertReports(List<ReportNode> reports, ReportNode subReportNode, String messageTemplate) {
-        if (!reports.isEmpty()) {
-            ReportNode reportNode = subReportNode.newReportNode().withMessageTemplate(messageTemplate).add();
-            for (ReportNode report : reports) {
-                insertReportNode(reportNode, report);
-            }
-        }
+    private static Double nanToNull(Double value) {
+        return value == null || Double.isNaN(value) ? null : value;
     }
 }

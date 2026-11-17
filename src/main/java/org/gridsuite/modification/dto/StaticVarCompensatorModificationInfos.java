@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +27,7 @@ import org.gridsuite.modification.modifications.StaticVarCompensatorModification
 @Getter
 @Setter
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 @Schema(description = "Static var compensator modification")
 @JsonTypeName("STATIC_VAR_COMPENSATOR_MODIFICATION")
 public class StaticVarCompensatorModificationInfos extends InjectionModificationInfos {

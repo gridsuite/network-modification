@@ -14,7 +14,7 @@ import com.powsybl.iidm.modification.topology.RemoveSubstationBuilder;
 import com.powsybl.iidm.modification.topology.RemoveVoltageLevel;
 import com.powsybl.iidm.network.*;
 import lombok.*;
-import org.gridsuite.filter.wip.Filter;
+import org.gridsuite.filter.Filter;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.utils.ModificationUtils;
