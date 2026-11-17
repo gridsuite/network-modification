@@ -162,8 +162,9 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
             regulationModeToCheck = getFinalRegulationMode(staticVarCompensator);
         }
         // the network values can be NaN : they are considered as not set
-        ModificationUtils.getInstance().checkStaticVarCompensatorLimitsAndSetPoints(equipmentId, MODIFY_STATIC_VAR_COMPENSATOR_ERROR,
-                finalMinSusceptance, finalMaxSusceptance, finalMinQAtNominalV, finalMaxQAtNominalV,
+        ModificationUtils.getInstance().checkStaticVarCompensatorLimits(equipmentId, MODIFY_STATIC_VAR_COMPENSATOR_ERROR,
+                finalMinSusceptance, finalMaxSusceptance, finalMinQAtNominalV, finalMaxQAtNominalV);
+        ModificationUtils.getInstance().checkStaticVarCompensatorSetPoints(equipmentId, MODIFY_STATIC_VAR_COMPENSATOR_ERROR,
                 regulationModeToCheck,
                 nanToNull(getFinalValue(voltageSetpoint, staticVarCompensator.getVoltageSetpoint())),
                 nanToNull(getFinalValue(reactivePowerSetpoint, staticVarCompensator.getReactivePowerSetpoint())));

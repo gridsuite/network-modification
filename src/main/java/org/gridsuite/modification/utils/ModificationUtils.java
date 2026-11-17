@@ -1591,20 +1591,18 @@ public final class ModificationUtils {
 
     public void checkReactivePowerLimitsAndSetPointsCreation(
         StaticVarCompensatorCreation staticVarCompensatorCreation) {
-        checkStaticVarCompensatorLimitsAndSetPoints(staticVarCompensatorCreation.getEquipmentId(), CREATE_STATIC_VAR_COMPENSATOR_ERROR,
+        checkStaticVarCompensatorLimits(staticVarCompensatorCreation.getEquipmentId(), CREATE_STATIC_VAR_COMPENSATOR_ERROR,
             staticVarCompensatorCreation.getMinSusceptance(), staticVarCompensatorCreation.getMaxSusceptance(),
-            staticVarCompensatorCreation.getMinQAtNominalV(), staticVarCompensatorCreation.getMaxQAtNominalV(),
+            staticVarCompensatorCreation.getMinQAtNominalV(), staticVarCompensatorCreation.getMaxQAtNominalV());
+        checkStaticVarCompensatorSetPoints(staticVarCompensatorCreation.getEquipmentId(), CREATE_STATIC_VAR_COMPENSATOR_ERROR,
             staticVarCompensatorCreation.getRegulationMode(),
             staticVarCompensatorCreation.getVoltageSetpoint(), staticVarCompensatorCreation.getReactivePowerSetpoint());
     }
 
-    public void checkStaticVarCompensatorLimitsAndSetPoints(String equipmentId, NetworkModificationExceptionType exceptionType,
-                                                            Double minSusceptance, Double maxSusceptance,
-                                                            Double minQAtNominalV, Double maxQAtNominalV,
-                                                            StaticVarCompensator.RegulationMode regulationMode,
-                                                            Double voltageSetpoint, Double reactivePowerSetpoint) {
+    public void checkStaticVarCompensatorLimits(String equipmentId, NetworkModificationExceptionType exceptionType,
+                                                Double minSusceptance, Double maxSusceptance,
+                                                Double minQAtNominalV, Double maxQAtNominalV) {
         String equipmentName = "StaticVarCompensator";
-        // check min max reactive limits
         if (Objects.isNull(minSusceptance) && Objects.isNull(minQAtNominalV)) {
             throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "minimum susceptance is not set");
         }
@@ -1619,8 +1617,12 @@ public final class ModificationUtils {
             throw makeEquipmentException(exceptionType, equipmentId, equipmentName,
                 "maximum Q at nominal voltage is expected to be greater than or equal to minimum Q");
         }
+    }
 
-        // check set points
+    public void checkStaticVarCompensatorSetPoints(String equipmentId, NetworkModificationExceptionType exceptionType,
+                                                   StaticVarCompensator.RegulationMode regulationMode,
+                                                   Double voltageSetpoint, Double reactivePowerSetpoint) {
+        String equipmentName = "StaticVarCompensator";
         if (regulationMode == StaticVarCompensator.RegulationMode.VOLTAGE && voltageSetpoint == null) {
             throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "Voltage setpoint is not set");
         }
