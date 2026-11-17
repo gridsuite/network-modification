@@ -8,6 +8,7 @@ package org.gridsuite.modification.modifications.byfilter.assignment;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.gridsuite.filter.IdentifierListFilter;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
