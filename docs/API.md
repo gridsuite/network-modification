@@ -153,6 +153,7 @@ Supported modification types in `ModificationType.java`:
 | `SHUNT_COMPENSATOR_CREATION` | Injections |
 | `SHUNT_COMPENSATOR_MODIFICATION` | Injections |
 | `STATIC_VAR_COMPENSATOR_CREATION` | Injections |
+| `STATIC_VAR_COMPENSATOR_MODIFICATION` | Injections |
 | `LINE_CREATION` | Branches |
 | `LINE_MODIFICATION` | Branches |
 | `TWO_WINDINGS_TRANSFORMER_CREATION` | Branches |
@@ -396,6 +397,20 @@ Mirrors generator modification attributes applicable to battery storage systems.
 | `sectionCount` | `AttributeModification<Integer>` | Number of active sections |
 | `maximumSectionCount` | `AttributeModification<Integer>` | Maximum section capacity |
 | `voltageSetpoint` | `AttributeModification<Double>` | Target voltage set point |
+
+#### `StaticVarCompensatorModificationInfos` ← `InjectionModificationInfos`
+
+| Field | Type | Description |
+|---|---|---|
+| `minSusceptance` / `maxSusceptance` | `AttributeModification<Double>` | Susceptance limits (S), take precedence over the Q values |
+| `minQAtNominalV` / `maxQAtNominalV` | `AttributeModification<Double>` | Reactive power limits at nominal voltage (MVar) |
+| `regulationMode` | `AttributeModification<StaticVarCompensator.RegulationMode>` | `VOLTAGE`, `REACTIVE_POWER` |
+| `regulating` | `AttributeModification<Boolean>` | Regulation status |
+| `voltageSetpoint` / `reactivePowerSetpoint` | `AttributeModification<Double>` | Set points |
+| `voltageRegulationType` | `AttributeModification<VoltageRegulationType>` | `LOCAL` or `DISTANT` |
+| `regulatingTerminalId` / `regulatingTerminalType` / `regulatingTerminalVlId` | `AttributeModification<String>` | Regulating terminal |
+
+The standby automaton is not modifiable.
 
 ---
 
@@ -706,6 +721,7 @@ Carries `String name`, `String value`, and `boolean deletionMark` for arbitrary 
 | `BRANCH_MODIFICATION_ERROR` | An error occurred while modifying the branch |
 | `INJECTION_MODIFICATION_ERROR` | An error occurred while modifying the injection |
 | `MODIFY_BATTERY_ERROR` | An error occurred while modifying the battery |
+| `MODIFY_STATIC_VAR_COMPENSATOR_ERROR` | An error occurred while modifying the static var compensator |
 | `OPERATING_STATUS_MODIFICATION_ERROR` | An error occurred while modifying the operating status |
 | `OPERATING_ACTION_TYPE_EMPTY` | The operating action type is empty |
 | `OPERATING_ACTION_TYPE_UNSUPPORTED` | The operating action type is not supported |

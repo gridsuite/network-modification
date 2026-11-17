@@ -26,6 +26,7 @@ import java.util.Set;
 
 import static org.gridsuite.modification.dto.OperationalLimitsGroupInfos.Applicability.*;
 import static org.gridsuite.modification.modifications.AbstractBranchModification.*;
+import static org.gridsuite.modification.utils.ModificationUtils.hasValue;
 
 /**
  * handles the modification of a single operational limits group from AbstractBranchModification
@@ -718,10 +719,6 @@ public class OperationalLimitsGroupModification {
             limitToModify = null;
         }
         return limitToModify;
-    }
-
-    private boolean hasValue(AttributeModification<?> attribute) {
-        return attribute != null && attribute.getValue() != null;
     }
 
     private boolean hasModification(AttributeModification<?> attribute) {
