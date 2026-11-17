@@ -699,7 +699,20 @@ public final class ModificationUtils {
                                                             Injection<?> injection,
                                                             AbstractInjectionModification injectionModification,
                                                             ReportNode connectivityReports) {
-        List<ReportNode> reports = new ArrayList<>();
+        return modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, injection, injectionModification,
+                connectivityReports, new ArrayList<>());
+    }
+
+    /**
+     * Same as above, but the given reports (for instance the ones returned by {@link #moveFeederBayAndReturnReports})
+     * are reported in the same "Connectivity" node.
+     */
+    public ReportNode modifyInjectionConnectivityAttributes(ConnectablePosition<?> connectablePosition,
+                                                            ConnectablePositionAdder<?> connectablePositionAdder,
+                                                            Injection<?> injection,
+                                                            AbstractInjectionModification injectionModification,
+                                                            ReportNode connectivityReports,
+                                                            List<ReportNode> reports) {
         processConnectivityPosition(connectablePosition, connectablePositionAdder, injectionModification, injection.getNetwork(), reports);
         modifyConnection(injectionModification.getTerminalConnected(), injection, injection.getTerminal(), reports);
 
@@ -1591,26 +1604,26 @@ public final class ModificationUtils {
                                                             Double voltageSetpoint, Double reactivePowerSetpoint) {
         String equipmentName = "StaticVarCompensator";
         // check min max reactive limits
-        if (isNotSet(minSusceptance) && isNotSet(minQAtNominalV)) {
+        if (Objects.isNull(minSusceptance) && Objects.isNull(minQAtNominalV)) {
             throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "minimum susceptance is not set");
         }
-        if (isNotSet(maxSusceptance) && isNotSet(maxQAtNominalV)) {
+        if (Objects.isNull(maxSusceptance) && Objects.isNull(maxQAtNominalV)) {
             throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "maximum susceptance is not set");
         }
-        if (!isNotSet(maxSusceptance) && !isNotSet(minSusceptance) && maxSusceptance < minSusceptance) {
+        if (Objects.nonNull(maxSusceptance) && Objects.nonNull(minSusceptance) && maxSusceptance < minSusceptance) {
             throw makeEquipmentException(exceptionType, equipmentId, equipmentName,
                 "maximum susceptance is expected to be greater than or equal to minimum susceptance");
         }
-        if (!isNotSet(maxQAtNominalV) && !isNotSet(minQAtNominalV) && maxQAtNominalV < minQAtNominalV) {
+        if (Objects.nonNull(maxQAtNominalV) && Objects.nonNull(minQAtNominalV) && maxQAtNominalV < minQAtNominalV) {
             throw makeEquipmentException(exceptionType, equipmentId, equipmentName,
                 "maximum Q at nominal voltage is expected to be greater than or equal to minimum Q");
         }
 
         // check set points
-        if (regulationMode == StaticVarCompensator.RegulationMode.VOLTAGE && isNotSet(voltageSetpoint)) {
+        if (regulationMode == StaticVarCompensator.RegulationMode.VOLTAGE && voltageSetpoint == null) {
             throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "Voltage setpoint is not set");
         }
-        if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER && isNotSet(reactivePowerSetpoint)) {
+        if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER && reactivePowerSetpoint == null) {
             throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "Reactive power setpoint is not set");
         }
     }
@@ -1619,31 +1632,11 @@ public final class ModificationUtils {
         return modification != null && modification.getValue() != null;
     }
 
-    public static boolean isNotSet(Double value) {
-        return value == null || Double.isNaN(value);
-    }
-
     public static Double getFinalValue(AttributeModification<Double> modification, double currentValue) {
         if (modification != null) {
             return modification.applyModification(currentValue);
         }
         return currentValue;
-    }
-
-    public static void insertReportNodes(ReportNode parent, List<ReportNode> reports, String messageTemplate) {
-        List<ReportNode> validReports = new ArrayList<>();
-        for (ReportNode report : reports) {
-            if (report != null) {
-                validReports.add(report);
-            }
-        }
-        if (validReports.isEmpty()) {
-            return;
-        }
-        ReportNode reportNode = parent.newReportNode().withMessageTemplate(messageTemplate).add();
-        for (ReportNode report : validReports) {
-            insertReportNode(reportNode, report);
-        }
     }
 
     public void checkStandbyAutomatonCreation(StaticVarCompensatorCreation staticVarCompensatorCreation) {
@@ -2135,6 +2128,21 @@ public final class ModificationUtils {
                 .withTerminal(terminal)
                 .withTargetBusOrBusBarSectionId(finalBusOrBusbarSectionId)
                 .build().apply(network, true, subReportNode);
+    }
+
+    /**
+     * Moves the feeder bay and returns the reports instead of adding them directly to a report node,
+     * so that they can be grouped with the other connectivity reports.
+     */
+    public List<ReportNode> moveFeederBayAndReturnReports(Connectable<?> connectable, Terminal terminal,
+                                                          AttributeModification<String> voltageLevelId,
+                                                          AttributeModification<String> busOrBusbarSectionId) {
+        ReportNode moveFeederBayReportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("network.modification.ConnectivityModified")
+                .build();
+        moveFeederBay(connectable, terminal, voltageLevelId, busOrBusbarSectionId, moveFeederBayReportNode);
+        return new ArrayList<>(moveFeederBayReportNode.getChildren());
     }
 
     public void checkVoltageLevelModification(Network network,
