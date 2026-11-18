@@ -198,6 +198,9 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
             }
             return;
         }
+        if (standby != null && standby.getValue() == null) {
+            throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR, errorMessage + "Standby automaton standby can not be unset");
+        }
 
         double nominalV = getFinalNominalV(network, staticVarCompensator);
         Double finalB0 = getFinalValue(toSusceptanceModification(b0, q0, nominalV), standbyAutomaton != null ? standbyAutomaton.getB0() : Double.NaN);
@@ -242,12 +245,14 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
     @Override
     public void apply(Network network, ReportNode subReportNode) {
         StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator(equipmentId);
+        // nominal voltage before the feeder bay move, to report the previous fixed part of Q at nominal voltage
+        double oldNominalV = staticVarCompensator.getTerminal().getVoltageLevel().getNominalV();
         ModificationUtils.getInstance().applyElementaryModifications(staticVarCompensator::setName,
                 () -> staticVarCompensator.getOptionalName().orElse("No value"), equipmentName, subReportNode, "Name");
         // the feeder bay is moved first : the limits in Q are converted with the nominal voltage of the new voltage level
         modifyConnectivity(staticVarCompensator, subReportNode);
         modifyLimitsAndSetpoints(staticVarCompensator, subReportNode);
-        modifyStandbyAutomaton(staticVarCompensator, subReportNode);
+        modifyStandbyAutomaton(staticVarCompensator, oldNominalV, subReportNode);
         updateMeasurements(staticVarCompensator, subReportNode);
         PropertiesUtils.applyProperties(staticVarCompensator, subReportNode, properties, "network.modification.StaticVarCompensatorProperties");
     }
@@ -345,7 +350,7 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
         }
     }
 
-    private void modifyStandbyAutomaton(StaticVarCompensator staticVarCompensator, ReportNode subReportNode) {
+    private void modifyStandbyAutomaton(StaticVarCompensator staticVarCompensator, double oldNominalV, ReportNode subReportNode) {
         StandbyAutomaton standbyAutomaton = staticVarCompensator.getExtension(StandbyAutomaton.class);
         if (isStandbyAutomatonRemoved()) {
             if (standbyAutomaton != null) {
@@ -364,7 +369,7 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
                 addStandbyAutomaton(staticVarCompensator, nominalV, reports);
             }
         } else {
-            modifyExistingStandbyAutomaton(standbyAutomaton, nominalV, reports);
+            modifyExistingStandbyAutomaton(standbyAutomaton, oldNominalV, nominalV, reports);
         }
         ModificationUtils.getInstance().reportModifications(subReportNode, reports, "network.modification.StandbyAutomatonModification");
     }
@@ -392,7 +397,7 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
         reports.add(ModificationUtils.getInstance().buildModificationReport(null, highVoltageThreshold.getValue(), "High voltage threshold"));
     }
 
-    private void modifyExistingStandbyAutomaton(StandbyAutomaton standbyAutomaton, double nominalV, List<ReportNode> reports) {
+    private void modifyExistingStandbyAutomaton(StandbyAutomaton standbyAutomaton, double oldNominalV, double nominalV, List<ReportNode> reports) {
         boolean oldStandby = standbyAutomaton.isStandby();
         boolean newStandby = getFinalStandby(standbyAutomaton);
         boolean isVoltageConfigModified = lowVoltageSetpoint != null || highVoltageSetpoint != null
@@ -421,7 +426,7 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
             reports.add(ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(standbyAutomaton::setB0,
                     standbyAutomaton::getB0, b0, "Fixed part of susceptance"));
         } else if (hasValue(q0)) {
-            double oldQ0 = toQAtNominalV(standbyAutomaton.getB0(), nominalV);
+            double oldQ0 = toQAtNominalV(standbyAutomaton.getB0(), oldNominalV);
             standbyAutomaton.setB0(toSusceptance(q0.getValue(), nominalV));
             reports.add(ModificationUtils.getInstance().buildModificationReport(oldQ0, q0.getValue(), "Fixed part of Q at nominal voltage"));
         }

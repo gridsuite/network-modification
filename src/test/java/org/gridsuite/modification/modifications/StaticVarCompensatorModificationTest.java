@@ -330,6 +330,62 @@ class StaticVarCompensatorModificationTest extends AbstractInjectionModification
     }
 
     @Test
+    void testUnsetStandbyFails() {
+        addStandbyAutomatonExtension(true);
+        assertCheckFails(builder().standby(new AttributeModification<>(null, OperationType.UNSET)).build(),
+                "Standby automaton standby can not be unset");
+    }
+
+    @Test
+    void testAddStandbyAutomatonWithQ0AfterVoltageLevelMove() {
+        getNetwork().getVoltageLevel("v1").setNominalV(225.);
+        double targetNominalV = getNetwork().getVoltageLevel("v1").getNominalV();
+        StaticVarCompensatorModificationInfos infos = builder()
+                .voltageLevelId(new AttributeModification<>("v1", OperationType.SET))
+                .busOrBusbarSectionId(new AttributeModification<>("1.1", OperationType.SET))
+                .standbyAutomatonOn(new AttributeModification<>(true, OperationType.SET))
+                .q0(set(3 * targetNominalV * targetNominalV))
+                .lowVoltageSetpoint(set(370.))
+                .highVoltageSetpoint(set(390.))
+                .lowVoltageThreshold(set(360.))
+                .highVoltageThreshold(set(400.))
+                .build();
+        infos.toModification().check(getNetwork());
+        infos.toModification().apply(getNetwork());
+        assertEquals(3., getSvc().getExtension(StandbyAutomaton.class).getB0(), 1e-9);
+    }
+
+    @Test
+    void testModifyQ0AfterVoltageLevelMoveReportsPreviousQ0WithPreviousNominalV() {
+        addStandbyAutomatonExtension(false);
+        getNetwork().getVoltageLevel("v1").setNominalV(225.);
+        double oldNominalV = getSvc().getTerminal().getVoltageLevel().getNominalV();
+        double targetNominalV = getNetwork().getVoltageLevel("v1").getNominalV();
+        assertNotEquals(oldNominalV, targetNominalV);
+        ReportNode rootReportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build();
+        StaticVarCompensatorModificationInfos infos = builder()
+                .voltageLevelId(new AttributeModification<>("v1", OperationType.SET))
+                .busOrBusbarSectionId(new AttributeModification<>("1.1", OperationType.SET))
+                .q0(set(4 * targetNominalV * targetNominalV))
+                .build();
+        infos.toModification().apply(getNetwork(), infos.createSubReportNode(rootReportNode));
+
+        assertEquals(4., getSvc().getExtension(StandbyAutomaton.class).getB0(), 1e-9);
+        ReportNode standbyAutomatonReport = null;
+        for (ReportNode child : rootReportNode.getChildren().getFirst().getChildren()) {
+            if ("network.modification.StandbyAutomatonModification".equals(child.getMessageKey())) {
+                standbyAutomatonReport = child;
+            }
+        }
+        assertNotNull(standbyAutomatonReport);
+        ReportNode q0Report = standbyAutomatonReport.getChildren().getFirst();
+        assertEquals(String.valueOf(5. * oldNominalV * oldNominalV), q0Report.getValue("oldValue").orElseThrow().getValue());
+    }
+
+    @Test
     void testChangeConnectionState() throws Exception {
         assertChangeConnectionState(getSvc(), false);
         assertChangeConnectionState(getSvc(), true);
