@@ -293,7 +293,19 @@ public class BatteryModification extends AbstractInjectionModification {
             oldEquipment = regulatingTerminal.getConnectable().getType().name() + ":"
                     + regulatingTerminal.getConnectable().getId();
         }
-        if (regulatingTerminalId != null
+
+        if (voltageRegulationType.getValue() == VoltageRegulationType.LOCAL) {
+            // setting regulating terminal to null set to local terminal
+            voltageRegulation.setRegulatingTerminal(null);
+            if (oldEquipment != null && oldVoltageLevel != null) {
+                voltageRegulationReports.add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel,
+                        null,
+                        "Voltage level"));
+                voltageRegulationReports.add(ModificationUtils.getInstance().buildModificationReport(oldEquipment,
+                        null,
+                        "Equipment"));
+            }
+        } else if (regulatingTerminalId != null
                 && regulatingTerminalType != null
                 && regulatingTerminalVlId != null) {
             Terminal newRegulatingTerminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(battery.getNetwork(),
@@ -307,16 +319,6 @@ public class BatteryModification extends AbstractInjectionModification {
             voltageRegulationReports.add(ModificationUtils.getInstance().buildModificationReport(oldEquipment,
                     regulatingTerminalType.getValue() + ":"
                             + regulatingTerminalId.getValue(),
-                    "Equipment"));
-        }
-        if (voltageRegulationType.getValue() == VoltageRegulationType.LOCAL && oldEquipment != null && oldVoltageLevel != null) {
-            // setting regulating terminal to null set to local terminal
-            voltageRegulation.setRegulatingTerminal(null);
-            voltageRegulationReports.add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel,
-                    null,
-                    "Voltage level"));
-            voltageRegulationReports.add(ModificationUtils.getInstance().buildModificationReport(oldEquipment,
-                    null,
                     "Equipment"));
         }
     }
