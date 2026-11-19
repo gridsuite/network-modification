@@ -10,6 +10,7 @@ import com.powsybl.commons.report.PowsyblCoreReportResourceBundle;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.extensions.StandbyAutomaton;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.error.NetworkModificationException;
@@ -173,6 +174,218 @@ class StaticVarCompensatorModificationTest extends AbstractInjectionModification
     }
 
     @Test
+    void testAddStandbyAutomaton() {
+        StaticVarCompensatorModificationInfos infos = builder()
+                .standbyAutomatonOn(new AttributeModification<>(true, OperationType.SET))
+                .standby(new AttributeModification<>(true, OperationType.SET))
+                .b0(set(5.))
+                .lowVoltageSetpoint(set(370.))
+                .highVoltageSetpoint(set(390.))
+                .lowVoltageThreshold(set(360.))
+                .highVoltageThreshold(set(400.))
+                .build();
+        infos.toModification().check(getNetwork());
+        infos.toModification().apply(getNetwork());
+        StandbyAutomaton standbyAutomaton = getSvc().getExtension(StandbyAutomaton.class);
+        assertNotNull(standbyAutomaton);
+        assertTrue(standbyAutomaton.isStandby());
+        assertEquals(5., standbyAutomaton.getB0());
+        assertEquals(370., standbyAutomaton.getLowVoltageSetpoint());
+        assertEquals(390., standbyAutomaton.getHighVoltageSetpoint());
+        assertEquals(360., standbyAutomaton.getLowVoltageThreshold());
+        assertEquals(400., standbyAutomaton.getHighVoltageThreshold());
+    }
+
+    @Test
+    void testAddStandbyAutomatonWithQ0() {
+        double nominalV = getSvc().getTerminal().getVoltageLevel().getNominalV();
+        builder().standbyAutomatonOn(new AttributeModification<>(true, OperationType.SET))
+                .q0(set(3 * nominalV * nominalV))
+                .lowVoltageSetpoint(set(370.))
+                .highVoltageSetpoint(set(390.))
+                .lowVoltageThreshold(set(360.))
+                .highVoltageThreshold(set(400.))
+                .build().toModification().apply(getNetwork());
+        StandbyAutomaton standbyAutomaton = getSvc().getExtension(StandbyAutomaton.class);
+        assertFalse(standbyAutomaton.isStandby());
+        assertEquals(3., standbyAutomaton.getB0(), 1e-9);
+    }
+
+    @Test
+    void testAddStandbyAutomatonWithMissingFields() {
+        assertCheckFails(builder().standbyAutomatonOn(new AttributeModification<>(true, OperationType.SET))
+                .b0(set(5.)).lowVoltageSetpoint(set(370.)).highVoltageSetpoint(set(390.)).lowVoltageThreshold(set(360.)).build(),
+                "Standby automaton high voltage threshold is not set");
+        assertCheckFails(builder().standbyAutomatonOn(new AttributeModification<>(true, OperationType.SET))
+                .lowVoltageSetpoint(set(370.)).highVoltageSetpoint(set(390.)).lowVoltageThreshold(set(360.)).highVoltageThreshold(set(400.)).build(),
+                "Standby automaton fixed part of susceptance is not set");
+    }
+
+    @Test
+    void testModifyStandbyAutomatonFieldsWithoutExtension() {
+        assertCheckFails(builder().lowVoltageSetpoint(set(370.)).build(),
+                "Standby automaton does not exist : it must be activated to modify its attributes");
+    }
+
+    @Test
+    void testAddStandbyAutomatonChecks() {
+        // b0 outside [bmin = 2, bmax = 30]
+        assertCheckFails(completeStandbyAutomaton().b0(set(50.)).build(), "b0 must be within the range of minimum susceptance and maximum susceptance");
+        // standby on with inconsistent thresholds
+        assertCheckFails(completeStandbyAutomaton().standby(new AttributeModification<>(true, OperationType.SET))
+                .lowVoltageThreshold(set(410.)).build(), "Low voltage threshold is expected to be lower than high voltage threshold when standby is on");
+        // standby on with reactive power regulation
+        assertCheckFails(completeStandbyAutomaton().standby(new AttributeModification<>(true, OperationType.SET))
+                .regulationMode(new AttributeModification<>(StaticVarCompensator.RegulationMode.REACTIVE_POWER, OperationType.SET)).build(),
+                "Standby is only supported in Voltage Regulation mode");
+        assertCheckFails(completeStandbyAutomaton().lowVoltageSetpoint(set(-1.)).build(), "low voltage set point");
+    }
+
+    @Test
+    void testModifyExistingStandbyAutomaton() {
+        addStandbyAutomatonExtension(true);
+        StaticVarCompensatorModificationInfos infos = builder()
+                .b0(set(10.))
+                .lowVoltageSetpoint(set(371.))
+                .build();
+        infos.toModification().check(getNetwork());
+        infos.toModification().apply(getNetwork());
+        StandbyAutomaton standbyAutomaton = getSvc().getExtension(StandbyAutomaton.class);
+        assertTrue(standbyAutomaton.isStandby());
+        assertEquals(10., standbyAutomaton.getB0());
+        assertEquals(371., standbyAutomaton.getLowVoltageSetpoint());
+        assertEquals(390., standbyAutomaton.getHighVoltageSetpoint());
+        assertEquals(360., standbyAutomaton.getLowVoltageThreshold());
+        assertEquals(400., standbyAutomaton.getHighVoltageThreshold());
+    }
+
+    @Test
+    void testShiftThresholdsWithStandbyOn() {
+        // with standby on, setting the low threshold first (420 >= current high threshold 400) would be rejected by powsybl
+        addStandbyAutomatonExtension(true);
+        StaticVarCompensatorModificationInfos infos = builder()
+                .lowVoltageThreshold(set(420.))
+                .highVoltageThreshold(set(450.))
+                .lowVoltageSetpoint(set(425.))
+                .highVoltageSetpoint(set(445.))
+                .build();
+        infos.toModification().check(getNetwork());
+        infos.toModification().apply(getNetwork());
+        StandbyAutomaton standbyAutomaton = getSvc().getExtension(StandbyAutomaton.class);
+        assertTrue(standbyAutomaton.isStandby());
+        assertEquals(420., standbyAutomaton.getLowVoltageThreshold());
+        assertEquals(450., standbyAutomaton.getHighVoltageThreshold());
+    }
+
+    @Test
+    void testModifyExistingStandbyAutomatonChecks() {
+        addStandbyAutomatonExtension(true);
+        assertCheckFails(builder().highVoltageThreshold(set(350.)).build(),
+                "Low voltage threshold is expected to be lower than high voltage threshold when standby is on");
+        assertCheckFails(builder().lowVoltageSetpoint(unset()).build(), "Standby automaton low voltage set point is not set");
+        // reducing bmax under the existing b0
+        assertCheckFails(builder().maxSusceptance(set(4.)).build(), "b0 must be within the range of minimum susceptance and maximum susceptance");
+        // standby off : thresholds can be inconsistent
+        builder().standby(new AttributeModification<>(false, OperationType.SET)).highVoltageThreshold(set(350.)).build().toModification().check(getNetwork());
+    }
+
+    @Test
+    void testStandbyOffAllowsReactivePowerMode() {
+        addStandbyAutomatonExtension(true);
+        StaticVarCompensatorModificationInfos infos = builder()
+                .standby(new AttributeModification<>(false, OperationType.SET))
+                .regulationMode(new AttributeModification<>(StaticVarCompensator.RegulationMode.REACTIVE_POWER, OperationType.SET))
+                .build();
+        infos.toModification().check(getNetwork());
+        infos.toModification().apply(getNetwork());
+        assertFalse(getSvc().getExtension(StandbyAutomaton.class).isStandby());
+        assertEquals(StaticVarCompensator.RegulationMode.REACTIVE_POWER, getSvc().getRegulationMode());
+    }
+
+    @Test
+    void testRemoveStandbyAutomaton() {
+        addStandbyAutomatonExtension(true);
+        // the other automaton fields are ignored, and the regulation mode is no longer constrained
+        StaticVarCompensatorModificationInfos infos = builder()
+                .standbyAutomatonOn(new AttributeModification<>(false, OperationType.SET))
+                .lowVoltageSetpoint(unset())
+                .regulationMode(new AttributeModification<>(StaticVarCompensator.RegulationMode.REACTIVE_POWER, OperationType.SET))
+                .build();
+        infos.toModification().check(getNetwork());
+        infos.toModification().apply(getNetwork());
+        assertNull(getSvc().getExtension(StandbyAutomaton.class));
+
+        // removing a non existing automaton does nothing
+        infos.toModification().check(getNetwork());
+        infos.toModification().apply(getNetwork());
+        assertNull(getSvc().getExtension(StandbyAutomaton.class));
+    }
+
+    @Test
+    void testModifyQ0OnExistingStandbyAutomaton() {
+        addStandbyAutomatonExtension(false);
+        double nominalV = getSvc().getTerminal().getVoltageLevel().getNominalV();
+        builder().q0(set(4 * nominalV * nominalV)).build().toModification().apply(getNetwork());
+        assertEquals(4., getSvc().getExtension(StandbyAutomaton.class).getB0(), 1e-9);
+    }
+
+    @Test
+    void testUnsetStandbyFails() {
+        addStandbyAutomatonExtension(true);
+        assertCheckFails(builder().standby(new AttributeModification<>(null, OperationType.UNSET)).build(),
+                "Standby automaton standby can not be unset");
+    }
+
+    @Test
+    void testAddStandbyAutomatonWithQ0AfterVoltageLevelMove() {
+        getNetwork().getVoltageLevel("v1").setNominalV(225.);
+        double targetNominalV = getNetwork().getVoltageLevel("v1").getNominalV();
+        StaticVarCompensatorModificationInfos infos = builder()
+                .voltageLevelId(new AttributeModification<>("v1", OperationType.SET))
+                .busOrBusbarSectionId(new AttributeModification<>("1.1", OperationType.SET))
+                .standbyAutomatonOn(new AttributeModification<>(true, OperationType.SET))
+                .q0(set(3 * targetNominalV * targetNominalV))
+                .lowVoltageSetpoint(set(370.))
+                .highVoltageSetpoint(set(390.))
+                .lowVoltageThreshold(set(360.))
+                .highVoltageThreshold(set(400.))
+                .build();
+        infos.toModification().check(getNetwork());
+        infos.toModification().apply(getNetwork());
+        assertEquals(3., getSvc().getExtension(StandbyAutomaton.class).getB0(), 1e-9);
+    }
+
+    @Test
+    void testModifyQ0AfterVoltageLevelMoveReportsPreviousQ0WithPreviousNominalV() {
+        addStandbyAutomatonExtension(false);
+        getNetwork().getVoltageLevel("v1").setNominalV(225.);
+        double oldNominalV = getSvc().getTerminal().getVoltageLevel().getNominalV();
+        double targetNominalV = getNetwork().getVoltageLevel("v1").getNominalV();
+        assertNotEquals(oldNominalV, targetNominalV);
+        ReportNode rootReportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME, PowsyblCoreReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("test")
+                .build();
+        StaticVarCompensatorModificationInfos infos = builder()
+                .voltageLevelId(new AttributeModification<>("v1", OperationType.SET))
+                .busOrBusbarSectionId(new AttributeModification<>("1.1", OperationType.SET))
+                .q0(set(4 * targetNominalV * targetNominalV))
+                .build();
+        infos.toModification().apply(getNetwork(), infos.createSubReportNode(rootReportNode));
+
+        assertEquals(4., getSvc().getExtension(StandbyAutomaton.class).getB0(), 1e-9);
+        ReportNode standbyAutomatonReport = null;
+        for (ReportNode child : rootReportNode.getChildren().getFirst().getChildren()) {
+            if ("network.modification.StandbyAutomatonModification".equals(child.getMessageKey())) {
+                standbyAutomatonReport = child;
+            }
+        }
+        assertNotNull(standbyAutomatonReport);
+        ReportNode q0Report = standbyAutomatonReport.getChildren().getFirst();
+        assertEquals(String.valueOf(5. * oldNominalV * oldNominalV), q0Report.getValue("oldValue").orElseThrow().getValue());
+    }
+
+    @Test
     void testChangeConnectionState() throws Exception {
         assertChangeConnectionState(getSvc(), false);
         assertChangeConnectionState(getSvc(), true);
@@ -214,6 +427,26 @@ class StaticVarCompensatorModificationTest extends AbstractInjectionModification
         assertEquals(2, limitsAndSetpoints.size(), limitsAndSetpoints.toString());
         assertTrue(limitsAndSetpoints.get(0).startsWith("Q max at nominal voltage"), limitsAndSetpoints.toString());
         assertTrue(limitsAndSetpoints.get(1).startsWith("Voltage set point"), limitsAndSetpoints.toString());
+    }
+
+    private void addStandbyAutomatonExtension(boolean standby) {
+        getSvc().newExtension(StandbyAutomatonAdder.class)
+                .withB0(5.)
+                .withStandbyStatus(standby)
+                .withLowVoltageSetpoint(370.)
+                .withHighVoltageSetpoint(390.)
+                .withLowVoltageThreshold(360.)
+                .withHighVoltageThreshold(400.)
+                .add();
+    }
+
+    private static StaticVarCompensatorModificationInfos.StaticVarCompensatorModificationInfosBuilder<?, ?> completeStandbyAutomaton() {
+        return builder().standbyAutomatonOn(new AttributeModification<>(true, OperationType.SET))
+                .b0(set(5.))
+                .lowVoltageSetpoint(set(370.))
+                .highVoltageSetpoint(set(390.))
+                .lowVoltageThreshold(set(360.))
+                .highVoltageThreshold(set(400.));
     }
 
     private StaticVarCompensator getSvc() {
