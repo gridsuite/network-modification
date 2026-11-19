@@ -202,12 +202,25 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
             throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR, errorMessage + "Standby automaton standby can not be unset");
         }
 
+        double previousB0 = Double.NaN;
+        double previousLowVoltageSetpoint = Double.NaN;
+        double previousHighVoltageSetpoint = Double.NaN;
+        double previousLowVoltageThreshold = Double.NaN;
+        double previousHighVoltageThreshold = Double.NaN;
+        if (standbyAutomaton != null) {
+            previousB0 = standbyAutomaton.getB0();
+            previousLowVoltageSetpoint = standbyAutomaton.getLowVoltageSetpoint();
+            previousHighVoltageSetpoint = standbyAutomaton.getHighVoltageSetpoint();
+            previousLowVoltageThreshold = standbyAutomaton.getLowVoltageThreshold();
+            previousHighVoltageThreshold = standbyAutomaton.getHighVoltageThreshold();
+        }
+
         double nominalV = getFinalNominalV(network, staticVarCompensator);
-        Double finalB0 = getFinalValue(toSusceptanceModification(b0, q0, nominalV), standbyAutomaton != null ? standbyAutomaton.getB0() : Double.NaN);
-        Double finalLowVoltageSetpoint = getFinalValue(lowVoltageSetpoint, standbyAutomaton != null ? standbyAutomaton.getLowVoltageSetpoint() : Double.NaN);
-        Double finalHighVoltageSetpoint = getFinalValue(highVoltageSetpoint, standbyAutomaton != null ? standbyAutomaton.getHighVoltageSetpoint() : Double.NaN);
-        Double finalLowVoltageThreshold = getFinalValue(lowVoltageThreshold, standbyAutomaton != null ? standbyAutomaton.getLowVoltageThreshold() : Double.NaN);
-        Double finalHighVoltageThreshold = getFinalValue(highVoltageThreshold, standbyAutomaton != null ? standbyAutomaton.getHighVoltageThreshold() : Double.NaN);
+        Double finalB0 = getFinalValue(toSusceptanceModification(b0, q0, nominalV), previousB0);
+        Double finalLowVoltageSetpoint = getFinalValue(lowVoltageSetpoint, previousLowVoltageSetpoint);
+        Double finalHighVoltageSetpoint = getFinalValue(highVoltageSetpoint, previousHighVoltageSetpoint);
+        Double finalLowVoltageThreshold = getFinalValue(lowVoltageThreshold, previousLowVoltageThreshold);
+        Double finalHighVoltageThreshold = getFinalValue(highVoltageThreshold, previousHighVoltageThreshold);
         boolean finalStandby = getFinalStandby(standbyAutomaton);
 
         checkIsSet(finalB0, errorMessage, "fixed part of susceptance");
@@ -225,6 +238,12 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
                     errorMessage + "Low voltage threshold is expected to be lower than high voltage threshold when standby is on");
         }
 
+        checkB0InSusceptanceRange(staticVarCompensator, finalB0, nominalV, isStandbyAutomatonAdded, errorMessage);
+        checkStandbyRegulationMode(staticVarCompensator, finalStandby, isStandbyAutomatonAdded, errorMessage);
+    }
+
+    private void checkB0InSusceptanceRange(StaticVarCompensator staticVarCompensator, double finalB0, double nominalV,
+                                           boolean isStandbyAutomatonAdded, String errorMessage) {
         boolean isSusceptanceRangeModified = minSusceptance != null || maxSusceptance != null || minQAtNominalV != null || maxQAtNominalV != null;
         if (isStandbyAutomatonAdded || b0 != null || q0 != null || isSusceptanceRangeModified) {
             double finalMinSusceptance = getFinalValue(toSusceptanceModification(minSusceptance, minQAtNominalV, nominalV), staticVarCompensator.getBmin());
@@ -234,7 +253,10 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
                         errorMessage + "b0 must be within the range of minimum susceptance and maximum susceptance");
             }
         }
+    }
 
+    private void checkStandbyRegulationMode(StaticVarCompensator staticVarCompensator, boolean finalStandby,
+                                            boolean isStandbyAutomatonAdded, String errorMessage) {
         boolean isStandbyOrRegulationModeModified = isStandbyAutomatonAdded || standby != null || regulationMode != null;
         if (isStandbyOrRegulationModeModified && finalStandby
                 && getFinalRegulationMode(staticVarCompensator) != StaticVarCompensator.RegulationMode.VOLTAGE) {
