@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.SuperBuilder;
 import org.gridsuite.modification.context.FilterLoader;
 import org.gridsuite.modification.context.FilterUtils;
 import org.gridsuite.modification.modifications.data.assignment.DataType;

@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import lombok.SuperBuilder;
 import org.apache.commons.collections4.CollectionUtils;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.LccShuntCompensatorModificationInfos;

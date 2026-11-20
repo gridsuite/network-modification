@@ -5,7 +5,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.HvdcLine;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
+import lombok.SuperBuilder;
 import org.gridsuite.modification.modifications.AbstractModification;
 import org.gridsuite.modification.modifications.VscModification;
 import org.gridsuite.modification.modifications.data.VscConverterStationModification;

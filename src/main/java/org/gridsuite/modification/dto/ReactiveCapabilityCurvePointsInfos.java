@@ -9,7 +9,7 @@ package org.gridsuite.modification.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
+import lombok.SuperBuilder;
 
 /**
  * @author Seddik Yengui <seddik.yengui at rte-france.com>

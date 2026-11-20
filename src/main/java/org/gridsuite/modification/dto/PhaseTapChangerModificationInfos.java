@@ -9,7 +9,7 @@ package org.gridsuite.modification.dto;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
+import lombok.SuperBuilder;
 
 /**
  * @author Hugo Marcellin <hugo.marcelin at rte-france.com>

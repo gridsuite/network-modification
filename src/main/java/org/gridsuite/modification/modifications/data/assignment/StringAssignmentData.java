@@ -9,7 +9,7 @@ package org.gridsuite.modification.modifications.data.assignment;
 
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.SuperBuilder;
 
 /**
  * @author Joris Mancini <joris.mancini at rte-france.com>

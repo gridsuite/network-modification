@@ -10,7 +10,7 @@ package org.gridsuite.modification.dto;
 import com.powsybl.iidm.network.Country;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
+import lombok.SuperBuilder;
 
 import java.util.List;
 

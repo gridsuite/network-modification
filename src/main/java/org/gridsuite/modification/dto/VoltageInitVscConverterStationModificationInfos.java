@@ -8,7 +8,7 @@ package org.gridsuite.modification.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
+import lombok.SuperBuilder;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>

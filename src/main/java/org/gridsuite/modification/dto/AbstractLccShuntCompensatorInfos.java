@@ -3,7 +3,7 @@ package org.gridsuite.modification.dto;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
+import lombok.SuperBuilder;
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,

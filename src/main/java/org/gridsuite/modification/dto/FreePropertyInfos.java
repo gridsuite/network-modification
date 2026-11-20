@@ -9,7 +9,7 @@ package org.gridsuite.modification.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
+import lombok.SuperBuilder;
 
 /**
  * @author Joris Mancini <joris.mancini_externe at rte-france.com>
