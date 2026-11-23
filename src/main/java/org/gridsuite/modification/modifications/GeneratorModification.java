@@ -10,6 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.*;
@@ -442,7 +443,7 @@ public class GeneratorModification extends AbstractInjectionModification {
         // if the voltageRegulationType is set to LOCAL, we set the regulatingTerminal
         // to null
         if (voltageRegulationType.getValue() == VoltageRegulationType.LOCAL) {
-            generator.setRegulatingTerminal(null);
+            ModificationUtils.setRegulatingTerminal(generator, null);
             if (oldEquipment != null && oldVoltageLevel != null) {
                 modificationReports.add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel,
                         null,
@@ -482,7 +483,7 @@ public class GeneratorModification extends AbstractInjectionModification {
         }
         // must be done after setting targetV
         ReportNode voltageRegulationOnReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
-                on -> ModificationUtils.setVoltageRegulationOn(generator, on), () -> generator.getVoltageRegulation() != null && generator.getVoltageRegulation().isRegulating(),
+                on -> ModificationUtils.setVoltageRegulationOn(generator, on), () -> generator.isRegulatingWithMode(RegulationMode.VOLTAGE),
                 this.voltageRegulationOn, "VoltageRegulationOn");
         if (voltageRegulationOnReportNode != null) {
             voltageRegulationReports.add(voltageRegulationOnReportNode);

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.gridsuite.modification.modifications.BatteryModification.createVoltageRegulationIfMissing;
+import static org.gridsuite.modification.utils.ModificationUtils.getRatioTapChangerTargetV;
 import static org.gridsuite.modification.utils.ModificationUtils.insertReportNode;
 import static org.gridsuite.modification.utils.ModificationUtils.setRatioTapChangerTargetV;
 import static org.gridsuite.modification.utils.ModificationUtils.setRegulatingTargetQ;
@@ -285,7 +286,7 @@ public class VoltageInitModification extends AbstractModification {
                                 TypedValue.DETAIL_SEVERITY));
                     }
                     if (t.getRatioTapChangerTargetV() != null) {
-                        final double oldTapTargetV = threeWindingsTransformer.getLeg(t.getLegSide()).getRatioTapChanger().getRegulatingTargetV();
+                        final double oldTapTargetV = getRatioTapChangerTargetV(threeWindingsTransformer.getLeg(t.getLegSide()).getRatioTapChanger());
                         setRatioTapChangerTargetV(threeWindingsTransformer.getLeg(t.getLegSide()).getRatioTapChanger(), t.getRatioTapChangerTargetV());
                         reports3WT.add(ModificationUtils.buildModificationReport(oldTapTargetV, t.getRatioTapChangerTargetV(), "Leg " + t.getLegSide().name() + " ratio tap changer target voltage",
                                 TypedValue.DETAIL_SEVERITY));
@@ -321,7 +322,7 @@ public class VoltageInitModification extends AbstractModification {
                         reports2WT.add(ModificationUtils.buildModificationReport(oldTapPosition, t.getRatioTapChangerPosition(), "Ratio tap changer position", TypedValue.DETAIL_SEVERITY));
                     }
                     if (t.getRatioTapChangerTargetV() != null) {
-                        final double oldTapTargetV = twoWindingsTransformer.getRatioTapChanger().getRegulatingTargetV();
+                        final double oldTapTargetV = getRatioTapChangerTargetV(twoWindingsTransformer.getRatioTapChanger());
                         setRatioTapChangerTargetV(twoWindingsTransformer.getRatioTapChanger(), t.getRatioTapChangerTargetV());
                         reports2WT.add(ModificationUtils.buildModificationReport(oldTapTargetV, t.getRatioTapChangerTargetV(), "Ratio tap changer target voltage", TypedValue.DETAIL_SEVERITY));
                     }

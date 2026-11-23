@@ -9,6 +9,7 @@ package org.gridsuite.modification.dto.byfilter.equipmentfield;
 
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
 import org.gridsuite.modification.modifications.data.VoltageRegulationModification;
@@ -37,7 +38,6 @@ public enum BatteryField {
         ActivePowerControl<Battery> activePowerControl = battery.getExtension(ActivePowerControl.class);
         BatteryShortCircuit batteryShortCircuit = battery.getExtension(BatteryShortCircuit.class);
         boolean hasVoltageRegulation = battery.getVoltageRegulation() != null;
-
         BatteryField field = BatteryField.valueOf(batteryField);
         return switch (field) {
             case MINIMUM_ACTIVE_POWER -> String.valueOf(battery.getMinP());
@@ -48,7 +48,7 @@ public enum BatteryField {
             case TRANSIENT_REACTANCE -> batteryShortCircuit != null ? String.valueOf(batteryShortCircuit.getDirectTransX()) : null;
             case STEP_UP_TRANSFORMER_REACTANCE -> batteryShortCircuit != null ? String.valueOf(batteryShortCircuit.getStepUpTransformerX()) : null;
             case VOLTAGE_SET_POINT -> hasVoltageRegulation ? String.valueOf(battery.getRegulatingTargetV()) : null;
-            case VOLTAGE_REGULATOR_ON -> hasVoltageRegulation ? String.valueOf(battery.getVoltageRegulation() != null && battery.getVoltageRegulation().isRegulating()) : null;
+            case VOLTAGE_REGULATOR_ON -> hasVoltageRegulation ? String.valueOf(battery.isRegulatingWithMode(RegulationMode.VOLTAGE)) : null;
         };
     }
 

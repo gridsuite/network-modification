@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.BooleanAssignmentInfos;
@@ -168,12 +169,12 @@ class BatteryModificationByAssignmentTest extends AbstractModificationByAssignme
 
         Battery battery1 = getNetwork().getBattery(BATTERY_ID_1);
         assertNotNull(battery1.getVoltageRegulation());
-        assertTrue(battery1.getVoltageRegulation().isRegulating());
+        assertTrue(battery1.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(400.0, battery1.getRegulatingTargetV());
 
         Battery battery5 = getNetwork().getBattery(BATTERY_ID_5);
         assertNotNull(battery5.getVoltageRegulation());
-        assertTrue(battery5.getVoltageRegulation().isRegulating());
+        assertTrue(battery5.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(400.0, battery5.getRegulatingTargetV());
 
         assertNull(getNetwork().getBattery(BATTERY_ID_2).getVoltageRegulation());

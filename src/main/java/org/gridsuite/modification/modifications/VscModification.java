@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRangeAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import jakarta.annotation.Nonnull;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
@@ -390,7 +391,7 @@ public class VscModification extends AbstractEquipmentModification {
 
         if (vscConverterStationModification.getVoltageRegulationOn() != null) {
             setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(on -> ModificationUtils.setVoltageRegulationOn(converterStation, on),
-                () -> converterStation.getVoltageRegulation().isRegulating(), vscConverterStationModification.getVoltageRegulationOn(), "VoltageRegulationOn"));
+                () -> converterStation.isRegulatingWithMode(RegulationMode.VOLTAGE), vscConverterStationModification.getVoltageRegulationOn(), "VoltageRegulationOn"));
         }
 
         if (vscConverterStationModification.getVoltageSetpoint() != null) {

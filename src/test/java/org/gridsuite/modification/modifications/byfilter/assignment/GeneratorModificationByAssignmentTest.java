@@ -9,6 +9,7 @@ package org.gridsuite.modification.modifications.byfilter.assignment;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.dto.FilterInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
@@ -300,7 +301,7 @@ class GeneratorModificationByAssignmentTest extends AbstractModificationByAssign
         assertEquals(10, generatorStartup1.getPlannedActivePowerSetpoint(), 0);
         assertEquals(300., generator1.getMaxP(), 0);
         assertEquals(2, generator1.getMinP(), 0);
-        assertTrue(generator1.getVoltageRegulation().isRegulating());
+        assertTrue(generator1.isRegulatingWithMode(RegulationMode.VOLTAGE));
         ActivePowerControl<Generator> activePowerControl1 = generator1.getExtension(ActivePowerControl.class);
         assertNull(activePowerControl1);
 

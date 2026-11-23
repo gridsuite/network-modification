@@ -260,6 +260,9 @@ public class BatteryModification extends AbstractInjectionModification {
         return voltageRegulationReports;
     }
 
+    /**
+     * A battery voltage regulation attribute can be modified even if the battery doesn't regulate: a disabled voltage regulation is then created.
+     */
     public static void createVoltageRegulationIfMissing(Battery battery) {
         if (battery.getVoltageRegulation() == null) {
             battery.newVoltageRegulation()
@@ -270,10 +273,9 @@ public class BatteryModification extends AbstractInjectionModification {
     }
 
     private static void setTargetV(Battery battery, AttributeModification<Double> targetV, List<ReportNode> voltageRegulationReports) {
-        Double oldValue = battery.getRegulatingTargetV();
-        Double newValue = Double.NaN;
+        double oldValue = battery.getRegulatingTargetV();
+        double newValue = Double.NaN;
         if (targetV.getOp() == OperationType.SET) {
-            // we always keep the equivalent local target voltage in the network
             setRegulatingTargetV(battery, targetV.getValue());
             newValue = targetV.getValue();
         }
@@ -304,7 +306,7 @@ public class BatteryModification extends AbstractInjectionModification {
 
         if (voltageRegulationType.getValue() == VoltageRegulationType.LOCAL) {
             // setting regulating terminal to null set to local terminal
-            voltageRegulation.setRegulatingTerminal(null);
+            ModificationUtils.setRegulatingTerminal(battery, null);
             if (oldEquipment != null && oldVoltageLevel != null) {
                 voltageRegulationReports.add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel,
                         null,

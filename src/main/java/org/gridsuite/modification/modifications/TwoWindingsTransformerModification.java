@@ -547,7 +547,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
             regulationReports.add(ModificationUtils.buildModificationReport(oldRegulating, false, "regulating", TypedValue.DETAIL_SEVERITY));
 
             Terminal oldTerminal = voltageRegulation.getTerminal();
-            double oldTargetV = ratioTapChangerToModify.getRegulatingTargetV();
+            double oldTargetV = getRatioTapChangerTargetV(ratioTapChangerToModify);
             voltageRegulation.setTerminal(null, Double.NaN);
             if (oldTerminal != null) {
                 String oldEquipment = oldTerminal.getConnectable().getType().name() + ":" + oldTerminal.getConnectable().getId();
@@ -677,7 +677,7 @@ public class TwoWindingsTransformerModification extends AbstractBranchModificati
                                 voltageRegulationAdder.withMode(RegulationMode.VOLTAGE);
                             }
                         },
-                isModification ? ratioTapChanger::getRegulatingTargetV : () -> null,
+                isModification ? () -> getRatioTapChangerTargetV(ratioTapChanger) : () -> null,
                 targetV, "Target voltage");
 
         ReportNode targetDeadbandReportNode = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(

@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import com.powsybl.iidm.network.util.BusbarSectionFinderTraverser;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.error.NetworkModificationException;
+import org.gridsuite.modification.utils.ModificationUtils;
 import org.gridsuite.modification.utils.NetworkCreation;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.CollectionUtils;
@@ -114,7 +115,7 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
         assertEquals(40.0, modifiedGenerator.getLocalTargetQ());
         assertEquals(48.0, modifiedGenerator.getRegulatingTargetV());
         assertEquals(40.0, modifiedGenerator.getLocalTargetV());
-        assertFalse(modifiedGenerator.getVoltageRegulation().isRegulating());
+        assertFalse(modifiedGenerator.isRegulatingWithMode(RegulationMode.VOLTAGE));
         assertEquals(0., modifiedGenerator.getMinP());
         assertEquals(100., modifiedGenerator.getMaxP());
         assertEquals(220., modifiedGenerator.getRatedS());
@@ -290,7 +291,7 @@ class GeneratorModificationTest extends AbstractInjectionModificationTest {
     @Test
     void testDistantRegulationWithIncompleteRegulatingTerminalKeepsExistingTerminal() {
         Terminal existingRegulatingTerminal = getNetwork().getLoad("v5load").getTerminal();
-        getNetwork().getGenerator("idGenerator").setRegulatingTerminal(existingRegulatingTerminal);
+        ModificationUtils.setRegulatingTerminal(getNetwork().getGenerator("idGenerator"), existingRegulatingTerminal);
 
         // Regulating terminal id missing
         GeneratorModificationInfos generatorModificationInfos = (GeneratorModificationInfos) buildModification();

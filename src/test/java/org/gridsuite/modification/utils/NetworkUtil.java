@@ -224,10 +224,6 @@ public final class NetworkUtil {
             .setNode(node)
             .setMinP(minP)
             .setMaxP(maxP)
-            .newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withRegulating(false)
-                .add()
             .add();
 
         g.newExtension(ConnectablePositionAdder.class)
@@ -249,10 +245,6 @@ public final class NetworkUtil {
             .setConnectableBus(busId)
             .setMinP(-1.1)
             .setMaxP(1000.0)
-            .newVoltageRegulation()
-                .withMode(RegulationMode.VOLTAGE)
-                .withRegulating(false)
-                .add()
             .add();
     }
 

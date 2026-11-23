@@ -251,7 +251,7 @@ public class TwoWindingsTransformerCreation extends AbstractBranchCreation {
         }
         double targetV = ratioTapChangerInfos.getTargetV() != null ? ratioTapChangerInfos.getTargetV() : Double.NaN;
         ratioTapChangerAdder.newVoltageRegulation()
-                .withMode(ratioTapChangerInfos.isRegulating() ? RegulationMode.VOLTAGE : null)
+                .withMode(Double.isNaN(targetV) ? null : RegulationMode.VOLTAGE)
                 .withTargetValue(targetV)
                 .withTargetDeadband(targetDeadband)
                 .withTerminal(terminal)

@@ -9,6 +9,7 @@ package org.gridsuite.modification.dto.byfilter.equipmentfield;
 
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -45,7 +46,7 @@ public enum GeneratorField {
         CoordinatedReactiveControl coordinatedReactiveControl = generator.getExtension(CoordinatedReactiveControl.class);
         GeneratorField field = GeneratorField.valueOf(generatorField);
         return switch (field) {
-            case VOLTAGE_REGULATOR_ON -> String.valueOf(generator.getVoltageRegulation() != null && generator.getVoltageRegulation().isRegulating());
+            case VOLTAGE_REGULATOR_ON -> String.valueOf(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
             case MAXIMUM_ACTIVE_POWER -> String.valueOf(generator.getMaxP());
             case MINIMUM_ACTIVE_POWER -> String.valueOf(generator.getMinP());
             case ACTIVE_POWER_SET_POINT -> String.valueOf(generator.getTargetP());
