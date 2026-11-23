@@ -53,6 +53,7 @@ public enum NetworkModificationExceptionType {
     BRANCH_MODIFICATION_ERROR("An error occurred while modifying the branch"),
     INJECTION_MODIFICATION_ERROR("An error occurred while modifying the injection"),
     MODIFY_BATTERY_ERROR("An error occurred while modifying the battery"),
+    MODIFY_STATIC_VAR_COMPENSATOR_ERROR("An error occurred while modifying the static var compensator"),
     OPERATING_STATUS_MODIFICATION_ERROR("An error occurred while modifying the operating status"),
     OPERATING_ACTION_TYPE_EMPTY("The operating action type is empty"),
     OPERATING_ACTION_TYPE_UNSUPPORTED("The operating action type is not supported"),

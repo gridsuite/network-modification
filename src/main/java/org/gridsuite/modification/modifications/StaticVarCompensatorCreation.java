@@ -320,7 +320,7 @@ public class StaticVarCompensatorCreation extends AbstractInjectionCreation {
                 reportCompensatorRegulatingTerminal(voltageReports);
             }
         }
-        ModificationUtils.getInstance().reportModifications(subReportNode, voltageReports, "network.modification.LimitsAndSetpointsCreated");
+        ModificationUtils.getInstance().reportModifications(subReportNode, voltageReports, "network.modification.LimitsAndSetpoints");
     }
 
     private void reportCompensatorRegulatingTerminal(List<ReportNode> voltageReports) {
