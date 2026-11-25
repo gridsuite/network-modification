@@ -190,13 +190,12 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
             return;
         }
         StandbyAutomaton standbyAutomaton = staticVarCompensator.getExtension(StandbyAutomaton.class);
-        boolean isStandbyAutomatonAdded = standbyAutomaton == null && isStandbyAutomatonOn();
+        boolean isStandbyAutomatonAdded = standbyAutomaton == null && isStandbyAutomatonAddRequested();
         if (standbyAutomaton == null && !isStandbyAutomatonAdded) {
-            if (isStandbyAutomatonFieldModified()) {
-                throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR,
-                        errorMessage + "Standby automaton does not exist : it must be activated to modify its attributes");
-            }
             return;
+        }
+        if (isStandbyAutomatonAdded) {
+            checkStandbyAutomatonCreationFields(errorMessage);
         }
         if (standby != null && standby.getValue() == null) {
             throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR, errorMessage + "Standby automaton standby can not be unset");
@@ -387,7 +386,7 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
         double nominalV = staticVarCompensator.getTerminal().getVoltageLevel().getNominalV();
         List<ReportNode> reports = new ArrayList<>();
         if (standbyAutomaton == null) {
-            if (isStandbyAutomatonOn()) {
+            if (isStandbyAutomatonAddRequested()) {
                 addStandbyAutomaton(staticVarCompensator, nominalV, reports);
             }
         } else {
@@ -456,6 +455,36 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
 
     private boolean isStandbyAutomatonOn() {
         return standbyAutomatonOn != null && Boolean.TRUE.equals(standbyAutomatonOn.getValue());
+    }
+
+    private boolean isStandbyAutomatonAddRequested() {
+        return isStandbyAutomatonOn() || isStandbyAutomatonFieldModified();
+    }
+
+    private void checkStandbyAutomatonCreationFields(String errorMessage) {
+        List<String> missingFields = new ArrayList<>();
+        if (!hasValue(standby)) {
+            missingFields.add("Standby");
+        }
+        if (!hasValue(b0) && !hasValue(q0)) {
+            missingFields.add("Fixed part of susceptance");
+        }
+        if (!hasValue(lowVoltageSetpoint)) {
+            missingFields.add("Low voltage set point");
+        }
+        if (!hasValue(highVoltageSetpoint)) {
+            missingFields.add("High voltage set point");
+        }
+        if (!hasValue(lowVoltageThreshold)) {
+            missingFields.add("Low voltage threshold");
+        }
+        if (!hasValue(highVoltageThreshold)) {
+            missingFields.add("High voltage threshold");
+        }
+        if (!missingFields.isEmpty()) {
+            throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR, errorMessage
+                    + "Empty mandatory fields for automaton creation : no automaton created (" + String.join(", ", missingFields) + ")");
+        }
     }
 
     private boolean isStandbyAutomatonRemoved() {

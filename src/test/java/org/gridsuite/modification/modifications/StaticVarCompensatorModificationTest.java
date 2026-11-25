@@ -200,6 +200,7 @@ class StaticVarCompensatorModificationTest extends AbstractInjectionModification
     void testAddStandbyAutomatonWithQ0() {
         double nominalV = getSvc().getTerminal().getVoltageLevel().getNominalV();
         builder().standbyAutomatonOn(new AttributeModification<>(true, OperationType.SET))
+                .standby(new AttributeModification<>(false, OperationType.SET))
                 .q0(set(3 * nominalV * nominalV))
                 .lowVoltageSetpoint(set(370.))
                 .highVoltageSetpoint(set(390.))
@@ -213,18 +214,26 @@ class StaticVarCompensatorModificationTest extends AbstractInjectionModification
 
     @Test
     void testAddStandbyAutomatonWithMissingFields() {
-        assertCheckFails(builder().standbyAutomatonOn(new AttributeModification<>(true, OperationType.SET))
-                .b0(set(5.)).lowVoltageSetpoint(set(370.)).highVoltageSetpoint(set(390.)).lowVoltageThreshold(set(360.)).build(),
-                "Standby automaton high voltage threshold is not set");
-        assertCheckFails(builder().standbyAutomatonOn(new AttributeModification<>(true, OperationType.SET))
-                .lowVoltageSetpoint(set(370.)).highVoltageSetpoint(set(390.)).lowVoltageThreshold(set(360.)).highVoltageThreshold(set(400.)).build(),
-                "Standby automaton fixed part of susceptance is not set");
+        assertCheckFails(completeStandbyAutomaton().highVoltageThreshold(null).build(),
+                "Empty mandatory fields for automaton creation : no automaton created (High voltage threshold)");
+        assertCheckFails(completeStandbyAutomaton().b0(null).build(),
+                "Empty mandatory fields for automaton creation : no automaton created (Fixed part of susceptance)");
+        assertCheckFails(completeStandbyAutomaton().standby(null).build(),
+                "Empty mandatory fields for automaton creation : no automaton created (Standby)");
+        assertCheckFails(builder().standbyAutomatonOn(new AttributeModification<>(true, OperationType.SET)).build(),
+                "Empty mandatory fields for automaton creation : no automaton created (Standby, Fixed part of susceptance, "
+                        + "Low voltage set point, High voltage set point, Low voltage threshold, High voltage threshold)");
     }
 
     @Test
     void testModifyStandbyAutomatonFieldsWithoutExtension() {
         assertCheckFails(builder().lowVoltageSetpoint(set(370.)).build(),
-                "Standby automaton does not exist : it must be activated to modify its attributes");
+                "Empty mandatory fields for automaton creation : no automaton created (Standby, Fixed part of susceptance, "
+                        + "High voltage set point, Low voltage threshold, High voltage threshold)");
+        assertCheckFails(builder().standbyAutomatonOn(new AttributeModification<>(true, OperationType.SET)).lowVoltageSetpoint(set(370.)).build(),
+                "Empty mandatory fields for automaton creation : no automaton created (Standby, Fixed part of susceptance, "
+                        + "High voltage set point, Low voltage threshold, High voltage threshold)");
+        assertNull(getSvc().getExtension(StandbyAutomaton.class));
     }
 
     @Test
@@ -344,6 +353,7 @@ class StaticVarCompensatorModificationTest extends AbstractInjectionModification
                 .voltageLevelId(new AttributeModification<>("v1", OperationType.SET))
                 .busOrBusbarSectionId(new AttributeModification<>("1.1", OperationType.SET))
                 .standbyAutomatonOn(new AttributeModification<>(true, OperationType.SET))
+                .standby(new AttributeModification<>(false, OperationType.SET))
                 .q0(set(3 * targetNominalV * targetNominalV))
                 .lowVoltageSetpoint(set(370.))
                 .highVoltageSetpoint(set(390.))
@@ -442,6 +452,7 @@ class StaticVarCompensatorModificationTest extends AbstractInjectionModification
 
     private static StaticVarCompensatorModificationInfos.StaticVarCompensatorModificationInfosBuilder<?, ?> completeStandbyAutomaton() {
         return builder().standbyAutomatonOn(new AttributeModification<>(true, OperationType.SET))
+                .standby(new AttributeModification<>(false, OperationType.SET))
                 .b0(set(5.))
                 .lowVoltageSetpoint(set(370.))
                 .highVoltageSetpoint(set(390.))
