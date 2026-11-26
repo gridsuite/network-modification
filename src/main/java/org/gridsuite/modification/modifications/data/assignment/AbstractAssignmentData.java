@@ -15,7 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.gridsuite.filter.wip.Filter;
+import org.gridsuite.filter.Filter;
 
 import java.util.List;
 

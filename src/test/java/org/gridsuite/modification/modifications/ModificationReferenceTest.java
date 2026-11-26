@@ -43,7 +43,7 @@ class ModificationReferenceTest extends AbstractNetworkModificationTest {
 
     @Override
     protected void initApplicationContext(AbstractModification modification) {
-        modification.initApplicationContext(null, null, null);
+        modification.initApplicationContext(null);
     }
 
     @Override
@@ -81,7 +81,7 @@ class ModificationReferenceTest extends AbstractNetworkModificationTest {
         assertEquals(ModificationReferenceInfos.Type.ELEMENTARY, modification.getReferenceType());
         assertEquals(ModificationType.MODIFICATION_REFERENCE.name(), modification.getName());
 
-        modification.initApplicationContext(null, null, null);
+        modification.initApplicationContext(null);
         modification.check(getNetwork());
         modification.apply(getNetwork(), ReportNode.newRootReportNode()
             .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)

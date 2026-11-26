@@ -20,7 +20,10 @@ import org.gridsuite.modification.context.ModificationContext;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.modifications.byfilter.ModificationByAssignment;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * @author Thang PHAM <quyet-thang.pham at rte-france.com>
@@ -54,5 +57,19 @@ public class ModificationByAssignmentInfos extends ModificationInfos {
         return reportNode.newReportNode()
                 .withMessageTemplate("network.modification.modificationByAssignment")
                 .withUntypedValue("equipmentType", equipmentType.name()).add();
+    }
+
+    @Override
+    public Stream<FilterInfos> getFiltersStream() {
+        return Stream.ofNullable(assignmentInfosList)
+                .flatMap(List::stream)
+                .flatMap(assignmentInfos -> Stream.ofNullable(assignmentInfos.getFilters()).flatMap(List::stream));
+    }
+
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        Map<String, String> mapMessageValues = new HashMap<>();
+        mapMessageValues.put("equipmentType", getEquipmentType().name());
+        return mapMessageValues;
     }
 }

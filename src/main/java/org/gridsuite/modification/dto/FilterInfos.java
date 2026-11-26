@@ -28,7 +28,7 @@ public class FilterInfos {
     @Schema(description = "id of filter")
     private UUID id;
 
-    @Schema(description = "name of filter")
+    @Schema(description = "name of filter, null if the filter no longer exists")
     private String name;
 
 }

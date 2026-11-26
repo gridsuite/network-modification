@@ -56,6 +56,8 @@ public final class ModificationUtils {
     public static final String REACTIVE_LIMITS = "network.modification.ReactiveLimits";
     public static final String OPERATIONAL_LIMITS_GROUP_ADDED_LOG_DETAIL = "network.modification.operationalLimitsGroupAdded.detail";
     private static final String SETPOINTS = "network.modification.Setpoints";
+    private static final String CONNECTIVITY_MODIFIED = "network.modification.ConnectivityModified";
+    private static final String STATIC_VAR_COMPENSATOR = "StaticVarCompensator";
     private static final String MIN_REACTIVE_POWER_FIELDNAME = "Minimum reactive power";
     private static final String MAX_REACTIVE_POWER_FIELDNAME = "Maximum reactive power";
     public static final String CONNECTION_NAME_FIELD_NAME = "Connection name";
@@ -699,11 +701,24 @@ public final class ModificationUtils {
                                                             Injection<?> injection,
                                                             AbstractInjectionModification injectionModification,
                                                             ReportNode connectivityReports) {
-        List<ReportNode> reports = new ArrayList<>();
+        return modifyInjectionConnectivityAttributes(connectablePosition, connectablePositionAdder, injection, injectionModification,
+                connectivityReports, new ArrayList<>());
+    }
+
+    /**
+     * Same as above, but the given reports (for instance the ones returned by {@link #moveFeederBayAndReturnReports})
+     * are reported in the same "Connectivity" node.
+     */
+    public ReportNode modifyInjectionConnectivityAttributes(ConnectablePosition<?> connectablePosition,
+                                                            ConnectablePositionAdder<?> connectablePositionAdder,
+                                                            Injection<?> injection,
+                                                            AbstractInjectionModification injectionModification,
+                                                            ReportNode connectivityReports,
+                                                            List<ReportNode> reports) {
         processConnectivityPosition(connectablePosition, connectablePositionAdder, injectionModification, injection.getNetwork(), reports);
         modifyConnection(injectionModification.getTerminalConnected(), injection, injection.getTerminal(), reports);
 
-        return reportModifications(connectivityReports, reports, "network.modification.ConnectivityModified");
+        return reportModifications(connectivityReports, reports, CONNECTIVITY_MODIFIED);
     }
 
     public ReportNode modifyBranchConnectivityAttributes(ConnectablePosition<?> connectablePosition,
@@ -744,7 +759,7 @@ public final class ModificationUtils {
                             "1 & 2")); // Exactly the both sides awaited here
         }
 
-        return reportModifications(connectivityReports, reports, "network.modification.ConnectivityModified");
+        return reportModifications(connectivityReports, reports, CONNECTIVITY_MODIFIED);
     }
 
     private void processConnectivityPosition(ConnectablePosition<?> connectablePosition,
@@ -1577,44 +1592,59 @@ public final class ModificationUtils {
 
     public void checkReactivePowerLimitsAndSetPointsCreation(
         StaticVarCompensatorCreation staticVarCompensatorCreation) {
-        String equipmentName = "StaticVarCompensator";
-        // check min max reactive limits
-        if (Objects.isNull(staticVarCompensatorCreation.getMinSusceptance()) && Objects.isNull(
-            staticVarCompensatorCreation.getMinQAtNominalV())) {
-            throw makeEquipmentException(CREATE_STATIC_VAR_COMPENSATOR_ERROR,
-                staticVarCompensatorCreation.getEquipmentId(), equipmentName, "minimum susceptance is not set");
+        checkStaticVarCompensatorLimits(staticVarCompensatorCreation.getEquipmentId(), CREATE_STATIC_VAR_COMPENSATOR_ERROR,
+            staticVarCompensatorCreation.getMinSusceptance(), staticVarCompensatorCreation.getMaxSusceptance(),
+            staticVarCompensatorCreation.getMinQAtNominalV(), staticVarCompensatorCreation.getMaxQAtNominalV());
+        checkStaticVarCompensatorSetPoints(staticVarCompensatorCreation.getEquipmentId(), CREATE_STATIC_VAR_COMPENSATOR_ERROR,
+            staticVarCompensatorCreation.getRegulationMode(),
+            staticVarCompensatorCreation.getVoltageSetpoint(), staticVarCompensatorCreation.getReactivePowerSetpoint());
+    }
+
+    public void checkStaticVarCompensatorLimits(String equipmentId, NetworkModificationExceptionType exceptionType,
+                                                Double minSusceptance, Double maxSusceptance,
+                                                Double minQAtNominalV, Double maxQAtNominalV) {
+        String equipmentName = STATIC_VAR_COMPENSATOR;
+        if (Objects.isNull(minSusceptance) && Objects.isNull(minQAtNominalV)) {
+            throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "minimum susceptance is not set");
         }
-        if (Objects.isNull(staticVarCompensatorCreation.getMaxSusceptance()) && Objects.isNull(
-            staticVarCompensatorCreation.getMaxQAtNominalV())) {
-            throw makeEquipmentException(CREATE_STATIC_VAR_COMPENSATOR_ERROR,
-                staticVarCompensatorCreation.getEquipmentId(), equipmentName, "maximum susceptance is not set");
+        if (Objects.isNull(maxSusceptance) && Objects.isNull(maxQAtNominalV)) {
+            throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "maximum susceptance is not set");
         }
-        if (Objects.nonNull(staticVarCompensatorCreation.getMaxSusceptance()) && Objects.nonNull(
-            staticVarCompensatorCreation.getMinSusceptance()) && staticVarCompensatorCreation.getMaxSusceptance() < staticVarCompensatorCreation.getMinSusceptance()) {
-            throw makeEquipmentException(CREATE_STATIC_VAR_COMPENSATOR_ERROR,
-                staticVarCompensatorCreation.getEquipmentId(), equipmentName,
+        if (Objects.nonNull(maxSusceptance) && Objects.nonNull(minSusceptance) && maxSusceptance < minSusceptance) {
+            throw makeEquipmentException(exceptionType, equipmentId, equipmentName,
                 "maximum susceptance is expected to be greater than or equal to minimum susceptance");
         }
-        if (Objects.nonNull(staticVarCompensatorCreation.getMaxQAtNominalV()) && Objects.nonNull(
-            staticVarCompensatorCreation.getMinQAtNominalV()) && staticVarCompensatorCreation.getMaxQAtNominalV() < staticVarCompensatorCreation.getMinQAtNominalV()) {
-            throw makeEquipmentException(CREATE_STATIC_VAR_COMPENSATOR_ERROR,
-                staticVarCompensatorCreation.getEquipmentId(), equipmentName,
+        if (Objects.nonNull(maxQAtNominalV) && Objects.nonNull(minQAtNominalV) && maxQAtNominalV < minQAtNominalV) {
+            throw makeEquipmentException(exceptionType, equipmentId, equipmentName,
                 "maximum Q at nominal voltage is expected to be greater than or equal to minimum Q");
-        }
-
-        // check set points
-        if (staticVarCompensatorCreation.getRegulationMode() == StaticVarCompensator.RegulationMode.VOLTAGE && staticVarCompensatorCreation.getVoltageSetpoint() == null) {
-            throw makeEquipmentException(CREATE_STATIC_VAR_COMPENSATOR_ERROR,
-                staticVarCompensatorCreation.getEquipmentId(), equipmentName, "Voltage setpoint is not set");
-        }
-        if (staticVarCompensatorCreation.getRegulationMode() == StaticVarCompensator.RegulationMode.REACTIVE_POWER && staticVarCompensatorCreation.getReactivePowerSetpoint() == null) {
-            throw makeEquipmentException(CREATE_STATIC_VAR_COMPENSATOR_ERROR,
-                staticVarCompensatorCreation.getEquipmentId(), equipmentName, "Reactive power setpoint is not set");
         }
     }
 
+    public void checkStaticVarCompensatorSetPoints(String equipmentId, NetworkModificationExceptionType exceptionType,
+                                                   StaticVarCompensator.RegulationMode regulationMode,
+                                                   Double voltageSetpoint, Double reactivePowerSetpoint) {
+        String equipmentName = STATIC_VAR_COMPENSATOR;
+        if (regulationMode == StaticVarCompensator.RegulationMode.VOLTAGE && voltageSetpoint == null) {
+            throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "Voltage setpoint is not set");
+        }
+        if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER && reactivePowerSetpoint == null) {
+            throw makeEquipmentException(exceptionType, equipmentId, equipmentName, "Reactive power setpoint is not set");
+        }
+    }
+
+    public static boolean hasValue(AttributeModification<?> modification) {
+        return modification != null && modification.getValue() != null;
+    }
+
+    public static Double getFinalValue(AttributeModification<Double> modification, double currentValue) {
+        if (modification != null) {
+            return modification.applyModification(currentValue);
+        }
+        return currentValue;
+    }
+
     public void checkStandbyAutomatonCreation(StaticVarCompensatorCreation staticVarCompensatorCreation) {
-        String equipmentName = "StaticVarCompensator";
+        String equipmentName = STATIC_VAR_COMPENSATOR;
         if (staticVarCompensatorCreation.isStandby() && staticVarCompensatorCreation.getRegulationMode() != StaticVarCompensator.RegulationMode.VOLTAGE
             && !staticVarCompensatorCreation.isRegulating()) {
             throw makeEquipmentException(CREATE_STATIC_VAR_COMPENSATOR_ERROR,
@@ -1682,9 +1712,13 @@ public final class ModificationUtils {
     public void createReactiveCapabilityCurve(ReactiveLimitsHolderInfos creationInfos,
                                                      ReactiveLimitsHolder reactiveLimitsHolder,
                                               ReportNode subReportNode) {
+        List<ReactiveCapabilityCurvePointsInfos> points = creationInfos.getReactiveCapabilityCurvePoints();
+        if (CollectionUtils.isEmpty(points)) {
+            return;
+        }
+
         List<ReportNode> pointsReports = new ArrayList<>();
         ReactiveCapabilityCurveAdder adder = reactiveLimitsHolder.newReactiveCapabilityCurve();
-        List<ReactiveCapabilityCurvePointsInfos> points = creationInfos.getReactiveCapabilityCurvePoints();
         IntStream.range(0, points.size())
                 .forEach(i -> {
                     String fieldSuffix;
@@ -2098,6 +2132,21 @@ public final class ModificationUtils {
                 .withTerminal(terminal)
                 .withTargetBusOrBusBarSectionId(finalBusOrBusbarSectionId)
                 .build().apply(network, true, subReportNode);
+    }
+
+    /**
+     * Moves the feeder bay and returns the reports instead of adding them directly to a report node,
+     * so that they can be grouped with the other connectivity reports.
+     */
+    public List<ReportNode> moveFeederBayAndReturnReports(Connectable<?> connectable, Terminal terminal,
+                                                          AttributeModification<String> voltageLevelId,
+                                                          AttributeModification<String> busOrBusbarSectionId) {
+        ReportNode moveFeederBayReportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(NetworkModificationReportResourceBundle.BASE_NAME)
+                .withMessageTemplate(CONNECTIVITY_MODIFIED)
+                .build();
+        moveFeederBay(connectable, terminal, voltageLevelId, busOrBusbarSectionId, moveFeederBayReportNode);
+        return new ArrayList<>(moveFeederBayReportNode.getChildren());
     }
 
     public void checkVoltageLevelModification(Network network,

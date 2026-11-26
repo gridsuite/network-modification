@@ -4,7 +4,7 @@
 
 ## Table of Contents
 
-1. [Core Interfaces](#1-core-interfaces)
+1. [Construction Context & Loaders](#1-construction-context--loaders)
 2. [AbstractModification Lifecycle](#2-abstractmodification-lifecycle)
 3. [ModificationInfos — Base DTO](#3-modificationinfos--base-dto)
 4. [ModificationType Enum](#4-modificationtype-enum)
@@ -30,64 +30,57 @@
 
 ---
 
-## 1. Core Interfaces
+## 1. Construction Context & Loaders
 
-### `IFilterService`
+**Package:** `org.gridsuite.modification.context`
 
-**Package:** `org.gridsuite.modification`
+### `ModificationContext`
 
-Interface to decouple filter evaluation and remote filter service resolution from the core modification engine.
+Construction dependencies supplied by the consumer when converting a DTO through `toModification(context)`:
 
 ```java
-public interface IFilterService {
-
-    /**
-     * Fetches filter definitions by their UUIDs.
-     *
-     * @param filtersUuids list of filter UUIDs
-     * @return list of AbstractFilter objects
-     */
-    List<AbstractFilter> getFilters(List<UUID> filtersUuids);
-
-    /**
-     * Resolves filters against a live network and streams matching equipment.
-     *
-     * @param filtersUuids list of filter UUIDs
-     * @param network      the network to resolve against
-     * @return stream of matched equipment per filter
-     */
-    Stream<org.gridsuite.filter.identifierlistfilter.FilterEquipments> exportFilters(
-            List<UUID> filtersUuids, Network network);
-
-    /**
-     * Returns a map from filter UUID to the equipment matched by that filter.
-     *
-     * @param network the network to resolve against
-     * @param filters map of filter UUID → filter name
-     * @return map of filter UUID → FilterEquipments
-     */
-    Map<UUID, FilterEquipments> getUuidFilterEquipmentsMap(Network network, Map<UUID, String> filters);
+public record ModificationContext(
+        FilterLoader filterLoader,
+        FilterWithDistributionKeysLoader filterWithDistributionKeysLoader,
+        LoadFlowParametersLoader loadFlowParametersLoader) {
+    // Lombok builder and ModificationContext.empty() are available.
 }
 ```
 
----
+Only provide the loaders required by the DTO. `ModificationContext.empty()` provides no working loaders: an unset loader throws `IllegalStateException` if used, rather than silently returning empty data.
 
-### `ILoadFlowService`
+Leaf modifications resolve external resources during conversion and retain execution data, not service clients. Composite and referenced modifications retain their DTOs and context to convert children during application. Filter evaluation occurs against the target network, separately from loading filter definitions.
 
-**Package:** `org.gridsuite.modification`
+### `FilterLoader`
 
-Interface for retrieving stored load-flow parameters by UUID for modifications that execute power flow simulations.
+Loads self-contained `org.gridsuite.filter.wip.Filter` objects indexed by UUID. Missing filters are omitted from the returned map; values must not be `null`.
 
 ```java
-public interface ILoadFlowService {
+@FunctionalInterface
+public interface FilterLoader {
+    Map<UUID, Filter> load(List<UUID> filterUuids);
+}
+```
 
-    /**
-     * Retrieves load-flow parameters by UUID.
-     *
-     * @param loadFlowParametersUuid the UUID of the stored parameters
-     * @return LoadFlowParametersInfos populated with all load-flow settings
-     */
-    LoadFlowParametersInfos getLoadFlowParametersInfos(UUID loadFlowParametersUuid);
+### `FilterWithDistributionKeysLoader`
+
+Loads filters with their equipment distribution keys. The value type is `org.gridsuite.modification.context.dto.FilterWithDistributionKeys`. Only identifier-list filters carry distribution keys; other filters have an empty key map. Missing filters are omitted.
+
+```java
+@FunctionalInterface
+public interface FilterWithDistributionKeysLoader {
+    Map<UUID, FilterWithDistributionKeys> load(List<UUID> filterUuids);
+}
+```
+
+### `LoadFlowParametersLoader`
+
+Loads `org.gridsuite.modification.dto.LoadFlowParametersInfos` by UUID; missing parameters are represented by `Optional.empty()`.
+
+```java
+@FunctionalInterface
+public interface LoadFlowParametersLoader {
+    Optional<LoadFlowParametersInfos> load(UUID parametersUuid);
 }
 ```
 
@@ -105,7 +98,7 @@ The abstract base class for all concrete modification implementations.
 | Method | Description |
 |---|---|
 | `void check(Network network)` | Validates inputs and constraints against the live network. Throws `NetworkModificationException` on conflict or missing prerequisites. Default implementation does nothing. |
-| `void initApplicationContext(IFilterService filterService, ILoadFlowService loadFlowService)` | Injects external service instances. Called prior to `check` when service dependencies exist. Default implementation does nothing. |
+| `void initApplicationContext(String rootNetworkTag)` | Sets only the root network tag; does not inject services or resolve resources. Reinitialize after deserializing an executable modification. |
 | `void apply(Network network, ReportNode subReportNode)` | Mutates the `Network` and logs structured progress and audit messages to `subReportNode`. |
 | `void apply(Network network, NamingStrategy namingStrategy, ReportNode subReportNode)` | Variant supporting a custom naming strategy. Defaults to delegating to `apply(network, subReportNode)`. |
 | `String getName()` | Returns the descriptive name for the modification type. |
@@ -134,7 +127,8 @@ The abstract base class for all concrete modification implementations.
 
 | Method | Description |
 |---|---|
-| `AbstractModification toModification()` | Factory method instantiating the corresponding `AbstractModification`. |
+| `AbstractModification toModification()` | Conversion without supplied loaders, for DTOs without external dependencies. Dependency-bearing DTOs require a suitable context. |
+| `AbstractModification toModification(ModificationContext context)` | Builds the executable modification using the required loaders; composite/reference children are converted later during application. |
 | `ReportNode createSubReportNode(ReportNode reportNode)` | Creates and attaches a child `ReportNode` with the appropriate message template. |
 | `void check()` | Validates internal DTO fields before conversion. |
 | `ModificationType getType()` | Returns the modification type enum value. |
@@ -159,6 +153,7 @@ Supported modification types in `ModificationType.java`:
 | `SHUNT_COMPENSATOR_CREATION` | Injections |
 | `SHUNT_COMPENSATOR_MODIFICATION` | Injections |
 | `STATIC_VAR_COMPENSATOR_CREATION` | Injections |
+| `STATIC_VAR_COMPENSATOR_MODIFICATION` | Injections |
 | `LINE_CREATION` | Branches |
 | `LINE_MODIFICATION` | Branches |
 | `TWO_WINDINGS_TRANSFORMER_CREATION` | Branches |
@@ -187,6 +182,7 @@ Supported modification types in `ModificationType.java`:
 | `CREATE_VOLTAGE_LEVEL_TOPOLOGY` | Topology |
 | `CREATE_VOLTAGE_LEVEL_SECTION` | Topology |
 | `MOVE_VOLTAGE_LEVEL_FEEDER_BAYS` | Topology |
+| `NETWORK_REDUCTION` | Topology |
 | `GENERATOR_SCALING` | Scaling & Dispatch |
 | `LOAD_SCALING` | Scaling & Dispatch |
 | `GENERATION_DISPATCH` | Scaling & Dispatch |
@@ -402,6 +398,30 @@ Mirrors generator modification attributes applicable to battery storage systems.
 | `maximumSectionCount` | `AttributeModification<Integer>` | Maximum section capacity |
 | `voltageSetpoint` | `AttributeModification<Double>` | Target voltage set point |
 
+#### `StaticVarCompensatorModificationInfos` ← `InjectionModificationInfos`
+
+| Field | Type | Description |
+|---|---|---|
+| `minSusceptance` / `maxSusceptance` | `AttributeModification<Double>` | Susceptance limits (S), take precedence over the Q values |
+| `minQAtNominalV` / `maxQAtNominalV` | `AttributeModification<Double>` | Reactive power limits at nominal voltage (MVar) |
+| `regulationMode` | `AttributeModification<StaticVarCompensator.RegulationMode>` | `VOLTAGE`, `REACTIVE_POWER` |
+| `regulating` | `AttributeModification<Boolean>` | Regulation status |
+| `voltageSetpoint` / `reactivePowerSetpoint` | `AttributeModification<Double>` | Set points |
+| `voltageRegulationType` | `AttributeModification<VoltageRegulationType>` | `LOCAL` or `DISTANT` |
+| `regulatingTerminalId` / `regulatingTerminalType` / `regulatingTerminalVlId` | `AttributeModification<String>` | Regulating terminal |
+| `standbyAutomatonOn` | `AttributeModification<Boolean>` | `true` adds the `StandbyAutomaton` extension (or keeps it), `false` removes it |
+| `standby` | `AttributeModification<Boolean>` | Standby status, only allowed in `VOLTAGE` regulation mode |
+| `b0` / `q0` | `AttributeModification<Double>` | Fixed part of susceptance (S) / of Q at nominal voltage (MVar), `b0` takes precedence |
+| `lowVoltageSetpoint` / `highVoltageSetpoint` | `AttributeModification<Double>` | Automaton voltage set points (kV) |
+| `lowVoltageThreshold` / `highVoltageThreshold` | `AttributeModification<Double>` | Automaton voltage thresholds (kV) |
+
+Standby automaton rules:
+- extension absent and `standbyAutomatonOn` not `true`: any automaton field is rejected;
+- extension added: `b0` (or `q0`) and the four voltage values are required, `standby` defaults to `false`;
+- extension present: only the provided fields are modified, none of them can be unset;
+- `standbyAutomatonOn = false`: the extension is removed and the other automaton fields are ignored;
+- `b0` must stay within the final susceptance limits, and with standby on the low threshold must be lower than the high one.
+
 ---
 
 ### 5.6 Branch Modification DTOs
@@ -421,6 +441,15 @@ Adds `g1`, `b1`, `g2`, `b2` wrapped in `AttributeModification<Double>`.
 #### `TwoWindingsTransformerModificationInfos` ← `BranchModificationInfos`
 
 Adds `g`, `b`, `ratedU1`, `ratedU2`, `ratedS`, `ratioTapChanger`, and `phaseTapChanger` attribute modifications.
+
+| Field | Type | Description |
+|---|---|---|
+| `ratioTapChangerPositionMeasurement` | `AttributeModification<Integer>` | Measured ratio tap position for state estimation |
+| `phaseTapChangerPositionMeasurement` | `AttributeModification<Integer>` | Measured phase tap position for state estimation |
+
+A non-null `value` creates or updates the corresponding tap position measurement and marks it valid. Omitted fields or null values leave existing measurements unchanged; `op` is not interpreted, so `UNSET` does not delete measurements.
+
+These fields do not change physical tap positions or require the corresponding tap changer to exist. Zero and negative measurement values are accepted.
 
 ---
 
@@ -505,6 +534,7 @@ Adds `g`, `b`, `ratedU1`, `ratedU2`, `ratedS`, `ratioTapChanger`, and `phaseTapC
 | `CreateVoltageLevelSectionInfos` | `voltageLevelId`, `switchKinds` | Add a section to an existing voltage level |
 | `MoveVoltageLevelFeederBaysInfos` | `voltageLevelId`, `feederBaysMoves` | Reallocate bays across busbar sections |
 | `VoltageLevelTopologyModificationInfos` | `busbarSectionToSwitchesAttributes` | Update switch topology configuration |
+| `NetworkReductionInfos` | `filters` | Reduce the network to an area of interest |
 
 ---
 
@@ -701,6 +731,7 @@ Carries `String name`, `String value`, and `boolean deletionMark` for arbitrary 
 | `BRANCH_MODIFICATION_ERROR` | An error occurred while modifying the branch |
 | `INJECTION_MODIFICATION_ERROR` | An error occurred while modifying the injection |
 | `MODIFY_BATTERY_ERROR` | An error occurred while modifying the battery |
+| `MODIFY_STATIC_VAR_COMPENSATOR_ERROR` | An error occurred while modifying the static var compensator |
 | `OPERATING_STATUS_MODIFICATION_ERROR` | An error occurred while modifying the operating status |
 | `OPERATING_ACTION_TYPE_EMPTY` | The operating action type is empty |
 | `OPERATING_ACTION_TYPE_UNSUPPORTED` | The operating action type is not supported |
@@ -774,6 +805,16 @@ Carries `String name`, `String value`, and `boolean deletionMark` for arbitrary 
 
 ## 9. Usage Examples
 
+The examples assume a `Network network`, a `ReportNode reportNode` where needed, and the imports for the shown DTOs and context classes. For dependency-bearing DTOs, configure the required loader implementations:
+
+```java
+ModificationContext context = ModificationContext.builder()
+        .filterLoader(filterLoader)
+        .filterWithDistributionKeysLoader(filterWithDistributionKeysLoader)
+        .loadFlowParametersLoader(loadFlowParametersLoader)
+        .build();
+```
+
 ### Example 1 — Create a Load
 
 ```java
@@ -818,8 +859,8 @@ ByFilterDeletionInfos deletion = ByFilterDeletionInfos.builder()
         .filters(List.of(new FilterInfos(filterUuid, "Decommissioned Loads")))
         .build();
 
-AbstractModification mod = deletion.toModification();
-mod.initApplicationContext(filterService, null);
+AbstractModification mod = deletion.toModification(context);
+mod.initApplicationContext(rootNetworkTag);
 mod.check(network);
 mod.apply(network, reportNode);
 ```
@@ -832,11 +873,13 @@ CompositeModificationInfos scenario = CompositeModificationInfos.builder()
         .modificationsInfos(List.of(loadInfos, genModif))
         .build();
 
-AbstractModification compositeMod = scenario.toModification();
-compositeMod.initApplicationContext(filterService, loadFlowService);
+AbstractModification compositeMod = scenario.toModification(context);
+compositeMod.initApplicationContext(rootNetworkTag);
 compositeMod.check(network);
 compositeMod.apply(network, reportNode);
 ```
+
+Composites and references convert nested DTOs during `apply`, using the retained context, and propagate the root network tag through `initApplicationContext(rootNetworkTag)`.
 
 ### Example 5 — Polymorphic JSON Deserialization
 

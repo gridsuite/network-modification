@@ -8,8 +8,8 @@ package org.gridsuite.modification.modifications.byfilter.assignment;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import org.gridsuite.filter.IdentifierListFilter;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.dto.ModificationByAssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.AssignmentInfos;
 import org.gridsuite.modification.dto.byfilter.assignment.DoubleAssignmentInfos;
@@ -61,7 +61,10 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
                 .assignmentInfosList(List.of(assignmentInfos))
                 .stashed(false)
                 .build();
-        apply(modificationInfos, _ -> Map.of(FILTER_ID_4, IdentifierListFilter.builder().equipmentType(EquipmentType.TWO_WINDINGS_TRANSFORMER).equipmentIds(Set.of(TWT_ID_4, TWT_ID_6)).build()));
+        apply(modificationInfos, _ -> Map.of(FILTER_ID_4, IdentifierListFilter.builder()
+                .equipmentType(EquipmentType.TWO_WINDINGS_TRANSFORMER)
+                .equipmentIds(new TreeSet<>(Set.of(TWT_ID_4, TWT_ID_6)))
+                .build()));
 
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_4).getRatioTapChanger());
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_6).getRatioTapChanger());
@@ -78,7 +81,10 @@ class TwoWindingsTransformerModificationByAssignmentTest extends AbstractModific
                 .assignmentInfosList(List.of(assignmentInfos2))
                 .stashed(false)
                 .build();
-        apply(modificationInfos2, _ -> Map.of(FILTER_ID_1, IdentifierListFilter.builder().equipmentType(EquipmentType.TWO_WINDINGS_TRANSFORMER).equipmentIds(Set.of(TWT_ID_1, TWT_ID_2)).build()));
+        apply(modificationInfos2, _ -> Map.of(FILTER_ID_1, IdentifierListFilter.builder()
+                .equipmentType(EquipmentType.TWO_WINDINGS_TRANSFORMER)
+                .equipmentIds(new TreeSet<>(Set.of(TWT_ID_1, TWT_ID_2)))
+                .build()));
 
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_1).getPhaseTapChanger());
         assertNull(getNetwork().getTwoWindingsTransformer(TWT_ID_2).getPhaseTapChanger());

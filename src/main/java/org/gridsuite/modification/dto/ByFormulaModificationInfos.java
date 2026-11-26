@@ -19,7 +19,10 @@ import org.gridsuite.modification.dto.byfilter.formula.FormulaInfos;
 import org.gridsuite.modification.modifications.byfilter.ByFormulaModification;
 import org.gridsuite.modification.modifications.data.assignment.FormulaAssignmentData;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * @author Seddik Yengui <Seddik.yengui at rte-france.com>
@@ -60,5 +63,19 @@ public class ByFormulaModificationInfos extends ModificationInfos {
                 .withMessageTemplate("network.modification.byFormulaModification")
                 .withUntypedValue("equipmentType", identifiableType.name())
                 .add();
+    }
+
+    @Override
+    public Stream<FilterInfos> getFiltersStream() {
+        return Stream.ofNullable(formulaInfosList)
+                .flatMap(List::stream)
+                .flatMap(formulaInfos -> Stream.ofNullable(formulaInfos.getFilters()).flatMap(List::stream));
+    }
+
+    @Override
+    public Map<String, String> getMapMessageValues() {
+        Map<String, String> mapMessageValues = new HashMap<>();
+        mapMessageValues.put("equipmentType", getIdentifiableType().name());
+        return mapMessageValues;
     }
 }

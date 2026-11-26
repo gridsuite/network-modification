@@ -118,6 +118,32 @@ class GeneratorCreationInBusBreakerTest extends AbstractNetworkModificationTest 
         assertEquals(EQUIPMENT_NOT_FOUND.getMessage() + " : Equipment with id=titi not found with type LINE", exception.getMessage());
     }
 
+    @Test
+    void testCreateWithReactiveCapabilityCurveNullPoints() {
+        GeneratorCreationInfos generatorCreationInfos = (GeneratorCreationInfos) buildModification();
+        generatorCreationInfos.setEquipmentId("idGeneratorNullPoints");
+        generatorCreationInfos.setReactiveCapabilityCurve(true);
+        generatorCreationInfos.setReactiveCapabilityCurvePoints(null);
+
+        AbstractModification modification = generatorCreationInfos.toModification();
+        assertDoesNotThrow(() -> modification.check(getNetwork()));
+        assertDoesNotThrow(() -> modification.apply(getNetwork()));
+        assertNotNull(getNetwork().getGenerator("idGeneratorNullPoints"));
+    }
+
+    @Test
+    void testCreateWithReactiveCapabilityCurveEmptyPoints() {
+        GeneratorCreationInfos generatorCreationInfos = (GeneratorCreationInfos) buildModification();
+        generatorCreationInfos.setEquipmentId("idGeneratorEmptyPoints");
+        generatorCreationInfos.setReactiveCapabilityCurve(true);
+        generatorCreationInfos.setReactiveCapabilityCurvePoints(List.of());
+
+        AbstractModification modification = generatorCreationInfos.toModification();
+        assertDoesNotThrow(() -> modification.check(getNetwork()));
+        assertDoesNotThrow(() -> modification.apply(getNetwork()));
+        assertNotNull(getNetwork().getGenerator("idGeneratorEmptyPoints"));
+    }
+
     @Override
     protected void testCreationModificationMessage(ModificationInfos modificationInfos) throws Exception {
         assertEquals("GENERATOR_CREATION", modificationInfos.getMessageType());

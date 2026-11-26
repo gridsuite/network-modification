@@ -9,8 +9,8 @@
 package org.gridsuite.modification.modifications;
 
 import com.powsybl.commons.report.ReportNode;
+import org.gridsuite.filter.IdentifierListFilter;
 import org.gridsuite.filter.utils.EquipmentType;
-import org.gridsuite.filter.wip.IdentifierListFilter;
 import org.gridsuite.modification.modifications.data.scaling.VariationFilterData;
 import org.gridsuite.modification.utils.TestUtils;
 import org.junit.jupiter.api.Test;
@@ -49,7 +49,7 @@ class DistributionKeysTest {
     private static VariationFilterData aFilter(Map<String, Double> distributionKeys, String... selectedEquipmentIds) {
         IdentifierListFilter filter = IdentifierListFilter.builder()
                 .equipmentType(EquipmentType.GENERATOR)
-                .equipmentIds(Set.of(selectedEquipmentIds))
+                .equipmentIds(new TreeSet<>(Set.of(selectedEquipmentIds)))
                 .build();
         return new VariationFilterData(filter, distributionKeys);
     }

@@ -338,7 +338,7 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
         assertEquals(75, twt1.getG(), 0);
         assertEquals(25, twt1.getRatedU1(), 0);
         assertEquals(10, twt1.getRatedU2(), 0);
-        assertEquals(44, twt1.getRatedS(), 0);
+        assertEquals(22, twt1.getRatedS(), 0);
 
         TwoWindingsTransformer twt2 = getNetwork().getTwoWindingsTransformer(TWT_ID_2);
         RatioTapChanger ratioTapChanger2 = twt2.getRatioTapChanger();
@@ -398,6 +398,10 @@ class TwoWindingsTransformerByFormulaModificationTest extends AbstractByFormulaM
         assertEquals(26, phaseTapChanger6.getTargetDeadband(), 0);
         assertEquals(85, twt6.getX(), 0);
         assertEquals(100, twt6.getG(), 0);
+
+        List<String> allLogs = TestUtils.getAllMessages(reportNode);
+        assertTrue(allLogs.contains("1 equipment(s) are duplicated in filters, they are ignored"));
+        assertTrue(allLogs.contains("Ignored Equipment(s) are : [twt1]"));
     }
 
     private static void addRatioTapChangerSteps(RatioTapChangerAdder ratioTapChangerAdder) {
