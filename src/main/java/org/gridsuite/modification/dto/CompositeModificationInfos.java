@@ -33,10 +33,6 @@ import java.util.Map;
 @JsonTypeName("COMPOSITE_MODIFICATION")
 public class CompositeModificationInfos extends ModificationInfos implements SublevelCountHolderInfos {
 
-    @Schema(description = "composite modification name")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String name;
-
     @Schema(description = "composite modification list")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<ModificationInfos> modificationsInfos;
