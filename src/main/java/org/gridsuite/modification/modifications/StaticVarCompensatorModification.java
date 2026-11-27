@@ -49,6 +49,12 @@ import static org.gridsuite.modification.utils.ModificationUtils.isRegulatingTer
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StaticVarCompensatorModification extends AbstractInjectionModification {
 
+    public static final java.lang.String STANDBY = "Standby";
+    public static final java.lang.String FIXED_PART_OF_SUSCEPTANCE = "Fixed part of susceptance";
+    public static final java.lang.String LOW_VOLTAGE_SET_POINT = "Low voltage set point";
+    public static final java.lang.String HIGH_VOLTAGE_SET_POINT = "High voltage set point";
+    public static final java.lang.String LOW_VOLTAGE_THRESHOLD = "Low voltage threshold";
+    public static final java.lang.String HIGH_VOLTAGE_THRESHOLD = "High voltage threshold";
     private AttributeModification<Double> maxSusceptance;
     private AttributeModification<Double> minSusceptance;
     private AttributeModification<Double> maxQAtNominalV;
@@ -190,13 +196,12 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
             return;
         }
         StandbyAutomaton standbyAutomaton = staticVarCompensator.getExtension(StandbyAutomaton.class);
-        boolean isStandbyAutomatonAdded = standbyAutomaton == null && isStandbyAutomatonOn();
+        boolean isStandbyAutomatonAdded = standbyAutomaton == null && isStandbyAutomatonAddRequested();
         if (standbyAutomaton == null && !isStandbyAutomatonAdded) {
-            if (isStandbyAutomatonFieldModified()) {
-                throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR,
-                        errorMessage + "Standby automaton does not exist : it must be activated to modify its attributes");
-            }
             return;
+        }
+        if (isStandbyAutomatonAdded) {
+            checkStandbyAutomatonCreationFields(errorMessage);
         }
         if (standby != null && standby.getValue() == null) {
             throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR, errorMessage + "Standby automaton standby can not be unset");
@@ -387,7 +392,7 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
         double nominalV = staticVarCompensator.getTerminal().getVoltageLevel().getNominalV();
         List<ReportNode> reports = new ArrayList<>();
         if (standbyAutomaton == null) {
-            if (isStandbyAutomatonOn()) {
+            if (isStandbyAutomatonAddRequested()) {
                 addStandbyAutomaton(staticVarCompensator, nominalV, reports);
             }
         } else {
@@ -407,16 +412,16 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
                 .withLowVoltageThreshold(lowVoltageThreshold.getValue())
                 .withHighVoltageThreshold(highVoltageThreshold.getValue())
                 .add();
-        reports.add(ModificationUtils.getInstance().buildModificationReport(null, newStandby, "Standby"));
+        reports.add(ModificationUtils.getInstance().buildModificationReport(null, newStandby, STANDBY));
         if (b0 != null) {
-            reports.add(ModificationUtils.getInstance().buildModificationReport(null, newB0, "Fixed part of susceptance"));
+            reports.add(ModificationUtils.getInstance().buildModificationReport(null, newB0, FIXED_PART_OF_SUSCEPTANCE));
         } else {
             reports.add(ModificationUtils.getInstance().buildModificationReport(null, q0.getValue(), "Fixed part of Q at nominal voltage"));
         }
-        reports.add(ModificationUtils.getInstance().buildModificationReport(null, lowVoltageSetpoint.getValue(), "Low voltage set point"));
-        reports.add(ModificationUtils.getInstance().buildModificationReport(null, highVoltageSetpoint.getValue(), "High voltage set point"));
-        reports.add(ModificationUtils.getInstance().buildModificationReport(null, lowVoltageThreshold.getValue(), "Low voltage threshold"));
-        reports.add(ModificationUtils.getInstance().buildModificationReport(null, highVoltageThreshold.getValue(), "High voltage threshold"));
+        reports.add(ModificationUtils.getInstance().buildModificationReport(null, lowVoltageSetpoint.getValue(), LOW_VOLTAGE_SET_POINT));
+        reports.add(ModificationUtils.getInstance().buildModificationReport(null, highVoltageSetpoint.getValue(), HIGH_VOLTAGE_SET_POINT));
+        reports.add(ModificationUtils.getInstance().buildModificationReport(null, lowVoltageThreshold.getValue(), LOW_VOLTAGE_THRESHOLD));
+        reports.add(ModificationUtils.getInstance().buildModificationReport(null, highVoltageThreshold.getValue(), HIGH_VOLTAGE_THRESHOLD));
     }
 
     private void modifyExistingStandbyAutomaton(StandbyAutomaton standbyAutomaton, double oldNominalV, double nominalV, List<ReportNode> reports) {
@@ -456,6 +461,36 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
 
     private boolean isStandbyAutomatonOn() {
         return standbyAutomatonOn != null && Boolean.TRUE.equals(standbyAutomatonOn.getValue());
+    }
+
+    private boolean isStandbyAutomatonAddRequested() {
+        return isStandbyAutomatonOn() || isStandbyAutomatonFieldModified();
+    }
+
+    private void checkStandbyAutomatonCreationFields(String errorMessage) {
+        List<String> missingFields = new ArrayList<>();
+        if (!hasValue(standby)) {
+            missingFields.add("Standby");
+        }
+        if (!hasValue(b0) && !hasValue(q0)) {
+            missingFields.add("Fixed part of susceptance");
+        }
+        if (!hasValue(lowVoltageSetpoint)) {
+            missingFields.add("Low voltage set point");
+        }
+        if (!hasValue(highVoltageSetpoint)) {
+            missingFields.add("High voltage set point");
+        }
+        if (!hasValue(lowVoltageThreshold)) {
+            missingFields.add("Low voltage threshold");
+        }
+        if (!hasValue(highVoltageThreshold)) {
+            missingFields.add("High voltage threshold");
+        }
+        if (!missingFields.isEmpty()) {
+            throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR, errorMessage
+                    + "Empty mandatory fields for automaton creation : no automaton created (" + String.join(", ", missingFields) + ")");
+        }
     }
 
     private boolean isStandbyAutomatonRemoved() {
