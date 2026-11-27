@@ -49,6 +49,12 @@ import static org.gridsuite.modification.utils.ModificationUtils.isRegulatingTer
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StaticVarCompensatorModification extends AbstractInjectionModification {
 
+    public static final java.lang.String STANDBY = "Standby";
+    public static final java.lang.String FIXED_PART_OF_SUSCEPTANCE = "Fixed part of susceptance";
+    public static final java.lang.String LOW_VOLTAGE_SET_POINT = "Low voltage set point";
+    public static final java.lang.String HIGH_VOLTAGE_SET_POINT = "High voltage set point";
+    public static final java.lang.String LOW_VOLTAGE_THRESHOLD = "Low voltage threshold";
+    public static final java.lang.String HIGH_VOLTAGE_THRESHOLD = "High voltage threshold";
     private AttributeModification<Double> maxSusceptance;
     private AttributeModification<Double> minSusceptance;
     private AttributeModification<Double> maxQAtNominalV;
@@ -406,16 +412,16 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
                 .withLowVoltageThreshold(lowVoltageThreshold.getValue())
                 .withHighVoltageThreshold(highVoltageThreshold.getValue())
                 .add();
-        reports.add(ModificationUtils.getInstance().buildModificationReport(null, newStandby, "Standby"));
+        reports.add(ModificationUtils.getInstance().buildModificationReport(null, newStandby, STANDBY));
         if (b0 != null) {
-            reports.add(ModificationUtils.getInstance().buildModificationReport(null, newB0, "Fixed part of susceptance"));
+            reports.add(ModificationUtils.getInstance().buildModificationReport(null, newB0, FIXED_PART_OF_SUSCEPTANCE));
         } else {
             reports.add(ModificationUtils.getInstance().buildModificationReport(null, q0.getValue(), "Fixed part of Q at nominal voltage"));
         }
-        reports.add(ModificationUtils.getInstance().buildModificationReport(null, lowVoltageSetpoint.getValue(), "Low voltage set point"));
-        reports.add(ModificationUtils.getInstance().buildModificationReport(null, highVoltageSetpoint.getValue(), "High voltage set point"));
-        reports.add(ModificationUtils.getInstance().buildModificationReport(null, lowVoltageThreshold.getValue(), "Low voltage threshold"));
-        reports.add(ModificationUtils.getInstance().buildModificationReport(null, highVoltageThreshold.getValue(), "High voltage threshold"));
+        reports.add(ModificationUtils.getInstance().buildModificationReport(null, lowVoltageSetpoint.getValue(), LOW_VOLTAGE_SET_POINT));
+        reports.add(ModificationUtils.getInstance().buildModificationReport(null, highVoltageSetpoint.getValue(), HIGH_VOLTAGE_SET_POINT));
+        reports.add(ModificationUtils.getInstance().buildModificationReport(null, lowVoltageThreshold.getValue(), LOW_VOLTAGE_THRESHOLD));
+        reports.add(ModificationUtils.getInstance().buildModificationReport(null, highVoltageThreshold.getValue(), HIGH_VOLTAGE_THRESHOLD));
     }
 
     private void modifyExistingStandbyAutomaton(StandbyAutomaton standbyAutomaton, double oldNominalV, double nominalV, List<ReportNode> reports) {
