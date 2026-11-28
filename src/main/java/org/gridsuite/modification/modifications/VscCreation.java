@@ -12,6 +12,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRangeAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -245,11 +246,10 @@ public class VscCreation extends AbstractEquipmentCreation {
                                                                     ReportNode subReportNode) {
         VscConverterStationAdder converterStationAdder = voltageLevel.newVscConverterStation()
                 .setId(vscConverterStationCreation.getEquipmentId())
-                .setName(vscConverterStationCreation.getEquipmentName())
-                .setVoltageRegulatorOn(vscConverterStationCreation.getVoltageRegulationOn());
+                .setName(vscConverterStationCreation.getEquipmentName());
 
         if (vscConverterStationCreation.getReactivePowerSetpoint() != null) {
-            converterStationAdder.setReactivePowerSetpoint(vscConverterStationCreation.getReactivePowerSetpoint());
+            converterStationAdder.setLocalTargetQ(vscConverterStationCreation.getReactivePowerSetpoint());
         }
 
         if (vscConverterStationCreation.getLossFactor() != null) {
@@ -257,8 +257,9 @@ public class VscCreation extends AbstractEquipmentCreation {
         }
 
         if (vscConverterStationCreation.getVoltageSetpoint() != null) {
-            converterStationAdder.setVoltageSetpoint(vscConverterStationCreation.getVoltageSetpoint());
+            converterStationAdder.setLocalTargetV(vscConverterStationCreation.getVoltageSetpoint());
         }
+        addVoltageRegulation(converterStationAdder, vscConverterStationCreation);
         createInjectionInNodeBreaker(voltageLevel, vscConverterStationCreation,
                 network, converterStationAdder, subReportNode);
         VscConverterStation vscConverterStation = ModificationUtils.getInstance()
@@ -276,19 +277,28 @@ public class VscCreation extends AbstractEquipmentCreation {
                                                                    VscConverterStationCreation vscConverterStationCreation,
                                                                    ReportNode subReportNode) {
         Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, vscConverterStationCreation.getBusOrBusbarSectionId());
-        VscConverterStation vscConverterStation = voltageLevel.newVscConverterStation()
+        VscConverterStationAdder converterStationAdder = voltageLevel.newVscConverterStation()
                 .setId(vscConverterStationCreation.getEquipmentId())
                 .setName(vscConverterStationCreation.getEquipmentName())
-                .setVoltageRegulatorOn(vscConverterStationCreation.getVoltageRegulationOn())
-                .setReactivePowerSetpoint(vscConverterStationCreation.getReactivePowerSetpoint())
+                .setLocalTargetQ(vscConverterStationCreation.getReactivePowerSetpoint())
                 .setBus(bus.getId())
                 .setLossFactor(vscConverterStationCreation.getLossFactor())
-                .setVoltageSetpoint(vscConverterStationCreation.getVoltageSetpoint())
-                .add();
+                .setLocalTargetV(vscConverterStationCreation.getVoltageSetpoint());
+        addVoltageRegulation(converterStationAdder, vscConverterStationCreation);
+        VscConverterStation vscConverterStation = converterStationAdder.add();
 
         addExtensionsAndReports(vscConverterStation, vscConverterStationCreation, subReportNode);
 
         return vscConverterStation;
+    }
+
+    private static void addVoltageRegulation(VscConverterStationAdder converterStationAdder, VscConverterStationCreation vscConverterStationCreation) {
+        if (Boolean.TRUE.equals(vscConverterStationCreation.getVoltageRegulationOn())) {
+            converterStationAdder.newVoltageRegulation()
+                    .withMode(RegulationMode.VOLTAGE)
+                    .withRegulating(true)
+                    .add();
+        }
     }
 
     private void addExtensionsAndReports(VscConverterStation vscConverterStation,

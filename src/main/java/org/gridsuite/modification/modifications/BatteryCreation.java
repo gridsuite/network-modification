@@ -12,7 +12,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.iidm.network.extensions.VoltageRegulationAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulationAdder;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.dto.FreePropertyInfos;
@@ -153,25 +154,26 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
         BatteryAdder batteryAdder = createBatteryAdderInNodeBreaker(voltageLevel);
         createInjectionInNodeBreaker(voltageLevel, this, network, batteryAdder, subReportNode);
         var battery = ModificationUtils.getInstance().getBattery(network, equipmentId);
-        addExtensionsToBattery(battery, voltageLevel, subReportNode);
+        addExtensionsToBattery(battery, subReportNode);
     }
 
     private BatteryAdder createBatteryAdderInNodeBreaker(VoltageLevel voltageLevel) {
-
-        return voltageLevel.newBattery()
+        BatteryAdder batteryAdder = voltageLevel.newBattery()
                 .setId(equipmentId)
                 .setName(equipmentName)
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setTargetP(targetP)
-                .setTargetQ(nanIfNull(targetQ));
+                .setLocalTargetQ(nanIfNull(targetQ));
+        addVoltageRegulation(batteryAdder, voltageLevel.getNetwork());
+        return batteryAdder;
     }
 
     private void createBatteryInBusBreaker(VoltageLevel voltageLevel, ReportNode subReportNode) {
         Bus bus = ModificationUtils.getInstance().getBusBreakerBus(voltageLevel, busOrBusbarSectionId);
 
         // creating the battery
-        Battery battery = voltageLevel.newBattery()
+        BatteryAdder batteryAdder = voltageLevel.newBattery()
                 .setBus(bus.getId())
                 .setConnectableBus(bus.getId())
                 .setId(equipmentId)
@@ -179,10 +181,11 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setTargetP(targetP)
-                .setTargetQ(nanIfNull(targetQ))
-                .add();
+                .setLocalTargetQ(nanIfNull(targetQ));
+        addVoltageRegulation(batteryAdder, voltageLevel.getNetwork());
+        Battery battery = batteryAdder.add();
 
-        addExtensionsToBattery(battery, voltageLevel, subReportNode);
+        addExtensionsToBattery(battery, subReportNode);
 
         subReportNode.newReportNode()
                 .withMessageTemplate("network.modification.batteryCreated")
@@ -191,12 +194,12 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
                 .add();
     }
 
-    private void addExtensionsToBattery(Battery battery, VoltageLevel voltageLevel, ReportNode subReportNode) {
+    private void addExtensionsToBattery(Battery battery, ReportNode subReportNode) {
         if (equipmentName != null) {
             ModificationUtils.getInstance().reportElementaryCreation(subReportNode, equipmentName, "Name");
         }
         reportInjectionCreationConnectivity(this, subReportNode);
-        createBatteryVoltageRegulation(battery, voltageLevel, subReportNode);
+        reportBatteryVoltageRegulation(subReportNode);
         ReportNode subReportNodeLimits = reportBatteryActiveLimits(subReportNode);
         ModificationUtils.getInstance().createReactiveLimits(this, battery, subReportNodeLimits);
         ReportNode subReportNodeSetpoints = reportBatterySetPoints(subReportNode);
@@ -209,25 +212,32 @@ public class BatteryCreation extends AbstractInjectionCreation implements Reacti
                 battery.newExtension(BatteryShortCircuitAdder.class), subReportNode, "battery");
     }
 
-    private void createBatteryVoltageRegulation(Battery battery, VoltageLevel voltageLevel, ReportNode subReportNode) {
+    private void addVoltageRegulation(BatteryAdder batteryAdder, Network network) {
         if (voltageRegulationOn == null && targetV == null && regulatingTerminalId == null && regulatingTerminalType == null && regulatingTerminalVlId == null) {
             return;
         }
-        Terminal regulatingTerminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(voltageLevel.getNetwork(),
+        Terminal regulatingTerminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(network,
                 regulatingTerminalId,
                 regulatingTerminalType,
                 regulatingTerminalVlId);
+        VoltageRegulationAdder<BatteryAdder> voltageRegulationAdder = batteryAdder.newVoltageRegulation()
+                .withMode(RegulationMode.VOLTAGE)
+                .withRegulating(Boolean.TRUE.equals(voltageRegulationOn));
+        if (regulatingTerminal == null) {
+            batteryAdder.setLocalTargetV(nanIfNull(targetV));
+        } else {
+            voltageRegulationAdder.withTerminal(regulatingTerminal).withTargetValue(nanIfNull(targetV));
+        }
+        voltageRegulationAdder.add();
+    }
+
+    private void reportBatteryVoltageRegulation(ReportNode subReportNode) {
         List<ReportNode> voltageReports = new ArrayList<>();
-        VoltageRegulationAdder voltageRegulationAdder = battery.newExtension(VoltageRegulationAdder.class)
-                .withRegulatingTerminal(regulatingTerminal)
-                .withVoltageRegulatorOn(Boolean.TRUE.equals(voltageRegulationOn));
         if (targetV != null) {
-            voltageRegulationAdder.withTargetV(targetV);
             voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
                     targetV,
                     "Target V"));
         }
-        voltageRegulationAdder.add();
         if (voltageRegulationOn != null) {
             voltageReports.add(ModificationUtils.getInstance().buildCreationReport(
                     voltageRegulationOn,

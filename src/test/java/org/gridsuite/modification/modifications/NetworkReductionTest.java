@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.gridsuite.filter.utils.EquipmentType;
 import org.gridsuite.modification.ModificationType;
 import org.gridsuite.modification.context.FilterLoader;
@@ -333,7 +334,9 @@ class NetworkReductionTest extends AbstractNetworkModificationTest {
                     .setTopologyKind(TopologyKind.BUS_BREAKER).add();
             voltageLevel.getBusBreakerView().newBus().setId("B" + side).add();
             voltageLevel.newVscConverterStation().setId("C" + side).setBus("B" + side)
-                    .setLossFactor(1).setVoltageSetpoint(400).setVoltageRegulatorOn(true).add()
+                    .setLossFactor(1).setLocalTargetV(400)
+                    .newVoltageRegulation().withMode(RegulationMode.VOLTAGE).withRegulating(true).add()
+                    .add()
                     .getTerminal().setP(100).setQ(50);
         }
         network.newHvdcLine().setId("L").setConverterStationId1("C1").setConverterStationId2("C2")

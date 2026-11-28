@@ -9,6 +9,7 @@ package org.gridsuite.modification.dto.byfilter.equipmentfield;
 
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.gridsuite.modification.dto.AttributeModification;
 import org.gridsuite.modification.dto.OperationType;
 import org.gridsuite.modification.utils.ModificationUtils;
@@ -45,13 +46,13 @@ public enum GeneratorField {
         CoordinatedReactiveControl coordinatedReactiveControl = generator.getExtension(CoordinatedReactiveControl.class);
         GeneratorField field = GeneratorField.valueOf(generatorField);
         return switch (field) {
-            case VOLTAGE_REGULATOR_ON -> String.valueOf(generator.isVoltageRegulatorOn());
+            case VOLTAGE_REGULATOR_ON -> String.valueOf(generator.isRegulatingWithMode(RegulationMode.VOLTAGE));
             case MAXIMUM_ACTIVE_POWER -> String.valueOf(generator.getMaxP());
             case MINIMUM_ACTIVE_POWER -> String.valueOf(generator.getMinP());
             case ACTIVE_POWER_SET_POINT -> String.valueOf(generator.getTargetP());
             case RATED_NOMINAL_POWER -> String.valueOf(generator.getRatedS());
-            case REACTIVE_POWER_SET_POINT -> String.valueOf(generator.getTargetQ());
-            case VOLTAGE_SET_POINT -> String.valueOf(generator.getTargetV());
+            case REACTIVE_POWER_SET_POINT -> String.valueOf(generator.getLocalTargetQ());
+            case VOLTAGE_SET_POINT -> String.valueOf(generator.getRegulatingTargetV());
             case PLANNED_ACTIVE_POWER_SET_POINT -> generatorStartup != null ? String.valueOf(generatorStartup.getPlannedActivePowerSetpoint()) : null;
             case MARGINAL_COST -> generatorStartup != null ? String.valueOf(generatorStartup.getMarginalCost()) : null;
             case PLANNED_OUTAGE_RATE -> generatorStartup != null ? String.valueOf(generatorStartup.getPlannedOutageRate()) : null;
@@ -133,7 +134,7 @@ public enum GeneratorField {
                         .withQPercent(qPercent)
                         .add();
             }
-            case VOLTAGE_REGULATOR_ON -> generator.setVoltageRegulatorOn(Boolean.parseBoolean(newValue));
+            case VOLTAGE_REGULATOR_ON -> ModificationUtils.setVoltageRegulationOn(generator, Boolean.parseBoolean(newValue));
         }
     }
 }

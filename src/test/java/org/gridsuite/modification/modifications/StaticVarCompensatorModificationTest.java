@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.StandbyAutomaton;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import org.gridsuite.modification.dto.*;
 import org.gridsuite.modification.error.NetworkModificationException;
 import org.gridsuite.modification.report.NetworkModificationReportResourceBundle;
@@ -34,7 +35,7 @@ class StaticVarCompensatorModificationTest extends AbstractInjectionModification
 
     @Override
     protected Network createNetwork(UUID networkUuid) {
-        return NetworkCreation.create(networkUuid, true);
+        return NetworkCreation.createWithSingleVariant(networkUuid, true);
     }
 
     @Override
@@ -44,7 +45,7 @@ class StaticVarCompensatorModificationTest extends AbstractInjectionModification
                 .equipmentName(new AttributeModification<>("newName", OperationType.SET))
                 .minSusceptance(new AttributeModification<>(1., OperationType.SET))
                 .maxSusceptance(new AttributeModification<>(40., OperationType.SET))
-                .regulationMode(new AttributeModification<>(StaticVarCompensator.RegulationMode.REACTIVE_POWER, OperationType.SET))
+                .regulationMode(new AttributeModification<>(RegulationMode.REACTIVE_POWER, OperationType.SET))
                 .regulating(new AttributeModification<>(true, OperationType.SET))
                 .voltageSetpoint(new AttributeModification<>(390., OperationType.SET))
                 .reactivePowerSetpoint(new AttributeModification<>(50., OperationType.SET))
@@ -62,10 +63,10 @@ class StaticVarCompensatorModificationTest extends AbstractInjectionModification
         assertEquals("newName", svc.getOptionalName().orElseThrow());
         assertEquals(1., svc.getBmin());
         assertEquals(40., svc.getBmax());
-        assertEquals(StaticVarCompensator.RegulationMode.REACTIVE_POWER, svc.getRegulationMode());
+        assertEquals(RegulationMode.REACTIVE_POWER, svc.getVoltageRegulation().getMode());
         assertTrue(svc.isRegulating());
-        assertEquals(390., svc.getVoltageSetpoint());
-        assertEquals(50., svc.getReactivePowerSetpoint());
+        assertEquals(390., svc.getRegulatingTargetV());
+        assertEquals(50., svc.getRegulatingTargetQ());
         assertEquals("v3load", svc.getRegulatingTerminal().getConnectable().getId());
         assertEquals(PROPERTY_VALUE, svc.getProperty(PROPERTY_NAME));
     }
@@ -79,7 +80,7 @@ class StaticVarCompensatorModificationTest extends AbstractInjectionModification
         assertCheckFails(builder().voltageSetpoint(set(-1.)).build(), "voltage set point");
         assertCheckFails(builder().voltageSetpoint(unset()).build(), "Voltage setpoint is not set");
         assertCheckFails(builder().regulationMode(new AttributeModification<>(null, OperationType.UNSET)).build(), "Regulation mode can not be unset");
-        assertCheckFails(builder().regulationMode(new AttributeModification<>(StaticVarCompensator.RegulationMode.REACTIVE_POWER, OperationType.SET))
+        assertCheckFails(builder().regulationMode(new AttributeModification<>(RegulationMode.REACTIVE_POWER, OperationType.SET))
                 .reactivePowerSetpoint(unset()).build(), "Reactive power setpoint is not set");
         assertCheckFails(builder().voltageRegulationType(new AttributeModification<>(VoltageRegulationType.DISTANT, OperationType.SET)).build(),
                 "Regulation is set to Distant but regulating terminal is local");
@@ -107,10 +108,10 @@ class StaticVarCompensatorModificationTest extends AbstractInjectionModification
         StaticVarCompensator svc = getSvc();
         assertEquals(2., svc.getBmin());
         assertEquals(35., svc.getBmax());
-        assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
+        assertEquals(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
         assertTrue(svc.isRegulating());
-        assertEquals(380., svc.getVoltageSetpoint());
-        assertEquals(100., svc.getReactivePowerSetpoint());
+        assertEquals(380., svc.getRegulatingTargetV());
+        assertEquals(100., svc.getRegulatingTargetQ());
         assertEquals(SVC_ID, svc.getRegulatingTerminal().getConnectable().getId());
     }
 
@@ -121,21 +122,21 @@ class StaticVarCompensatorModificationTest extends AbstractInjectionModification
         infos.toModification().apply(getNetwork());
         StaticVarCompensator svc = getSvc();
         assertFalse(svc.isRegulating());
-        assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
-        assertTrue(Double.isNaN(svc.getVoltageSetpoint()));
+        assertEquals(RegulationMode.VOLTAGE, svc.getVoltageRegulation().getMode());
+        assertTrue(Double.isNaN(svc.getRegulatingTargetV()));
     }
 
     @Test
     void testRegulationOnFromOff() {
-        getSvc().setRegulating(false);
+        getSvc().getVoltageRegulation().setRegulating(false);
         builder().regulating(new AttributeModification<>(true, OperationType.SET))
-                .regulationMode(new AttributeModification<>(StaticVarCompensator.RegulationMode.REACTIVE_POWER, OperationType.SET))
+                .regulationMode(new AttributeModification<>(RegulationMode.REACTIVE_POWER, OperationType.SET))
                 .reactivePowerSetpoint(set(12.))
                 .build().toModification().apply(getNetwork());
         StaticVarCompensator svc = getSvc();
         assertTrue(svc.isRegulating());
-        assertEquals(StaticVarCompensator.RegulationMode.REACTIVE_POWER, svc.getRegulationMode());
-        assertEquals(12., svc.getReactivePowerSetpoint());
+        assertEquals(RegulationMode.REACTIVE_POWER, svc.getVoltageRegulation().getMode());
+        assertEquals(12., svc.getRegulatingTargetQ());
     }
 
     @Test
@@ -169,7 +170,7 @@ class StaticVarCompensatorModificationTest extends AbstractInjectionModification
                 .withLowVoltageThreshold(360.)
                 .withHighVoltageThreshold(400.)
                 .add();
-        assertCheckFails(builder().regulationMode(new AttributeModification<>(StaticVarCompensator.RegulationMode.REACTIVE_POWER, OperationType.SET)).build(),
+        assertCheckFails(builder().regulationMode(new AttributeModification<>(RegulationMode.REACTIVE_POWER, OperationType.SET)).build(),
                 "Standby is only supported in Voltage Regulation mode");
     }
 
@@ -236,7 +237,7 @@ class StaticVarCompensatorModificationTest extends AbstractInjectionModification
                 .lowVoltageThreshold(set(410.)).build(), "Low voltage threshold is expected to be lower than high voltage threshold when standby is on");
         // standby on with reactive power regulation
         assertCheckFails(completeStandbyAutomaton().standby(new AttributeModification<>(true, OperationType.SET))
-                .regulationMode(new AttributeModification<>(StaticVarCompensator.RegulationMode.REACTIVE_POWER, OperationType.SET)).build(),
+                .regulationMode(new AttributeModification<>(RegulationMode.REACTIVE_POWER, OperationType.SET)).build(),
                 "Standby is only supported in Voltage Regulation mode");
         assertCheckFails(completeStandbyAutomaton().lowVoltageSetpoint(set(-1.)).build(), "low voltage set point");
     }
@@ -294,12 +295,12 @@ class StaticVarCompensatorModificationTest extends AbstractInjectionModification
         addStandbyAutomatonExtension(true);
         StaticVarCompensatorModificationInfos infos = builder()
                 .standby(new AttributeModification<>(false, OperationType.SET))
-                .regulationMode(new AttributeModification<>(StaticVarCompensator.RegulationMode.REACTIVE_POWER, OperationType.SET))
+                .regulationMode(new AttributeModification<>(RegulationMode.REACTIVE_POWER, OperationType.SET))
                 .build();
         infos.toModification().check(getNetwork());
         infos.toModification().apply(getNetwork());
         assertFalse(getSvc().getExtension(StandbyAutomaton.class).isStandby());
-        assertEquals(StaticVarCompensator.RegulationMode.REACTIVE_POWER, getSvc().getRegulationMode());
+        assertEquals(RegulationMode.REACTIVE_POWER, getSvc().getVoltageRegulation().getMode());
     }
 
     @Test
@@ -309,7 +310,7 @@ class StaticVarCompensatorModificationTest extends AbstractInjectionModification
         StaticVarCompensatorModificationInfos infos = builder()
                 .standbyAutomatonOn(new AttributeModification<>(false, OperationType.SET))
                 .lowVoltageSetpoint(unset())
-                .regulationMode(new AttributeModification<>(StaticVarCompensator.RegulationMode.REACTIVE_POWER, OperationType.SET))
+                .regulationMode(new AttributeModification<>(RegulationMode.REACTIVE_POWER, OperationType.SET))
                 .build();
         infos.toModification().check(getNetwork());
         infos.toModification().apply(getNetwork());

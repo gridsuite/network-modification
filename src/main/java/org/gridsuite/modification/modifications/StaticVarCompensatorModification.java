@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.extensions.StandbyAutomaton;
 import com.powsybl.iidm.network.extensions.StandbyAutomatonAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
+import com.powsybl.iidm.network.regulation.VoltageRegulation;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -39,6 +41,8 @@ import static org.gridsuite.modification.utils.ModificationUtils.checkIsNotNegat
 import static org.gridsuite.modification.utils.ModificationUtils.getFinalValue;
 import static org.gridsuite.modification.utils.ModificationUtils.hasValue;
 import static org.gridsuite.modification.utils.ModificationUtils.isRegulatingTerminalModified;
+import static org.gridsuite.modification.utils.ModificationUtils.setRegulatingTargetQ;
+import static org.gridsuite.modification.utils.ModificationUtils.setRegulatingTargetV;
 
 /**
  * @author Ghazwa Rehili <ghazwa.rehili at rte-france.com>
@@ -53,7 +57,7 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
     private AttributeModification<Double> minSusceptance;
     private AttributeModification<Double> maxQAtNominalV;
     private AttributeModification<Double> minQAtNominalV;
-    private AttributeModification<StaticVarCompensator.RegulationMode> regulationMode;
+    private AttributeModification<RegulationMode> regulationMode;
     private AttributeModification<Boolean> regulating;
     private AttributeModification<Double> voltageSetpoint;
     private AttributeModification<Double> reactivePowerSetpoint;
@@ -87,7 +91,7 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
                                             AttributeModification<Double> minSusceptance,
                                             AttributeModification<Double> maxQAtNominalV,
                                             AttributeModification<Double> minQAtNominalV,
-                                            AttributeModification<StaticVarCompensator.RegulationMode> regulationMode,
+                                            AttributeModification<RegulationMode> regulationMode,
                                             AttributeModification<Boolean> regulating,
                                             AttributeModification<Double> voltageSetpoint,
                                             AttributeModification<Double> reactivePowerSetpoint,
@@ -172,7 +176,7 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
             finalMinSusceptance = getFinalValue(toSusceptanceModification(minSusceptance, minQAtNominalV, nominalV), staticVarCompensator.getBmin());
             finalMaxSusceptance = getFinalValue(toSusceptanceModification(maxSusceptance, maxQAtNominalV, nominalV), staticVarCompensator.getBmax());
         }
-        StaticVarCompensator.RegulationMode regulationModeToCheck = null;
+        RegulationMode regulationModeToCheck = null;
         if (getFinalRegulating(staticVarCompensator)) {
             regulationModeToCheck = getFinalRegulationMode(staticVarCompensator);
         }
@@ -181,8 +185,8 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
                 finalMinSusceptance, finalMaxSusceptance, finalMinQAtNominalV, finalMaxQAtNominalV);
         ModificationUtils.getInstance().checkStaticVarCompensatorSetPoints(equipmentId, MODIFY_STATIC_VAR_COMPENSATOR_ERROR,
                 regulationModeToCheck,
-                nanToNull(getFinalValue(voltageSetpoint, staticVarCompensator.getVoltageSetpoint())),
-                nanToNull(getFinalValue(reactivePowerSetpoint, staticVarCompensator.getReactivePowerSetpoint())));
+                nanToNull(getFinalValue(voltageSetpoint, staticVarCompensator.getRegulatingTargetV())),
+                nanToNull(getFinalValue(reactivePowerSetpoint, staticVarCompensator.getRegulatingTargetQ())));
     }
 
     private void checkStandbyAutomaton(Network network, StaticVarCompensator staticVarCompensator, String errorMessage) {
@@ -259,7 +263,7 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
                                             boolean isStandbyAutomatonAdded, String errorMessage) {
         boolean isStandbyOrRegulationModeModified = isStandbyAutomatonAdded || standby != null || regulationMode != null;
         if (isStandbyOrRegulationModeModified && finalStandby
-                && getFinalRegulationMode(staticVarCompensator) != StaticVarCompensator.RegulationMode.VOLTAGE) {
+                && getFinalRegulationMode(staticVarCompensator) != RegulationMode.VOLTAGE) {
             throw new NetworkModificationException(MODIFY_STATIC_VAR_COMPENSATOR_ERROR, errorMessage + "Standby is only supported in Voltage Regulation mode");
         }
     }
@@ -326,16 +330,31 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
         boolean oldRegulating = staticVarCompensator.isRegulating();
         boolean finalRegulating = getFinalRegulating(staticVarCompensator);
 
-        staticVarCompensator.setRegulating(false);
+        // the set points follow the final regulation mode: the mode is changed first, with the regulation off
+        double oldVoltageSetpoint = staticVarCompensator.getRegulatingTargetV();
+        double oldReactivePowerSetpoint = staticVarCompensator.getRegulatingTargetQ();
+        VoltageRegulation voltageRegulation = staticVarCompensator.getVoltageRegulation();
+        if (voltageRegulation == null && (regulationMode != null || finalRegulating)) {
+            voltageRegulation = staticVarCompensator.newVoltageRegulation().withRegulating(false).build();
+        }
+        ReportNode regulationModeReport = null;
+        if (voltageRegulation != null) {
+            voltageRegulation.setRegulating(false);
+            regulationModeReport = ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(voltageRegulation::setMode,
+                    voltageRegulation::getMode, regulationMode, "Regulation mode");
+            setRegulatingTargetV(staticVarCompensator, oldVoltageSetpoint);
+            setRegulatingTargetQ(staticVarCompensator, oldReactivePowerSetpoint);
+        }
         reports.add(ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
-                value -> staticVarCompensator.setVoltageSetpoint(value != null ? value : Double.NaN),
-                staticVarCompensator::getVoltageSetpoint, voltageSetpoint, "Voltage set point"));
+                value -> setRegulatingTargetV(staticVarCompensator, value != null ? value : Double.NaN),
+                staticVarCompensator::getRegulatingTargetV, voltageSetpoint, "Voltage set point"));
         reports.add(ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(
-                value -> staticVarCompensator.setReactivePowerSetpoint(value != null ? value : Double.NaN),
-                staticVarCompensator::getReactivePowerSetpoint, reactivePowerSetpoint, "Reactive power set point"));
-        reports.add(ModificationUtils.getInstance().applyElementaryModificationsAndReturnReport(staticVarCompensator::setRegulationMode,
-                staticVarCompensator::getRegulationMode, regulationMode, "Regulation mode"));
-        staticVarCompensator.setRegulating(finalRegulating);
+                value -> setRegulatingTargetQ(staticVarCompensator, value != null ? value : Double.NaN),
+                staticVarCompensator::getRegulatingTargetQ, reactivePowerSetpoint, "Reactive power set point"));
+        reports.add(regulationModeReport);
+        if (voltageRegulation != null) {
+            voltageRegulation.setRegulating(finalRegulating);
+        }
         if (oldRegulating != finalRegulating) {
             reports.add(ModificationUtils.getInstance().buildModificationReport(oldRegulating, finalRegulating, "Regulating"));
         }
@@ -355,7 +374,7 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
 
         if (voltageRegulationType.getValue() == VoltageRegulationType.LOCAL) {
             if (oldEquipment != null) {
-                staticVarCompensator.setRegulatingTerminal(null);
+                ModificationUtils.setRegulatingTerminal(staticVarCompensator, null);
                 reports.add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel, null, "Voltage level"));
                 reports.add(ModificationUtils.getInstance().buildModificationReport(oldEquipment, null, "Equipment"));
             }
@@ -365,7 +384,7 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
         if (regulatingTerminalId != null && regulatingTerminalType != null && regulatingTerminalVlId != null) {
             Terminal newRegulatingTerminal = ModificationUtils.getInstance().getTerminalFromIdentifiable(staticVarCompensator.getNetwork(),
                     regulatingTerminalId.getValue(), regulatingTerminalType.getValue(), regulatingTerminalVlId.getValue());
-            staticVarCompensator.setRegulatingTerminal(newRegulatingTerminal);
+            ModificationUtils.setRegulatingTerminal(staticVarCompensator, newRegulatingTerminal);
             reports.add(ModificationUtils.getInstance().buildModificationReport(oldVoltageLevel, regulatingTerminalVlId.getValue(), "Voltage level"));
             reports.add(ModificationUtils.getInstance().buildModificationReport(oldEquipment,
                     regulatingTerminalType.getValue() + ":" + regulatingTerminalId.getValue(), "Equipment"));
@@ -495,11 +514,12 @@ public class StaticVarCompensatorModification extends AbstractInjectionModificat
         return staticVarCompensator.isRegulating();
     }
 
-    private StaticVarCompensator.RegulationMode getFinalRegulationMode(StaticVarCompensator staticVarCompensator) {
+    private RegulationMode getFinalRegulationMode(StaticVarCompensator staticVarCompensator) {
         if (regulationMode != null) {
             return regulationMode.getValue();
         }
-        return staticVarCompensator.getRegulationMode();
+        VoltageRegulation voltageRegulation = staticVarCompensator.getVoltageRegulation();
+        return voltageRegulation != null ? voltageRegulation.getMode() : null;
     }
 
     /**

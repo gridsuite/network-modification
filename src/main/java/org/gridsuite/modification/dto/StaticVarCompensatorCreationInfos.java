@@ -9,7 +9,7 @@ package org.gridsuite.modification.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,7 +44,7 @@ public class StaticVarCompensatorCreationInfos extends InjectionCreationInfos {
     private Double minQAtNominalV;
 
     @Schema(description = "regulation mode")
-    private StaticVarCompensator.RegulationMode regulationMode;
+    private RegulationMode regulationMode;
 
     @Schema(description = "Voltage set point")
     private Double voltageSetpoint;

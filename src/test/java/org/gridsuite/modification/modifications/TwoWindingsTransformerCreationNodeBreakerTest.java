@@ -35,7 +35,7 @@ class TwoWindingsTransformerCreationNodeBreakerTest extends AbstractNetworkModif
 
     @Override
     protected Network createNetwork(UUID networkUuid) {
-        return NetworkCreation.create(networkUuid, true);
+        return NetworkCreation.createWithSingleVariant(networkUuid, true);
     }
 
     @Override

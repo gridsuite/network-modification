@@ -321,7 +321,7 @@ Base class for branch equipment creations (lines, transformers).
 |---|---|---|
 | `minSusceptance` / `maxSusceptance` | `Double` | Susceptance boundaries (S) |
 | `minQ` / `maxQ` | `Double` | Reactive power boundaries (MVar) |
-| `regulationMode` | `StaticVarCompensator.RegulationMode` | `VOLTAGE`, `REACTIVE_POWER`, `OFF` |
+| `regulationMode` | `RegulationMode` | `VOLTAGE`, `REACTIVE_POWER`, `OFF` |
 | `voltageSetpoint` | `Double` | Target voltage set point (kV) |
 | `reactivePowerSetpoint` | `Double` | Target reactive power set point (MVar) |
 | `voltageRegulationType` | `VoltageRegulationType` | `LOCAL` or `DISTANT` |
@@ -404,7 +404,7 @@ Mirrors generator modification attributes applicable to battery storage systems.
 |---|---|---|
 | `minSusceptance` / `maxSusceptance` | `AttributeModification<Double>` | Susceptance limits (S), take precedence over the Q values |
 | `minQAtNominalV` / `maxQAtNominalV` | `AttributeModification<Double>` | Reactive power limits at nominal voltage (MVar) |
-| `regulationMode` | `AttributeModification<StaticVarCompensator.RegulationMode>` | `VOLTAGE`, `REACTIVE_POWER` |
+| `regulationMode` | `AttributeModification<RegulationMode>` | `VOLTAGE`, `REACTIVE_POWER` |
 | `regulating` | `AttributeModification<Boolean>` | Regulation status |
 | `voltageSetpoint` / `reactivePowerSetpoint` | `AttributeModification<Double>` | Set points |
 | `voltageRegulationType` | `AttributeModification<VoltageRegulationType>` | `LOCAL` or `DISTANT` |

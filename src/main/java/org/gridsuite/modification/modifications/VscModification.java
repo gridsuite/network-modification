@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRangeAdder;
+import com.powsybl.iidm.network.regulation.RegulationMode;
 import jakarta.annotation.Nonnull;
 import lombok.*;
 import org.gridsuite.modification.ModificationType;
@@ -384,18 +385,18 @@ public class VscModification extends AbstractEquipmentModification {
         // set points
         List<ReportNode> setPointsReports = new ArrayList<>();
         if (vscConverterStationModification.getReactivePowerSetpoint() != null) {
-            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setReactivePowerSetpoint,
-                converterStation::getReactivePowerSetpoint, vscConverterStationModification.getReactivePowerSetpoint(), "Reactive Power"));
+            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(q -> ModificationUtils.setRegulatingTargetQ(converterStation, q),
+                converterStation::getRegulatingTargetQ, vscConverterStationModification.getReactivePowerSetpoint(), "Reactive Power"));
         }
 
         if (vscConverterStationModification.getVoltageRegulationOn() != null) {
-            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setVoltageRegulatorOn,
-                converterStation::isVoltageRegulatorOn, vscConverterStationModification.getVoltageRegulationOn(), "VoltageRegulationOn"));
+            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(on -> ModificationUtils.setVoltageRegulationOn(converterStation, on),
+                () -> converterStation.isRegulatingWithMode(RegulationMode.VOLTAGE), vscConverterStationModification.getVoltageRegulationOn(), "VoltageRegulationOn"));
         }
 
         if (vscConverterStationModification.getVoltageSetpoint() != null) {
-            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(converterStation::setVoltageSetpoint,
-                converterStation::getVoltageSetpoint, vscConverterStationModification.getVoltageSetpoint(), "Voltage"));
+            setPointsReports.add(ModificationUtils.getInstance().applyAndBuildModificationReport(v -> ModificationUtils.setRegulatingTargetV(converterStation, v),
+                converterStation::getRegulatingTargetV, vscConverterStationModification.getVoltageSetpoint(), "Voltage"));
         }
         if (!setPointsReports.isEmpty()) {
             ModificationUtils.getInstance().reportModifications(converterStationReportNode,
